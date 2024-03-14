@@ -44,4 +44,9 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="API\Models\" />
+    <Folder Include="API\Handlers\" />
+  </ItemGroup>
+
 </Project>

@@ -34,7 +34,7 @@
         <Button x:Name="bt_window_maximize" fa:Awesome.Content="WindowMaximize" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" HorizontalAlignment="Right" Margin="0,0,20,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Click="WindowMaximize_Click" Style="{StaticResource WindowButton}"/>
 
         <!-- OFFLINE CONTAINER -->
-        <Border x:Name="auth_offline_border" IsEnabled="False" Visibility="Hidden" Height="190" Width="300" Background="#FF353743" CornerRadius="4,4,4,4" Grid.Row="1" Grid.Column="1">
+        <Border x:Name="auth_offline_border" IsEnabled="True" Visibility="Visible" Height="190" Width="300" Background="#FF353743" CornerRadius="4,4,4,4" Grid.Row="1" Grid.Column="1">
             <Grid ClipToBounds="True">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -44,25 +44,28 @@
                 </Grid.RowDefinitions>
                 <!-- USERNAME BOX -->
                 <Border x:Name="bo_auth_offline_username" BorderBrush="#33000000" BorderThickness="1" CornerRadius="3,3,3,3" Height="30" Width="200" Background="#33000000" Canvas.Left="36" Canvas.Top="54" Margin="0,0,0,30">
-                    <TextBox x:Name="tb_auth_offline_username" Canvas.Left="77" TextWrapping="Wrap" Text="Username" Canvas.Top="70" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontSize="11" MaxLines="1" MaxLength="16" SelectionOpacity="0" AutomationProperties.Name="Username" VerticalContentAlignment="Center" AllowDrop="False" ToolTip="The provided value will be visible for other players." ClipToBounds="True"/>
+                    <Grid ClipToBounds="True">
+                        <Label x:Name="lab_auth_offline_username"  Content="Username" FontStyle="Italic" Foreground="#7FFFFFFF" VerticalContentAlignment="Center" IsHitTestVisible="False" ClipToBounds="True"/>
+                        <TextBox x:Name="tb_auth_offline_username" Canvas.Left="0" TextWrapping="Wrap" Canvas.Top="0" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontSize="11" MaxLines="1" MaxLength="16" SelectionOpacity="0" AutomationProperties.Name="Username" VerticalContentAlignment="Center" AllowDrop="False" ToolTip="The provided value will be visible for other players as your name." ClipToBounds="True" Height="28" Width="198" GotFocus="OfflineUsername_GotFocus" LostFocus="OfflineUsername_LostFocus"/>
+                    </Grid>
                 </Border>
                 <!-- LOGIN BUTTON -->
                 <Border x:Name="bo_auth_offline_login" BorderBrush="#FF5D6F95" BorderThickness="1" CornerRadius="3,3,3,3" Canvas.Left="66" Canvas.Top="91" Width="140" Height="30" Background="#FF5D6F95" Margin="0,60,0,0">
-                    <Button x:Name="btn_auth_offline_login" Style="{StaticResource BaseButton}" Content="PLAY OFFLINE" BorderThickness="2" Foreground="White" Canvas.Left="78" Canvas.Top="128" ClipToBounds="True" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+                    <Button x:Name="btn_auth_offline_login" Style="{StaticResource BaseButton}" Content="PLAY OFFLINE" BorderThickness="2" Foreground="White" Canvas.Left="78" Canvas.Top="128" ClipToBounds="True" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Click="OfflineLogin_Click"/>
                 </Border>
                 <!-- SWITCH BUTTON -->
                 <Border x:Name="bo_auth_offline_switch" BorderBrush="#19000000" CornerRadius="3,3,3,3" Canvas.Left="10" Canvas.Top="131" Width="115.7" Height="24.9" Background="#19000000" Margin="0,140,150,0">
-                    <Button x:Name="btn_auth_offline_switch" Style="{StaticResource BaseButton}" Content="Switch to online mode" Canvas.Left="85" Canvas.Top="165" Foreground="White" BorderThickness="2,2,2,2" FontSize="8" ClipToBounds="True" Click="btn_auth_online_switch_Click"/>
+                    <Button x:Name="btn_auth_offline_switch" Style="{StaticResource BaseButton}" Content="Switch to online mode" Canvas.Left="85" Canvas.Top="165" Foreground="White" BorderThickness="2,2,2,2" FontSize="8" ClipToBounds="True" Click="OfflineSwitch_Click"/>
                 </Border>
                 <!-- BUY BUTTON -->
                 <Border x:Name="bo_auth_offline_buy" BorderBrush="#19000000" CornerRadius="3,3,3,3" Canvas.Left="153" Canvas.Top="131" Width="115.7" Height="24.9" Background="#19000000" ClipToBounds="True" Margin="150,140,0,0">
-                    <Button x:Name="btn_auth_offline_buy" Style="{StaticResource BaseButton}" Content="Buy minecraft" Canvas.Left="85" Canvas.Top="165" Foreground="#FFB6C3DF" BorderThickness="2,2,2,2" FontSize="8" Click="bt_auth_offline_buy_Click" ClipToBounds="True"/>
+                    <Button x:Name="btn_auth_offline_buy" Style="{StaticResource BaseButton}" Content="Buy minecraft" Canvas.Left="85" Canvas.Top="165" Foreground="#FFB6C3DF" BorderThickness="2,2,2,2" FontSize="8" Click="OfflineBuy_Click" ClipToBounds="True"/>
                 </Border>
             </Grid>
         </Border>
         
         <!-- ONLINE CONTAINER -->
-        <Border x:Name="auth_online_border" IsEnabled="True" Visibility="Visible" Height="160" Width="300" Background="#FF353743" CornerRadius="4,4,4,4" Grid.Row="1" Grid.Column="1">
+        <Border x:Name="auth_online_border" IsEnabled="False" Visibility="Hidden" Height="160" Width="300" Background="#FF353743" CornerRadius="4,4,4,4" Grid.Row="1" Grid.Column="1">
             <Grid ClipToBounds="True">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -76,19 +79,19 @@
                 </Border>
                 <!-- SWITCH BUTTON -->
                 <Border x:Name="bo_auth_online_switch" BorderBrush="#19000000" CornerRadius="3,3,3,3" Canvas.Left="10" Canvas.Top="131" Width="115.7" Height="24.9" Background="#19000000" Margin="0,108,150,0">
-                    <Button x:Name="btn_auth_online_switch" Style="{StaticResource BaseButton}" Content="Switch to offline mode" Canvas.Left="85" Canvas.Top="165" Foreground="White" BorderThickness="2,2,2,2" FontSize="8" ClipToBounds="True" Click="btn_auth_online_switch_Click"/>
+                    <Button x:Name="btn_auth_online_switch" Style="{StaticResource BaseButton}" Content="Switch to offline mode" Canvas.Left="85" Canvas.Top="165" Foreground="White" BorderThickness="2,2,2,2" FontSize="8" ClipToBounds="True" Click="OnlineSwitch_Click"/>
                 </Border>
                 <!-- BUY BUTTON -->
                 <Border x:Name="bo_auth_online_buy" BorderBrush="#19000000" CornerRadius="3,3,3,3" Canvas.Left="153" Canvas.Top="131" Width="115.7" Height="24.9" Background="#19000000" ClipToBounds="True" Margin="150,110,0,0">
-                    <Button x:Name="btn_auth_online_buy" Style="{StaticResource BaseButton}" Content="Buy minecraft" Canvas.Left="85" Canvas.Top="165" Foreground="#FFB6C3DF" BorderThickness="2,2,2,2" FontSize="8" Click="bt_auth_offline_buy_Click" ClipToBounds="True"/>
+                    <Button x:Name="btn_auth_online_buy" Style="{StaticResource BaseButton}" Content="Buy minecraft" Canvas.Left="85" Canvas.Top="165" Foreground="#FFB6C3DF" BorderThickness="2,2,2,2" FontSize="8" Click="OfflineBuy_Click" ClipToBounds="True"/>
                 </Border>
             </Grid>
         </Border>
 
         <!-- OFFLINE LOGO -->
-        <Image x:Name="img_offline_logo" IsEnabled="False" Visibility="Hidden" Width="258" Source="/Assets/Images/konkord_logo.png" Height="85.8" Margin="0,0,0,175"/>
+        <Image x:Name="img_offline_logo" IsEnabled="True" Visibility="Visible" Width="258" Source="/Assets/Images/konkord_logo.png" Height="85.8" Margin="0,0,0,175"/>
 
         <!-- ONLINE LOGO -->
-        <Image x:Name="img_online_logo" IsEnabled="True" Visibility="Visible" Width="258" Source="/Assets/Images/konkord_logo.png" Height="85.8" Margin="271,107,271,257"/>
+        <Image x:Name="img_online_logo" IsEnabled="False" Visibility="Hidden" Width="258" Source="/Assets/Images/konkord_logo.png" Height="85.8" Margin="271,107,271,257"/>
     </Grid>
 </Window>

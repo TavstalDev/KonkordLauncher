@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="assets\icons\grass.ico" />
+    <None Remove="assets\images\background.png" />
+    <None Remove="assets\images\icon.png" />
+    <None Remove="assets\images\konkord_logo.png" />
+    <None Remove="assets\images\minceraft.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="assets\icons\workbench.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FontAwesome.WPF" Version="4.7.0.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="assets\images\background.png" />
+    <Resource Include="assets\images\konkord_logo.png" />
+    <Resource Include="assets\images\minceraft.png" />
+    <Resource Include="assets\images\workbench.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </Resource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="assets\images\workbench.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>

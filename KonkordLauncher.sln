@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34622.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KonkordLauncher", "KonkordLauncher\KonkordLauncher.csproj", "{BC0CE3F2-EC23-4DC5-B132-145F917EFCB6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BC0CE3F2-EC23-4DC5-B132-145F917EFCB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC0CE3F2-EC23-4DC5-B132-145F917EFCB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC0CE3F2-EC23-4DC5-B132-145F917EFCB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC0CE3F2-EC23-4DC5-B132-145F917EFCB6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BC2A11F4-DDC3-44CD-88BF-B8964186F9D0}
+	EndGlobalSection
+EndGlobal

@@ -1,4 +1,4 @@
-﻿using KonkordLauncher.API.Helpers;
+using KonkordLauncher.API.Helpers;
 using KonkordLauncher.API.Models;
 using System.Diagnostics;
 using System.IO;
@@ -16,7 +16,7 @@ namespace KonkordLauncher.API.Managers
         private static readonly string _redirectAuthenticateUrl = Path.Combine(_listeningUrl, "authenticate");
         private static readonly string _redirectTokenUrl = Path.Combine(_listeningUrl, "token");
         private static readonly string _clientId = "c541ac9d-9c42-4ac4-8998-9d1fc5cb8afb";
-        private static readonly string _clientSecret = "c541ac9d-9c42-4ac4-8998-9d1fc5cb8afb";
+        private static readonly string _clientSecret = "";
         private static readonly string _microsoftAuthorizeUrl = $"https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?client_id={_clientId}&response_type=code&redirect_uri={Uri.EscapeDataString(_redirectAuthenticateUrl)}&response_mode=query&scope=XboxLive.signin+offline_access&prompt=select_account";
         public static string MicrosoftAuthorizeUrl {  get { return _microsoftAuthorizeUrl; } }
         private static readonly string _microsoftTokenUrl = $"https://login.microsoftonline.com/consumers/oauth2/v2.0/token?client_id={_clientId}&grant_type=authorization_code&redirect_uri={Uri.EscapeDataString(_redirectTokenUrl)}&scope=XboxLive.signin+offline_access&prompt=select_account";

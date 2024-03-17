@@ -1,16 +1,10 @@
-﻿using FontAwesome.WPF;
-using System.Diagnostics;
-using System.Security.Policy;
-using System.Text;
+﻿using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using KonkordLauncher.API.Helpers;
+using KonkordLauncher.API.Managers;
+using KonkordLauncher.API.Models;
 
 namespace KonkordLauncher
 {
@@ -34,6 +28,14 @@ namespace KonkordLauncher
             // Get the multiplier how much should the window's content to be resized.
             double heightMultiplier = Height / oldHeight; 
             double widthMultiplier = Width / oldWidth;
+
+            Resize(bo_title_row, heightMultiplier, widthMultiplier);
+            Resize(img_window_icon, heightMultiplier, widthMultiplier);
+            ResizeFont(l_WindowName, heightMultiplier, widthMultiplier);
+            ResizeFont(bt_window_close, heightMultiplier, widthMultiplier);
+            ResizeFont(bt_window_minimize, heightMultiplier, widthMultiplier);
+            ResizeFont(bt_window_normal, heightMultiplier, widthMultiplier);
+            ResizeFont(bt_window_maximize, heightMultiplier, widthMultiplier);
 
             Resize(auth_offline_border, heightMultiplier, widthMultiplier);
             Resize(img_offline_logo, heightMultiplier, widthMultiplier);
@@ -101,6 +103,7 @@ namespace KonkordLauncher
         #endregion
 
         #region Events
+        #region Window Events
         /// <summary>
         /// Event handler for closing the window when a specific button is clicked.
         /// </summary>
@@ -148,6 +151,7 @@ namespace KonkordLauncher
             bt_window_normal.Visibility = Visibility.Visible;
             bt_window_maximize.Visibility = Visibility.Hidden;
         }
+        #endregion
 
         /// <summary>
         /// Event handler for performing a buy action when the offline buy button is clicked.
@@ -209,15 +213,45 @@ namespace KonkordLauncher
         /// </summary>
         /// <param name="sender">The object that raised the event.</param>
         /// <param name="e">The event arguments.</param>
-        private void OfflineLogin_Click(object sender, RoutedEventArgs e)
+        private async void OfflineLogin_Click(object sender, RoutedEventArgs e)
         {
             string username = tb_auth_offline_username.Text;
 
             if (string.IsNullOrEmpty(username))
             {
-                MessageBox.Show("You must provide ", "Error", MessageBoxButton.OK);
+                NotificationHelper.SendError("You must provide a valid username.", "Error");
                 return;
             }
+
+            if (username.Length > 16)
+            {
+                NotificationHelper.SendError("Your username must be equal or shorter than 16 characters.", "Error");
+                return;
+            }
+
+            Guid guid = Guid.NewGuid();
+            string accountsPath = Path.Combine(IOHelper.MainDirectory, "accounts.json");
+            AccountData? accountData = await JsonHelper.ReadJsonFile<AccountData>(accountsPath);
+            if (accountData == null)
+            {
+                NotificationHelper.SendError("Failed to get the accounts.json file.", "Error");
+                return;
+            }
+
+            accountData.Accounts.Add(guid.ToString(), new Account()
+            {
+                AccessToken = string.Empty,
+                RefreshToken = string.Empty,
+                DisplayName = username,
+                Type = API.Enums.EAccountType.OFFLINE,
+                UserId = guid.ToString(),
+                UUID = guid.ToString()
+            });
+            accountData.SelectedAccountId = guid.ToString();
+            await JsonHelper.WriteJsonFile(accountsPath, accountData);
+            LaunchWindow window = new LaunchWindow();
+            window.Show();
+            this.Close();
         }
 
         /// <summary>
@@ -241,5 +275,16 @@ namespace KonkordLauncher
                 lab_auth_offline_username.Visibility = Visibility.Visible;
         }
         #endregion
+
+        private void OnlineLogin_Click(object sender, RoutedEventArgs e)
+        {
+            var psi = new ProcessStartInfo
+            {
+                FileName = AuthenticationManager.MicrosoftAuthorizeUrl,
+                UseShellExecute = true
+            };
+            Process.Start(psi);
+            AuthenticationManager.StartListening();
+        }
     }
 }

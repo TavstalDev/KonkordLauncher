@@ -3,6 +3,7 @@ using KonkordLauncher.API.Models;
 using KonkordLauncher.API.Models.Minecraft;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
@@ -41,8 +42,8 @@ namespace KonkordLauncher
 
             double oldHeight = Height;
             double oldWidth = Width;
-            Height = nHeight * 0.65; // 0.55 means 55% of the screen's height
-            Width = nWidth * 0.65; // 0.55 means 55% of the screen's width
+            Height = nHeight * 0.6; // 0.55 means 55% of the screen's height
+            Width = nWidth * 0.6; // 0.55 means 55% of the screen's width
 
             // Get the multiplier how much should the window's content to be resized.
             _heightMultiplier = Height / oldHeight;
@@ -62,11 +63,15 @@ namespace KonkordLauncher
             WindowHelper.ResizeFont(la_account_name, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(la_account_type, _heightMultiplier, _widthMultiplier);
 
-            WindowHelper.Resize(bo_launcher_lang, _heightMultiplier, _widthMultiplier);
-            WindowHelper.ResizeFont(btn_launcher_lang, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(bo_language, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_language, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_language_icon, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(btn_language, _heightMultiplier, _widthMultiplier);
 
-            WindowHelper.Resize(bo_launcher_new, _heightMultiplier, _widthMultiplier);
-            WindowHelper.ResizeFont(btn_launcher_new, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(bo_new_instance, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_new_instance, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_new_instance_icon, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(btn_new_instance, _heightMultiplier, _widthMultiplier);
 
             WindowHelper.Resize(listbox, _heightMultiplier, _widthMultiplier);
 
@@ -81,6 +86,8 @@ namespace KonkordLauncher
 
             WindowHelper.Resize(ref listbox, ListBorderHeight, ListBorderWidth, ListBorderMargin, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(ref listbox, ListLabelFontSize, ListLabelHeight, ListLabelWidth, ListLabelMargin, _heightMultiplier, _widthMultiplier);
+
+            WindowHelper.Resize(bo_instances, _heightMultiplier, _widthMultiplier);
 
             RefreshInstances();
         }
@@ -169,18 +176,19 @@ namespace KonkordLauncher
 
             var profiles = settings.Profiles;
             DataContext = profiles.Values.ToList();
-
+            if (profiles.Count <= 2)
+                listbox.Resources["Alternation"] = profiles.Count;
+            else
+                listbox.Resources["Alternation"] = 2;
   
             if (profiles.TryGetValue(settings.SelectedProfile, out Profile selectedProfile))
-            {
                 SelectedProfile = selectedProfile;
-                lab_selected_profile.Content = SelectedProfile.Name.ToLower();
-            }
             else
-            {
                 SelectedProfile = settings.Profiles.Values.ToList().ElementAt(0);
-                lab_selected_profile.Content = SelectedProfile.Name.ToLower();
-            }
+
+            listbox.SelectedIndex = profiles.Values.ToList().IndexOf(SelectedProfile);
+            listbox.ScrollIntoView(listbox.SelectedItem);
+            lab_selected_profile.Content = SelectedProfile.Name.ToLower();
 
         }
         #endregion
@@ -263,36 +271,56 @@ namespace KonkordLauncher
         }
         #endregion
 
-        #region Logout Button
-        private async void LaunchLang_Click(object sender, RoutedEventArgs e)
+        #region New Instance Button
+        private async void NewInstance_Click(object sender, RoutedEventArgs e)
+        {
+            bo_instances.IsEnabled = true;
+            bo_instances.Visibility = Visibility.Visible;
+        }
+
+        private void NewInstance_MouseEnter(object sender, MouseEventArgs e)
+        {
+            bo_new_instance.Background = new SolidColorBrush(Color.FromScRgb(0.15f, 0, 0, 0));
+            bo_new_instance.BorderBrush = new SolidColorBrush(Color.FromScRgb(0.15f, 0, 0, 0));
+        }
+
+        private void NewInstance_MouseLeave(object sender, MouseEventArgs e)
+        {
+            bo_new_instance.Background = new SolidColorBrush(Color.FromScRgb(0f, 0, 0, 0));
+            bo_new_instance.BorderBrush = new SolidColorBrush(Color.FromScRgb(0f, 0, 0, 0));
+        }
+        #endregion
+
+        #region Language Button
+        private async void Language_Click(object sender, RoutedEventArgs e)
         {
             
         }
 
-        private void LaunchLang_MouseEnter(object sender, MouseEventArgs e)
+        private void Language_MouseEnter(object sender, MouseEventArgs e)
         {
-            bo_launcher_lang.Background = new SolidColorBrush(Color.FromScRgb(0.15f, 0, 0, 0));
-            bo_launcher_lang.BorderBrush = new SolidColorBrush(Color.FromScRgb(0.15f, 0, 0, 0));
+            bo_language.Background = new SolidColorBrush(Color.FromScRgb(0.15f, 0, 0, 0));
+            bo_language.BorderBrush = new SolidColorBrush(Color.FromScRgb(0.15f, 0, 0, 0));
         }
 
-        private void LaunchLang_MouseLeave(object sender, MouseEventArgs e)
+        private void Language_MouseLeave(object sender, MouseEventArgs e)
         {
-            bo_launcher_lang.Background = new SolidColorBrush(Color.FromScRgb(0f, 0, 0, 0));
-            bo_launcher_lang.BorderBrush = new SolidColorBrush(Color.FromScRgb(0f, 0, 0, 0));
+            bo_language.Background = new SolidColorBrush(Color.FromScRgb(0f, 0, 0, 0));
+            bo_language.BorderBrush = new SolidColorBrush(Color.FromScRgb(0f, 0, 0, 0));
         }
         #endregion
 
         #region Launcher New Instance
         private void LauncherNew_MouseEnter(object sender, MouseEventArgs e)
         {
-            bo_launcher_new.Background = new SolidColorBrush(Color.FromScRgb(0.15f, 0, 0, 0));
-            bo_launcher_new.BorderBrush = new SolidColorBrush(Color.FromScRgb(0.15f, 0, 0, 0));
+            //bo_launcher_new.Background = new SolidColorBrush(Color.FromScRgb(0.15f, 0, 0, 0));
+            //bo_launcher_new.BorderBrush = new SolidColorBrush(Color.FromScRgb(0.15f, 0, 0, 0));
         }
 
         private void LauncherNew_MouseLeave(object sender, MouseEventArgs e)
         {
-            bo_launcher_new.Background = new SolidColorBrush(Color.FromScRgb(0f, 0, 0, 0));
-            bo_launcher_new.BorderBrush = new SolidColorBrush(Color.FromScRgb(0f, 0, 0, 0));
+            //bo_launcher_new.Background = new SolidColorBrush(Color.FromScRgb(0f, 0, 0, 0));
+            //bo_launcher_new.BorderBrush = new SolidColorBrush(Color.FromScRgb(0f, 0, 0, 0));
         }
 
         #endregion
@@ -413,6 +441,10 @@ namespace KonkordLauncher
                             return;
                         }
 
+                        string librarySizeCacheDir = Path.Combine(IOHelper.CacheDir, "libsizes");
+                        if (!Directory.Exists(librarySizeCacheDir))
+                            Directory.CreateDirectory(librarySizeCacheDir);
+                        string librarySizeCachePath = Path.Combine(librarySizeCacheDir, $"{version}.json");
                         // Check the version json file
                         if (!File.Exists(versionJsonPath))
                         {
@@ -431,6 +463,7 @@ namespace KonkordLauncher
                                     localLibrarySize += int.Parse(jToken["downloads"]["artifact"]["size"].ToString());
                                 }
                                 localObj.Add("librarySize", localLibrarySize);
+                                await File.WriteAllTextAsync(librarySizeCachePath, localLibrarySize.ToString());
                                 await File.WriteAllTextAsync(versionJsonPath, localObj.ToString(Formatting.None));
                             }
                         }
@@ -507,7 +540,7 @@ namespace KonkordLauncher
                         // Check the libraries
                         using (var client = new HttpClient())
                         {
-                            int libraryTotalSize = int.Parse(obj["librarySize"].ToString(Formatting.None));
+                            int libraryTotalSize = int.Parse(await File.ReadAllTextAsync(librarySizeCachePath));
                             double libraryDownloadedSize = 0;
                             foreach (var jToken in jArray)
                             {
@@ -586,7 +619,7 @@ namespace KonkordLauncher
             argumnets.Add("net.minecraft.client.main.Main");
             argumnets.Add($"--username {account.DisplayName}");
             argumnets.Add($"--version {version}");
-            argumnets.Add($"--gameDir {selectedProfile.GameDirectory}");
+            argumnets.Add($"--gameDir {gameDir}");
             // Directory of the assets
             argumnets.Add($"--assetsDir {IOHelper.AssetsDir}");
             // Asset Index
@@ -670,11 +703,16 @@ namespace KonkordLauncher
             //await p.WaitForExitAsync();
         }
 
-        private void listbox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void listbox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Profile? selectedProfile = listbox.SelectedItem as Profile;
-            if (selectedProfile != null)
-                lab_selected_profile.Content = selectedProfile.Name.ToLower();
+            LauncherSettings? settings = IOHelper.GetLauncherSettings();
+            if (settings != null)
+            {
+                var p = settings.Profiles.ElementAt(listbox.SelectedIndex);
+                lab_selected_profile.Content = p.Value.Name.ToLower();
+                settings.SelectedProfile = p.Key;
+                await JsonHelper.WriteJsonFile(Path.Combine(IOHelper.MainDirectory, "launcher.json"), settings);
+            }
         }
     }
 }

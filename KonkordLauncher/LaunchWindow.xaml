@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:fa="http://schemas.fontawesome.io/icons/"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:sysw="clr-namespace:System.Windows;assembly=PresentationFramework"
         xmlns:local="clr-namespace:KonkordLauncher"
         mc:Ignorable="d"
         Title="LaunchWindow" Height="450" Width="800" WindowStyle="None" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Icon="/Assets/Images/workbench.png">
@@ -45,18 +46,20 @@
         <!-- Left Menu -->
         <Border x:Name="bo_leftmenu" Background="#FF353743" BorderBrush="#FF353743" BorderThickness="1" Width="180" Height="425" VerticalAlignment="Bottom" ClipToBounds="True" HorizontalAlignment="Left">
             <Grid>
-                <Grid x:Name="gr_account" VerticalAlignment="Top" Height="44" Margin="0,5,0,0">
+                <Grid x:Name="gr_account" VerticalAlignment="Top" Height="44" Margin="5,5,5,0">
                     <Image x:Name="img_account" HorizontalAlignment="Left" Height="35" Width="35" Margin="6,0,0,0" VerticalAlignment="Center" Source="/assets/images/steve_head.png" Stretch="Fill"/>
-                    <Label x:Name="la_account_name" Content="Steve" HorizontalAlignment="Left" Margin="44,0,0,15" VerticalAlignment="Center" Width="110" Height="17" Foreground="White" Padding="5,0,0,0" VerticalContentAlignment="Bottom" FontSize="14"/>
-                    <Label x:Name="la_account_type" Content="Offline Account" HorizontalAlignment="Left" Margin="44,15,0,0" VerticalAlignment="Center" Width="110" Height="13" Foreground="#7FFFFFFF" Padding="6,0,0,0" FontSize="10"/>
-                    <Button x:Name="btn_launch_logout" Style="{StaticResource BaseButton}" Content="" HorizontalAlignment="Right" VerticalAlignment="Center" Width="15" fa:Awesome.Content="ArrowRight" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" BorderBrush="{x:Null}" Background="{x:Null}" Foreground="#FFD84949" FontSize="10" Padding="0,0,0,0" ToolTip="Logout" Margin="0,0,5,0" Click="LaunchLogout_Click"/>
+                    <Label x:Name="la_account_name" Content="Steve" HorizontalAlignment="Left" Margin="44,6,0,0" VerticalAlignment="Top" Width="114" Height="17" Foreground="White" Padding="5,0,0,0" VerticalContentAlignment="Bottom" FontSize="14"/>
+                    <Label x:Name="la_account_type" Content="Offline Account" HorizontalAlignment="Left" Margin="44,23,0,0" VerticalAlignment="Top" Width="114" Height="13" Foreground="#7FFFFFFF" Padding="6,0,0,0" FontSize="10"/>
                 </Grid>
-                <Border x:Name="bo_launcher_settings" CornerRadius="4,4,4,4" Background="#00B75555" Margin="5,50,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Height="21" Width="147">
+                <Border x:Name="bo_launcher_logout" CornerRadius="4,4,4,4" Background="#00B75555" Margin="5,50,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Height="21" Width="120">
                     <Grid>
-                        <Label x:Name="lab_launcher_settings_icon" Content="Label" HorizontalAlignment="Left" VerticalAlignment="Center" Height="19" fa:Awesome.Content="Gear" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" Foreground="#BFFFFFFF" Background="Transparent" Padding="0,0,0,0" VerticalContentAlignment="Center" Width="20" HorizontalContentAlignment="Center"/>
-                        <Label x:Name="lab_launcher_settings" Content="Launcher Settings" HorizontalAlignment="Left" Margin="20,0,0,0" VerticalAlignment="Center" Foreground="#BFFFFFFF" FontSize="10" Width="131" Padding="0,0,0,0" Height="19" VerticalContentAlignment="Center"/>
-                        <Button x:Name="btn_launcher_settings" Style="{StaticResource BaseButton}" BorderBrush="{x:Null}" Background="#02000000" Foreground="{x:Null}" Click="LauncherSettings_Click" MouseEnter="LauncherSettings_MouseEnter" MouseLeave="LauncherSettings_MouseLeave"/>
+                        <Label x:Name="lab_launcher_logout_icon" Content="Label" HorizontalAlignment="Left" VerticalAlignment="Center" Height="19" fa:Awesome.Content="ArrowRight" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" Foreground="#BFFFFFFF" Background="Transparent" Padding="0,0,0,0" VerticalContentAlignment="Center" Width="20" HorizontalContentAlignment="Center"/>
+                        <Label x:Name="lab_launcher_logout" Content="Logout" HorizontalAlignment="Left" Margin="20,0,0,0" VerticalAlignment="Center" Foreground="#BFFFFFFF" FontSize="10" Width="131" Padding="0,0,0,0" Height="19" VerticalContentAlignment="Center"/>
+                        <Button x:Name="btn_launcher_logout" Style="{StaticResource BaseButton}" BorderBrush="{x:Null}" Background="#02000000" Foreground="{x:Null}" Click="LaunchLogout_Click" MouseEnter="LaunchLogout_MouseEnter" MouseLeave="LaunchLogout_MouseLeave"/>
                     </Grid>
+                </Border>
+                <Border x:Name="bo_launcher_lang" Width="19" Height="21" Margin="0,50,24,0" CornerRadius="4,4,4,4" VerticalAlignment="Top" HorizontalAlignment="Right">
+                    <Button x:Name="btn_launcher_lang" Content="Button" Style="{StaticResource WindowButton}" fa:Awesome.Content="Flag" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" Height="20" Width="20" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="#BFFFFFFF" MinHeight="2" FontSize="12" Click="LaunchLang_Click" MouseEnter="LaunchLang_MouseEnter" MouseLeave="LaunchLang_MouseLeave"/>
                 </Border>
                 <Border x:Name="bo_launcher_new" Width="19" Height="21" Margin="0,50,5,0" CornerRadius="4,4,4,4" VerticalAlignment="Top" HorizontalAlignment="Right">
                     <Button x:Name="btn_launcher_new" Content="Button" Style="{StaticResource WindowButton}" fa:Awesome.Content="Plus" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" Height="20" Width="20" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="#BFFFFFFF" MinHeight="2" FontSize="12" MouseEnter="LauncherNew_MouseEnter" MouseLeave="LauncherNew_MouseLeave"/>
@@ -64,15 +67,24 @@
 
                 <ListBox x:Name="listbox" ItemsSource="{Binding}" SelectionChanged="listbox_SelectionChanged"
                  SelectedItem="{Binding SelectedProfile, RelativeSource={RelativeSource AncestorType=Window}}" Margin="0,75,0,55" Background="{x:Null}" BorderBrush="{x:Null}" Grid.IsSharedSizeScope="True" ScrollViewer.HorizontalScrollBarVisibility="Hidden">
+                    <ListBox.Resources>
+                        <sys:Double x:Key="ListLabelFontSize">10</sys:Double>
+                        <sys:Double x:Key="ListLabelHeight">19</sys:Double>
+                        <sys:Double x:Key="ListLabelWidth">131</sys:Double>
+                        <sysw:Thickness x:Key="ListLabelMargin"/>
+                        <sys:Double x:Key="ListBorderHeight">24</sys:Double>
+                        <sys:Double x:Key="ListBorderWidth">24</sys:Double>
+                        <sysw:Thickness x:Key="ListBorderMargin"/>
+                    </ListBox.Resources>
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <DockPanel Margin="2">
-                                <Border DockPanel.Dock="Left" Width="24" Height="24" ClipToBounds="True" HorizontalAlignment="Left" VerticalAlignment="Center"  >
+                                <Border x:Name="bo_listTemplate" DockPanel.Dock="Left" Width="{DynamicResource ListBorderWidth}" Height="{DynamicResource ListBorderHeight}" Margin="{DynamicResource ListBorderMargin}" ClipToBounds="True" HorizontalAlignment="Left" VerticalAlignment="Center"  >
                                     <Border.Background>
                                         <ImageBrush ImageSource="{Binding Icon}"/>
                                     </Border.Background>
                                 </Border>
-                                <Label Content="{Binding Name}" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Foreground="#BFFFFFFF" FontSize="10" Width="131" Height="19" Padding="0,0,0,0" VerticalContentAlignment="Center"/>
+                                <Label x:Name="lab_listTemplate" Content="{Binding Name}" HorizontalAlignment="Left" Margin="{DynamicResource ListLabelMargin}" VerticalAlignment="Center" Foreground="#BFFFFFFF" FontSize="{DynamicResource ListLabelFontSize}" Width="{DynamicResource ListLabelWidth}" Height="{DynamicResource ListLabelHeight}" Padding="0,0,0,0" VerticalContentAlignment="Center"/>
                             </DockPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
@@ -88,6 +100,9 @@
             </Grid>
         </Border>
 
+        <!-- Instances Menu -->
+        <Border x:Name="bo_instances" IsEnabled="False" Visibility="Hidden" Margin="0,25,0,0" Background="#FF353743" BorderBrush="#FF353743">
 
+        </Border>
     </Grid>
 </Window>

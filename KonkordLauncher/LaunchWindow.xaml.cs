@@ -20,6 +20,16 @@ namespace KonkordLauncher
     public partial class LaunchWindow : Window
     {
         public Profile SelectedProfile { get; set; }
+        private readonly double _heightMultiplier;
+        private readonly double _widthMultiplier;
+        // CHANGE THESE IF THE LISTBOX TEMPLATE SIZES CHANGE
+        public double ListLabelFontSize { get; set; } = 10;
+        public double ListLabelHeight { get; set; } = 19;
+        public double ListLabelWidth { get; set; } = 131;
+        public Thickness ListLabelMargin { get; set; } = new Thickness(5,0,0,0);
+        public double ListBorderHeight { get; set; } = 24;
+        public double ListBorderWidth { get; set; } = 24;
+        public Thickness ListBorderMargin { get; set; } = new Thickness(0,0,0,0);
 
         public LaunchWindow()
         {
@@ -35,52 +45,50 @@ namespace KonkordLauncher
             Width = nWidth * 0.55; // 0.55 means 55% of the screen's width
 
             // Get the multiplier how much should the window's content to be resized.
-            double heightMultiplier = Height / oldHeight;
-            double widthMultiplier = Width / oldWidth;
+            _heightMultiplier = Height / oldHeight;
+            _widthMultiplier = Width / oldWidth;
 
-            Resize(bo_title_row, heightMultiplier, widthMultiplier);
-            Resize(img_window_icon, heightMultiplier, widthMultiplier);
-            ResizeFont(l_WindowName, heightMultiplier, widthMultiplier);
-            ResizeFont(bt_window_close, heightMultiplier, widthMultiplier);
-            ResizeFont(bt_window_minimize, heightMultiplier, widthMultiplier);
-            ResizeFont(bt_window_normal, heightMultiplier, widthMultiplier);
-            ResizeFont(bt_window_maximize, heightMultiplier, widthMultiplier);
+            WindowHelper.Resize(bo_title_row, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(img_window_icon, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(l_WindowName, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(bt_window_close, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(bt_window_minimize, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(bt_window_normal, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(bt_window_maximize, _heightMultiplier, _widthMultiplier);
 
-            Resize(bo_leftmenu, heightMultiplier, widthMultiplier);
-            Resize(gr_account, heightMultiplier, widthMultiplier);
-            Resize(img_account, heightMultiplier, widthMultiplier);
-            ResizeFont(la_account_name, heightMultiplier, widthMultiplier);
-            ResizeFont(la_account_type, heightMultiplier, widthMultiplier);
-            ResizeFont(btn_launch_logout, heightMultiplier, widthMultiplier);
+            WindowHelper.Resize(bo_leftmenu, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(gr_account, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(img_account, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(la_account_name, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(la_account_type, _heightMultiplier, _widthMultiplier);
 
-            Resize(bo_launcher_settings, heightMultiplier, widthMultiplier);
-            ResizeFont(lab_launcher_settings_icon, heightMultiplier, widthMultiplier);
-            ResizeFont(lab_launcher_settings, heightMultiplier, widthMultiplier);
-            ResizeFont(btn_launcher_settings, heightMultiplier, widthMultiplier);
+            WindowHelper.Resize(bo_launcher_logout, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_launcher_logout_icon, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_launcher_logout, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(btn_launcher_logout, _heightMultiplier, _widthMultiplier);
 
-            Resize(bo_launcher_new, heightMultiplier, widthMultiplier);
-            ResizeFont(btn_launcher_new, heightMultiplier, widthMultiplier);
+            WindowHelper.Resize(bo_launcher_lang, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(btn_launcher_lang, _heightMultiplier, _widthMultiplier);
 
-            Resize(listbox, heightMultiplier, widthMultiplier);
+            WindowHelper.Resize(bo_launcher_new, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(btn_launcher_new, _heightMultiplier, _widthMultiplier);
 
+            WindowHelper.Resize(listbox, _heightMultiplier, _widthMultiplier);
 
-            Resize(bo_launch_play, heightMultiplier, widthMultiplier);
-            ResizeFont(btn_launch_play, heightMultiplier, widthMultiplier);
-            ResizeFont(lab_launc_play, heightMultiplier, widthMultiplier);
-            ResizeFont(lab_selected_profile, heightMultiplier, widthMultiplier);
+            WindowHelper.Resize(bo_launch_play, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(btn_launch_play, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_launc_play, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_selected_profile, _heightMultiplier, _widthMultiplier);
 
-            Resize(bo_install, heightMultiplier, widthMultiplier);
-            Resize(bo_install_status, heightMultiplier, widthMultiplier);
-            ResizeFont(lab_install, heightMultiplier, widthMultiplier);
+            WindowHelper.Resize(bo_install, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(bo_install_status, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_install, _heightMultiplier, _widthMultiplier);
+
+            WindowHelper.Resize(ref listbox, ListBorderHeight, ListBorderWidth, ListBorderMargin, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(ref listbox, ListLabelFontSize, ListLabelHeight, ListLabelWidth, ListLabelMargin, _heightMultiplier, _widthMultiplier);
+            UpdateLayout();
 
             RefreshInstances();
-
-            /*DataContext = Enumerable.Range(1, 10)
-                                .Select(x => new Profile()
-                                {
-                                    Name = "Profile" + x.ToString(),
-                                    Icon = ProfileIcon.Icons[x].Path
-                                });*/
         }
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
@@ -89,45 +97,6 @@ namespace KonkordLauncher
         }
 
         #region Functions
-        /// <summary>
-        /// Resizes a FrameworkElement based on the provided height and width multipliers.
-        /// </summary>
-        /// <param name="element">The FrameworkElement to resize.</param>
-        /// <param name="heightMulti">The multiplier for the height.</param>
-        /// <param name="widthMulti">The multiplier for the width.</param>
-        private void Resize(FrameworkElement element, double heightMulti, double widthMulti)
-        {
-            element.Height = element.Height * heightMulti;
-            element.Width = element.Width * widthMulti;
-            element.Margin = new Thickness
-            {
-                Bottom = element.Margin.Bottom * heightMulti,
-                Left = element.Margin.Left * widthMulti,
-                Right = element.Margin.Right * widthMulti,
-                Top = element.Margin.Top * heightMulti,
-            };
-        }
-
-        /// <summary>
-        /// Resizes the font of a Control based on the provided height and width multipliers.
-        /// </summary>
-        /// <param name="element">The Control whose font to resize.</param>
-        /// <param name="heightMulti">The multiplier for the height.</param>
-        /// <param name="widthMulti">The multiplier for the width.</param>
-        private void ResizeFont(Control element, double heightMulti, double widthMulti)
-        {
-            element.Height = element.Height * heightMulti;
-            element.Width = element.Width * widthMulti;
-            element.Margin = new Thickness
-            {
-                Bottom = element.Margin.Bottom * heightMulti,
-                Left = element.Margin.Left * widthMulti,
-                Right = element.Margin.Right * widthMulti,
-                Top = element.Margin.Top * heightMulti,
-            };
-            element.FontSize = element.FontSize * widthMulti;
-        }
-
         private async Task RefreshAccount()
         {
             AccountData? accountData = await JsonHelper.ReadJsonFile<AccountData>(System.IO.Path.Combine(IOHelper.MainDirectory, "accounts.json"));
@@ -219,6 +188,7 @@ namespace KonkordLauncher
                 selectedProfile = settings.Profiles.Values.ToList().ElementAt(0);
                 lab_selected_profile.Content = selectedProfile.Name.ToLower();
             }
+
         }
         #endregion
 
@@ -272,23 +242,50 @@ namespace KonkordLauncher
         }
         #endregion
 
-        #region Settings Button
-        private void LauncherSettings_Click(object sender, RoutedEventArgs e)
+        #region Logout Button
+        private async void LaunchLogout_Click(object sender, RoutedEventArgs e)
         {
-            bo_launcher_settings.Background = new SolidColorBrush(Color.FromScRgb(0.25f, 0, 0, 0));
-            bo_launcher_settings.BorderBrush = new SolidColorBrush(Color.FromScRgb(0.25f, 0, 0, 0));
+            string path = System.IO.Path.Combine(IOHelper.MainDirectory, "accounts.json");
+            AccountData? accountData = await JsonHelper.ReadJsonFile<AccountData>(path);
+            if (accountData == null)
+                return;
+
+            accountData.SelectedAccountId = string.Empty;
+            await JsonHelper.WriteJsonFile(path, accountData);
+            AuthWindow window = new AuthWindow();
+            window.Show();
+            this.Close();
         }
 
-        private void LauncherSettings_MouseEnter(object sender, MouseEventArgs e)
+        private void LaunchLogout_MouseEnter(object sender, MouseEventArgs e)
         {
-            bo_launcher_settings.Background = new SolidColorBrush(Color.FromScRgb(0.15f, 0, 0, 0));
-            bo_launcher_settings.BorderBrush = new SolidColorBrush(Color.FromScRgb(0.15f, 0, 0, 0));
+            bo_launcher_logout.Background = new SolidColorBrush(Color.FromScRgb(0.15f, 0, 0, 0));
+            bo_launcher_logout.BorderBrush = new SolidColorBrush(Color.FromScRgb(0.15f, 0, 0, 0));
         }
 
-        private void LauncherSettings_MouseLeave(object sender, MouseEventArgs e)
+        private void LaunchLogout_MouseLeave(object sender, MouseEventArgs e)
         {
-            bo_launcher_settings.Background = new SolidColorBrush(Color.FromScRgb(0f, 0, 0, 0));
-            bo_launcher_settings.BorderBrush = new SolidColorBrush(Color.FromScRgb(0f, 0, 0, 0));
+            bo_launcher_logout.Background = new SolidColorBrush(Color.FromScRgb(0f, 0, 0, 0));
+            bo_launcher_logout.BorderBrush = new SolidColorBrush(Color.FromScRgb(0f, 0, 0, 0));
+        }
+        #endregion
+
+        #region Logout Button
+        private async void LaunchLang_Click(object sender, RoutedEventArgs e)
+        {
+            
+        }
+
+        private void LaunchLang_MouseEnter(object sender, MouseEventArgs e)
+        {
+            bo_launcher_lang.Background = new SolidColorBrush(Color.FromScRgb(0.15f, 0, 0, 0));
+            bo_launcher_lang.BorderBrush = new SolidColorBrush(Color.FromScRgb(0.15f, 0, 0, 0));
+        }
+
+        private void LaunchLang_MouseLeave(object sender, MouseEventArgs e)
+        {
+            bo_launcher_lang.Background = new SolidColorBrush(Color.FromScRgb(0f, 0, 0, 0));
+            bo_launcher_lang.BorderBrush = new SolidColorBrush(Color.FromScRgb(0f, 0, 0, 0));
         }
         #endregion
 
@@ -307,23 +304,10 @@ namespace KonkordLauncher
 
         #endregion
 
-        private async void LaunchLogout_Click(object sender, RoutedEventArgs e)
-        {
-            string path = System.IO.Path.Combine(IOHelper.MainDirectory, "accounts.json");
-            AccountData? accountData = await JsonHelper.ReadJsonFile<AccountData>(path);
-            if (accountData == null)
-                return;
-
-            accountData.SelectedAccountId = string.Empty;
-            await JsonHelper.WriteJsonFile(path, accountData);
-            AuthWindow window = new AuthWindow();
-            window.Show();
-            this.Close();
-        }
-
         private readonly double _launchMaxStep = 4;
         private async void LaunchPlay_Click(object sender, RoutedEventArgs e)
         {
+            bo_launch_play.IsEnabled = false;
             btn_launch_play.IsEnabled = false;
 
             AccountData? accountData = await  JsonHelper.ReadJsonFile<AccountData>(System.IO.Path.Combine(IOHelper.MainDirectory, "accounts.json"));
@@ -417,7 +401,7 @@ namespace KonkordLauncher
                             case API.Enums.EProfileType.KONKORD_CREATE:
                             case API.Enums.EProfileType.KONKORD_VANILLAPLUS:
                                 {
-                                    // MODED, DO NOTHING
+                                    // TODO
                                     break;
                                 }
                         }
@@ -443,8 +427,18 @@ namespace KonkordLauncher
                             lab_install.Content = $"Downloading the version json file...";
                             using (var client = new HttpClient())
                             {
-                                byte[] result = await client.GetByteArrayAsync(mcVersion.Url);
-                                await File.WriteAllBytesAsync(versionJsonPath, result);
+                                string resultJson = await client.GetStringAsync(mcVersion.Url);
+                                JObject localObj = JObject.Parse(resultJson);
+                                int localLibrarySize = 0;
+                               
+                                JArray localjArray = JArray.Parse(localObj["libraries"].ToString(Formatting.None));
+                                // Check the libraries
+                                foreach (var jToken in localjArray)
+                                {
+                                    localLibrarySize += int.Parse(jToken["downloads"]["artifact"]["size"].ToString());
+                                }
+                                localObj.Add("librarySize", localLibrarySize);
+                                await File.WriteAllTextAsync(versionJsonPath, localObj.ToString(Formatting.None));
                             }
                         }
 
@@ -472,6 +466,7 @@ namespace KonkordLauncher
                         if (!Directory.Exists(assetObjectDir))
                             Directory.CreateDirectory(assetObjectDir);
 
+                        // Download Assets
                         string rawAssetJson = await File.ReadAllTextAsync(assetIndexJsonPath);
                         JToken assetIndexToken = JObject.Parse(rawAssetJson)["objects"];
                         using (var client = new HttpClient())
@@ -491,10 +486,8 @@ namespace KonkordLauncher
 
                                 if (!File.Exists(objectPath))
                                 {
-
                                     byte[] array = await client.GetByteArrayAsync($"https://resources.download.minecraft.net/{hash.Substring(0, 2)}/{hash}");
                                     await File.WriteAllBytesAsync(objectPath, array);
-
                                 }
                                 downloadedAssetSize += int.Parse(token.First["size"].ToString());
                                 pb_status.Value = (double)downloadedAssetSize / (double)totalAssetSize * 100d;
@@ -521,9 +514,13 @@ namespace KonkordLauncher
                         // Check the libraries
                         using (var client = new HttpClient())
                         {
+                            int libraryTotalSize = int.Parse(obj["librarySize"].ToString(Formatting.None));
+                            double libraryDownloadedSize = 0;
                             foreach (var jToken in jArray)
                             {
-                                lab_install.Content = $"Downloading the {jToken["name"]} library...";
+                                double percent = (libraryDownloadedSize / (double)libraryTotalSize) * 100;
+                                lab_install.Content = $"Downloading the {jToken["name"]} library... {percent.ToString("0.00")}%";
+                                pb_status.Value = percent;
                                 // Get the path
                                 string libPath = Path.Combine(IOHelper.LibrariesDir, jToken["downloads"]["artifact"]["path"].ToString());
                                 libraryBundle += $"{libPath};";
@@ -537,6 +534,7 @@ namespace KonkordLauncher
                                         Directory.CreateDirectory(libDirectory);
                                     await File.WriteAllBytesAsync(libPath, result);
                                 }
+                                libraryDownloadedSize += int.Parse(jToken["downloads"]["artifact"]["size"].ToString());
                             }
                         }
 
@@ -545,17 +543,17 @@ namespace KonkordLauncher
                         lab_install.Content = $"Launching the game...";
                         break;
                     }
-                case API.Enums.EProfileKind.FORGE:
+                case API.Enums.EProfileKind.FORGE: // TODO
                     {
                         // TODO
                         break;
                     }
-                case API.Enums.EProfileKind.FABRIC:
+                case API.Enums.EProfileKind.FABRIC: // TODO
                     {
                         // TODO
                         break;
                     }
-                case API.Enums.EProfileKind.QUILT:
+                case API.Enums.EProfileKind.QUILT: // TODO
                     {
                         // TODO
                         break;
@@ -634,6 +632,7 @@ namespace KonkordLauncher
             }
             #endregion
 
+            bo_launch_play.IsEnabled = true;
             btn_launch_play.IsEnabled = true;
             bo_install.IsEnabled = false;
             bo_install.Visibility = Visibility.Hidden;

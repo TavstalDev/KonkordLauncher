@@ -29,78 +29,36 @@ namespace KonkordLauncher
             double heightMultiplier = Height / oldHeight; 
             double widthMultiplier = Width / oldWidth;
 
-            Resize(bo_title_row, heightMultiplier, widthMultiplier);
-            Resize(img_window_icon, heightMultiplier, widthMultiplier);
-            ResizeFont(l_WindowName, heightMultiplier, widthMultiplier);
-            ResizeFont(bt_window_close, heightMultiplier, widthMultiplier);
-            ResizeFont(bt_window_minimize, heightMultiplier, widthMultiplier);
-            ResizeFont(bt_window_normal, heightMultiplier, widthMultiplier);
-            ResizeFont(bt_window_maximize, heightMultiplier, widthMultiplier);
+            WindowHelper.Resize(bo_title_row, heightMultiplier, widthMultiplier);
+            WindowHelper.Resize(img_window_icon, heightMultiplier, widthMultiplier);
+            WindowHelper.ResizeFont(l_WindowName, heightMultiplier, widthMultiplier);
+            WindowHelper.ResizeFont(bt_window_close, heightMultiplier, widthMultiplier);
+            WindowHelper.ResizeFont(bt_window_minimize, heightMultiplier, widthMultiplier);
+            WindowHelper.ResizeFont(bt_window_normal, heightMultiplier, widthMultiplier);
+            WindowHelper.ResizeFont(bt_window_maximize, heightMultiplier, widthMultiplier);
 
-            Resize(auth_offline_border, heightMultiplier, widthMultiplier);
-            Resize(img_offline_logo, heightMultiplier, widthMultiplier);
-            Resize(bo_auth_offline_buy, heightMultiplier, widthMultiplier);
-            Resize(bo_auth_offline_login, heightMultiplier, widthMultiplier);
-            Resize(bo_auth_offline_switch, heightMultiplier, widthMultiplier);
-            Resize(bo_auth_offline_username, heightMultiplier, widthMultiplier);
+            WindowHelper.Resize(auth_offline_border, heightMultiplier, widthMultiplier);
+            WindowHelper.Resize(img_offline_logo, heightMultiplier, widthMultiplier);
+            WindowHelper.Resize(bo_auth_offline_buy, heightMultiplier, widthMultiplier);
+            WindowHelper.Resize(bo_auth_offline_login, heightMultiplier, widthMultiplier);
+            WindowHelper.Resize(bo_auth_offline_switch, heightMultiplier, widthMultiplier);
+            WindowHelper.Resize(bo_auth_offline_username, heightMultiplier, widthMultiplier);
 
-            ResizeFont(btn_auth_offline_buy, heightMultiplier, widthMultiplier);
-            ResizeFont(btn_auth_offline_login, heightMultiplier, widthMultiplier);
-            ResizeFont(btn_auth_offline_switch, heightMultiplier, widthMultiplier);
-            ResizeFont(tb_auth_offline_username, heightMultiplier, widthMultiplier);
+            WindowHelper.ResizeFont(btn_auth_offline_buy, heightMultiplier, widthMultiplier);
+            WindowHelper.ResizeFont(btn_auth_offline_login, heightMultiplier, widthMultiplier);
+            WindowHelper.ResizeFont(btn_auth_offline_switch, heightMultiplier, widthMultiplier);
+            WindowHelper.ResizeFont(tb_auth_offline_username, heightMultiplier, widthMultiplier);
 
-            Resize(auth_online_border, heightMultiplier, widthMultiplier);
-            Resize(img_online_logo, heightMultiplier, widthMultiplier);
-            Resize(bo_auth_online_buy, heightMultiplier, widthMultiplier);
-            Resize(bo_auth_online_login, heightMultiplier, widthMultiplier);
-            Resize(bo_auth_online_switch, heightMultiplier, widthMultiplier);
+            WindowHelper.Resize(auth_online_border, heightMultiplier, widthMultiplier);
+            WindowHelper.Resize(img_online_logo, heightMultiplier, widthMultiplier);
+            WindowHelper.Resize(bo_auth_online_buy, heightMultiplier, widthMultiplier);
+            WindowHelper.Resize(bo_auth_online_login, heightMultiplier, widthMultiplier);
+            WindowHelper.Resize(bo_auth_online_switch, heightMultiplier, widthMultiplier);
 
-            ResizeFont(btn_auth_online_buy, heightMultiplier, widthMultiplier);
-            ResizeFont(btn_auth_online_login, heightMultiplier, widthMultiplier);
-            ResizeFont(btn_auth_online_switch, heightMultiplier, widthMultiplier);
+            WindowHelper.ResizeFont(btn_auth_online_buy, heightMultiplier, widthMultiplier);
+            WindowHelper.ResizeFont(btn_auth_online_login, heightMultiplier, widthMultiplier);
+            WindowHelper.ResizeFont(btn_auth_online_switch, heightMultiplier, widthMultiplier);
         }
-
-        #region Functions
-        /// <summary>
-        /// Resizes a FrameworkElement based on the provided height and width multipliers.
-        /// </summary>
-        /// <param name="element">The FrameworkElement to resize.</param>
-        /// <param name="heightMulti">The multiplier for the height.</param>
-        /// <param name="widthMulti">The multiplier for the width.</param>
-        private void Resize(FrameworkElement element, double heightMulti, double widthMulti)
-        {
-            element.Height = element.Height * heightMulti;
-            element.Width = element.Width * widthMulti;
-            element.Margin = new Thickness
-            {
-                Bottom = element.Margin.Bottom * heightMulti,
-                Left = element.Margin.Left * widthMulti,
-                Right = element.Margin.Right * widthMulti,
-                Top = element.Margin.Top * heightMulti,
-            };
-        }
-
-        /// <summary>
-        /// Resizes the font of a Control based on the provided height and width multipliers.
-        /// </summary>
-        /// <param name="element">The Control whose font to resize.</param>
-        /// <param name="heightMulti">The multiplier for the height.</param>
-        /// <param name="widthMulti">The multiplier for the width.</param>
-        private void ResizeFont(Control element, double heightMulti, double widthMulti)
-        {
-            element.Height = element.Height * heightMulti;
-            element.Width = element.Width * widthMulti;
-            element.Margin = new Thickness
-            {
-                Bottom = element.Margin.Bottom * heightMulti,
-                Left = element.Margin.Left * widthMulti,
-                Right = element.Margin.Right * widthMulti,
-                Top = element.Margin.Top * heightMulti,
-            };
-            element.FontSize = element.FontSize * widthMulti;
-        }
-
-        #endregion
 
         #region Events
         #region Window Events

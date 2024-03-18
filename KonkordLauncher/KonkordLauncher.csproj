@@ -204,7 +204,6 @@
 
   <ItemGroup>
     <Folder Include="API\Handlers\" />
-    <Folder Include="API\Constants\" />
   </ItemGroup>
 
   <ItemGroup>

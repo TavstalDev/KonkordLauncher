@@ -62,11 +62,6 @@ namespace KonkordLauncher
             WindowHelper.ResizeFont(la_account_name, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(la_account_type, _heightMultiplier, _widthMultiplier);
 
-            WindowHelper.Resize(bo_launcher_logout, _heightMultiplier, _widthMultiplier);
-            WindowHelper.ResizeFont(lab_launcher_logout_icon, _heightMultiplier, _widthMultiplier);
-            WindowHelper.ResizeFont(lab_launcher_logout, _heightMultiplier, _widthMultiplier);
-            WindowHelper.ResizeFont(btn_launcher_logout, _heightMultiplier, _widthMultiplier);
-
             WindowHelper.Resize(bo_launcher_lang, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(btn_launcher_lang, _heightMultiplier, _widthMultiplier);
 
@@ -88,12 +83,6 @@ namespace KonkordLauncher
             WindowHelper.ResizeFont(ref listbox, ListLabelFontSize, ListLabelHeight, ListLabelWidth, ListLabelMargin, _heightMultiplier, _widthMultiplier);
 
             RefreshInstances();
-
-            DataContext = Enumerable.Range(0, 10).Select(x => new Profile
-            {
-                Name = $"Profile {x}",
-                Icon = ProfileIcon.Icons[x].Path,
-            });
         }
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
@@ -263,14 +252,14 @@ namespace KonkordLauncher
 
         private void LaunchLogout_MouseEnter(object sender, MouseEventArgs e)
         {
-            bo_launcher_logout.Background = new SolidColorBrush(Color.FromScRgb(0.15f, 0, 0, 0));
-            bo_launcher_logout.BorderBrush = new SolidColorBrush(Color.FromScRgb(0.15f, 0, 0, 0));
+            gr_account.Background = new SolidColorBrush(Color.FromScRgb(0.15f, 0, 0, 0));
+            gr_account.BorderBrush = new SolidColorBrush(Color.FromScRgb(0.15f, 0, 0, 0));
         }
 
         private void LaunchLogout_MouseLeave(object sender, MouseEventArgs e)
         {
-            bo_launcher_logout.Background = new SolidColorBrush(Color.FromScRgb(0f, 0, 0, 0));
-            bo_launcher_logout.BorderBrush = new SolidColorBrush(Color.FromScRgb(0f, 0, 0, 0));
+            gr_account.Background = new SolidColorBrush(Color.FromScRgb(0f, 0, 0, 0));
+            gr_account.BorderBrush = new SolidColorBrush(Color.FromScRgb(0f, 0, 0, 0));
         }
         #endregion
 

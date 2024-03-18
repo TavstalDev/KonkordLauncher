@@ -1,10 +1,9 @@
+using KonkordLauncher.API.Constants;
 using KonkordLauncher.API.Helpers;
 using KonkordLauncher.API.Models;
-using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
-using static System.Formats.Asn1.AsnWriter;
 
 namespace KonkordLauncher.API.Managers
 {
@@ -15,11 +14,10 @@ namespace KonkordLauncher.API.Managers
         private static readonly string _listeningUrl = "http://localhost:43319/";
         private static readonly string _redirectAuthenticateUrl = Path.Combine(_listeningUrl, "authenticate");
         private static readonly string _redirectTokenUrl = Path.Combine(_listeningUrl, "token");
-        private static readonly string _clientId = "c541ac9d-9c42-4ac4-8998-9d1fc5cb8afb";
-        private static readonly string _clientSecret = "";
-        private static readonly string _microsoftAuthorizeUrl = $"https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?client_id={_clientId}&response_type=code&redirect_uri={Uri.EscapeDataString(_redirectAuthenticateUrl)}&response_mode=query&scope=XboxLive.signin+offline_access&prompt=select_account";
+
+        private static readonly string _microsoftAuthorizeUrl = $"https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?client_id={Secrets.MSClientId}&response_type=code&redirect_uri={Uri.EscapeDataString(_redirectAuthenticateUrl)}&response_mode=query&scope=XboxLive.signin+offline_access&prompt=select_account";
         public static string MicrosoftAuthorizeUrl {  get { return _microsoftAuthorizeUrl; } }
-        private static readonly string _microsoftTokenUrl = $"https://login.microsoftonline.com/consumers/oauth2/v2.0/token?client_id={_clientId}&grant_type=authorization_code&redirect_uri={Uri.EscapeDataString(_redirectTokenUrl)}&scope=XboxLive.signin+offline_access&prompt=select_account";
+        private static readonly string _microsoftTokenUrl = $"https://login.microsoftonline.com/consumers/oauth2/v2.0/token?client_id={Secrets.MSClientId}&grant_type=authorization_code&redirect_uri={Uri.EscapeDataString(_redirectTokenUrl)}&scope=XboxLive.signin+offline_access&prompt=select_account";
         public static string MicrosoftTokenUrl { get { return _microsoftTokenUrl; } }
 
         private static readonly string _minecraftAccountUrl = "https://api.minecraft.com/v1/account";

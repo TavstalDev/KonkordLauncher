@@ -26,10 +26,10 @@ namespace KonkordLauncher
         public double ListLabelFontSize { get; set; } = 10;
         public double ListLabelHeight { get; set; } = 19;
         public double ListLabelWidth { get; set; } = 131;
-        public Thickness ListLabelMargin { get; set; } = new Thickness(5,0,0,0);
+        public Thickness ListLabelMargin { get; set; } = new Thickness(5,2,0,2);
         public double ListBorderHeight { get; set; } = 24;
         public double ListBorderWidth { get; set; } = 24;
-        public Thickness ListBorderMargin { get; set; } = new Thickness(0,0,0,0);
+        public Thickness ListBorderMargin { get; set; } = new Thickness(5,2,0,2);
 
         public LaunchWindow()
         {
@@ -41,8 +41,8 @@ namespace KonkordLauncher
 
             double oldHeight = Height;
             double oldWidth = Width;
-            Height = nHeight * 0.55; // 0.55 means 55% of the screen's height
-            Width = nWidth * 0.55; // 0.55 means 55% of the screen's width
+            Height = nHeight * 0.65; // 0.55 means 55% of the screen's height
+            Width = nWidth * 0.65; // 0.55 means 55% of the screen's width
 
             // Get the multiplier how much should the window's content to be resized.
             _heightMultiplier = Height / oldHeight;
@@ -86,9 +86,14 @@ namespace KonkordLauncher
 
             WindowHelper.Resize(ref listbox, ListBorderHeight, ListBorderWidth, ListBorderMargin, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(ref listbox, ListLabelFontSize, ListLabelHeight, ListLabelWidth, ListLabelMargin, _heightMultiplier, _widthMultiplier);
-            UpdateLayout();
 
             RefreshInstances();
+
+            DataContext = Enumerable.Range(0, 10).Select(x => new Profile
+            {
+                Name = $"Profile {x}",
+                Icon = ProfileIcon.Icons[x].Path,
+            });
         }
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
@@ -179,14 +184,13 @@ namespace KonkordLauncher
   
             if (profiles.TryGetValue(settings.SelectedProfile, out Profile selectedProfile))
             {
-                listbox.SelectedItem = selectedProfile;
-                lab_selected_profile.Content = selectedProfile.Name.ToLower();
+                SelectedProfile = selectedProfile;
+                lab_selected_profile.Content = SelectedProfile.Name.ToLower();
             }
             else
             {
-                listbox.SelectedIndex = 0;
-                selectedProfile = settings.Profiles.Values.ToList().ElementAt(0);
-                lab_selected_profile.Content = selectedProfile.Name.ToLower();
+                SelectedProfile = settings.Profiles.Values.ToList().ElementAt(0);
+                lab_selected_profile.Content = SelectedProfile.Name.ToLower();
             }
 
         }

@@ -78,7 +78,7 @@
                     </ListBox.Resources>
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <DockPanel Margin="2">
+                            <DockPanel>
                                 <Border x:Name="bo_listTemplate" DockPanel.Dock="Left" Width="{DynamicResource ListBorderWidth}" Height="{DynamicResource ListBorderHeight}" Margin="{DynamicResource ListBorderMargin}" ClipToBounds="True" HorizontalAlignment="Left" VerticalAlignment="Center"  >
                                     <Border.Background>
                                         <ImageBrush ImageSource="{Binding Icon}"/>

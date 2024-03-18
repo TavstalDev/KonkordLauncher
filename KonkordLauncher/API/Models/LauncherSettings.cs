@@ -31,10 +31,25 @@ namespace KonkordLauncher.API.Models
                         Type = Enums.EProfileType.LATEST_RELEASE,
                         Kind = Enums.EProfileKind.VANILLA,
                         VersionId = string.Empty,
-                        GameDirectory = Path.Combine(IOHelper.InstancesDir, "LatestRelease"),
+                        GameDirectory = string.Empty,
                         JavaPath = string.Empty,
                         LauncherVisibility = Enums.ELaucnherVisibility.HIDE_AND_REOPEN_ON_GAME_CLOSE,
                         Memory = -1,
+                        Resolution = null,
+                        JVMArgs = "-XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M -Djava.net.preferIPv4Stack=true"
+                    } 
+                },
+                { Guid.NewGuid().ToString(), new Profile()
+                    {
+                        Name = "Latest Snapshot",
+                        Icon = ProfileIcon.Icons.Find(x => x.Name == "Dirt").Path,
+                        Type = Enums.EProfileType.LATEST_SNAPSHOT,
+                        Kind = Enums.EProfileKind.VANILLA,
+                        VersionId = string.Empty,
+                        GameDirectory = string.Empty,
+                        JavaPath = string.Empty,
+                        LauncherVisibility = Enums.ELaucnherVisibility.HIDE_AND_REOPEN_ON_GAME_CLOSE,
+                        Memory= -1,
                         Resolution = null,
                         JVMArgs = "-XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M -Djava.net.preferIPv4Stack=true"
                     } 

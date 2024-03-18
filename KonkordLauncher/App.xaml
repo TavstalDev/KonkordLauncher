@@ -123,6 +123,13 @@
                                 <Setter Property="Panel.Background" TargetName="Bd" Value="#FF3B4F7A"/>
                                 <Setter Property="Border.BorderBrush" TargetName="Bd" Value="#FF3B4F7A"/>
                             </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsSelected" Value="True"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Panel.Background" TargetName="Bd" Value="#FF3B4F7A"/>
+                                <Setter Property="Border.BorderBrush" TargetName="Bd" Value="#FF3B4F7A"/>
+                            </MultiTrigger>
                             <Trigger Property="UIElement.IsMouseOver" Value="True">
                                 <Setter Property="Panel.Background" TargetName="Bd" Value="#33000000"/>
                                 <Setter Property="Border.BorderBrush" TargetName="Bd" Value="#33000000" />

@@ -73,7 +73,7 @@
                     </Grid>
                 </Border>
 
-                <ListBox x:Name="listbox" ItemsSource="{Binding}" SelectionMode="Single" SelectionChanged="listbox_SelectionChanged" AlternationCount="{DynamicResource Alternation}"
+                <ListBox x:Name="listbox_launchinstances" ItemsSource="{Binding}" SelectionMode="Single" SelectionChanged="listbox_SelectionChanged" AlternationCount="{DynamicResource Alternation}"
                  SelectedItem="{Binding SelectedProfile, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}" Margin="0,102,0,55" Background="{x:Null}" BorderBrush="{x:Null}" Grid.IsSharedSizeScope="True" ScrollViewer.HorizontalScrollBarVisibility="Hidden" d:ItemsSource="{d:SampleData ItemCount=5}">
                     <ListBox.Resources>
                         <sys:Int32 x:Key="Alternation">2</sys:Int32>
@@ -113,10 +113,8 @@
         <Border x:Name="bo_instances" IsEnabled="True" Visibility="Visible" Margin="0,25,0,0" Background="#FF353743" BorderBrush="#FF353743">
             <Grid>
                 <Label x:Name="lab_instances" Content="New Instance" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" Foreground="White" FontSize="16" FontWeight="Bold" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-
                 <!-- List Box -->
-                <ScrollViewer Margin="0,50,0,50" Width="325" HorizontalContentAlignment="Center" VerticalScrollBarVisibility="Auto">
-                    
+                <ScrollViewer x:Name="scroll_instances" Margin="0,50,0,50" Width="325" HorizontalContentAlignment="Center" VerticalScrollBarVisibility="Auto">
                     <WrapPanel Orientation="Vertical" HorizontalAlignment="Center">
                         <!-- Icon -->
                         <Border x:Name="bo_instances_icon" CornerRadius="4,4,4,4" VerticalAlignment="Top" HorizontalAlignment="Center" Height="40" Width="55">
@@ -130,11 +128,14 @@
                         <Border x:Name="bo_instances_iconlist" IsEnabled="False" Visibility="Collapsed" CornerRadius="4,4,4,4" VerticalAlignment="Top" Background="#7F000000" BorderBrush="#7F000000" Width="325" Margin="0,10,0,0" Height="160">
                             <ListBox x:Name="listbox_icons" d:ItemsSource="{d:SampleData ItemCount=5}" ItemsSource="{Binding}" SelectionMode="Single" SelectedItem="{Binding SelectedIcon, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="{x:Null}">
                                 <ListBox.Resources>
+                                    <sys:Double x:Key="IconHeight">30</sys:Double>
+                                    <sys:Double x:Key="IconWidth">30</sys:Double>
+                                    <sysw:Thickness x:Key="IconMargin">0</sysw:Thickness>
                                 </ListBox.Resources>
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
-                                        <Button Style="{StaticResource IconButton}" Click="InstancesIconSelect_Click" Margin="0,0,0,0" Padding="0,0,0,0" Foreground="{x:Null}">
-                                            <Image Height="30" Width="30" Source="{Binding Path}" />
+                                        <Button Style="{StaticResource IconButton}" Click="InstancesIconSelect_Click" Margin="{DynamicResource IconMargin}" Padding="0,0,0,0" Foreground="{x:Null}">
+                                            <Image Height="{DynamicResource IconHeight}" Width="{DynamicResource IconWidth}" Source="{Binding Path}" />
                                         </Button>
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
@@ -158,16 +159,18 @@
 
                         </Border>
                         <!-- Name input -->
-                        <Grid Height="48" Margin="0,10,0,0">
+                        <Grid x:Name="grid_instances_name" Height="48" Margin="0,10,0,0">
                             <Label x:Name="lab_instances_name" Content="Name" Foreground="White" Padding="5,0,5,0" VerticalContentAlignment="Center" FontWeight="SemiBold" Margin="0,0,0,30" />
                             <TextBox x:Name="tb_instances_name" Style="{StaticResource InstanceTextBox}" Margin="0,20,0,0" Background="#33000000" Foreground="White" SelectionBrush="#FFABADB3" BorderBrush="#FF5D6F95" VerticalContentAlignment="Center" Padding="10,0,10,0" TextChanged="InstancesName_TextChanged" />
                             <Label x:Name="lab_instances_name_placeholder" Content="unnamed instance" Foreground="#4DFFFFFF" Margin="0,20,0,0" Padding="10,0,10,0" VerticalContentAlignment="Center" IsHitTestVisible="False" />
                         </Grid>
-                        
+
                         <!-- Version Selector -->
-                        
+                        <Grid>
+                        </Grid>
+
                         <!-- Game Dir -->
-                        <Grid Height="48" Margin="0,10,0,0">
+                        <Grid x:Name="grid_instances_gamedir" Height="48" Margin="0,10,0,0">
                             <Label x:Name="lab_instances_gamedir" Content="Game Directory" Foreground="White" Padding="5,0,5,0" VerticalContentAlignment="Center" FontWeight="SemiBold" Margin="0,0,0,30" />
                             <TextBox x:Name="tb_instances_gamedir" Style="{StaticResource InstanceTextBox}" Margin="0,20,0,0" Background="#33000000" Foreground="White" SelectionBrush="#FFABADB3" BorderBrush="#FF5D6F95" VerticalContentAlignment="Center" Padding="10,0,60,0" TextChanged="InstancesName_TextChanged" />
                             <Label x:Name="lab_instances_gamedir_placeholder" Content="Use default directory" Foreground="#4DFFFFFF" Margin="0,20,55,0" Padding="10,0,10,0" VerticalContentAlignment="Center" IsHitTestVisible="False" />
@@ -175,12 +178,18 @@
                         </Grid>
 
                         <!-- Resolution -->
-                        <WrapPanel Height="48" Margin="0,10,0,0">
-                            <Label Foreground="White" fa:Awesome.Content="Laptop" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" Width="25" />
-                        </WrapPanel>
+                        <Grid x:Name="grid_instances_resolution" Height="48" Margin="0,10,0,0">
+                            <Label x:Name="lab_instances_resolution" Content="Resolution" Foreground="White" Padding="5,0,5,0" VerticalContentAlignment="Center" FontWeight="SemiBold" Margin="0,0,0,30" />
+                            <Label x:Name="lab_instances_resolution_icon" Foreground="White" fa:Awesome.Content="Laptop" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" Width="66" VerticalAlignment="Bottom" HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Height="30" FontSize="16" />
+                            <TextBox x:Name="tb_instances_resolution_x" Style="{StaticResource InstanceTextBox}" InputScope="Number" MaxLength="4" Margin="66,20,142,0" Background="#33000000" Foreground="White" SelectionBrush="#FFABADB3" BorderBrush="#FF5D6F95" VerticalContentAlignment="Center" Padding="10,0,10,0" TextChanged="InstancesResolutionX_TextChanged" HorizontalContentAlignment="Center" />
+                            <Label x:Name="lab_instances_resolution_x_placeholder" Content="Auto" Foreground="#4DFFFFFF" Margin="66,20,142,0" Padding="10,0,10,0" VerticalContentAlignment="Center" IsHitTestVisible="False" HorizontalContentAlignment="Center" />
+                            <Label x:Name="lab_instances_resolution_centericon" Foreground="White" fa:Awesome.Content="Close" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" Width="30" VerticalAlignment="Bottom" HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Height="30" FontSize="14" Margin="163,0,0,0" />
+                            <TextBox x:Name="tb_instances_resolution_y" Style="{StaticResource InstanceTextBox}" InputScope="Number" MaxLength="4" Margin="198,20,10,0" Background="#33000000" Foreground="White" SelectionBrush="#FFABADB3" BorderBrush="#FF5D6F95" VerticalContentAlignment="Center" Padding="10,0,10,0" TextChanged="InstancesResolutionY_TextChanged" HorizontalContentAlignment="Center" />
+                            <Label x:Name="lab_instances_resolution_y_placeholder" Content="Auto" Foreground="#4DFFFFFF" Margin="198,20,10,0" Padding="10,0,10,0" VerticalContentAlignment="Center" IsHitTestVisible="False" HorizontalContentAlignment="Center" />
+                        </Grid>
 
                         <!-- Java Path -->
-                        <Grid Height="48" Margin="0,10,0,0">
+                        <Grid x:Name="grid_instances_javadir" Height="48" Margin="0,10,0,0">
                             <Label x:Name="lab_instances_javadir" Content="Java Directory" Foreground="White" Padding="5,0,5,0" VerticalContentAlignment="Center" FontWeight="SemiBold" Margin="0,0,0,30" />
                             <TextBox x:Name="tb_instances_javadir" Style="{StaticResource InstanceTextBox}" Margin="0,20,0,0" Background="#33000000" Foreground="White" SelectionBrush="#FFABADB3" BorderBrush="#FF5D6F95" VerticalContentAlignment="Center" Padding="10,0,60,0" TextChanged="InstancesName_TextChanged" />
                             <Label x:Name="lab_instances_javadir_placeholder" Content="Use default java path" Foreground="#4DFFFFFF" Margin="0,20,55,0" Padding="10,0,10,0" VerticalContentAlignment="Center" IsHitTestVisible="False" />
@@ -188,7 +197,7 @@
                         </Grid>
 
                         <!-- JVM input -->
-                        <Grid Height="48" Margin="0,10,0,0">
+                        <Grid x:Name="grid_instances_jvm" Height="48" Margin="0,10,0,0">
                             <Label x:Name="lab_instances_jvm" Content="JVM Args" Foreground="White" Margin="0,1,0,28" Padding="5,0,5,0" VerticalContentAlignment="Center" FontWeight="SemiBold" />
                             <TextBox x:Name="tb_instances_jvm" Style="{StaticResource InstanceTextBox}" Margin="0,20,0,0" Background="#33000000" Foreground="White" SelectionBrush="#FFABADB3" BorderBrush="#FF5D6F95" VerticalContentAlignment="Center" Padding="10,0,10,0" TextChanged="InstancesJVM_TextChanged" />
                             <Label x:Name="lab_instances_jvm_placeholder" Content="optional" Foreground="#4DFFFFFF" Margin="0,20,0,0" Padding="10,0,10,0" VerticalContentAlignment="Center" IsHitTestVisible="False" />
@@ -214,6 +223,6 @@
                     </Grid>
                 </Border>
             </Grid>
-        </Border>   
+        </Border>
     </Grid>
 </Window>

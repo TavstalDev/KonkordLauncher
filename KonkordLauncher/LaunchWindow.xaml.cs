@@ -80,7 +80,7 @@ namespace KonkordLauncher
             WindowHelper.ResizeFont(lab_new_instance_icon, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(btn_new_instance, _heightMultiplier, _widthMultiplier);
 
-            WindowHelper.Resize(listbox, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(listbox_launchinstances, _heightMultiplier, _widthMultiplier);
 
             WindowHelper.Resize(bo_launch_play, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(btn_launch_play, _heightMultiplier, _widthMultiplier);
@@ -91,12 +91,15 @@ namespace KonkordLauncher
             WindowHelper.Resize(bo_install_status, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(lab_install, _heightMultiplier, _widthMultiplier);
 
-            WindowHelper.Resize(ref listbox, ListBorderHeight, ListBorderWidth, ListBorderMargin, _heightMultiplier, _widthMultiplier);
-            WindowHelper.ResizeFont(ref listbox, ListLabelFontSize, ListLabelHeight, ListLabelWidth, ListLabelMargin, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(ref listbox_launchinstances, ListBorderHeight, ListBorderWidth, ListBorderMargin, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(ref listbox_launchinstances, ListLabelFontSize, ListLabelHeight, ListLabelWidth, ListLabelMargin, _heightMultiplier, _widthMultiplier);
 
             WindowHelper.Resize(bo_instances, _heightMultiplier, _widthMultiplier);
             #endregion
             #region Instances
+            WindowHelper.ResizeFont(lab_instances, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(lab_instances_widthfix, _heightMultiplier, _widthMultiplier);
+
             WindowHelper.Resize(bo_instances_save, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(lab_instances_save, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(btn_instances_save, _heightMultiplier, _widthMultiplier);
@@ -105,9 +108,47 @@ namespace KonkordLauncher
             WindowHelper.ResizeFont(lab_instances_cancel, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(btn_instances_cancel, _heightMultiplier, _widthMultiplier);
 
+            WindowHelper.Resize(scroll_instances, _heightMultiplier, _widthMultiplier);
+
             WindowHelper.Resize(bo_instances_icon, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(lab_instances_icon_arrow, _heightMultiplier, _widthMultiplier);
             WindowHelper.Resize(img_instances_icon, _heightMultiplier, _widthMultiplier);
+
+            
+            WindowHelper.Resize(bo_instances_iconlist, _heightMultiplier, _widthMultiplier);
+            listbox_icons.Resources["IconHeight"] = double.Parse(listbox_icons.Resources["IconHeight"].ToString()) * _heightMultiplier;
+            listbox_icons.Resources["IconWidth"] = double.Parse(listbox_icons.Resources["IconWidth"].ToString()) * _widthMultiplier;
+
+            WindowHelper.Resize(grid_instances_name, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_instances_name, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_instances_name_placeholder, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(tb_instances_name, _heightMultiplier, _widthMultiplier);
+
+            WindowHelper.Resize(grid_instances_resolution, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_instances_resolution, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_instances_resolution_icon, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(tb_instances_resolution_x, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_instances_resolution_x_placeholder, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_instances_resolution_centericon, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(tb_instances_resolution_y, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_instances_resolution_y_placeholder, _heightMultiplier, _widthMultiplier);
+
+            WindowHelper.Resize(grid_instances_gamedir, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_instances_gamedir, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_instances_gamedir_placeholder, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(tb_instances_gamedir, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(btn_instances_gamedir, _heightMultiplier, _widthMultiplier);
+
+            WindowHelper.Resize(grid_instances_javadir, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_instances_javadir, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_instances_javadir_placeholder, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(tb_instances_javadir, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(btn_instances_javadir, _heightMultiplier, _widthMultiplier);
+
+            WindowHelper.Resize(grid_instances_jvm, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_instances_jvm, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_instances_jvm_placeholder, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(tb_instances_jvm, _heightMultiplier, _widthMultiplier);
             #endregion
             #endregion
 
@@ -200,17 +241,17 @@ namespace KonkordLauncher
             var profiles = settings.Profiles;
             DataContext = profiles.Values.ToList();
             if (profiles.Count <= 2)
-                listbox.Resources["Alternation"] = profiles.Count;
+                listbox_launchinstances.Resources["Alternation"] = profiles.Count;
             else
-                listbox.Resources["Alternation"] = 2;
+                listbox_launchinstances.Resources["Alternation"] = 2;
   
             if (profiles.TryGetValue(settings.SelectedProfile, out Profile selectedProfile))
                 SelectedProfile = selectedProfile;
             else
                 SelectedProfile = settings.Profiles.Values.ToList().ElementAt(0);
 
-            listbox.SelectedIndex = profiles.Values.ToList().IndexOf(SelectedProfile);
-            listbox.ScrollIntoView(listbox.SelectedItem);
+            listbox_launchinstances.SelectedIndex = profiles.Values.ToList().IndexOf(SelectedProfile);
+            listbox_launchinstances.ScrollIntoView(listbox_launchinstances.SelectedItem);
             lab_selected_profile.Content = SelectedProfile.Name.ToLower();
 
         }
@@ -733,7 +774,7 @@ namespace KonkordLauncher
             LauncherSettings? settings = IOHelper.GetLauncherSettings();
             if (settings != null)
             {
-                var p = settings.Profiles.ElementAt(listbox.SelectedIndex);
+                var p = settings.Profiles.ElementAt(listbox_launchinstances.SelectedIndex);
                 lab_selected_profile.Content = p.Value.Name.ToLower();
                 settings.SelectedProfile = p.Key;
                 await JsonHelper.WriteJsonFile(Path.Combine(IOHelper.MainDirectory, "launcher.json"), settings);
@@ -790,15 +831,13 @@ namespace KonkordLauncher
             if (bo_instances_iconlist.IsEnabled)
             {
                 bo_instances_iconlist.IsEnabled = false;
-                bo_instances_iconlist.Visibility = Visibility.Hidden;
+                bo_instances_iconlist.Visibility = Visibility.Collapsed;
                 lab_instances_icon_arrow.Content = "\uf078";
                 Button btn = (Button)sender;
                 Image image = (Image)btn.Content;
 
                 string rawPath = ((BitmapFrame)image.Source).Decoder.ToString();
                 SelectedIcon= rawPath.Remove(0, rawPath.IndexOf("assets"));
-
-
                 img_instances_icon.Source = image.Source;
             }
         }
@@ -867,8 +906,21 @@ namespace KonkordLauncher
                     }
             }
         }
-        #endregion
 
+        private void InstancesResolutionX_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            bool enab = string.IsNullOrEmpty(tb_instances_resolution_x.Text);
+            lab_instances_resolution_x_placeholder.IsEnabled = enab;
+            lab_instances_resolution_x_placeholder.Visibility = enab ? Visibility.Visible : Visibility.Hidden;
+        }
+
+        private void InstancesResolutionY_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            bool enab = string.IsNullOrEmpty(tb_instances_resolution_y.Text);
+            lab_instances_resolution_y_placeholder.IsEnabled = enab;
+            lab_instances_resolution_y_placeholder.Visibility = enab ? Visibility.Visible : Visibility.Hidden;
+        }
+        #endregion
 
 
     }

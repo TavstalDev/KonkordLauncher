@@ -1,10 +1,10 @@
-﻿using System.Diagnostics;
-using System.IO;
-using System.Windows;
-using System.Windows.Controls;
-using KonkordLauncher.API.Helpers;
+﻿using KonkordLauncher.API.Helpers;
 using KonkordLauncher.API.Managers;
 using KonkordLauncher.API.Models;
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Windows;
 
 namespace KonkordLauncher
 {

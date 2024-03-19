@@ -7,11 +7,14 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace KonkordLauncher
 {
@@ -24,6 +27,7 @@ namespace KonkordLauncher
         private readonly double _heightMultiplier;
         private readonly double _widthMultiplier;
         // CHANGE THESE IF THE LISTBOX TEMPLATE SIZES CHANGE
+        #region Listbox Fields
         public double ListLabelFontSize { get; set; } = 10;
         public double ListLabelHeight { get; set; } = 19;
         public double ListLabelWidth { get; set; } = 131;
@@ -31,6 +35,7 @@ namespace KonkordLauncher
         public double ListBorderHeight { get; set; } = 24;
         public double ListBorderWidth { get; set; } = 24;
         public Thickness ListBorderMargin { get; set; } = new Thickness(5,2,0,2);
+        #endregion
 
         public LaunchWindow()
         {
@@ -49,6 +54,8 @@ namespace KonkordLauncher
             _heightMultiplier = Height / oldHeight;
             _widthMultiplier = Width / oldWidth;
 
+            #region Resize Elements
+            #region Main Window
             WindowHelper.Resize(bo_title_row, _heightMultiplier, _widthMultiplier);
             WindowHelper.Resize(img_window_icon, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(l_WindowName, _heightMultiplier, _widthMultiplier);
@@ -88,8 +95,24 @@ namespace KonkordLauncher
             WindowHelper.ResizeFont(ref listbox, ListLabelFontSize, ListLabelHeight, ListLabelWidth, ListLabelMargin, _heightMultiplier, _widthMultiplier);
 
             WindowHelper.Resize(bo_instances, _heightMultiplier, _widthMultiplier);
+            #endregion
+            #region Instances
+            WindowHelper.Resize(bo_instances_save, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_instances_save, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(btn_instances_save, _heightMultiplier, _widthMultiplier);
+
+            WindowHelper.Resize(bo_instances_cancel, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_instances_cancel, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(btn_instances_cancel, _heightMultiplier, _widthMultiplier);
+
+            WindowHelper.Resize(bo_instances_icon, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_instances_icon_arrow, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(img_instances_icon, _heightMultiplier, _widthMultiplier);
+            #endregion
+            #endregion
 
             RefreshInstances();
+            listbox_icons.DataContext = ProfileIcon.Icons;
         }
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
@@ -243,6 +266,7 @@ namespace KonkordLauncher
         }
         #endregion
 
+        #region Main
         #region Logout Button
         private async void LaunchLogout_Click(object sender, RoutedEventArgs e)
         {
@@ -324,6 +348,7 @@ namespace KonkordLauncher
         }
 
         #endregion
+
 
         private readonly double _launchMaxStep = 4;
         private async void LaunchPlay_Click(object sender, RoutedEventArgs e)
@@ -714,5 +739,137 @@ namespace KonkordLauncher
                 await JsonHelper.WriteJsonFile(Path.Combine(IOHelper.MainDirectory, "launcher.json"), settings);
             }
         }
+        #endregion
+
+        #region Instances
+        #region Variables
+        public string SelectedIcon { get; set; }
+        #endregion
+
+        private void InstancesSave_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+        private void InstancesCancel_Click(object sender, RoutedEventArgs e)
+        {
+            bo_instances.IsEnabled = false;
+            bo_instances.Visibility = Visibility.Hidden;
+        }
+
+        #region Icon Edit
+        private void InstancesIcon_Click(object sender, RoutedEventArgs e)
+        {
+            if (bo_instances_iconlist.IsEnabled)
+            {
+                bo_instances_iconlist.IsEnabled = false;
+                bo_instances_iconlist.Visibility = Visibility.Collapsed;
+                lab_instances_icon_arrow.Content = "\uf078";
+            }
+            else
+            {
+                bo_instances_iconlist.IsEnabled = true;
+                bo_instances_iconlist.Visibility = Visibility.Visible;
+                lab_instances_icon_arrow.Content = "\uf077";
+            }
+        }
+
+        private void InstancesIcon_MouseEnter(object sender, MouseEventArgs e)
+        {
+            bo_instances_icon.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#33000000"));
+            bo_instances_icon.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#33000000"));
+        }
+
+        private void InstancesIcon_MouseLeave(object sender, MouseEventArgs e)
+        {
+            bo_instances_icon.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00000000"));
+            bo_instances_icon.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00000000"));
+        }
+
+        private void InstancesIconSelect_Click(object sender, RoutedEventArgs e)
+        {
+            if (bo_instances_iconlist.IsEnabled)
+            {
+                bo_instances_iconlist.IsEnabled = false;
+                bo_instances_iconlist.Visibility = Visibility.Hidden;
+                lab_instances_icon_arrow.Content = "\uf078";
+                Button btn = (Button)sender;
+                Image image = (Image)btn.Content;
+
+                string rawPath = ((BitmapFrame)image.Source).Decoder.ToString();
+                SelectedIcon= rawPath.Remove(0, rawPath.IndexOf("assets"));
+
+
+                img_instances_icon.Source = image.Source;
+            }
+        }
+
+        #endregion
+
+        private void InstancesName_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            bool enab = string.IsNullOrEmpty(tb_instances_name.Text);
+            lab_instances_name_placeholder.IsEnabled = enab;
+            lab_instances_name_placeholder.Visibility = enab ? Visibility.Visible : Visibility.Hidden;
+        }
+
+        private void InstancesJVM_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            bool enab = string.IsNullOrEmpty(tb_instances_jvm.Text);
+            lab_instances_jvm_placeholder.IsEnabled = enab;
+            lab_instances_jvm_placeholder.Visibility = enab ? Visibility.Visible : Visibility.Hidden;
+        }
+
+        private void InstancesGamedir_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new System.Windows.Forms.FolderBrowserDialog();
+            dialog.InitialDirectory = IOHelper.InstancesDir;
+            dialog.ShowNewFolderButton = true;
+            dialog.Description = "Select game directory";
+            dialog.UseDescriptionForTitle = true;
+            var result = dialog.ShowDialog();
+            switch (result)
+            {
+                case System.Windows.Forms.DialogResult.OK:
+                    {
+                        tb_instances_gamedir.Text = dialog.SelectedPath;
+                        lab_instances_gamedir_placeholder.IsEnabled = false;
+                        lab_instances_gamedir_placeholder.Visibility = Visibility.Hidden;
+                        break;
+                    }
+                default:
+                    {
+
+                        break;
+                    }
+            }
+        }
+
+        private void InstancesJavadir_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new System.Windows.Forms.FolderBrowserDialog();
+            dialog.ShowNewFolderButton = false;
+            dialog.Description = "Select java bin directory";
+            dialog.UseDescriptionForTitle = true;
+            var result = dialog.ShowDialog();
+            switch (result)
+            {
+                case System.Windows.Forms.DialogResult.OK:
+                    {
+                        tb_instances_javadir.Text = dialog.SelectedPath;
+                        lab_instances_javadir_placeholder.IsEnabled = false;
+                        lab_instances_javadir_placeholder.Visibility = Visibility.Hidden;
+                        break;
+                    }
+                default:
+                    {
+
+                        break;
+                    }
+            }
+        }
+        #endregion
+
+
+
     }
 }

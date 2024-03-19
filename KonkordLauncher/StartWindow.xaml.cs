@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Threading.Tasks;
 
 namespace KonkordLauncher
 {

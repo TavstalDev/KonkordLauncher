@@ -1,11 +1,13 @@
 ﻿using KonkordLauncher.API.Enums;
 using KonkordLauncher.API.Managers;
 using KonkordLauncher.API.Models;
-using Microsoft.Win32;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace KonkordLauncher.API.Helpers
 {

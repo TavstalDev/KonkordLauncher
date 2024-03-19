@@ -1,6 +1,8 @@
 ﻿using KonkordLauncher.API.Helpers;
 using System.IO;
 using System.Text.Json.Serialization;
+using System;
+using System.Collections.Generic;
 
 namespace KonkordLauncher.API.Models
 {

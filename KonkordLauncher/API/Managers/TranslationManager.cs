@@ -1,4 +1,7 @@
 ﻿using KonkordLauncher.API.Helpers;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System;
 
 namespace KonkordLauncher.API.Managers
 {

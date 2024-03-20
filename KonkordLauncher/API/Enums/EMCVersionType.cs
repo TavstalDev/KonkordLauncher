@@ -1,9 +1,10 @@
 ﻿namespace KonkordLauncher.API.Enums
 {
-    public enum EVersionType
+    public enum EMCVersionType
     {
         RELEASE = 0,
         SNAPSHOT = 1,
-        BETA = 2
+        OLD_ALPHA = 2,
+        OLD_BETA = 3
     }
 }

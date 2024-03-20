@@ -130,7 +130,7 @@
                                 <ListBox.Resources>
                                     <sys:Double x:Key="IconHeight">30</sys:Double>
                                     <sys:Double x:Key="IconWidth">30</sys:Double>
-                                    <sysw:Thickness x:Key="IconMargin">0</sysw:Thickness>
+                                    <sysw:Thickness x:Key="IconMargin">1</sysw:Thickness>
                                 </ListBox.Resources>
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
@@ -161,12 +161,43 @@
                         <!-- Name input -->
                         <Grid x:Name="grid_instances_name" Height="48" Margin="0,10,0,0">
                             <Label x:Name="lab_instances_name" Content="Name" Foreground="White" Padding="5,0,5,0" VerticalContentAlignment="Center" FontWeight="SemiBold" Margin="0,0,0,30" />
-                            <TextBox x:Name="tb_instances_name" Style="{StaticResource InstanceTextBox}" Margin="0,20,0,0" Background="#33000000" Foreground="White" SelectionBrush="#FFABADB3" BorderBrush="#FF5D6F95" VerticalContentAlignment="Center" Padding="10,0,10,0" TextChanged="InstancesName_TextChanged" />
+                            <TextBox x:Name="tb_instances_name" Style="{StaticResource InstanceTextBox}" Margin="0,20,0,0" Foreground="White" SelectionBrush="#FFABADB3" BorderBrush="#FF5D6F95" VerticalContentAlignment="Center" Padding="10,0,10,0" TextChanged="InstancesName_TextChanged" Background="#33000000" />
                             <Label x:Name="lab_instances_name_placeholder" Content="unnamed instance" Foreground="#4DFFFFFF" Margin="0,20,0,0" Padding="10,0,10,0" VerticalContentAlignment="Center" IsHitTestVisible="False" />
                         </Grid>
 
                         <!-- Version Selector -->
-                        <Grid>
+                        <Grid x:Name="grid_instances_version" Height="75" Margin="0,10,0,0">
+                            <Label x:Name="lab_instances_version" Content="Version" Foreground="White" Padding="5,0,5,0" VerticalContentAlignment="Center" FontWeight="SemiBold" Margin="0,0,0,53" />
+                            <ComboBox x:Name="cb_instances_version_type" SelectedValuePath="Content" SelectionChanged="InstanceVersionType_SelectionChanged" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="0,22,207,25" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White">
+                                <ComboBox.Resources>
+                                    <sys:Double x:Key="VersionTypeListFontSize">10</sys:Double>
+                                </ComboBox.Resources>
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock FontSize="{DynamicResource VersionTypeListFontSize}" Text="{Binding Id}"></TextBlock>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                                <ComboBox.Items>
+                                    <ComboBoxItem Tag="vanilla" IsSelected="True">Vanilla</ComboBoxItem>
+                                    <ComboBoxItem Tag="forge">Forge</ComboBoxItem>
+                                    <ComboBoxItem Tag="fabric">Fabric</ComboBoxItem>
+                                    <ComboBoxItem Tag="neoforge">Neoforge</ComboBoxItem>
+                                    <ComboBoxItem Tag="quilt">Quilt</ComboBoxItem>
+                                </ComboBox.Items>
+                            </ComboBox>
+                            <ComboBox x:Name="cb_instances_version" SelectedValuePath="Content" SelectionChanged="InstanceVersion_SelectionChanged" ItemsSource="{Binding Path=VersionList}" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="98,22,10,25" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White">
+                                <ComboBox.Resources>
+                                    <sys:Double x:Key="VersionListFontSize">10</sys:Double>
+                                </ComboBox.Resources>
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock FontSize="{DynamicResource VersionListFontSize}" Text="{Binding Id}"></TextBlock>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <CheckBox x:Name="checkb_instances_version_releases" IsChecked="True" Content="Show Releases" HorizontalAlignment="Center" Margin="-205,55,0,0" VerticalAlignment="Top" Background="White" Foreground="White" FontWeight="Light" FontSize="10" VerticalContentAlignment="Center"/>
+                            <CheckBox x:Name="checkb_instances_version_snapshots" Content="Show Snapshots" HorizontalAlignment="Center" Margin="0,55,0,0" VerticalAlignment="Top" Background="White" Foreground="White" FontWeight="Light" FontSize="10" VerticalContentAlignment="Center"/>
+                            <CheckBox x:Name="checkb_instances_version_betas" Content="Show Old Betas" HorizontalAlignment="Left" Margin="205,55,0,0" VerticalAlignment="Top" Background="White" Foreground="White" FontWeight="Light" FontSize="10" VerticalContentAlignment="Center"/>
                         </Grid>
 
                         <!-- Game Dir -->

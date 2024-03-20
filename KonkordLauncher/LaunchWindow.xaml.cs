@@ -15,6 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Collections.Generic;
 using System.Linq;
+using KonkordLauncher.API.Interfaces;
 
 namespace KonkordLauncher
 {
@@ -37,7 +38,12 @@ namespace KonkordLauncher
         public Thickness ListBorderMargin { get; set; } = new Thickness(5,2,0,2);
         #endregion
 
-        public LaunchWindow()
+        public LaunchWindow() : this(null)
+        {
+
+        }
+
+        public LaunchWindow(string? versionId)
         {
             InitializeComponent();
             Loaded += Window_Loaded;
@@ -149,10 +155,21 @@ namespace KonkordLauncher
             WindowHelper.ResizeFont(lab_instances_jvm, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(lab_instances_jvm_placeholder, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(tb_instances_jvm, _heightMultiplier, _widthMultiplier);
+
+            WindowHelper.Resize(grid_instances_version, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_instances_version, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(cb_instances_version_type, _heightMultiplier, _widthMultiplier);
+            cb_instances_version_type.Resources["VersionTypeListFontSize"] = double.Parse(cb_instances_version_type.Resources["VersionTypeListFontSize"].ToString()) * _widthMultiplier;
+            WindowHelper.Resize(cb_instances_version, _heightMultiplier, _widthMultiplier);
+            cb_instances_version.Resources["VersionListFontSize"] = double.Parse(cb_instances_version.Resources["VersionListFontSize"].ToString()) * _widthMultiplier;
+            WindowHelper.ResizeFont(checkb_instances_version_releases, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(checkb_instances_version_betas, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(checkb_instances_version_snapshots, _heightMultiplier, _widthMultiplier);
             #endregion
             #endregion
 
             RefreshInstances();
+            LoadVersions();
             listbox_icons.DataContext = ProfileIcon.Icons;
         }
 
@@ -253,6 +270,34 @@ namespace KonkordLauncher
             listbox_launchinstances.SelectedIndex = profiles.Values.ToList().IndexOf(SelectedProfile);
             listbox_launchinstances.ScrollIntoView(listbox_launchinstances.SelectedItem);
             lab_selected_profile.Content = SelectedProfile.Name.ToLower();
+
+        }
+        
+        private void LoadVersions()
+        {
+            #region Vanilla
+            List<IVersion> localVersions = new List<IVersion>();
+
+
+
+            VersionDic.Add("vanilla", localVersions);
+            #endregion
+
+            #region Forge & NeoForge
+
+            #endregion
+
+            #region Fabric
+
+            #endregion
+
+            #region Quilt
+
+            #endregion
+        }
+
+        private void RefreshVersions(string versionType)
+        {
 
         }
         #endregion
@@ -785,6 +830,7 @@ namespace KonkordLauncher
         #region Instances
         #region Variables
         public string SelectedIcon { get; set; }
+        public Dictionary<string, List<IVersion>> VersionDic {  get; set; }
         #endregion
 
         private void InstancesSave_Click(object sender, RoutedEventArgs e)
@@ -923,14 +969,72 @@ namespace KonkordLauncher
 
         private void InstancesResolutionX_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-
+            e.Handled = !e.Text.All(x => char.IsNumber(x));
         }
 
         private void InstancesResolutionY_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-
+            e.Handled = !e.Text.All(x => char.IsNumber(x));
         }
 
+        private void InstanceVersionType_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cb_instances_version_type.SelectedValue == null)
+                return;
+
+            string version = cb_instances_version_type.SelectedValue.ToString().ToLower();
+            switch (version)
+            {
+                case "vanilla":
+                    {
+                        checkb_instances_version_releases.IsEnabled = true;
+                        checkb_instances_version_releases.Visibility = Visibility.Visible;
+                        checkb_instances_version_snapshots.IsEnabled = true;
+                        checkb_instances_version_snapshots.Visibility = Visibility.Visible;
+                        checkb_instances_version_betas.IsEnabled = true;
+                        checkb_instances_version_betas.Visibility = Visibility.Visible;
+                        break;
+                    }
+                case "forge":
+                case "neoforge":
+                    {
+                        checkb_instances_version_releases.IsEnabled = false;
+                        checkb_instances_version_releases.Visibility = Visibility.Hidden;
+                        checkb_instances_version_snapshots.IsEnabled = false;
+                        checkb_instances_version_snapshots.Visibility = Visibility.Hidden;
+                        checkb_instances_version_betas.IsEnabled = false;
+                        checkb_instances_version_betas.Visibility = Visibility.Hidden;
+                        break;
+                    }
+                case "fabric":
+                    {
+                        checkb_instances_version_releases.IsEnabled = true;
+                        checkb_instances_version_releases.Visibility = Visibility.Visible;
+                        checkb_instances_version_snapshots.IsEnabled = true;
+                        checkb_instances_version_snapshots.Visibility = Visibility.Visible;
+                        checkb_instances_version_betas.IsEnabled = false;
+                        checkb_instances_version_betas.Visibility = Visibility.Hidden;
+                        break;
+                    }
+                case "quilt":
+                    {
+                        checkb_instances_version_releases.IsEnabled = true;
+                        checkb_instances_version_releases.Visibility = Visibility.Visible;
+                        checkb_instances_version_snapshots.IsEnabled = true;
+                        checkb_instances_version_snapshots.Visibility = Visibility.Visible;
+                        checkb_instances_version_betas.IsEnabled = false;
+                        checkb_instances_version_betas.Visibility = Visibility.Hidden;
+                        break;
+                    }
+            }
+            RefreshVersions(version);
+        }
+
+        private void InstanceVersion_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cb_instances_version.SelectedValue == null)
+                return;
+        }
         #endregion
 
 

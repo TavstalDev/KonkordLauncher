@@ -185,7 +185,7 @@
                                     <ComboBoxItem Tag="quilt">Quilt</ComboBoxItem>
                                 </ComboBox.Items>
                             </ComboBox>
-                            <ComboBox x:Name="cb_instances_version" SelectedValuePath="Content" SelectionChanged="InstanceVersion_SelectionChanged" ItemsSource="{Binding Path=VersionList}" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="98,22,10,25" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White">
+                            <ComboBox x:Name="cb_instances_version" SelectedValuePath="Content" SelectionChanged="InstanceVersion_SelectionChanged" ItemsSource="{Binding}" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="98,22,10,25" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White">
                                 <ComboBox.Resources>
                                     <sys:Double x:Key="VersionListFontSize">10</sys:Double>
                                 </ComboBox.Resources>
@@ -195,9 +195,9 @@
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
-                            <CheckBox x:Name="checkb_instances_version_releases" IsChecked="True" Content="Show Releases" HorizontalAlignment="Center" Margin="-205,55,0,0" VerticalAlignment="Top" Background="White" Foreground="White" FontWeight="Light" FontSize="10" VerticalContentAlignment="Center"/>
-                            <CheckBox x:Name="checkb_instances_version_snapshots" Content="Show Snapshots" HorizontalAlignment="Center" Margin="0,55,0,0" VerticalAlignment="Top" Background="White" Foreground="White" FontWeight="Light" FontSize="10" VerticalContentAlignment="Center"/>
-                            <CheckBox x:Name="checkb_instances_version_betas" Content="Show Old Betas" HorizontalAlignment="Left" Margin="205,55,0,0" VerticalAlignment="Top" Background="White" Foreground="White" FontWeight="Light" FontSize="10" VerticalContentAlignment="Center"/>
+                            <CheckBox x:Name="checkb_instances_version_releases" Checked="InstancesVersion_Checked" Unchecked="InstancesVersion_Checked" IsChecked="True" Content="Show Releases" HorizontalAlignment="Center" Margin="-205,55,0,0" VerticalAlignment="Top" Background="White" Foreground="White" FontWeight="Light" FontSize="10" VerticalContentAlignment="Center"/>
+                            <CheckBox x:Name="checkb_instances_version_snapshots" Checked="InstancesVersion_Checked" Unchecked="InstancesVersion_Checked" Content="Show Snapshots" HorizontalAlignment="Center" Margin="0,55,0,0" VerticalAlignment="Top" Background="White" Foreground="White" FontWeight="Light" FontSize="10" VerticalContentAlignment="Center"/>
+                            <CheckBox x:Name="checkb_instances_version_betas" Checked="InstancesVersion_Checked" Unchecked="InstancesVersion_Checked" Content="Show Old Betas" HorizontalAlignment="Left" Margin="205,55,0,0" VerticalAlignment="Top" Background="White" Foreground="White" FontWeight="Light" FontSize="10" VerticalContentAlignment="Center"/>
                         </Grid>
 
                         <!-- Game Dir -->

@@ -27,8 +27,8 @@ namespace KonkordLauncher.API.Helpers
 
         private static readonly string _versionsDir = Path.Combine(_mainDir, "versions");
         public static string VersionsDir { get { return _versionsDir; } }
-        private static readonly string _mainfestDir = Path.Combine(_mainDir, "manifests");
-        public static string MainfestDir { get { return _mainfestDir; } }
+        private static readonly string _manifestDir = Path.Combine(_mainDir, "manifests");
+        public static string ManifestDir { get { return _manifestDir; } }
 
         private static readonly string _cacheDir = Path.Combine(_mainDir, "cache");
         public static string CacheDir { get { return _cacheDir; } }
@@ -312,11 +312,11 @@ namespace KonkordLauncher.API.Helpers
         }
     
         public static async Task<bool> ValidateManifests() {
-            if (!Directory.Exists(_mainfestDir))
-                Directory.CreateDirectory(_mainfestDir);
+            if (!Directory.Exists(_manifestDir))
+                Directory.CreateDirectory(_manifestDir);
 
             #region Vanilla
-            string path = Path.Combine(_mainfestDir, "vanillaManifest.json");
+            string path = Path.Combine(_manifestDir, "vanillaManifest.json");
             if (!File.Exists(path))
             {
                 using (var httpClient = new HttpClient())
@@ -329,7 +329,7 @@ namespace KonkordLauncher.API.Helpers
             #endregion
 
             #region Fabric
-            path = Path.Combine(_mainfestDir, "fabricManifest.json");
+            path = Path.Combine(_manifestDir, "fabricManifest.json");
             if (!File.Exists(path))
             {
                 using (var httpClient = new HttpClient())
@@ -342,7 +342,7 @@ namespace KonkordLauncher.API.Helpers
             #endregion
 
             #region Forge & NeoForge
-            path = Path.Combine(_mainfestDir, "forgeManifest.json");
+            path = Path.Combine(_manifestDir, "forgeManifest.json");
             if (!File.Exists(path))
             {
                 using (var httpClient = new HttpClient())
@@ -355,7 +355,7 @@ namespace KonkordLauncher.API.Helpers
             #endregion
 
             #region Quilt
-            path = Path.Combine(_mainfestDir, "quiltManifest.json");
+            path = Path.Combine(_manifestDir, "quiltManifest.json");
             if (!File.Exists(path))
             {
                 using (var httpClient = new HttpClient())

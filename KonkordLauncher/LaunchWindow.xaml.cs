@@ -1,11 +1,13 @@
-﻿using KonkordLauncher.API.Helpers;
+﻿using KonkordLauncher.API.Enums;
+using KonkordLauncher.API.Helpers;
 using KonkordLauncher.API.Models;
 using KonkordLauncher.API.Models.Minecraft;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows;
@@ -13,9 +15,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Collections.Generic;
-using System.Linq;
-using KonkordLauncher.API.Interfaces;
 
 namespace KonkordLauncher
 {
@@ -170,6 +169,8 @@ namespace KonkordLauncher
 
             RefreshInstances();
             LoadVersions();
+            if (versionId == null)
+                RefreshDropdownVersions("vanilla");
             listbox_icons.DataContext = ProfileIcon.Icons;
         }
 
@@ -275,31 +276,86 @@ namespace KonkordLauncher
         
         private void LoadVersions()
         {
+            if (VersionDic != null)
+                return;
+
+            VersionDic = new Dictionary<string, List<VersionBase>>();
+
             #region Vanilla
-            List<IVersion> localVersions = new List<IVersion>();
+            List<VersionBase> localVersions = new List<VersionBase>();
 
-
+            var manifest = JsonConvert.DeserializeObject<VersionManifest>(File.ReadAllText(Path.Combine(IOHelper.ManifestDir, "vanillaManifest.json")));
+            foreach (var v in manifest.Versions)
+            {
+                localVersions.Add(new VersionBase(v.Id, v.GetVersionBaseType()));
+            }
 
             VersionDic.Add("vanilla", localVersions);
             #endregion
 
             #region Forge & NeoForge
+            localVersions = new List<VersionBase>();
 
+            string raw = File.ReadAllText(Path.Combine(IOHelper.ManifestDir, "forgeManifest.json"));
+            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            doc.LoadXml(raw);
+            JObject jObj = JObject.Parse(JsonConvert.SerializeXmlNode(doc));
+            foreach (var v in jObj["metadata"]["versioning"]["versions"]["version"].ToList())
+            {
+                localVersions.Add(new VersionBase(v.ToString(), EVersionType.RELEASE));
+            }
+
+            VersionDic.Add("forge", localVersions);
             #endregion
 
             #region Fabric
+            localVersions = new List<VersionBase>();
+            raw = File.ReadAllText(Path.Combine(IOHelper.ManifestDir, "fabricManifest.json"));
+            JArray jArray = JArray.Parse(raw);
+            foreach (var token in jArray)
+            {
+                localVersions.Add(new VersionBase(token["version"].ToString(), bool.Parse(token["stable"].ToString()) ? EVersionType.RELEASE : EVersionType.SNAPSHOT));
+            }
 
+            VersionDic.Add("fabric", localVersions);
             #endregion
 
             #region Quilt
+            localVersions = new List<VersionBase>();
+            raw = File.ReadAllText(Path.Combine(IOHelper.ManifestDir, "quiltManifest.json"));
+            jObj = JObject.Parse(raw);
+            foreach (var token in jObj["loader"].ToList())
+            {
+                localVersions.Add(new VersionBase(token["version"].ToString(), token["maven"].ToString().Contains("beta") ? EVersionType.SNAPSHOT : EVersionType.RELEASE));
+            }
 
+            VersionDic.Add("quilt", localVersions);
             #endregion
         }
 
-        private void RefreshVersions(string versionType)
+        private void RefreshDropdownVersions(string versionType)
         {
+            if (checkb_instances_version_betas == null || checkb_instances_version_releases == null || checkb_instances_version_snapshots == null)
+                return;
 
+            if (versionType == "neoforge")
+                versionType = "forge";
+
+            bool showReleases = true;
+            if (checkb_instances_version_releases.IsEnabled)
+                showReleases = checkb_instances_version_releases.IsChecked.Value;
+            bool showSnapshots = true;
+            if (checkb_instances_version_snapshots.IsEnabled)
+                showSnapshots = checkb_instances_version_snapshots.IsChecked.Value;
+            bool showOldBetas = true;
+            if (checkb_instances_version_betas.IsEnabled)
+                showOldBetas = checkb_instances_version_betas.IsChecked.Value;
+
+            cb_instances_version.DataContext = VersionDic[versionType].FindAll(x => (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
+            cb_instances_version.SelectedIndex = 0;
         }
+
+
         #endregion
 
         #region Window Events
@@ -490,7 +546,7 @@ namespace KonkordLauncher
                 case API.Enums.EProfileKind.VANILLA:
                     {
                         // Read the Version Manifest
-                        VersionManifest? manifest = await JsonHelper.ReadJsonFile<VersionManifest>(System.IO.Path.Combine(IOHelper.MainfestDir, "vanillaManifest.json"));
+                        VersionManifest? manifest = await JsonHelper.ReadJsonFile<VersionManifest>(System.IO.Path.Combine(IOHelper.ManifestDir, "vanillaManifest.json"));
                         if (manifest == null)
                         {
                             NotificationHelper.SendError("Failed to get the vanilla manifest file.", "Error");
@@ -830,12 +886,22 @@ namespace KonkordLauncher
         #region Instances
         #region Variables
         public string SelectedIcon { get; set; }
-        public Dictionary<string, List<IVersion>> VersionDic {  get; set; }
+        public Dictionary<string, List<VersionBase>> VersionDic {  get; set; }
         #endregion
 
         private void InstancesSave_Click(object sender, RoutedEventArgs e)
         {
+            if (string.IsNullOrEmpty(tb_instances_name.Text))
+            {
+                NotificationHelper.SendError("You must provide the name of the instance.", "Error");
+                return;
+            }
 
+            if (cb_instances_version.SelectedIndex < 0)
+            {
+                NotificationHelper.SendError("You must select a version.", "Error");
+                return;
+            }
         }
         private void InstancesCancel_Click(object sender, RoutedEventArgs e)
         {
@@ -1027,7 +1093,7 @@ namespace KonkordLauncher
                         break;
                     }
             }
-            RefreshVersions(version);
+            RefreshDropdownVersions(version);
         }
 
         private void InstanceVersion_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -1035,8 +1101,11 @@ namespace KonkordLauncher
             if (cb_instances_version.SelectedValue == null)
                 return;
         }
+
+        private void InstancesVersion_Checked(object sender, RoutedEventArgs e)
+        {
+            RefreshDropdownVersions(cb_instances_version_type.SelectedValue.ToString().ToLower());
+        }
         #endregion
-
-
     }
 }

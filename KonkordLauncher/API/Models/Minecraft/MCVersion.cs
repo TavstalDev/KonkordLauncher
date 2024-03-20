@@ -2,10 +2,11 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System;
+using KonkordLauncher.API.Interfaces;
 
 namespace KonkordLauncher.API.Models.Minecraft
 {
-    public class MCVersion
+    public class MCVersion : IVersion
     {
         [JsonPropertyName("id")]
         public string Id {  get; set; }
@@ -18,26 +19,40 @@ namespace KonkordLauncher.API.Models.Minecraft
         [JsonPropertyName("releaseTime")]
         public DateTime ReleaseTime {  get; set; }
 
-        public EVersionType GetVersionType()
+        [JsonIgnore]
+        public EVersionType VersionType { get 
+            { 
+                switch (GetVersionType())
+                {
+                    case EMCVersionType.RELEASE: 
+                        return EVersionType.RELEASE;
+                    case EMCVersionType.SNAPSHOT:
+                        return EVersionType.SNAPSHOT;
+                    default:
+                        return EVersionType.BETA;
+                }
+            } set { } }
+
+        public EMCVersionType GetVersionType()
         {
             switch (Type)
             {
                 case "snapshot":
                     {
-                        return EVersionType.SNAPSHOT;
+                        return EMCVersionType.SNAPSHOT;
                     }
                 case "old_alpha":
                     {
-                        return EVersionType.OLD_ALPHA;
+                        return EMCVersionType.OLD_ALPHA;
                     }
                 case "old_beta":
                     {
-                        return EVersionType.OLD_BETA;
+                        return EMCVersionType.OLD_BETA;
                     }
                 default:
                 case "release":
                     {
-                        return EVersionType.RELEASE;
+                        return EMCVersionType.RELEASE;
                     }
             }
         }

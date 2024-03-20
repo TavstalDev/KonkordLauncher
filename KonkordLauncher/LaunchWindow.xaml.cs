@@ -920,6 +920,17 @@ namespace KonkordLauncher
             lab_instances_resolution_y_placeholder.IsEnabled = enab;
             lab_instances_resolution_y_placeholder.Visibility = enab ? Visibility.Visible : Visibility.Hidden;
         }
+
+        private void InstancesResolutionX_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+
+        }
+
+        private void InstancesResolutionY_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+
+        }
+
         #endregion
 
 

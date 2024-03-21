@@ -37,6 +37,11 @@ namespace KonkordLibrary.Managers
         public static string QuiltDownloadUrl { get { return _quiltDownloadUrl; } }
         #endregion
 
+        #region Version Functions
+        // TODO: implement multiple functions from LaunchWindow - LaunchPlay_Click to make more maintanable code. 
+        #endregion
+
+        #region Functions
         /// <summary>
         /// Retrieves the UUID (Universally Unique Identifier) of a player based on the provided username.
         /// </summary>
@@ -82,5 +87,6 @@ namespace KonkordLibrary.Managers
         {
             return GetPlayerUUID($"{username}");
         }
+        #endregion
     }
 }

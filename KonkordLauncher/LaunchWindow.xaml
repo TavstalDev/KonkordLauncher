@@ -185,7 +185,7 @@
                                     <ComboBoxItem Tag="quilt">Quilt</ComboBoxItem>
                                 </ComboBox.Items>
                             </ComboBox>
-                            <ComboBox x:Name="cb_instances_version" SelectedValuePath="Content" SelectionChanged="InstanceVersion_SelectionChanged" ItemsSource="{Binding}" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="0,22,0,25" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White" HorizontalAlignment="Right" Width="200">
+                            <ComboBox x:Name="cb_instances_version" SelectedValuePath="Content" ItemsSource="{Binding}" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="0,22,0,25" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White" HorizontalAlignment="Right" Width="200">
                                 <ComboBox.Resources>
                                     <sys:Double x:Key="VersionListFontSize">10</sys:Double>
                                 </ComboBox.Resources>

@@ -529,6 +529,11 @@ namespace KonkordLauncher
 
         #region Main
         #region Logout Button
+        /// <summary>
+        /// Handles the click event of the logout button in the launch interface.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private async void LaunchLogout_Click(object sender, RoutedEventArgs e)
         {
             string path = System.IO.Path.Combine(IOHelper.MainDirectory, "accounts.json");
@@ -543,12 +548,22 @@ namespace KonkordLauncher
             this.Close();
         }
 
+        /// <summary>
+        /// Handles the mouse enter event of the logout button in the launch interface.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void LaunchLogout_MouseEnter(object sender, MouseEventArgs e)
         {
             gr_account.Background = new SolidColorBrush(Color.FromScRgb(0.15f, 0, 0, 0));
             gr_account.BorderBrush = new SolidColorBrush(Color.FromScRgb(0.15f, 0, 0, 0));
         }
 
+        /// <summary>
+        /// Handles the mouse leave event of the logout button in the launch interface.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void LaunchLogout_MouseLeave(object sender, MouseEventArgs e)
         {
             gr_account.Background = new SolidColorBrush(Color.FromScRgb(0f, 0, 0, 0));
@@ -557,18 +572,33 @@ namespace KonkordLauncher
         #endregion
 
         #region New Instance Button
-        private async void NewInstance_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Handles the click event of the "New Instance" button.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
+        private void NewInstance_Click(object sender, RoutedEventArgs e)
         {
             bo_instances.IsEnabled = true;
             bo_instances.Visibility = Visibility.Visible;
         }
 
+        /// <summary>
+        /// Handles the mouse enter event of the "New Instance" button.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void NewInstance_MouseEnter(object sender, MouseEventArgs e)
         {
             bo_new_instance.Background = new SolidColorBrush(Color.FromScRgb(0.15f, 0, 0, 0));
             bo_new_instance.BorderBrush = new SolidColorBrush(Color.FromScRgb(0.15f, 0, 0, 0));
         }
 
+        /// <summary>
+        /// Handles the mouse leave event of the "New Instance" button.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void NewInstance_MouseLeave(object sender, MouseEventArgs e)
         {
             bo_new_instance.Background = new SolidColorBrush(Color.FromScRgb(0f, 0, 0, 0));
@@ -577,17 +607,32 @@ namespace KonkordLauncher
         #endregion
 
         #region Language Button
-        private async void Language_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Handles the click event of the language selection button.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
+        private void Language_Click(object sender, RoutedEventArgs e)
         {
             
         }
 
+        /// <summary>
+        /// Handles the mouse enter event of the language selection button.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void Language_MouseEnter(object sender, MouseEventArgs e)
         {
             bo_language.Background = new SolidColorBrush(Color.FromScRgb(0.15f, 0, 0, 0));
             bo_language.BorderBrush = new SolidColorBrush(Color.FromScRgb(0.15f, 0, 0, 0));
         }
 
+        /// <summary>
+        /// Handles the mouse leave event of the language selection button.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void Language_MouseLeave(object sender, MouseEventArgs e)
         {
             bo_language.Background = new SolidColorBrush(Color.FromScRgb(0f, 0, 0, 0));
@@ -595,28 +640,19 @@ namespace KonkordLauncher
         }
         #endregion
 
-        #region Launcher New Instance
-        private void LauncherNew_MouseEnter(object sender, MouseEventArgs e)
-        {
-            //bo_launcher_new.Background = new SolidColorBrush(Color.FromScRgb(0.15f, 0, 0, 0));
-            //bo_launcher_new.BorderBrush = new SolidColorBrush(Color.FromScRgb(0.15f, 0, 0, 0));
-        }
-
-        private void LauncherNew_MouseLeave(object sender, MouseEventArgs e)
-        {
-            //bo_launcher_new.Background = new SolidColorBrush(Color.FromScRgb(0f, 0, 0, 0));
-            //bo_launcher_new.BorderBrush = new SolidColorBrush(Color.FromScRgb(0f, 0, 0, 0));
-        }
-
-        #endregion
-
-
         private readonly double _launchMaxStep = 4;
+        /// <summary>
+        /// Handles the click event of the "Play" button in the launch interface.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private async void LaunchPlay_Click(object sender, RoutedEventArgs e)
         {
+            // Disable play button
             bo_launch_play.IsEnabled = false;
             btn_launch_play.IsEnabled = false;
 
+            #region Check requirements
             AccountData? accountData = await  JsonHelper.ReadJsonFileAsync<AccountData>(System.IO.Path.Combine(IOHelper.MainDirectory, "accounts.json"));
             if (accountData == null)
             {
@@ -644,7 +680,9 @@ namespace KonkordLauncher
                 NotificationHelper.SendError("Could not launch the game because an invalid profile is selected.", "Error");
                 return;
             }
+            #endregion
 
+            #region Declare variables
             string version = string.Empty;
             string versionDirectory = string.Empty;
             string versionJsonPath = string.Empty;
@@ -652,10 +690,12 @@ namespace KonkordLauncher
             string gameDir = string.Empty;
             string libraryBundle = string.Empty;
             string assetIndex = string.Empty;
-            //System.IO.Path.Combine(IOHelper.VersionsDir, )
+            #endregion
 
+            // Enable install progressbar TODO: This should be reworked later, but at the moment it's unimportant
             bo_install.IsEnabled = true;
             bo_install.Visibility = Visibility.Visible;
+            // Reset progressbar value
             pb_status.Value = 0d;
             lab_install.Content = $"Reading the manifest file...";
             List<string> argumnets = new List<string>();
@@ -860,12 +900,12 @@ namespace KonkordLauncher
                         // TODO 
                         break;
                     }
-                case EProfileKind.FABRIC: // TODO
+                case EProfileKind.FABRIC:
                     {
                         // TODO
                         break;
                     }
-                case EProfileKind.QUILT: // TODO
+                case EProfileKind.QUILT:
                     {
                         // TODO
                         break;
@@ -944,8 +984,11 @@ namespace KonkordLauncher
             }
             #endregion
 
+            #region Finish and Launch Minecraft
+            // Enable play button
             bo_launch_play.IsEnabled = true;
             btn_launch_play.IsEnabled = true;
+            // Disable progressbar
             bo_install.IsEnabled = false;
             bo_install.Visibility = Visibility.Hidden;
             //Launch game instance
@@ -981,8 +1024,14 @@ namespace KonkordLauncher
                         break;
                     }
             }
+            #endregion
         }
 
+        /// <summary>
+        /// Handles the selection changed event of the ListBox.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private async void listbox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (listbox_launchinstances.SelectedIndex < 0)
@@ -1005,6 +1054,11 @@ namespace KonkordLauncher
         public Dictionary<string, List<VersionBase>> VersionDic {  get; set; }
         #endregion
 
+        /// <summary>
+        /// Handles the click event of the instances save button.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private async void InstancesSave_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(tb_instances_name.Text))
@@ -1068,6 +1122,12 @@ namespace KonkordLauncher
                 Debug.WriteLine(ex.ToString());
             }
         }
+
+        /// <summary>
+        /// Handles the click event of the instances cancel button.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void InstancesCancel_Click(object sender, RoutedEventArgs e)
         {
             bo_instances.IsEnabled = false;
@@ -1075,6 +1135,11 @@ namespace KonkordLauncher
         }
 
         #region Icon Edit
+        /// <summary>
+        /// Handles the click event of the instances icon button.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void InstancesIcon_Click(object sender, RoutedEventArgs e)
         {
             if (bo_instances_iconlist.IsEnabled)
@@ -1091,18 +1156,33 @@ namespace KonkordLauncher
             }
         }
 
+        /// <summary>
+        /// Handles the mouse enter event of the instances icon button.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void InstancesIcon_MouseEnter(object sender, MouseEventArgs e)
         {
             bo_instances_icon.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#33000000"));
             bo_instances_icon.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#33000000"));
         }
 
+        /// <summary>
+        /// Handles the mouse leave event of the instances icon button.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void InstancesIcon_MouseLeave(object sender, MouseEventArgs e)
         {
             bo_instances_icon.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00000000"));
             bo_instances_icon.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00000000"));
         }
 
+        /// <summary>
+        /// Handles the click event of the instances icon select button.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void InstancesIconSelect_Click(object sender, RoutedEventArgs e)
         {
             if (bo_instances_iconlist.IsEnabled)
@@ -1121,6 +1201,11 @@ namespace KonkordLauncher
 
         #endregion
 
+        /// <summary>
+        /// Handles the text changed event of the instances name TextBox.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void InstancesName_TextChanged(object sender, TextChangedEventArgs e)
         {
             bool enab = string.IsNullOrEmpty(tb_instances_name.Text);
@@ -1128,6 +1213,11 @@ namespace KonkordLauncher
             lab_instances_name_placeholder.Visibility = enab ? Visibility.Visible : Visibility.Hidden;
         }
 
+        /// <summary>
+        /// Handles the text changed event of the instances JVM TextBox.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void InstancesJVM_TextChanged(object sender, TextChangedEventArgs e)
         {
             bool enab = string.IsNullOrEmpty(tb_instances_jvm.Text);
@@ -1135,6 +1225,11 @@ namespace KonkordLauncher
             lab_instances_jvm_placeholder.Visibility = enab ? Visibility.Visible : Visibility.Hidden;
         }
 
+        /// <summary>
+        /// Handles the text changed event of the instances Java directory TextBox.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void InstancesJavaDir_TextChanged(object sender, TextChangedEventArgs e)
         {
             bool enab = string.IsNullOrEmpty(tb_instances_javadir.Text);
@@ -1142,6 +1237,11 @@ namespace KonkordLauncher
             lab_instances_javadir_placeholder.Visibility = enab ? Visibility.Visible : Visibility.Hidden;
         }
 
+        /// <summary>
+        /// Handles the text changed event of the instances game directory TextBox.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void InstancesGameDir_TextChanged(object sender, TextChangedEventArgs e)
         {
             bool enab = string.IsNullOrEmpty(tb_instances_gamedir.Text);
@@ -1149,6 +1249,11 @@ namespace KonkordLauncher
             lab_instances_gamedir_placeholder.Visibility = enab ? Visibility.Visible : Visibility.Hidden;
         }
 
+        /// <summary>
+        /// Handles the click event of the instances game directory button.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void InstancesGamedir_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new System.Windows.Forms.FolderBrowserDialog();
@@ -1174,6 +1279,11 @@ namespace KonkordLauncher
             }
         }
 
+        /// <summary>
+        /// Handles the click event of the instances Java directory button.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void InstancesJavadir_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new System.Windows.Forms.FolderBrowserDialog();
@@ -1198,6 +1308,11 @@ namespace KonkordLauncher
             }
         }
 
+        /// <summary>
+        /// Handles the text changed event of the instances X resolution TextBox.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void InstancesResolutionX_TextChanged(object sender, TextChangedEventArgs e)
         {
             bool enab = string.IsNullOrEmpty(tb_instances_resolution_x.Text);
@@ -1205,6 +1320,11 @@ namespace KonkordLauncher
             lab_instances_resolution_x_placeholder.Visibility = enab ? Visibility.Visible : Visibility.Hidden;
         }
 
+        /// <summary>
+        /// Handles the text changed event of the instances Y resolution TextBox.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void InstancesResolutionY_TextChanged(object sender, TextChangedEventArgs e)
         {
             bool enab = string.IsNullOrEmpty(tb_instances_resolution_y.Text);
@@ -1212,16 +1332,31 @@ namespace KonkordLauncher
             lab_instances_resolution_y_placeholder.Visibility = enab ? Visibility.Visible : Visibility.Hidden;
         }
 
+        /// <summary>
+        /// Handles the preview text input event of the instances X resolution TextBox.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void InstancesResolutionX_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             e.Handled = !e.Text.All(x => char.IsNumber(x));
         }
 
+        /// <summary>
+        /// Handles the preview text input event of the instances Y resolution TextBox.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void InstancesResolutionY_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             e.Handled = !e.Text.All(x => char.IsNumber(x));
         }
 
+        /// <summary>
+        /// Handles the selection changed event of the instance version type ComboBox.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void InstanceVersionType_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (cb_instances_version_type.SelectedValue == null)
@@ -1275,12 +1410,11 @@ namespace KonkordLauncher
             RefreshDropdownVersions(version);
         }
 
-        private void InstanceVersion_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (cb_instances_version.SelectedValue == null)
-                return;
-        }
-
+        /// <summary>
+        /// Handles the checked event of the instances version CheckBox.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void InstancesVersion_Checked(object sender, RoutedEventArgs e)
         {
             RefreshDropdownVersions(cb_instances_version_type.SelectedValue.ToString().ToLower());

@@ -4,7 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 
-namespace KonkordLauncher.API.Helpers
+namespace KonkordLibrary.Helpers
 {
     public static class WindowHelper
     {

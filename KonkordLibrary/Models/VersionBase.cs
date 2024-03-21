@@ -1,6 +1,6 @@
-﻿using KonkordLauncher.API.Enums;
+﻿using KonkordLibrary.Enums;
 
-namespace KonkordLauncher.API.Models
+namespace KonkordLibrary.Models
 {
     public class VersionBase
     {

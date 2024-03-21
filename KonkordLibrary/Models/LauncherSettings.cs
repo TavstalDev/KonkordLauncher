@@ -1,10 +1,10 @@
-﻿using KonkordLauncher.API.Helpers;
+﻿using KonkordLibrary.Helpers;
 using System.IO;
 using System.Text.Json.Serialization;
 using System;
 using System.Collections.Generic;
 
-namespace KonkordLauncher.API.Models
+namespace KonkordLibrary.Models
 {
     [Serializable]
     public class LauncherSettings

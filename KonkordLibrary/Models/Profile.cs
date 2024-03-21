@@ -1,10 +1,10 @@
-﻿using KonkordLauncher.API.Enums;
-using KonkordLauncher.API.Helpers;
+﻿using KonkordLibrary.Enums;
+using KonkordLibrary.Helpers;
 using System.IO;
 using System.Text.Json.Serialization;
 using System;
 
-namespace KonkordLauncher.API.Models
+namespace KonkordLibrary.Models
 {
     [Serializable]
     public class Profile

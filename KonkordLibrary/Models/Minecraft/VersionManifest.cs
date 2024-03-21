@@ -2,7 +2,7 @@
 using System.Text.Json.Serialization;
 using System.Collections.Generic;
 
-namespace KonkordLauncher.API.Models.Minecraft
+namespace KonkordLibrary.Models.Minecraft
 {
     public class VersionManifest
     {

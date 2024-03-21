@@ -1,4 +1,4 @@
-﻿namespace KonkordLauncher.API.Enums
+﻿namespace KonkordLibrary.Enums
 {
     public enum EProfileKind
     {

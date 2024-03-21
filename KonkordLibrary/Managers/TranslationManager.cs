@@ -1,9 +1,6 @@
-﻿using KonkordLauncher.API.Helpers;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System;
+﻿using KonkordLibrary.Helpers;
 
-namespace KonkordLauncher.API.Managers
+namespace KonkordLibrary.Managers
 {
     public static class TranslationManager
     {
@@ -38,16 +35,20 @@ namespace KonkordLauncher.API.Managers
             _initialized = true;
         }
 
-        public static async Task<Dictionary<string, string>?> ReadTranslationAsync(string path)
+        public static async Task<Dictionary<string, string>> ReadTranslationAsync(string path)
         {
             try
             {
-                return await JsonHelper.ReadJsonFile<Dictionary<string, string>>(path);
+                var result = await JsonHelper.ReadJsonFileAsync<Dictionary<string, string>>(path);
+                if (result != null)
+                    return result;
+
+                return new Dictionary<string, string>();
             }
             catch (Exception ex)
             {
                 NotificationHelper.SendError(ex.ToString(), "Error in SaveTranslations");
-                return null;
+                return new Dictionary<string, string>();
             }
         }
 
@@ -55,7 +56,7 @@ namespace KonkordLauncher.API.Managers
         {
             try
             {
-                return await JsonHelper.WriteJsonFile(path, translation);
+                return await JsonHelper.WriteJsonFileAsync(path, translation);
             }
             catch (Exception ex)
             {

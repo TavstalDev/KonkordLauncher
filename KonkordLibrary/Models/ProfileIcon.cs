@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace KonkordLauncher.API.Models
+namespace KonkordLibrary.Models
 {
     [Serializable]
     public class ProfileIcon

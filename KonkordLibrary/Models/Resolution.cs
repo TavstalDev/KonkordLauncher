@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using System;
 
-namespace KonkordLauncher.API.Models
+namespace KonkordLibrary.Models
 {
     [Serializable]
     public class Resolution

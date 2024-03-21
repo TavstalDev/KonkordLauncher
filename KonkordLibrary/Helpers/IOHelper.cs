@@ -1,18 +1,16 @@
-﻿using KonkordLauncher.API.Enums;
-using KonkordLauncher.API.Managers;
-using KonkordLauncher.API.Models;
-using System;
-using System.Collections.Generic;
+﻿using KonkordLibrary.Enums;
+using KonkordLibrary.Managers;
+using KonkordLibrary.Models;
 using System.Diagnostics;
+using System.Text.Json;
 using System.IO;
 using System.Net.Http;
-using System.Text.Json;
-using System.Threading.Tasks;
 
-namespace KonkordLauncher.API.Helpers
+namespace KonkordLibrary.Helpers
 {
     public static class IOHelper
     {
+        #region Directories
         private static readonly string _appDataRoamingDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         public static string AppDataRoamingDir { get {  return _appDataRoamingDir; } }
 
@@ -38,31 +36,30 @@ namespace KonkordLauncher.API.Helpers
 
         private static readonly string _assetsDir = Path.Combine(_mainDir, "assets");
         public static string AssetsDir { get { return _assetsDir; } }
+        #endregion
 
-        public static LauncherSettings? GetLauncherSettings()
-        {
-            FileStream stream = File.OpenRead(Path.Combine(MainDirectory, "launcher.json"));
-            if (stream == null)
-                return null;
+        #region Files
+        private static readonly string _launcherJsonFile = Path.Combine(_mainDir, "launcher.json");
+        public static string LauncherJsonFile { get { return _launcherJsonFile; } }
+        private static readonly string _accountsJsonFile = Path.Combine(_mainDir, "accounts.json");
+        public static string AccountsJsonFile { get { return _accountsJsonFile; } }
 
-            try
-            {
-                LauncherSettings? settings = JsonSerializer.Deserialize<LauncherSettings>(stream);
-                stream.Close();
-                return settings;
-            }
-            catch (Exception ex)
-            {
-                NotificationHelper.SendError(ex.ToString(), "Error in GetLauncherSettings");
-                stream.Close();
-                return null;
-            }
-        }
+        private static readonly string _vanillaManifestJsonFile = Path.Combine(_manifestDir, "vanillaManifest.json");
+        public static string VanillaManifesJsonFile { get { return _vanillaManifestJsonFile; } }
+        private static readonly string _forgeManifestJsonFile = Path.Combine(_manifestDir, "forgeManifest.json");
+        public static string ForgeManifestJsonFile { get { return _forgeManifestJsonFile; } }
+        private static readonly string _fabricManifestJsonFile = Path.Combine(_manifestDir, "fabricManifest.json");
+        public static string FabricManifestJsonFile { get { return _fabricManifestJsonFile; } }
+        private static readonly string _quiltManifestJsonFile = Path.Combine(_manifestDir, "quiltManifest.json");
+        public static string QuiltManifestJsonFile { get { return _quiltManifestJsonFile; } }
+        #endregion
 
+        #region Validating
         public static async Task<bool> ValidateJava()
         {
             try
             {
+                await Task.Delay(1); // Disable warning, made async because it might be changed in the future
                 ProcessStartInfo psi = new ProcessStartInfo();
                 psi.FileName = "java.exe";
                 psi.Arguments = " -version";
@@ -76,15 +73,14 @@ namespace KonkordLauncher.API.Helpers
                 }
                 else
                 {
-                    string javaVersion = pr.StandardError.ReadLine().Split(' ')[2].Replace("\"", "");
+                    /*string javaVersion = pr.StandardError.ReadLine().Split(' ')[2].Replace("\"", "");
 
                     string majorVersion = javaVersion.Split(".")[0];
                     int majorV = int.Parse(majorVersion);
                     if (majorV < 17)
                     {
                         NotificationHelper.SendWarning($"Found an unrecommended version of java ({javaVersion}), we recommend you to use java 17+.", "Java Version");
-                    }
-
+                    }*/
                     return true;
                 }
             }
@@ -149,9 +145,8 @@ namespace KonkordLauncher.API.Helpers
         {
             try
             {
-                string filePath = Path.Combine(MainDirectory, "launcher.json");
                 LauncherSettings? settings = null;
-                if (!File.Exists(filePath))
+                if (!File.Exists(LauncherJsonFile))
                 {
                     settings = new LauncherSettings();
                     using (var stream = new MemoryStream())
@@ -166,7 +161,7 @@ namespace KonkordLauncher.API.Helpers
                         stream.Position = 0;
                         var reader = new StreamReader(stream);
                         string content = await reader.ReadToEndAsync();
-                        await File.WriteAllTextAsync(filePath, content);
+                        await File.WriteAllTextAsync(LauncherJsonFile, content);
                     }
                     return true;
                 }
@@ -184,9 +179,7 @@ namespace KonkordLauncher.API.Helpers
         {
             try
             {
-                string path = Path.Combine(MainDirectory, "accounts.json");
-
-                if (!File.Exists(path))
+                if (!File.Exists(AccountsJsonFile))
                 {
                     AccountData accountData = new AccountData()
                     {
@@ -195,11 +188,11 @@ namespace KonkordLauncher.API.Helpers
                         Accounts = new Dictionary<string, Account> { }
                     };
 
-                    await JsonHelper.WriteJsonFile(path, accountData);
+                    await JsonHelper.WriteJsonFileAsync(AccountsJsonFile, accountData);
                     return true; // No account was found to check
                 }
 
-                AccountData? data = await JsonHelper.ReadJsonFile<AccountData>(path);
+                AccountData? data = await JsonHelper.ReadJsonFileAsync<AccountData>(AccountsJsonFile);
                 if (data == null)
                 {
                     // It should not be null at all if the file exists.
@@ -289,10 +282,10 @@ namespace KonkordLauncher.API.Helpers
                             HttpClient client = new HttpClient();
 
                             string resultJson = await client.GetStringAsync(TranslationManager.LanguagePacks[locale]);
-                            Dictionary<string, string> translation = TranslationManager.DefaultTranslations;
+                            Dictionary<string, string> translation = new Dictionary<string, string>();
                             using (var stream = new MemoryStream())
                             {
-                                translation = await JsonSerializer.DeserializeAsync<Dictionary<string, string>>(stream);
+                                translation = await JsonSerializer.DeserializeAsync<Dictionary<string, string>>(stream) ?? TranslationManager.DefaultTranslations;
                             }
 
                             await TranslationManager.SaveTranslationAsync(localePath, translation ?? TranslationManager.DefaultTranslations);
@@ -310,64 +303,76 @@ namespace KonkordLauncher.API.Helpers
                 return false;
             }
         }
-    
+
         public static async Task<bool> ValidateManifests() {
             if (!Directory.Exists(_manifestDir))
                 Directory.CreateDirectory(_manifestDir);
 
-            #region Vanilla
-            string path = Path.Combine(_manifestDir, "vanillaManifest.json");
-            if (!File.Exists(path))
+            using (var httpClient = new HttpClient())
             {
-                using (var httpClient = new HttpClient())
+                #region Vanilla
+                if (!File.Exists(_vanillaManifestJsonFile))
                 {
+
                     string? json = await httpClient.GetStringAsync(GameManager.MCVerisonManifestUrl);
                     if (json != null)
-                        File.WriteAllText(path, json);
+                        File.WriteAllText(_vanillaManifestJsonFile, json);
                 }
-            }
-            #endregion
+                #endregion
 
-            #region Fabric
-            path = Path.Combine(_manifestDir, "fabricManifest.json");
-            if (!File.Exists(path))
-            {
-                using (var httpClient = new HttpClient())
+                #region Fabric
+                if (!File.Exists(_fabricManifestJsonFile))
                 {
                     string? json = await httpClient.GetStringAsync(GameManager.FabricVersionManifestUrl);
                     if (json != null)
-                        File.WriteAllText(path, json);
+                        File.WriteAllText(_fabricManifestJsonFile, json);
                 }
-            }
-            #endregion
+                #endregion
 
-            #region Forge & NeoForge
-            path = Path.Combine(_manifestDir, "forgeManifest.json");
-            if (!File.Exists(path))
-            {
-                using (var httpClient = new HttpClient())
+                #region Forge & NeoForge
+                if (!File.Exists(_forgeManifestJsonFile))
                 {
+
                     string? json = await httpClient.GetStringAsync(GameManager.ForgeVersionManifest);
                     if (json != null)
-                        File.WriteAllText(path, json);
+                        File.WriteAllText(_forgeManifestJsonFile, json);
                 }
-            }
-            #endregion
+                #endregion
 
-            #region Quilt
-            path = Path.Combine(_manifestDir, "quiltManifest.json");
-            if (!File.Exists(path))
-            {
-                using (var httpClient = new HttpClient())
+                #region Quilt
+                if (!File.Exists(_quiltManifestJsonFile))
                 {
                     string? json = await httpClient.GetStringAsync(GameManager.QuiltVersionManifestUrl);
                     if (json != null)
-                        File.WriteAllText(path, json);
+                        File.WriteAllText(_quiltManifestJsonFile, json);
                 }
+                #endregion
             }
-            #endregion
 
             return true;
         }
+        #endregion
+
+        #region Functions
+        public static LauncherSettings? GetLauncherSettings()
+        {
+            return JsonHelper.ReadJsonFile<LauncherSettings?>(_launcherJsonFile);
+        }
+
+        public static async Task<LauncherSettings?> GetLauncherSettingsAsync()
+        {
+            return await JsonHelper.ReadJsonFileAsync<LauncherSettings?>(_launcherJsonFile);
+        }
+
+        public static AccountData? GetAccountData()
+        {
+            return JsonHelper.ReadJsonFile<AccountData?>(_accountsJsonFile);
+        }
+
+        public static async Task<AccountData?> GetAccountDataAsync()
+        {
+            return await JsonHelper.ReadJsonFileAsync<AccountData?>(_accountsJsonFile);
+        }
+        #endregion
     }
 }

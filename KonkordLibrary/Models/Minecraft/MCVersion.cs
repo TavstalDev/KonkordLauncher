@@ -1,9 +1,9 @@
-﻿using KonkordLauncher.API.Enums;
+﻿using KonkordLibrary.Enums;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System;
 
-namespace KonkordLauncher.API.Models.Minecraft
+namespace KonkordLibrary.Models.Minecraft
 {
     public class MCVersion
     {

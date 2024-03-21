@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System;
 
-namespace KonkordLauncher.API.Managers
+namespace KonkordLibrary.Managers
 {
     public static class GameManager
     {

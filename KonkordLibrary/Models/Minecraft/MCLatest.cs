@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace KonkordLauncher.API.Models.Minecraft
+namespace KonkordLibrary.Models.Minecraft
 {
     public class MCLatest
     {

@@ -1,7 +1,7 @@
-﻿using KonkordLauncher.API.Enums;
-using KonkordLauncher.API.Helpers;
-using KonkordLauncher.API.Models;
-using KonkordLauncher.API.Models.Minecraft;
+﻿using KonkordLibrary.Enums;
+using KonkordLibrary.Helpers;
+using KonkordLibrary.Models;
+using KonkordLibrary.Models.Minecraft;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -284,7 +284,7 @@ namespace KonkordLauncher
         #region Functions
         private async Task RefreshAccount()
         {
-            AccountData? accountData = await JsonHelper.ReadJsonFile<AccountData>(System.IO.Path.Combine(IOHelper.MainDirectory, "accounts.json"));
+            AccountData? accountData = await JsonHelper.ReadJsonFileAsync<AccountData>(System.IO.Path.Combine(IOHelper.MainDirectory, "accounts.json"));
             if (accountData == null)
                 return;
 
@@ -295,12 +295,12 @@ namespace KonkordLauncher
             la_account_name.Content = account.DisplayName;
             switch (account.Type)
             {
-                case API.Enums.EAccountType.OFFLINE:
+                case EAccountType.OFFLINE:
                     {
                         la_account_type.Content = "Offline account";
                         break;
                     }
-                case API.Enums.EAccountType.MICROSOFT:
+                case EAccountType.MICROSOFT:
                     {
                         la_account_type.Content = "Microsoft account";
                         break;
@@ -515,12 +515,12 @@ namespace KonkordLauncher
         private async void LaunchLogout_Click(object sender, RoutedEventArgs e)
         {
             string path = System.IO.Path.Combine(IOHelper.MainDirectory, "accounts.json");
-            AccountData? accountData = await JsonHelper.ReadJsonFile<AccountData>(path);
+            AccountData? accountData = await JsonHelper.ReadJsonFileAsync<AccountData>(path);
             if (accountData == null)
                 return;
 
             accountData.SelectedAccountId = string.Empty;
-            await JsonHelper.WriteJsonFile(path, accountData);
+            await JsonHelper.WriteJsonFileAsync(path, accountData);
             AuthWindow window = new AuthWindow();
             window.Show();
             this.Close();
@@ -600,7 +600,7 @@ namespace KonkordLauncher
             bo_launch_play.IsEnabled = false;
             btn_launch_play.IsEnabled = false;
 
-            AccountData? accountData = await  JsonHelper.ReadJsonFile<AccountData>(System.IO.Path.Combine(IOHelper.MainDirectory, "accounts.json"));
+            AccountData? accountData = await  JsonHelper.ReadJsonFileAsync<AccountData>(System.IO.Path.Combine(IOHelper.MainDirectory, "accounts.json"));
             if (accountData == null)
             {
                 NotificationHelper.SendError("Could not launch the game because failed to get the account details.", "Error");
@@ -645,10 +645,10 @@ namespace KonkordLauncher
 
             switch (selectedProfile.Kind)
             {
-                case API.Enums.EProfileKind.VANILLA:
+                case EProfileKind.VANILLA:
                     {
                         // Read the Version Manifest
-                        VersionManifest? manifest = await JsonHelper.ReadJsonFile<VersionManifest>(System.IO.Path.Combine(IOHelper.ManifestDir, "vanillaManifest.json"));
+                        VersionManifest? manifest = await JsonHelper.ReadJsonFileAsync<VersionManifest>(System.IO.Path.Combine(IOHelper.ManifestDir, "vanillaManifest.json"));
                         if (manifest == null)
                         {
                             NotificationHelper.SendError("Failed to get the vanilla manifest file.", "Error");
@@ -661,7 +661,7 @@ namespace KonkordLauncher
                         // Check the profile type
                         switch (selectedProfile.Type)
                         {
-                            case API.Enums.EProfileType.LATEST_RELEASE:
+                            case EProfileType.LATEST_RELEASE:
                                 {
                                     version = manifest.Latest.Release;
                                     versionDirectory = System.IO.Path.Combine(IOHelper.VersionsDir, manifest.Latest.Release);
@@ -670,7 +670,7 @@ namespace KonkordLauncher
                                     gameDir = System.IO.Path.Combine(IOHelper.InstancesDir, $"{manifest.Latest.Release}");
                                     break;
                                 }
-                            case API.Enums.EProfileType.LATEST_SNAPSHOT:
+                            case EProfileType.LATEST_SNAPSHOT:
                                 {
                                     version = manifest.Latest.Snapshot;
                                     versionDirectory = System.IO.Path.Combine(IOHelper.VersionsDir, manifest.Latest.Snapshot);
@@ -679,7 +679,7 @@ namespace KonkordLauncher
                                     gameDir = System.IO.Path.Combine(IOHelper.InstancesDir, $"{manifest.Latest.Snapshot}");
                                     break;
                                 }
-                            case API.Enums.EProfileType.CUSTOM:
+                            case EProfileType.CUSTOM:
                                 {
                                     version = selectedProfile.VersionId;
                                     versionDirectory = System.IO.Path.Combine(IOHelper.VersionsDir, selectedProfile.VersionId);
@@ -688,8 +688,8 @@ namespace KonkordLauncher
                                     gameDir = selectedProfile.GameDirectory;
                                     break;
                                 }
-                            case API.Enums.EProfileType.KONKORD_CREATE:
-                            case API.Enums.EProfileType.KONKORD_VANILLAPLUS:
+                            case EProfileType.KONKORD_CREATE:
+                            case EProfileType.KONKORD_VANILLAPLUS:
                                 {
                                     // TODO
                                     break;
@@ -838,17 +838,17 @@ namespace KonkordLauncher
                         lab_install.Content = $"Launching the game...";
                         break;
                     }
-                case API.Enums.EProfileKind.FORGE:
+                case EProfileKind.FORGE:
                     {
                         // TODO 
                         break;
                     }
-                case API.Enums.EProfileKind.FABRIC: // TODO
+                case EProfileKind.FABRIC: // TODO
                     {
                         // TODO
                         break;
                     }
-                case API.Enums.EProfileKind.QUILT: // TODO
+                case EProfileKind.QUILT: // TODO
                     {
                         // TODO
                         break;
@@ -946,19 +946,19 @@ namespace KonkordLauncher
 
             switch (selectedProfile.LauncherVisibility)
             {
-                case API.Enums.ELaucnherVisibility.HIDE_AND_REOPEN_ON_GAME_CLOSE:
+                case ELaucnherVisibility.HIDE_AND_REOPEN_ON_GAME_CLOSE:
                     {
                         this.Hide();
                         await p.WaitForExitAsync();
                         this.Show();
                         break;
                     }
-                case API.Enums.ELaucnherVisibility.CLOSE_ON_GAME_START:
+                case ELaucnherVisibility.CLOSE_ON_GAME_START:
                     {
                         this.Close();
                         break;
                     }
-                case API.Enums.ELaucnherVisibility.KEEP_OPEN:
+                case ELaucnherVisibility.KEEP_OPEN:
                     {
                         // Just do nothing
                         break;
@@ -977,7 +977,7 @@ namespace KonkordLauncher
                 var p = settings.Profiles.ElementAt(listbox_launchinstances.SelectedIndex);
                 lab_selected_profile.Content = p.Value.Name.ToLower();
                 settings.SelectedProfile = p.Key;
-                await JsonHelper.WriteJsonFile(Path.Combine(IOHelper.MainDirectory, "launcher.json"), settings);
+                await JsonHelper.WriteJsonFileAsync(Path.Combine(IOHelper.MainDirectory, "launcher.json"), settings);
             }
         }
         #endregion
@@ -1041,7 +1041,7 @@ namespace KonkordLauncher
                 {
                     settings.Profiles.Add(Guid.NewGuid().ToString(), profile);
                 }
-                await JsonHelper.WriteJsonFile(Path.Combine(IOHelper.MainDirectory, "launcher.json"), settings);
+                await JsonHelper.WriteJsonFileAsync(Path.Combine(IOHelper.MainDirectory, "launcher.json"), settings);
                 RefreshInstances();
                 bo_instances.IsEnabled = false;
                 bo_instances.Visibility = Visibility.Hidden;

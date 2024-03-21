@@ -205,11 +205,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="API\Handlers\" />
+    <None Include="..\.editorconfig" Link=".editorconfig" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\.editorconfig" Link=".editorconfig" />
+    <ProjectReference Include="..\KonkordLibrary\KonkordLibrary.csproj" />
   </ItemGroup>
 
 </Project>

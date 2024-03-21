@@ -1,6 +1,7 @@
-﻿using KonkordLauncher.API.Helpers;
-using KonkordLauncher.API.Managers;
-using KonkordLauncher.API.Models;
+﻿using KonkordLibrary.Enums;
+using KonkordLibrary.Helpers;
+using KonkordLibrary.Managers;
+using KonkordLibrary.Models;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -189,7 +190,7 @@ namespace KonkordLauncher
 
             Guid guid = Guid.NewGuid();
             string accountsPath = Path.Combine(IOHelper.MainDirectory, "accounts.json");
-            AccountData? accountData = await JsonHelper.ReadJsonFile<AccountData>(accountsPath);
+            AccountData? accountData = await JsonHelper.ReadJsonFileAsync<AccountData>(accountsPath);
             if (accountData == null)
             {
                 NotificationHelper.SendError("Failed to get the accounts.json file.", "Error");
@@ -201,12 +202,12 @@ namespace KonkordLauncher
                 AccessToken = string.Empty,
                 RefreshToken = string.Empty,
                 DisplayName = username,
-                Type = API.Enums.EAccountType.OFFLINE,
+                Type = EAccountType.OFFLINE,
                 UserId = guid.ToString(),
                 UUID = guid.ToString()
             });
             accountData.SelectedAccountId = guid.ToString();
-            await JsonHelper.WriteJsonFile(accountsPath, accountData);
+            await JsonHelper.WriteJsonFileAsync(accountsPath, accountData);
             LaunchWindow window = new LaunchWindow();
             window.Show();
             this.Close();
@@ -238,7 +239,7 @@ namespace KonkordLauncher
         {
             var psi = new ProcessStartInfo
             {
-                FileName = AuthenticationManager.MicrosoftAuthorizeUrl,
+                FileName = AuthenticationManager.MicrosoftAuthUrl,
                 UseShellExecute = true
             };
             Process.Start(psi);

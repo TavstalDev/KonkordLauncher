@@ -1,5 +1,5 @@
-﻿using KonkordLauncher.API.Helpers;
-using KonkordLauncher.API.Managers;
+﻿using KonkordLibrary.Helpers;
+using KonkordLibrary.Managers;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;

@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using System;
 
 namespace KonkordLibrary.Managers
 {
@@ -38,6 +37,13 @@ namespace KonkordLibrary.Managers
         public static string QuiltDownloadUrl { get { return _quiltDownloadUrl; } }
         #endregion
 
+        /// <summary>
+        /// Retrieves the UUID (Universally Unique Identifier) of a player based on the provided username.
+        /// </summary>
+        /// <param name="username">The username of the player.</param>
+        /// <returns>
+        /// A <see cref="string"/> representing the UUID of the player.
+        /// </returns>
         private static string GetPlayerUUID(string username)
         {
             //new GameProfile(UUID.nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes(Charsets.UTF_8)), name));
@@ -53,11 +59,25 @@ namespace KonkordLibrary.Managers
             return finalresult;
         }
 
+        /// <summary>
+        /// Retrieves the UUID (Universally Unique Identifier) of an offline player based on the provided username.
+        /// </summary>
+        /// <param name="username">The username of the offline player.</param>
+        /// <returns>
+        /// A <see cref="string"/> representing the UUID of the offline player.
+        /// </returns>
         public static string GetOfflinePlayerUUID(string username)
         {
             return GetPlayerUUID($"OfflinePlayer:{username}");
         }
 
+        /// <summary>
+        /// Retrieves the UUID (Universally Unique Identifier) of an online player based on the provided username.
+        /// </summary>
+        /// <param name="username">The username of the online player.</param>
+        /// <returns>
+        /// A <see cref="string"/> representing the UUID of the online player.
+        /// </returns>
         public static string GetOnlinePlayerUUID(string username)
         {
             return GetPlayerUUID($"{username}");

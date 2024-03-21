@@ -55,6 +55,12 @@ namespace KonkordLibrary.Helpers
         #endregion
 
         #region Validating
+        /// <summary>
+        /// Asynchronously validates the presence or status of Java installation.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains a <see cref="bool"/> value indicating whether Java is installed or not.
+        /// </returns>
         public static async Task<bool> ValidateJava()
         {
             try
@@ -92,6 +98,12 @@ namespace KonkordLibrary.Helpers
 
         }
 
+        /// <summary>
+        /// Validates the existence and integrity of the data folder.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="bool"/> value indicating whether the data folder is valid.
+        /// </returns>
         public static bool ValidateDataFolder()
         {
             try
@@ -141,6 +153,12 @@ namespace KonkordLibrary.Helpers
             }
         }
 
+        /// <summary>
+        /// Asynchronously validates the application settings.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains a <see cref="bool"/> value indicating whether the settings are valid or not.
+        /// </returns>
         public static async Task<bool> ValidateSettings()
         {
             try
@@ -175,6 +193,12 @@ namespace KonkordLibrary.Helpers
             }
         }
 
+        /// <summary>
+        /// Validates the user account file.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="bool"/> value indicating whether the user account file is valid.
+        /// </returns>
         public static async Task<bool> ValidateAccounts()
         {
             try
@@ -221,7 +245,13 @@ namespace KonkordLibrary.Helpers
                 return false;
             }
         }
-        
+
+        /// <summary>
+        /// Asynchronously validates the translations for the application.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains a <see cref="bool"/> value indicating whether the translations are valid.
+        /// </returns>
         public static async Task<bool> ValidateTranslations()
         {
             try
@@ -304,6 +334,12 @@ namespace KonkordLibrary.Helpers
             }
         }
 
+        /// <summary>
+        /// Asynchronously validates minecraft and modding framework manifests..
+        /// </summary>
+        /// <returns>
+        /// A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains a <see cref="bool"/> value indicating whether the manifests are valid.
+        /// </returns>
         public static async Task<bool> ValidateManifests() {
             if (!Directory.Exists(_manifestDir))
                 Directory.CreateDirectory(_manifestDir);
@@ -354,21 +390,45 @@ namespace KonkordLibrary.Helpers
         #endregion
 
         #region Functions
+        /// <summary>
+        /// Retrieves the launcher settings, if available.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="LauncherSettings"/> object representing the launcher settings, or null if settings are not available.
+        /// </returns>
         public static LauncherSettings? GetLauncherSettings()
         {
             return JsonHelper.ReadJsonFile<LauncherSettings?>(_launcherJsonFile);
         }
 
+        /// <summary>
+        /// Asynchronously retrieves the launcher settings, if available.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains a <see cref="LauncherSettings"/> object representing the launcher settings, or null if settings are not available.
+        /// </returns>
         public static async Task<LauncherSettings?> GetLauncherSettingsAsync()
         {
             return await JsonHelper.ReadJsonFileAsync<LauncherSettings?>(_launcherJsonFile);
         }
 
+        /// <summary>
+        /// Retrieves the account data, if available.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="AccountData"/> object representing the account data, or null if data is not available.
+        /// </returns>
         public static AccountData? GetAccountData()
         {
             return JsonHelper.ReadJsonFile<AccountData?>(_accountsJsonFile);
         }
 
+        /// <summary>
+        /// Asynchronously retrieves the account data, if available.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains an <see cref="AccountData"/> object representing the account data, or null if data is not available.
+        /// </returns>
         public static async Task<AccountData?> GetAccountDataAsync()
         {
             return await JsonHelper.ReadJsonFileAsync<AccountData?>(_accountsJsonFile);

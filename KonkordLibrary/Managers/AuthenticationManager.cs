@@ -1,13 +1,11 @@
 using KonkordLibrary.Helpers;
 using KonkordLibrary.Models;
-using System.Net;
-using System.IO;
-using System.Net.Http;
-using System.Windows.Controls;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
-using static System.Formats.Asn1.AsnWriter;
-using Newtonsoft.Json;
+using System.IO;
+using System.Net;
+using System.Net.Http;
 
 namespace KonkordLibrary.Managers
 {
@@ -43,6 +41,12 @@ namespace KonkordLibrary.Managers
         #endregion
         #endregion
 
+        /// <summary>
+        /// Asynchronously validates the authentication.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains a <see cref="bool"/> value indicating whether the authentication is valid or not.
+        /// </returns>
         public static async Task<bool> ValidateAuthentication()
         {
             // Check account data and stuff
@@ -66,6 +70,9 @@ namespace KonkordLibrary.Managers
         }
 
         #region HTTP Listener
+        /// <summary>
+        /// Starts an HTTP listener to handle incoming HTTP requests.
+        /// </summary>
         public static void StartListening()
         {
             if (_httpListener == null)
@@ -100,6 +107,9 @@ namespace KonkordLibrary.Managers
             }
         }
 
+        /// <summary>
+        /// Stops the HTTP listener from accepting incoming HTTP requests.
+        /// </summary>
         public static void StopListening()
         {
             if (_httpListener == null)
@@ -112,6 +122,10 @@ namespace KonkordLibrary.Managers
             _httpListener.Stop();
         }
 
+        /// <summary>
+        /// Handles the asynchronous processing of an incoming HTTP request.
+        /// </summary>
+        /// <param name="context">The <see cref="HttpListenerContext"/> object representing the context of the incoming HTTP request.</param>
         private static async void OnRequestRecieved(HttpListenerContext context)
         {
             Action closeBrowser = new Action(() =>
@@ -152,6 +166,13 @@ namespace KonkordLibrary.Managers
         }
 
         #region Callbacks
+        /// <summary>
+        /// Handles the Microsoft authentication callback asynchronously.
+        /// </summary>
+        /// <param name="request">The <see cref="HttpListenerRequest"/> object representing the incoming HTTP request.</param>
+        /// <returns>
+        /// A <see cref="Task"/> representing the asynchronous operation.
+        /// </returns>
         private static async Task MicrosoftAuthCallback(HttpListenerRequest request)
         {
             if (!request.QueryString.AllKeys.Contains("code"))
@@ -207,6 +228,13 @@ namespace KonkordLibrary.Managers
             }
         }
 
+        /// <summary>
+        /// Makes an asynchronous call to Xbox token with the provided token.
+        /// </summary>
+        /// <param name="token">The microsoft token to be used for the call.</param>
+        /// <returns>
+        /// A <see cref="Task"/> representing the asynchronous operation.
+        /// </returns>
         private static async Task XboxTokenCall(string token)
         {
             Debug.WriteLine($"## BUILDING XBOX TOKEN REQUEST");
@@ -257,6 +285,13 @@ namespace KonkordLibrary.Managers
             }
         }
 
+        /// <summary>
+        /// Makes an asynchronous call to Xbox XSTS (Xbox Secure Token Service) with the provided token.
+        /// </summary>
+        /// <param name="token">The Xbox token to be used for the call.</param>
+        /// <returns>
+        /// A <see cref="Task"/> representing the asynchronous operation.
+        /// </returns>
         private static async Task XboxXstsCall(string token)
         {
             using (HttpClient client = new HttpClient())
@@ -303,6 +338,14 @@ namespace KonkordLibrary.Managers
             }
         }
 
+        /// <summary>
+        /// Makes an asynchronous call to Minecraft access with the provided token and user hash.
+        /// </summary>
+        /// <param name="token">The access token to be used for the call.</param>
+        /// <param name="userHash">The user hash to be used for the call.</param>
+        /// <returns>
+        /// A <see cref="Task"/> representing the asynchronous operation.
+        /// </returns>
         private static async Task MinecraftAccessCall(string token, string userHash)
         {
             using (HttpClient client = new HttpClient())
@@ -331,6 +374,13 @@ namespace KonkordLibrary.Managers
             }
         }
 
+        /// <summary>
+        /// Handles the asynchronous processing of Microsoft token callback.
+        /// </summary>
+        /// <param name="request">The <see cref="HttpListenerRequest"/> object representing the incoming HTTP request.</param>
+        /// <returns>
+        /// A <see cref="Task"/> representing the asynchronous operation.
+        /// </returns>
         private static async Task MicrosoftTokenCallback(HttpListenerRequest request)
         {
             
@@ -338,6 +388,13 @@ namespace KonkordLibrary.Managers
         #endregion
         #endregion
 
+        /// <summary>
+        /// Attempts to log in using the provided token asynchronously.
+        /// </summary>
+        /// <param name="token">The token to be used for login.</param>
+        /// <returns>
+        /// A <see cref="Task"/> representing the asynchronous login attempt.
+        /// </returns>
         public static async Task AttemptLogin(string token)
         {
             using (HttpClient client = new HttpClient())

@@ -22,6 +22,10 @@ namespace KonkordLibrary.Managers
         };
         public static Dictionary<string, string> LanguagePacks { get { return _languagePacks; } }
 
+        /// <summary>
+        /// Sets translations for the application.
+        /// </summary>
+        /// <param name="translation">A <see cref="Dictionary{TKey, TValue}"/> containing the translation data, where the key represents the original text and the value represents the translated text. Pass null to clear existing translations.</param>
         public static void SetTranslations(Dictionary<string, string>? translation)
         {
             if (_initialized)
@@ -35,6 +39,13 @@ namespace KonkordLibrary.Managers
             _initialized = true;
         }
 
+        /// <summary>
+        /// Reads translations from the specified file asynchronously.
+        /// </summary>
+        /// <param name="path">The path to the translation file.</param>
+        /// <returns>
+        /// A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains a <see cref="Dictionary{TKey, TValue}"/> where the key represents the original text and the value represents the translated text.
+        /// </returns>
         public static async Task<Dictionary<string, string>> ReadTranslationAsync(string path)
         {
             try
@@ -52,6 +63,14 @@ namespace KonkordLibrary.Managers
             }
         }
 
+        /// <summary>
+        /// Saves the provided translations to the specified file asynchronously.
+        /// </summary>
+        /// <param name="path">The path to save the translation file.</param>
+        /// <param name="translation">A <see cref="Dictionary{TKey, TValue}"/> containing the translation data, where the key represents the original text and the value represents the translated text.</param>
+        /// <returns>
+        /// A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains a <see cref="bool"/> value indicating whether the saving operation was successful.
+        /// </returns>
         public static async Task<bool> SaveTranslationAsync(string path, Dictionary<string, string> translation)
         {
             try
@@ -65,6 +84,14 @@ namespace KonkordLibrary.Managers
             }
         }
 
+        /// <summary>
+        /// Translates the provided key to its corresponding text.
+        /// </summary>
+        /// <param name="key">The key to be translated.</param>
+        /// <param name="args">Optional parameters to be formatted into the translated text.</param>
+        /// <returns>
+        /// A <see cref="string"/> representing the translated text.
+        /// </returns>
         public static string Translate(string key, params object[]? args)
         {
             string result = string.Empty;

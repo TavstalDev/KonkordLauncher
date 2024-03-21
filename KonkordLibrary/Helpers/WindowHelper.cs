@@ -1,7 +1,5 @@
-﻿using System.Diagnostics;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Media;
 
 namespace KonkordLibrary.Helpers
@@ -47,28 +45,15 @@ namespace KonkordLibrary.Helpers
             element.FontSize = element.FontSize * widthMulti;
         }
 
-        public static childItem FindVisualChild<childItem>(DependencyObject obj) where childItem : DependencyObject
-        {
-            if (obj == null)
-                return null;
-
-            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
-            {
-                DependencyObject child = VisualTreeHelper.GetChild(obj, i);
-                if (child != null && child is childItem)
-                {
-                    return (childItem)child;
-                }
-                else
-                {
-                    childItem childOfChild = FindVisualChild<childItem>(child);
-                    if (childOfChild != null)
-                        return childOfChild;
-                }
-            }
-            return null;
-        }
-
+        /// <summary>
+        /// Resizes a <see cref="ListBox"/> with specified parameters.
+        /// </summary>
+        /// <param name="listBox">The <see cref="ListBox"/> to resize.</param>
+        /// <param name="defaultHeight">The default height of the <see cref="ListBox"/>.</param>
+        /// <param name="defaultWidth">The default width of the <see cref="ListBox"/>.</param>
+        /// <param name="defaultMargin">The default margin of the <see cref="ListBox"/>.</param>
+        /// <param name="heightMulti">The multiplier for adjusting the height.</param>
+        /// <param name="widthMulti">The multiplier for adjusting the width.</param>
         public static void Resize(ref ListBox listBox, double defaultHeight, double defaultWidth, Thickness defaultMargin, double heightMulti, double widthMulti)
         {
             listBox.Resources["ListBorderHeight"] = defaultHeight * heightMulti;
@@ -82,6 +67,16 @@ namespace KonkordLibrary.Helpers
             };
         }
 
+        /// <summary>
+        /// Resizes the font of items in a <see cref="ListBox"/> and adjusts its dimensions.
+        /// </summary>
+        /// <param name="listBox">The <see cref="ListBox"/> to resize the font for.</param>
+        /// <param name="defaultFont">The default font size of items in the <see cref="ListBox"/>.</param>
+        /// <param name="defaultHeight">The default height of the <see cref="ListBox"/>.</param>
+        /// <param name="defaultWidth">The default width of the <see cref="ListBox"/>.</param>
+        /// <param name="defaultMargin">The default margin of the <see cref="ListBox"/>.</param>
+        /// <param name="heightMulti">The multiplier for adjusting the height.</param>
+        /// <param name="widthMulti">The multiplier for adjusting the width.</param>
         public static void ResizeFont(ref ListBox listBox, double defaultFont, double defaultHeight, double defaultWidth, Thickness defaultMargin, double heightMulti, double widthMulti)
         {
             listBox.Resources["ListLabelHeight"] = defaultHeight * heightMulti;

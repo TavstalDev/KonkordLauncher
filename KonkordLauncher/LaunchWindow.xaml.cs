@@ -49,6 +49,7 @@ namespace KonkordLauncher
         {
             InitializeComponent();
             Loaded += Window_Loaded;
+            #region Resize
             // Gets the primary screen parameters.
             int nWidth = (int)SystemParameters.PrimaryScreenWidth;
             int nHeight = (int)SystemParameters.PrimaryScreenHeight;
@@ -210,9 +211,9 @@ namespace KonkordLauncher
             cb_instances_launchopt.DataContext = launchOptList;
             cb_instances_launchopt.SelectedIndex = 0;
             #endregion
+            #endregion
 
-
-            // Load Defaults
+            #region Load Defaults
             tb_instances_jvm.Text = "-XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M -Djava.net.preferIPv4Stack=true";
             if (profileKey == null)
             {
@@ -274,6 +275,7 @@ namespace KonkordLauncher
             }
             cb_instances_launchopt.SelectedIndex = (int)EditedProfile.LauncherVisibility;
             cb_instances_memory.SelectedItem = EditedProfile.Memory;
+            #endregion
         }
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
@@ -282,6 +284,12 @@ namespace KonkordLauncher
         }
 
         #region Functions
+        /// <summary>
+        /// Asynchronously refreshes the displayed account information, such as icon and name.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="Task"/> representing the asynchronous operation.
+        /// </returns>
         private async Task RefreshAccount()
         {
             AccountData? accountData = await JsonHelper.ReadJsonFileAsync<AccountData>(System.IO.Path.Combine(IOHelper.MainDirectory, "accounts.json"));
@@ -346,6 +354,9 @@ namespace KonkordLauncher
             }
         }
 
+        /// <summary>
+        /// Refreshes the Minecraft instances user interface.
+        /// </summary>
         private void RefreshInstances()
         {
             LauncherSettings? settings = IOHelper.GetLauncherSettings();
@@ -375,7 +386,10 @@ namespace KonkordLauncher
             lab_selected_profile.Content = SelectedProfile.Name.ToLower();
 
         }
-        
+
+        /// <summary>
+        /// Fills the version ComboBox with available versions.
+        /// </summary>
         private void FillVersionComboBox()
         {
             if (VersionDic != null)
@@ -435,6 +449,10 @@ namespace KonkordLauncher
             #endregion
         }
 
+        /// <summary>
+        /// Refreshes the dropdown versions based on the specified version type.
+        /// </summary>
+        /// <param name="versionType">The type of version to refresh (e.g., "vanilla", "forge", etc.).</param>
         private void RefreshDropdownVersions(string versionType)
         {
             if (checkb_instances_version_betas == null || checkb_instances_version_releases == null || checkb_instances_version_snapshots == null)
@@ -456,7 +474,6 @@ namespace KonkordLauncher
             cb_instances_version.DataContext = VersionDic[versionType].FindAll(x => (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
             cb_instances_version.SelectedIndex = 0;
         }
-
 
         #endregion
 

@@ -17,6 +17,7 @@ namespace KonkordLauncher
         public AuthWindow()
         {
             InitializeComponent();
+            #region Resize Content
             // Gets the primary screen parameters.
             int nWidth = (int)SystemParameters.PrimaryScreenWidth;
             int nHeight = (int)SystemParameters.PrimaryScreenHeight;
@@ -59,6 +60,7 @@ namespace KonkordLauncher
             WindowHelper.ResizeFont(btn_auth_online_buy, heightMultiplier, widthMultiplier);
             WindowHelper.ResizeFont(btn_auth_online_login, heightMultiplier, widthMultiplier);
             WindowHelper.ResizeFont(btn_auth_online_switch, heightMultiplier, widthMultiplier);
+            #endregion
         }
 
         #region Events
@@ -233,8 +235,12 @@ namespace KonkordLauncher
             if (string.IsNullOrEmpty(tb_auth_offline_username.Text))
                 lab_auth_offline_username.Visibility = Visibility.Visible;
         }
-        #endregion
 
+        /// <summary>
+        /// Handles the click event of the online login button.
+        /// </summary>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">The event arguments.</param>
         private void OnlineLogin_Click(object sender, RoutedEventArgs e)
         {
             var psi = new ProcessStartInfo
@@ -245,5 +251,6 @@ namespace KonkordLauncher
             Process.Start(psi);
             AuthenticationManager.StartListening();
         }
+        #endregion
     }
 }

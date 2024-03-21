@@ -4,6 +4,7 @@ using KonkordLauncher.API.Models;
 using KonkordLauncher.API.Models.Minecraft;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -23,6 +24,8 @@ namespace KonkordLauncher
     /// </summary>
     public partial class LaunchWindow : Window
     {
+        private string? EditedProfileKey {  get; set; }
+        private Profile? EditedProfile {  get; set; }
         public Profile SelectedProfile { get; set; }
         private readonly double _heightMultiplier;
         private readonly double _widthMultiplier;
@@ -42,7 +45,7 @@ namespace KonkordLauncher
 
         }
 
-        public LaunchWindow(string? versionId)
+        public LaunchWindow(string? profileKey)
         {
             InitializeComponent();
             Loaded += Window_Loaded;
@@ -119,7 +122,7 @@ namespace KonkordLauncher
             WindowHelper.ResizeFont(lab_instances_icon_arrow, _heightMultiplier, _widthMultiplier);
             WindowHelper.Resize(img_instances_icon, _heightMultiplier, _widthMultiplier);
 
-            
+
             WindowHelper.Resize(bo_instances_iconlist, _heightMultiplier, _widthMultiplier);
             listbox_icons.Resources["IconHeight"] = double.Parse(listbox_icons.Resources["IconHeight"].ToString()) * _heightMultiplier;
             listbox_icons.Resources["IconWidth"] = double.Parse(listbox_icons.Resources["IconWidth"].ToString()) * _widthMultiplier;
@@ -150,6 +153,11 @@ namespace KonkordLauncher
             WindowHelper.ResizeFont(tb_instances_javadir, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(btn_instances_javadir, _heightMultiplier, _widthMultiplier);
 
+            WindowHelper.Resize(grid_instances_memory, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_instances_memory, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(cb_instances_memory, _heightMultiplier, _widthMultiplier);
+            cb_instances_memory.Resources["MemoryListFontSize"] = double.Parse(cb_instances_memory.Resources["MemoryListFontSize"].ToString()) * _widthMultiplier;
+
             WindowHelper.Resize(grid_instances_jvm, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(lab_instances_jvm, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(lab_instances_jvm_placeholder, _heightMultiplier, _widthMultiplier);
@@ -164,14 +172,108 @@ namespace KonkordLauncher
             WindowHelper.ResizeFont(checkb_instances_version_releases, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(checkb_instances_version_betas, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(checkb_instances_version_snapshots, _heightMultiplier, _widthMultiplier);
+
+            WindowHelper.Resize(grid_instances_launchopt, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_instances_launchopt, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(cb_instances_launchopt, _heightMultiplier, _widthMultiplier);
+            cb_instances_launchopt.Resources["LaunchOptListFontSize"] = double.Parse(cb_instances_launchopt.Resources["LaunchOptListFontSize"].ToString()) * _widthMultiplier;
             #endregion
             #endregion
 
-            RefreshInstances();
-            LoadVersions();
-            if (versionId == null)
-                RefreshDropdownVersions("vanilla");
             listbox_icons.DataContext = ProfileIcon.Icons;
+            RefreshInstances();
+            // Fill Version ComboBox
+            FillVersionComboBox();
+            // Fill Memory ComboBox
+            #region Memory ComboBox
+            var gcMemoryInfo = GC.GetGCMemoryInfo();
+            var installedMemory = gcMemoryInfo.TotalAvailableMemoryBytes;
+            // it will give the size of memory in GB
+            int physicalMemory = (int)((double)installedMemory / 1048576.0 / 1024.0);
+
+            List<int> memoryElements = new List<int>();
+            for (int i = 0; i < physicalMemory; i++)
+            {
+                memoryElements.Add(i + 1);
+            }
+            cb_instances_memory.DataContext = memoryElements;
+            cb_instances_memory.SelectedIndex = 0;
+            #endregion
+            // Fill LaunchOpt ComboBox
+            #region LaunchOpt ComboBox
+            List<object> launchOptList = new List<object>()
+            {
+                new { Tag = 0, Text = "Reopen on game close" },
+                new { Tag = 1, Text = "Close on game start"},
+                new { Tag = 2, Text = "Keep open" }
+            };
+            cb_instances_launchopt.DataContext = launchOptList;
+            cb_instances_launchopt.SelectedIndex = 0;
+            #endregion
+
+
+            // Load Defaults
+            tb_instances_jvm.Text = "-XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M -Djava.net.preferIPv4Stack=true";
+            if (profileKey == null)
+            {
+                RefreshDropdownVersions("vanilla");
+                return;
+            }
+
+            LauncherSettings? launcherSettings = IOHelper.GetLauncherSettings();
+            if (launcherSettings == null)
+            {
+                RefreshDropdownVersions("vanilla");
+                return;
+            }
+
+            if (!launcherSettings.Profiles.TryGetValue(profileKey, out Profile editedProfile))
+            {
+                RefreshDropdownVersions("vanilla");
+                return;
+            }
+
+            EditedProfile = editedProfile;
+            EditedProfileKey = profileKey;
+            switch (editedProfile.Kind)
+            {
+                case EProfileKind.VANILLA:
+                    {
+                        RefreshDropdownVersions("vanilla");
+                        cb_instances_version.SelectedItem = EditedProfile.VersionId;
+                        break;
+                    }
+                case EProfileKind.FORGE:
+                    {
+                        RefreshDropdownVersions("forge");
+                        cb_instances_version.SelectedItem = EditedProfile.VersionId;
+                        break;
+                    }
+                case EProfileKind.FABRIC:
+                    {
+                        RefreshDropdownVersions("fabric");
+                        cb_instances_version.SelectedItem = EditedProfile.VersionId;
+                        break;
+                    }
+                case EProfileKind.QUILT:
+                    {
+                        RefreshDropdownVersions("quilt");
+                        cb_instances_version.SelectedItem = EditedProfile.VersionId;
+                        break;
+                    }
+            }
+
+            tb_instances_gamedir.Text = EditedProfile.GameDirectory ?? "";
+            tb_instances_javadir.Text = EditedProfile.JavaPath ?? "";
+            tb_instances_name.Text = EditedProfile.Name;
+            tb_instances_jvm.Text = EditedProfile.JVMArgs;
+            if (EditedProfile.Resolution != null)
+            {
+                tb_instances_resolution_x.Text = EditedProfile.Resolution.X.ToString();
+                tb_instances_resolution_y.Text = EditedProfile.Resolution.Y.ToString();
+            }
+            cb_instances_launchopt.SelectedIndex = (int)EditedProfile.LauncherVisibility;
+            cb_instances_memory.SelectedItem = EditedProfile.Memory;
         }
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
@@ -274,7 +376,7 @@ namespace KonkordLauncher
 
         }
         
-        private void LoadVersions()
+        private void FillVersionComboBox()
         {
             if (VersionDic != null)
                 return;
@@ -736,9 +838,9 @@ namespace KonkordLauncher
                         lab_install.Content = $"Launching the game...";
                         break;
                     }
-                case API.Enums.EProfileKind.FORGE: // TODO
+                case API.Enums.EProfileKind.FORGE:
                     {
-                        // TODO
+                        // TODO 
                         break;
                     }
                 case API.Enums.EProfileKind.FABRIC: // TODO
@@ -862,16 +964,13 @@ namespace KonkordLauncher
                         break;
                     }
             }
-
-            // Debug stuff:
-            //p.ErrorDataReceived += (sender, args) => NotificationHelper.SendError(args.Data, "E");
-            //p.BeginErrorReadLine();
-            //p.BeginOutputReadLine();
-            //await p.WaitForExitAsync();
         }
 
         private async void listbox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (listbox_launchinstances.SelectedIndex < 0)
+                return;
+
             LauncherSettings? settings = IOHelper.GetLauncherSettings();
             if (settings != null)
             {
@@ -889,7 +988,7 @@ namespace KonkordLauncher
         public Dictionary<string, List<VersionBase>> VersionDic {  get; set; }
         #endregion
 
-        private void InstancesSave_Click(object sender, RoutedEventArgs e)
+        private async void InstancesSave_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(tb_instances_name.Text))
             {
@@ -901,6 +1000,55 @@ namespace KonkordLauncher
             {
                 NotificationHelper.SendError("You must select a version.", "Error");
                 return;
+            }
+            EProfileKind profileKind = (EProfileKind)cb_instances_version_type.SelectedIndex;
+            ELaucnherVisibility laucnherVisibility = (ELaucnherVisibility)cb_instances_launchopt.SelectedIndex;
+            Resolution? resolution = null;
+            if (!(string.IsNullOrEmpty(tb_instances_resolution_x.Text) && string.IsNullOrEmpty(tb_instances_resolution_y.Text)))
+                resolution = new Resolution()
+                {
+                    X = int.Parse(tb_instances_resolution_x.Text),
+                    Y = int.Parse(tb_instances_resolution_y.Text),
+                    IsFullScreen = false
+                };
+
+            try
+            {
+                Profile profile = new()
+                {
+                    Name = tb_instances_name.Text,
+                    GameDirectory = tb_instances_gamedir.Text ?? "",
+                    Icon = img_instances_icon.Source.ToString(),
+                    JavaPath = tb_instances_javadir.Text ?? "",
+                    Kind = profileKind,
+                    LauncherVisibility = laucnherVisibility,
+                    Memory = (int)cb_instances_memory.SelectedItem,
+                    Resolution = resolution,
+                    Type = EProfileType.CUSTOM,
+                    VersionId = cb_instances_version.Text,
+                    JVMArgs = tb_instances_jvm.Text ?? "",
+                };
+
+                LauncherSettings? settings = IOHelper.GetLauncherSettings();
+                if (settings == null)
+                    return;
+
+                if (settings.Profiles.ContainsKey(EditedProfileKey ?? ""))
+                {
+                    settings.Profiles[EditedProfileKey] = profile;
+                }
+                else
+                {
+                    settings.Profiles.Add(Guid.NewGuid().ToString(), profile);
+                }
+                await JsonHelper.WriteJsonFile(Path.Combine(IOHelper.MainDirectory, "launcher.json"), settings);
+                RefreshInstances();
+                bo_instances.IsEnabled = false;
+                bo_instances.Visibility = Visibility.Hidden;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
             }
         }
         private void InstancesCancel_Click(object sender, RoutedEventArgs e)
@@ -968,6 +1116,20 @@ namespace KonkordLauncher
             bool enab = string.IsNullOrEmpty(tb_instances_jvm.Text);
             lab_instances_jvm_placeholder.IsEnabled = enab;
             lab_instances_jvm_placeholder.Visibility = enab ? Visibility.Visible : Visibility.Hidden;
+        }
+
+        private void InstancesJavaDir_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            bool enab = string.IsNullOrEmpty(tb_instances_javadir.Text);
+            lab_instances_javadir_placeholder.IsEnabled = enab;
+            lab_instances_javadir_placeholder.Visibility = enab ? Visibility.Visible : Visibility.Hidden;
+        }
+
+        private void InstancesGameDir_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            bool enab = string.IsNullOrEmpty(tb_instances_gamedir.Text);
+            lab_instances_gamedir_placeholder.IsEnabled = enab;
+            lab_instances_gamedir_placeholder.Visibility = enab ? Visibility.Visible : Visibility.Hidden;
         }
 
         private void InstancesGamedir_Click(object sender, RoutedEventArgs e)

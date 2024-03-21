@@ -110,7 +110,7 @@
         </Border>
 
         <!-- Instances Menu -->
-        <Border x:Name="bo_instances" IsEnabled="True" Visibility="Visible" Margin="0,25,0,0" Background="#FF353743" BorderBrush="#FF353743">
+        <Border x:Name="bo_instances" IsEnabled="False" Visibility="Hidden" Margin="0,25,0,0" Background="#FF353743" BorderBrush="#FF353743">
             <Grid>
                 <Label x:Name="lab_instances" Content="New Instance" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" Foreground="White" FontSize="16" FontWeight="Bold" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
                 <!-- List Box -->
@@ -168,7 +168,7 @@
                         <!-- Version Selector -->
                         <Grid x:Name="grid_instances_version" Height="75" Margin="0,10,0,0">
                             <Label x:Name="lab_instances_version" Content="Version" Foreground="White" Padding="5,0,5,0" VerticalContentAlignment="Center" FontWeight="SemiBold" Margin="0,0,0,53" />
-                            <ComboBox x:Name="cb_instances_version_type" SelectedValuePath="Content" SelectionChanged="InstanceVersionType_SelectionChanged" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="0,22,207,25" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White">
+                            <ComboBox x:Name="cb_instances_version_type" SelectedValuePath="Content" SelectionChanged="InstanceVersionType_SelectionChanged" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="0,22,0,25" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White" HorizontalAlignment="Left" Width="95">
                                 <ComboBox.Resources>
                                     <sys:Double x:Key="VersionTypeListFontSize">10</sys:Double>
                                 </ComboBox.Resources>
@@ -185,7 +185,7 @@
                                     <ComboBoxItem Tag="quilt">Quilt</ComboBoxItem>
                                 </ComboBox.Items>
                             </ComboBox>
-                            <ComboBox x:Name="cb_instances_version" SelectedValuePath="Content" SelectionChanged="InstanceVersion_SelectionChanged" ItemsSource="{Binding}" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="98,22,10,25" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White">
+                            <ComboBox x:Name="cb_instances_version" SelectedValuePath="Content" SelectionChanged="InstanceVersion_SelectionChanged" ItemsSource="{Binding}" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="0,22,0,25" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White" HorizontalAlignment="Right" Width="200">
                                 <ComboBox.Resources>
                                     <sys:Double x:Key="VersionListFontSize">10</sys:Double>
                                 </ComboBox.Resources>
@@ -203,7 +203,7 @@
                         <!-- Game Dir -->
                         <Grid x:Name="grid_instances_gamedir" Height="48" Margin="0,10,0,0">
                             <Label x:Name="lab_instances_gamedir" Content="Game Directory" Foreground="White" Padding="5,0,5,0" VerticalContentAlignment="Center" FontWeight="SemiBold" Margin="0,0,0,30" />
-                            <TextBox x:Name="tb_instances_gamedir" Style="{StaticResource InstanceTextBox}" Margin="0,20,0,0" Background="#33000000" Foreground="White" SelectionBrush="#FFABADB3" BorderBrush="#FF5D6F95" VerticalContentAlignment="Center" Padding="10,0,60,0" TextChanged="InstancesName_TextChanged" />
+                            <TextBox x:Name="tb_instances_gamedir" Style="{StaticResource InstanceTextBox}" Margin="0,20,0,0" Background="#33000000" Foreground="White" SelectionBrush="#FFABADB3" BorderBrush="#FF5D6F95" VerticalContentAlignment="Center" Padding="10,0,60,0" TextChanged="InstancesGameDir_TextChanged" />
                             <Label x:Name="lab_instances_gamedir_placeholder" Content="Use default directory" Foreground="#4DFFFFFF" Margin="0,20,55,0" Padding="10,0,10,0" VerticalContentAlignment="Center" IsHitTestVisible="False" />
                             <Button x:Name="btn_instances_gamedir" Click="InstancesGamedir_Click" Style="{StaticResource BaseButton}" Content="BROWSE" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" Foreground="White" Background="#00000000" BorderBrush="#00000000" Margin="250,21,0,0" FontSize="10" FontWeight="Light" Padding="0,0,0,0" />
                         </Grid>
@@ -214,7 +214,7 @@
                             <Label x:Name="lab_instances_resolution_icon" Foreground="White" fa:Awesome.Content="Laptop" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" Width="66" VerticalAlignment="Bottom" HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Height="30" FontSize="16" />
                             <TextBox x:Name="tb_instances_resolution_x" Style="{StaticResource InstanceTextBox}" InputScope="Number" MaxLength="4" Margin="66,20,142,0" Background="#33000000" Foreground="White" SelectionBrush="#FFABADB3" BorderBrush="#FF5D6F95" VerticalContentAlignment="Center" Padding="10,0,10,0" PreviewTextInput="InstancesResolutionX_PreviewTextInput" TextChanged="InstancesResolutionX_TextChanged" HorizontalContentAlignment="Center" />
                             <Label x:Name="lab_instances_resolution_x_placeholder" Content="Auto" Foreground="#4DFFFFFF" Margin="66,20,142,0" Padding="10,0,10,0" VerticalContentAlignment="Center" IsHitTestVisible="False" HorizontalContentAlignment="Center" />
-                            <Label x:Name="lab_instances_resolution_centericon" Foreground="White" fa:Awesome.Content="Close" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" Width="30" VerticalAlignment="Bottom" HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Height="30" FontSize="14" Margin="163,0,0,0" />
+                            <Label x:Name="lab_instances_resolution_centericon" Foreground="White" fa:Awesome.Content="Close" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" VerticalAlignment="Top" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Height="30" FontSize="14" Margin="158,18,102,0" />
                             <TextBox x:Name="tb_instances_resolution_y" Style="{StaticResource InstanceTextBox}" InputScope="Number" MaxLength="4" Margin="198,20,10,0" Background="#33000000" Foreground="White" SelectionBrush="#FFABADB3" BorderBrush="#FF5D6F95" VerticalContentAlignment="Center" Padding="10,0,10,0" PreviewTextInput="InstancesResolutionY_PreviewTextInput" TextChanged="InstancesResolutionY_TextChanged" HorizontalContentAlignment="Center" />
                             <Label x:Name="lab_instances_resolution_y_placeholder" Content="Auto" Foreground="#4DFFFFFF" Margin="198,20,10,0" Padding="10,0,10,0" VerticalContentAlignment="Center" IsHitTestVisible="False" HorizontalContentAlignment="Center" />
                         </Grid>
@@ -222,9 +222,27 @@
                         <!-- Java Path -->
                         <Grid x:Name="grid_instances_javadir" Height="48" Margin="0,10,0,0">
                             <Label x:Name="lab_instances_javadir" Content="Java Directory" Foreground="White" Padding="5,0,5,0" VerticalContentAlignment="Center" FontWeight="SemiBold" Margin="0,0,0,30" />
-                            <TextBox x:Name="tb_instances_javadir" Style="{StaticResource InstanceTextBox}" Margin="0,20,0,0" Background="#33000000" Foreground="White" SelectionBrush="#FFABADB3" BorderBrush="#FF5D6F95" VerticalContentAlignment="Center" Padding="10,0,60,0" TextChanged="InstancesName_TextChanged" />
+                            <TextBox x:Name="tb_instances_javadir" Style="{StaticResource InstanceTextBox}" Margin="0,20,0,0" Background="#33000000" Foreground="White" SelectionBrush="#FFABADB3" BorderBrush="#FF5D6F95" VerticalContentAlignment="Center" Padding="10,0,60,0" TextChanged="InstancesJavaDir_TextChanged" />
                             <Label x:Name="lab_instances_javadir_placeholder" Content="Use default java path" Foreground="#4DFFFFFF" Margin="0,20,55,0" Padding="10,0,10,0" VerticalContentAlignment="Center" IsHitTestVisible="False" />
                             <Button x:Name="btn_instances_javadir" Click="InstancesJavadir_Click" Style="{StaticResource BaseButton}" Content="BROWSE" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" Foreground="White" Background="#00000000" BorderBrush="#00000000" Margin="250,21,0,0" FontSize="10" FontWeight="Light" Padding="0,0,0,0" />
+                        </Grid>
+
+                        <!-- Memory -->
+                        <Grid x:Name="grid_instances_memory" Height="48" Margin="0,10,0,0">
+                            <Label x:Name="lab_instances_memory" Content="Memory" Foreground="White" Padding="5,0,5,0" VerticalContentAlignment="Center" FontWeight="SemiBold" Margin="0,0,0,30" />
+                            <ComboBox x:Name="cb_instances_memory" ItemsSource="{Binding}" SelectedValuePath="Content" SelectionChanged="InstanceVersionType_SelectionChanged" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="0,22,206,0" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White">
+                                <ComboBox.Resources>
+                                    <sys:Double x:Key="MemoryListFontSize">10</sys:Double>
+                                </ComboBox.Resources>
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock FontSize="{DynamicResource MemoryListFontSize}" Tag="{Binding}">
+                                            <Run Text="{Binding Path=.}"/>
+                                            <Run Text="GB"/>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
                         </Grid>
 
                         <!-- JVM input -->
@@ -232,6 +250,21 @@
                             <Label x:Name="lab_instances_jvm" Content="JVM Args" Foreground="White" Margin="0,1,0,28" Padding="5,0,5,0" VerticalContentAlignment="Center" FontWeight="SemiBold" />
                             <TextBox x:Name="tb_instances_jvm" Style="{StaticResource InstanceTextBox}" Margin="0,20,0,0" Background="#33000000" Foreground="White" SelectionBrush="#FFABADB3" BorderBrush="#FF5D6F95" VerticalContentAlignment="Center" Padding="10,0,10,0" TextChanged="InstancesJVM_TextChanged" />
                             <Label x:Name="lab_instances_jvm_placeholder" Content="optional" Foreground="#4DFFFFFF" Margin="0,20,0,0" Padding="10,0,10,0" VerticalContentAlignment="Center" IsHitTestVisible="False" />
+                        </Grid>
+
+                        <!-- Launcher Option -->
+                        <Grid x:Name="grid_instances_launchopt" Height="48" Margin="0,10,0,0">
+                            <Label x:Name="lab_instances_launchopt" Content="Launcher visibility" Foreground="White" Padding="5,0,5,0" VerticalContentAlignment="Center" FontWeight="SemiBold" Margin="0,0,0,30" />
+                            <ComboBox x:Name="cb_instances_launchopt" ItemsSource="{Binding}" SelectedValuePath="Content" SelectionChanged="InstanceVersionType_SelectionChanged" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="0,22,135,0" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White">
+                                <ComboBox.Resources>
+                                    <sys:Double x:Key="LaunchOptListFontSize">10</sys:Double>
+                                </ComboBox.Resources>
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock FontSize="{DynamicResource LaunchOptListFontSize}" Tag="{Binding Tag}" Text="{Binding Text}"></TextBlock>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
                         </Grid>
 
                         <!-- Width Fixer -->

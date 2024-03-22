@@ -11,6 +11,8 @@ namespace KonkordLibrary.Models.GameManager
         public string LibrarySizeCachePath { get; set; }
         public int LocalLibrarySize { get; set; }
         public JArray Libraries {  get; set; }
+        public List<string> CustomGameArgs { get; set; }
+        public List<string> CustomJavaArgs { get; set; }
 
         public LibraryResponse() { }
 

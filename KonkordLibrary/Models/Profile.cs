@@ -14,6 +14,8 @@ namespace KonkordLibrary.Models
         public string Icon { get; set; }
         [JsonPropertyName("versionId")]
         public string VersionId { get; set; }
+        [JsonPropertyName("versionVanillaId")]
+        public string VersionVanillaId { get; set; }
         [JsonPropertyName("type")]
         public EProfileType Type { get; set; }
         [JsonPropertyName("kind")]
@@ -33,11 +35,12 @@ namespace KonkordLibrary.Models
 
         public Profile() { }
 
-        public Profile(string name, string icon, string versionId, EProfileType type, EProfileKind kind, Resolution resolution, string gameDirectory, string javaPath, string jVMArgs, int memory, ELaucnherVisibility launcherVisibility)
+        public Profile(string name, string icon, string versionId, string versionVanillaId, EProfileType type, EProfileKind kind, Resolution resolution, string gameDirectory, string javaPath, string jVMArgs, int memory, ELaucnherVisibility launcherVisibility)
         {
             Name = name;
             Icon = icon;
             VersionId = versionId;
+            VersionVanillaId = versionVanillaId;
             Type = type;
             Kind = kind;
             Resolution = resolution;
@@ -48,11 +51,12 @@ namespace KonkordLibrary.Models
             LauncherVisibility = launcherVisibility;
         }
 
-        public Profile(string name, string icon, string versionId, EProfileType type, EProfileKind kind, Resolution resolution, int memory, ELaucnherVisibility launcherVisibility)
+        public Profile(string name, string icon, string versionId, string versionVanillaId, EProfileType type, EProfileKind kind, Resolution resolution, int memory, ELaucnherVisibility launcherVisibility)
         {
             Name = name;
             Icon = icon;
             VersionId = versionId;
+            VersionVanillaId = versionVanillaId;
             Type = type;
             Kind = kind;
             Resolution = resolution;

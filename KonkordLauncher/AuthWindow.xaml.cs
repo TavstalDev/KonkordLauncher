@@ -190,7 +190,6 @@ namespace KonkordLauncher
                 return;
             }
 
-            Guid guid = Guid.NewGuid();
             string accountsPath = Path.Combine(IOHelper.MainDirectory, "accounts.json");
             AccountData? accountData = await JsonHelper.ReadJsonFileAsync<AccountData>(accountsPath);
             if (accountData == null)
@@ -199,16 +198,20 @@ namespace KonkordLauncher
                 return;
             }
 
-            accountData.Accounts.Add(guid.ToString(), new Account()
+            string guid = GameManager.GetOfflinePlayerUUID(username);
+            if (!accountData.Accounts.ContainsKey(guid))
             {
-                AccessToken = string.Empty,
-                RefreshToken = string.Empty,
-                DisplayName = username,
-                Type = EAccountType.OFFLINE,
-                UserId = guid.ToString(),
-                UUID = guid.ToString()
-            });
-            accountData.SelectedAccountId = guid.ToString();
+                accountData.Accounts.Add(guid, new Account()
+                {
+                    AccessToken = string.Empty,
+                    RefreshToken = string.Empty,
+                    DisplayName = username,
+                    Type = EAccountType.OFFLINE,
+                    UserId = guid,
+                    UUID = guid
+                });
+            }
+            accountData.SelectedAccountId = guid;
             await JsonHelper.WriteJsonFileAsync(accountsPath, accountData);
             LaunchWindow window = new LaunchWindow();
             window.Show();

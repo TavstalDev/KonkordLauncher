@@ -1,6 +1,8 @@
 ﻿using KonkordLibrary.Enums;
 using KonkordLibrary.Helpers;
+using KonkordLibrary.Managers;
 using KonkordLibrary.Models;
+using KonkordLibrary.Models.GameManager;
 using KonkordLibrary.Models.Minecraft;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -13,6 +15,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -96,9 +99,9 @@ namespace KonkordLauncher
             WindowHelper.ResizeFont(lab_launc_play, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(lab_selected_profile, _heightMultiplier, _widthMultiplier);
 
-            WindowHelper.Resize(bo_install, _heightMultiplier, _widthMultiplier);
-            WindowHelper.Resize(bo_install_status, _heightMultiplier, _widthMultiplier);
-            WindowHelper.ResizeFont(lab_install, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(bo_launch_progress, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(bo_launch_progress_bar, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_launch_progress, _heightMultiplier, _widthMultiplier);
 
             WindowHelper.Resize(ref listbox_launchinstances, ListBorderHeight, ListBorderWidth, ListBorderMargin, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(ref listbox_launchinstances, ListLabelFontSize, ListLabelHeight, ListLabelWidth, ListLabelMargin, _heightMultiplier, _widthMultiplier);
@@ -388,7 +391,7 @@ namespace KonkordLauncher
         }
 
         /// <summary>
-        /// Fills the version ComboBox with available versions.
+        /// Fills the instanceVersion ComboBox with available versions.
         /// </summary>
         private void FillVersionComboBox()
         {
@@ -450,9 +453,9 @@ namespace KonkordLauncher
         }
 
         /// <summary>
-        /// Refreshes the dropdown versions based on the specified version type.
+        /// Refreshes the dropdown versions based on the specified instanceVersion type.
         /// </summary>
-        /// <param name="versionType">The type of version to refresh (e.g., "vanilla", "forge", etc.).</param>
+        /// <param name="versionType">The type of instanceVersion to refresh (e.g., "vanilla", "forge", etc.).</param>
         private void RefreshDropdownVersions(string versionType)
         {
             if (checkb_instances_version_betas == null || checkb_instances_version_releases == null || checkb_instances_version_snapshots == null)
@@ -475,6 +478,17 @@ namespace KonkordLauncher
             cb_instances_version.SelectedIndex = 0;
         }
 
+        private void UpdateLaunchStatusBar(bool isVisible)
+        {
+            bo_launch_progress.IsEnabled = isVisible;
+            bo_launch_progress.Visibility = isVisible ? Visibility.Visible : Visibility.Hidden;
+        }
+
+        private void UpdateLaunchStatusBar(double value, string content)
+        {
+            lab_launch_progress.Content = content;
+            pb_launch_progress.Value = value;
+        }
         #endregion
 
         #region Window Events
@@ -640,7 +654,6 @@ namespace KonkordLauncher
         }
         #endregion
 
-        private readonly double _launchMaxStep = 4;
         /// <summary>
         /// Handles the click event of the "Play" button in the launch interface.
         /// </summary>
@@ -683,234 +696,97 @@ namespace KonkordLauncher
             #endregion
 
             #region Declare variables
-            string version = string.Empty;
-            string versionDirectory = string.Empty;
-            string versionJsonPath = string.Empty;
-            string versionJarPath = string.Empty;
-            string gameDir = string.Empty;
+            string clientId = "0"; // todo
+            string xUID = "0"; // todo
+            
             string libraryBundle = string.Empty;
             string assetIndex = string.Empty;
             #endregion
 
-            // Enable install progressbar TODO: This should be reworked later, but at the moment it's unimportant
-            bo_install.IsEnabled = true;
-            bo_install.Visibility = Visibility.Visible;
-            // Reset progressbar value
-            pb_status.Value = 0d;
-            lab_install.Content = $"Reading the manifest file...";
+            UpdateLaunchStatusBar(true);
+            UpdateLaunchStatusBar(0, $"Reading the manifest file...");
             List<string> argumnets = new List<string>();
 
-            switch (selectedProfile.Kind)
+            // Read the Version Manifest
+            VersionManifest? manifest = await JsonHelper.ReadJsonFileAsync<VersionManifest>(System.IO.Path.Combine(IOHelper.ManifestDir, "vanillaManifest.json"));
+            if (manifest == null)
             {
-                case EProfileKind.VANILLA:
-                    {
-                        // Read the Version Manifest
-                        VersionManifest? manifest = await JsonHelper.ReadJsonFileAsync<VersionManifest>(System.IO.Path.Combine(IOHelper.ManifestDir, "vanillaManifest.json"));
-                        if (manifest == null)
-                        {
-                            NotificationHelper.SendError("Failed to get the vanilla manifest file.", "Error");
-                            return;
-                        }
-
-                        pb_status.Value = 1d / _launchMaxStep * 100;
-                        lab_install.Content = $"Checking the version directory and file...";
-
-                        // Check the profile type
-                        switch (selectedProfile.Type)
-                        {
-                            case EProfileType.LATEST_RELEASE:
-                                {
-                                    version = manifest.Latest.Release;
-                                    versionDirectory = System.IO.Path.Combine(IOHelper.VersionsDir, manifest.Latest.Release);
-                                    versionJsonPath = System.IO.Path.Combine(versionDirectory, $"{manifest.Latest.Release}.json");
-                                    versionJarPath = System.IO.Path.Combine(versionDirectory, $"{manifest.Latest.Release}.jar");
-                                    gameDir = System.IO.Path.Combine(IOHelper.InstancesDir, $"{manifest.Latest.Release}");
-                                    break;
-                                }
-                            case EProfileType.LATEST_SNAPSHOT:
-                                {
-                                    version = manifest.Latest.Snapshot;
-                                    versionDirectory = System.IO.Path.Combine(IOHelper.VersionsDir, manifest.Latest.Snapshot);
-                                    versionJsonPath = System.IO.Path.Combine(versionDirectory, $"{manifest.Latest.Snapshot}.json");
-                                    versionJarPath = System.IO.Path.Combine(versionDirectory, $"{manifest.Latest.Snapshot}.jar");
-                                    gameDir = System.IO.Path.Combine(IOHelper.InstancesDir, $"{manifest.Latest.Snapshot}");
-                                    break;
-                                }
-                            case EProfileType.CUSTOM:
-                                {
-                                    version = selectedProfile.VersionId;
-                                    versionDirectory = System.IO.Path.Combine(IOHelper.VersionsDir, selectedProfile.VersionId);
-                                    versionJsonPath = System.IO.Path.Combine(versionDirectory, $"{selectedProfile.VersionId}.json");
-                                    versionJarPath = System.IO.Path.Combine(versionDirectory, $"{selectedProfile.VersionId}.jar");
-                                    gameDir = selectedProfile.GameDirectory;
-                                    break;
-                                }
-                            case EProfileType.KONKORD_CREATE:
-                            case EProfileType.KONKORD_VANILLAPLUS:
-                                {
-                                    // TODO
-                                    break;
-                                }
-                        }
-
-                        if (!Directory.Exists(gameDir))
-                            Directory.CreateDirectory(gameDir);
-
-                        if (!Directory.Exists(versionDirectory))
-                            Directory.CreateDirectory(versionDirectory);
-
-                        // Find the right version
-                        MCVersion? mcVersion = manifest.Versions.Find(x => x.Id == version);
-                        if (mcVersion == null)
-                        {
-                            NotificationHelper.SendError("Failed to get the minecraft version from the manifest file.", "Error");
-                            return;
-                        }
-
-                        string librarySizeCacheDir = Path.Combine(IOHelper.CacheDir, "libsizes");
-                        if (!Directory.Exists(librarySizeCacheDir))
-                            Directory.CreateDirectory(librarySizeCacheDir);
-                        string librarySizeCachePath = Path.Combine(librarySizeCacheDir, $"{version}.json");
-                        // Check the version json file
-                        if (!File.Exists(versionJsonPath))
-                        {
-                            pb_status.Value = 2d / _launchMaxStep * 100;
-                            lab_install.Content = $"Downloading the version json file...";
-                            using (var client = new HttpClient())
-                            {
-                                string resultJson = await client.GetStringAsync(mcVersion.Url);
-                                JObject localObj = JObject.Parse(resultJson);
-                                int localLibrarySize = 0;
-                               
-                                JArray localjArray = JArray.Parse(localObj["libraries"].ToString(Formatting.None));
-                                // Check the libraries
-                                foreach (var jToken in localjArray)
-                                {
-                                    localLibrarySize += int.Parse(jToken["downloads"]["artifact"]["size"].ToString());
-                                }
-                                localObj.Add("librarySize", localLibrarySize);
-                                await File.WriteAllTextAsync(librarySizeCachePath, localLibrarySize.ToString());
-                                await File.WriteAllTextAsync(versionJsonPath, localObj.ToString(Formatting.None));
-                            }
-                        }
-
-                        // Get the version json object
-                        JObject obj = JObject.Parse(await File.ReadAllTextAsync(versionJsonPath));
-                        // Get theasset index
-                        assetIndex = obj["assetIndex"]["id"].ToString();
-
-                        // Download the assets 
-                        lab_install.Content = $"Downloading assets... 0%";
-                        int totalAssetSize = int.Parse(obj["assetIndex"]["totalSize"].ToString());
-                        string assetIndexDir = Path.Combine(IOHelper.AssetsDir, "indexes");
-                        string assetIndexJsonPath = Path.Combine(assetIndexDir, $"{assetIndex}.json");
-                        if (!File.Exists(assetIndexJsonPath))
-                        {
-                            using (var client = new HttpClient())
-                            {
-                                byte[] array = await client.GetByteArrayAsync(obj["assetIndex"]["url"].ToString());
-                                await File.WriteAllBytesAsync(assetIndexJsonPath, array);
-                            }
-                        }
-
-                        // Check Objects
-                        string assetObjectDir = Path.Combine(IOHelper.AssetsDir, "objects");
-                        if (!Directory.Exists(assetObjectDir))
-                            Directory.CreateDirectory(assetObjectDir);
-
-                        // Download Assets
-                        string rawAssetJson = await File.ReadAllTextAsync(assetIndexJsonPath);
-                        JToken assetIndexToken = JObject.Parse(rawAssetJson)["objects"];
-                        using (var client = new HttpClient())
-                        {
-                            string hash = string.Empty;
-                            string objectDir = string.Empty;
-                            string objectPath = string.Empty;
-                            int downloadedAssetSize = 0;
-                            foreach (JToken token in assetIndexToken.ToList())
-                            {
-                                hash = token.First["hash"].ToString();
-                                objectDir = Path.Combine(assetObjectDir, hash.Substring(0, 2));
-                                objectPath = Path.Combine(objectDir, $"{hash}");
-
-                                if (!Directory.Exists(objectDir))
-                                    Directory.CreateDirectory(objectDir);
-
-                                if (!File.Exists(objectPath))
-                                {
-                                    byte[] array = await client.GetByteArrayAsync($"https://resources.download.minecraft.net/{hash.Substring(0, 2)}/{hash}");
-                                    await File.WriteAllBytesAsync(objectPath, array);
-                                }
-                                downloadedAssetSize += int.Parse(token.First["size"].ToString());
-                                pb_status.Value = (double)downloadedAssetSize / (double)totalAssetSize * 100d;
-                                lab_install.Content = $"Downloading assets... {pb_status.Value.ToString("0.00")}%";
-                            }
-                        }
-
-                        // Check the version jar file
-                        if (!File.Exists(versionJarPath))
-                        {
-                            pb_status.Value = 2d / _launchMaxStep * 100;
-                            lab_install.Content = $"Downloading the version jar file...";
-                            string jarDownloadUrl = obj["downloads"]["client"]["url"].ToString();
-                            using (var client = new HttpClient())
-                            {
-                                byte[] result = await client.GetByteArrayAsync(jarDownloadUrl);
-                                await File.WriteAllBytesAsync(versionJarPath, result);
-                            }
-                        }
-                        pb_status.Value = 3d / _launchMaxStep * 100;
-                        lab_install.Content = $"Downloading libraries...";
-                        // Get the libraries 
-                        JArray jArray = JArray.Parse(obj["libraries"].ToString(Formatting.None));
-                        // Check the libraries
-                        using (var client = new HttpClient())
-                        {
-                            int libraryTotalSize = int.Parse(await File.ReadAllTextAsync(librarySizeCachePath));
-                            double libraryDownloadedSize = 0;
-                            foreach (var jToken in jArray)
-                            {
-                                double percent = (libraryDownloadedSize / (double)libraryTotalSize) * 100;
-                                lab_install.Content = $"Downloading the {jToken["name"]} library... {percent.ToString("0.00")}%";
-                                pb_status.Value = percent;
-                                // Get the path
-                                string libPath = Path.Combine(IOHelper.LibrariesDir, jToken["downloads"]["artifact"]["path"].ToString());
-                                libraryBundle += $"{libPath};";
-                                // Get the directory
-                                string libDirectory = libPath.Remove(libPath.LastIndexOf('/'), libPath.Length - (libPath.LastIndexOf('/')));
-                                if (!File.Exists(libPath))
-                                {
-                                    string libUrl = jToken["downloads"]["artifact"]["url"].ToString();
-                                    byte[] result = await client.GetByteArrayAsync(libUrl);
-                                    if (!Directory.Exists(libDirectory))
-                                        Directory.CreateDirectory(libDirectory);
-                                    await File.WriteAllBytesAsync(libPath, result);
-                                }
-                                libraryDownloadedSize += int.Parse(jToken["downloads"]["artifact"]["size"].ToString());
-                            }
-                        }
-
-                        libraryBundle += $"{versionJarPath}";
-                        pb_status.Value = 4d / _launchMaxStep * 100;
-                        lab_install.Content = $"Launching the game...";
-                        break;
-                    }
-                case EProfileKind.FORGE:
-                    {
-                        // TODO 
-                        break;
-                    }
-                case EProfileKind.FABRIC:
-                    {
-                        // TODO
-                        break;
-                    }
-                case EProfileKind.QUILT:
-                    {
-                        // TODO
-                        break;
-                    }
+                NotificationHelper.SendError("Failed to get the vanilla manifest file.", "Error");
+                return;
             }
+
+            UpdateLaunchStatusBar(0, $"Checking the version directory and file...");
+
+            // Check the profile type
+            VersionResponse versionResponse = GameManager.GetProfileVersionDetails(selectedProfile.Type, manifest, selectedProfile);
+
+            // Create gameDir in the instances folder
+            if (!Directory.Exists(versionResponse.GameDir))
+                Directory.CreateDirectory(versionResponse.GameDir);
+
+            // Create versionDir in the versions folder
+            if (!Directory.Exists(versionResponse.VersionDirectory))
+                Directory.CreateDirectory(versionResponse.VersionDirectory);
+
+            // Find the right vanilla instanceVersion
+            MCVersion? mcVersion = manifest.Versions.Find(x => x.Id == versionResponse.InstanceVersion);
+            if (mcVersion == null)
+            {
+                NotificationHelper.SendError("Failed to get the minecraft version from the manifest file.", "Error");
+                return;
+            }
+
+            LibraryResponse libraryResponse = await GameManager.DownloadLibraries(new LibraryRequest(selectedProfile.Kind, versionResponse.VanillaVersion, mcVersion.Id,
+                mcVersion.Url, versionResponse.VersionJsonPath, ref pb_launch_progress, ref lab_launch_progress));
+
+            if (!libraryResponse.IsSuccess)
+            {
+                NotificationHelper.SendError(libraryResponse.Message, "Error");
+                return;
+            }
+            assetIndex = libraryResponse.AssetIndex;
+
+            // Check the instanceVersion jar file
+            // Note: Moded ones does not require vanilla ones
+            if (!File.Exists(versionResponse.VersionJarPath))
+            {
+                UpdateLaunchStatusBar(0, $"Downloading the version jar file...");
+                using (var client = new HttpClient())
+                {
+                    byte[] result = await client.GetByteArrayAsync(libraryResponse.ClientDownloadUrl);
+                    await File.WriteAllBytesAsync(versionResponse.VersionJarPath, result);
+                }
+            }
+
+            UpdateLaunchStatusBar(0, $"Downloading libraries...");
+            // Check the libraries
+            using (var client = new HttpClient())
+            {
+                int libraryTotalSize = int.Parse(await File.ReadAllTextAsync(libraryResponse.LibrarySizeCachePath));
+                double libraryDownloadedSize = 0;
+                foreach (var jToken in libraryResponse.Libraries)
+                {
+                    double percent = (libraryDownloadedSize / (double)libraryTotalSize) * 100;
+                    UpdateLaunchStatusBar(percent, $"Downloading the {jToken["name"]} library... {percent.ToString("0.00")}%");
+                    // Get the path
+                    string libPath = Path.Combine(IOHelper.LibrariesDir, jToken["downloads"]["artifact"]["path"].ToString());
+                    libraryBundle += $"{libPath};";
+                    // Get the directory
+                    string libDirectory = libPath.Remove(libPath.LastIndexOf('/'), libPath.Length - (libPath.LastIndexOf('/')));
+                    if (!File.Exists(libPath))
+                    {
+                        string libUrl = jToken["downloads"]["artifact"]["url"].ToString();
+                        byte[] result = await client.GetByteArrayAsync(libUrl);
+                        if (!Directory.Exists(libDirectory))
+                            Directory.CreateDirectory(libDirectory);
+                        await File.WriteAllBytesAsync(libPath, result);
+                    }
+                    libraryDownloadedSize += int.Parse(jToken["downloads"]["artifact"]["size"].ToString());
+                }
+            }
+
+            libraryBundle += $"{versionResponse.VersionJarPath}";
+            UpdateLaunchStatusBar(0, $"Launching the game...");
 
             #region Arguments
             // The JVM args set by the user
@@ -944,16 +820,16 @@ namespace KonkordLauncher
             // The main class
             argumnets.Add("net.minecraft.client.main.Main");
             argumnets.Add($"--username {account.DisplayName}");
-            argumnets.Add($"--version {version}");
-            argumnets.Add($"--gameDir {gameDir}");
+            argumnets.Add($"--version {versionResponse.InstanceVersion}");
+            argumnets.Add($"--gameDir {versionResponse.GameDir}");
             // Directory of the assets
             argumnets.Add($"--assetsDir {IOHelper.AssetsDir}");
             // Asset Index
             argumnets.Add($"--assetIndex {assetIndex}");
             argumnets.Add($"--uuid {account.UUID}");
             argumnets.Add($"--accessToken {account.AccessToken}");
-            argumnets.Add($"--clientId 0"); // todo
-            argumnets.Add($"--xuid 0"); // todo
+            argumnets.Add($"--clientId 0"); 
+            argumnets.Add($"--xuid 0");
             argumnets.Add($"--userType msa");
             argumnets.Add($"--versionType release");
             // Screen resolution
@@ -989,21 +865,16 @@ namespace KonkordLauncher
             bo_launch_play.IsEnabled = true;
             btn_launch_play.IsEnabled = true;
             // Disable progressbar
-            bo_install.IsEnabled = false;
-            bo_install.Visibility = Visibility.Hidden;
+            UpdateLaunchStatusBar(false);
             //Launch game instance
             var psi = new ProcessStartInfo()
             {
                 FileName = $"{selectedProfile.JavaPath}javaw",
                 Arguments = string.Join(' ', argumnets),
-                UseShellExecute = true,
-                // Debug stuff, don't forget to disable ShellExecute while debugging:
-                //RedirectStandardOutput = true,
-                //RedirectStandardError = true,
+                UseShellExecute = true
             };
 
             Process? p = Process.Start(psi);
-
             switch (selectedProfile.LauncherVisibility)
             {
                 case ELaucnherVisibility.HIDE_AND_REOPEN_ON_GAME_CLOSE:
@@ -1353,7 +1224,7 @@ namespace KonkordLauncher
         }
 
         /// <summary>
-        /// Handles the selection changed event of the instance version type ComboBox.
+        /// Handles the selection changed event of the instance instanceVersion type ComboBox.
         /// </summary>
         /// <param name="sender">The object that raised the event.</param>
         /// <param name="e">The event arguments.</param>
@@ -1411,7 +1282,7 @@ namespace KonkordLauncher
         }
 
         /// <summary>
-        /// Handles the checked event of the instances version CheckBox.
+        /// Handles the checked event of the instances instanceVersion CheckBox.
         /// </summary>
         /// <param name="sender">The object that raised the event.</param>
         /// <param name="e">The event arguments.</param>

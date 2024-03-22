@@ -34,12 +34,12 @@
         <Button x:Name="bt_window_maximize" fa:Awesome.Content="WindowMaximize" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" HorizontalAlignment="Right" Margin="0,0,20,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Click="WindowMaximize_Click" Style="{StaticResource WindowButton}"/>
 
         <!-- Install Row -->
-        <Border x:Name="bo_install" IsEnabled="False" Visibility="Hidden" BorderBrush="#FF515464" Background="#FF515464" BorderThickness="1" Height="50" Width="622" VerticalAlignment="Bottom" HorizontalAlignment="Right" ClipToBounds="True">
+        <Border x:Name="bo_launch_progress" IsEnabled="False" Visibility="Hidden" BorderBrush="#FF515464" Background="#FF515464" BorderThickness="1" Height="50" Width="622" VerticalAlignment="Bottom" HorizontalAlignment="Right" ClipToBounds="True">
             <Grid>
-                <Border x:Name="bo_install_status" BorderThickness="1" HorizontalAlignment="Center" Height="12" Margin="0,27,0,0" VerticalAlignment="Top" Width="598" BorderBrush="#33000000" Background="#33000000">
-                    <ProgressBar x:Name="pb_status" Background="{x:Null}" BorderBrush="{x:Null}" Height="12" Foreground="#FF0666B0" Padding="1,1,1,1"/>
+                <Border x:Name="bo_launch_progress_bar" BorderThickness="1" HorizontalAlignment="Center" Height="12" Margin="0,27,0,0" VerticalAlignment="Top" Width="598" BorderBrush="#33000000" Background="#33000000">
+                    <ProgressBar x:Name="pb_launch_progress" Background="{x:Null}" BorderBrush="{x:Null}" Height="12" Foreground="#FF0666B0" Padding="1,1,1,1"/>
                 </Border>
-                <Label x:Name="lab_install" Content="Waiting on install..." VerticalAlignment="Top" Foreground="White" VerticalContentAlignment="Bottom" HorizontalAlignment="Center" Height="27" Width="597" Padding="0,0,0,5" FontSize="10" FontWeight="Light"/>
+                <Label x:Name="lab_launch_progress" Content="Waiting on install..." VerticalAlignment="Top" Foreground="White" VerticalContentAlignment="Bottom" HorizontalAlignment="Center" Height="27" Width="597" Padding="0,0,0,5" FontSize="10" FontWeight="Light"/>
             </Grid>
         </Border>
 

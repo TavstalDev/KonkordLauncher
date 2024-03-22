@@ -9,17 +9,19 @@ namespace KonkordLibrary.Models.GameManager
         public string AssetIndex { get; set; }
         public string ClientDownloadUrl { get; set; }
         public string LibrarySizeCachePath { get; set; }
+        public int LocalLibrarySize { get; set; }
         public JArray Libraries {  get; set; }
 
         public LibraryResponse() { }
 
-        public LibraryResponse(bool isSuccess, string message, string assetIndex, string clientDownloadUrl, string librarySizeCachePath, JArray libraries)
+        public LibraryResponse(bool isSuccess, string message, string assetIndex, string clientDownloadUrl, string librarySizeCachePath, int localLibrarySize, JArray libraries)
         {
             IsSuccess = isSuccess;
             Message = message;
             AssetIndex = assetIndex;
             ClientDownloadUrl = clientDownloadUrl;
             LibrarySizeCachePath = librarySizeCachePath;
+            LocalLibrarySize = localLibrarySize;
             Libraries = libraries;
         }
     }

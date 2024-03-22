@@ -36,6 +36,9 @@ namespace KonkordLibrary.Helpers
 
         private static readonly string _assetsDir = Path.Combine(_mainDir, "assets");
         public static string AssetsDir { get { return _assetsDir; } }
+
+        private static readonly string _tempDir = Path.Combine(_mainDir, "temp");
+        public static string TempDir { get { return _tempDir; } }
         #endregion
 
         #region Files
@@ -118,6 +121,7 @@ namespace KonkordLibrary.Helpers
                     Directory.CreateDirectory(LibrariesDir);
                     Directory.CreateDirectory(AssetsDir);
                     Directory.CreateDirectory(Path.Combine(AssetsDir, "indexes"));
+                    Directory.CreateDirectory(TempDir);
                 }
                 else
                 {
@@ -142,6 +146,9 @@ namespace KonkordLibrary.Helpers
                     string indexes = Path.Combine(AssetsDir, "indexes");
                     if (!Directory.Exists(indexes))
                         Directory.CreateDirectory(indexes);
+
+                    if (!Directory.Exists(TempDir))
+                        Directory.CreateDirectory(TempDir);
                 }
 
                 return true;

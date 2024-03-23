@@ -865,18 +865,21 @@ namespace KonkordLauncher
                     UpdateLaunchStatusBar(percent, $"Downloading the {jToken["name"]} library... {percent.ToString("0.00")}%");
                     // Get the path
                     string libPath = Path.Combine(IOHelper.LibrariesDir, jToken["downloads"]["artifact"]["path"].ToString());
-                    libraryBundle += $"{libPath};";
-                    // Get the directory
-                    string libDirectory = libPath.Remove(libPath.LastIndexOf('/'), libPath.Length - (libPath.LastIndexOf('/')));
-                    if (!File.Exists(libPath))
+                    if (!libraryBundle.Contains($"{libPath};"))
                     {
-                        string libUrl = jToken["downloads"]["artifact"]["url"].ToString();
-                        byte[] result = await client.GetByteArrayAsync(libUrl);
-                        if (!Directory.Exists(libDirectory))
-                            Directory.CreateDirectory(libDirectory);
-                        await File.WriteAllBytesAsync(libPath, result);
+                        libraryBundle += $"{libPath};";
+                        // Get the directory
+                        string libDirectory = libPath.Remove(libPath.LastIndexOf('/'), libPath.Length - (libPath.LastIndexOf('/')));
+                        if (!File.Exists(libPath))
+                        {
+                            string libUrl = jToken["downloads"]["artifact"]["url"].ToString();
+                            byte[] result = await client.GetByteArrayAsync(libUrl);
+                            if (!Directory.Exists(libDirectory))
+                                Directory.CreateDirectory(libDirectory);
+                            await File.WriteAllBytesAsync(libPath, result);
+                        }
+                        libraryDownloadedSize += int.Parse(jToken["downloads"]["artifact"]["size"].ToString());
                     }
-                    libraryDownloadedSize += int.Parse(jToken["downloads"]["artifact"]["size"].ToString());
                 }
             }
 
@@ -911,9 +914,13 @@ namespace KonkordLauncher
             // Include the depedencies
             argumnets.Add($"-cp \"{libraryBundle}\"");
 
+            if (libraryResponse.CustomJavaArgs != null)
+                foreach (var jarg in libraryResponse.CustomJavaArgs)
+                    argumnets.Add(jarg);
+
             // Minecraft Args
             // The main class
-            argumnets.Add("net.minecraft.client.main.Main");
+            argumnets.Add(libraryResponse.CustomGameMain ?? "net.minecraft.client.main.Main");
             argumnets.Add($"--username {account.DisplayName}");
             argumnets.Add($"--version {versionResponse.InstanceVersion}");
             argumnets.Add($"--gameDir {versionResponse.GameDir}");
@@ -953,6 +960,10 @@ namespace KonkordLauncher
                 argumnets.Add($"--width {(int)SystemParameters.PrimaryScreenWidth / 2}");
                 argumnets.Add($"--height {(int)SystemParameters.PrimaryScreenHeight / 2}");
             }
+
+            if (libraryResponse.CustomGameArgs != null)
+                foreach (var garg in libraryResponse.CustomGameArgs)
+                    argumnets.Add(garg);
             #endregion
 
             #region Finish and Launch Minecraft
@@ -962,14 +973,22 @@ namespace KonkordLauncher
             // Disable progressbar
             UpdateLaunchStatusBar(false);
             //Launch game instance
+            
             var psi = new ProcessStartInfo()
             {
-                FileName = $"{selectedProfile.JavaPath}javaw",
+                FileName = $"{selectedProfile.JavaPath}java",
                 Arguments = string.Join(' ', argumnets),
-                UseShellExecute = true
+                UseShellExecute = false,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
             };
-
             Process? p = Process.Start(psi);
+
+            string o = p.StandardError.ReadToEnd();
+            Debug.WriteLine(o);
+            NotificationHelper.SendError(o, "error");
+
+            await p.WaitForExitAsync();
             switch (selectedProfile.LauncherVisibility)
             {
                 case ELaucnherVisibility.HIDE_AND_REOPEN_ON_GAME_CLOSE:
@@ -1062,11 +1081,12 @@ namespace KonkordLauncher
                     Memory = (int)cb_instances_memory.SelectedItem,
                     Resolution = resolution,
                     Type = EProfileType.CUSTOM,
-                    VersionId = ((VersionBase)(cb_instances_mc_version.IsEnabled ? cb_instances_mc_version.SelectedItem : cb_instances_mod_version.SelectedItem)).Id,
-                    VersionVanillaId = ((VersionBase)(cb_instances_mc_version.IsEnabled ? cb_instances_mc_version.SelectedItem : cb_instances_mcmod_version.SelectedItem)).VanillaId,
+                    VersionId = cb_instances_mc_version.IsEnabled ? ,
+                    VersionVanillaId = cb_instances_mc_version.IsEnabled ?, // Todo: find a method to get the combobox value because at the moment it is garbage
                     JVMArgs = tb_instances_jvm.Text ?? "",
                 };
 
+                NotificationHelper.SendNotification(cb_instances_mc_version.IsEnabled ? cb_instances_mc_version.Text : cb_instances_mod_version.Text, "???");
                 LauncherSettings? settings = IOHelper.GetLauncherSettings();
                 if (settings == null)
                     return;

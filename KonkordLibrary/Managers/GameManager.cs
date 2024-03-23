@@ -366,6 +366,23 @@ namespace KonkordLibrary.Managers
                                 }
                                 // Save the version cache
                                 await JsonHelper.WriteJsonFileAsync(librarySizeCachePath, localLibrarySize);
+
+                                libraryResponse.CustomGameArgs = new List<string>();
+                                libraryResponse.CustomJavaArgs = new List<string>();
+                                libraryResponse.CustomGameMain = localObj["mainClass"].ToString();
+                                foreach (var arg in localObj["arguments"]["game"].ToList())
+                                {
+                                    libraryResponse.CustomGameArgs.Add(arg.ToString());
+                                }
+                                foreach (var arg in localObj["arguments"]["jvm"].ToList())
+                                {
+                                    string rawArg = arg.ToString();
+                                    if (rawArg.StartsWith("-p") || rawArg.StartsWith("${library_directory}"))
+                                    {
+                                        continue;
+                                    }
+                                    libraryResponse.CustomGameArgs.Add(rawArg);
+                                }
                             }
                         }
                         else
@@ -385,9 +402,26 @@ namespace KonkordLibrary.Managers
                             { 
                                 libraryResponse.Libraries.Add(jToken);
                             }
+
+                            libraryResponse.CustomGameArgs = new List<string>();
+                            libraryResponse.CustomJavaArgs = new List<string>();
+                            libraryResponse.CustomGameMain = localObj["mainClass"].ToString();
+                            foreach (var arg in localObj["arguments"]["game"].ToList())
+                            {
+                                libraryResponse.CustomGameArgs.Add(arg.ToString());
+                            }
+                            foreach (var arg in localObj["arguments"]["jvm"].ToList())
+                            {
+                                string rawArg = arg.ToString();
+                                if (rawArg.StartsWith("-p") || rawArg.StartsWith("${library_directory}"))
+                                {
+                                    continue;
+                                }
+                                libraryResponse.CustomGameArgs.Add(rawArg);
+                            }
                         }
 
-                        // Get the version json object
+                        // Get the vanilla version json object
                         JObject vanillaVersionJsonObj = JObject.Parse(await File.ReadAllTextAsync(versionResponse.VersionJsonPath));
 
                         // Get and check jtoken

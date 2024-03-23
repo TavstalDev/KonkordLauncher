@@ -530,7 +530,7 @@ namespace KonkordLauncher
             // Full Vanilla
             if (cb_instances_mc_version.IsEnabled)
             {
-                cb_instances_mc_version.DataContext = VersionDic[versionType].FindAll(x => (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
+                cb_instances_mc_version.DataContext = VersionDic[versionType].FindAll(x => (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas)).Select(x => x.Id);
                 cb_instances_mc_version.SelectedIndex = 0;
             }
             else // Moded
@@ -542,33 +542,33 @@ namespace KonkordLauncher
                     case "fabric":
                         {
                             localVanillaList = VersionDic["fabricVanilla"].FindAll(x => (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
-                            cb_instances_mcmod_version.DataContext = localVanillaList;
+                            cb_instances_mcmod_version.DataContext = localVanillaList.Select(x => x.Id);
                             cb_instances_mcmod_version.SelectedIndex = 0;
 
                             localModList = VersionDic[versionType];
-                            cb_instances_mod_version.DataContext = localModList;
+                            cb_instances_mod_version.DataContext = localModList.Select(x => x.Id);
                             cb_instances_mod_version.SelectedIndex = localModList.FindIndex(x => x.VanillaId == localVanillaList[0].Id);
                             return;
                         }
                     case "quilt":
                         {
                             localVanillaList = VersionDic["quiltVanilla"].FindAll(x => (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
-                            cb_instances_mcmod_version.DataContext = localVanillaList;
+                            cb_instances_mcmod_version.DataContext = localVanillaList.Select(x => x.Id);
                             cb_instances_mcmod_version.SelectedIndex = 0;
 
                             localModList = VersionDic[versionType];
-                            cb_instances_mod_version.DataContext = localModList;
+                            cb_instances_mod_version.DataContext = localModList.Select(x => x.Id);
                             cb_instances_mod_version.SelectedIndex = localModList.FindIndex(x => x.VanillaId == localVanillaList[0].Id);
                             return;
                         }
                 }
 
                 localVanillaList = VersionDic["forgeVanilla"].FindAll(x => (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
-                cb_instances_mcmod_version.DataContext = localVanillaList;
+                cb_instances_mcmod_version.DataContext = localVanillaList.Select(x => x.Id);
                 cb_instances_mcmod_version.SelectedIndex = 0;
 
                 localModList = VersionDic[versionType].FindAll(x => x.VanillaId == localVanillaList[0].Id && (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
-                cb_instances_mod_version.DataContext = localModList;
+                cb_instances_mod_version.DataContext = localModList.Select(x => x.Id);
                 cb_instances_mod_version.SelectedIndex = localModList.FindIndex(x => x.VanillaId == localVanillaList[0].Id);
             }
         }
@@ -978,17 +978,12 @@ namespace KonkordLauncher
             {
                 FileName = $"{selectedProfile.JavaPath}java",
                 Arguments = string.Join(' ', argumnets),
-                UseShellExecute = false,
-                RedirectStandardError = true,
-                RedirectStandardOutput = true,
+                UseShellExecute = true,
+                //RedirectStandardError = true,
+                //RedirectStandardOutput = true,
             };
             Process? p = Process.Start(psi);
 
-            string o = p.StandardError.ReadToEnd();
-            Debug.WriteLine(o);
-            NotificationHelper.SendError(o, "error");
-
-            await p.WaitForExitAsync();
             switch (selectedProfile.LauncherVisibility)
             {
                 case ELaucnherVisibility.HIDE_AND_REOPEN_ON_GAME_CLOSE:
@@ -1036,6 +1031,8 @@ namespace KonkordLauncher
         #region Instances
         #region Variables
         public string SelectedIcon { get; set; }
+        public string InstanceMCVersionId { get; set; }
+        public string InstanceModVersionId {  get; set; }
         public Dictionary<string, List<VersionBase>> VersionDic {  get; set; }
         #endregion
 
@@ -1081,12 +1078,11 @@ namespace KonkordLauncher
                     Memory = (int)cb_instances_memory.SelectedItem,
                     Resolution = resolution,
                     Type = EProfileType.CUSTOM,
-                    VersionId = cb_instances_mc_version.IsEnabled ? ,
-                    VersionVanillaId = cb_instances_mc_version.IsEnabled ?, // Todo: find a method to get the combobox value because at the moment it is garbage
+                    VersionId = InstanceModVersionId,
+                    VersionVanillaId = InstanceMCVersionId, 
                     JVMArgs = tb_instances_jvm.Text ?? "",
                 };
 
-                NotificationHelper.SendNotification(cb_instances_mc_version.IsEnabled ? cb_instances_mc_version.Text : cb_instances_mod_version.Text, "???");
                 LauncherSettings? settings = IOHelper.GetLauncherSettings();
                 if (settings == null)
                     return;
@@ -1463,7 +1459,7 @@ namespace KonkordLauncher
                         localVanillaList = VersionDic["fabricVanilla"].FindAll(x => (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
 
                         localModList = VersionDic[versionType];
-                        cb_instances_mod_version.DataContext = localModList;
+                        cb_instances_mod_version.DataContext = localModList.Select(x => x.Id);
                         cb_instances_mod_version.SelectedIndex = localModList.FindIndex(x => x.VanillaId == localVanillaList[0].Id);
                         return;
                     }
@@ -1472,7 +1468,7 @@ namespace KonkordLauncher
                         localVanillaList = VersionDic["quiltVanilla"].FindAll(x => (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
 
                         localModList = VersionDic[versionType];
-                        cb_instances_mod_version.DataContext = localModList;
+                        cb_instances_mod_version.DataContext = localModList.Select(x => x.Id);
                         cb_instances_mod_version.SelectedIndex = localModList.FindIndex(x => x.VanillaId == localVanillaList[0].Id);
                         return;
                     }
@@ -1481,9 +1477,57 @@ namespace KonkordLauncher
             localVanillaList = VersionDic["forgeVanilla"].FindAll(x => (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
 
             localModList = VersionDic[versionType].FindAll(x => x.VanillaId == localVanillaList[cb_instances_mcmod_version.SelectedIndex].Id && (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
-            cb_instances_mod_version.DataContext = localModList;
+            cb_instances_mod_version.DataContext = localModList.Select(x => x.Id);
             cb_instances_mod_version.SelectedIndex = localModList.FindIndex(x => x.VanillaId == localVanillaList[cb_instances_mcmod_version.SelectedIndex].Id);
+
+            if (cb_instances_mcmod_version == null)
+                return;
+
+            if (!cb_instances_mcmod_version.IsEnabled)
+                return;
+
+            ComboBox combo = (ComboBox)sender;
+
+            if (combo.SelectedItem == null)
+                return;
+            InstanceMCVersionId = combo.SelectedItem.ToString();
+            Debug.WriteLine($"minecraft moded version: {InstanceMCVersionId}");
         }
+
+
         #endregion
+
+        private void cb_instances_mc_version_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cb_instances_mc_version == null)
+                return;
+
+            if (!cb_instances_mc_version.IsEnabled)
+                return;
+
+            ComboBox combo = (ComboBox)sender;
+
+            if (combo.SelectedItem == null)
+                return;
+            InstanceMCVersionId = combo.SelectedItem.ToString();
+            InstanceModVersionId = combo.SelectedItem.ToString();
+            Debug.WriteLine($"minecraft vanilla version: {InstanceMCVersionId}");
+        }
+
+        private void cb_instances_mod_version_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cb_instances_mod_version == null)
+                return;
+
+            if (!cb_instances_mod_version.IsEnabled)
+                return;
+
+            ComboBox combo = (ComboBox)sender;
+
+            if (combo.SelectedItem == null)
+                return;
+            InstanceModVersionId = combo.SelectedItem.ToString();
+            Debug.WriteLine($"mod version: {InstanceModVersionId}");
+        }
     }
 }

@@ -186,33 +186,33 @@
                                     <ComboBoxItem Tag="quilt">Quilt</ComboBoxItem>
                                 </ComboBox.Items>
                             </ComboBox>
-                            <ComboBox x:Name="cb_instances_mc_version" SelectedValuePath="Id" SelectedItem="Id" ItemsSource="{Binding}" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="0,22,0,25" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White" HorizontalAlignment="Right" Width="200">
+                            <ComboBox x:Name="cb_instances_mc_version" IsSynchronizedWithCurrentItem="True" SelectionChanged="cb_instances_mc_version_SelectionChanged" ItemsSource="{Binding}" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="0,22,0,25" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White" HorizontalAlignment="Right" Width="200">
                                 <ComboBox.Resources>
                                     <sys:Double x:Key="VersionListFontSize">10</sys:Double>
                                 </ComboBox.Resources>
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate>
-                                        <TextBlock FontSize="{DynamicResource VersionListFontSize}" Tag="{Binding Id}" Text="{Binding Id}"></TextBlock>
+                                        <TextBlock FontSize="{DynamicResource VersionListFontSize}" Text="{Binding}"></TextBlock>
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
-                            <ComboBox x:Name="cb_instances_mcmod_version" SelectedValuePath="Id" SelectedItem="Id" SelectionChanged="InstancesMcmodVersion_SelectionChanged" ItemsSource="{Binding}" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="0,22,0,25" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White" HorizontalAlignment="Center" Width="95">
+                            <ComboBox x:Name="cb_instances_mcmod_version" IsSynchronizedWithCurrentItem="True" SelectionChanged="InstancesMcmodVersion_SelectionChanged" ItemsSource="{Binding}" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="0,22,0,25" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White" HorizontalAlignment="Center" Width="95">
                                 <ComboBox.Resources>
                                     <sys:Double x:Key="VersionListFontSize">10</sys:Double>
                                 </ComboBox.Resources>
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate>
-                                        <TextBlock FontSize="{DynamicResource VersionListFontSize}" Tag="{Binding Id}" Text="{Binding Id}"></TextBlock>
+                                        <TextBlock FontSize="{DynamicResource VersionListFontSize}" Text="{Binding}"></TextBlock>
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
-                            <ComboBox x:Name="cb_instances_mod_version" ItemsSource="{Binding}" SelectedValuePath="Id" SelectedItem="Id" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="0,22,0,25" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White" HorizontalAlignment="Right" Width="95">
+                            <ComboBox x:Name="cb_instances_mod_version" IsSynchronizedWithCurrentItem="True" SelectionChanged="cb_instances_mod_version_SelectionChanged" ItemsSource="{Binding}" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="0,22,0,25" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White" HorizontalAlignment="Right" Width="95">
                                 <ComboBox.Resources>
                                     <sys:Double x:Key="VersionListFontSize">10</sys:Double>
                                 </ComboBox.Resources>
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate>
-                                        <TextBlock FontSize="{DynamicResource VersionListFontSize}" Tag="{Binding Id}" Text="{Binding Id}"></TextBlock>
+                                        <TextBlock FontSize="{DynamicResource VersionListFontSize}" Text="{Binding}"></TextBlock>
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>

@@ -370,19 +370,23 @@ namespace KonkordLibrary.Managers
                                 libraryResponse.CustomGameArgs = new List<string>();
                                 libraryResponse.CustomJavaArgs = new List<string>();
                                 libraryResponse.CustomGameMain = localObj["mainClass"].ToString();
-                                foreach (var arg in localObj["arguments"]["game"].ToList())
+                                try
                                 {
-                                    libraryResponse.CustomGameArgs.Add(arg.ToString());
-                                }
-                                foreach (var arg in localObj["arguments"]["jvm"].ToList())
-                                {
-                                    string rawArg = arg.ToString();
-                                    if (rawArg.StartsWith("-p") || rawArg.StartsWith("${library_directory}"))
+                                    foreach (var arg in localObj["arguments"]["game"].ToList())
                                     {
-                                        continue;
+                                        libraryResponse.CustomGameArgs.Add(arg.ToString());
                                     }
-                                    libraryResponse.CustomGameArgs.Add(rawArg);
+                                    foreach (var arg in localObj["arguments"]["jvm"].ToList())
+                                    {
+                                        string rawArg = arg.ToString();
+                                        if (rawArg.StartsWith("-p") || rawArg.StartsWith("${library_directory}"))
+                                        {
+                                            continue;
+                                        }
+                                        libraryResponse.CustomGameArgs.Add(rawArg);
+                                    }
                                 }
+                                catch { }
                             }
                         }
                         else
@@ -405,20 +409,23 @@ namespace KonkordLibrary.Managers
 
                             libraryResponse.CustomGameArgs = new List<string>();
                             libraryResponse.CustomJavaArgs = new List<string>();
-                            libraryResponse.CustomGameMain = localObj["mainClass"].ToString();
-                            foreach (var arg in localObj["arguments"]["game"].ToList())
+                            try
                             {
-                                libraryResponse.CustomGameArgs.Add(arg.ToString());
-                            }
-                            foreach (var arg in localObj["arguments"]["jvm"].ToList())
-                            {
-                                string rawArg = arg.ToString();
-                                if (rawArg.StartsWith("-p") || rawArg.StartsWith("${library_directory}"))
+                                libraryResponse.CustomGameMain = localObj["mainClass"].ToString();
+                                foreach (var arg in localObj["arguments"]["game"].ToList())
                                 {
-                                    continue;
+                                    libraryResponse.CustomGameArgs.Add(arg.ToString());
                                 }
-                                libraryResponse.CustomGameArgs.Add(rawArg);
-                            }
+                                foreach (var arg in localObj["arguments"]["jvm"].ToList())
+                                {
+                                    string rawArg = arg.ToString();
+                                    if (rawArg.StartsWith("-p") || rawArg.StartsWith("${library_directory}"))
+                                    {
+                                        continue;
+                                    }
+                                    libraryResponse.CustomGameArgs.Add(rawArg);
+                                }
+                            } catch { }
                         }
 
                         // Get the vanilla version json object

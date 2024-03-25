@@ -1,17 +1,15 @@
 ﻿using KonkordLibrary.Enums;
 using KonkordLibrary.Helpers;
+using KonkordLibrary.Models;
+using KonkordLibrary.Models.GameManager;
 using KonkordLibrary.Models.Minecraft;
+using KonkordLibrary.Models.Minecraft.Library;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.IO;
-using System.Net.Http;
-using System;
-using System.Text;
-using System.Windows.Controls;
-using Newtonsoft.Json;
-using KonkordLibrary.Models.GameManager;
-using KonkordLibrary.Models;
-using System.Diagnostics;
 using System.IO.Compression;
+using System.Net.Http;
+using System.Text;
 
 namespace KonkordLibrary.Managers
 {
@@ -73,17 +71,37 @@ namespace KonkordLibrary.Managers
         #endregion
 
         #region Version Functions
-        public static VersionResponse GetProfileVersionDetails(string versionId, string? vanillaVersionId = null, string? customDirectory = null, string extraNameTag = "")
+        public static VersionResponse GetProfileVersionDetails(EProfileKind kind, string versionId, string? vanillaVersionId = null, string? customDirectory = null)
         {
             VersionResponse response = new VersionResponse();
 
             response.InstanceVersion = versionId;
             response.VanillaVersion = vanillaVersionId ?? versionId;
-            response.VersionDirectory = Path.Combine(IOHelper.VersionsDir, $"{versionId}{extraNameTag}");
-            response.VersionJsonPath = Path.Combine(response.VersionDirectory, $"{versionId}{extraNameTag}.json");
-            response.VersionJarPath = Path.Combine(response.VersionDirectory, $"{versionId}{extraNameTag}.jar");
+            string versionName = $"{response.VanillaVersion}";
+            switch (kind)
+            {
+                case EProfileKind.FORGE:
+                    {
+                        versionName = $"{vanillaVersionId}-forge-{versionId}";
+                        break;
+                    }
+                case EProfileKind.FABRIC:
+                    {
+                        versionName = $"{vanillaVersionId}-fabric-{versionId}";
+                        break;
+                    }
+                case EProfileKind.QUILT:
+                    {
+                        versionName = $"{vanillaVersionId}-quilt-{versionId}";
+                        break;
+                    }
+            }
+
+            response.VersionDirectory = Path.Combine(IOHelper.VersionsDir, versionName);
+            response.VersionJsonPath = Path.Combine(response.VersionDirectory, $"{versionName}.json");
+            response.VersionJarPath = Path.Combine(response.VersionDirectory, $"{versionName}.jar");
             if (string.IsNullOrEmpty(customDirectory))
-                response.GameDir = Path.Combine(IOHelper.InstancesDir, $"{versionId}{extraNameTag}");
+                response.GameDir = Path.Combine(IOHelper.InstancesDir, versionName);
             else
                 response.GameDir = customDirectory;
 
@@ -99,41 +117,22 @@ namespace KonkordLibrary.Managers
                         if (manifest == null)
                             throw new ArgumentNullException(nameof(manifest));
 
-                        return GetProfileVersionDetails(manifest.Latest.Release, manifest.Latest.Release, null);
+                        return GetProfileVersionDetails(EProfileKind.VANILLA, manifest.Latest.Release, manifest.Latest.Release, null);
                     }
                 case EProfileType.LATEST_SNAPSHOT:
                     {
                         if (manifest == null)
                             throw new ArgumentNullException(nameof(manifest));
 
-                        return GetProfileVersionDetails(manifest.Latest.Snapshot, manifest.Latest.Snapshot, null);
+                        return GetProfileVersionDetails(EProfileKind.VANILLA, manifest.Latest.Snapshot, manifest.Latest.Snapshot, null);
                     }
                 case EProfileType.CUSTOM:
                     {
                         if (profile == null)
                             throw new ArgumentNullException(nameof(profile));
 
-                        string nameTag = "";
-                        switch (profile.Kind)
-                        {
-                            case EProfileKind.FORGE:
-                                {
-                                    nameTag = "-forge";
-                                    break;
-                                }
-                            case EProfileKind.FABRIC:
-                                {
-                                    nameTag = "-fabric";
-                                    break;
-                                }
-                            case EProfileKind.QUILT:
-                                {
-                                    nameTag = "-quilt";
-                                    break;
-                                }
-                        }
 
-                        return GetProfileVersionDetails(profile.VersionId, profile.VersionVanillaId, profile.GameDirectory, nameTag);
+                        return GetProfileVersionDetails(profile.Kind, profile.VersionId, profile.VersionVanillaId, profile.GameDirectory);
                     }
                 case EProfileType.KONKORD_CREATE:
                 case EProfileType.KONKORD_VANILLAPLUS:
@@ -281,7 +280,7 @@ namespace KonkordLibrary.Managers
                             }
                         }
                         libraryResponse.ClientDownloadUrl = obj["downloads"]["client"]["url"].ToString();
-                        libraryResponse.Libraries = JArray.Parse(obj["libraries"].ToString(Formatting.None));
+                        libraryResponse.Libraries = JsonConvert.DeserializeObject<List<MCLibrary>>(obj["libraries"].ToString(Formatting.None));
                         libraryResponse.LibrarySizeCachePath = librarySizeCachePath;
                         libraryResponse.LocalLibrarySize = 0;
                         libraryResponse.IsSuccess = true;
@@ -290,7 +289,7 @@ namespace KonkordLibrary.Managers
                 case EProfileKind.FORGE:
                     {
                         // Download vanilla stuff
-                        VersionResponse versionResponse = GetProfileVersionDetails(request.VanillaVersion, request.VanillaVersion);
+                        VersionResponse versionResponse = GetProfileVersionDetails(EProfileKind.VANILLA, request.VanillaVersion, request.VanillaVersion);
                         if (!Directory.Exists(versionResponse.VersionDirectory))
                             Directory.CreateDirectory(versionResponse.VersionDirectory);
 
@@ -359,22 +358,22 @@ namespace KonkordLibrary.Managers
 
                                 JArray localjArray = JArray.Parse(librariesJToken.ToString(Formatting.None));
                                 // Check the libraries
-                                foreach (var jToken in localjArray)
+                                /*foreach (var jToken in localjArray)
                                 {
                                     localLibrarySize += int.Parse(jToken["downloads"]["artifact"]["size"].ToString());
                                     libraryResponse.Libraries.Add(jToken);
-                                }
+                                }*/
                                 // Save the version cache
                                 await JsonHelper.WriteJsonFileAsync(librarySizeCachePath, localLibrarySize);
 
-                                libraryResponse.CustomGameArgs = new List<string>();
-                                libraryResponse.CustomJavaArgs = new List<string>();
+                                libraryResponse.GameArgs = new List<string>();
+                                libraryResponse.JavaArgs = new List<string>();
                                 libraryResponse.CustomGameMain = localObj["mainClass"].ToString();
                                 try
                                 {
                                     foreach (var arg in localObj["arguments"]["game"].ToList())
                                     {
-                                        libraryResponse.CustomGameArgs.Add(arg.ToString());
+                                        libraryResponse.GameArgs.Add(arg.ToString());
                                     }
                                     foreach (var arg in localObj["arguments"]["jvm"].ToList())
                                     {
@@ -383,7 +382,7 @@ namespace KonkordLibrary.Managers
                                         {
                                             continue;
                                         }
-                                        libraryResponse.CustomGameArgs.Add(rawArg);
+                                        libraryResponse.GameArgs.Add(rawArg);
                                     }
                                 }
                                 catch { }
@@ -402,19 +401,19 @@ namespace KonkordLibrary.Managers
 
                             JArray localjArray = JArray.Parse(librariesJToken.ToString(Formatting.None));
                             // Check the libraries
-                            foreach (var jToken in localjArray)
+                            /*foreach (var jToken in localjArray)
                             { 
                                 libraryResponse.Libraries.Add(jToken);
-                            }
+                            }*/
 
-                            libraryResponse.CustomGameArgs = new List<string>();
-                            libraryResponse.CustomJavaArgs = new List<string>();
+                            libraryResponse.GameArgs = new List<string>();
+                            libraryResponse.JavaArgs = new List<string>();
                             try
                             {
                                 libraryResponse.CustomGameMain = localObj["mainClass"].ToString();
                                 foreach (var arg in localObj["arguments"]["game"].ToList())
                                 {
-                                    libraryResponse.CustomGameArgs.Add(arg.ToString());
+                                    libraryResponse.GameArgs.Add(arg.ToString());
                                 }
                                 foreach (var arg in localObj["arguments"]["jvm"].ToList())
                                 {
@@ -423,7 +422,7 @@ namespace KonkordLibrary.Managers
                                     {
                                         continue;
                                     }
-                                    libraryResponse.CustomGameArgs.Add(rawArg);
+                                    libraryResponse.GameArgs.Add(rawArg);
                                 }
                             } catch { }
                         }

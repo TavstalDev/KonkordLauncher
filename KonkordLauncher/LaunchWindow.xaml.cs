@@ -799,21 +799,21 @@ namespace KonkordLauncher
             #endregion
 
             UpdateLaunchStatusBar(true);
-            UpdateLaunchStatusBar(0, $"Reading the manifest file...");
+            UpdateLaunchStatusBar(0, $"Reading the vanillaManifest file...");
             List<string> argumnets = new List<string>();
 
             // Read the Version Manifest
-            VersionManifest? manifest = await JsonHelper.ReadJsonFileAsync<VersionManifest>(System.IO.Path.Combine(IOHelper.ManifestDir, "vanillaManifest.json"));
-            if (manifest == null)
+            VersionManifest? vanillaManifest = await JsonHelper.ReadJsonFileAsync<VersionManifest>(System.IO.Path.Combine(IOHelper.ManifestDir, "vanillaManifest.json"));
+            if (vanillaManifest == null)
             {
-                NotificationHelper.SendError("Failed to get the vanilla manifest file.", "Error");
+                NotificationHelper.SendError("Failed to get the vanilla vanillaManifest file.", "Error");
                 return;
             }
 
             UpdateLaunchStatusBar(0, $"Checking the version directory and file...");
 
             // Check the profile type
-            VersionResponse versionResponse = GameManager.GetProfileVersionDetails(selectedProfile.Type, manifest, selectedProfile);
+            VersionResponse versionResponse = GameManager.GetProfileVersionDetails(selectedProfile.Type, vanillaManifest, selectedProfile);
 
             // Create gameDir in the instances folder
             if (!Directory.Exists(versionResponse.GameDir))
@@ -824,64 +824,18 @@ namespace KonkordLauncher
                 Directory.CreateDirectory(versionResponse.VersionDirectory);
 
             // Find the right vanilla instanceVersion
-            MCVersion? mcVersion = manifest.Versions.Find(x => x.Id == versionResponse.VanillaVersion);
+            MCVersion? mcVersion = vanillaManifest.Versions.Find(x => x.Id == versionResponse.VanillaVersion);
             if (mcVersion == null)
             {
-                NotificationHelper.SendError("Failed to get the minecraft version from the manifest file.", "Error");
+                NotificationHelper.SendError("Failed to get the minecraft version from the vanillaManifest file.", "Error");
                 return;
             }
 
-            LibraryResponse libraryResponse = await GameManager.DownloadLibraries(new LibraryRequest(selectedProfile.Kind, mcVersion.Id, versionResponse.InstanceVersion,
-                mcVersion.Url, versionResponse.VersionJsonPath, ref pb_launch_progress, ref lab_launch_progress));
+            #region Check vanilla manifest and get libraries
 
-            if (!libraryResponse.IsSuccess)
-            {
-                NotificationHelper.SendError(libraryResponse.Message, "Error");
-                return;
-            }
-            assetIndex = libraryResponse.AssetIndex;
+            #endregion
 
-            // Check the instanceVersion jar file
-            // Note: Moded ones does not require vanilla ones
-            if (!File.Exists(versionResponse.VersionJarPath))
-            {
-                UpdateLaunchStatusBar(0, $"Downloading the version jar file...");
-                using (var client = new HttpClient())
-                {
-                    byte[] result = await client.GetByteArrayAsync(libraryResponse.ClientDownloadUrl);
-                    await File.WriteAllBytesAsync(versionResponse.VersionJarPath, result);
-                }
-            }
 
-            UpdateLaunchStatusBar(0, $"Downloading libraries...");
-            // Check the libraries
-            using (var client = new HttpClient())
-            {
-                int libraryTotalSize = int.Parse(await File.ReadAllTextAsync(libraryResponse.LibrarySizeCachePath)) + libraryResponse.LocalLibrarySize;
-                double libraryDownloadedSize = 0;
-                foreach (var jToken in libraryResponse.Libraries)
-                {
-                    double percent = (libraryDownloadedSize / (double)libraryTotalSize) * 100;
-                    UpdateLaunchStatusBar(percent, $"Downloading the {jToken["name"]} library... {percent.ToString("0.00")}%");
-                    // Get the path
-                    string libPath = Path.Combine(IOHelper.LibrariesDir, jToken["downloads"]["artifact"]["path"].ToString());
-                    if (!libraryBundle.Contains($"{libPath};"))
-                    {
-                        libraryBundle += $"{libPath};";
-                        // Get the directory
-                        string libDirectory = libPath.Remove(libPath.LastIndexOf('/'), libPath.Length - (libPath.LastIndexOf('/')));
-                        if (!File.Exists(libPath))
-                        {
-                            string libUrl = jToken["downloads"]["artifact"]["url"].ToString();
-                            byte[] result = await client.GetByteArrayAsync(libUrl);
-                            if (!Directory.Exists(libDirectory))
-                                Directory.CreateDirectory(libDirectory);
-                            await File.WriteAllBytesAsync(libPath, result);
-                        }
-                        libraryDownloadedSize += int.Parse(jToken["downloads"]["artifact"]["size"].ToString());
-                    }
-                }
-            }
 
             libraryBundle += $"{versionResponse.VersionJarPath}";
             UpdateLaunchStatusBar(0, $"Launching the game...");
@@ -914,13 +868,11 @@ namespace KonkordLauncher
             // Include the depedencies
             argumnets.Add($"-cp \"{libraryBundle}\"");
 
-            if (libraryResponse.CustomJavaArgs != null)
-                foreach (var jarg in libraryResponse.CustomJavaArgs)
-                    argumnets.Add(jarg);
+
 
             // Minecraft Args
             // The main class
-            argumnets.Add(libraryResponse.CustomGameMain ?? "net.minecraft.client.main.Main");
+            //argumnets.Add(libraryResponse.CustomGameMain ?? "net.minecraft.client.main.Main");
             argumnets.Add($"--username {account.DisplayName}");
             argumnets.Add($"--version {versionResponse.InstanceVersion}");
             argumnets.Add($"--gameDir {versionResponse.GameDir}");
@@ -961,9 +913,6 @@ namespace KonkordLauncher
                 argumnets.Add($"--height {(int)SystemParameters.PrimaryScreenHeight / 2}");
             }
 
-            if (libraryResponse.CustomGameArgs != null)
-                foreach (var garg in libraryResponse.CustomGameArgs)
-                    argumnets.Add(garg);
             #endregion
 
             #region Finish and Launch Minecraft
@@ -1494,9 +1443,6 @@ namespace KonkordLauncher
             Debug.WriteLine($"minecraft moded version: {InstanceMCVersionId}");
         }
 
-
-        #endregion
-
         private void cb_instances_mc_version_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (cb_instances_mc_version == null)
@@ -1529,5 +1475,8 @@ namespace KonkordLauncher
             InstanceModVersionId = combo.SelectedItem.ToString();
             Debug.WriteLine($"mod version: {InstanceModVersionId}");
         }
+        #endregion
+
+
     }
 }

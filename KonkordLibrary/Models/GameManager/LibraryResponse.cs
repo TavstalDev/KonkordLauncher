@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using KonkordLibrary.Models.Minecraft.Library;
+using Newtonsoft.Json.Linq;
 
 namespace KonkordLibrary.Models.GameManager
 {
@@ -10,14 +11,14 @@ namespace KonkordLibrary.Models.GameManager
         public string ClientDownloadUrl { get; set; }
         public string LibrarySizeCachePath { get; set; }
         public int LocalLibrarySize { get; set; }
-        public JArray Libraries {  get; set; }
+        public List<MCLibrary> Libraries {  get; set; }
         public string CustomGameMain {  get; set; }
-        public List<string> CustomGameArgs { get; set; }
-        public List<string> CustomJavaArgs { get; set; }
+        public List<string> GameArgs { get; set; }
+        public List<string> JavaArgs { get; set; }
 
         public LibraryResponse() { }
 
-        public LibraryResponse(bool isSuccess, string message, string assetIndex, string clientDownloadUrl, string librarySizeCachePath, int localLibrarySize, JArray libraries)
+        public LibraryResponse(bool isSuccess, string message, string assetIndex, string clientDownloadUrl, string librarySizeCachePath, int localLibrarySize, List<MCLibrary> libraries)
         {
             IsSuccess = isSuccess;
             Message = message;

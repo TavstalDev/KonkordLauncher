@@ -229,9 +229,9 @@ namespace KonkordLibrary.Managers
 
                         // Get asset total size
                         int totalAssetSize = int.Parse(assetTotalSizeJToken.ToString());
-                        // Get Asset Index dir
+                        // Get AssetIndex Index dir
                         string assetIndexDir = Path.Combine(IOHelper.AssetsDir, "indexes");
-                        // Get Asset json
+                        // Get AssetIndex json
                         string assetIndexJsonPath = Path.Combine(assetIndexDir, $"{libraryResponse.AssetIndex}.json");
                         // Download the asset index json
                         if (!File.Exists(assetIndexJsonPath))
@@ -244,7 +244,7 @@ namespace KonkordLibrary.Managers
                             }
                         }
 
-                        // Check Asset Objects
+                        // Check AssetIndex Objects
                         string assetObjectDir = Path.Combine(IOHelper.AssetsDir, "objects");
                         if (!Directory.Exists(assetObjectDir))
                             Directory.CreateDirectory(assetObjectDir);
@@ -450,7 +450,7 @@ namespace KonkordLibrary.Managers
                         libraryResponse.AssetIndex = assetIdJToken.ToString();
 
 
-                        // Check Asset Objects
+                        // Check AssetIndex Objects
                         string assetObjectDir = Path.Combine(IOHelper.AssetsDir, "objects");
                         if (!Directory.Exists(assetObjectDir))
                             Directory.CreateDirectory(assetObjectDir);

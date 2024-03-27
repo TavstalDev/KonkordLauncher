@@ -340,8 +340,8 @@ namespace KonkordLibrary.Managers
 
                                 // Delete temps
                                 var forgeInstallerDirInfo = new DirectoryInfo(forgeInstallerDirPath);
-                                foreach (System.IO.FileInfo file in forgeInstallerDirInfo.GetFiles()) file.Delete();
-                                foreach (System.IO.DirectoryInfo subDirectory in forgeInstallerDirInfo.GetDirectories()) subDirectory.Delete(true);
+                                foreach (FileInfo file in forgeInstallerDirInfo.GetFiles()) file.Delete();
+                                foreach (DirectoryInfo subDirectory in forgeInstallerDirInfo.GetDirectories()) subDirectory.Delete(true);
                                 Directory.Delete(forgeInstallerDirPath);
                                 File.Delete(forgeInstallerFilePath);
 

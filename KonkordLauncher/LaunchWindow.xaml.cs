@@ -2,6 +2,7 @@
 using KonkordLibrary.Helpers;
 using KonkordLibrary.Managers;
 using KonkordLibrary.Models;
+using KonkordLibrary.Models.Forge;
 using KonkordLibrary.Models.GameManager;
 using KonkordLibrary.Models.Minecraft;
 using KonkordLibrary.Models.Minecraft.Library;
@@ -11,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.InteropServices;
@@ -799,6 +801,8 @@ namespace KonkordLauncher
             UpdateLaunchStatusBar(true);
             UpdateLaunchStatusBar(0, $"Reading the vanillaManifest file...");
             List<string> argumnets = new List<string>();
+            string gameExtraArgumnets = string.Empty;
+            string jvmExtraArgumnets = string.Empty;
 
             // Read the Version Manifest
             VersionManifest? vanillaManifest = await JsonHelper.ReadJsonFileAsync<VersionManifest>(Path.Combine(IOHelper.ManifestDir, "vanillaManifest.json"));
@@ -979,15 +983,91 @@ namespace KonkordLauncher
                                     if (!Directory.Exists(forgeVersion.VersionDirectory))
                                         Directory.CreateDirectory(forgeVersion.VersionDirectory);
 
-                                    // Download json
+                                    // Download Forge Installer to temp
+                                    string forgeLoaderJarUrl = string.Format(GameManager.ForgeLoaderJarUrl, forgeVersion);
+                                    string forgeInstallerJarUrl = string.Format(GameManager.ForgeInstallerJarUrl, forgeVersion);
 
-                                    // Download jar
+                                    // Get Cache File Path
+                                    string librarySizeCacheDir = Path.Combine(IOHelper.CacheDir, "libsizes");
+                                    string librarySizeCachePath = Path.Combine(librarySizeCacheDir, $"{forgeVersion.VanillaVersion}-forge-{forgeVersion.InstanceVersion}.json");
+
+                                    string forgeInstallerFilePath = Path.Combine(IOHelper.TempDir, $"{forgeVersion.VanillaVersion}-forge-{forgeVersion.InstanceVersion}-installer.jar");
+                                    string forgeInstallerDirPath = Path.Combine(IOHelper.TempDir, $"{forgeVersion.VanillaVersion}-forge-{forgeVersion.InstanceVersion}-installer");
+                                    string forgeInstallerVersionPath = Path.Combine(forgeInstallerDirPath, $"version.json");
+
+                                    // Check the version json file
+                                    if (!File.Exists(forgeVersion.VersionJsonPath))
+                                    {
+                                        using (var client = new HttpClient())
+                                        {
+                                            // Send the request to download the installer
+                                            byte[] installerBytes = await client.GetByteArrayAsync(forgeInstallerJarUrl);
+                                            await File.WriteAllBytesAsync(forgeInstallerFilePath, installerBytes);
+
+                                            // Extract installer jar
+                                            ZipFile.ExtractToDirectory(forgeInstallerFilePath, forgeInstallerDirPath);
+
+                                            // Move version.json
+                                            File.Move(forgeInstallerVersionPath, forgeVersion.VersionJsonPath);
+
+                                            // Delete temps
+                                            var forgeInstallerDirInfo = new DirectoryInfo(forgeInstallerDirPath);
+                                            foreach (FileInfo file in forgeInstallerDirInfo.GetFiles()) 
+                                                file.Delete();
+                                            foreach (DirectoryInfo subDirectory in forgeInstallerDirInfo.GetDirectories())
+                                                subDirectory.Delete(true);
+                                            Directory.Delete(forgeInstallerDirPath);
+                                            File.Delete(forgeInstallerFilePath);
+
+                                            // Get jobject
+                                            ForgeVersionMeta? forgeVersionMeta = JsonConvert.DeserializeObject<ForgeVersionMeta>(await File.ReadAllTextAsync(forgeVersion.VersionJsonPath));
+                                            int localLibrarySize = 0;
+                                            if (forgeVersionMeta== null)
+                                            {
+                                                NotificationHelper.SendError("Failed to get the forge version meta file.", "Error");
+                                                return;
+                                            }
+
+                                            // Check the libraries
+                                            foreach (MCLibrary lib in forgeVersionMeta.Libraries)
+                                            {
+                                                localLibrarySize += lib.Downloads.Artifact.Size;
+                                                minecraftLibraries.Add(lib);
+                                            }
+                                            // Save the version cache
+                                            await JsonHelper.WriteJsonFileAsync(librarySizeCachePath, localLibrarySize);
+
+
+                                            argMainClass = forgeVersionMeta.MainClass;
+                                            gameExtraArgumnets = forgeVersionMeta.Arguments.GetGameArgString();
+                                            jvmExtraArgumnets = forgeVersionMeta.Arguments.GetJVMArgString();
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // Get jobject
+                                        ForgeVersionMeta? forgeVersionMeta = JsonConvert.DeserializeObject<ForgeVersionMeta>(await File.ReadAllTextAsync(forgeVersion.VersionJsonPath));
+                                        int localLibrarySize = 0;
+                                        if (forgeVersionMeta == null)
+                                        {
+                                            NotificationHelper.SendError("Failed to get the forge version meta file.", "Error");
+                                            return;
+                                        }
+
+                                        // Check the libraries
+                                        foreach (MCLibrary lib in forgeVersionMeta.Libraries)
+                                        {
+                                            minecraftLibraries.Add(lib);
+                                        }
+
+                                        argMainClass = forgeVersionMeta.MainClass;
+                                        gameExtraArgumnets = forgeVersionMeta.Arguments.GetGameArgString();
+                                        jvmExtraArgumnets = forgeVersionMeta.Arguments.GetJVMArgString();
+                                    }
 
                                     // Create gameDir in the instances folder
                                     if (!Directory.Exists(forgeVersion.GameDir))
                                         Directory.CreateDirectory(forgeVersion.GameDir);
-
-
 
                                     break;
                                 }
@@ -1130,8 +1210,8 @@ namespace KonkordLauncher
             UpdateLaunchStatusBar(0, $"Launching the game...");
 
             #region Arguments
-            // The JVM args set by the user
-            argumnets.Add($"{selectedProfile.JVMArgs}");
+
+            #region JVM
             // Minimum Memory
             // If someone brokes it by setting the maximum memory lower than 256MB... do not hit them
             argumnets.Add($"-Xms256M");
@@ -1142,27 +1222,34 @@ namespace KonkordLauncher
                 argumnets.Add($"-Xmx{selectedProfile.Memory}M");
             else
                 argumnets.Add($"-Xmx4G");
-            // Sets the main java class (?)
-            argumnets.Add($"-DMcEmu=net.minecraft.client.main.Main");
-            // Mojang's tricky solution for intel drivers
-            argumnets.Add($"-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
-            // Set the launcher name
-            argumnets.Add($"-Dminecraft.launcher.brand=konkord-launcher");
-            // Set the launcher version
-            argumnets.Add($"-Dminecraft.launcher.version=1.0.0");
-            // Ignore Invalid Certificates
-            argumnets.Add($"-Dfml.ignoreInvalidMinecraftCertificates=true");
-            // Ingone Patch Discrepancies
-            argumnets.Add($"-Dfml.ignorePatchDiscrepancies=true");
-            
-            
-            
+
+            #region Vanilla Args
+
+            #endregion
+
+            #region Moded Args
+
+            #endregion
+
+            // The JVM args set by the user
+            argumnets.Add($"{selectedProfile.JVMArgs}");
             // Include the depedencies
             argumnets.Add($"-cp \"{libraryBundle}\"");
+            #endregion
 
-            // Minecraft Args
+            #region Minecraft Args
             // The main class
             argumnets.Add(argMainClass);
+
+
+            #region Vanilla Args
+
+            #endregion
+
+            #region Moded Args
+
+            #endregion
+
             argumnets.Add($"--username {account.DisplayName}");
             argumnets.Add($"--version {vanillaVersion.InstanceVersion}");
             argumnets.Add($"--gameDir {vanillaVersion.GameDir}");
@@ -1176,6 +1263,7 @@ namespace KonkordLauncher
             argumnets.Add($"--xuid {xUID}");
             argumnets.Add($"--userType msa");
             argumnets.Add($"--versionType release");
+            #endregion
             // Screen resolution
             if (selectedProfile.Resolution != null)
             {

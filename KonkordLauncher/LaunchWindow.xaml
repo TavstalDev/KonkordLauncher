@@ -186,7 +186,7 @@
                                     <ComboBoxItem Tag="quilt">Quilt</ComboBoxItem>
                                 </ComboBox.Items>
                             </ComboBox>
-                            <ComboBox x:Name="cb_instances_mc_version" IsSynchronizedWithCurrentItem="True" SelectionChanged="cb_instances_mc_version_SelectionChanged" ItemsSource="{Binding}" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="0,22,0,25" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White" HorizontalAlignment="Right" Width="200">
+                            <ComboBox x:Name="cb_instances_mc_version" SelectionChanged="cb_instances_mc_version_SelectionChanged" ItemsSource="{Binding}" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="0,22,0,25" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White" HorizontalAlignment="Right" Width="200">
                                 <ComboBox.Resources>
                                     <sys:Double x:Key="VersionListFontSize">10</sys:Double>
                                 </ComboBox.Resources>
@@ -196,7 +196,7 @@
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
-                            <ComboBox x:Name="cb_instances_mcmod_version" IsSynchronizedWithCurrentItem="True" SelectionChanged="InstancesMcmodVersion_SelectionChanged" ItemsSource="{Binding}" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="0,22,0,25" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White" HorizontalAlignment="Center" Width="95">
+                            <ComboBox x:Name="cb_instances_mcmod_version" SelectionChanged="InstancesMcmodVersion_SelectionChanged" ItemsSource="{Binding}" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="0,22,0,25" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White" HorizontalAlignment="Center" Width="95">
                                 <ComboBox.Resources>
                                     <sys:Double x:Key="VersionListFontSize">10</sys:Double>
                                 </ComboBox.Resources>
@@ -206,7 +206,7 @@
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
-                            <ComboBox x:Name="cb_instances_mod_version" IsSynchronizedWithCurrentItem="True" SelectionChanged="cb_instances_mod_version_SelectionChanged" ItemsSource="{Binding}" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="0,22,0,25" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White" HorizontalAlignment="Right" Width="95">
+                            <ComboBox x:Name="cb_instances_mod_version" SelectionChanged="cb_instances_mod_version_SelectionChanged" ItemsSource="{Binding}" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="0,22,0,25" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White" HorizontalAlignment="Right" Width="95">
                                 <ComboBox.Resources>
                                     <sys:Double x:Key="VersionListFontSize">10</sys:Double>
                                 </ComboBox.Resources>
@@ -252,7 +252,7 @@
                         <!-- Memory -->
                         <Grid x:Name="grid_instances_memory" Height="48" Margin="0,10,0,0">
                             <Label x:Name="lab_instances_memory" Content="Memory" Foreground="White" Padding="5,0,5,0" VerticalContentAlignment="Center" FontWeight="SemiBold" Margin="0,0,0,30" />
-                            <ComboBox x:Name="cb_instances_memory" ItemsSource="{Binding}" SelectedValuePath="Content" SelectionChanged="InstanceVersionType_SelectionChanged" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="0,22,206,0" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White">
+                            <ComboBox x:Name="cb_instances_memory" ItemsSource="{Binding}" SelectedValuePath="Content" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="0,22,206,0" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White">
                                 <ComboBox.Resources>
                                     <sys:Double x:Key="MemoryListFontSize">10</sys:Double>
                                 </ComboBox.Resources>

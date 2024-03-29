@@ -2,6 +2,7 @@
 using KonkordLibrary.Helpers;
 using KonkordLibrary.Managers;
 using KonkordLibrary.Models;
+using KonkordLibrary.Models.Fabric;
 using KonkordLibrary.Models.Forge;
 using KonkordLibrary.Models.GameManager;
 using KonkordLibrary.Models.Minecraft;
@@ -19,7 +20,6 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -551,7 +551,7 @@ namespace KonkordLauncher
 
                             localModList = VersionDic[versionType];
                             cb_instances_mod_version.DataContext = localModList.Select(x => x.Id);
-                            cb_instances_mod_version.SelectedIndex = localModList.FindIndex(x => x.VanillaId == localVanillaList[0].Id);
+                            cb_instances_mod_version.SelectedIndex = 0;
                             return;
                         }
                     case "quilt":
@@ -562,7 +562,7 @@ namespace KonkordLauncher
 
                             localModList = VersionDic[versionType];
                             cb_instances_mod_version.DataContext = localModList.Select(x => x.Id);
-                            cb_instances_mod_version.SelectedIndex = localModList.FindIndex(x => x.VanillaId == localVanillaList[0].Id);
+                            cb_instances_mod_version.SelectedIndex = 0;
                             return;
                         }
                 }
@@ -794,9 +794,16 @@ namespace KonkordLauncher
             }
             #endregion
 
+            // TODO - add progressbar updates, fix library download percent bug (visual)
+            string nativesDir = string.Empty;
+            string gameDir = string.Empty;
+            string clientPath = string.Empty;
+            string versionName = string.Empty;
+            string libraryBundle = string.Empty;
             string clientId = "0"; // todo
             string xUID = "0"; // todo
             string argMainClass = string.Empty;
+            string versionDir = string.Empty;
 
             UpdateLaunchStatusBar(true);
             UpdateLaunchStatusBar(0, $"Reading the vanillaManifest file...");
@@ -815,8 +822,27 @@ namespace KonkordLauncher
             UpdateLaunchStatusBar(0, $"Checking the version directory and files...");
 
             // Check the profile type
-            VersionResponse vanillaVersion = GameManager.GetProfileVersionDetails(selectedProfile.Type, vanillaManifest, selectedProfile);
+            // GameManager.GetProfileVersionDetails(selectedProfile.Type, vanillaManifest, selectedProfile);
+            VersionResponse vanillaVersion = new VersionResponse();
+            switch (selectedProfile.Type)
+            {
+                case EProfileType.CUSTOM:
+                    {
+                        vanillaVersion = GameManager.GetProfileVersionDetails(EProfileKind.VANILLA, selectedProfile.VersionVanillaId, selectedProfile.VersionVanillaId, null);
+                        break;
+                    }
+                default:
+                    {
+                        vanillaVersion = GameManager.GetProfileVersionDetails(selectedProfile.Type, vanillaManifest, selectedProfile);
+                        break;
+                    }
+            }
+
+            string nativeDir = Path.Combine(vanillaVersion.VersionDirectory, "natives");
+            versionDir = vanillaVersion.VersionDirectory;
+            versionName = vanillaVersion.InstanceVersion;
             List<MCLibrary> minecraftLibraries = new List<MCLibrary>();
+            List<MCLibrary> nativeLibraries = new List<MCLibrary>();
 
             #region Vanilla
             // Find the right vanilla instanceVersion
@@ -844,7 +870,8 @@ namespace KonkordLauncher
 
                     vanillaVersionMeta = JsonConvert.DeserializeObject<MCVersionMeta>(jsonResult);
                     if (vanillaVersionMeta != null)
-                        minecraftLibraries = vanillaVersionMeta.Libraries;
+                        foreach (var lib in vanillaVersionMeta.Libraries)
+                            minecraftLibraries.Add(lib);
 
                     await File.WriteAllTextAsync(vanillaVersion.VersionJsonPath, jsonResult);
                 }
@@ -855,7 +882,8 @@ namespace KonkordLauncher
                 string jsonResult = await File.ReadAllTextAsync(vanillaVersion.VersionJsonPath);
                 vanillaVersionMeta = JsonConvert.DeserializeObject<MCVersionMeta>(jsonResult);
                 if (vanillaVersionMeta != null)
-                    minecraftLibraries = vanillaVersionMeta.Libraries;
+                    foreach (var lib in vanillaVersionMeta.Libraries)
+                        minecraftLibraries.Add(lib);
             }
 
             if (vanillaVersionMeta == null)
@@ -950,6 +978,7 @@ namespace KonkordLauncher
             if (!Directory.Exists(libraryCacheDir))
                 Directory.CreateDirectory(libraryCacheDir);
 
+            nativeDir = Path.Combine(vanillaVersion.VersionDirectory, "natives");
             string librarySizeCacheFilePath = string.Empty;
             switch (selectedProfile.Type)
             {
@@ -984,8 +1013,11 @@ namespace KonkordLauncher
                                         Directory.CreateDirectory(forgeVersion.VersionDirectory);
 
                                     // Download Forge Installer to temp
-                                    string forgeLoaderJarUrl = string.Format(GameManager.ForgeLoaderJarUrl, forgeVersion);
-                                    string forgeInstallerJarUrl = string.Format(GameManager.ForgeInstallerJarUrl, forgeVersion);
+                                    string forgeUniversalJarUrl = string.Format(GameManager.ForgeLoaderUniversalJarUrl, $"{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}");
+                                    string forgeInstallerJarUrl = string.Format(GameManager.ForgeInstallerJarUrl, $"{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}");
+
+                                    JObject forgeInstallProfileObj = new JObject();
+                                    string forgeInstallProfileJsonPath = Path.Combine(forgeVersion.VersionDirectory, "install_profile.json");
 
                                     // Get Cache File Path
                                     string librarySizeCacheDir = Path.Combine(IOHelper.CacheDir, "libsizes");
@@ -994,6 +1026,7 @@ namespace KonkordLauncher
                                     string forgeInstallerFilePath = Path.Combine(IOHelper.TempDir, $"{forgeVersion.VanillaVersion}-forge-{forgeVersion.InstanceVersion}-installer.jar");
                                     string forgeInstallerDirPath = Path.Combine(IOHelper.TempDir, $"{forgeVersion.VanillaVersion}-forge-{forgeVersion.InstanceVersion}-installer");
                                     string forgeInstallerVersionPath = Path.Combine(forgeInstallerDirPath, $"version.json");
+                                    string forgeInstallerProfilePath = Path.Combine(forgeInstallerDirPath, $"install_profile.json");
 
                                     // Check the version json file
                                     if (!File.Exists(forgeVersion.VersionJsonPath))
@@ -1008,16 +1041,11 @@ namespace KonkordLauncher
                                             ZipFile.ExtractToDirectory(forgeInstallerFilePath, forgeInstallerDirPath);
 
                                             // Move version.json
-                                            File.Move(forgeInstallerVersionPath, forgeVersion.VersionJsonPath);
+                                            File.Move(forgeInstallerVersionPath, forgeVersion.VersionJsonPath, true);
+                                            // Move install_profile.json
+                                            File.Move(forgeInstallerProfilePath, forgeInstallProfileJsonPath, true);
 
-                                            // Delete temps
-                                            var forgeInstallerDirInfo = new DirectoryInfo(forgeInstallerDirPath);
-                                            foreach (FileInfo file in forgeInstallerDirInfo.GetFiles()) 
-                                                file.Delete();
-                                            foreach (DirectoryInfo subDirectory in forgeInstallerDirInfo.GetDirectories())
-                                                subDirectory.Delete(true);
-                                            Directory.Delete(forgeInstallerDirPath);
-                                            File.Delete(forgeInstallerFilePath);
+                                            forgeInstallProfileObj = JObject.Parse(await File.ReadAllTextAsync(forgeInstallProfileJsonPath));
 
                                             // Get jobject
                                             ForgeVersionMeta? forgeVersionMeta = JsonConvert.DeserializeObject<ForgeVersionMeta>(await File.ReadAllTextAsync(forgeVersion.VersionJsonPath));
@@ -1039,8 +1067,8 @@ namespace KonkordLauncher
 
 
                                             argMainClass = forgeVersionMeta.MainClass;
-                                            gameExtraArgumnets = forgeVersionMeta.Arguments.GetGameArgString();
-                                            jvmExtraArgumnets = forgeVersionMeta.Arguments.GetJVMArgString();
+                                            gameExtraArgumnets += forgeVersionMeta.Arguments.GetGameArgString();
+                                            jvmExtraArgumnets += forgeVersionMeta.Arguments.GetJVMArgString();
                                         }
                                     }
                                     else
@@ -1060,30 +1088,236 @@ namespace KonkordLauncher
                                             minecraftLibraries.Add(lib);
                                         }
 
+                                        forgeInstallProfileObj = JObject.Parse(await File.ReadAllTextAsync(forgeInstallProfileJsonPath));
+
                                         argMainClass = forgeVersionMeta.MainClass;
-                                        gameExtraArgumnets = forgeVersionMeta.Arguments.GetGameArgString();
-                                        jvmExtraArgumnets = forgeVersionMeta.Arguments.GetJVMArgString();
+                                        gameExtraArgumnets += forgeVersionMeta.Arguments.GetGameArgString();
+                                        jvmExtraArgumnets += forgeVersionMeta.Arguments.GetJVMArgString() + 
+                                            $" -DMcEmu=net.minecraft.client.main.Main -Dlog4j2.formatMsgNoLookups=true -Djava.rmi.server.useCodebaseOnly=true -Dcom.sun.jndi.rmi.object.trustURLCodebase=false -Dcom.sun.jndi.cosnaming.object.trustURLCodebase=false ";
                                     }
+
+                                    // Delete temps
+                                    if (Directory.Exists(forgeInstallerDirPath))
+                                        IOHelper.DeleteDirectory(forgeInstallerDirPath);
+                                    if (File.Exists(forgeInstallerFilePath))
+                                        File.Delete(forgeInstallerFilePath);
 
                                     // Create gameDir in the instances folder
                                     if (!Directory.Exists(forgeVersion.GameDir))
                                         Directory.CreateDirectory(forgeVersion.GameDir);
 
+                                    versionName = $"{forgeVersion.VanillaVersion}-forge-{forgeVersion.InstanceVersion}";
+                                    versionDir = forgeVersion.VersionDirectory;
+                                    gameDir = forgeVersion.GameDir;
+                                    nativeDir = Path.Combine(forgeVersion.VersionDirectory, "natives");
+
+                                    if (!File.Exists(forgeVersion.VersionJarPath))
+                                    {
+                                        File.Copy(forgeVersion.VanillaJarPath, forgeVersion.VersionJarPath);
+                                    }
+
+                                    clientPath = forgeVersion.VersionJarPath;
                                     break;
                                 }
                             case EProfileKind.FABRIC:
                                 {
-                                    // Create gameDir in the instances folder
-
                                     librarySizeCacheFilePath = Path.Combine(libraryCacheDir, $"{selectedProfile.VersionVanillaId}-fabric-{selectedProfile.VersionId}.json");
+
+                                    if (!File.Exists(IOHelper.FabricManifestJsonFile))
+                                    {
+                                        NotificationHelper.SendError("Failed to get the fabric manifest.", "Error");
+                                        return;
+                                    }
+
+                                    VersionResponse fabricVersion = GameManager.GetProfileVersionDetails(EProfileKind.FABRIC, selectedProfile.VersionId, selectedProfile.VersionVanillaId, selectedProfile.GameDirectory);
+
+                                    // Create versionDir in the versions folder
+                                    if (!Directory.Exists(fabricVersion.VersionDirectory))
+                                        Directory.CreateDirectory(fabricVersion.VersionDirectory);
+
+                                    // Check libsizes dir
+                                    string librarySizeCacheDir = Path.Combine(IOHelper.CacheDir, "libsizes");
+                                    if (!Directory.Exists(librarySizeCacheDir))
+                                        Directory.CreateDirectory(librarySizeCacheDir);
+                                    string librarySizeCachePath = Path.Combine(librarySizeCacheDir, $"{fabricVersion.VanillaVersion}-fabric-{fabricVersion.InstanceVersion}.json");
+
+                                    // Download version json
+                                    FabricVersionMeta? fabricVersionMeta = null;
+                                    List<MCLibrary> localLibraries = new List<MCLibrary>();
+                                    if (!File.Exists(fabricVersion.VersionJsonPath))
+                                    {
+                                        string resultJson = string.Empty;
+                                        using (HttpClient client = new HttpClient())
+                                        {
+                                            resultJson = await client.GetStringAsync(string.Format(GameManager.FabricLoaderJsonUrl, fabricVersion.VanillaVersion, fabricVersion.InstanceVersion));
+                                            await File.WriteAllTextAsync(fabricVersion.VersionJsonPath, resultJson);
+                                        }
+
+                                        // Add the libraries
+                                        fabricVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(resultJson);
+                                        int localLibrarySize = 0;
+                                        if (fabricVersionMeta == null)
+                                        {
+                                            File.Delete(fabricVersion.VersionJsonPath); // Delete it because this if part won't be executed again if it exists
+                                            NotificationHelper.SendError("Failed to get the fabric version meta", "Error");
+                                            return;
+                                        }
+
+                                        foreach (var lib in fabricVersionMeta.Libraries)
+                                        {
+                                            localLibrarySize += lib.Size;
+                                            localLibraries.Add(new MCLibrary(lib.Name, new MCLibraryDownloads(new MCLibraryArtifact(lib.GetPath(), lib.Sha1, lib.Size, lib.GetURL())), new List<MCLibraryRule>()));
+                                        }
+                                        // Save the version cache
+                                        await JsonHelper.WriteJsonFileAsync(librarySizeCachePath, localLibrarySize);
+                                    }
+                                    else
+                                    {
+                                        fabricVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(await File.ReadAllTextAsync(fabricVersion.VersionJsonPath));
+                                        if (fabricVersionMeta == null)
+                                        {
+                                            NotificationHelper.SendError("Failed to get the fabric version meta", "Error");
+                                            return;
+                                        }
+
+                                        foreach (var lib in fabricVersionMeta.Libraries)
+                                        {
+                                            localLibraries.Add(new MCLibrary(lib.Name, new MCLibraryDownloads(new MCLibraryArtifact(lib.GetPath(), lib.Sha1, lib.Size, lib.GetURL())), new List<MCLibraryRule>()));
+                                        }
+                                    }
+                                    // Include libraries
+                                    minecraftLibraries.InsertRange(0, localLibraries);
+
+                                    // Download Loader
+                                    string loaderDirPath = Path.Combine(IOHelper.LibrariesDir, $"net\\fabricmc\\fabric-loader\\{fabricVersion.InstanceVersion}");
+                                    string loaderJarPath = Path.Combine(loaderDirPath, $"fabric-loader-{fabricVersion.InstanceVersion}.jar");
+                                    if (!Directory.Exists(loaderDirPath))
+                                        Directory.CreateDirectory(loaderDirPath);
+
+                                    if (!File.Exists(loaderJarPath))
+                                    {
+                                        using (HttpClient client = new HttpClient())
+                                        {
+                                            byte[] bytes = await client.GetByteArrayAsync(string.Format(GameManager.FabricLoaderJarUrl, fabricVersion.InstanceVersion));
+                                            await File.WriteAllBytesAsync(loaderJarPath, bytes);
+                                        }
+                                    }
+
+                                    versionName = $"fabric-loader-{fabricVersion.InstanceVersion}-{fabricVersion.VanillaVersion}";
+                                    nativeDir = Path.Combine(fabricVersion.VersionDirectory, "natives");
+                                    versionDir = fabricVersion.VersionDirectory;
+                                    gameDir = fabricVersion.GameDir;
+                                    argMainClass = fabricVersionMeta.MainClass;
+                                    gameExtraArgumnets += $"" + fabricVersionMeta.Arguments.GetGameArgString();
+                                    jvmExtraArgumnets += fabricVersionMeta.Arguments.GetJVMArgString().Replace("-DFabricMcEmu= net.minecraft.client.main.Main ", "\"-DFabricMcEmu= net.minecraft.client.main.Main \"") +
+                                        $" -DMcEmu=net.minecraft.client.main.Main -Dlog4j2.formatMsgNoLookups=true -Djava.rmi.server.useCodebaseOnly=true -Dcom.sun.jndi.rmi.object.trustURLCodebase=false ";
+
+                                    if (!File.Exists(fabricVersion.VersionJarPath))
+                                    {
+                                        File.Copy(fabricVersion.VanillaJarPath, fabricVersion.VersionJarPath);
+                                    }
+
+                                    clientPath = fabricVersion.VersionJarPath;
                                     break;
                                 }
                             case EProfileKind.QUILT:
                                 {
-                                    // Create gameDir in the instances folder
-                                    
-
                                     librarySizeCacheFilePath = Path.Combine(libraryCacheDir, $"{selectedProfile.VersionVanillaId}-quilt-{selectedProfile.VersionId}.json");
+                                    if (!File.Exists(IOHelper.QuiltManifestJsonFile))
+                                    {
+                                        NotificationHelper.SendError("Failed to get the quilt manifest.", "Error");
+                                        return;
+                                    }
+
+                                    VersionResponse quiltVersion = GameManager.GetProfileVersionDetails(EProfileKind.QUILT, selectedProfile.VersionId, selectedProfile.VersionVanillaId, selectedProfile.GameDirectory);
+
+                                    // Create versionDir in the versions folder
+                                    if (!Directory.Exists(quiltVersion.VersionDirectory))
+                                        Directory.CreateDirectory(quiltVersion.VersionDirectory);
+
+                                    // Check libsizes dir
+                                    string librarySizeCacheDir = Path.Combine(IOHelper.CacheDir, "libsizes");
+                                    if (!Directory.Exists(librarySizeCacheDir))
+                                        Directory.CreateDirectory(librarySizeCacheDir);
+                                    string librarySizeCachePath = Path.Combine(librarySizeCacheDir, $"{quiltVersion.VanillaVersion}-quilt-{quiltVersion.InstanceVersion}.json");
+
+                                    // Download version json
+                                    FabricVersionMeta? quiltVersionMeta = null;
+                                    List<MCLibrary> localLibraries = new List<MCLibrary>();
+                                    if (!File.Exists(quiltVersion.VersionJsonPath))
+                                    {
+                                        string resultJson = string.Empty;
+                                        using (HttpClient client = new HttpClient())
+                                        {
+                                            resultJson = await client.GetStringAsync(string.Format(GameManager.QuiltLoaderJsonUrl, quiltVersion.VanillaVersion, quiltVersion.InstanceVersion));
+                                            await File.WriteAllTextAsync(quiltVersion.VersionJsonPath, resultJson);
+                                        }
+
+                                        // Add the libraries
+                                        quiltVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(resultJson);
+                                        int localLibrarySize = 0;
+                                        if (quiltVersionMeta == null)
+                                        {
+                                            File.Delete(quiltVersion.VersionJsonPath); // Delete it because this if part won't be executed again if it exists
+                                            NotificationHelper.SendError("Failed to get the quilt version meta", "Error");
+                                            return;
+                                        }
+
+                                        foreach (var lib in quiltVersionMeta.Libraries)
+                                        {
+                                            localLibrarySize += lib.Size;
+                                            localLibraries.Add(new MCLibrary(lib.Name, new MCLibraryDownloads(new MCLibraryArtifact(lib.GetPath(), lib.Sha1, lib.Size, lib.GetURL())), new List<MCLibraryRule>()));
+                                        }
+                                        // Save the version cache
+                                        await JsonHelper.WriteJsonFileAsync(librarySizeCachePath, localLibrarySize);
+                                    }
+                                    else
+                                    {
+                                        quiltVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(await File.ReadAllTextAsync(quiltVersion.VersionJsonPath));
+                                        if (quiltVersionMeta == null)
+                                        {
+                                            NotificationHelper.SendError("Failed to get the quilt version meta", "Error");
+                                            return;
+                                        }
+
+                                        foreach (var lib in quiltVersionMeta.Libraries)
+                                        {
+                                            localLibraries.Add(new MCLibrary(lib.Name, new MCLibraryDownloads(new MCLibraryArtifact(lib.GetPath(), lib.Sha1, lib.Size, lib.GetURL())), new List<MCLibraryRule>()));
+                                        }
+                                    }
+                                    // Include libraries
+                                    minecraftLibraries.InsertRange(0, localLibraries);
+
+                                    // Download Loader
+                                    string loaderDirPath = Path.Combine(IOHelper.LibrariesDir, $"net\\fabricmc\\quilt-loader\\{quiltVersion.InstanceVersion}");
+                                    string loaderJarPath = Path.Combine(loaderDirPath, $"fabricmc-loader-{quiltVersion.InstanceVersion}.jar");
+                                    if (!Directory.Exists(loaderDirPath))
+                                        Directory.CreateDirectory(loaderDirPath);
+
+                                    if (!File.Exists(loaderJarPath))
+                                    {
+                                        using (HttpClient client = new HttpClient())
+                                        {
+                                            byte[] bytes = await client.GetByteArrayAsync(string.Format(GameManager.QuiltLoaderJarUrl, quiltVersion.InstanceVersion));
+                                            await File.WriteAllBytesAsync(loaderJarPath, bytes);
+                                        }
+                                    }
+
+                                    versionName = $"quilt-loader-{quiltVersion.InstanceVersion}-{quiltVersion.VanillaVersion}";
+                                    nativeDir = Path.Combine(quiltVersion.VersionDirectory, "natives");
+                                    versionDir = quiltVersion.VersionDirectory;
+                                    gameDir = quiltVersion.GameDir;
+                                    argMainClass = quiltVersionMeta.MainClass;
+                                    gameExtraArgumnets += $"" + quiltVersionMeta.Arguments.GetGameArgString();
+                                    jvmExtraArgumnets += quiltVersionMeta.Arguments.GetJVMArgString() +
+                                        $" -DMcEmu=net.minecraft.client.main.Main -Dlog4j2.formatMsgNoLookups=true -Djava.rmi.server.useCodebaseOnly=true -Dcom.sun.jndi.rmi.object.trustURLCodebase=false ";
+
+                                    if (!File.Exists(quiltVersion.VersionJarPath))
+                                    {
+                                        File.Copy(quiltVersion.VanillaJarPath, quiltVersion.VersionJarPath);
+                                    }
+
+                                    clientPath = quiltVersion.VersionJarPath;
                                     break;
                                 }
                             default:
@@ -1092,30 +1326,76 @@ namespace KonkordLauncher
                                     if (!Directory.Exists(vanillaVersion.GameDir))
                                         Directory.CreateDirectory(vanillaVersion.GameDir);
 
+                                    gameDir = vanillaVersion.GameDir;
                                     librarySizeCacheFilePath = Path.Combine(libraryCacheDir, $"{selectedProfile.VersionId}.json");
                                     argMainClass = vanillaVersionMeta.MainClass;
+
+                                    clientPath = vanillaVersion.VersionJarPath;
                                     break;
                                 }
 
                         }
                         break;
                     }
-                default:
+                case EProfileType.LATEST_RELEASE:
                     {
                         // Create gameDir in the instances folder
                         if (!Directory.Exists(vanillaVersion.GameDir))
                             Directory.CreateDirectory(vanillaVersion.GameDir);
 
-                        librarySizeCacheFilePath = Path.Combine(libraryCacheDir, $"{selectedProfile.VersionId}.json");
+                        gameDir = vanillaVersion.GameDir;
+                        librarySizeCacheFilePath = Path.Combine(libraryCacheDir, $"{vanillaManifest.Latest.Release}.json");
                         argMainClass = vanillaVersionMeta.MainClass;
+
+                        clientPath = vanillaVersion.VersionJarPath;
+                        break;
+                    }
+                case EProfileType.LATEST_SNAPSHOT:
+                    {
+                        // Create gameDir in the instances folder
+                        if (!Directory.Exists(vanillaVersion.GameDir))
+                            Directory.CreateDirectory(vanillaVersion.GameDir);
+
+                        gameDir = vanillaVersion.GameDir;
+                        librarySizeCacheFilePath = Path.Combine(libraryCacheDir, $"{vanillaManifest.Latest.Snapshot}.json");
+                        argMainClass = vanillaVersionMeta.MainClass;
+
+                        clientPath = vanillaVersion.VersionJarPath;
                         break;
                     }
             }
             #endregion
 
+            #region Client Mappings
+            string clientMappinsPath = Path.Combine(versionDir, "client.txt");
+            if (!File.Exists(clientMappinsPath))
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    string r = await client.GetStringAsync(vanillaVersionMeta.Downloads.ClientMappings.Url);
+                    await File.WriteAllTextAsync(clientMappinsPath, r);
+                }
+            }
+            #endregion
+
+            #region Check logging file
+            if (vanillaVersionMeta.Logging != null && vanillaVersionMeta.Logging.Client != null)
+            {
+                string logFilePath = Path.Combine(versionDir, vanillaVersionMeta.Logging.Client.File.Id);
+                if (!File.Exists(logFilePath))
+                {
+                    using (HttpClient client = new HttpClient())
+                    {
+                        string r = await client.GetStringAsync(vanillaVersionMeta.Logging.Client.File.Url);
+                        await File.WriteAllTextAsync(logFilePath, r);
+                    }
+                }
+                jvmExtraArgumnets += vanillaVersionMeta.Logging.Client.Argument.Replace("${path}", logFilePath);
+            }
+            #endregion
+
             #region Download Libraries
             UpdateLaunchStatusBar(0, $"Checking the libraries...");
-            string libraryBundle = string.Empty;
             double libraryOverallSize = 0;
             double libraryDownloadedSize = 0;
             
@@ -1130,7 +1410,7 @@ namespace KonkordLauncher
                     await File.WriteAllTextAsync(librarySizeCacheFilePath, libraryOverallSize.ToString());
                 }
                 else
-                    libraryOverallSize += int.Parse(await File.ReadAllTextAsync(librarySizeCacheFilePath));
+                    libraryOverallSize = int.Parse(await File.ReadAllTextAsync(librarySizeCacheFilePath));
 
                 // Download the actual libs
                 foreach (var lib in minecraftLibraries)
@@ -1140,50 +1420,53 @@ namespace KonkordLauncher
                         if (lib.Rules.Count > 0)
                         {
                             bool action = lib.Rules[0].Action == "allow";
-                            switch (lib.Rules[0].OS.Name)
+                            if (lib.Rules[0].OS != null)
                             {
-                                case "osx": // lib requies machintosh
-                                    {
-                                        if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && action)
+                                switch (lib.Rules[0].OS.Name)
+                                {
+                                    case "osx": // lib requies machintosh
                                         {
-                                            libraryDownloadedSize += lib.Downloads.Artifact.Size;
-                                            continue;
+                                            if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && action)
+                                            {
+                                                libraryDownloadedSize += lib.Downloads.Artifact.Size;
+                                                continue;
+                                            }
+                                            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && !action)
+                                            {
+                                                libraryDownloadedSize += lib.Downloads.Artifact.Size;
+                                                continue;
+                                            }
+                                            break;
                                         }
-                                        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && !action)
+                                    case "linux":
                                         {
-                                            libraryDownloadedSize += lib.Downloads.Artifact.Size;
-                                            continue;
+                                            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && action)
+                                            {
+                                                libraryDownloadedSize += lib.Downloads.Artifact.Size;
+                                                continue;
+                                            }
+                                            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && !action)
+                                            {
+                                                libraryDownloadedSize += lib.Downloads.Artifact.Size;
+                                                continue;
+                                            }
+                                            break;
                                         }
-                                        break;
-                                    }
-                                case "linux":
-                                    {
-                                        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && action)
+                                    case "windows":
                                         {
-                                            libraryDownloadedSize += lib.Downloads.Artifact.Size;
-                                            continue;
+                                            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && action)
+                                            {
+                                                libraryDownloadedSize += lib.Downloads.Artifact.Size;
+                                                continue;
+                                            }
+                                            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !action)
+                                            {
+                                                libraryDownloadedSize += lib.Downloads.Artifact.Size;
+                                                continue;
+                                            }
+                                            break;
                                         }
-                                        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && !action)
-                                        {
-                                            libraryDownloadedSize += lib.Downloads.Artifact.Size;
-                                            continue;
-                                        }
-                                        break;
-                                    }
-                                case "windows":
-                                    {
-                                        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && action)
-                                        {
-                                            libraryDownloadedSize += lib.Downloads.Artifact.Size;
-                                            continue;
-                                        }
-                                        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !action)
-                                        {
-                                            libraryDownloadedSize += lib.Downloads.Artifact.Size;
-                                            continue;
-                                        }
-                                        break;
-                                    }
+                                }
                             }
                         }
 
@@ -1195,26 +1478,73 @@ namespace KonkordLauncher
                     string libFilePath = Path.Combine(IOHelper.LibrariesDir, localPath);
                     if (!File.Exists(libFilePath))
                     {
-                        byte[] bytes = await client.GetByteArrayAsync(lib.Downloads.Artifact.Url);
-                        await File.WriteAllBytesAsync(libFilePath, bytes);
+                        if (!string.IsNullOrEmpty(lib.Downloads.Artifact.Url))
+                        {
+                            byte[] bytes = await client.GetByteArrayAsync(lib.Downloads.Artifact.Url);
+                            await File.WriteAllBytesAsync(libFilePath, bytes);
+                        }
                     }
-                    libraryBundle += $"{libFilePath};";
+
+                    if (!libraryBundle.Contains(libFilePath))
+                    {
+                        libraryBundle += $"{libFilePath};";
+                        if (lib.Name.StartsWith("org.lwjgl"))
+                        {
+                            nativeLibraries.Add(lib);
+                        }
+                    }
                     libraryDownloadedSize += lib.Downloads.Artifact.Size;
-                    double percent = libraryDownloadedSize / libraryOverallSize;
+                    if (libraryOverallSize == 0)
+                        libraryOverallSize = 1; // NaN fix
+                    double percent = libraryDownloadedSize / libraryOverallSize * 100;
                     UpdateLaunchStatusBar(percent, $"Downloading the '{lib.Name}' library... {percent:0.00}%");
                 }
             }
             #endregion
 
-            libraryBundle += $"{vanillaVersion.VersionJarPath}";
+            libraryBundle += $"{clientPath}";
+            Debug.WriteLine($"#5 -> Added ClassPath: {clientPath}");
             UpdateLaunchStatusBar(0, $"Launching the game...");
 
-            #region Arguments
+            // Create natives directory
+            if (!Directory.Exists(nativeDir))
+                Directory.CreateDirectory(nativeDir);
 
+            // Extract natives
+            foreach (var lib in nativeLibraries)
+            {
+                string localPath = lib.Downloads.Artifact.Path;
+                string libFilePath = Path.Combine(IOHelper.LibrariesDir, localPath);
+
+                string tempZipDir = Path.Combine(IOHelper.TempDir, localPath.Split('.')[0]);
+
+                ZipFile.ExtractToDirectory(libFilePath, tempZipDir);
+
+                string[] files = Directory.GetFiles(tempZipDir, "*.dll", searchOption: SearchOption.AllDirectories);
+                if (files != null)
+                {
+                    foreach (string file in files)
+                    {
+                        string fileName = file.Remove(0, file.LastIndexOf('\\') + 1);
+                        string filePath = Path.Combine(nativeDir, fileName);
+                        if (!File.Exists(filePath))
+                            File.Move(file, filePath);
+                    }
+                }
+
+                IOHelper.DeleteDirectory(tempZipDir);
+            }
+
+            #region Arguments
             #region JVM
-            // Minimum Memory
-            // If someone brokes it by setting the maximum memory lower than 256MB... do not hit them
-            argumnets.Add($"-Xms256M");
+            argumnets.Add("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
+            // Vanilla Args
+            argumnets.Add(vanillaVersionMeta.Arguments.GetJVMArgString());
+
+            // Moded Args
+            if (!string.IsNullOrEmpty(jvmExtraArgumnets))
+                argumnets.Add(jvmExtraArgumnets);
+
             // Maximum Memory
             if (selectedProfile.Memory > 0 && selectedProfile.Memory <= 256)
                 argumnets.Add($"-Xmx{selectedProfile.Memory}G");
@@ -1222,48 +1552,24 @@ namespace KonkordLauncher
                 argumnets.Add($"-Xmx{selectedProfile.Memory}M");
             else
                 argumnets.Add($"-Xmx4G");
-
-            #region Vanilla Args
-
-            #endregion
-
-            #region Moded Args
-
-            #endregion
+            // Minimum Memory
+            // If someone breaks it by setting the maximum memory lower than 256MB... do not hit them
+            argumnets.Add($"-Xms256M");
 
             // The JVM args set by the user
-            argumnets.Add($"{selectedProfile.JVMArgs}");
-            // Include the depedencies
-            argumnets.Add($"-cp \"{libraryBundle}\"");
+            if (!string.IsNullOrEmpty(selectedProfile.JVMArgs))
+                argumnets.Add($"{selectedProfile.JVMArgs}");
             #endregion
-
             #region Minecraft Args
             // The main class
             argumnets.Add(argMainClass);
-
-
-            #region Vanilla Args
-
+            // Vanilla Args
+            argumnets.Add(vanillaVersionMeta.Arguments.GetGameArgString());
+            // Moded Args
+            if (!string.IsNullOrEmpty(gameExtraArgumnets))
+                argumnets.Add(gameExtraArgumnets);
             #endregion
 
-            #region Moded Args
-
-            #endregion
-
-            argumnets.Add($"--username {account.DisplayName}");
-            argumnets.Add($"--version {vanillaVersion.InstanceVersion}");
-            argumnets.Add($"--gameDir {vanillaVersion.GameDir}");
-            // Directory of the assets
-            argumnets.Add($"--assetsDir {IOHelper.AssetsDir}");
-            // AssetIndex Index
-            argumnets.Add($"--assetIndex {assetIndex}");
-            argumnets.Add($"--uuid {account.UUID}");
-            argumnets.Add($"--accessToken {account.AccessToken}");
-            argumnets.Add($"--clientId {clientId}"); 
-            argumnets.Add($"--xuid {xUID}");
-            argumnets.Add($"--userType msa");
-            argumnets.Add($"--versionType release");
-            #endregion
             // Screen resolution
             if (selectedProfile.Resolution != null)
             {
@@ -1291,6 +1597,27 @@ namespace KonkordLauncher
                 argumnets.Add($"--height {(int)SystemParameters.PrimaryScreenHeight / 2}");
             }
 
+            string argumentString = string.Join(' ', argumnets);
+            #region Replace Variable Placeholders
+            argumentString = argumentString
+                //.Replace("-Djava.library.path=${natives_directory}", "")
+                .Replace("${natives_directory}", nativeDir)
+                .Replace("${launcher_name}", "konkord-launcher")
+                .Replace("${launcher_version}", "release")
+                .Replace("${auth_player_name}", account.DisplayName)
+                .Replace("${version_name}", versionName)
+                .Replace("${game_directory}", gameDir)
+                .Replace("${assets_root}", IOHelper.AssetsDir)
+                .Replace("${assets_index_name}", assetIndex)
+                .Replace("${auth_uuid}", account.UUID)
+                .Replace("${auth_access_token}", string.IsNullOrEmpty(account.AccessToken) ? "none" : account.AccessToken)
+                .Replace("${clientid}", clientId)
+                .Replace("${auth_xuid}", xUID)
+                .Replace("${user_type}", "msa")
+                .Replace("${version_type}", "release")
+                .Replace("${classpath}", $"\"{libraryBundle}\"")
+                .Replace("${library_directory}", IOHelper.LibrariesDir);
+            #endregion
             #endregion
 
             #region Finish and Launch Minecraft
@@ -1300,16 +1627,19 @@ namespace KonkordLauncher
             // Disable progressbar
             UpdateLaunchStatusBar(false);
             //Launch game instance
-            
+
             var psi = new ProcessStartInfo()
             {
                 FileName = $"{selectedProfile.JavaPath}java",
-                Arguments = string.Join(' ', argumnets),
-                UseShellExecute = true,
-                //RedirectStandardError = true,
-                //RedirectStandardOutput = true,
+                Arguments = argumentString,
+                UseShellExecute = false,
+                RedirectStandardError = true,
             };
             Process? p = Process.Start(psi);
+            await p.WaitForExitAsync();
+            string o = await p.StandardError.ReadToEndAsync();
+            if (!string.IsNullOrEmpty(o))
+                NotificationHelper.SendError(o, "Error");
 
             switch (selectedProfile.LauncherVisibility)
             {
@@ -1381,7 +1711,36 @@ namespace KonkordLauncher
                 NotificationHelper.SendError("You must select a version.", "Error");
                 return;
             }
-            EProfileKind profileKind = (EProfileKind)cb_instances_version_type.SelectedIndex;
+            EProfileKind profileKind;
+            switch (cb_instances_version_type.SelectedIndex)
+            {
+                default:
+                case 0:
+                    {
+                        profileKind = EProfileKind.VANILLA;
+                        break;
+                    }
+                case 1:
+                    {
+                        profileKind = EProfileKind.FORGE;
+                        break;
+                    }
+                case 2:
+                    {
+                        profileKind = EProfileKind.FABRIC;
+                        break;
+                    }
+                case 3:
+                    {
+                        profileKind = EProfileKind.FORGE;
+                        break;
+                    }
+                case 4:
+                    {
+                        profileKind = EProfileKind.QUILT;
+                        break;
+                    }
+            }
             ELaucnherVisibility laucnherVisibility = (ELaucnherVisibility)cb_instances_launchopt.SelectedIndex;
             Resolution? resolution = null;
             if (!(string.IsNullOrEmpty(tb_instances_resolution_x.Text) && string.IsNullOrEmpty(tb_instances_resolution_y.Text)))
@@ -1779,6 +2138,8 @@ namespace KonkordLauncher
             string versionType = cb_instances_version_type.Text.ToLower();
             if (versionType == "neoforge")
                 versionType = "forge";
+
+            ComboBox combo;
             switch (versionType)
             {
                 case "fabric":
@@ -1787,7 +2148,20 @@ namespace KonkordLauncher
 
                         localModList = VersionDic[versionType];
                         cb_instances_mod_version.DataContext = localModList.Select(x => x.Id);
-                        cb_instances_mod_version.SelectedIndex = localModList.FindIndex(x => x.VanillaId == localVanillaList[0].Id);
+                        cb_instances_mod_version.SelectedIndex = 0;
+
+                        if (cb_instances_mcmod_version == null)
+                            return;
+
+                        if (!cb_instances_mcmod_version.IsEnabled)
+                            return;
+
+                        combo = (ComboBox)sender;
+
+                        if (combo.SelectedItem == null)
+                            return;
+                        InstanceMCVersionId = combo.SelectedItem.ToString();
+                        Debug.WriteLine($"minecraft moded version: {InstanceMCVersionId}");
                         return;
                     }
                 case "quilt":
@@ -1796,7 +2170,20 @@ namespace KonkordLauncher
 
                         localModList = VersionDic[versionType];
                         cb_instances_mod_version.DataContext = localModList.Select(x => x.Id);
-                        cb_instances_mod_version.SelectedIndex = localModList.FindIndex(x => x.VanillaId == localVanillaList[0].Id);
+                        cb_instances_mod_version.SelectedIndex = 0;
+
+                        if (cb_instances_mcmod_version == null)
+                            return;
+
+                        if (!cb_instances_mcmod_version.IsEnabled)
+                            return;
+
+                        combo = (ComboBox)sender;
+
+                        if (combo.SelectedItem == null)
+                            return;
+                        InstanceMCVersionId = combo.SelectedItem.ToString();
+                        Debug.WriteLine($"minecraft moded version: {InstanceMCVersionId}");
                         return;
                     }
             }
@@ -1813,7 +2200,7 @@ namespace KonkordLauncher
             if (!cb_instances_mcmod_version.IsEnabled)
                 return;
 
-            ComboBox combo = (ComboBox)sender;
+            combo = (ComboBox)sender;
 
             if (combo.SelectedItem == null)
                 return;
@@ -1854,7 +2241,5 @@ namespace KonkordLauncher
             Debug.WriteLine($"mod version: {InstanceModVersionId}");
         }
         #endregion
-
-
     }
 }

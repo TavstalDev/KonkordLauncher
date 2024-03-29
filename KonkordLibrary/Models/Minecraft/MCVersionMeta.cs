@@ -1,4 +1,5 @@
-﻿using KonkordLibrary.Models.Minecraft.Library;
+﻿using KonkordLibrary.Models.Fabric;
+using KonkordLibrary.Models.Minecraft.Library;
 using KonkordLibrary.Models.Minecraft.Meta;
 using System.Text.Json.Serialization;
 

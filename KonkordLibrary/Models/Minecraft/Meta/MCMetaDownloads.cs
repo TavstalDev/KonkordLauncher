@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace KonkordLibrary.Models.Minecraft.Meta
 {
@@ -6,21 +7,21 @@ namespace KonkordLibrary.Models.Minecraft.Meta
     {
         [JsonPropertyName("client")]
         public MCMetaDownload Client { get; set; }
-        [JsonPropertyName("client_mappings")]
+        [JsonProperty("client_mappings")]
         public MCMetaDownload ClientMappings { get; set; }
         [JsonPropertyName("server")]
         public MCMetaDownload Server { get; set; }
-        [JsonPropertyName("server_mappings")]
-        public MCMetaDownload ServerMappings { get; set;}
+        [JsonProperty("server_mappings")]
+        public MCMetaDownload ServerMappings { get; set; }
 
         public MCMetaDownloads() { }
 
-        public MCMetaDownloads(MCMetaDownload client, MCMetaDownload clientMappings, MCMetaDownload server, MCMetaDownload serverMappings)
+        public MCMetaDownloads(MCMetaDownload client, MCMetaDownload client_mappings, MCMetaDownload server, MCMetaDownload server_mappings)
         {
             Client = client;
-            ClientMappings = clientMappings;
+            ClientMappings = client_mappings;
             Server = server;
-            ServerMappings = serverMappings;
+            ServerMappings = server_mappings;
         }
     }
 }

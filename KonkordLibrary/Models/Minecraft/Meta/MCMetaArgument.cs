@@ -20,6 +20,9 @@ namespace KonkordLibrary.Models.Minecraft.Meta
 
         public List<string> GetGameArgs()
         {
+            if (Game == null)
+                return new List<string>();
+
             List<string> local = new List<string>();
             foreach (var item in Game)
             {
@@ -39,6 +42,9 @@ namespace KonkordLibrary.Models.Minecraft.Meta
 
         public string GetGameArgString()
         {
+            if (Game == null)
+                return string.Empty;
+
             List<string> local = new List<string>();
             foreach (var item in Game)
             {
@@ -57,15 +63,18 @@ namespace KonkordLibrary.Models.Minecraft.Meta
 
         public List<string> GetJVMArgs()
         {
+            if (JVM == null)
+                return new List<string>();
+
             List<string> local = new List<string>();
             foreach (var item in JVM)
             {
                 if (item is string s)
                 {
-                    if (s.StartsWith("-cp"))
+                    /*if (s.StartsWith("-cp"))
                         continue;
                     if (s == "${classpath}")
-                        continue;
+                        continue;*/
                     local.Add(s);
                 }
             }
@@ -75,15 +84,18 @@ namespace KonkordLibrary.Models.Minecraft.Meta
 
         public string GetJVMArgString()
         {
+            if (JVM == null)
+                return string.Empty;
+
             string local = string.Empty;
             foreach (var item in JVM)
             {
                 if (item is string s)
                 {
-                    if (s.StartsWith("-cp"))
+                    /*if (s.StartsWith("-cp"))
                         continue;
                     if (s == "${classpath}")
-                        continue;
+                        continue;*/
                     local += $"{s} ";
                 }
             }

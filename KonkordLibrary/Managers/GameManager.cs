@@ -1,6 +1,7 @@
 ﻿using KonkordLibrary.Enums;
 using KonkordLibrary.Helpers;
 using KonkordLibrary.Models;
+using KonkordLibrary.Models.Fabric;
 using KonkordLibrary.Models.GameManager;
 using KonkordLibrary.Models.Minecraft;
 using KonkordLibrary.Models.Minecraft.Library;
@@ -43,9 +44,9 @@ namespace KonkordLibrary.Managers
 
         #region Forge & Neoforge 
         // neoforge is the same as forge (but why, I can't tell)
-        private static readonly string _forgeLoaderJarUrl = "https://files.minecraftforge.net/maven/net/minecraftforge/forge/{0}/forge-{0}-universal.jar"; 
+        private static readonly string _forgeLoaderUniversalJarUrl = "https://files.minecraftforge.net/maven/net/minecraftforge/forge/{0}/forge-{0}-universal.jar"; 
         // Version Example: 1.20.4-49.0.38
-        public static string ForgeLoaderJarUrl { get { return _forgeLoaderJarUrl; } }
+        public static string ForgeLoaderUniversalJarUrl { get { return _forgeLoaderUniversalJarUrl; } }
         private static readonly string _forgeInstallerJarUrl = "https://files.minecraftforge.net/maven/net/minecraftforge/forge/{0}/forge-{0}-installer.jar";
         // Version Example: 1.20.4-49.0.38
         public static string ForgeInstallerJarUrl { get { return _forgeInstallerJarUrl; } }
@@ -100,6 +101,7 @@ namespace KonkordLibrary.Managers
             response.VersionDirectory = Path.Combine(IOHelper.VersionsDir, versionName);
             response.VersionJsonPath = Path.Combine(response.VersionDirectory, $"{versionName}.json");
             response.VersionJarPath = Path.Combine(response.VersionDirectory, $"{versionName}.jar");
+            response.VanillaJarPath = Path.Combine(IOHelper.VersionsDir, vanillaVersionId, $"{vanillaVersionId}.jar");
             if (string.IsNullOrEmpty(customDirectory))
                 response.GameDir = Path.Combine(IOHelper.InstancesDir, versionName);
             else
@@ -309,7 +311,7 @@ namespace KonkordLibrary.Managers
                         string forgeVersion = $"{request.VanillaVersion}-{request.Version}";
 
                         // Download Forge Installer to temp
-                        libraryResponse.ClientDownloadUrl = string.Format(ForgeLoaderJarUrl, forgeVersion);
+                        libraryResponse.ClientDownloadUrl = string.Format(ForgeLoaderUniversalJarUrl, forgeVersion);
 
                         
                         string versionJsonUrl = string.Format(ForgeInstallerJarUrl, forgeVersion);

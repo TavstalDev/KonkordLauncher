@@ -33,7 +33,7 @@ namespace KonkordLauncher
     {
         private string? EditedProfileKey {  get; set; }
         private Profile? EditedProfile {  get; set; }
-        public Profile SelectedProfile { get; set; }
+        public KeyValuePair<string, Profile> SelectedProfile { get; set; }
         private readonly double _heightMultiplier;
         private readonly double _widthMultiplier;
         // CHANGE THESE IF THE LISTBOX TEMPLATE SIZES CHANGE
@@ -41,18 +41,13 @@ namespace KonkordLauncher
         public double ListLabelFontSize { get; set; } = 10;
         public double ListLabelHeight { get; set; } = 19;
         public double ListLabelWidth { get; set; } = 131;
-        public Thickness ListLabelMargin { get; set; } = new Thickness(5,2,0,2);
+        public Thickness ListLabelMargin { get; set; } = new Thickness(10,2,0,2);
         public double ListBorderHeight { get; set; } = 24;
         public double ListBorderWidth { get; set; } = 24;
         public Thickness ListBorderMargin { get; set; } = new Thickness(5,2,0,2);
         #endregion
 
-        public LaunchWindow() : this(null)
-        {
-
-        }
-
-        public LaunchWindow(string? profileKey)
+        public LaunchWindow()
         {
             InitializeComponent();
             Loaded += Window_Loaded;
@@ -86,10 +81,8 @@ namespace KonkordLauncher
             WindowHelper.ResizeFont(la_account_name, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(la_account_type, _heightMultiplier, _widthMultiplier);
 
-            WindowHelper.Resize(bo_language, _heightMultiplier, _widthMultiplier);
-            WindowHelper.ResizeFont(lab_language, _heightMultiplier, _widthMultiplier);
-            WindowHelper.ResizeFont(lab_language_icon, _heightMultiplier, _widthMultiplier);
-            WindowHelper.ResizeFont(btn_language, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(cb_launch_languages, _heightMultiplier, _widthMultiplier);
+            cb_launch_languages.Resources["FontSize"] = double.Parse(cb_launch_languages.Resources["FontSize"].ToString()) * _widthMultiplier;
 
             WindowHelper.Resize(bo_new_instance, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(lab_new_instance, _heightMultiplier, _widthMultiplier);
@@ -109,6 +102,16 @@ namespace KonkordLauncher
 
             WindowHelper.Resize(ref listbox_launchinstances, ListBorderHeight, ListBorderWidth, ListBorderMargin, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(ref listbox_launchinstances, ListLabelFontSize, ListLabelHeight, ListLabelWidth, ListLabelMargin, _heightMultiplier, _widthMultiplier);
+            listbox_launchinstances.Resources["ListButtonFontSize"] = (double)listbox_launchinstances.Resources["ListButtonFontSize"] * _widthMultiplier;
+            listbox_launchinstances.Resources["ListButtonWidth"] = (double)listbox_launchinstances.Resources["ListButtonWidth"] * _widthMultiplier;
+            listbox_launchinstances.Resources["ListButtonHeight"] = (double)listbox_launchinstances.Resources["ListButtonHeight"] * _heightMultiplier;
+
+            Thickness localThickness = (Thickness)listbox_launchinstances.Resources["ListButtonMargin"];
+            localThickness.Top *= _heightMultiplier;
+            localThickness.Bottom *= _heightMultiplier;
+            localThickness.Left *= _widthMultiplier;
+            localThickness.Right *= _widthMultiplier;
+            listbox_launchinstances.Resources["ListButtonMargin"] = localThickness;
 
             WindowHelper.Resize(bo_instances, _heightMultiplier, _widthMultiplier);
             #endregion
@@ -194,6 +197,8 @@ namespace KonkordLauncher
 
             listbox_icons.DataContext = ProfileIcon.Icons;
             RefreshInstances();
+            // Fill Languages ComboBox
+
             // Fill Version ComboBox
             FillVersionComboBox();
             // Fill Memory ComboBox
@@ -224,101 +229,13 @@ namespace KonkordLauncher
             #endregion
             #endregion
 
-            #region Load Defaults
-            tb_instances_jvm.Text = "-XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M -Djava.net.preferIPv4Stack=true";
-            if (profileKey == null)
-            {
-                RefreshDropdownVersions("vanilla");
-                return;
-            }
-
-            LauncherSettings? launcherSettings = IOHelper.GetLauncherSettings();
-            if (launcherSettings == null)
-            {
-                RefreshDropdownVersions("vanilla");
-                return;
-            }
-
-            if (!launcherSettings.Profiles.TryGetValue(profileKey, out Profile editedProfile))
-            {
-                RefreshDropdownVersions("vanilla");
-                return;
-            }
-
-            EditedProfile = editedProfile;
-            EditedProfileKey = profileKey;
-            switch (editedProfile.Kind)
-            {
-                case EProfileKind.VANILLA:
-                    {
-                        RefreshDropdownVersions("vanilla");
-                        cb_instances_mc_version.SelectedItem = EditedProfile.VersionId;
-                        cb_instances_mc_version.IsEnabled = true;
-                        cb_instances_mcmod_version.IsEnabled = false;
-                        cb_instances_mod_version.IsEnabled = false;
-                        cb_instances_mc_version.Visibility = Visibility.Visible;
-                        cb_instances_mcmod_version.Visibility = Visibility.Hidden;
-                        cb_instances_mod_version.Visibility = Visibility.Hidden;
-                        break;
-                    }
-                case EProfileKind.FORGE:
-                    {
-                        RefreshDropdownVersions("forge");
-                        cb_instances_mcmod_version.SelectedItem = EditedProfile.VersionVanillaId;
-                        cb_instances_mod_version.SelectedItem = EditedProfile.VersionId.Split('-')[1];
-                        cb_instances_mc_version.IsEnabled = false;
-                        cb_instances_mcmod_version.IsEnabled = true;
-                        cb_instances_mod_version.IsEnabled = true;
-                        cb_instances_mc_version.Visibility = Visibility.Hidden;
-                        cb_instances_mcmod_version.Visibility = Visibility.Visible;
-                        cb_instances_mod_version.Visibility = Visibility.Visible;
-                        break;
-                    }
-                case EProfileKind.FABRIC:
-                    {
-                        RefreshDropdownVersions("fabric");
-                        cb_instances_mcmod_version.SelectedItem = EditedProfile.VersionVanillaId;
-                        cb_instances_mod_version.SelectedItem = EditedProfile.VersionId.Split('-')[1];
-                        cb_instances_mc_version.IsEnabled = false;
-                        cb_instances_mcmod_version.IsEnabled = true;
-                        cb_instances_mod_version.IsEnabled = true;
-                        cb_instances_mc_version.Visibility = Visibility.Hidden;
-                        cb_instances_mcmod_version.Visibility = Visibility.Visible;
-                        cb_instances_mod_version.Visibility = Visibility.Visible;
-                        break;
-                    }
-                case EProfileKind.QUILT:
-                    {
-                        RefreshDropdownVersions("quilt");
-                        cb_instances_mcmod_version.SelectedItem = EditedProfile.VersionVanillaId;
-                        cb_instances_mod_version.SelectedItem = EditedProfile.VersionId.Split('-')[1];
-                        cb_instances_mc_version.IsEnabled = false;
-                        cb_instances_mcmod_version.IsEnabled = true;
-                        cb_instances_mod_version.IsEnabled = true;
-                        cb_instances_mc_version.Visibility = Visibility.Hidden;
-                        cb_instances_mcmod_version.Visibility = Visibility.Visible;
-                        cb_instances_mod_version.Visibility = Visibility.Visible;
-                        break;
-                    }
-            }
-
-            tb_instances_gamedir.Text = EditedProfile.GameDirectory ?? "";
-            tb_instances_javadir.Text = EditedProfile.JavaPath ?? "";
-            tb_instances_name.Text = EditedProfile.Name;
-            tb_instances_jvm.Text = EditedProfile.JVMArgs;
-            if (EditedProfile.Resolution != null)
-            {
-                tb_instances_resolution_x.Text = EditedProfile.Resolution.X.ToString();
-                tb_instances_resolution_y.Text = EditedProfile.Resolution.Y.ToString();
-            }
-            cb_instances_launchopt.SelectedIndex = (int)EditedProfile.LauncherVisibility;
-            cb_instances_memory.SelectedItem = EditedProfile.Memory;
-            #endregion
+            OpenInstanceEdit(null, string.Empty);
         }
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             await RefreshAccount();
+            
         }
 
         #region Functions
@@ -407,21 +324,22 @@ namespace KonkordLauncher
                 return;
             }
 
-            var profiles = settings.Profiles;
-            DataContext = profiles.Values.ToList();
+            List<Profile> profiles = settings.Profiles.Values.ToList();
+
             if (profiles.Count <= 2)
                 listbox_launchinstances.Resources["Alternation"] = profiles.Count;
             else
                 listbox_launchinstances.Resources["Alternation"] = 2;
   
-            if (profiles.TryGetValue(settings.SelectedProfile, out Profile selectedProfile))
-                SelectedProfile = selectedProfile;
+            if (settings.Profiles.TryGetValue(settings.SelectedProfile, out Profile selectedProfile))
+                SelectedProfile = new KeyValuePair<string, Profile>(settings.SelectedProfile, selectedProfile);
             else
-                SelectedProfile = settings.Profiles.Values.ToList().ElementAt(0);
+                SelectedProfile = settings.Profiles.ElementAt(0);
 
-            listbox_launchinstances.SelectedIndex = profiles.Values.ToList().IndexOf(SelectedProfile);
+            DataContext = settings.Profiles;
+            listbox_launchinstances.SelectedIndex = profiles.IndexOf(SelectedProfile.Value);
             listbox_launchinstances.ScrollIntoView(listbox_launchinstances.SelectedItem);
-            lab_selected_profile.Content = SelectedProfile.Name.ToLower();
+            lab_selected_profile.Content = SelectedProfile.Value.Name.ToLower();
 
         }
 
@@ -531,49 +449,163 @@ namespace KonkordLauncher
             if (checkb_instances_version_betas.IsEnabled)
                 showOldBetas = checkb_instances_version_betas.IsChecked.Value;
 
-            // Full Vanilla
-            if (cb_instances_mc_version.IsEnabled)
+            List<VersionBase> localVanillaList = new List<VersionBase>();
+            List<VersionBase> localModList = new List<VersionBase>();
+            switch (versionType)
             {
-                cb_instances_mc_version.DataContext = VersionDic[versionType].FindAll(x => (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas)).Select(x => x.Id);
-                cb_instances_mc_version.SelectedIndex = 0;
+                case "vanilla":
+                    {
+                        cb_instances_mc_version.DataContext = VersionDic[versionType].FindAll(x => (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas)).Select(x => x.Id);
+                        cb_instances_mc_version.SelectedIndex = 0;
+                        break;
+                    }
+                case "fabric":
+                    {
+                        localVanillaList = VersionDic["fabricVanilla"].FindAll(x => (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
+                        cb_instances_mcmod_version.DataContext = localVanillaList.Select(x => x.Id);
+                        cb_instances_mcmod_version.SelectedIndex = 0;
+
+                        localModList = VersionDic[versionType];
+                        cb_instances_mod_version.DataContext = localModList.Select(x => x.Id);
+                        cb_instances_mod_version.SelectedIndex = 0;
+                        break;
+                    }
+                case "quilt":
+                    {
+                        localVanillaList = VersionDic["quiltVanilla"].FindAll(x => (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
+                        cb_instances_mcmod_version.DataContext = localVanillaList.Select(x => x.Id);
+                        cb_instances_mcmod_version.SelectedIndex = 0;
+
+                        localModList = VersionDic[versionType];
+                        cb_instances_mod_version.DataContext = localModList.Select(x => x.Id);
+                        cb_instances_mod_version.SelectedIndex = 0;
+                        break;
+                    }
+                case "forge":
+                    {
+                        localVanillaList = VersionDic["forgeVanilla"].FindAll(x => (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
+                        cb_instances_mcmod_version.DataContext = localVanillaList.Select(x => x.Id);
+                        cb_instances_mcmod_version.SelectedIndex = 0;
+
+                        localModList = VersionDic[versionType].FindAll(x => x.VanillaId == localVanillaList[0].Id && (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
+                        cb_instances_mod_version.DataContext = localModList.Select(x => x.Id);
+                        cb_instances_mod_version.SelectedIndex = localModList.FindIndex(x => x.VanillaId == localVanillaList[0].Id);
+                        break;
+                    }
             }
-            else // Moded
+        }
+
+        private void OpenInstanceEdit(Profile? profile, string profileKey)
+        {
+            if (profile == null)
             {
-                List<VersionBase> localVanillaList = new List<VersionBase>();
-                List<VersionBase> localModList = new List<VersionBase>();
-                switch (versionType)
+                EditedProfile = null;
+                EditedProfileKey = string.Empty;
+                cb_instances_mc_version.IsEnabled = true;
+                cb_instances_mcmod_version.IsEnabled = false;
+                cb_instances_mod_version.IsEnabled = false;
+                cb_instances_mc_version.Visibility = Visibility.Visible;
+                cb_instances_mcmod_version.Visibility = Visibility.Hidden;
+                cb_instances_mod_version.Visibility = Visibility.Hidden;
+
+                //RefreshDropdownVersions("vanilla");
+                cb_instances_version_type.SelectedIndex = 0;
+                cb_instances_mc_version.SelectedIndex = 0;
+
+
+                tb_instances_gamedir.Text =  "";
+                tb_instances_javadir.Text = "";
+                tb_instances_name.Text = "";
+                tb_instances_jvm.Text = "-XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M -Djava.net.preferIPv4Stack=true";
+                tb_instances_resolution_x.Text = string.Empty;
+                tb_instances_resolution_y.Text = string.Empty;
+                cb_instances_launchopt.SelectedIndex = 0;
+                cb_instances_memory.SelectedIndex = 0;
+            }
+            else
+            {
+                EditedProfile = profile;
+                EditedProfileKey = profileKey;
+                switch (EditedProfile.Kind)
                 {
-                    case "fabric":
+                    case EProfileKind.VANILLA:
                         {
-                            localVanillaList = VersionDic["fabricVanilla"].FindAll(x => (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
-                            cb_instances_mcmod_version.DataContext = localVanillaList.Select(x => x.Id);
-                            cb_instances_mcmod_version.SelectedIndex = 0;
+                            
+                            cb_instances_mc_version.IsEnabled = true;
+                            cb_instances_mcmod_version.IsEnabled = false;
+                            cb_instances_mod_version.IsEnabled = false;
+                            cb_instances_mc_version.Visibility = Visibility.Visible;
+                            cb_instances_mcmod_version.Visibility = Visibility.Hidden;
+                            cb_instances_mod_version.Visibility = Visibility.Hidden;
 
-                            localModList = VersionDic[versionType];
-                            cb_instances_mod_version.DataContext = localModList.Select(x => x.Id);
-                            cb_instances_mod_version.SelectedIndex = 0;
-                            return;
+                            cb_instances_version_type.SelectedValue = "Vanilla";
+                            //RefreshDropdownVersions("vanilla");
+                            cb_instances_mc_version.SelectedValue = EditedProfile.VersionId;
+
+                            break;
                         }
-                    case "quilt":
+                    case EProfileKind.FORGE:
                         {
-                            localVanillaList = VersionDic["quiltVanilla"].FindAll(x => (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
-                            cb_instances_mcmod_version.DataContext = localVanillaList.Select(x => x.Id);
-                            cb_instances_mcmod_version.SelectedIndex = 0;
+                            
+                            cb_instances_mc_version.IsEnabled = false;
+                            cb_instances_mcmod_version.IsEnabled = true;
+                            cb_instances_mod_version.IsEnabled = true;
+                            cb_instances_mc_version.Visibility = Visibility.Hidden;
+                            cb_instances_mcmod_version.Visibility = Visibility.Visible;
+                            cb_instances_mod_version.Visibility = Visibility.Visible;
 
-                            localModList = VersionDic[versionType];
-                            cb_instances_mod_version.DataContext = localModList.Select(x => x.Id);
-                            cb_instances_mod_version.SelectedIndex = 0;
-                            return;
+                            cb_instances_version_type.SelectedValue = "Forge";
+                            //RefreshDropdownVersions("forge");
+                            cb_instances_mcmod_version.SelectedValue = EditedProfile.VersionVanillaId;
+                            cb_instances_mod_version.SelectedValue = EditedProfile.VersionId;
+                            break;
+                        }
+                    case EProfileKind.FABRIC:
+                        {
+                            
+                            cb_instances_mc_version.IsEnabled = false;
+                            cb_instances_mcmod_version.IsEnabled = true;
+                            cb_instances_mod_version.IsEnabled = true;
+                            cb_instances_mc_version.Visibility = Visibility.Hidden;
+                            cb_instances_mcmod_version.Visibility = Visibility.Visible;
+                            cb_instances_mod_version.Visibility = Visibility.Visible;
+
+                            cb_instances_version_type.SelectedValue = "Fabric";
+                            //RefreshDropdownVersions("fabric");
+                            cb_instances_mcmod_version.SelectedValue = EditedProfile.VersionVanillaId;
+                            cb_instances_mod_version.SelectedValue = EditedProfile.VersionId;
+                            break;
+                        }
+                    case EProfileKind.QUILT:
+                        {
+                            
+                            cb_instances_mc_version.IsEnabled = false;
+                            cb_instances_mcmod_version.IsEnabled = true;
+                            cb_instances_mod_version.IsEnabled = true;
+                            cb_instances_mc_version.Visibility = Visibility.Hidden;
+                            cb_instances_mcmod_version.Visibility = Visibility.Visible;
+                            cb_instances_mod_version.Visibility = Visibility.Visible;
+
+                            cb_instances_version_type.SelectedValue = "Quilt";
+                            //RefreshDropdownVersions("quilt");
+
+                            cb_instances_mcmod_version.SelectedValue = EditedProfile.VersionVanillaId;
+                            cb_instances_mod_version.SelectedValue = EditedProfile.VersionId;
+                            break;
                         }
                 }
 
-                localVanillaList = VersionDic["forgeVanilla"].FindAll(x => (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
-                cb_instances_mcmod_version.DataContext = localVanillaList.Select(x => x.Id);
-                cb_instances_mcmod_version.SelectedIndex = 0;
-
-                localModList = VersionDic[versionType].FindAll(x => x.VanillaId == localVanillaList[0].Id && (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
-                cb_instances_mod_version.DataContext = localModList.Select(x => x.Id);
-                cb_instances_mod_version.SelectedIndex = localModList.FindIndex(x => x.VanillaId == localVanillaList[0].Id);
+                tb_instances_gamedir.Text = EditedProfile.GameDirectory ?? "";
+                tb_instances_javadir.Text = EditedProfile.JavaPath ?? "";
+                tb_instances_name.Text = EditedProfile.Name;
+                tb_instances_jvm.Text = EditedProfile.JVMArgs;
+                if (EditedProfile.Resolution != null)
+                {
+                    tb_instances_resolution_x.Text = EditedProfile.Resolution.X.ToString();
+                    tb_instances_resolution_y.Text = EditedProfile.Resolution.Y.ToString();
+                }
+                cb_instances_launchopt.SelectedIndex = (int)EditedProfile.LauncherVisibility;
+                cb_instances_memory.SelectedItem = EditedProfile.Memory;
             }
         }
 
@@ -719,39 +751,10 @@ namespace KonkordLauncher
         }
         #endregion
 
-        #region Language Button
-        /// <summary>
-        /// Handles the click event of the language selection button.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="e">The event arguments.</param>
-        private void Language_Click(object sender, RoutedEventArgs e)
+        private void Languages_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            
-        }
 
-        /// <summary>
-        /// Handles the mouse enter event of the language selection button.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="e">The event arguments.</param>
-        private void Language_MouseEnter(object sender, MouseEventArgs e)
-        {
-            bo_language.Background = new SolidColorBrush(Color.FromScRgb(0.15f, 0, 0, 0));
-            bo_language.BorderBrush = new SolidColorBrush(Color.FromScRgb(0.15f, 0, 0, 0));
         }
-
-        /// <summary>
-        /// Handles the mouse leave event of the language selection button.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="e">The event arguments.</param>
-        private void Language_MouseLeave(object sender, MouseEventArgs e)
-        {
-            bo_language.Background = new SolidColorBrush(Color.FromScRgb(0f, 0, 0, 0));
-            bo_language.BorderBrush = new SolidColorBrush(Color.FromScRgb(0f, 0, 0, 0));
-        }
-        #endregion
 
         /// <summary>
         /// Handles the click event of the "Play" button in the launch interface.
@@ -1682,6 +1685,26 @@ namespace KonkordLauncher
                 settings.SelectedProfile = p.Key;
                 await JsonHelper.WriteJsonFileAsync(Path.Combine(IOHelper.MainDirectory, "launcher.json"), settings);
             }
+
+            ListBox listBox = e.Source as ListBox;
+            KeyValuePair<string, Profile> addedItem = (KeyValuePair<string, Profile>)e.AddedItems[0];
+            listBox.Resources["SelectedIndex"] = listBox.Items.IndexOf(addedItem);
+        }
+
+        private void btn_listTemplate_Click(object sender, RoutedEventArgs e)
+        {
+            Button button = (Button)sender;
+            if (button == null)
+                return;
+
+            LauncherSettings? launcherSettings = IOHelper.GetLauncherSettings();
+            if (launcherSettings == null)
+                return;
+
+            KeyValuePair<string, Profile> profile = (KeyValuePair<string, Profile>)button.Tag;
+            OpenInstanceEdit(profile.Value, profile.Key);
+            bo_instances.Visibility = Visibility.Visible;
+            bo_instances.IsEnabled = true;
         }
         #endregion
 
@@ -2240,6 +2263,8 @@ namespace KonkordLauncher
             InstanceModVersionId = combo.SelectedItem.ToString();
             Debug.WriteLine($"mod version: {InstanceModVersionId}");
         }
+        
+        
         #endregion
     }
 }

@@ -4,6 +4,7 @@
              xmlns:local="clr-namespace:KonkordLauncher"
              StartupUri="StartWindow.xaml">
     <Application.Resources>
+        <FontFamily x:Key="FontAwesome">pack://application:,,,/FontAwesome.WPF;component/#FontAwesome</FontFamily>
         <Style x:Key="WindowClose" TargetType="Button">
             <!-- Define your button style here -->
             <Setter Property="Background" Value="Transparent"/>

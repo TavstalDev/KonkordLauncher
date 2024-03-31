@@ -6,9 +6,13 @@
         xmlns:fa="http://schemas.fontawesome.io/icons/"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:sysw="clr-namespace:System.Windows;assembly=PresentationFramework"
-        xmlns:local="clr-namespace:KonkordLauncher"
+        xmlns:self="clr-namespace:KonkordLauncher.Converters"
+        xmlns:lib="clr-namespace:KonkordLibrary.Enums;assembly=KonkordLibrary"
         mc:Ignorable="d"
         Title="LaunchWindow" Height="450" Width="800" WindowStyle="None" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Icon="/Assets/Images/workbench.png">
+    <Window.Resources>
+        <self:EnumToVisibilityConverter x:Key="ETVConverter" />
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -28,10 +32,10 @@
             </Grid>
         </Border>
         <!-- WINDOW BUTTONS -->
-        <Button x:Name="bt_window_close" fa:Awesome.Content="Close" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" HorizontalAlignment="Right" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Click="WindowClose_Click" Style="{StaticResource WindowClose}"/>
-        <Button x:Name="bt_window_minimize" fa:Awesome.Content="WindowMinimize" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" HorizontalAlignment="Right" Margin="0,0,40,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Click="WindowMinimize_Click" Style="{StaticResource WindowButton}"/>
-        <Button x:Name="bt_window_normal" IsEnabled="False" Visibility="Hidden" fa:Awesome.Content="WindowRestore" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" HorizontalAlignment="Right" Margin="0,0,20,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Click="WindowRestore_Click" Style="{StaticResource WindowButton}"/>
-        <Button x:Name="bt_window_maximize" fa:Awesome.Content="WindowMaximize" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" HorizontalAlignment="Right" Margin="0,0,20,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Click="WindowMaximize_Click" Style="{StaticResource WindowButton}"/>
+        <Button x:Name="bt_window_close" fa:Awesome.Content="Close" TextElement.FontFamily="{StaticResource FontAwesome}" HorizontalAlignment="Right" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Click="WindowClose_Click" Style="{StaticResource WindowClose}"/>
+        <Button x:Name="bt_window_minimize" fa:Awesome.Content="WindowMinimize" TextElement.FontFamily="{StaticResource FontAwesome}" HorizontalAlignment="Right" Margin="0,0,40,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Click="WindowMinimize_Click" Style="{StaticResource WindowButton}"/>
+        <Button x:Name="bt_window_normal" IsEnabled="False" Visibility="Hidden" fa:Awesome.Content="WindowRestore" TextElement.FontFamily="{StaticResource FontAwesome}" HorizontalAlignment="Right" Margin="0,0,20,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Click="WindowRestore_Click" Style="{StaticResource WindowButton}"/>
+        <Button x:Name="bt_window_maximize" fa:Awesome.Content="WindowMaximize" TextElement.FontFamily="{StaticResource FontAwesome}" HorizontalAlignment="Right" Margin="0,0,20,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Click="WindowMaximize_Click" Style="{StaticResource WindowButton}"/>
 
         <!-- Install Row -->
         <Border x:Name="bo_launch_progress" IsEnabled="False" Visibility="Hidden" BorderBrush="#FF515464" Background="#FF515464" BorderThickness="1" Height="50" Width="622" VerticalAlignment="Bottom" HorizontalAlignment="Right" ClipToBounds="True">
@@ -56,45 +60,58 @@
                 </Border>
 
                 <!-- Language -->
-                <Border x:Name="bo_language" Height="22" VerticalAlignment="Top" Margin="10,53,10,0" CornerRadius="4,4,4,4">
-                    <Grid>
-                        <Label x:Name="lab_language_icon" Content="" Foreground="White" fa:Awesome.Content="Language" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Width="24" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="10" />
-                        <Label x:Name="lab_language" Content="Language" Foreground="White" Margin="24,0,0,0" FontSize="8" FontWeight="Light" VerticalContentAlignment="Center" VerticalAlignment="Center" />
-                        <Button x:Name="btn_language" Style="{StaticResource BaseButton}" Background="#00000000" BorderBrush="{x:Null}" Foreground="{x:Null}" Click="Language_Click" MouseEnter="Language_MouseEnter" MouseLeave="Language_MouseLeave" />
-                    </Grid>
-                </Border>
+                <ComboBox x:Name="cb_launch_languages" ItemsSource="{Binding}" SelectionChanged="Languages_SelectionChanged" SelectedValuePath="Content" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="10,53,10,0" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White" VerticalAlignment="Top" Height="22" FontSize="10">
+                    <ComboBox.Resources>
+                        <sys:Double x:Key="FontSize">10</sys:Double>
+                    </ComboBox.Resources>
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock FontSize="{DynamicResource FontSize}" Tag="{Binding Code}" Text="{Binding Name}"></TextBlock>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
 
                 <!-- New Instance -->
-                <Border x:Name="bo_new_instance" Height="22" VerticalAlignment="Top" Margin="10,75,10,0" CornerRadius="4,4,4,4">
+                <Border x:Name="bo_new_instance" Height="22" VerticalAlignment="Top" Margin="10,78,10,0" CornerRadius="4,4,4,4">
                     <Grid>
-                        <Label x:Name="lab_new_instance_icon" Content="" Foreground="White" fa:Awesome.Content="HddOutline" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Width="24" HorizontalAlignment="Left" FontSize="10" />
+                        <Label x:Name="lab_new_instance_icon" Content="" Foreground="White" fa:Awesome.Content="HddOutline" TextElement.FontFamily="{StaticResource FontAwesome}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Width="24" HorizontalAlignment="Left" FontSize="10" />
                         <Label x:Name="lab_new_instance" Content="New Instance" Foreground="White" Margin="24,0,0,0" FontSize="8" FontWeight="Light" VerticalContentAlignment="Center" />
                         <Button x:Name="btn_new_instance" Style="{StaticResource BaseButton}" Background="#00000000" BorderBrush="{x:Null}" Foreground="{x:Null}" Click="NewInstance_Click" MouseEnter="NewInstance_MouseEnter" MouseLeave="NewInstance_MouseLeave" />
                     </Grid>
                 </Border>
 
                 <ListBox x:Name="listbox_launchinstances" ItemsSource="{Binding}" SelectionMode="Single" SelectionChanged="listbox_SelectionChanged" AlternationCount="{DynamicResource Alternation}"
-                 SelectedItem="{Binding SelectedProfile, Mode=TwoWay, RelativeSource={RelativeSource AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}" Margin="0,102,0,55" Background="{x:Null}" BorderBrush="{x:Null}" Grid.IsSharedSizeScope="True" ScrollViewer.HorizontalScrollBarVisibility="Hidden" d:ItemsSource="{d:SampleData ItemCount=5}">
+                  Margin="0,102,0,55" Background="{x:Null}" BorderBrush="{x:Null}" Grid.IsSharedSizeScope="True" ScrollViewer.HorizontalScrollBarVisibility="Hidden" d:ItemsSource="{d:SampleData ItemCount=5}" HorizontalContentAlignment="Center" VerticalContentAlignment="Top">
                     <ListBox.Resources>
                         <sys:Int32 x:Key="Alternation">2</sys:Int32>
                         <sys:Double x:Key="ListLabelFontSize">10</sys:Double>
                         <sys:Double x:Key="ListLabelHeight">19</sys:Double>
-                        <sys:Double x:Key="ListLabelWidth">131</sys:Double>
+                        <sys:Double x:Key="ListLabelWidth">130</sys:Double>
                         <sysw:Thickness x:Key="ListLabelMargin"/>
                         <sys:Double x:Key="ListBorderHeight">24</sys:Double>
                         <sys:Double x:Key="ListBorderWidth">24</sys:Double>
                         <sysw:Thickness x:Key="ListBorderMargin"/>
+                        <sys:Double x:Key="ListButtonFontSize">12</sys:Double>
+                        <sys:Double x:Key="ListButtonHeight">24</sys:Double>
+                        <sys:Double x:Key="ListButtonWidth">10</sys:Double>
+                        <sysw:Thickness x:Key="ListButtonMargin">0,0,0,0</sysw:Thickness>
                     </ListBox.Resources>
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <DockPanel Margin="0">
-                                <Border x:Name="bo_listTemplate" DockPanel.Dock="Left" Width="{DynamicResource ListBorderWidth}" Height="{DynamicResource ListBorderHeight}" Margin="{DynamicResource ListBorderMargin}" ClipToBounds="True" HorizontalAlignment="Left" VerticalAlignment="Center">
+                            <Grid x:Name="dockpanel_launchinstances" Width="NaN" HorizontalAlignment="Left">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition  Width="*" SharedSizeGroup="A"/>
+                                    <ColumnDefinition  Width="2*" SharedSizeGroup="B"/>
+                                    <ColumnDefinition  Width="*" SharedSizeGroup="C"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.ColumnSpan="1" x:Name="bo_listTemplate" Grid.Column="0" Width="{DynamicResource ListBorderWidth}" Height="{DynamicResource ListBorderHeight}" Margin="{DynamicResource ListBorderMargin}" ClipToBounds="True" HorizontalAlignment="Left" VerticalAlignment="Stretch">
                                     <Border.Background>
-                                        <ImageBrush ImageSource="{Binding Icon}"/>
+                                        <ImageBrush ImageSource="{Binding Value.Icon}"/>
                                     </Border.Background>
                                 </Border>
-                                <Label x:Name="lab_listTemplate" Content="{Binding Name}" HorizontalAlignment="Left" Margin="{DynamicResource ListLabelMargin}" VerticalAlignment="Center" Foreground="#BFFFFFFF" FontSize="{DynamicResource ListLabelFontSize}" Width="{DynamicResource ListLabelWidth}" Height="{DynamicResource ListLabelHeight}" Padding="0,0,0,0" VerticalContentAlignment="Center"/>
-                            </DockPanel>
+                                <Label x:Name="lab_listTemplate" Grid.ColumnSpan="2" Grid.Column="1" Content="{Binding Value.Name}" HorizontalAlignment="Center" Margin="{DynamicResource ListLabelMargin}" VerticalAlignment="Center" Foreground="#BFFFFFFF" FontSize="{DynamicResource ListLabelFontSize}" Width="{DynamicResource ListLabelWidth}" Height="{DynamicResource ListLabelHeight}" Padding="0,0,0,0" VerticalContentAlignment="Center"/>
+                                <Button x:Name="btn_listTemplate" Grid.ColumnSpan="1" Click="btn_listTemplate_Click" Tag="{Binding}" Foreground="White" Grid.Column="2" Margin="{DynamicResource ListButtonMargin}" Height="{DynamicResource ListButtonHeight}" Width="{DynamicResource ListButtonWidth}" FontSize="{DynamicResource ListButtonFontSize}" Style="{StaticResource BaseButton}" Content="&#xf142;" TextElement.FontFamily="{StaticResource FontAwesome}" HorizontalAlignment="Right" Visibility="{Binding Value.Type, Converter={StaticResource ETVConverter}, ConverterParameter={x:Static lib:EProfileType.CUSTOM}}" />
+                            </Grid>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
@@ -120,7 +137,7 @@
                         <Border x:Name="bo_instances_icon" CornerRadius="4,4,4,4" VerticalAlignment="Top" HorizontalAlignment="Center" Height="40" Width="55">
                             <Grid>
                                 <Image x:Name="img_instances_icon" HorizontalAlignment="Left" Width="35" Height="35" Margin="3,2.5,0,0" VerticalAlignment="Top" Stretch="Fill" Source="/assets/images/blocks/1_Stone.png"/>
-                                <Label x:Name="lab_instances_icon_arrow" Foreground="White" fa:Awesome.Content="ChevronDown" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="6" Margin="0,1,3,0" Width="16" />
+                                <Label x:Name="lab_instances_icon_arrow" Foreground="White" fa:Awesome.Content="ChevronDown" TextElement.FontFamily="{StaticResource FontAwesome}" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="6" Margin="0,1,3,0" Width="16" />
                                 <Button x:Name="btn_instances_icon" Style="{StaticResource BaseButton}"  Background="#00000000" BorderBrush="{x:Null}" Foreground="{x:Null}" Click="InstancesIcon_Click" MouseEnter="InstancesIcon_MouseEnter" MouseLeave="InstancesIcon_MouseLeave"/>
                             </Grid>
                         </Border>
@@ -168,7 +185,6 @@
                         <!-- Version Selector -->
                         <Grid x:Name="grid_instances_version" Height="75" Margin="0,10,0,0">
                             <Label x:Name="lab_instances_version" Content="Version" Foreground="White" Padding="5,0,5,0" VerticalContentAlignment="Center" FontWeight="SemiBold" Margin="0,0,0,53" />
-                            
                             <ComboBox x:Name="cb_instances_version_type" SelectedValuePath="Content" SelectionChanged="InstanceVersionType_SelectionChanged" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="0,22,0,25" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White" HorizontalAlignment="Left" Width="95">
                                 <ComboBox.Resources>
                                     <sys:Double x:Key="VersionTypeListFontSize">10</sys:Double>
@@ -227,16 +243,16 @@
                             <Label x:Name="lab_instances_gamedir" Content="Game Directory" Foreground="White" Padding="5,0,5,0" VerticalContentAlignment="Center" FontWeight="SemiBold" Margin="0,0,0,30" />
                             <TextBox x:Name="tb_instances_gamedir" Style="{StaticResource InstanceTextBox}" Margin="0,20,0,0" Background="#33000000" Foreground="White" SelectionBrush="#FFABADB3" BorderBrush="#FF5D6F95" VerticalContentAlignment="Center" Padding="10,0,60,0" TextChanged="InstancesGameDir_TextChanged" />
                             <Label x:Name="lab_instances_gamedir_placeholder" Content="Use default directory" Foreground="#4DFFFFFF" Margin="0,20,55,0" Padding="10,0,10,0" VerticalContentAlignment="Center" IsHitTestVisible="False" />
-                            <Button x:Name="btn_instances_gamedir" Click="InstancesGamedir_Click" Style="{StaticResource BaseButton}" Content="BROWSE" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" Foreground="White" Background="#00000000" BorderBrush="#00000000" Margin="250,21,0,0" FontSize="10" FontWeight="Light" Padding="0,0,0,0" />
+                            <Button x:Name="btn_instances_gamedir" Click="InstancesGamedir_Click" Style="{StaticResource BaseButton}" Content="BROWSE" TextElement.FontFamily="{StaticResource FontAwesome}" Foreground="White" Background="#00000000" BorderBrush="#00000000" Margin="250,21,0,0" FontSize="10" FontWeight="Light" Padding="0,0,0,0" />
                         </Grid>
 
                         <!-- Resolution -->
                         <Grid x:Name="grid_instances_resolution" Height="48" Margin="0,10,0,0">
                             <Label x:Name="lab_instances_resolution" Content="Resolution" Foreground="White" Padding="5,0,5,0" VerticalContentAlignment="Center" FontWeight="SemiBold" Margin="0,0,0,30" />
-                            <Label x:Name="lab_instances_resolution_icon" Foreground="White" fa:Awesome.Content="Laptop" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" Width="66" VerticalAlignment="Bottom" HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Height="30" FontSize="16" />
+                            <Label x:Name="lab_instances_resolution_icon" Foreground="White" fa:Awesome.Content="Laptop" TextElement.FontFamily="{StaticResource FontAwesome}" Width="66" VerticalAlignment="Bottom" HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Height="30" FontSize="16" />
                             <TextBox x:Name="tb_instances_resolution_x" Style="{StaticResource InstanceTextBox}" InputScope="Number" MaxLength="4" Margin="66,20,142,0" Background="#33000000" Foreground="White" SelectionBrush="#FFABADB3" BorderBrush="#FF5D6F95" VerticalContentAlignment="Center" Padding="10,0,10,0" PreviewTextInput="InstancesResolutionX_PreviewTextInput" TextChanged="InstancesResolutionX_TextChanged" HorizontalContentAlignment="Center" />
                             <Label x:Name="lab_instances_resolution_x_placeholder" Content="Auto" Foreground="#4DFFFFFF" Margin="66,20,142,0" Padding="10,0,10,0" VerticalContentAlignment="Center" IsHitTestVisible="False" HorizontalContentAlignment="Center" />
-                            <Label x:Name="lab_instances_resolution_centericon" Foreground="White" fa:Awesome.Content="Close" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" VerticalAlignment="Top" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Height="30" FontSize="14" Margin="158,18,102,0" />
+                            <Label x:Name="lab_instances_resolution_centericon" Foreground="White" fa:Awesome.Content="Close" TextElement.FontFamily="{StaticResource FontAwesome}" VerticalAlignment="Top" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Height="30" FontSize="14" Margin="158,18,102,0" />
                             <TextBox x:Name="tb_instances_resolution_y" Style="{StaticResource InstanceTextBox}" InputScope="Number" MaxLength="4" Margin="198,20,10,0" Background="#33000000" Foreground="White" SelectionBrush="#FFABADB3" BorderBrush="#FF5D6F95" VerticalContentAlignment="Center" Padding="10,0,10,0" PreviewTextInput="InstancesResolutionY_PreviewTextInput" TextChanged="InstancesResolutionY_TextChanged" HorizontalContentAlignment="Center" />
                             <Label x:Name="lab_instances_resolution_y_placeholder" Content="Auto" Foreground="#4DFFFFFF" Margin="198,20,10,0" Padding="10,0,10,0" VerticalContentAlignment="Center" IsHitTestVisible="False" HorizontalContentAlignment="Center" />
                         </Grid>
@@ -246,7 +262,7 @@
                             <Label x:Name="lab_instances_javadir" Content="Java Directory" Foreground="White" Padding="5,0,5,0" VerticalContentAlignment="Center" FontWeight="SemiBold" Margin="0,0,0,30" />
                             <TextBox x:Name="tb_instances_javadir" Style="{StaticResource InstanceTextBox}" Margin="0,20,0,0" Background="#33000000" Foreground="White" SelectionBrush="#FFABADB3" BorderBrush="#FF5D6F95" VerticalContentAlignment="Center" Padding="10,0,60,0" TextChanged="InstancesJavaDir_TextChanged" />
                             <Label x:Name="lab_instances_javadir_placeholder" Content="Use default java path" Foreground="#4DFFFFFF" Margin="0,20,55,0" Padding="10,0,10,0" VerticalContentAlignment="Center" IsHitTestVisible="False" />
-                            <Button x:Name="btn_instances_javadir" Click="InstancesJavadir_Click" Style="{StaticResource BaseButton}" Content="BROWSE" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" Foreground="White" Background="#00000000" BorderBrush="#00000000" Margin="250,21,0,0" FontSize="10" FontWeight="Light" Padding="0,0,0,0" />
+                            <Button x:Name="btn_instances_javadir" Click="InstancesJavadir_Click" Style="{StaticResource BaseButton}" Content="BROWSE" TextElement.FontFamily="{StaticResource FontAwesome}" Foreground="White" Background="#00000000" BorderBrush="#00000000" Margin="250,21,0,0" FontSize="10" FontWeight="Light" Padding="0,0,0,0" />
                         </Grid>
 
                         <!-- Memory -->

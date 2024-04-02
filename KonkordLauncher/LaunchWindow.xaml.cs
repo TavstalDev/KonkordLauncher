@@ -72,8 +72,6 @@ namespace KonkordLauncher
             WindowHelper.ResizeFont(l_WindowName, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(bt_window_close, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(bt_window_minimize, _heightMultiplier, _widthMultiplier);
-            WindowHelper.ResizeFont(bt_window_normal, _heightMultiplier, _widthMultiplier);
-            WindowHelper.ResizeFont(bt_window_maximize, _heightMultiplier, _widthMultiplier);
 
             WindowHelper.Resize(bo_leftmenu, _heightMultiplier, _widthMultiplier);
             WindowHelper.Resize(gr_account, _heightMultiplier, _widthMultiplier);
@@ -642,34 +640,6 @@ namespace KonkordLauncher
         {
             WindowState = WindowState.Minimized;
         }
-
-        /// <summary>
-        /// Event handler for restoring the window when a specific button is clicked.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="e">The event arguments.</param>
-        private void WindowRestore_Click(object sender, RoutedEventArgs e)
-        {
-            WindowState = WindowState.Normal;
-            bt_window_maximize.IsEnabled = true;
-            bt_window_normal.IsEnabled = false;
-            bt_window_normal.Visibility = Visibility.Hidden;
-            bt_window_maximize.Visibility = Visibility.Visible;
-        }
-
-        /// <summary>
-        /// Event handler for maximizing the window when a specific button is clicked.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="e">The event arguments.</param>
-        private void WindowMaximize_Click(object sender, RoutedEventArgs e)
-        {
-            WindowState = WindowState.Maximized;
-            bt_window_maximize.IsEnabled = false;
-            bt_window_normal.IsEnabled = true;
-            bt_window_normal.Visibility = Visibility.Visible;
-            bt_window_maximize.Visibility = Visibility.Hidden;
-        }
         #endregion
 
         #region Main
@@ -797,7 +767,6 @@ namespace KonkordLauncher
             }
             #endregion
 
-            // TODO - add progressbar updates, fix library download percent bug (visual)
             string nativesDir = string.Empty;
             string gameDir = string.Empty;
             string clientPath = string.Empty;
@@ -1014,6 +983,7 @@ namespace KonkordLauncher
                                     // Create versionDir in the versions folder
                                     if (!Directory.Exists(forgeVersion.VersionDirectory))
                                         Directory.CreateDirectory(forgeVersion.VersionDirectory);
+
 
                                     // Download Forge Installer to temp
                                     string forgeUniversalJarUrl = string.Format(GameManager.ForgeLoaderUniversalJarUrl, $"{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}");
@@ -1506,12 +1476,10 @@ namespace KonkordLauncher
                                         {
                                             if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && action)
                                             {
-                                                libraryDownloadedSize += lib.Downloads.Artifact.Size;
                                                 continue;
                                             }
                                             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && !action)
                                             {
-                                                libraryDownloadedSize += lib.Downloads.Artifact.Size;
                                                 continue;
                                             }
                                             break;
@@ -1520,12 +1488,10 @@ namespace KonkordLauncher
                                         {
                                             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && action)
                                             {
-                                                libraryDownloadedSize += lib.Downloads.Artifact.Size;
                                                 continue;
                                             }
                                             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && !action)
                                             {
-                                                libraryDownloadedSize += lib.Downloads.Artifact.Size;
                                                 continue;
                                             }
                                             break;
@@ -1534,12 +1500,10 @@ namespace KonkordLauncher
                                         {
                                             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && action)
                                             {
-                                                libraryDownloadedSize += lib.Downloads.Artifact.Size;
                                                 continue;
                                             }
                                             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !action)
                                             {
-                                                libraryDownloadedSize += lib.Downloads.Artifact.Size;
                                                 continue;
                                             }
                                             break;
@@ -1561,6 +1525,8 @@ namespace KonkordLauncher
                             byte[] bytes = await client.GetByteArrayAsync(lib.Downloads.Artifact.Url);
                             await File.WriteAllBytesAsync(libFilePath, bytes);
                         }
+                        else
+                            libraryDownloadedSize -= lib.Downloads.Artifact.Size; // Fix 100%+ bug
                     }
 
                     if (!libraryBundle.Contains(libFilePath))
@@ -1721,6 +1687,8 @@ namespace KonkordLauncher
             string o = await p.StandardError.ReadToEndAsync();
             if (!string.IsNullOrEmpty(o))
                 NotificationHelper.SendError(o, "Error");
+            else
+                NotificationHelper.SendInfo("No errors message was found.", "Info");
 
             switch (selectedProfile.LauncherVisibility)
             {

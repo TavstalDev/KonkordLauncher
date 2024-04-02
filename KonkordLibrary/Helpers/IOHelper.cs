@@ -5,6 +5,8 @@ using System.Diagnostics;
 using System.Text.Json;
 using System.IO;
 using System.Net.Http;
+using KonkordLibrary.Models.Forge;
+using System.Security.Cryptography;
 
 namespace KonkordLibrary.Helpers
 {
@@ -441,6 +443,29 @@ namespace KonkordLibrary.Helpers
 
             if (deleteSource)
                 DeleteDirectory(sourceDir);
+        }
+
+        public static bool CheckSHA1(string path, string? compareHash)
+        {
+            if (string.IsNullOrEmpty(compareHash))
+                return true;
+
+            try
+            {
+                string fileHash = string.Empty;
+                using (FileStream file = File.OpenRead(path))
+                using (SHA1 hasher = SHA1.Create())
+                {
+                    var binaryHash = hasher.ComputeHash(file);
+                    fileHash = BitConverter.ToString(binaryHash).Replace("-", "").ToLowerInvariant();
+                }
+
+                return fileHash == compareHash;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         /// <summary>

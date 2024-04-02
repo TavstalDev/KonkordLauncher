@@ -27,10 +27,8 @@
         </Border>
         <!-- WINDOW BUTTONS -->
         <Button x:Name="bt_window_close" fa:Awesome.Content="Close" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" HorizontalAlignment="Right" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Click="WindowClose_Click" Style="{StaticResource WindowClose}"/>
-        <Button x:Name="bt_window_minimize" fa:Awesome.Content="WindowMinimize" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" HorizontalAlignment="Right" Margin="0,0,40,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Click="WindowMinimize_Click" Style="{StaticResource WindowButton}"/>
-        <Button x:Name="bt_window_normal" IsEnabled="False" Visibility="Hidden" fa:Awesome.Content="WindowRestore" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" HorizontalAlignment="Right" Margin="0,0,20,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Click="WindowRestore_Click" Style="{StaticResource WindowButton}"/>
-        <Button x:Name="bt_window_maximize" fa:Awesome.Content="WindowMaximize" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" HorizontalAlignment="Right" Margin="0,0,20,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Click="WindowMaximize_Click" Style="{StaticResource WindowButton}"/>
-
+        <Button x:Name="bt_window_minimize" fa:Awesome.Content="WindowMinimize" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" HorizontalAlignment="Right" Margin="0,0,20,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Click="WindowMinimize_Click" Style="{StaticResource WindowButton}"/>
+        
         <!-- OFFLINE CONTAINER -->
         <Border x:Name="auth_offline_border" IsEnabled="True" Visibility="Visible" Height="190" Width="300" Background="#FF353743" CornerRadius="4,4,4,4" Grid.Row="1" Grid.Column="1">
             <Grid ClipToBounds="True">

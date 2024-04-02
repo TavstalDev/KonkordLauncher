@@ -36,8 +36,6 @@ namespace KonkordLauncher
             WindowHelper.ResizeFont(l_WindowName, heightMultiplier, widthMultiplier);
             WindowHelper.ResizeFont(bt_window_close, heightMultiplier, widthMultiplier);
             WindowHelper.ResizeFont(bt_window_minimize, heightMultiplier, widthMultiplier);
-            WindowHelper.ResizeFont(bt_window_normal, heightMultiplier, widthMultiplier);
-            WindowHelper.ResizeFont(bt_window_maximize, heightMultiplier, widthMultiplier);
 
             WindowHelper.Resize(auth_offline_border, heightMultiplier, widthMultiplier);
             WindowHelper.Resize(img_offline_logo, heightMultiplier, widthMultiplier);
@@ -83,34 +81,6 @@ namespace KonkordLauncher
         private void WindowMinimize_Click(object sender, RoutedEventArgs e)
         {
             WindowState = WindowState.Minimized;
-        }
-
-        /// <summary>
-        /// Event handler for restoring the window when a specific button is clicked.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="e">The event arguments.</param>
-        private void WindowRestore_Click(object sender, RoutedEventArgs e)
-        {
-            WindowState = WindowState.Normal;
-            bt_window_maximize.IsEnabled = true;
-            bt_window_normal.IsEnabled = false;
-            bt_window_normal.Visibility = Visibility.Hidden;
-            bt_window_maximize.Visibility = Visibility.Visible;
-        }
-
-        /// <summary>
-        /// Event handler for maximizing the window when a specific button is clicked.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="e">The event arguments.</param>
-        private void WindowMaximize_Click(object sender, RoutedEventArgs e)
-        {
-            WindowState = WindowState.Maximized;
-            bt_window_maximize.IsEnabled = false;
-            bt_window_normal.IsEnabled = true;
-            bt_window_normal.Visibility = Visibility.Visible;
-            bt_window_maximize.Visibility = Visibility.Hidden;
         }
         #endregion
 

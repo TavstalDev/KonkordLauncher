@@ -110,7 +110,22 @@
                                     </Border.Background>
                                 </Border>
                                 <Label x:Name="lab_listTemplate" Grid.ColumnSpan="2" Grid.Column="1" Content="{Binding Value.Name}" HorizontalAlignment="Center" Margin="{DynamicResource ListLabelMargin}" VerticalAlignment="Center" Foreground="#BFFFFFFF" FontSize="{DynamicResource ListLabelFontSize}" Width="{DynamicResource ListLabelWidth}" Height="{DynamicResource ListLabelHeight}" Padding="0,0,0,0" VerticalContentAlignment="Center"/>
-                                <Button x:Name="btn_listTemplate" Grid.ColumnSpan="1" Click="btn_listTemplate_Click" Tag="{Binding}" Foreground="White" Grid.Column="2" Margin="{DynamicResource ListButtonMargin}" Height="{DynamicResource ListButtonHeight}" Width="{DynamicResource ListButtonWidth}" FontSize="{DynamicResource ListButtonFontSize}" Style="{StaticResource BaseButton}" Content="&#xf142;" TextElement.FontFamily="{StaticResource FontAwesome}" HorizontalAlignment="Right" Visibility="{Binding Value.Type, Converter={StaticResource ETVConverter}, ConverterParameter={x:Static lib:EProfileType.CUSTOM}}" />
+                                <!--<Button x:Name="btn_listTemplate" Grid.ColumnSpan="1" Click="btn_listTemplate_Click" Tag="{Binding}" Foreground="White" Grid.Column="2" Margin="{DynamicResource ListButtonMargin}" Height="{DynamicResource ListButtonHeight}" Width="{DynamicResource ListButtonWidth}" FontSize="{DynamicResource ListButtonFontSize}" Style="{StaticResource BaseButton}" Content="&#xf142;" TextElement.FontFamily="{StaticResource FontAwesome}" HorizontalAlignment="Right" Visibility="{Binding Value.Type, Converter={StaticResource ETVConverter}, ConverterParameter={x:Static lib:EProfileType.CUSTOM}}" />-->
+                                <ComboBox SelectionChanged="InstanceActionBox_SelectionChanged" SelectedIndex="-1" Margin="0,0,5,0" FontFamily="{StaticResource FontAwesome}" Grid.ColumnSpan="2" Style="{StaticResource MenuComboBox}" IsTextSearchEnabled="False" Foreground="White" HorizontalAlignment="Right" Grid.Column="2" FontSize="12" Visibility="{Binding Value.Type, Converter={StaticResource ETVConverter}, ConverterParameter={x:Static lib:EProfileType.CUSTOM}}">
+                                    <ComboBox.Resources>
+                                        <sys:Double x:Key="VersionTypeListFontSize">10</sys:Double>
+                                    </ComboBox.Resources>
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock FontSize="{DynamicResource VersionTypeListFontSize}" Text="{Binding Id}"></TextBlock>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                    <ComboBox.Items>
+                                        <ComboBoxItem Tag="{Binding}" x:Name="edit" FontFamily="{StaticResource FontAwesome}">&#xf044;  Edit</ComboBoxItem>
+                                        <ComboBoxItem Tag="{Binding}" x:Name="opendir" FontFamily="{StaticResource FontAwesome}">&#xf07b;  Open Directory</ComboBoxItem>
+                                        <ComboBoxItem Tag="{Binding}" x:Name="delete" FontFamily="{StaticResource FontAwesome}">&#xf1f8;  Delete</ComboBoxItem>
+                                    </ComboBox.Items>
+                                </ComboBox>
                             </Grid>
                         </DataTemplate>
                     </ListBox.ItemTemplate>

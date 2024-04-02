@@ -1677,34 +1677,82 @@ namespace KonkordLauncher
             if (listbox_launchinstances.SelectedIndex < 0)
                 return;
 
-            LauncherSettings? settings = IOHelper.GetLauncherSettings();
-            if (settings != null)
-            {
-                var p = settings.Profiles.ElementAt(listbox_launchinstances.SelectedIndex);
-                lab_selected_profile.Content = p.Value.Name.ToLower();
-                settings.SelectedProfile = p.Key;
-                await JsonHelper.WriteJsonFileAsync(Path.Combine(IOHelper.MainDirectory, "launcher.json"), settings);
-            }
-
             ListBox listBox = e.Source as ListBox;
-            KeyValuePair<string, Profile> addedItem = (KeyValuePair<string, Profile>)e.AddedItems[0];
-            listBox.Resources["SelectedIndex"] = listBox.Items.IndexOf(addedItem);
+            try
+            {
+                KeyValuePair<string, Profile> addedItem = (KeyValuePair<string, Profile>)e.AddedItems[0];
+                listBox.Resources["SelectedIndex"] = listBox.Items.IndexOf(addedItem);
+
+                LauncherSettings? settings = IOHelper.GetLauncherSettings();
+                if (settings != null)
+                {
+                    var p = settings.Profiles.ElementAt(listbox_launchinstances.SelectedIndex);
+                    lab_selected_profile.Content = p.Value.Name.ToLower();
+                    settings.SelectedProfile = p.Key;
+                    await JsonHelper.WriteJsonFileAsync(Path.Combine(IOHelper.MainDirectory, "launcher.json"), settings);
+                }
+            }
+            catch { }
         }
 
-        private void btn_listTemplate_Click(object sender, RoutedEventArgs e)
+        private async void InstanceActionBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Button button = (Button)sender;
-            if (button == null)
+            if (e.AddedItems.Count == 0)
                 return;
 
-            LauncherSettings? launcherSettings = IOHelper.GetLauncherSettings();
-            if (launcherSettings == null)
+            var item = e.AddedItems[0] as ComboBoxItem;
+            if (item == null)
                 return;
 
-            KeyValuePair<string, Profile> profile = (KeyValuePair<string, Profile>)button.Tag;
-            OpenInstanceEdit(profile.Value, profile.Key);
-            bo_instances.Visibility = Visibility.Visible;
-            bo_instances.IsEnabled = true;
+            switch (item.Name)
+            {
+                case "edit":
+                    {
+                        KeyValuePair<string, Profile> profile = (KeyValuePair<string, Profile>)item.Tag;
+                        OpenInstanceEdit(profile.Value, profile.Key);
+                        bo_instances.Visibility = Visibility.Visible;
+                        bo_instances.IsEnabled = true;
+                        break;
+                    }
+                case "opendir":
+                    {
+                        KeyValuePair<string, Profile> profile = (KeyValuePair<string, Profile>)item.Tag;
+                        string dir = profile.Value.GetGameDirectory();
+                        if (!Directory.Exists(dir))
+                        {
+                            // TODO, add methods for other applications
+                            // at the moment the focus is on windows, so idk when I will add it.
+                            Process.Start("explorer.exe", IOHelper.InstancesDir);
+                            return;
+                        }
+
+                        Process.Start("explorer.exe", dir);
+                        break;
+                    }
+                case "delete":
+                    {
+                        KeyValuePair<string, Profile> profile = (KeyValuePair<string, Profile>)item.Tag;
+
+                        MessageBoxResult result = MessageBox.Show($"Are you sure about deleting the '{profile.Value.Name}' profile?", "Profile deletion", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                        if (result == MessageBoxResult.Yes)
+                        {
+                            LauncherSettings? settings = IOHelper.GetLauncherSettings();
+                            if (settings == null)
+                                return;
+
+                            settings.Profiles.Remove(profile.Key);
+                            await JsonHelper.WriteJsonFileAsync(IOHelper.LauncherJsonFile, settings);
+                            string dir = profile.Value.GetGameDirectory();
+                            if (Directory.Exists(dir))
+                                IOHelper.DeleteDirectory(dir);
+                        }
+                        break;
+                    }
+            }
+
+            ComboBox? comboBox = sender as ComboBox;
+            if (comboBox != null)
+                comboBox.SelectedIndex = -1;
         }
         #endregion
 
@@ -2263,8 +2311,9 @@ namespace KonkordLauncher
             InstanceModVersionId = combo.SelectedItem.ToString();
             Debug.WriteLine($"mod version: {InstanceModVersionId}");
         }
-        
-        
+
+
         #endregion
+
     }
 }

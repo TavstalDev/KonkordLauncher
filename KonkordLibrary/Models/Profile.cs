@@ -1,5 +1,7 @@
 ﻿using KonkordLibrary.Enums;
 using KonkordLibrary.Helpers;
+using KonkordLibrary.Managers;
+using KonkordLibrary.Models.GameManager;
 using System.IO;
 using System.Text.Json.Serialization;
 
@@ -65,6 +67,12 @@ namespace KonkordLibrary.Models
             JVMArgs = "-XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M -Djava.net.preferIPv4Stack=true";
             Memory = memory;
             LauncherVisibility = launcherVisibility;
+        }
+
+        public string GetGameDirectory()
+        {
+            VersionResponse version = KonkordLibrary.Managers.GameManager.GetProfileVersionDetails(Kind, VersionId, VersionVanillaId, GameDirectory);
+            return version.GameDir;
         }
     }
 }

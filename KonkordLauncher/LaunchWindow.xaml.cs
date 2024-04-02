@@ -951,7 +951,7 @@ namespace KonkordLauncher
                 string objectDir = string.Empty;
                 string objectPath = string.Empty;
                 int downloadedAssetSize = 0;
-                UpdateLaunchStatusBar(0, $"Downloading assets... 0%");
+                UpdateLaunchStatusBar(0, $"Checking assets...");
                 foreach (JToken token in assetJToken.ToList())
                 {
                     hash = token.First["hash"].ToString();
@@ -1001,8 +1001,8 @@ namespace KonkordLauncher
                         {
                             case EProfileKind.FORGE:
                                 {
+                                    UpdateLaunchStatusBar(0, $"Reading the forgeManifest file...");
                                     librarySizeCacheFilePath = Path.Combine(libraryCacheDir, $"{selectedProfile.VersionVanillaId}-forge-{selectedProfile.VersionId}.json");
-                                    
                                     if (!File.Exists(IOHelper.ForgeManifestJsonFile))
                                     {
                                         NotificationHelper.SendError("Failed to get the forge manifest.", "Error");
@@ -1034,6 +1034,7 @@ namespace KonkordLauncher
                                     // Check the version json file
                                     if (!File.Exists(forgeVersion.VersionJsonPath))
                                     {
+                                        UpdateLaunchStatusBar(0, $"Downloading forge installer...");
                                         using (var client = new HttpClient())
                                         {
                                             // Send the request to download the installer
@@ -1076,6 +1077,7 @@ namespace KonkordLauncher
                                     }
                                     else
                                     {
+                                        UpdateLaunchStatusBar(0, $"Reading forge version meta...");
                                         // Get jobject
                                         ForgeVersionMeta? forgeVersionMeta = JsonConvert.DeserializeObject<ForgeVersionMeta>(await File.ReadAllTextAsync(forgeVersion.VersionJsonPath));
                                         int localLibrarySize = 0;
@@ -1099,6 +1101,7 @@ namespace KonkordLauncher
                                             $" -DMcEmu=net.minecraft.client.main.Main -Dlog4j2.formatMsgNoLookups=true -Djava.rmi.server.useCodebaseOnly=true -Dcom.sun.jndi.rmi.object.trustURLCodebase=false -Dcom.sun.jndi.cosnaming.object.trustURLCodebase=false ";
                                     }
 
+                                    UpdateLaunchStatusBar(0, $"Cleaning up...");
                                     // Delete temps
                                     if (Directory.Exists(forgeInstallerDirPath))
                                         IOHelper.DeleteDirectory(forgeInstallerDirPath);
@@ -1114,6 +1117,7 @@ namespace KonkordLauncher
                                     gameDir = forgeVersion.GameDir;
                                     nativeDir = Path.Combine(forgeVersion.VersionDirectory, "natives");
 
+                                    UpdateLaunchStatusBar(0, $"Copying vanilla .jar...");
                                     if (!File.Exists(forgeVersion.VersionJarPath))
                                     {
                                         File.Copy(forgeVersion.VanillaJarPath, forgeVersion.VersionJarPath);
@@ -1124,8 +1128,8 @@ namespace KonkordLauncher
                                 }
                             case EProfileKind.FABRIC:
                                 {
+                                    UpdateLaunchStatusBar(0, $"Reading the fabricManifest file...");
                                     librarySizeCacheFilePath = Path.Combine(libraryCacheDir, $"{selectedProfile.VersionVanillaId}-fabric-{selectedProfile.VersionId}.json");
-
                                     if (!File.Exists(IOHelper.FabricManifestJsonFile))
                                     {
                                         NotificationHelper.SendError("Failed to get the fabric manifest.", "Error");
@@ -1150,6 +1154,7 @@ namespace KonkordLauncher
                                     if (!File.Exists(fabricVersion.VersionJsonPath))
                                     {
                                         string resultJson = string.Empty;
+                                        UpdateLaunchStatusBar(0, $"Downloading the fabric version json file...");
                                         using (HttpClient client = new HttpClient())
                                         {
                                             resultJson = await client.GetStringAsync(string.Format(GameManager.FabricLoaderJsonUrl, fabricVersion.VanillaVersion, fabricVersion.InstanceVersion));
@@ -1166,6 +1171,7 @@ namespace KonkordLauncher
                                             return;
                                         }
 
+                                        UpdateLaunchStatusBar(0, $"Reading the fabric version json file...");
                                         foreach (var lib in fabricVersionMeta.Libraries)
                                         {
                                             localLibrarySize += lib.Size;
@@ -1176,6 +1182,7 @@ namespace KonkordLauncher
                                     }
                                     else
                                     {
+                                        UpdateLaunchStatusBar(0, $"Reading the fabric version json file...");
                                         fabricVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(await File.ReadAllTextAsync(fabricVersion.VersionJsonPath));
                                         if (fabricVersionMeta == null)
                                         {
@@ -1199,6 +1206,7 @@ namespace KonkordLauncher
 
                                     if (!File.Exists(loaderJarPath))
                                     {
+                                        UpdateLaunchStatusBar(0, $"Downloading the fabric loader...");
                                         using (HttpClient client = new HttpClient())
                                         {
                                             byte[] bytes = await client.GetByteArrayAsync(string.Format(GameManager.FabricLoaderJarUrl, fabricVersion.InstanceVersion));
@@ -1206,6 +1214,7 @@ namespace KonkordLauncher
                                         }
                                     }
 
+                                    UpdateLaunchStatusBar(0, $"Getting launch arguments...");
                                     versionName = $"fabric-loader-{fabricVersion.InstanceVersion}-{fabricVersion.VanillaVersion}";
                                     nativeDir = Path.Combine(fabricVersion.VersionDirectory, "natives");
                                     versionDir = fabricVersion.VersionDirectory;
@@ -1217,6 +1226,7 @@ namespace KonkordLauncher
 
                                     if (!File.Exists(fabricVersion.VersionJarPath))
                                     {
+                                        UpdateLaunchStatusBar(0, $"Copying the vanilla jar file...");
                                         File.Copy(fabricVersion.VanillaJarPath, fabricVersion.VersionJarPath);
                                     }
 
@@ -1225,6 +1235,7 @@ namespace KonkordLauncher
                                 }
                             case EProfileKind.QUILT:
                                 {
+                                    UpdateLaunchStatusBar(0, $"Reading the quiltManifest file...");
                                     librarySizeCacheFilePath = Path.Combine(libraryCacheDir, $"{selectedProfile.VersionVanillaId}-quilt-{selectedProfile.VersionId}.json");
                                     if (!File.Exists(IOHelper.QuiltManifestJsonFile))
                                     {
@@ -1250,6 +1261,7 @@ namespace KonkordLauncher
                                     if (!File.Exists(quiltVersion.VersionJsonPath))
                                     {
                                         string resultJson = string.Empty;
+                                        UpdateLaunchStatusBar(0, $"Downloading the quilt version json file...");
                                         using (HttpClient client = new HttpClient())
                                         {
                                             resultJson = await client.GetStringAsync(string.Format(GameManager.QuiltLoaderJsonUrl, quiltVersion.VanillaVersion, quiltVersion.InstanceVersion));
@@ -1266,6 +1278,7 @@ namespace KonkordLauncher
                                             return;
                                         }
 
+                                        UpdateLaunchStatusBar(0, $"Reading the quilt version json file...");
                                         foreach (var lib in quiltVersionMeta.Libraries)
                                         {
                                             localLibrarySize += lib.Size;
@@ -1276,6 +1289,7 @@ namespace KonkordLauncher
                                     }
                                     else
                                     {
+                                        UpdateLaunchStatusBar(0, $"Reading the quilt version json file...");
                                         quiltVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(await File.ReadAllTextAsync(quiltVersion.VersionJsonPath));
                                         if (quiltVersionMeta == null)
                                         {
@@ -1299,6 +1313,7 @@ namespace KonkordLauncher
 
                                     if (!File.Exists(loaderJarPath))
                                     {
+                                        UpdateLaunchStatusBar(0, $"Downloading the quilt loader...");
                                         using (HttpClient client = new HttpClient())
                                         {
                                             byte[] bytes = await client.GetByteArrayAsync(string.Format(GameManager.QuiltLoaderJarUrl, quiltVersion.InstanceVersion));
@@ -1306,6 +1321,7 @@ namespace KonkordLauncher
                                         }
                                     }
 
+                                    UpdateLaunchStatusBar(0, $"Getting launch arguments...");
                                     versionName = $"quilt-loader-{quiltVersion.InstanceVersion}-{quiltVersion.VanillaVersion}";
                                     nativeDir = Path.Combine(quiltVersion.VersionDirectory, "natives");
                                     versionDir = quiltVersion.VersionDirectory;
@@ -1317,6 +1333,7 @@ namespace KonkordLauncher
 
                                     if (!File.Exists(quiltVersion.VersionJarPath))
                                     {
+                                        UpdateLaunchStatusBar(0, $"Copying the vanilla jar file...");
                                         File.Copy(quiltVersion.VanillaJarPath, quiltVersion.VersionJarPath);
                                     }
 
@@ -1325,14 +1342,14 @@ namespace KonkordLauncher
                                 }
                             default:
                                 {
+                                    UpdateLaunchStatusBar(0, $"Getting launch arguments...");
                                     // Create gameDir in the instances folder
                                     if (!Directory.Exists(vanillaVersion.GameDir))
                                         Directory.CreateDirectory(vanillaVersion.GameDir);
 
                                     gameDir = vanillaVersion.GameDir;
-                                    librarySizeCacheFilePath = Path.Combine(libraryCacheDir, $"{selectedProfile.VersionId}.json");
                                     argMainClass = vanillaVersionMeta.MainClass;
-
+                                    librarySizeCacheFilePath = Path.Combine(libraryCacheDir, $"{vanillaVersion.VanillaVersion}.json");
                                     clientPath = vanillaVersion.VersionJarPath;
                                     break;
                                 }
@@ -1342,6 +1359,7 @@ namespace KonkordLauncher
                     }
                 case EProfileType.LATEST_RELEASE:
                     {
+                        UpdateLaunchStatusBar(0, $"Getting launch arguments...");
                         // Create gameDir in the instances folder
                         if (!Directory.Exists(vanillaVersion.GameDir))
                             Directory.CreateDirectory(vanillaVersion.GameDir);
@@ -1355,6 +1373,7 @@ namespace KonkordLauncher
                     }
                 case EProfileType.LATEST_SNAPSHOT:
                     {
+                        UpdateLaunchStatusBar(0, $"Getting launch arguments...");
                         // Create gameDir in the instances folder
                         if (!Directory.Exists(vanillaVersion.GameDir))
                             Directory.CreateDirectory(vanillaVersion.GameDir);
@@ -1370,9 +1389,11 @@ namespace KonkordLauncher
             #endregion
 
             #region Client Mappings
+            UpdateLaunchStatusBar(0, $"Checking client mappings...");
             string clientMappinsPath = Path.Combine(versionDir, "client.txt");
             if (!File.Exists(clientMappinsPath))
             {
+                UpdateLaunchStatusBar(0, $"Downloading client mappings...");
                 using (HttpClient client = new HttpClient())
                 {
                     string r = await client.GetStringAsync(vanillaVersionMeta.Downloads.ClientMappings.Url);
@@ -1384,9 +1405,11 @@ namespace KonkordLauncher
             #region Check logging file
             if (vanillaVersionMeta.Logging != null && vanillaVersionMeta.Logging.Client != null)
             {
+                UpdateLaunchStatusBar(0, $"Checking logging file...");
                 string logFilePath = Path.Combine(versionDir, vanillaVersionMeta.Logging.Client.File.Id);
                 if (!File.Exists(logFilePath))
                 {
+                    UpdateLaunchStatusBar(0, $"Downloading logging file...");
                     using (HttpClient client = new HttpClient())
                     {
                         string r = await client.GetStringAsync(vanillaVersionMeta.Logging.Client.File.Url);
@@ -1405,10 +1428,62 @@ namespace KonkordLauncher
             using (HttpClient client = new HttpClient())
             {
                 // Calculate the overallSize or read it from cache
+                UpdateLaunchStatusBar(0, $"Calculating library sizes...");
                 if (!File.Exists(librarySizeCacheFilePath))
                 {
                     foreach (var lib in minecraftLibraries)
+                    {
+                        // Check the library rule
+                        if (lib.Rules != null)
+                            if (lib.Rules.Count > 0)
+                            {
+                                bool action = lib.Rules[0].Action == "allow";
+                                if (lib.Rules[0].OS != null)
+                                {
+                                    switch (lib.Rules[0].OS.Name)
+                                    {
+                                        case "osx": // lib requies machintosh
+                                            {
+                                                if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && action)
+                                                {
+                                                    continue;
+                                                }
+                                                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && !action)
+                                                {
+                                                    continue;
+                                                }
+                                                break;
+                                            }
+                                        case "linux":
+                                            {
+                                                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && action)
+                                                {
+                                                    continue;
+                                                }
+                                                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && !action)
+                                                {
+                                                    continue;
+                                                }
+                                                break;
+                                            }
+                                        case "windows":
+                                            {
+                                                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && action)
+                                                {
+                                                    continue;
+                                                }
+                                                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !action)
+                                                {
+                                                    continue;
+                                                }
+                                                break;
+                                            }
+                                    }
+                                }
+                            }
+
                         libraryOverallSize += lib.Downloads.Artifact.Size;
+                    }
 
                     await File.WriteAllTextAsync(librarySizeCacheFilePath, libraryOverallSize.ToString());
                 }
@@ -1507,13 +1582,14 @@ namespace KonkordLauncher
 
             libraryBundle += $"{clientPath}";
             Debug.WriteLine($"#5 -> Added ClassPath: {clientPath}");
-            UpdateLaunchStatusBar(0, $"Launching the game...");
+            
 
             // Create natives directory
             if (!Directory.Exists(nativeDir))
                 Directory.CreateDirectory(nativeDir);
 
             // Extract natives
+            UpdateLaunchStatusBar(0, $"Checking natives...");
             foreach (var lib in nativeLibraries)
             {
                 string localPath = lib.Downloads.Artifact.Path;
@@ -1539,6 +1615,7 @@ namespace KonkordLauncher
             }
 
             #region Arguments
+            UpdateLaunchStatusBar(0, $"Building arguments...");
             #region JVM
             argumnets.Add("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
             // Vanilla Args
@@ -1623,6 +1700,7 @@ namespace KonkordLauncher
             #endregion
             #endregion
 
+            UpdateLaunchStatusBar(0, $"Launching the game...");
             #region Finish and Launch Minecraft
             // Enable play button
             bo_launch_play.IsEnabled = true;

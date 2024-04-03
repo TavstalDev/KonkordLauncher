@@ -33,11 +33,13 @@ namespace KonkordLibrary.Models.Installer
         internal string _classPath { get; set; }
         internal List<LaunchArg> _jvmArguments { get; set; }
         internal List<LaunchArg> _gameArguments { get; set; }
+        internal List<LaunchArg> _jvmArgumentsBeforeClassPath { get; set; }
 
         public MinecraftInstaller(Profile profile, Label label, ProgressBar progressBar, bool isDebug)
         {
             _jvmArguments = new List<LaunchArg>();
             _gameArguments = new List<LaunchArg>();
+            _jvmArgumentsBeforeClassPath = new List<LaunchArg>();
             ProgressbarLabel = label;
             ProgressBar = progressBar;
             IsDebug = isDebug;
@@ -116,8 +118,9 @@ namespace KonkordLibrary.Models.Installer
 
                 await DownloadLogging(modedData.VersionData.VersionDirectory, modedData.VersionData.GameDir); // 0
                 natives = await DownloadLibraries(libraries); // 1
-                _classPath += modedData.VersionData.VersionJarPath; // 2
-                arguments = await BuildArguments(modedData.VersionData.GameDir, modedData.MainClass); // 3
+                if (Profile.Kind != EProfileKind.FORGE)
+                    _classPath += modedData.VersionData.VersionJarPath; // 2
+                arguments = await BuildArguments(modedData.VersionData.GameDir, modedData.MainClass, modedData.VersionData.InstanceVersion); // 3
                 
             }
             else
@@ -548,6 +551,11 @@ namespace KonkordLibrary.Models.Installer
             UpdateProgressbar(0, $"Building arguments...");
             #region JVM
             arguments.Add("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
+            if (_jvmArgumentsBeforeClassPath.Count > 0)
+                _jvmArgumentsBeforeClassPath.OrderByDescending(x => x.Priority).ToList().ForEach((LaunchArg a) => {
+                    arguments.Add(a.Arg);
+                });
+
             // Vanilla Args
             arguments.Add(MinecraftVersionMeta.Arguments.GetJVMArgString());
 
@@ -597,18 +605,18 @@ namespace KonkordLibrary.Models.Installer
                     if (Profile.Resolution.X > 0)
                         arguments.Add($"--width {Profile.Resolution.X}");
                     else
-                        arguments.Add($"--width {(int)SystemParameters.PrimaryScreenWidth / 2}");
+                        arguments.Add($"--width {(int)SystemParameters.PrimaryScreenWidth * 0.44}");
 
                     if (Profile.Resolution.Y > 0)
                         arguments.Add($"--height {Profile.Resolution.Y}");
                     else
-                        arguments.Add($"--height {(int)SystemParameters.PrimaryScreenHeight / 2}");
+                        arguments.Add($"--height {(int)SystemParameters.PrimaryScreenHeight * 0.44}");
                 }
             }
             else
             {
-                arguments.Add($"--width {(int)SystemParameters.PrimaryScreenWidth / 2}");
-                arguments.Add($"--height {(int)SystemParameters.PrimaryScreenHeight / 2}");
+                arguments.Add($"--width {(int)SystemParameters.PrimaryScreenWidth * 0.44}");
+                arguments.Add($"--height {(int)SystemParameters.PrimaryScreenHeight * 0.44}");
             }
 
             AccountData? accountData = await JsonHelper.ReadJsonFileAsync<AccountData>(Path.Combine(IOHelper.MainDirectory, "accounts.json"));
@@ -666,7 +674,8 @@ namespace KonkordLibrary.Models.Installer
                 .Replace("${user_type}", "msa")
                 .Replace("${version_type}", "release")
                 .Replace("${classpath}", $"\"{_classPath}\"")
-                .Replace("${library_directory}", IOHelper.LibrariesDir);
+                .Replace("${library_directory}", IOHelper.LibrariesDir)
+                .Replace("${classpath_separator}", ";");
             #endregion
 
             return argumentString;
@@ -688,7 +697,8 @@ namespace KonkordLibrary.Models.Installer
                 UseShellExecute = false,
                 RedirectStandardError = true,
             };
-            Debug.WriteLine(arguments.Replace(' ', '\n'));
+
+            //Debug.WriteLine(arguments.Replace(' ', '\n'));
             Process? p = Process.Start(psi);
             return p;
         }

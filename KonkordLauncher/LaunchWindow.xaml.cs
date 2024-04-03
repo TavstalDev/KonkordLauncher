@@ -780,7 +780,7 @@ namespace KonkordLauncher
                 case EProfileKind.FORGE:
                     {
                         // TODO
-                        installer = new MinecraftInstaller(selectedProfile, lab_launch_progress, pb_launch_progress, debug);
+                        installer = new ForgeInstaller(selectedProfile, lab_launch_progress, pb_launch_progress, debug);
                         break;
                     }
                 case EProfileKind.FABRIC:
@@ -797,6 +797,11 @@ namespace KonkordLauncher
             }
 
             Process process = await installer.Install();
+
+            await process.WaitForExitAsync();
+            string o = process.StandardError.ReadToEnd();
+            if (!string.IsNullOrEmpty(o))
+                NotificationHelper.SendError(o, "Error");
 
             // Enable play button
             bo_launch_play.IsEnabled = true;

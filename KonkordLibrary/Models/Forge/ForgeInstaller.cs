@@ -1,18 +1,14 @@
 ﻿using KonkordLibrary.Enums;
 using KonkordLibrary.Helpers;
-using KonkordLibrary.Models.Fabric;
 using KonkordLibrary.Models.GameManager;
 using KonkordLibrary.Models.Installer;
 using KonkordLibrary.Models.Minecraft.Library;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Controls;
 
 namespace KonkordLibrary.Models.Forge
@@ -61,7 +57,7 @@ namespace KonkordLibrary.Models.Forge
             string installerDir = Path.Combine(tempDir, "installer");
             using (HttpClient client = new HttpClient())
             {
-                byte[] bytes = await client.GetByteArrayAsync(string.Format(ForgeInstallerJarUrl, forgeVersion.VanillaVersion, forgeVersion.InstanceVersion));
+                byte[] bytes = await client.GetByteArrayAsync(string.Format(ForgeInstallerJarUrl, $"{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}"));
                 await File.WriteAllBytesAsync(installerJarPath, bytes);
             }
 
@@ -100,14 +96,63 @@ namespace KonkordLibrary.Models.Forge
 
             List<MCLibrary> localLibraries = new List<MCLibrary>();
             localLibraries.AddRange(forgeVersionMeta.Libraries);
-            localLibraries.AddRange(installProfile.Libraries);
 
-            // Copy vanilla jar
-            if (!File.Exists(forgeVersion.VersionJarPath))
+            using (HttpClient client = new HttpClient())
+            {
+                foreach (MCLibrary lib in installProfile.Libraries)
+                {
+                    string localPath = lib.Downloads.Artifact.Path;
+                    string libDirPath = Path.Combine(IOHelper.LibrariesDir, localPath.Remove(localPath.LastIndexOf('/'), localPath.Length - localPath.LastIndexOf('/')));
+                    if (!Directory.Exists(libDirPath))
+                        Directory.CreateDirectory(libDirPath);
+                    string libFilePath = Path.Combine(IOHelper.LibrariesDir, localPath);
+                    if (!File.Exists(libFilePath))
+                    {
+                        // TODO, fix percent
+                        UpdateProgressbar(0, $"Downloading the '{lib.Name}' library... {0:0.00}%");
+                        if (!string.IsNullOrEmpty(lib.Downloads.Artifact.Url))
+                        {
+                            byte[] bytes = await client.GetByteArrayAsync(lib.Downloads.Artifact.Url);
+                            await File.WriteAllBytesAsync(libFilePath, bytes);
+                        }
+
+                    }
+                }
+            }
+            //localLibraries.AddRange(installProfile.Libraries);
+
+            // Copy vanilla jar - NOT NEEDED, BREAKS IT
+            /*if (!File.Exists(forgeVersion.VersionJarPath))
             {
                 UpdateProgressbar(0, $"Copying the vanilla jar file...");
                 File.Copy(forgeVersion.VanillaJarPath, forgeVersion.VersionJarPath);
+            }*/
+
+            // these mother fuckers are missing, then forge will work, for modern versions... :)
+            #region GET CLIENTS libraries
+            UpdateProgressbar(0, $"Checking forge client library files...");
+
+            #endregion
+
+            #region GET minecraftforge libraries
+            string forgeUniversal = string.Format(ForgeLoaderUniversalJarUrl, $"{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}");
+            
+            string forgeUniversalDir = Path.Combine(IOHelper.LibrariesDir, $"net\\minecraftforge\\forge\\{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}");
+            string forgeUniversalPath = Path.Combine(forgeUniversalDir, $"forge-{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}-universal.jar");
+            if (!Directory.Exists(forgeUniversalDir))
+                Directory.CreateDirectory(forgeUniversalDir);
+
+            UpdateProgressbar(0, $"Checking forge universal library file...");
+            if (!File.Exists(forgeUniversalPath))
+            {
+                UpdateProgressbar(0, $"Downloadig forge universal library file...");
+                using (HttpClient client = new HttpClient())
+                {
+                    byte[] bytes = await client.GetByteArrayAsync(forgeUniversal);
+                    await File.WriteAllBytesAsync(forgeUniversalPath, bytes);
+                }
             }
+            #endregion
 
             foreach (var arg in forgeVersionMeta.Arguments.GetGameArgs())
                 _gameArguments.Add(new LaunchArg(arg, 1));
@@ -117,14 +162,163 @@ namespace KonkordLibrary.Models.Forge
                 _jvmArguments.Add(new LaunchArg(arg, 1));
             }
 
-            _jvmArguments.Add(new LaunchArg("-DMcEmu=net.minecraft.client.main.Main", 1));
-            _jvmArguments.Add(new LaunchArg("-Dlog4j2.formatMsgNoLookups=true", 1));
-            _jvmArguments.Add(new LaunchArg("-Djava.rmi.server.useCodebaseOnly=true", 1));
-            _jvmArguments.Add(new LaunchArg("-Dcom.sun.jndi.rmi.object.trustURLCodebase=false", 1));
+            _jvmArgumentsBeforeClassPath.Add(new LaunchArg("-DMcEmu=net.minecraft.client.main.Main", 2));
+            _jvmArgumentsBeforeClassPath.Add(new LaunchArg("-Dlog4j2.formatMsgNoLookups=true", 2));
+            _jvmArgumentsBeforeClassPath.Add(new LaunchArg("-Djava.rmi.server.useCodebaseOnly=true", 2));
+            _jvmArgumentsBeforeClassPath.Add(new LaunchArg("-Dcom.sun.jndi.rmi.object.trustURLCodebase=false", 2));
 
             ModedData modedData = new ModedData(forgeVersionMeta.MainClass, forgeVersion, localLibraries);
-
             return modedData;
         }
+
+        #region Temporal stuff
+        // These functions for testing, if they work I will try to rework them to work with this project
+        // Source: CmlLib
+        protected async Task MapAndStartProcessors(JObject installProfile, string installerDir)
+        {
+            var installerData = installProfile["data"] as JObject;
+            Dictionary<string, string?>? mapData = null;
+            if (installerData != null)
+                mapData = MapProcessorData(installerData, "client", VersionData.VanillaJarPath, installerDir);
+            await StartProcessors(installProfile["processors"] as JArray, mapData ?? new());
+        }
+
+        protected Dictionary<string, string?> MapProcessorData(
+            JObject data, string kind, string minecraftJar, string installDir)
+        {
+            var dataMapping = new Dictionary<string, string?>();
+            foreach (var item in data)
+            {
+                var key = item.Key;
+                var value = item.Value?[kind]?.ToString();
+
+                if (string.IsNullOrEmpty(value))
+                    continue;
+
+                var fullPath = Mapper.ToFullPath(value, IOHelper.LibrariesDir);
+                if (fullPath == value)
+                {
+                    value = value.Trim('/');
+                    dataMapping.Add(key, Path.Combine(installDir, value));
+                }
+                else
+                    dataMapping.Add(key, fullPath);
+            }
+
+            dataMapping.Add("SIDE", "client");
+            dataMapping.Add("MINECRAFT_JAR", minecraftJar);
+            dataMapping.Add("INSTALLER", Path.Combine(installDir, "installer.jar"));
+
+            return dataMapping;
+        }
+
+        protected async Task StartProcessors(JArray? processors, Dictionary<string, string?> mapData)
+        {
+            if (processors == null || processors.Count == 0)
+                return;
+
+            for (int i = 0; i < processors.Count; i++)
+            {
+                var item = processors[i];
+
+                var outputs = item["outputs"] as JObject;
+                if (outputs == null || !checkProcessorOutputs(outputs, mapData))
+                {
+                    var sides = item["sides"] as JArray;
+                    if (sides == null || sides.FirstOrDefault()?.ToString() == "client") //skip server side
+                        await startProcessor(item, mapData);
+                }
+            }
+        }
+
+        private bool checkProcessorOutputs(JObject outputs, Dictionary<string, string?> mapData)
+        {
+            foreach (var item in outputs)
+            {
+                if (item.Value == null)
+                    continue;
+
+                var key = Mapper.Interpolation(item.Key, mapData, true);
+                var value = Mapper.Interpolation(item.Value.ToString(), mapData, true);
+
+                if (!File.Exists(key) || !IOHelper.CheckSHA1(key, value))
+                    return false;
+            }
+
+            return true;
+        }
+
+        private async Task startProcessor(JToken processor, Dictionary<string, string?> mapData)
+        {
+            var name = processor["jar"]?.ToString();
+            if (name == null)
+                return;
+
+            // jar
+            var jar = PackageName.Parse(name);
+            var jarPath = Path.Combine(IOHelper.LibrariesDir, jar.GetPath());
+
+            var jarFile = new JarFile(jarPath);
+            var jarManifest = jarFile.GetManifest();
+
+            // mainclass
+            string? mainClass = null;
+            var hasMainclass = jarManifest?.TryGetValue("Main-Class", out mainClass) ?? false;
+            if (!hasMainclass || string.IsNullOrEmpty(mainClass))
+                return;
+
+            // classpath
+            var classpathObj = processor["classpath"];
+            var classpath = new List<string>();
+            if (classpathObj != null)
+            {
+                foreach (var libName in classpathObj)
+                {
+                    var libNameString = libName?.ToString();
+                    if (string.IsNullOrEmpty(libNameString))
+                        continue;
+
+                    var lib = Path.Combine(IOHelper.LibrariesDir,
+                        PackageName.Parse(libNameString).GetPath());
+                    classpath.Add(lib);
+                }
+            }
+            classpath.Add(jarPath);
+
+            // arg
+            var argsArr = processor["args"] as JArray;
+            string[]? args = null;
+            if (argsArr != null)
+            {
+                var arrStrs = argsArr.Select(x => x.ToString()).ToArray();
+                args = Mapper.Map(arrStrs, mapData, IOHelper.LibrariesDir);
+            }
+
+            await startJava(classpath.ToArray(), mainClass, args);
+        }
+
+        private async Task startJava(string[] classpath, string mainClass, string[]? args)
+        {
+            if (string.IsNullOrEmpty(JavaPath))
+                throw new InvalidOperationException("JavaPath was empty");
+
+            var arg =
+                $"-cp {IOUtil.CombinePath(classpath)} " +
+                $"{mainClass}";
+
+            if (args != null && args.Length > 0)
+                arg += " " + string.Join(" ", args);
+
+            var process = new Process();
+            process.StartInfo = new ProcessStartInfo()
+            {
+                FileName = JavaPath,
+                Arguments = arg,
+            };
+
+            process.Start();
+            await process.WaitForExitAsync();
+        }
+        #endregion
     }
 }

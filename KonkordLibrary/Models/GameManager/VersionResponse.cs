@@ -9,10 +9,11 @@
         public string VersionJarPath { get; set; } = string.Empty;
         public string VanillaJarPath { get; set; } = string.Empty;
         public string GameDir { get; set; } = string.Empty;
+        public string NativesDir {  get; set; } = string.Empty;
 
         public VersionResponse() { }
 
-        public VersionResponse(string vanillaVersion, string instanceVersion, string versionDirectory, string versionJsonPath, string versionJarPath, string vanillaJarPath, string gameDir)
+        public VersionResponse(string vanillaVersion, string instanceVersion, string versionDirectory, string versionJsonPath, string versionJarPath, string vanillaJarPath, string gameDir, string nativesDir)
         {
             VanillaVersion = vanillaVersion;
             InstanceVersion = instanceVersion;
@@ -21,6 +22,7 @@
             VersionJarPath = versionJarPath;
             VanillaJarPath = vanillaJarPath;
             GameDir = gameDir;
+            NativesDir = nativesDir;
         }
     }
 }

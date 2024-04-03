@@ -1,22 +1,19 @@
 ﻿using KonkordLibrary.Enums;
 using KonkordLibrary.Helpers;
-using KonkordLibrary.Managers;
 using KonkordLibrary.Models;
 using KonkordLibrary.Models.Fabric;
-using KonkordLibrary.Models.Forge;
-using KonkordLibrary.Models.GameManager;
+using KonkordLibrary.Models.Installer;
 using KonkordLibrary.Models.Minecraft;
-using KonkordLibrary.Models.Minecraft.Library;
+using KonkordLibrary.Models.Quilt;
+using KonkordLibrary.Models.Forge;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -329,7 +326,7 @@ namespace KonkordLauncher
             else
                 listbox_launchinstances.Resources["Alternation"] = 2;
   
-            if (settings.Profiles.TryGetValue(settings.SelectedProfile, out Profile selectedProfile))
+            if (settings.Profiles.TryGetValue(settings.SelectedProfile, out Profile? selectedProfile))
                 SelectedProfile = new KeyValuePair<string, Profile>(settings.SelectedProfile, selectedProfile);
             else
                 SelectedProfile = settings.Profiles.ElementAt(0);
@@ -694,6 +691,7 @@ namespace KonkordLauncher
         /// <param name="e">The event arguments.</param>
         private void NewInstance_Click(object sender, RoutedEventArgs e)
         {
+            OpenInstanceEdit(null, string.Empty);
             bo_instances.IsEnabled = true;
             bo_instances.Visibility = Visibility.Visible;
         }
@@ -767,827 +765,52 @@ namespace KonkordLauncher
             }
             #endregion
 
-            string nativesDir = string.Empty;
-            string gameDir = string.Empty;
-            string clientPath = string.Empty;
-            string versionName = string.Empty;
-            string libraryBundle = string.Empty;
-            string clientId = "0"; // todo
-            string xUID = "0"; // todo
-            string argMainClass = string.Empty;
-            string versionDir = string.Empty;
-
             UpdateLaunchStatusBar(true);
             UpdateLaunchStatusBar(0, $"Reading the vanillaManifest file...");
-            List<string> argumnets = new List<string>();
-            string gameExtraArgumnets = string.Empty;
-            string jvmExtraArgumnets = string.Empty;
-
-            // Read the Version Manifest
-            VersionManifest? vanillaManifest = await JsonHelper.ReadJsonFileAsync<VersionManifest>(Path.Combine(IOHelper.ManifestDir, "vanillaManifest.json"));
-            if (vanillaManifest == null)
+            MinecraftInstaller installer;
+            bool debug = true;
+            switch (selectedProfile.Kind)
             {
-                NotificationHelper.SendError("Failed to get the vanilla vanillaManifest file.", "Error");
-                return;
-            }
-
-            UpdateLaunchStatusBar(0, $"Checking the version directory and files...");
-
-            // Check the profile type
-            // GameManager.GetProfileVersionDetails(selectedProfile.Type, vanillaManifest, selectedProfile);
-            VersionResponse vanillaVersion = new VersionResponse();
-            switch (selectedProfile.Type)
-            {
-                case EProfileType.CUSTOM:
-                    {
-                        vanillaVersion = GameManager.GetProfileVersionDetails(EProfileKind.VANILLA, selectedProfile.VersionVanillaId, selectedProfile.VersionVanillaId, null);
-                        break;
-                    }
                 default:
+                case EProfileKind.VANILLA:
                     {
-                        vanillaVersion = GameManager.GetProfileVersionDetails(selectedProfile.Type, vanillaManifest, selectedProfile);
+                        installer = new MinecraftInstaller(selectedProfile, lab_launch_progress, pb_launch_progress, debug);
+                        break;
+                    }
+                case EProfileKind.FORGE:
+                    {
+                        // TODO
+                        installer = new MinecraftInstaller(selectedProfile, lab_launch_progress, pb_launch_progress, debug);
+                        break;
+                    }
+                case EProfileKind.FABRIC:
+                    {
+                        installer = new FabricInstaller(selectedProfile, lab_launch_progress, pb_launch_progress, debug);
+                        break;
+                    }
+                case EProfileKind.QUILT:
+                    {
+                        
+                        installer = new QuiltInstaller(selectedProfile, lab_launch_progress, pb_launch_progress, debug);
                         break;
                     }
             }
 
-            string nativeDir = Path.Combine(vanillaVersion.VersionDirectory, "natives");
-            versionDir = vanillaVersion.VersionDirectory;
-            versionName = vanillaVersion.InstanceVersion;
-            List<MCLibrary> minecraftLibraries = new List<MCLibrary>();
-            List<MCLibrary> nativeLibraries = new List<MCLibrary>();
+            Process process = await installer.Install();
 
-            #region Vanilla
-            // Find the right vanilla instanceVersion
-            MCVersion? mcVersion = vanillaManifest.Versions.Find(x => x.Id == vanillaVersion.VanillaVersion);
-            if (mcVersion == null)
-            {
-                NotificationHelper.SendError("Failed to get the minecraft version from the vanillaManifest file.", "Error");
-                return;
-            }
-
-            #region Check vanilla manifest and get libraries and assets
-            // Create versionDir in the versions folder
-            if (!Directory.Exists(vanillaVersion.VersionDirectory))
-                Directory.CreateDirectory(vanillaVersion.VersionDirectory);
-
-            #region Check version json
-            UpdateLaunchStatusBar(0, $"Checking the '{mcVersion.Id}' version json file...");
-            MCVersionMeta? vanillaVersionMeta = null;
-            if (!File.Exists(vanillaVersion.VersionJsonPath))
-            {
-                UpdateLaunchStatusBar(0, $"Downloading the '{mcVersion.Id}' version json file...");
-                using (HttpClient client = new HttpClient())
-                {
-                    string jsonResult = await client.GetStringAsync(mcVersion.Url);
-
-                    vanillaVersionMeta = JsonConvert.DeserializeObject<MCVersionMeta>(jsonResult);
-                    if (vanillaVersionMeta != null)
-                        foreach (var lib in vanillaVersionMeta.Libraries)
-                            minecraftLibraries.Add(lib);
-
-                    await File.WriteAllTextAsync(vanillaVersion.VersionJsonPath, jsonResult);
-                }
-            }
-            else
-            {
-                UpdateLaunchStatusBar(0, $"Reading the '{mcVersion.Id}' version json file...");
-                string jsonResult = await File.ReadAllTextAsync(vanillaVersion.VersionJsonPath);
-                vanillaVersionMeta = JsonConvert.DeserializeObject<MCVersionMeta>(jsonResult);
-                if (vanillaVersionMeta != null)
-                    foreach (var lib in vanillaVersionMeta.Libraries)
-                        minecraftLibraries.Add(lib);
-            }
-
-            if (vanillaVersionMeta == null)
-            {
-                NotificationHelper.SendError("Failed to get the vanilla version meta json file", "Error");
-                return;
-            }
-            #endregion
-
-            #region Download Vanilla Jar
-            UpdateLaunchStatusBar(0, $"Checking the '{mcVersion.Id}' version jar file...");
-            if (!File.Exists(vanillaVersion.VersionJarPath))
-            {
-                UpdateLaunchStatusBar(0, $"Downloading the '{mcVersion.Id}' version jar file...");
-                using (HttpClient client = new HttpClient())
-                {
-                    byte[] bytes = await client.GetByteArrayAsync(vanillaVersionMeta.Downloads.Client.Url);
-                    await File.WriteAllBytesAsync(vanillaVersion.VersionJarPath, bytes);
-                }
-            }
-            #endregion
-
-            #region Download assetIndex
-            UpdateLaunchStatusBar(0, $"Checking the '{vanillaVersionMeta.AssetIndex.Id}' assetIndex json file...");
-            string assetIndex = vanillaVersionMeta.AssetIndex.Id;
-            string assetPath = Path.Combine(IOHelper.AssetsDir, $"indexes/{vanillaVersionMeta.AssetIndex.Id}.json");
-            JToken? assetJToken = null;
-            if (!File.Exists(assetPath))
-            {
-                UpdateLaunchStatusBar(0, $"Downloading the '{vanillaVersionMeta.AssetIndex.Id}' assetIndex json file...");
-                using (HttpClient client = new HttpClient())
-                {
-                    string resultJson = await client.GetStringAsync(vanillaVersionMeta.AssetIndex.Url);
-                    assetJToken = JObject.Parse(resultJson)["objects"];
-                    await File.WriteAllTextAsync(assetPath, resultJson);
-                }
-            }
-            else
-            {
-                UpdateLaunchStatusBar(0, $"Reading the '{vanillaVersionMeta.AssetIndex.Id}' assetIndex json file...");
-                string resultJson = await File.ReadAllTextAsync(assetPath);
-                assetJToken = JObject.Parse(resultJson)["objects"];
-            }
-
-
-            if (assetJToken == null)
-            {
-                NotificationHelper.SendError("Failed to get the assetJToken", "Error");
-                return;
-            }
-            #endregion
-
-            // Check AssetIndex Objects
-            string assetObjectDir = Path.Combine(IOHelper.AssetsDir, "objects");
-            if (!Directory.Exists(assetObjectDir))
-                Directory.CreateDirectory(assetObjectDir);
-
-            #region Download assets
-            using (HttpClient client = new HttpClient())
-            {
-                string hash = string.Empty;
-                string objectDir = string.Empty;
-                string objectPath = string.Empty;
-                int downloadedAssetSize = 0;
-                UpdateLaunchStatusBar(0, $"Checking assets...");
-                foreach (JToken token in assetJToken.ToList())
-                {
-                    hash = token.First["hash"].ToString();
-                    objectDir = Path.Combine(assetObjectDir, hash.Substring(0, 2));
-                    objectPath = Path.Combine(objectDir, $"{hash}");
-
-                    if (!Directory.Exists(objectDir))
-                        Directory.CreateDirectory(objectDir);
-
-                    if (!File.Exists(objectPath))
-                    {
-                        byte[] array = await client.GetByteArrayAsync($"https://resources.download.minecraft.net/{hash.Substring(0, 2)}/{hash}");
-                        await File.WriteAllBytesAsync(objectPath, array);
-                    }
-                    downloadedAssetSize += int.Parse(token.First["size"].ToString());
-                    double percent = (double)downloadedAssetSize / (double)vanillaVersionMeta.AssetIndex.TotalSize * 100d;
-                    lab_launch_progress.Content = $"Downloading assets... {pb_launch_progress.Value:0.00}%";
-                    UpdateLaunchStatusBar(percent, $"Downloading assets... {percent:0.00}%");
-                }
-            }
-            #endregion
-            #endregion
-            #endregion
-
-            #region Check Moded Content
-            string libraryCacheDir = Path.Combine(IOHelper.CacheDir, "libsizes");
-            if (!Directory.Exists(libraryCacheDir))
-                Directory.CreateDirectory(libraryCacheDir);
-
-            nativeDir = Path.Combine(vanillaVersion.VersionDirectory, "natives");
-            string librarySizeCacheFilePath = string.Empty;
-            switch (selectedProfile.Type)
-            {
-                case EProfileType.KONKORD_CREATE:
-                    {
-
-                        break;
-                    }
-                case EProfileType.KONKORD_VANILLAPLUS:
-                    {
-
-                        break;
-                    }
-                case EProfileType.CUSTOM:
-                    {
-                        switch (selectedProfile.Kind)
-                        {
-                            case EProfileKind.FORGE:
-                                {
-                                    UpdateLaunchStatusBar(0, $"Reading the forgeManifest file...");
-                                    librarySizeCacheFilePath = Path.Combine(libraryCacheDir, $"{selectedProfile.VersionVanillaId}-forge-{selectedProfile.VersionId}.json");
-                                    if (!File.Exists(IOHelper.ForgeManifestJsonFile))
-                                    {
-                                        NotificationHelper.SendError("Failed to get the forge manifest.", "Error");
-                                        return;
-                                    }
-
-                                    VersionResponse forgeVersion = GameManager.GetProfileVersionDetails(EProfileKind.FORGE, selectedProfile.VersionId, selectedProfile.VersionVanillaId, selectedProfile.GameDirectory);
-
-                                    // Create versionDir in the versions folder
-                                    if (!Directory.Exists(forgeVersion.VersionDirectory))
-                                        Directory.CreateDirectory(forgeVersion.VersionDirectory);
-
-
-                                   
-                                    break;
-                                }
-                            case EProfileKind.FABRIC:
-                                {
-                                    UpdateLaunchStatusBar(0, $"Reading the fabricManifest file...");
-                                    librarySizeCacheFilePath = Path.Combine(libraryCacheDir, $"{selectedProfile.VersionVanillaId}-fabric-{selectedProfile.VersionId}.json");
-                                    if (!File.Exists(IOHelper.FabricManifestJsonFile))
-                                    {
-                                        NotificationHelper.SendError("Failed to get the fabric manifest.", "Error");
-                                        return;
-                                    }
-
-                                    VersionResponse fabricVersion = GameManager.GetProfileVersionDetails(EProfileKind.FABRIC, selectedProfile.VersionId, selectedProfile.VersionVanillaId, selectedProfile.GameDirectory);
-
-                                    // Create versionDir in the versions folder
-                                    if (!Directory.Exists(fabricVersion.VersionDirectory))
-                                        Directory.CreateDirectory(fabricVersion.VersionDirectory);
-
-                                    // Check libsizes dir
-                                    string librarySizeCacheDir = Path.Combine(IOHelper.CacheDir, "libsizes");
-                                    if (!Directory.Exists(librarySizeCacheDir))
-                                        Directory.CreateDirectory(librarySizeCacheDir);
-                                    string librarySizeCachePath = Path.Combine(librarySizeCacheDir, $"{fabricVersion.VanillaVersion}-fabric-{fabricVersion.InstanceVersion}.json");
-
-                                    // Download version json
-                                    FabricVersionMeta? fabricVersionMeta = null;
-                                    List<MCLibrary> localLibraries = new List<MCLibrary>();
-                                    if (!File.Exists(fabricVersion.VersionJsonPath))
-                                    {
-                                        string resultJson = string.Empty;
-                                        UpdateLaunchStatusBar(0, $"Downloading the fabric version json file...");
-                                        using (HttpClient client = new HttpClient())
-                                        {
-                                            resultJson = await client.GetStringAsync(string.Format(GameManager.FabricLoaderJsonUrl, fabricVersion.VanillaVersion, fabricVersion.InstanceVersion));
-                                            await File.WriteAllTextAsync(fabricVersion.VersionJsonPath, resultJson);
-                                        }
-
-                                        // Add the libraries
-                                        fabricVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(resultJson);
-                                        int localLibrarySize = 0;
-                                        if (fabricVersionMeta == null)
-                                        {
-                                            File.Delete(fabricVersion.VersionJsonPath); // Delete it because this if part won't be executed again if it exists
-                                            NotificationHelper.SendError("Failed to get the fabric version meta", "Error");
-                                            return;
-                                        }
-
-                                        UpdateLaunchStatusBar(0, $"Reading the fabric version json file...");
-                                        foreach (var lib in fabricVersionMeta.Libraries)
-                                        {
-                                            localLibrarySize += lib.Size;
-                                            localLibraries.Add(new MCLibrary(lib.Name, new MCLibraryDownloads(new MCLibraryArtifact(lib.GetPath(), lib.Sha1, lib.Size, lib.GetURL())), new List<MCLibraryRule>()));
-                                        }
-                                        // Save the version cache
-                                        await JsonHelper.WriteJsonFileAsync(librarySizeCachePath, localLibrarySize);
-                                    }
-                                    else
-                                    {
-                                        UpdateLaunchStatusBar(0, $"Reading the fabric version json file...");
-                                        fabricVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(await File.ReadAllTextAsync(fabricVersion.VersionJsonPath));
-                                        if (fabricVersionMeta == null)
-                                        {
-                                            NotificationHelper.SendError("Failed to get the fabric version meta", "Error");
-                                            return;
-                                        }
-
-                                        foreach (var lib in fabricVersionMeta.Libraries)
-                                        {
-                                            localLibraries.Add(new MCLibrary(lib.Name, new MCLibraryDownloads(new MCLibraryArtifact(lib.GetPath(), lib.Sha1, lib.Size, lib.GetURL())), new List<MCLibraryRule>()));
-                                        }
-                                    }
-                                    // Include libraries
-                                    minecraftLibraries.InsertRange(0, localLibraries);
-
-                                    // Download Loader
-                                    string loaderDirPath = Path.Combine(IOHelper.LibrariesDir, $"net\\fabricmc\\fabric-loader\\{fabricVersion.InstanceVersion}");
-                                    string loaderJarPath = Path.Combine(loaderDirPath, $"fabric-loader-{fabricVersion.InstanceVersion}.jar");
-                                    if (!Directory.Exists(loaderDirPath))
-                                        Directory.CreateDirectory(loaderDirPath);
-
-                                    if (!File.Exists(loaderJarPath))
-                                    {
-                                        UpdateLaunchStatusBar(0, $"Downloading the fabric loader...");
-                                        using (HttpClient client = new HttpClient())
-                                        {
-                                            byte[] bytes = await client.GetByteArrayAsync(string.Format(GameManager.FabricLoaderJarUrl, fabricVersion.InstanceVersion));
-                                            await File.WriteAllBytesAsync(loaderJarPath, bytes);
-                                        }
-                                    }
-
-                                    UpdateLaunchStatusBar(0, $"Getting launch arguments...");
-                                    versionName = $"fabric-loader-{fabricVersion.InstanceVersion}-{fabricVersion.VanillaVersion}";
-                                    nativeDir = Path.Combine(fabricVersion.VersionDirectory, "natives");
-                                    versionDir = fabricVersion.VersionDirectory;
-                                    gameDir = fabricVersion.GameDir;
-                                    argMainClass = fabricVersionMeta.MainClass;
-                                    gameExtraArgumnets += $"" + fabricVersionMeta.Arguments.GetGameArgString();
-                                    jvmExtraArgumnets += fabricVersionMeta.Arguments.GetJVMArgString().Replace("-DFabricMcEmu= net.minecraft.client.main.Main ", "\"-DFabricMcEmu= net.minecraft.client.main.Main \"") +
-                                        $" -DMcEmu=net.minecraft.client.main.Main -Dlog4j2.formatMsgNoLookups=true -Djava.rmi.server.useCodebaseOnly=true -Dcom.sun.jndi.rmi.object.trustURLCodebase=false ";
-
-                                    if (!File.Exists(fabricVersion.VersionJarPath))
-                                    {
-                                        UpdateLaunchStatusBar(0, $"Copying the vanilla jar file...");
-                                        File.Copy(fabricVersion.VanillaJarPath, fabricVersion.VersionJarPath);
-                                    }
-
-                                    clientPath = fabricVersion.VersionJarPath;
-                                    break;
-                                }
-                            case EProfileKind.QUILT:
-                                {
-                                    UpdateLaunchStatusBar(0, $"Reading the quiltManifest file...");
-                                    librarySizeCacheFilePath = Path.Combine(libraryCacheDir, $"{selectedProfile.VersionVanillaId}-quilt-{selectedProfile.VersionId}.json");
-                                    if (!File.Exists(IOHelper.QuiltManifestJsonFile))
-                                    {
-                                        NotificationHelper.SendError("Failed to get the quilt manifest.", "Error");
-                                        return;
-                                    }
-
-                                    VersionResponse quiltVersion = GameManager.GetProfileVersionDetails(EProfileKind.QUILT, selectedProfile.VersionId, selectedProfile.VersionVanillaId, selectedProfile.GameDirectory);
-
-                                    // Create versionDir in the versions folder
-                                    if (!Directory.Exists(quiltVersion.VersionDirectory))
-                                        Directory.CreateDirectory(quiltVersion.VersionDirectory);
-
-                                    // Check libsizes dir
-                                    string librarySizeCacheDir = Path.Combine(IOHelper.CacheDir, "libsizes");
-                                    if (!Directory.Exists(librarySizeCacheDir))
-                                        Directory.CreateDirectory(librarySizeCacheDir);
-                                    string librarySizeCachePath = Path.Combine(librarySizeCacheDir, $"{quiltVersion.VanillaVersion}-quilt-{quiltVersion.InstanceVersion}.json");
-
-                                    // Download version json
-                                    FabricVersionMeta? quiltVersionMeta = null;
-                                    List<MCLibrary> localLibraries = new List<MCLibrary>();
-                                    if (!File.Exists(quiltVersion.VersionJsonPath))
-                                    {
-                                        string resultJson = string.Empty;
-                                        UpdateLaunchStatusBar(0, $"Downloading the quilt version json file...");
-                                        using (HttpClient client = new HttpClient())
-                                        {
-                                            resultJson = await client.GetStringAsync(string.Format(GameManager.QuiltLoaderJsonUrl, quiltVersion.VanillaVersion, quiltVersion.InstanceVersion));
-                                            await File.WriteAllTextAsync(quiltVersion.VersionJsonPath, resultJson);
-                                        }
-
-                                        // Add the libraries
-                                        quiltVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(resultJson);
-                                        int localLibrarySize = 0;
-                                        if (quiltVersionMeta == null)
-                                        {
-                                            File.Delete(quiltVersion.VersionJsonPath); // Delete it because this if part won't be executed again if it exists
-                                            NotificationHelper.SendError("Failed to get the quilt version meta", "Error");
-                                            return;
-                                        }
-
-                                        UpdateLaunchStatusBar(0, $"Reading the quilt version json file...");
-                                        foreach (var lib in quiltVersionMeta.Libraries)
-                                        {
-                                            localLibrarySize += lib.Size;
-                                            localLibraries.Add(new MCLibrary(lib.Name, new MCLibraryDownloads(new MCLibraryArtifact(lib.GetPath(), lib.Sha1, lib.Size, lib.GetURL())), new List<MCLibraryRule>()));
-                                        }
-                                        // Save the version cache
-                                        await JsonHelper.WriteJsonFileAsync(librarySizeCachePath, localLibrarySize);
-                                    }
-                                    else
-                                    {
-                                        UpdateLaunchStatusBar(0, $"Reading the quilt version json file...");
-                                        quiltVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(await File.ReadAllTextAsync(quiltVersion.VersionJsonPath));
-                                        if (quiltVersionMeta == null)
-                                        {
-                                            NotificationHelper.SendError("Failed to get the quilt version meta", "Error");
-                                            return;
-                                        }
-
-                                        foreach (var lib in quiltVersionMeta.Libraries)
-                                        {
-                                            localLibraries.Add(new MCLibrary(lib.Name, new MCLibraryDownloads(new MCLibraryArtifact(lib.GetPath(), lib.Sha1, lib.Size, lib.GetURL())), new List<MCLibraryRule>()));
-                                        }
-                                    }
-                                    // Include libraries
-                                    minecraftLibraries.InsertRange(0, localLibraries);
-
-                                    // Download Loader
-                                    string loaderDirPath = Path.Combine(IOHelper.LibrariesDir, $"net\\fabricmc\\quilt-loader\\{quiltVersion.InstanceVersion}");
-                                    string loaderJarPath = Path.Combine(loaderDirPath, $"fabricmc-loader-{quiltVersion.InstanceVersion}.jar");
-                                    if (!Directory.Exists(loaderDirPath))
-                                        Directory.CreateDirectory(loaderDirPath);
-
-                                    if (!File.Exists(loaderJarPath))
-                                    {
-                                        UpdateLaunchStatusBar(0, $"Downloading the quilt loader...");
-                                        using (HttpClient client = new HttpClient())
-                                        {
-                                            byte[] bytes = await client.GetByteArrayAsync(string.Format(GameManager.QuiltLoaderJarUrl, quiltVersion.InstanceVersion));
-                                            await File.WriteAllBytesAsync(loaderJarPath, bytes);
-                                        }
-                                    }
-
-                                    UpdateLaunchStatusBar(0, $"Getting launch arguments...");
-                                    versionName = $"quilt-loader-{quiltVersion.InstanceVersion}-{quiltVersion.VanillaVersion}";
-                                    nativeDir = Path.Combine(quiltVersion.VersionDirectory, "natives");
-                                    versionDir = quiltVersion.VersionDirectory;
-                                    gameDir = quiltVersion.GameDir;
-                                    argMainClass = quiltVersionMeta.MainClass;
-                                    gameExtraArgumnets += $"" + quiltVersionMeta.Arguments.GetGameArgString();
-                                    jvmExtraArgumnets += quiltVersionMeta.Arguments.GetJVMArgString() +
-                                        $" -DMcEmu=net.minecraft.client.main.Main -Dlog4j2.formatMsgNoLookups=true -Djava.rmi.server.useCodebaseOnly=true -Dcom.sun.jndi.rmi.object.trustURLCodebase=false ";
-
-                                    if (!File.Exists(quiltVersion.VersionJarPath))
-                                    {
-                                        UpdateLaunchStatusBar(0, $"Copying the vanilla jar file...");
-                                        File.Copy(quiltVersion.VanillaJarPath, quiltVersion.VersionJarPath);
-                                    }
-
-                                    clientPath = quiltVersion.VersionJarPath;
-                                    break;
-                                }
-                            default:
-                                {
-                                    UpdateLaunchStatusBar(0, $"Getting launch arguments...");
-                                    // Create gameDir in the instances folder
-                                    if (!Directory.Exists(vanillaVersion.GameDir))
-                                        Directory.CreateDirectory(vanillaVersion.GameDir);
-
-                                    gameDir = vanillaVersion.GameDir;
-                                    argMainClass = vanillaVersionMeta.MainClass;
-                                    librarySizeCacheFilePath = Path.Combine(libraryCacheDir, $"{vanillaVersion.VanillaVersion}.json");
-                                    clientPath = vanillaVersion.VersionJarPath;
-                                    break;
-                                }
-
-                        }
-                        break;
-                    }
-                case EProfileType.LATEST_RELEASE:
-                    {
-                        UpdateLaunchStatusBar(0, $"Getting launch arguments...");
-                        // Create gameDir in the instances folder
-                        if (!Directory.Exists(vanillaVersion.GameDir))
-                            Directory.CreateDirectory(vanillaVersion.GameDir);
-
-                        gameDir = vanillaVersion.GameDir;
-                        librarySizeCacheFilePath = Path.Combine(libraryCacheDir, $"{vanillaManifest.Latest.Release}.json");
-                        argMainClass = vanillaVersionMeta.MainClass;
-
-                        clientPath = vanillaVersion.VersionJarPath;
-                        break;
-                    }
-                case EProfileType.LATEST_SNAPSHOT:
-                    {
-                        UpdateLaunchStatusBar(0, $"Getting launch arguments...");
-                        // Create gameDir in the instances folder
-                        if (!Directory.Exists(vanillaVersion.GameDir))
-                            Directory.CreateDirectory(vanillaVersion.GameDir);
-
-                        gameDir = vanillaVersion.GameDir;
-                        librarySizeCacheFilePath = Path.Combine(libraryCacheDir, $"{vanillaManifest.Latest.Snapshot}.json");
-                        argMainClass = vanillaVersionMeta.MainClass;
-
-                        clientPath = vanillaVersion.VersionJarPath;
-                        break;
-                    }
-            }
-            #endregion
-
-            #region Client Mappings
-            UpdateLaunchStatusBar(0, $"Checking client mappings...");
-            string clientMappinsPath = Path.Combine(versionDir, "client.txt");
-            if (!File.Exists(clientMappinsPath))
-            {
-                UpdateLaunchStatusBar(0, $"Downloading client mappings...");
-                using (HttpClient client = new HttpClient())
-                {
-                    string r = await client.GetStringAsync(vanillaVersionMeta.Downloads.ClientMappings.Url);
-                    await File.WriteAllTextAsync(clientMappinsPath, r);
-                }
-            }
-            #endregion
-
-            #region Check logging file
-            if (vanillaVersionMeta.Logging != null && vanillaVersionMeta.Logging.Client != null)
-            {
-                UpdateLaunchStatusBar(0, $"Checking logging file...");
-                string logFilePath = Path.Combine(versionDir, vanillaVersionMeta.Logging.Client.File.Id);
-                if (!File.Exists(logFilePath))
-                {
-                    UpdateLaunchStatusBar(0, $"Downloading logging file...");
-                    using (HttpClient client = new HttpClient())
-                    {
-                        string r = await client.GetStringAsync(vanillaVersionMeta.Logging.Client.File.Url);
-                        await File.WriteAllTextAsync(logFilePath, r);
-                    }
-                }
-                jvmExtraArgumnets += vanillaVersionMeta.Logging.Client.Argument.Replace("${path}", logFilePath);
-            }
-            #endregion
-
-            #region Download Libraries
-            UpdateLaunchStatusBar(0, $"Checking the libraries...");
-            double libraryOverallSize = 0;
-            double libraryDownloadedSize = 0;
-            
-            using (HttpClient client = new HttpClient())
-            {
-                // Calculate the overallSize or read it from cache
-                UpdateLaunchStatusBar(0, $"Calculating library sizes...");
-                if (!File.Exists(librarySizeCacheFilePath))
-                {
-                    foreach (var lib in minecraftLibraries)
-                    {
-                        // Check the library rule
-                        if (lib.Rules != null)
-                            if (lib.Rules.Count > 0)
-                            {
-                                bool action = lib.Rules[0].Action == "allow";
-                                if (lib.Rules[0].OS != null)
-                                {
-                                    switch (lib.Rules[0].OS.Name)
-                                    {
-                                        case "osx": // lib requies machintosh
-                                            {
-                                                if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && action)
-                                                {
-                                                    continue;
-                                                }
-                                                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && !action)
-                                                {
-                                                    continue;
-                                                }
-                                                break;
-                                            }
-                                        case "linux":
-                                            {
-                                                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && action)
-                                                {
-                                                    continue;
-                                                }
-                                                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && !action)
-                                                {
-                                                    continue;
-                                                }
-                                                break;
-                                            }
-                                        case "windows":
-                                            {
-                                                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && action)
-                                                {
-                                                    continue;
-                                                }
-                                                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !action)
-                                                {
-                                                    continue;
-                                                }
-                                                break;
-                                            }
-                                    }
-                                }
-                            }
-
-                        libraryOverallSize += lib.Downloads.Artifact.Size;
-                    }
-
-                    await File.WriteAllTextAsync(librarySizeCacheFilePath, libraryOverallSize.ToString());
-                }
-                else
-                    libraryOverallSize = int.Parse(await File.ReadAllTextAsync(librarySizeCacheFilePath));
-
-                // Download the actual libs
-                foreach (var lib in minecraftLibraries)
-                {
-                    // Check the library rule
-                    if (lib.Rules != null)
-                        if (lib.Rules.Count > 0)
-                        {
-                            bool action = lib.Rules[0].Action == "allow";
-                            if (lib.Rules[0].OS != null)
-                            {
-                                switch (lib.Rules[0].OS.Name)
-                                {
-                                    case "osx": // lib requies machintosh
-                                        {
-                                            if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && action)
-                                            {
-                                                continue;
-                                            }
-                                            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && !action)
-                                            {
-                                                continue;
-                                            }
-                                            break;
-                                        }
-                                    case "linux":
-                                        {
-                                            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && action)
-                                            {
-                                                continue;
-                                            }
-                                            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && !action)
-                                            {
-                                                continue;
-                                            }
-                                            break;
-                                        }
-                                    case "windows":
-                                        {
-                                            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && action)
-                                            {
-                                                continue;
-                                            }
-                                            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !action)
-                                            {
-                                                continue;
-                                            }
-                                            break;
-                                        }
-                                }
-                            }
-                        }
-
-                    string localPath = lib.Downloads.Artifact.Path;
-                    string libDirPath = Path.Combine(IOHelper.LibrariesDir, localPath.Remove(localPath.LastIndexOf('/'), localPath.Length - localPath.LastIndexOf('/')));
-                    if (!Directory.Exists(libDirPath))
-                        Directory.CreateDirectory(libDirPath);
-                    
-                    string libFilePath = Path.Combine(IOHelper.LibrariesDir, localPath);
-                    if (!File.Exists(libFilePath))
-                    {
-                        if (!string.IsNullOrEmpty(lib.Downloads.Artifact.Url))
-                        {
-                            byte[] bytes = await client.GetByteArrayAsync(lib.Downloads.Artifact.Url);
-                            await File.WriteAllBytesAsync(libFilePath, bytes);
-                        }
-                        else
-                            libraryDownloadedSize -= lib.Downloads.Artifact.Size; // Fix 100%+ bug
-                    }
-
-                    if (!libraryBundle.Contains(libFilePath))
-                    {
-                        libraryBundle += $"{libFilePath};";
-                        if (lib.Name.StartsWith("org.lwjgl"))
-                        {
-                            nativeLibraries.Add(lib);
-                        }
-                    }
-                    libraryDownloadedSize += lib.Downloads.Artifact.Size;
-                    if (libraryOverallSize == 0)
-                        libraryOverallSize = 1; // NaN fix
-                    double percent = libraryDownloadedSize / libraryOverallSize * 100;
-                    UpdateLaunchStatusBar(percent, $"Downloading the '{lib.Name}' library... {percent:0.00}%");
-                }
-            }
-            #endregion
-
-            libraryBundle += $"{clientPath}";
-            Debug.WriteLine($"#5 -> Added ClassPath: {clientPath}");
-            
-
-            // Create natives directory
-            if (!Directory.Exists(nativeDir))
-                Directory.CreateDirectory(nativeDir);
-
-            // Extract natives
-            UpdateLaunchStatusBar(0, $"Checking natives...");
-            foreach (var lib in nativeLibraries)
-            {
-                string localPath = lib.Downloads.Artifact.Path;
-                string libFilePath = Path.Combine(IOHelper.LibrariesDir, localPath);
-
-                string tempZipDir = Path.Combine(IOHelper.TempDir, localPath.Split('.')[0]);
-
-                ZipFile.ExtractToDirectory(libFilePath, tempZipDir);
-
-                string[] files = Directory.GetFiles(tempZipDir, "*.dll", searchOption: SearchOption.AllDirectories);
-                if (files != null)
-                {
-                    foreach (string file in files)
-                    {
-                        string fileName = file.Remove(0, file.LastIndexOf('\\') + 1);
-                        string filePath = Path.Combine(nativeDir, fileName);
-                        if (!File.Exists(filePath))
-                            File.Move(file, filePath);
-                    }
-                }
-
-                IOHelper.DeleteDirectory(tempZipDir);
-            }
-
-            #region Arguments
-            UpdateLaunchStatusBar(0, $"Building arguments...");
-            #region JVM
-            argumnets.Add("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
-            // Vanilla Args
-            argumnets.Add(vanillaVersionMeta.Arguments.GetJVMArgString());
-
-            // Moded Args
-            if (!string.IsNullOrEmpty(jvmExtraArgumnets))
-                argumnets.Add(jvmExtraArgumnets);
-
-            // Maximum Memory
-            if (selectedProfile.Memory > 0 && selectedProfile.Memory <= 256)
-                argumnets.Add($"-Xmx{selectedProfile.Memory}G");
-            else if (selectedProfile.Memory > 256)
-                argumnets.Add($"-Xmx{selectedProfile.Memory}M");
-            else
-                argumnets.Add($"-Xmx4G");
-            // Minimum Memory
-            // If someone breaks it by setting the maximum memory lower than 256MB... do not hit them
-            argumnets.Add($"-Xms256M");
-
-            // The JVM args set by the user
-            if (!string.IsNullOrEmpty(selectedProfile.JVMArgs))
-                argumnets.Add($"{selectedProfile.JVMArgs}");
-            #endregion
-            #region Minecraft Args
-            // The main class
-            argumnets.Add(argMainClass);
-            // Vanilla Args
-            argumnets.Add(vanillaVersionMeta.Arguments.GetGameArgString());
-            // Moded Args
-            if (!string.IsNullOrEmpty(gameExtraArgumnets))
-                argumnets.Add(gameExtraArgumnets);
-            #endregion
-
-            // Screen resolution
-            if (selectedProfile.Resolution != null)
-            {
-                if (selectedProfile.Resolution.IsFullScreen)
-                {
-                    argumnets.Add($"--width {(int)SystemParameters.PrimaryScreenWidth}");
-                    argumnets.Add($"--height {(int)SystemParameters.PrimaryScreenHeight}");
-                }
-                else
-                {
-                    if (selectedProfile.Resolution.X > 0)
-                        argumnets.Add($"--width {selectedProfile.Resolution.X}");
-                    else
-                        argumnets.Add($"--width {(int)SystemParameters.PrimaryScreenWidth / 2}");
-
-                    if (selectedProfile.Resolution.Y > 0)
-                        argumnets.Add($"--height {selectedProfile.Resolution.Y}");
-                    else
-                        argumnets.Add($"--height {(int)SystemParameters.PrimaryScreenHeight / 2}");
-                }
-            }
-            else
-            {
-                argumnets.Add($"--width {(int)SystemParameters.PrimaryScreenWidth / 2}");
-                argumnets.Add($"--height {(int)SystemParameters.PrimaryScreenHeight / 2}");
-            }
-
-            string argumentString = string.Join(' ', argumnets);
-            #region Replace Variable Placeholders
-            argumentString = argumentString
-                //.Replace("-Djava.library.path=${natives_directory}", "")
-                .Replace("${natives_directory}", nativeDir)
-                .Replace("${launcher_name}", "konkord-launcher")
-                .Replace("${launcher_version}", "release")
-                .Replace("${auth_player_name}", account.DisplayName)
-                .Replace("${version_name}", versionName)
-                .Replace("${game_directory}", gameDir)
-                .Replace("${assets_root}", IOHelper.AssetsDir)
-                .Replace("${assets_index_name}", assetIndex)
-                .Replace("${auth_uuid}", account.UUID)
-                .Replace("${auth_access_token}", string.IsNullOrEmpty(account.AccessToken) ? "none" : account.AccessToken)
-                .Replace("${clientid}", clientId)
-                .Replace("${auth_xuid}", xUID)
-                .Replace("${user_type}", "msa")
-                .Replace("${version_type}", "release")
-                .Replace("${classpath}", $"\"{libraryBundle}\"")
-                .Replace("${library_directory}", IOHelper.LibrariesDir);
-            #endregion
-            #endregion
-
-            UpdateLaunchStatusBar(0, $"Launching the game...");
-            #region Finish and Launch Minecraft
             // Enable play button
             bo_launch_play.IsEnabled = true;
             btn_launch_play.IsEnabled = true;
             // Disable progressbar
             UpdateLaunchStatusBar(false);
-            //Launch game instance
-
-            var psi = new ProcessStartInfo()
-            {
-                FileName = $"{selectedProfile.JavaPath}java",
-                Arguments = argumentString,
-                UseShellExecute = false,
-                RedirectStandardError = true,
-            };
-            Process? p = Process.Start(psi);
-            await p.WaitForExitAsync();
-            string o = await p.StandardError.ReadToEndAsync();
-            if (!string.IsNullOrEmpty(o))
-                NotificationHelper.SendError(o, "Error");
-            else
-                NotificationHelper.SendInfo("No errors message was found.", "Info");
 
             switch (selectedProfile.LauncherVisibility)
             {
                 case ELaucnherVisibility.HIDE_AND_REOPEN_ON_GAME_CLOSE:
                     {
                         this.Hide();
-                        await p.WaitForExitAsync();
+                        if (process != null)
+                            await process.WaitForExitAsync();
                         this.Show();
                         break;
                     }
@@ -1602,7 +825,6 @@ namespace KonkordLauncher
                         break;
                     }
             }
-            #endregion
         }
 
         /// <summary>

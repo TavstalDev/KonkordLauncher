@@ -7,6 +7,9 @@ using System.IO;
 using System.Net.Http;
 using KonkordLibrary.Models.Forge;
 using System.Security.Cryptography;
+using KonkordLibrary.Models.Installer;
+using KonkordLibrary.Models.Fabric;
+using KonkordLibrary.Models.Quilt;
 
 namespace KonkordLibrary.Helpers
 {
@@ -358,8 +361,7 @@ namespace KonkordLibrary.Helpers
                 #region Vanilla
                 if (!File.Exists(_vanillaManifestJsonFile))
                 {
-
-                    string? json = await httpClient.GetStringAsync(GameManager.MCVerisonManifestUrl);
+                    string? json = await httpClient.GetStringAsync(MinecraftInstaller.MCVerisonManifestUrl);
                     if (json != null)
                         File.WriteAllText(_vanillaManifestJsonFile, json);
                 }
@@ -368,7 +370,7 @@ namespace KonkordLibrary.Helpers
                 #region Fabric
                 if (!File.Exists(_fabricManifestJsonFile))
                 {
-                    string? json = await httpClient.GetStringAsync(GameManager.FabricVersionManifestUrl);
+                    string? json = await httpClient.GetStringAsync(FabricInstaller.FabricVersionManifestUrl);
                     if (json != null)
                         File.WriteAllText(_fabricManifestJsonFile, json);
                 }
@@ -378,7 +380,7 @@ namespace KonkordLibrary.Helpers
                 if (!File.Exists(_forgeManifestJsonFile))
                 {
 
-                    string? json = await httpClient.GetStringAsync(GameManager.ForgeVersionManifest);
+                    string? json = await httpClient.GetStringAsync(ForgeInstaller.ForgeVersionManifest);
                     if (json != null)
                         File.WriteAllText(_forgeManifestJsonFile, json);
                 }
@@ -387,7 +389,7 @@ namespace KonkordLibrary.Helpers
                 #region Quilt
                 if (!File.Exists(_quiltManifestJsonFile))
                 {
-                    string? json = await httpClient.GetStringAsync(GameManager.QuiltVersionManifestUrl);
+                    string? json = await httpClient.GetStringAsync(QuiltInstaller.QuiltVersionManifestUrl);
                     if (json != null)
                         File.WriteAllText(_quiltManifestJsonFile, json);
                 }
@@ -399,6 +401,7 @@ namespace KonkordLibrary.Helpers
         #endregion
 
         #region Functions
+
         public static void DeleteDirectory(string path)
         {
             var forgeInstallerDirInfo = new DirectoryInfo(path);

@@ -798,11 +798,6 @@ namespace KonkordLauncher
 
             Process process = await installer.Install();
 
-            await process.WaitForExitAsync();
-            string o = process.StandardError.ReadToEnd();
-            if (!string.IsNullOrEmpty(o))
-                NotificationHelper.SendError(o, "Error");
-
             // Enable play button
             bo_launch_play.IsEnabled = true;
             btn_launch_play.IsEnabled = true;
@@ -830,6 +825,12 @@ namespace KonkordLauncher
                         break;
                     }
             }
+
+#if DEBUG
+            string o = process.StandardError.ReadToEnd();
+            if (!string.IsNullOrEmpty(o))
+                NotificationHelper.SendError(o, "Error");
+#endif
         }
 
         /// <summary>

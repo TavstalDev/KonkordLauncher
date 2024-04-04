@@ -380,7 +380,7 @@ namespace KonkordLibrary.Helpers
                 if (!File.Exists(_forgeManifestJsonFile))
                 {
 
-                    string? json = await httpClient.GetStringAsync(ForgeInstaller.ForgeVersionManifest);
+                    string? json = await httpClient.GetStringAsync(ForgeInstallerBase.ForgeVersionManifest);
                     if (json != null)
                         File.WriteAllText(_forgeManifestJsonFile, json);
                 }

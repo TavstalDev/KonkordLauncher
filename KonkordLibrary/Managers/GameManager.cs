@@ -2,7 +2,6 @@
 using KonkordLibrary.Helpers;
 using KonkordLibrary.Models;
 using KonkordLibrary.Models.Fabric;
-using KonkordLibrary.Models.GameManager;
 using KonkordLibrary.Models.Minecraft;
 using KonkordLibrary.Models.Minecraft.Library;
 using Newtonsoft.Json;
@@ -17,9 +16,9 @@ namespace KonkordLibrary.Managers
     public static class GameManager
     {
         #region Version Functions
-        public static VersionResponse GetProfileVersionDetails(EProfileKind kind, string versionId, string? vanillaVersionId = null, string? customDirectory = null)
+        public static VersionDetails GetProfileVersionDetails(EProfileKind kind, string versionId, string? vanillaVersionId = null, string? customDirectory = null)
         {
-            VersionResponse response = new VersionResponse();
+            VersionDetails response = new VersionDetails();
 
             response.InstanceVersion = versionId;
             response.VanillaVersion = vanillaVersionId ?? versionId;
@@ -56,7 +55,7 @@ namespace KonkordLibrary.Managers
             return response;
         }
 
-        public static VersionResponse GetProfileVersionDetails(EProfileType type, VersionManifest? manifest = null, Profile? profile = null)
+        public static VersionDetails GetProfileVersionDetails(EProfileType type, VersionManifest? manifest = null, Profile? profile = null)
         {
             switch (type)
             {

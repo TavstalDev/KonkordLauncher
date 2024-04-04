@@ -1,17 +1,16 @@
-﻿using KonkordLibrary.Models.GameManager;
-using KonkordLibrary.Models.Minecraft.Library;
+﻿using KonkordLibrary.Models.Minecraft.Library;
 
 namespace KonkordLibrary.Models.Installer
 {
     public class ModedData
     {
         public string MainClass { get; set; }
-        public VersionResponse VersionData { get; set; }
+        public VersionDetails VersionData { get; set; }
         public List<MCLibrary> Libraries { get; set; }
 
         public ModedData() { }
 
-        public ModedData(string mainClass, VersionResponse versionData, List<MCLibrary> libraries)
+        public ModedData(string mainClass, VersionDetails versionData, List<MCLibrary> libraries)
         {
             MainClass = mainClass;
             VersionData = versionData;

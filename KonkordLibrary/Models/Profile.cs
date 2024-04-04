@@ -1,7 +1,6 @@
 ﻿using KonkordLibrary.Enums;
 using KonkordLibrary.Helpers;
 using KonkordLibrary.Managers;
-using KonkordLibrary.Models.GameManager;
 using System.IO;
 using System.Text.Json.Serialization;
 
@@ -71,7 +70,7 @@ namespace KonkordLibrary.Models
 
         public string GetGameDirectory()
         {
-            VersionResponse version = KonkordLibrary.Managers.GameManager.GetProfileVersionDetails(Kind, VersionId, VersionVanillaId, GameDirectory);
+            VersionDetails version = KonkordLibrary.Managers.GameManager.GetProfileVersionDetails(Kind, VersionId, VersionVanillaId, GameDirectory);
             return version.GameDir;
         }
     }

@@ -779,8 +779,21 @@ namespace KonkordLauncher
                     }
                 case EProfileKind.FORGE:
                     {
-                        // TODO
-                        installer = new ForgeInstaller(selectedProfile, lab_launch_progress, pb_launch_progress, debug);
+                        ForgeInstallerBase? localInstaller = ForgeInstallerBase.Create(selectedProfile, lab_launch_progress, pb_launch_progress, debug);
+
+                        if (localInstaller == null)
+                        {
+                            // Enable play button
+                            bo_launch_play.IsEnabled = true;
+                            btn_launch_play.IsEnabled = true;
+                            // Disable progressbar
+                            UpdateLaunchStatusBar(false);
+
+                            NotificationHelper.SendWarning($"The '{selectedProfile.VersionVanillaId}' minecraft version is not supported.", "Warning");
+                            return;
+                        }
+
+                        installer = localInstaller;
                         break;
                     }
                 case EProfileKind.FABRIC:

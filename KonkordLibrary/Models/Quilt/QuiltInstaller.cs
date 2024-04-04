@@ -1,7 +1,6 @@
 ﻿using KonkordLibrary.Enums;
 using KonkordLibrary.Helpers;
 using KonkordLibrary.Models.Fabric;
-using KonkordLibrary.Models.GameManager;
 using KonkordLibrary.Models.Installer;
 using KonkordLibrary.Models.Minecraft.Library;
 using Newtonsoft.Json;
@@ -36,7 +35,7 @@ namespace KonkordLibrary.Models.Quilt
                 return null;
             }
 
-            VersionResponse quiltVersion = Managers.GameManager.GetProfileVersionDetails(EProfileKind.QUILT, Profile.VersionId, Profile.VersionVanillaId, Profile.GameDirectory);
+            VersionDetails quiltVersion = Managers.GameManager.GetProfileVersionDetails(EProfileKind.QUILT, Profile.VersionId, Profile.VersionVanillaId, Profile.GameDirectory);
 
             // Create versionDir in the versions folder
             if (!Directory.Exists(quiltVersion.VersionDirectory))

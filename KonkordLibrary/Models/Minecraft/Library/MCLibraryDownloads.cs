@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace KonkordLibrary.Models.Minecraft.Library
 {
@@ -6,12 +7,15 @@ namespace KonkordLibrary.Models.Minecraft.Library
     {
         [JsonPropertyName("artifact")]
         public MCLibraryArtifact Artifact { get; set; }
+        [JsonProperty("classifiers")]
+        public MCLibraryClassifier? Classifiers { get; set; }
 
         public MCLibraryDownloads() { }
 
-        public MCLibraryDownloads(MCLibraryArtifact artifact)
+        public MCLibraryDownloads(MCLibraryArtifact artifact, MCLibraryClassifier? classifiers)
         {
             Artifact = artifact;
+            Classifiers = classifiers;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using KonkordLibrary.Models.Minecraft.Library;
+using Newtonsoft.Json.Linq;
 using System.Text.Json.Serialization;
 
 namespace KonkordLibrary.Models.Forge
@@ -18,9 +19,9 @@ namespace KonkordLibrary.Models.Forge
         [JsonPropertyName("serverJarPath")]
         public string ServerJarPath { get; set; }
         [JsonPropertyName("data")]
-        public object Data { get; set; }
+        public JObject Data { get; set; }
         [JsonPropertyName("processors")]
-        public object Processors { get; set; }
+        public JArray Processors { get; set; }
         [JsonPropertyName("libraries")]
         public List<MCLibrary> Libraries { get; set; }
     }

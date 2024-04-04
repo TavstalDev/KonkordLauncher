@@ -75,7 +75,7 @@ namespace KonkordLibrary.Models.Quilt
                 foreach (var lib in quiltVersionMeta.Libraries)
                 {
                     localLibrarySize += lib.Size;
-                    localLibraries.Add(new MCLibrary(lib.Name, new MCLibraryDownloads(new MCLibraryArtifact(lib.GetPath(), lib.Sha1, lib.Size, lib.GetURL())), new List<MCLibraryRule>()));
+                    localLibraries.Add(new MCLibrary(lib.Name, new MCLibraryDownloads(new MCLibraryArtifact(lib.GetPath(), lib.Sha1, lib.Size, lib.GetURL()), null), new List<MCLibraryRule>()));
                 }
                 // Save the version cache
                 await JsonHelper.WriteJsonFileAsync(librarySizeCachePath, localLibrarySize);
@@ -92,7 +92,7 @@ namespace KonkordLibrary.Models.Quilt
 
                 foreach (var lib in quiltVersionMeta.Libraries)
                 {
-                    localLibraries.Add(new MCLibrary(lib.Name, new MCLibraryDownloads(new MCLibraryArtifact(lib.GetPath(), lib.Sha1, lib.Size, lib.GetURL())), new List<MCLibraryRule>()));
+                    localLibraries.Add(new MCLibrary(lib.Name, new MCLibraryDownloads(new MCLibraryArtifact(lib.GetPath(), lib.Sha1, lib.Size, lib.GetURL()), null), new List<MCLibraryRule>()));
                 }
             }
 

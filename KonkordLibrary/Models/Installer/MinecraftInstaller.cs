@@ -1,6 +1,5 @@
 ﻿using KonkordLibrary.Enums;
 using KonkordLibrary.Helpers;
-using KonkordLibrary.Models.GameManager;
 using KonkordLibrary.Models.Minecraft;
 using KonkordLibrary.Models.Minecraft.Library;
 using Newtonsoft.Json;
@@ -22,7 +21,7 @@ namespace KonkordLibrary.Models.Installer
         public static string MCVerisonManifestUrl { get { return _mcVersionManifestUrl; } }
 
         public Profile Profile { get; }
-        public VersionResponse VersionData { get; }
+        public VersionDetails VersionData { get; }
         public VersionManifest VersionManifest { get; }
         public MCVersion MinecraftVersion { get; }
         public MCVersionMeta MinecraftVersionMeta { get; private set; }
@@ -34,6 +33,8 @@ namespace KonkordLibrary.Models.Installer
         internal List<LaunchArg> _jvmArguments { get; set; }
         internal List<LaunchArg> _gameArguments { get; set; }
         internal List<LaunchArg> _jvmArgumentsBeforeClassPath { get; set; }
+
+        public MinecraftInstaller() { }
 
         public MinecraftInstaller(Profile profile, Label label, ProgressBar progressBar, bool isDebug)
         {

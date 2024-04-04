@@ -120,7 +120,7 @@ namespace KonkordLibrary.Models.Installer
                 natives = await DownloadLibraries(libraries); // 1
                 if (Profile.Kind != EProfileKind.FORGE)
                     _classPath += modedData.VersionData.VersionJarPath; // 2
-                arguments = await BuildArguments(modedData.VersionData.GameDir, modedData.MainClass, modedData.VersionData.InstanceVersion); // 3
+                arguments = await BuildArguments(modedData.VersionData.GameDir, modedData.MainClass, modedData.VersionData.NativesDir, modedData.VersionData.InstanceVersion); // 3
                 
             }
             else
@@ -131,7 +131,7 @@ namespace KonkordLibrary.Models.Installer
                 await DownloadLogging(VersionData.VersionDirectory, VersionData.GameDir); // 0
                 natives = await DownloadLibraries(libraries); // 1
                 _classPath += VersionData.VersionJarPath; // 2
-                arguments = await BuildArguments(VersionData.GameDir, MinecraftVersionMeta.MainClass); // 3
+                arguments = await BuildArguments(VersionData.GameDir, MinecraftVersionMeta.MainClass, VersionData.NativesDir); // 3
                 
             }
 
@@ -311,6 +311,9 @@ namespace KonkordLibrary.Models.Installer
         private async Task DownloadMappings()
         {
             UpdateProgressbar(0, $"Checking client mappings...");
+            if (MinecraftVersionMeta.Downloads.ClientMappings == null)
+                return;
+
             string clientMappinsPath = Path.Combine(VersionData.VersionDirectory, "client.txt");
             if (!File.Exists(clientMappinsPath))
             {
@@ -350,53 +353,8 @@ namespace KonkordLibrary.Models.Installer
                     foreach (var lib in mcLibs)
                     {
                         // Check the library rule
-                        if (lib.Rules != null)
-                            if (lib.Rules.Count > 0)
-                            {
-                                bool action = lib.Rules[0].Action == "allow";
-                                if (lib.Rules[0].OS != null)
-                                {
-                                    switch (lib.Rules[0].OS.Name)
-                                    {
-                                        case "osx": // lib requies machintosh
-                                            {
-                                                if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && action)
-                                                {
-                                                    continue;
-                                                }
-                                                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && !action)
-                                                {
-                                                    continue;
-                                                }
-                                                break;
-                                            }
-                                        case "linux":
-                                            {
-                                                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && action)
-                                                {
-                                                    continue;
-                                                }
-                                                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && !action)
-                                                {
-                                                    continue;
-                                                }
-                                                break;
-                                            }
-                                        case "windows":
-                                            {
-                                                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && action)
-                                                {
-                                                    continue;
-                                                }
-                                                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !action)
-                                                {
-                                                    continue;
-                                                }
-                                                break;
-                                            }
-                                    }
-                                }
-                            }
+                        if (!lib.GetRulesResult())
+                            continue;
 
                         libraryOverallSize += lib.Downloads.Artifact.Size;
                     }
@@ -410,53 +368,8 @@ namespace KonkordLibrary.Models.Installer
                 foreach (var lib in mcLibs)
                 {
                     // Check the library rule
-                    if (lib.Rules != null)
-                        if (lib.Rules.Count > 0)
-                        {
-                            bool action = lib.Rules[0].Action == "allow";
-                            if (lib.Rules[0].OS != null)
-                            {
-                                switch (lib.Rules[0].OS.Name)
-                                {
-                                    case "osx": // lib requies machintosh
-                                        {
-                                            if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && action)
-                                            {
-                                                continue;
-                                            }
-                                            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && !action)
-                                            {
-                                                continue;
-                                            }
-                                            break;
-                                        }
-                                    case "linux":
-                                        {
-                                            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && action)
-                                            {
-                                                continue;
-                                            }
-                                            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && !action)
-                                            {
-                                                continue;
-                                            }
-                                            break;
-                                        }
-                                    case "windows":
-                                        {
-                                            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && action)
-                                            {
-                                                continue;
-                                            }
-                                            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !action)
-                                            {
-                                                continue;
-                                            }
-                                            break;
-                                        }
-                                }
-                            }
-                        }
+                    if (!lib.GetRulesResult())
+                        continue;
 
                     string localPath = lib.Downloads.Artifact.Path;
                     string libDirPath = Path.Combine(IOHelper.LibrariesDir, localPath.Remove(localPath.LastIndexOf('/'), localPath.Length - localPath.LastIndexOf('/')));
@@ -483,6 +396,14 @@ namespace KonkordLibrary.Models.Installer
                             natives.Add(lib);
                         }
                     }
+                    else
+                    {
+                        if (lib.Name.StartsWith("org.lwjgl"))
+                        {
+                            natives.Add(lib);
+                        }
+                    }
+
                     libraryDownloadedSize += lib.Downloads.Artifact.Size;
                     if (libraryOverallSize == 0)
                         libraryOverallSize = 1; // NaN fix
@@ -508,14 +429,72 @@ namespace KonkordLibrary.Models.Installer
             if (!Directory.Exists(nativeDir))
                 Directory.CreateDirectory(nativeDir);
 
-
+            string libJarFilePath = string.Empty;
+            string libJarFileDir = string.Empty;
             foreach (MCLibrary lib in nativeLibs)
             {
-                string localPath = lib.Downloads.Artifact.Path;
-                string libFilePath = Path.Combine(IOHelper.LibrariesDir, localPath);
+                if (lib.Downloads.Classifiers != null) // 1.17-
+                {
+                    string localUrl = string.Empty;
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    {
+                        if (lib.Downloads.Classifiers.WindowsNatives == null)
+                            continue;
 
-                string tempZipDir = Path.Combine(IOHelper.TempDir, localPath.Split('.')[0]);
+                        localUrl = lib.Downloads.Classifiers.WindowsNatives.Url;
+                        libJarFilePath = lib.Downloads.Classifiers.WindowsNatives.Path;
+                    }
+                    else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                    {
+                        if (lib.Downloads.Classifiers.LinuxNatives == null)
+                            continue;
 
+                        localUrl = lib.Downloads.Classifiers.LinuxNatives.Url;
+                        libJarFilePath = lib.Downloads.Classifiers.LinuxNatives.Path;
+                    }
+                    else // OSX
+                    {
+                        if (lib.Downloads.Classifiers.OsxNatives == null)
+                            continue;
+
+                        localUrl = lib.Downloads.Classifiers.OsxNatives.Url;
+                        libJarFilePath = lib.Downloads.Classifiers.OsxNatives.Path;
+                    }
+
+                    // Add dir
+                    string localFilePath = Path.Combine(IOHelper.LibrariesDir, libJarFilePath);
+
+                    if (!File.Exists(localFilePath))
+                    {
+                        string libJarDir = localFilePath.Remove(localFilePath.LastIndexOf('/'), localFilePath.Length - localFilePath.LastIndexOf('/'));
+                        if (!Directory.Exists(libJarDir))
+                            Directory.CreateDirectory(libJarDir);
+
+                        using (HttpClient client = new HttpClient())
+                        {
+                            byte[] bytes = await client.GetByteArrayAsync(localUrl);
+                            await File.WriteAllBytesAsync(localFilePath, bytes);
+                        }
+                    }
+                }
+                else // 1.17+
+                {
+                    libJarFilePath = lib.Downloads.Artifact.Path;
+                }
+
+                string libFilePath = Path.Combine(IOHelper.LibrariesDir, libJarFilePath);
+                List <string> dirBaseRaw = libJarFilePath.Split('.').ToList();
+                dirBaseRaw.RemoveAt(dirBaseRaw.Count - 1);
+
+                string dirRaw = string.Empty;
+                foreach (var ba in dirBaseRaw)
+                {
+                    if (string.IsNullOrEmpty(dirRaw))
+                        dirRaw += ba;
+                    else
+                        dirRaw += $".{ba}";
+                }
+                string tempZipDir = Path.Combine(IOHelper.TempDir, dirRaw);
                 ZipFile.ExtractToDirectory(libFilePath, tempZipDir, true);
 
                 string[] files = Directory.GetFiles(tempZipDir, "*.dll", searchOption: SearchOption.AllDirectories);
@@ -523,6 +502,11 @@ namespace KonkordLibrary.Models.Installer
                 {
                     foreach (string file in files)
                     {
+                        if (Environment.Is64BitOperatingSystem && file.Contains("32"))
+                            continue;
+                        else if (!Environment.Is64BitOperatingSystem && !file.Contains("32"))
+                            continue;
+
                         string fileName = file.Remove(0, file.LastIndexOf('\\') + 1);
                         string filePath = Path.Combine(nativeDir, fileName);
                         if (!File.Exists(filePath))
@@ -544,7 +528,7 @@ namespace KonkordLibrary.Models.Installer
         /// <returns>
         /// A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains the built launch arguments as a string.
         /// </returns>
-        private async Task<string> BuildArguments(string gameDir, string mainClass, string? modVersion = null)
+        private async Task<string> BuildArguments(string gameDir, string mainClass, string nativesDir, string? modVersion = null)
         {
             List<string> arguments = new List<string>();
 
@@ -659,7 +643,7 @@ namespace KonkordLibrary.Models.Installer
             #region Replace Variable Placeholders
             argumentString = argumentString
                 //.Replace("-Djava.library.path=${natives_directory}", "")
-                .Replace("${natives_directory}", VersionData.NativesDir)
+                .Replace("${natives_directory}", nativesDir)
                 .Replace("${launcher_name}", "konkord-launcher")
                 .Replace("${launcher_version}", "release")
                 .Replace("${auth_player_name}", account.DisplayName)
@@ -698,7 +682,7 @@ namespace KonkordLibrary.Models.Installer
                 RedirectStandardError = true,
             };
 
-            //Debug.WriteLine(arguments.Replace(' ', '\n'));
+            Debug.WriteLine(arguments.Replace(' ', '\n'));
             Process? p = Process.Start(psi);
             return p;
         }

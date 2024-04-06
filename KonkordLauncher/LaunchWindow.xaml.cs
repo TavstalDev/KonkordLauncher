@@ -496,6 +496,10 @@ namespace KonkordLauncher
             {
                 EditedProfile = null;
                 EditedProfileKey = string.Empty;
+
+                scroll_instances.ScrollToTop();
+                img_instances_icon.Source = new BitmapImage(new Uri(ProfileIcon.Icons.ElementAt(0).Path, UriKind.Relative));
+                SelectedIcon = ProfileIcon.Icons.ElementAt(0).Path;
                 cb_instances_mc_version.IsEnabled = true;
                 cb_instances_mcmod_version.IsEnabled = false;
                 cb_instances_mod_version.IsEnabled = false;
@@ -590,6 +594,9 @@ namespace KonkordLauncher
                         }
                 }
 
+                scroll_instances.ScrollToTop();
+                img_instances_icon.Source = new BitmapImage(new Uri(profile.Icon));
+                SelectedIcon = profile.Icon;
                 tb_instances_gamedir.Text = EditedProfile.GameDirectory ?? "";
                 tb_instances_javadir.Text = EditedProfile.JavaPath ?? "";
                 tb_instances_name.Text = EditedProfile.Name;
@@ -842,7 +849,7 @@ namespace KonkordLauncher
 #if DEBUG
             string o = process.StandardError.ReadToEnd();
             if (!string.IsNullOrEmpty(o))
-                NotificationHelper.SendError(o, "Error");
+                NotificationHelper.SendError(o, "Error - Minecraft");
 #endif
         }
 

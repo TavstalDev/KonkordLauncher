@@ -10,7 +10,14 @@ using System.Windows.Controls;
 
 namespace KonkordLibrary.Models.Forge.Installer
 {
-    // 1.7-1.11
+    /*
+     * 1.12.x
+     * 1.11.x
+     * 1.9.x
+     * 1.8.x
+     * 1.7.x
+     * 1.6 and below are old
+    */
     public class ForgeInstLegacy : ForgeInstallerBase
     {
         public ForgeInstLegacy() : base() { }

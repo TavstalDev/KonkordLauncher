@@ -25,7 +25,7 @@ namespace KonkordLibrary.Models.Installer
         public VersionManifest VersionManifest { get; }
         public MCVersion MinecraftVersion { get; }
         public MCVersionMeta MinecraftVersionMeta { get; private set; }
-        public string JavaPath { get; }
+        public string JavaPath { get; internal set; }
         public Label ProgressbarLabel { get; }
         public ProgressBar ProgressBar { get; }
         public bool IsDebug { get; }
@@ -71,7 +71,13 @@ namespace KonkordLibrary.Models.Installer
                 throw new Exception($"Failed to get the minecraft version for '{VersionData.VanillaVersion}'.");
             MinecraftVersion = mcVersion;
 
+            
+
             JavaPath = string.IsNullOrEmpty(profile.JavaPath) ? (isDebug ? "java" : "javaw") : profile.JavaPath;
+            if (!(JavaPath.EndsWith("java") || JavaPath.EndsWith("javaw") || JavaPath.EndsWith("java.exe") || JavaPath.EndsWith("javaw.exe")))
+            {
+                JavaPath = Path.Combine(JavaPath, isDebug ? "java.exe" : "javaw.exe");
+            }
 
         }
 
@@ -357,6 +363,9 @@ namespace KonkordLibrary.Models.Installer
                         if (!lib.GetRulesResult())
                             continue;
 
+                        if (lib.Downloads.Artifact == null)
+                            continue;
+
                         libraryOverallSize += lib.Downloads.Artifact.Size;
                     }
 
@@ -370,6 +379,9 @@ namespace KonkordLibrary.Models.Installer
                 {
                     // Check the library rule
                     if (!lib.GetRulesResult())
+                        continue;
+
+                    if (lib.Downloads.Artifact == null)
                         continue;
 
                     string localPath = lib.Downloads.Artifact.Path;
@@ -542,7 +554,7 @@ namespace KonkordLibrary.Models.Installer
                 });
 
             // Vanilla Args
-            arguments.Add(MinecraftVersionMeta.Arguments.GetJVMArgString());
+            arguments.Add(MinecraftVersionMeta.GetJVMArgumentString());
 
             // Moded Args
             if (_jvmArguments.Count > 0)
@@ -552,7 +564,7 @@ namespace KonkordLibrary.Models.Installer
 
             // Maximum Memory
             if (Profile.Memory > 0 && Profile.Memory <= 256)
-                arguments.Add($"-Xmx{Profile.Memory}G");
+                arguments.Add($"-Xmx{Profile.Memory * 1024}M");
             else if (Profile.Memory > 256)
                 arguments.Add($"-Xmx{Profile.Memory}M");
             else
@@ -569,7 +581,8 @@ namespace KonkordLibrary.Models.Installer
             // The main class
             arguments.Add(mainClass);
             // Vanilla Args
-            arguments.Add(MinecraftVersionMeta.Arguments.GetGameArgString());
+            arguments.Add(MinecraftVersionMeta.GetGameArgumentString());
+
             // Moded Args
             if (_gameArguments.Count > 0)
                 _gameArguments.OrderByDescending(x => x.Priority).ToList().ForEach((LaunchArg a) => {
@@ -590,18 +603,18 @@ namespace KonkordLibrary.Models.Installer
                     if (Profile.Resolution.X > 0)
                         arguments.Add($"--width {Profile.Resolution.X}");
                     else
-                        arguments.Add($"--width {(int)SystemParameters.PrimaryScreenWidth * 0.44}");
+                        arguments.Add($"--width {(int)(SystemParameters.PrimaryScreenWidth * 0.44)}");
 
                     if (Profile.Resolution.Y > 0)
                         arguments.Add($"--height {Profile.Resolution.Y}");
                     else
-                        arguments.Add($"--height {(int)SystemParameters.PrimaryScreenHeight * 0.44}");
+                        arguments.Add($"--height {(int)(SystemParameters.PrimaryScreenHeight * 0.44)}");
                 }
             }
             else
             {
-                arguments.Add($"--width {(int)SystemParameters.PrimaryScreenWidth * 0.44}");
-                arguments.Add($"--height {(int)SystemParameters.PrimaryScreenHeight * 0.44}");
+                arguments.Add($"--width {(int)(SystemParameters.PrimaryScreenWidth * 0.44)}");
+                arguments.Add($"--height {(int)(SystemParameters.PrimaryScreenHeight * 0.44)}");
             }
 
             AccountData? accountData = await JsonHelper.ReadJsonFileAsync<AccountData>(Path.Combine(IOHelper.MainDirectory, "accounts.json"));

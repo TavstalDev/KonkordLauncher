@@ -3,6 +3,7 @@ using KonkordLibrary.Helpers;
 using KonkordLibrary.Models.Installer;
 using KonkordLibrary.Models.Minecraft.Library;
 using Newtonsoft.Json;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
@@ -10,7 +11,16 @@ using System.Windows.Controls;
 
 namespace KonkordLibrary.Models.Forge.Installer
 {
-    // 1.12+
+    /* 1.20 - ok
+     * 1.19 - ok
+     * 1.18 - ok
+     * 1.17 - ok
+     * 1.16 - ok #s java version should be changed
+     * 1.15 - ok
+     * 1.14 - ok
+     * 1.13 - ok #e
+     * 1.12.2 and below - LEGACY
+    */
     public class ForgeInstNew : ForgeInstallerBase
     {
         public ForgeInstNew() : base() { }
@@ -21,6 +31,14 @@ namespace KonkordLibrary.Models.Forge.Installer
 
         internal override async Task<ModedData?> InstallModed(string tempDir)
         {
+            UpdateProgressbar(0, $"Trying to get recommended java path...");
+            MinecraftVersionMeta.JavaVersion.FindOnSystem(out string? RecommendedJavaPath);
+            if (!string.IsNullOrEmpty(RecommendedJavaPath) && string.IsNullOrEmpty(Profile.JavaPath))
+            {
+                if (Directory.Exists(RecommendedJavaPath))
+                    JavaPath = Path.Combine(RecommendedJavaPath, "bin", IsDebug ? "java.exe" : "javaw.exe");
+            }
+
             UpdateProgressbar(0, $"Reading the forgeManifest file...");
             if (!File.Exists(IOHelper.ForgeManifestJsonFile))
             {
@@ -64,17 +82,22 @@ namespace KonkordLibrary.Models.Forge.Installer
                 File.Move(Path.Combine(installerDir, "version.json"), forgeVersion.VersionJsonPath);
 
             // COPY MAVEN IF EXISTS
-            /*string mavenTempDir = Path.Combine(installerDir, "maven");
+            string mavenTempDir = Path.Combine(installerDir, "maven");
             if (Directory.Exists(mavenTempDir))
             {
                 string[] files = Directory.GetFiles(mavenTempDir, "*.jar", SearchOption.AllDirectories);
                 foreach (string file in files)
                 {
                     string newPath = file.Replace(mavenTempDir, IOHelper.LibrariesDir);
-                    _classPath += $"{newPath};";
+                    string newDir = newPath.Remove(newPath.LastIndexOf('\\'), newPath.Length - newPath.LastIndexOf('\\'));
+
+                    if (!Directory.Exists(newDir))
+                        Directory.CreateDirectory(newDir);
+
+                    if (!File.Exists(newPath))
+                        File.Copy(file, newPath, false);
                 }
-                IOHelper.MoveDirectory(mavenTempDir, IOHelper.LibrariesDir, false);
-            }*/
+            }
 
             ForgeVersionMeta? forgeVersionMeta = JsonConvert.DeserializeObject<ForgeVersionMeta>(await File.ReadAllTextAsync(forgeVersion.VersionJsonPath));
             if (forgeVersionMeta == null)
@@ -113,13 +136,14 @@ namespace KonkordLibrary.Models.Forge.Installer
                     string libFilePath = Path.Combine(IOHelper.LibrariesDir, localPath);
                     if (!File.Exists(libFilePath))
                     {
-                        double percent = (double)downloadedSize / (double)toDownloadSize * 100d;
-                        UpdateProgressbar(percent, $"Downloading the '{lib.Name}' library... {percent:0.00}%");
                         if (!string.IsNullOrEmpty(lib.Downloads.Artifact.Url))
                         {
                             byte[] bytes = await client.GetByteArrayAsync(lib.Downloads.Artifact.Url);
                             await File.WriteAllBytesAsync(libFilePath, bytes);
+                            downloadedSize += lib.Downloads.Artifact.Size;
                         }
+                        double percent = (double)downloadedSize / (double)toDownloadSize * 100d;
+                        UpdateProgressbar(percent, $"Downloading the '{lib.Name}' library... {percent:0.00}%");
                     }
                 }
             }
@@ -133,11 +157,16 @@ namespace KonkordLibrary.Models.Forge.Installer
 
             // Add launch arguments
             UpdateProgressbar(0, $"Adding forge arguments...");
-            foreach (var arg in forgeVersionMeta.Arguments.GetGameArgs())
-                _gameArguments.Add(new LaunchArg(arg, 1));
+            if (forgeVersionMeta.Arguments != null)
+            {
+                if (forgeVersionMeta.Arguments.Game != null)
+                    foreach (var arg in forgeVersionMeta.Arguments.GetGameArgs())
+                        _gameArguments.Add(new LaunchArg(arg, 1));
 
-            foreach (var arg in forgeVersionMeta.Arguments.GetJVMArgs())
-                _jvmArguments.Add(new LaunchArg(arg, 1));
+                if (forgeVersionMeta.Arguments.JVM != null)
+                    foreach (var arg in forgeVersionMeta.Arguments.GetJVMArgs())
+                        _jvmArguments.Add(new LaunchArg(arg, 1));
+            }
 
             _jvmArgumentsBeforeClassPath.Add(new LaunchArg("-DMcEmu=net.minecraft.client.main.Main", 2));
             _jvmArgumentsBeforeClassPath.Add(new LaunchArg("-Dlog4j2.formatMsgNoLookups=true", 2));

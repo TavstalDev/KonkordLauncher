@@ -21,6 +21,14 @@ namespace KonkordLibrary.Models.Forge.Installer
 
         internal override async Task<ModedData?> InstallModed(string tempDir)
         {
+            UpdateProgressbar(0, $"Trying to get recommended java path...");
+            MinecraftVersionMeta.JavaVersion.FindOnSystem(out string? RecommendedJavaPath);
+            if (!string.IsNullOrEmpty(RecommendedJavaPath) && string.IsNullOrEmpty(Profile.JavaPath))
+            {
+                if (Directory.Exists(RecommendedJavaPath))
+                    JavaPath = Path.Combine(RecommendedJavaPath, "bin", IsDebug ? "java.exe" : "javaw.exe");
+            }
+
             UpdateProgressbar(0, $"Reading the forgeManifest file...");
             if (!File.Exists(IOHelper.ForgeManifestJsonFile))
             {
@@ -71,9 +79,14 @@ namespace KonkordLibrary.Models.Forge.Installer
                 foreach (string file in files)
                 {
                     string newPath = file.Replace(mavenTempDir, IOHelper.LibrariesDir);
-                    _classPath += $"{newPath};";
+                    string newDir = newPath.Remove(newPath.LastIndexOf('\\'), newPath.Length - newPath.LastIndexOf('\\'));
+
+                    if (!Directory.Exists(newDir))
+                        Directory.CreateDirectory(newDir);
+
+                    if (!File.Exists(newPath))
+                        File.Copy(file, newPath, false);
                 }
-                IOHelper.MoveDirectory(mavenTempDir, IOHelper.LibrariesDir, false);
             }
 
             ForgeVersionMeta? forgeVersionMeta = JsonConvert.DeserializeObject<ForgeVersionMeta>(await File.ReadAllTextAsync(forgeVersion.VersionJsonPath));
@@ -113,17 +126,15 @@ namespace KonkordLibrary.Models.Forge.Installer
                     string libFilePath = Path.Combine(IOHelper.LibrariesDir, localPath);
                     if (!File.Exists(libFilePath))
                     {
-                        double percent = (double)downloadedSize / (double)toDownloadSize * 100d;
-                        UpdateProgressbar(percent, $"Downloading the '{lib.Name}' library... {percent:0.00}%");
                         if (!string.IsNullOrEmpty(lib.Downloads.Artifact.Url))
                         {
                             byte[] bytes = await client.GetByteArrayAsync(lib.Downloads.Artifact.Url);
                             await File.WriteAllBytesAsync(libFilePath, bytes);
+                            downloadedSize += lib.Downloads.Artifact.Size;
                         }
-
+                        double percent = (double)downloadedSize / (double)toDownloadSize * 100d;
+                        UpdateProgressbar(percent, $"Downloading the '{lib.Name}' library... {percent:0.00}%");
                     }
-
-
                 }
             }
 
@@ -136,11 +147,16 @@ namespace KonkordLibrary.Models.Forge.Installer
 
             // Add launch arguments
             UpdateProgressbar(0, $"Adding forge arguments...");
-            foreach (var arg in forgeVersionMeta.Arguments.GetGameArgs())
-                _gameArguments.Add(new LaunchArg(arg, 1));
+            if (forgeVersionMeta.Arguments != null)
+            {
+                if (forgeVersionMeta.Arguments.Game != null)
+                    foreach (var arg in forgeVersionMeta.Arguments.GetGameArgs())
+                        _gameArguments.Add(new LaunchArg(arg, 1));
 
-            foreach (var arg in forgeVersionMeta.Arguments.GetJVMArgs())
-                _jvmArguments.Add(new LaunchArg(arg, 1));
+                if (forgeVersionMeta.Arguments.JVM != null)
+                    foreach (var arg in forgeVersionMeta.Arguments.GetJVMArgs())
+                        _jvmArguments.Add(new LaunchArg(arg, 1));
+            }
 
             _jvmArgumentsBeforeClassPath.Add(new LaunchArg("-DMcEmu=net.minecraft.client.main.Main", 2));
             _jvmArgumentsBeforeClassPath.Add(new LaunchArg("-Dlog4j2.formatMsgNoLookups=true", 2));
@@ -151,7 +167,7 @@ namespace KonkordLibrary.Models.Forge.Installer
             // Generate client libs
             await MapAndStartProcessors(installProfile, installerDir);
 
-            #region GET minecraftforge libraries
+            #region GET minecraftforge client libs
             string forgeUniversal = string.Format(ForgeLoaderUniversalJarUrl, $"{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}");
 
             string forgeUniversalDir = Path.Combine(IOHelper.LibrariesDir, $"net\\minecraftforge\\forge\\{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}");
@@ -170,15 +186,6 @@ namespace KonkordLibrary.Models.Forge.Installer
                 }
             }
 
-            /*UpdateProgressbar(0, $"Extracting forge universal...");
-            await extractUniversal(installerDir, forgeUniversalPath, $"{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}");
-
-            var jar = Path.Combine(installerDir, $"maven/net/minecraftforge/forge/{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}/forge-{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}.jar");
-            if (File.Exists(jar)) //fix 1.17+ 
-            {
-                if (!File.Exists(forgeVersion.VersionJarPath))
-                    File.Copy(jar, forgeVersion.VersionJarPath);
-            }*/
             #endregion
 
             ModedData modedData = new ModedData(forgeVersionMeta.MainClass, forgeVersion, localLibraries);

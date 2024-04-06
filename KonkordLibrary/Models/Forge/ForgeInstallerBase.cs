@@ -283,9 +283,10 @@ namespace KonkordLibrary.Models.Forge
 
             string localJavaPath = JavaPath;
             if (localJavaPath.EndsWith("java.exe"))
-                localJavaPath.Replace("java.exe", "javaw.exe");
+                localJavaPath = localJavaPath.Replace("java.exe", "javaw.exe");
             if (localJavaPath.EndsWith("java"))
                 localJavaPath += "w";
+
             // java.exe - shows console
             // javaw.exe - does not show console
 
@@ -303,7 +304,7 @@ namespace KonkordLibrary.Models.Forge
 #if DEBUG
             string o = process.StandardError.ReadToEnd();
             if (!string.IsNullOrEmpty(o))
-                NotificationHelper.SendError(o, "Error");
+                NotificationHelper.SendError(o, "Error - ForgeInstaller");
 #endif
         }
     }

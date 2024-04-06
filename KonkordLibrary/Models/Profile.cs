@@ -1,6 +1,6 @@
 ﻿using KonkordLibrary.Enums;
 using KonkordLibrary.Helpers;
-using KonkordLibrary.Managers;
+using Newtonsoft.Json;
 using System.IO;
 using System.Text.Json.Serialization;
 
@@ -9,29 +9,29 @@ namespace KonkordLibrary.Models
     [Serializable]
     public class Profile
     {
-        [JsonPropertyName("name")]
+        [JsonPropertyName("name"), JsonProperty("name")]
         public string Name { get; set; }
-        [JsonPropertyName("icon")]
+        [JsonPropertyName("icon"), JsonProperty("icon")]
         public string Icon { get; set; }
-        [JsonPropertyName("versionId")]
+        [JsonPropertyName("versionId"), JsonProperty("versionId")]
         public string VersionId { get; set; }
-        [JsonPropertyName("versionVanillaId")]
+        [JsonPropertyName("versionVanillaId"), JsonProperty("versionVanillaId")]
         public string VersionVanillaId { get; set; }
-        [JsonPropertyName("type")]
+        [JsonPropertyName("type"), JsonProperty("type")]
         public EProfileType Type { get; set; }
-        [JsonPropertyName("kind")]
+        [JsonPropertyName("kind"), JsonProperty("kind")]
         public EProfileKind Kind { get; set; }
-        [JsonPropertyName("resolution")]
+        [JsonPropertyName("resolution"), JsonProperty("resolution")]
         public Resolution Resolution { get; set; }
-        [JsonPropertyName("gameDirectory")]
+        [JsonPropertyName("gameDirectory"), JsonProperty("gameDirectory")]
         public string GameDirectory { get; set; }
-        [JsonPropertyName("javaPath")]
+        [JsonPropertyName("javaPath"), JsonProperty("javaPath")]
         public string JavaPath { get; set; }
-        [JsonPropertyName("jvmArgs")]
+        [JsonPropertyName("jvmArgs"), JsonProperty("jvmArgs")]
         public string JVMArgs { get; set; }
-        [JsonPropertyName("memory")]
+        [JsonPropertyName("memory"), JsonProperty("memory")]
         public int Memory { get; set; }
-        [JsonPropertyName("launcherVisibility")]
+        [JsonPropertyName("launcherVisibility"), JsonProperty("launcherVisibility")]
         public ELaucnherVisibility LauncherVisibility { get; set; }
 
         public Profile() { }

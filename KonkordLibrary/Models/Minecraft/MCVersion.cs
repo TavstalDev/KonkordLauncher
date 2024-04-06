@@ -1,20 +1,21 @@
 ﻿using KonkordLibrary.Enums;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace KonkordLibrary.Models.Minecraft
 {
     public class MCVersion
     {
-        [JsonPropertyName("id")]
+        [JsonPropertyName("id"), JsonProperty("id")]
         public string Id {  get; set; }
-        [JsonPropertyName("type")]
+        [JsonPropertyName("type"), JsonProperty("type")]
         public string Type { get; set; }
-        [JsonPropertyName("url")]
+        [JsonPropertyName("url"), JsonProperty("url")]
         public string Url {  get; set; }
-        [JsonPropertyName("time")]
+        [JsonPropertyName("time"), JsonProperty("time")]
         public DateTime Time { get; set; }
-        [JsonPropertyName("releaseTime")]
+        [JsonPropertyName("releaseTime"), JsonProperty("releaseTime")]
         public DateTime ReleaseTime {  get; set; }
 
         public EVersionType GetVersionBaseType() {
@@ -55,30 +56,13 @@ namespace KonkordLibrary.Models.Minecraft
 
         public MCVersion() { }
 
-        public MCVersion(string raw)
+        public MCVersion(string id, string type, string url, DateTime time, DateTime releaseTime)
         {
-            MCVersion? local = JsonSerializer.Deserialize<MCVersion>(raw);
-            if (local == null)
-                return;
-
-            Id = local.Id;
-            Type = local.Type;
-            Url = local.Url;
-            Time = local.Time;
-            ReleaseTime = local.ReleaseTime;
-        }
-
-        public MCVersion(string id, string type, string url, DateTime time, DateTime releaseTime) : this(id)
-        {
+            Id = id;
             Type = type;
             Url = url;
             Time = time;
             ReleaseTime = releaseTime;
-        }
-
-        public static MCVersion? FromJson(string json)
-        {
-            return JsonSerializer.Deserialize<MCVersion>(json);
         }
     }
 }

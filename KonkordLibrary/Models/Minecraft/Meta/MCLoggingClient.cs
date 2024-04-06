@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace KonkordLibrary.Models.Minecraft.Meta
 {
     public class MCLoggingClient
     {
-        [JsonPropertyName("argument")]
+        [JsonPropertyName("argument"), JsonProperty("argument")]
         public string Argument { get; set; }
-        [JsonPropertyName("file")]
+        [JsonPropertyName("file"), JsonProperty("file")]
         public MCLoggingFile File { get; set; }
-        [JsonPropertyName("type")]
+        [JsonPropertyName("type"), JsonProperty("type")]
         public string Type { get; set; }
 
         public MCLoggingClient() { }

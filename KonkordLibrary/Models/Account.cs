@@ -1,22 +1,23 @@
 ﻿using KonkordLibrary.Enums;
 using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace KonkordLibrary.Models
 {
     [Serializable]
     public class Account
     {
-        [JsonPropertyName("userId")]
+        [JsonPropertyName("userId"), JsonProperty("userId")]
         public string UserId {  get; set; }
-        [JsonPropertyName("uuid")]
+        [JsonPropertyName("uuid"), JsonProperty("uuid")]
         public string UUID { get; set; }
-        [JsonPropertyName("displayName")]
+        [JsonPropertyName("displayName"), JsonProperty("displayName")]
         public string DisplayName { get; set; }
-        [JsonPropertyName("type")]
+        [JsonPropertyName("type"), JsonProperty("type")]
         public EAccountType Type { get; set; }
-        [JsonPropertyName("accessToken")]
+        [JsonPropertyName("accessToken"), JsonProperty("accessToken")]
         public string AccessToken { get; set; }
-        [JsonPropertyName("refreshToken")]
+        [JsonPropertyName("refreshToken"), JsonProperty("refreshToken")]
         public string RefreshToken { get; set; }
 
         public Account() { }

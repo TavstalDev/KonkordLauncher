@@ -1,17 +1,18 @@
 ﻿using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace KonkordLibrary.Models
 {
     [Serializable]
     public class LauncherSettings
     {
-        [JsonPropertyName("version")]
+        [JsonPropertyName("version"), JsonProperty("version")]
         public int Version { get; set; }
-        [JsonPropertyName("language")]
+        [JsonPropertyName("language"), JsonProperty("language")]
         public string Language { get; set; }
-        [JsonPropertyName("selectedProfile")]
+        [JsonPropertyName("selectedProfile"), JsonProperty("selectedProfile")]
         public string SelectedProfile { get; set; }
-        [JsonPropertyName("profile")]
+        [JsonPropertyName("profile"), JsonProperty("profile")]
         public Dictionary<string, Profile> Profiles { get; set; }
 
         public LauncherSettings()

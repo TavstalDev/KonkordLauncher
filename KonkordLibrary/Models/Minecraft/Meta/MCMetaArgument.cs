@@ -1,13 +1,13 @@
-﻿using KonkordLibrary.Models.Minecraft.Library;
+﻿using Newtonsoft.Json;
 using System.Text.Json.Serialization;
 
 namespace KonkordLibrary.Models.Minecraft.Meta
 {
     public class MCMetaArgument
     {
-        [JsonPropertyName("game")]
+        [JsonPropertyName("game"), JsonProperty("game")]
         public List<object> Game {  get; set; }
-        [JsonPropertyName("jvm")]
+        [JsonPropertyName("jvm"), JsonProperty("jvm")]
         public List<object> JVM { get; set; }
 
         public MCMetaArgument() { }

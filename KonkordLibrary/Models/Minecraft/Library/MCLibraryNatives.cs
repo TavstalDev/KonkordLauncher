@@ -5,11 +5,11 @@ namespace KonkordLibrary.Models.Minecraft.Library
 {
     public class MCLibraryNatives
     {
-        [JsonProperty("windows")]
+        [JsonPropertyName("windows"), JsonProperty("windows")]
         public string Windows {  get; set; }
-        [JsonProperty("osx")]
+        [JsonPropertyName("osx"), JsonProperty("osx")]
         public string Osx { get; set; }
-        [JsonProperty("linux")]
+        [JsonPropertyName("linux"), JsonProperty("linux")]
         public string Linux { get; set; }
 
         public MCLibraryNatives() { }

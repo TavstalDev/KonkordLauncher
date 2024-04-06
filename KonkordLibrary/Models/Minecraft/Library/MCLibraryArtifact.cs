@@ -1,16 +1,17 @@
 ﻿using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace KonkordLibrary.Models.Minecraft.Library
 {
     public class MCLibraryArtifact
     {
-        [JsonPropertyName("path")]
+        [JsonPropertyName("path"), JsonProperty("path")]
         public string Path { get; set; }
-        [JsonPropertyName("sha1")]
+        [JsonPropertyName("sha1"), JsonProperty("sha1")]
         public string Sha1 { get; set; }
-        [JsonPropertyName("size")]
+        [JsonPropertyName("size"), JsonProperty("size")]
         public int Size { get; set; }
-        [JsonPropertyName("url")]
+        [JsonPropertyName("url"), JsonProperty("url")]
         public string Url { get; set; }
 
         public MCLibraryArtifact() { }

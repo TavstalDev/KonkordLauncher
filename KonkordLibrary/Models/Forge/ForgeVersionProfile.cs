@@ -1,28 +1,29 @@
 ﻿using KonkordLibrary.Models.Minecraft.Library;
 using Newtonsoft.Json.Linq;
 using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace KonkordLibrary.Models.Forge
 {
     public class ForgeVersionProfile
     {
-        [JsonPropertyName("spec")]
+        [JsonPropertyName("spec"), JsonProperty("spec")]
         public int Spec {  get; set; }
-        [JsonPropertyName("profile")]
+        [JsonPropertyName("profile"), JsonProperty("profile")]
         public string Profile { get; set; }
-        [JsonPropertyName("version")]
+        [JsonPropertyName("version"), JsonProperty("version")]
         public string Version { get; set; }
-        [JsonPropertyName("path")]
+        [JsonPropertyName("path"), JsonProperty("path")]
         public string? Path { get; set; }
-        [JsonPropertyName("minecraft")]
+        [JsonPropertyName("minecraft"), JsonProperty("minecraft")]
         public string Minecraft { get; set; }
-        [JsonPropertyName("serverJarPath")]
+        [JsonPropertyName("serverJarPath"), JsonProperty("serverJarPath")]
         public string ServerJarPath { get; set; }
-        [JsonPropertyName("data")]
+        [JsonPropertyName("data"), JsonProperty("data")]
         public JObject Data { get; set; }
-        [JsonPropertyName("processors")]
+        [JsonPropertyName("processors"), JsonProperty("processors")]
         public JArray Processors { get; set; }
-        [JsonPropertyName("libraries")]
+        [JsonPropertyName("libraries"), JsonProperty("libraries")]
         public List<MCLibrary> Libraries { get; set; }
     }
 }

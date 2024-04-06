@@ -1,23 +1,23 @@
 ﻿using System.Text.Json.Serialization;
-using KonkordLibrary.Models.Minecraft.Library;
+using Newtonsoft.Json;
 
 namespace KonkordLibrary.Models.Fabric
 {
     public class FabricLibrary
     {
-        [JsonPropertyName("name")]
+        [JsonPropertyName("name"), JsonProperty("name")]
         public string Name { get; set; }
-        [JsonPropertyName("url")]
+        [JsonPropertyName("url"), JsonProperty("url")]
         public string Url { get; set; }
-        [JsonPropertyName("md5")]
+        [JsonPropertyName("md5"), JsonProperty("md5")]
         public string Md5 { get; set; }
-        [JsonPropertyName("sha1")]
+        [JsonPropertyName("sha1"), JsonProperty("sha1")]
         public string Sha1 { get; set; }
-        [JsonPropertyName("sha256")]
+        [JsonPropertyName("sha256"), JsonProperty("sha256")]
         public string Sha256 { get; set; }
-        [JsonPropertyName("sha512")]
+        [JsonPropertyName("sha512"), JsonProperty("sha512")]
         public string Sha512 { get; set; }
-        [JsonPropertyName("size")]
+        [JsonPropertyName("size"), JsonProperty("size")]
         public int Size { get; set; }
 
         public FabricLibrary() { }

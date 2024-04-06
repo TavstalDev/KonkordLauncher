@@ -1,14 +1,15 @@
 ﻿using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace KonkordLibrary.Models
 {
     public class AccountData
     {
-        [JsonPropertyName("accounts")]
+        [JsonPropertyName("accounts"), JsonProperty("accounts")]
         public Dictionary<string, Account> Accounts { get; set; }
-        [JsonPropertyName("selectedAccountId")]
+        [JsonPropertyName("selectedAccountId"), JsonProperty("selectedAccountId")]
         public string SelectedAccountId { get; set; }
-        [JsonPropertyName("mojangClientToken")]
+        [JsonPropertyName("mojangClientToken"), JsonProperty("mojangClientToken")]
         public string MojanClientToken { get; set; }
 
         public AccountData() { }

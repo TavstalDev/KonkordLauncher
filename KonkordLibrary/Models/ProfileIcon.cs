@@ -1,13 +1,14 @@
 ﻿using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace KonkordLibrary.Models
 {
     [Serializable]
     public class ProfileIcon
     {
-        [JsonPropertyName("name")]
+        [JsonPropertyName("name"), JsonProperty("name")]
         public string Name { get; set; }
-        [JsonPropertyName("path")]
+        [JsonPropertyName("path"), JsonProperty("path")]
         public string Path { get; set; }
 
         public ProfileIcon() { }
@@ -19,7 +20,7 @@ namespace KonkordLibrary.Models
 
 
         #region Static Values
-        [JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
         public static readonly List<ProfileIcon> Icons = new List<ProfileIcon>()
         {
             new ProfileIcon("Stone", "/assets/images/blocks/1_Stone.png"),

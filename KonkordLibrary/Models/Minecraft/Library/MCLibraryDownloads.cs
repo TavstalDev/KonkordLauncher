@@ -5,9 +5,9 @@ namespace KonkordLibrary.Models.Minecraft.Library
 {
     public class MCLibraryDownloads
     {
-        [JsonPropertyName("artifact")]
+        [JsonPropertyName("artifact"), JsonProperty("artifact")]
         public MCLibraryArtifact Artifact { get; set; }
-        [JsonProperty("classifiers")]
+        [JsonPropertyName("classifiers"), JsonProperty("classifiers")]
         public MCLibraryClassifier? Classifiers { get; set; }
 
         public MCLibraryDownloads() { }

@@ -5,13 +5,13 @@ namespace KonkordLibrary.Models.Minecraft.Meta
 {
     public class MCMetaDownloads
     {
-        [JsonPropertyName("client")]
+        [JsonPropertyName("client"), JsonProperty("client")]
         public MCMetaDownload Client { get; set; }
-        [JsonProperty("client_mappings")]
+        [JsonPropertyName("client_mappings"), JsonProperty("client_mappings")]
         public MCMetaDownload ClientMappings { get; set; }
-        [JsonPropertyName("server")]
+        [JsonPropertyName("server"), JsonProperty("server")]
         public MCMetaDownload Server { get; set; }
-        [JsonProperty("server_mappings")]
+        [JsonPropertyName("server_mappings"), JsonProperty("server_mappings")]
         public MCMetaDownload ServerMappings { get; set; }
 
         public MCMetaDownloads() { }

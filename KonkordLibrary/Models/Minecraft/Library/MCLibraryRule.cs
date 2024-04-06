@@ -1,12 +1,13 @@
 ﻿using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace KonkordLibrary.Models.Minecraft.Library
 {
     public class MCLibraryRule
     {
-        [JsonPropertyName("action")]
+        [JsonPropertyName("action"), JsonProperty("action")]
         public string Action { get; set; }
-        [JsonPropertyName("OS")]
+        [JsonPropertyName("OS"), JsonProperty("OS")]
         public MCLibraryRuleValue OS { get; set; }
 
         public MCLibraryRule() { }

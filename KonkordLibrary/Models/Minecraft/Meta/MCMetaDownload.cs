@@ -1,14 +1,15 @@
 ﻿using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace KonkordLibrary.Models.Minecraft.Meta
 {
     public class MCMetaDownload
     {
-        [JsonPropertyName("sha1")]
+        [JsonPropertyName("sha1"), JsonProperty("sha1")]
         public string Sha1 { get; set; }
-        [JsonPropertyName("url")]
+        [JsonPropertyName("url"), JsonProperty("url")]
         public string Url { get; set; }
-        [JsonPropertyName("size")]
+        [JsonPropertyName("size"), JsonProperty("size")]
         public int Size { get; set; }
 
         public MCMetaDownload() { }

@@ -1,19 +1,18 @@
-﻿using System.IO;
+﻿using Newtonsoft.Json;
 using System.Runtime.InteropServices;
-using System.Security.Policy;
 using System.Text.Json.Serialization;
 
 namespace KonkordLibrary.Models.Minecraft.Library
 {
     public class MCLibrary
     {
-        [JsonPropertyName("name")]
+        [JsonPropertyName("name"), JsonProperty("name")]
         public string Name { get; set; }
-        [JsonPropertyName("downloads")]
+        [JsonPropertyName("downloads"), JsonProperty("downloads")]
         public MCLibraryDownloads Downloads { get; set; }
-        [JsonPropertyName("rules")]
+        [JsonPropertyName("rules"), JsonProperty("rules")]
         public List<MCLibraryRule> Rules { get; set; }
-        [JsonPropertyName("natives")]
+        [JsonPropertyName("natives"), JsonProperty("natives")]
         public MCLibraryNatives? Natives { get; set; }
 
         public MCLibrary() { }

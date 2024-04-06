@@ -1,10 +1,11 @@
 ﻿using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace KonkordLibrary.Models.Minecraft.Library
 {
     public class MCLibraryRuleValue
     {
-        [JsonPropertyName("name")]
+        [JsonPropertyName("name"), JsonProperty("name")]
         public string Name { get; set; }
 
         public MCLibraryRuleValue() { }

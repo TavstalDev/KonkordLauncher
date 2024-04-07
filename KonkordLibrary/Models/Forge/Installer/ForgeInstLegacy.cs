@@ -1,8 +1,10 @@
 ﻿using KonkordLibrary.Enums;
 using KonkordLibrary.Helpers;
+using KonkordLibrary.Models.Forge.Legacy;
 using KonkordLibrary.Models.Installer;
 using KonkordLibrary.Models.Minecraft.Library;
 using Newtonsoft.Json;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
@@ -11,15 +13,18 @@ using System.Windows.Controls;
 namespace KonkordLibrary.Models.Forge.Installer
 {
     /*
-     * 1.12.x
-     * 1.11.x
-     * 1.9.x
-     * 1.8.x
-     * 1.7.x
+     * 1.13+ are new
+     * 1.12.x - ok
+     * 1.11.x - ok
+     * 1.9.x - ok
+     * 1.8.x - ok
+     * 1.7.x - ok
      * 1.6 and below are old
     */
     public class ForgeInstLegacy : ForgeInstallerBase
     {
+        private string _extraVersion {  get; set; }
+
         public ForgeInstLegacy() : base() { }
 
         public ForgeInstLegacy(Profile profile, Label label, ProgressBar progressBar, bool isDebug) : base(profile, label, progressBar, isDebug)
@@ -61,7 +66,25 @@ namespace KonkordLibrary.Models.Forge.Installer
             string installerDir = Path.Combine(tempDir, "installer");
             using (HttpClient client = new HttpClient())
             {
-                byte[] bytes = await client.GetByteArrayAsync(string.Format(ForgeInstallerJarUrl, $"{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}"));
+                byte[] bytes;
+                try
+                {
+                    bytes = await client.GetByteArrayAsync(string.Format(ForgeInstallerJarUrl, $"{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}"));
+                }
+                catch
+                {
+                    int length = forgeVersion.VanillaVersion.Split('.').Length;
+                    if (length == 3)
+                    {
+                        bytes = await client.GetByteArrayAsync(string.Format(ForgeInstallerJarUrl, $"{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}-{forgeVersion.VanillaVersion}"));
+                        _extraVersion = $"-{forgeVersion.VanillaVersion}";
+                    }
+                    else
+                    {
+                        bytes = await client.GetByteArrayAsync(string.Format(ForgeInstallerJarUrl, $"{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}-{forgeVersion.VanillaVersion}.0"));
+                        _extraVersion = $"-{forgeVersion.VanillaVersion}.0";
+                    }
+                }
                 await File.WriteAllBytesAsync(installerJarPath, bytes);
             }
 
@@ -74,126 +97,85 @@ namespace KonkordLibrary.Models.Forge.Installer
             // INSTALL PROFILE
             if (!File.Exists(installProfileJson))
                 File.Move(Path.Combine(installerDir, "install_profile.json"), installProfileJson);
-            // VERSION
-            if (!File.Exists(forgeVersion.VersionJsonPath))
-                File.Move(Path.Combine(installerDir, "version.json"), forgeVersion.VersionJsonPath);
 
-            // COPY MAVEN IF EXISTS
-            string mavenTempDir = Path.Combine(installerDir, "maven");
-            if (Directory.Exists(mavenTempDir))
+            // EXTRACT UNIVERSAL
+            string universalJarPath = Path.Combine(installerDir, $"forge-{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}{_extraVersion}-universal.jar");
+            string universalDir = Path.Combine(installerDir, $"forge-{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}{_extraVersion}-universal");
+            if (!Directory.Exists(universalDir) && File.Exists(universalJarPath))
             {
-                string[] files = Directory.GetFiles(mavenTempDir, "*.jar", SearchOption.AllDirectories);
-                foreach (string file in files)
-                {
-                    string newPath = file.Replace(mavenTempDir, IOHelper.LibrariesDir);
-                    string newDir = newPath.Remove(newPath.LastIndexOf('\\'), newPath.Length - newPath.LastIndexOf('\\'));
-
-                    if (!Directory.Exists(newDir))
-                        Directory.CreateDirectory(newDir);
-
-                    if (!File.Exists(newPath))
-                        File.Copy(file, newPath, false);
-                }
+                ZipFile.ExtractToDirectory(universalJarPath, universalDir);
             }
 
-            ForgeVersionMeta? forgeVersionMeta = JsonConvert.DeserializeObject<ForgeVersionMeta>(await File.ReadAllTextAsync(forgeVersion.VersionJsonPath));
-            if (forgeVersionMeta == null)
-                throw new FileNotFoundException("Failed to get the forge version meta.");
+            // COPY UNIVERSAL
+            string forgeUniversalDir = Path.Combine(IOHelper.LibrariesDir, $"net\\minecraftforge\\forge\\{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}");
+            string forgeUniversalPath = Path.Combine(forgeUniversalDir, $"forge-{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}{_extraVersion}-universal.jar");
+            if (!Directory.Exists(forgeUniversalDir))
+                Directory.CreateDirectory(forgeUniversalDir);
 
-            ForgeVersionProfile? installProfile = JsonConvert.DeserializeObject<ForgeVersionProfile>(await File.ReadAllTextAsync(installProfileJson));
+            if (!File.Exists(forgeUniversalPath))
+                File.Copy(universalJarPath, forgeUniversalPath);
+            _classPath += $"{forgeUniversalPath};";
+
+            // VERSION
+            if (!File.Exists(forgeVersion.VersionJsonPath))
+                File.Move(Path.Combine(universalDir, "version.json"), forgeVersion.VersionJsonPath);
+
+            ForgeProfile? installProfile = JsonConvert.DeserializeObject<ForgeProfile>(await File.ReadAllTextAsync(installProfileJson));
             if (installProfile == null)
                 throw new FileNotFoundException("Failed to get the forge install profile meta.");
 
+            ForgeVersionMeta? forgeVersionMeta = installProfile.VersionInfo;
+            if (forgeVersionMeta == null)
+                throw new FileNotFoundException("Failed to get the forge version meta.");
+
             UpdateProgressbar(0, $"Checking forge installer libraries...");
             List<MCLibrary> localLibraries = new List<MCLibrary>();
-            localLibraries.AddRange(forgeVersionMeta.Libraries);
-
-            // Download installer libraries
-            string librarySizeCachePath = Path.Combine(librarySizeCacheDir, $"{forgeVersion.VanillaVersion}-forge-installer-{forgeVersion.InstanceVersion}.json");
-            using (HttpClient client = new HttpClient())
+            foreach (var lib in forgeVersionMeta.Libraries)
             {
-                int downloadedSize = 0;
-                int toDownloadSize = 0;
-                if (!File.Exists(librarySizeCachePath))
-                {
-                    foreach (MCLibrary lib in installProfile.Libraries)
-                        toDownloadSize += lib.Downloads.Artifact.Size;
-                    UpdateProgressbar(0, $"Saving library size cache file...");
-                    await File.WriteAllTextAsync(librarySizeCachePath, toDownloadSize.ToString());
-                }
-                else
-                    toDownloadSize = int.Parse(await File.ReadAllTextAsync(librarySizeCachePath));
+                string? url = lib.GetUrl(true);
+                if (url == null)
+                    continue;
 
-                foreach (MCLibrary lib in installProfile.Libraries)
+                localLibraries.Add(new MCLibrary()
                 {
-                    string localPath = lib.Downloads.Artifact.Path;
-                    string libDirPath = Path.Combine(IOHelper.LibrariesDir, localPath.Remove(localPath.LastIndexOf('/'), localPath.Length - localPath.LastIndexOf('/')));
-                    if (!Directory.Exists(libDirPath))
-                        Directory.CreateDirectory(libDirPath);
-                    string libFilePath = Path.Combine(IOHelper.LibrariesDir, localPath);
-                    if (!File.Exists(libFilePath))
+                    Name = lib.Name,
+                    Downloads = new MCLibraryDownloads()
                     {
-                        if (!string.IsNullOrEmpty(lib.Downloads.Artifact.Url))
+                        Artifact = new MCLibraryArtifact()
                         {
-                            byte[] bytes = await client.GetByteArrayAsync(lib.Downloads.Artifact.Url);
-                            await File.WriteAllBytesAsync(libFilePath, bytes);
-                            downloadedSize += lib.Downloads.Artifact.Size;
-                        }
-                        double percent = (double)downloadedSize / (double)toDownloadSize * 100d;
-                        UpdateProgressbar(percent, $"Downloading the '{lib.Name}' library... {percent:0.00}%");
-                    }
-                }
+                            Path = lib.GetPath(),
+                            Sha1 = string.Empty,
+                            Size = 0,
+                            Url = url,
+                        },
+                        Classifiers = null
+                    },
+                    Natives = null,
+                    Rules = new List<MCLibraryRule>()
+                });
             }
-
-            // Copy vanilla jar - NOT NEEDED, BREAKS IT
-            /*if (!File.Exists(forgeVersion.VersionJarPath))
-            {
-                UpdateProgressbar(0, $"Copying the vanilla jar file...");
-                File.Copy(forgeVersion.VanillaJarPath, forgeVersion.VersionJarPath);
-            }*/
 
             // Add launch arguments
             UpdateProgressbar(0, $"Adding forge arguments...");
-            if (forgeVersionMeta.Arguments != null)
+            if (forgeVersionMeta.MinecraftArguments != null)
             {
-                if (forgeVersionMeta.Arguments.Game != null)
-                    foreach (var arg in forgeVersionMeta.Arguments.GetGameArgs())
-                        _gameArguments.Add(new LaunchArg(arg, 1));
-
-                if (forgeVersionMeta.Arguments.JVM != null)
-                    foreach (var arg in forgeVersionMeta.Arguments.GetJVMArgs())
-                        _jvmArguments.Add(new LaunchArg(arg, 1));
+                MinecraftVersionMeta.ArgumentsLegacy = forgeVersionMeta.MinecraftArguments;
             }
 
             _jvmArgumentsBeforeClassPath.Add(new LaunchArg("-DMcEmu=net.minecraft.client.main.Main", 2));
             _jvmArgumentsBeforeClassPath.Add(new LaunchArg("-Dlog4j2.formatMsgNoLookups=true", 2));
             _jvmArgumentsBeforeClassPath.Add(new LaunchArg("-Djava.rmi.server.useCodebaseOnly=true", 2));
             _jvmArgumentsBeforeClassPath.Add(new LaunchArg("-Dcom.sun.jndi.rmi.object.trustURLCodebase=false", 2));
+            _jvmArgumentsBeforeClassPath.Add(new LaunchArg($"-Dminecraft.client.jar={forgeVersion.VersionJarPath}", 2));
 
-            UpdateProgressbar(0, $"Building forge...");
-            // Generate client libs
-            await MapAndStartProcessors(installProfile, installerDir);
-
-            #region GET minecraftforge client libs
-            string forgeUniversal = string.Format(ForgeLoaderUniversalJarUrl, $"{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}");
-
-            string forgeUniversalDir = Path.Combine(IOHelper.LibrariesDir, $"net\\minecraftforge\\forge\\{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}");
-            string forgeUniversalPath = Path.Combine(forgeUniversalDir, $"forge-{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}-universal.jar");
-            if (!Directory.Exists(forgeUniversalDir))
-                Directory.CreateDirectory(forgeUniversalDir);
-
-            UpdateProgressbar(0, $"Checking forge universal library file...");
-            if (!File.Exists(forgeUniversalPath))
+            // Copy vanilla jar
+            if (!File.Exists(forgeVersion.VersionJarPath))
             {
-                UpdateProgressbar(0, $"Downloadig forge universal library file...");
-                using (HttpClient client = new HttpClient())
-                {
-                    byte[] bytes = await client.GetByteArrayAsync(forgeUniversal);
-                    await File.WriteAllBytesAsync(forgeUniversalPath, bytes);
-                }
+                UpdateProgressbar(0, $"Copying the vanilla jar file...");
+                File.Copy(forgeVersion.VanillaJarPath, forgeVersion.VersionJarPath);
             }
+            //_classPath += $"{forgeVersion.VersionJarPath};"; - not needed
 
-            #endregion
 
             ModedData modedData = new ModedData(forgeVersionMeta.MainClass, forgeVersion, localLibraries);
             return modedData;

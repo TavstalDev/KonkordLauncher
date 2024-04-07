@@ -220,7 +220,6 @@ namespace KonkordLibrary.Helpers
                     AccountData accountData = new AccountData()
                     {
                         SelectedAccountId = "",
-                        MojanClientToken = "",
                         Accounts = new Dictionary<string, Account> { }
                     };
 

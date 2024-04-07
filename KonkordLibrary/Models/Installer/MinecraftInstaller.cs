@@ -1,5 +1,6 @@
 ﻿using KonkordLibrary.Enums;
 using KonkordLibrary.Helpers;
+using KonkordLibrary.Models.Forge.Installer;
 using KonkordLibrary.Models.Minecraft;
 using KonkordLibrary.Models.Minecraft.Library;
 using Newtonsoft.Json;
@@ -11,6 +12,7 @@ using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Xml.Linq;
 
 namespace KonkordLibrary.Models.Installer
 {
@@ -125,7 +127,7 @@ namespace KonkordLibrary.Models.Installer
 
                 await DownloadLogging(modedData.VersionData.VersionDirectory, modedData.VersionData.GameDir); // 0
                 natives = await DownloadLibraries(libraries); // 1
-                if (Profile.Kind != EProfileKind.FORGE)
+                if (Profile.Kind != EProfileKind.FORGE || (Profile.Kind == EProfileKind.FORGE && this.GetType() != typeof(ForgeInstNew)))
                     _classPath += modedData.VersionData.VersionJarPath; // 2
                 arguments = await BuildArguments(modedData.VersionData.GameDir, modedData.MainClass, modedData.VersionData.NativesDir, modedData.VersionData.InstanceVersion); // 3
                 
@@ -139,7 +141,6 @@ namespace KonkordLibrary.Models.Installer
                 natives = await DownloadLibraries(libraries); // 1
                 _classPath += VersionData.VersionJarPath; // 2
                 arguments = await BuildArguments(VersionData.GameDir, MinecraftVersionMeta.MainClass, VersionData.NativesDir); // 3
-                
             }
 
             
@@ -381,47 +382,71 @@ namespace KonkordLibrary.Models.Installer
                     if (!lib.GetRulesResult())
                         continue;
 
-                    if (lib.Downloads.Artifact == null)
-                        continue;
-
-                    string localPath = lib.Downloads.Artifact.Path;
-                    string libDirPath = Path.Combine(IOHelper.LibrariesDir, localPath.Remove(localPath.LastIndexOf('/'), localPath.Length - localPath.LastIndexOf('/')));
-                    if (!Directory.Exists(libDirPath))
-                        Directory.CreateDirectory(libDirPath);
-
-                    string libFilePath = Path.Combine(IOHelper.LibrariesDir, localPath);
-                    if (!File.Exists(libFilePath))
+                    string libFilePath = string.Empty;
+                    if (lib.Downloads.Artifact != null)
                     {
-                        if (!string.IsNullOrEmpty(lib.Downloads.Artifact.Url))
+                        string localPath = lib.Downloads.Artifact.Path.Replace('/', '\\');
+                        int libDirIndex = localPath.LastIndexOf('\\');
+                        string libDirPath = Path.Combine(IOHelper.LibrariesDir, localPath.Remove(libDirIndex, localPath.Length - libDirIndex));
+
+                        if (!Directory.Exists(libDirPath))
+                            Directory.CreateDirectory(libDirPath);
+
+                        libFilePath = Path.Combine(IOHelper.LibrariesDir, localPath);
+                        if (!File.Exists(libFilePath))
                         {
-                            byte[] bytes = await client.GetByteArrayAsync(lib.Downloads.Artifact.Url);
-                            await File.WriteAllBytesAsync(libFilePath, bytes);
+                            try
+                            {
+                                if (!string.IsNullOrEmpty(lib.Downloads.Artifact.Url))
+                                {
+                                    byte[] bytes = await client.GetByteArrayAsync(lib.Downloads.Artifact.Url);
+                                    await File.WriteAllBytesAsync(libFilePath, bytes);
+                                }
+                                else
+                                    libraryDownloadedSize -= lib.Downloads.Artifact.Size; // Fix 100%+ bug
+                            }
+                            catch (Exception e)
+                            {
+                                Debug.WriteLine($"Failed to get file: {lib.Downloads.Artifact.Url}");
+                                Debug.WriteLine($"Error: {e}");
+                            }
                         }
-                        else
-                            libraryDownloadedSize -= lib.Downloads.Artifact.Size; // Fix 100%+ bug
+                        
+
+                        libraryDownloadedSize += lib.Downloads.Artifact.Size;
+                        if (libraryOverallSize == 0)
+                            libraryOverallSize = 1; // NaN fix
+                        double percent = libraryDownloadedSize / libraryOverallSize * 100;
+                        UpdateProgressbar(percent, $"Downloading the '{lib.Name}' library... {percent:0.00}%");
+                    }
+                    else if (lib.Downloads.Classifiers != null)
+                    {
+                        string[] rawUrl = lib.Name.Split(':');
+                        string localPath = Path.Combine(rawUrl[0].Replace('.', '\\'), rawUrl[1], rawUrl[2], $"{rawUrl[1]}-{rawUrl[2]}.jar").Replace('/', '\\');
+                        int libDirIndex = localPath.LastIndexOf('\\');
+                        string libDirPath = Path.Combine(IOHelper.LibrariesDir, localPath.Remove(libDirIndex, localPath.Length - libDirIndex));
+
+                        if (!Directory.Exists(libDirPath))
+                            Directory.CreateDirectory(libDirPath);
+
+                        libFilePath = Path.Combine(IOHelper.LibrariesDir, localPath);
                     }
 
                     if (!_classPath.Contains(libFilePath))
                     {
                         _classPath += $"{libFilePath};";
-                        if (lib.Name.StartsWith("org.lwjgl"))
+                        if (lib.Name.StartsWith("org.lwjgl") || lib.Downloads.Classifiers != null)
                         {
                             natives.Add(lib);
                         }
                     }
                     else
                     {
-                        if (lib.Name.StartsWith("org.lwjgl"))
+                        if (lib.Name.StartsWith("org.lwjgl") || lib.Downloads.Classifiers != null)
                         {
                             natives.Add(lib);
                         }
                     }
-
-                    libraryDownloadedSize += lib.Downloads.Artifact.Size;
-                    if (libraryOverallSize == 0)
-                        libraryOverallSize = 1; // NaN fix
-                    double percent = libraryDownloadedSize / libraryOverallSize * 100;
-                    UpdateProgressbar(percent, $"Downloading the '{lib.Name}' library... {percent:0.00}%");
                 }
             }
 
@@ -446,7 +471,8 @@ namespace KonkordLibrary.Models.Installer
             string libJarFileDir = string.Empty;
             foreach (MCLibrary lib in nativeLibs)
             {
-                if (lib.Downloads.Classifiers != null) // 1.17-
+                Debug.WriteLine("nativeLib: " + lib.Name);
+                if (lib.Downloads.Classifiers != null)
                 {
                     string localUrl = string.Empty;
                     if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -490,10 +516,8 @@ namespace KonkordLibrary.Models.Installer
                         }
                     }
                 }
-                else // 1.17+
-                {
-                    libJarFilePath = lib.Downloads.Artifact.Path;
-                }
+                else
+                    continue;
 
                 string libFilePath = Path.Combine(IOHelper.LibrariesDir, libJarFilePath);
                 List <string> dirBaseRaw = libJarFilePath.Split('.').ToList();
@@ -673,7 +697,8 @@ namespace KonkordLibrary.Models.Installer
                 .Replace("${version_type}", "release")
                 .Replace("${classpath}", $"\"{_classPath}\"")
                 .Replace("${library_directory}", IOHelper.LibrariesDir)
-                .Replace("${classpath_separator}", ";");
+                .Replace("${classpath_separator}", ";")
+                .Replace("${user_properties}", "{}");
             #endregion
 
             return argumentString;

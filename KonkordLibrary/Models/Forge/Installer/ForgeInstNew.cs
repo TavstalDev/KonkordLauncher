@@ -1,5 +1,6 @@
 ﻿using KonkordLibrary.Enums;
 using KonkordLibrary.Helpers;
+using KonkordLibrary.Models.Forge.New;
 using KonkordLibrary.Models.Installer;
 using KonkordLibrary.Models.Minecraft.Library;
 using Newtonsoft.Json;
@@ -148,13 +149,6 @@ namespace KonkordLibrary.Models.Forge.Installer
                 }
             }
 
-            // Copy vanilla jar - NOT NEEDED, BREAKS IT
-            /*if (!File.Exists(forgeVersion.VersionJarPath))
-            {
-                UpdateProgressbar(0, $"Copying the vanilla jar file...");
-                File.Copy(forgeVersion.VanillaJarPath, forgeVersion.VersionJarPath);
-            }*/
-
             // Add launch arguments
             UpdateProgressbar(0, $"Adding forge arguments...");
             if (forgeVersionMeta.Arguments != null)
@@ -195,16 +189,6 @@ namespace KonkordLibrary.Models.Forge.Installer
                     await File.WriteAllBytesAsync(forgeUniversalPath, bytes);
                 }
             }
-
-            /*UpdateProgressbar(0, $"Extracting forge universal...");
-            await extractUniversal(installerDir, forgeUniversalPath, $"{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}");
-
-            var jar = Path.Combine(installerDir, $"maven/net/minecraftforge/forge/{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}/forge-{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}.jar");
-            if (File.Exists(jar)) //fix 1.17+ 
-            {
-                if (!File.Exists(forgeVersion.VersionJarPath))
-                    File.Copy(jar, forgeVersion.VersionJarPath);
-            }*/
             #endregion
 
             ModedData modedData = new ModedData(forgeVersionMeta.MainClass, forgeVersion, localLibraries);

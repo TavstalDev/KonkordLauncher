@@ -478,11 +478,11 @@ namespace KonkordLauncher
                     }
                 case "forge":
                     {
-                        localVanillaList = VersionDic["forgeVanilla"].FindAll(x => (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
+                        localVanillaList = VersionDic["forgeVanilla"].FindAll(x => !ForgeInstallerBase.UnsupportedVersions.Contains(x.VanillaId) && (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
                         cb_instances_mcmod_version.DataContext = localVanillaList.Select(x => x.Id);
                         cb_instances_mcmod_version.SelectedIndex = 0;
 
-                        localModList = VersionDic[versionType].FindAll(x => x.VanillaId == localVanillaList[0].Id && (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
+                        localModList = VersionDic[versionType].FindAll(x => !ForgeInstallerBase.UnsupportedVersions.Contains(x.VanillaId) && (x.VanillaId == localVanillaList[0].Id && (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas)));
                         cb_instances_mod_version.DataContext = localModList.Select(x => x.Id);
                         cb_instances_mod_version.SelectedIndex = localModList.FindIndex(x => x.VanillaId == localVanillaList[0].Id);
                         break;

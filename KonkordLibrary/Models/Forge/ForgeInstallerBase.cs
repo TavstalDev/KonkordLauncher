@@ -1,5 +1,6 @@
 ﻿using KonkordLibrary.Helpers;
 using KonkordLibrary.Models.Forge.Installer;
+using KonkordLibrary.Models.Forge.New;
 using KonkordLibrary.Models.Installer;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
@@ -22,7 +23,7 @@ namespace KonkordLibrary.Models.Forge
         // Version Example: 1.20.4-49.0.38
         public static string ForgeInstallerJarUrl { get { return _forgeInstallerJarUrl; } }
 
-        private static readonly Dictionary<string, Type> _installers = new Dictionary<string, Type> 
+        private static readonly Dictionary<string, Type> _installers = new Dictionary<string, Type>
         {
             #region New
             { "1.20.4", typeof(ForgeInstNew) },
@@ -93,7 +94,14 @@ namespace KonkordLibrary.Models.Forge
             #endregion
         };
 
-        public static Dictionary<string, Type> Installers {  get { return _installers; } }
+        public static Dictionary<string, Type> Installers { get { return _installers; } }
+
+        private static readonly List<string> _unsupportedVersions = new List<string>()
+        {
+           "1.1", "1.2.3", "1.2.4", "1.2.5", "1.3.2", "1.4.0", "1.4.1", "1.4.2", "1.4.3", "1.4.4", "1.4.5", "1.4.6", "1.4.7", "1.5", "1.5.1", "1.5.2"
+        };
+
+        public static List<string> UnsupportedVersions {  get { return _unsupportedVersions; } }
         #endregion
 
         public ForgeInstallerBase() : base() { }

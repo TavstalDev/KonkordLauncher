@@ -45,7 +45,32 @@ namespace KonkordLibrary.Models.Minecraft.Meta
             return;
         }
 
-        private Dictionary<string, string> GetInstalledJavaVersions(RegistryKey javaKey)
+        public static void FindOnSystem(int majorVersion, out string? path)
+        {
+            path = null;
+            // Registry key for 64-bit Java installations
+            RegistryKey localMachine64 = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64);
+            RegistryKey? javaKey64 = localMachine64.OpenSubKey(@"SOFTWARE\JavaSoft\Java Runtime Environment");
+
+            if (javaKey64 == null)
+                return;
+
+            Dictionary<string, string> versions = GetInstalledJavaVersions(javaKey64);
+
+            foreach (var version in versions.ToList())
+            {
+                string[] raw = version.Key.Split('.');
+                if (raw[1] == majorVersion.ToString())
+                {
+                    path = version.Value;
+                    break;
+                }
+            }
+
+            return;
+        }
+
+        private static Dictionary<string, string> GetInstalledJavaVersions(RegistryKey javaKey)
         {
             Dictionary<string, string> local = new Dictionary<string, string>();
             if (javaKey != null)

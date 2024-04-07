@@ -3,12 +3,12 @@ using Newtonsoft.Json.Linq;
 using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
-namespace KonkordLibrary.Models.Forge
+namespace KonkordLibrary.Models.Forge.New
 {
     public class ForgeVersionProfile
     {
         [JsonPropertyName("spec"), JsonProperty("spec")]
-        public int Spec {  get; set; }
+        public int Spec { get; set; }
         [JsonPropertyName("profile"), JsonProperty("profile")]
         public string Profile { get; set; }
         [JsonPropertyName("version"), JsonProperty("version")]

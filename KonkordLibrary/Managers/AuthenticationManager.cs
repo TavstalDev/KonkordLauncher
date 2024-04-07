@@ -1,5 +1,6 @@
 using KonkordLibrary.Helpers;
 using KonkordLibrary.Models;
+using KonkordLibrary.Models.Minecraft.API;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
@@ -19,7 +20,7 @@ namespace KonkordLibrary.Managers
         private static readonly string _redirectTokenUrl = Path.Combine(_listeningUrl, "microsoft/tokencallback");
         #endregion
 
-        private static readonly string _msClientId = "a34081c9-9053-4874-b802-075601be2615";
+        private static readonly string _msClientId = "496a0c42-aa74-41fe-b7bc-0ad155cdaa26";
         #region Urls
         #region Microsoft
         private static readonly string _microsoftAuthUrl = $"https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?client_id={_msClientId}&response_type=code&redirect_uri={Uri.EscapeDataString(_redirectAuthenticateUrl)}&response_mode=query&scope=XboxLive.signin+offline_access";
@@ -155,10 +156,6 @@ namespace KonkordLibrary.Managers
                 closeBrowser.Invoke();
                 await MicrosoftAuthCallback(context.Request);
                 return;
-            }
-            else if (context.Request.RawUrl.StartsWith("/microsoft/tokencallback"))
-            {
-                await MicrosoftTokenCallback(context.Request);
             }
 
             // Send Browser response
@@ -352,7 +349,12 @@ namespace KonkordLibrary.Managers
             {
                 try
                 {
-                    StringContent reqContent = new StringContent($"{{\"identityToken\": \"XBL3.0 x={userHash};{token}\"}}");
+                    object reqObj = new
+                    {
+                        identityToken = $"XBL3.0 x={userHash};{token}"
+                    };
+
+                    StringContent reqContent = new StringContent(JsonConvert.SerializeObject(reqObj));
                     Debug.WriteLine("## SENT MINECRAFT ACCESS REQUEST");
                     var result = await client.PostAsync(MinecraftAuthUrl, reqContent).ConfigureAwait(false);
                     Debug.WriteLine("## MINECRAFT ACCESS REQUEST STATUS: " + result.StatusCode);
@@ -360,7 +362,7 @@ namespace KonkordLibrary.Managers
                     JObject resultObj = JObject.Parse(await result.Content.ReadAsStringAsync());
                     if (resultObj.ContainsKey("access_token"))
                     {
-                        await XboxXstsCall(resultObj["access_token"].ToString());
+                        await MinecraftCheckOwnership(resultObj["access_token"].ToString());
                     }
                     else
                     {
@@ -375,15 +377,112 @@ namespace KonkordLibrary.Managers
         }
 
         /// <summary>
-        /// Handles the asynchronous processing of Microsoft token callback.
+        /// Asynchronously checks ownership of Minecraft using the provided access token.
         /// </summary>
-        /// <param name="request">The <see cref="HttpListenerRequest"/> object representing the incoming HTTP request.</param>
+        /// <param name="mcToken">The Minecraft access token.</param>
         /// <returns>
         /// A <see cref="Task"/> representing the asynchronous operation.
         /// </returns>
-        private static async Task MicrosoftTokenCallback(HttpListenerRequest request)
+        private static async Task MinecraftCheckOwnership(string mcToken)
         {
-            
+            using (HttpClient client = new HttpClient())
+            {
+                try
+                {
+                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", mcToken);
+
+
+                    Debug.WriteLine("## SENT MINECRAFT OWNERSHIP REQUEST");
+                    var result = await client.GetAsync(MinecraftAuthUrl).ConfigureAwait(false);
+                    Debug.WriteLine("## MINECRAFT OWNERSHIP REQUEST STATUS: " + result.StatusCode);
+
+                    JObject resultObj = JObject.Parse(await result.Content.ReadAsStringAsync());
+
+                    bool hasMinecraft = false;
+                    // TODO implement function to get this,
+                    // but I have no idea how to until I can get a full response as example
+                    NotificationHelper.SendWarning(resultObj.ToString(Formatting.Indented), "OWNERSHIP JSON");
+
+                    if (hasMinecraft)
+                    {
+                        await MinecraftGetProfile(mcToken);
+                    }
+                    else
+                    {
+                        NotificationHelper.SendWarning("Failed to authenticate your ownership.", "MINECRAFT OWNERSHIP CALLBACK");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.Fail(ex.ToString());
+                }
+            }
+        }
+
+        /// <summary>
+        /// Asynchronously retrieves the Minecraft profile using the provided access token.
+        /// </summary>
+        /// <param name="mcToken">The Minecraft access token.</param>
+        /// <returns>
+        /// A <see cref="Task"/> representing the asynchronous operation. The task result contains the profile data as a string.
+        /// </returns>
+        private static async Task MinecraftGetProfile(string mcToken)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                try
+                {
+                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", mcToken);
+
+
+                    Debug.WriteLine("## SENT MINECRAFT PROFILE REQUEST");
+                    var result = await client.GetAsync(MinecraftAuthUrl).ConfigureAwait(false);
+                    Debug.WriteLine("## MINECRAFT PROFILE REQUEST STATUS: " + result.StatusCode);
+
+                    MojangProfile? profile = JsonConvert.DeserializeObject<MojangProfile>(await result.Content.ReadAsStringAsync());
+
+                    if (profile != null)
+                    {
+                        AccountData? accountData = await IOHelper.GetAccountDataAsync();
+                        if (accountData == null)
+                            return;
+
+                        if (accountData.Accounts.TryGetValue(profile.Id, out Account? account))
+                        {
+                            account.AccessToken = mcToken;
+                            account.RefreshToken = mcToken; // TODO: Needs to be checked
+                            account.UUID = profile.Id;
+                            account.DisplayName = profile.Name;
+                            accountData.Accounts[profile.Id] = account;
+                            accountData.SelectedAccountId = profile.Id;
+                            await JsonHelper.WriteJsonFileAsync(IOHelper.AccountsJsonFile, accountData);
+                        }
+                        else
+                        {
+                            account = new Account()
+                            {
+                                AccessToken = mcToken,
+                                RefreshToken = mcToken,  // TODO: Needs to be checked
+                                DisplayName = profile.Name,
+                                UUID = profile.Id,
+                                Type = Enums.EAccountType.MICROSOFT,
+                                UserId = profile.Id,
+                            };
+                            accountData.Accounts.Add(profile.Id, account);
+                            accountData.SelectedAccountId = profile.Id;
+                            await JsonHelper.WriteJsonFileAsync(IOHelper.AccountsJsonFile, accountData);
+                        }
+                    }
+                    else
+                    {
+                        NotificationHelper.SendWarning("Failed to get your minecraft profile.", "MINECRAFT PROFILE CALLBACK");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.Fail(ex.ToString());
+                }
+            }
         }
         #endregion
         #endregion

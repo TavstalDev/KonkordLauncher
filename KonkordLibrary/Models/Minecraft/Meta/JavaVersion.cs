@@ -1,7 +1,6 @@
-﻿using System.Diagnostics;
-using System.Text.Json.Serialization;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace KonkordLibrary.Models.Minecraft.Meta
 {
@@ -20,6 +19,10 @@ namespace KonkordLibrary.Models.Minecraft.Meta
 
         public JavaVersion() { }
 
+        /// <summary>
+        /// Finds the Java version installed on the system.
+        /// </summary>
+        /// <param name="path">The path to the Java version found, if any.</param>
         public void FindOnSystem(out string? path)
         {
             path = null;
@@ -45,6 +48,11 @@ namespace KonkordLibrary.Models.Minecraft.Meta
             return;
         }
 
+        /// <summary>
+        /// Finds the specified major version of Java installed on the system.
+        /// </summary>
+        /// <param name="majorVersion">The major version of Java to find.</param>
+        /// <param name="path">The path to the Java version found, if any.</param>
         public static void FindOnSystem(int majorVersion, out string? path)
         {
             path = null;
@@ -70,6 +78,13 @@ namespace KonkordLibrary.Models.Minecraft.Meta
             return;
         }
 
+        /// <summary>
+        /// Gets the installed Java versions from the specified registry key.
+        /// </summary>
+        /// <param name="javaKey">The registry key containing the Java versions.</param>
+        /// <returns>
+        /// A dictionary containing the installed Java versions, where the key is the version and the value is the installation path.
+        /// </returns>
         private static Dictionary<string, string> GetInstalledJavaVersions(RegistryKey javaKey)
         {
             Dictionary<string, string> local = new Dictionary<string, string>();

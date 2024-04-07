@@ -1,14 +1,8 @@
 ﻿using KonkordLibrary.Enums;
 using KonkordLibrary.Helpers;
 using KonkordLibrary.Models;
-using KonkordLibrary.Models.Fabric;
 using KonkordLibrary.Models.Minecraft;
-using KonkordLibrary.Models.Minecraft.Library;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.IO;
-using System.IO.Compression;
-using System.Net.Http;
 using System.Text;
 
 namespace KonkordLibrary.Managers
@@ -16,6 +10,16 @@ namespace KonkordLibrary.Managers
     public static class GameManager
     {
         #region Version Functions
+        /// <summary>
+        /// Gets the version details for a profile based on the specified parameters.
+        /// </summary>
+        /// <param name="kind">The kind of profile.</param>
+        /// <param name="versionId">The version ID.</param>
+        /// <param name="vanillaVersionId">Optional: The vanilla version ID.</param>
+        /// <param name="customDirectory">Optional: The custom directory.</param>
+        /// <returns>
+        /// The version details.
+        /// </returns>
         public static VersionDetails GetProfileVersionDetails(EProfileKind kind, string versionId, string? vanillaVersionId = null, string? customDirectory = null)
         {
             VersionDetails response = new VersionDetails();
@@ -55,6 +59,15 @@ namespace KonkordLibrary.Managers
             return response;
         }
 
+        /// <summary>
+        /// Gets the version details for a profile based on the specified parameters.
+        /// </summary>
+        /// <param name="type">The type of profile.</param>
+        /// <param name="manifest">Optional: The version manifest.</param>
+        /// <param name="profile">Optional: The profile.</param>
+        /// <returns>
+        /// The version details.
+        /// </returns>
         public static VersionDetails GetProfileVersionDetails(EProfileType type, VersionManifest? manifest = null, Profile? profile = null)
         {
             switch (type)
@@ -95,7 +108,6 @@ namespace KonkordLibrary.Managers
         }
         #endregion
 
-        #region Functions
         /// <summary>
         /// Retrieves the UUID (Universally Unique Identifier) of a player based on the provided username.
         /// </summary>
@@ -141,6 +153,5 @@ namespace KonkordLibrary.Managers
         {
             return GetPlayerUUID($"{username}");
         }
-        #endregion
     }
 }

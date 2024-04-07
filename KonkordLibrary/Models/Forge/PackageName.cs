@@ -2,6 +2,7 @@
 
 namespace KonkordLibrary.Models.Forge
 {
+    // Source: https://github.com/CmlLib/CmlLib.Core.Installer.Forge
     public class PackageName
     {
         private readonly string[] names;

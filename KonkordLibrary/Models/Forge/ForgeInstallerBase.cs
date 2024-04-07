@@ -110,6 +110,16 @@ namespace KonkordLibrary.Models.Forge
         {
         }
 
+        /// <summary>
+        /// Creates a Forge installer instance based on the specified parameters.
+        /// </summary>
+        /// <param name="profile">The profile.</param>
+        /// <param name="label">The label for displaying status information.</param>
+        /// <param name="progressBar">The progress bar for displaying installation progress.</param>
+        /// <param name="isDebug">A flag indicating whether debug mode is enabled.</param>
+        /// <returns>
+        /// The created Forge installer instance, or null if creation fails.
+        /// </returns>
         public static ForgeInstallerBase? Create(Profile profile, Label label, ProgressBar progressBar, bool isDebug)
         {
             ForgeInstallerBase? localInstaller = null;
@@ -122,25 +132,15 @@ namespace KonkordLibrary.Models.Forge
             return localInstaller;
         }
 
-        /*private async Task extractUniversal(string installerPath, string universalPath, string forgeVersion)
-        {
-            // copy universal library to minecraft
-            var universal = Path.Combine(installerPath, universalPath);
-            var des = Path.Combine(IOHelper.LibrariesDir, $"net\\minecraftforge\\forge\\{forgeVersion}\\forge-{forgeVersion}-client.jar");
-
-            if (File.Exists(universal) && !File.Exists(des))
-            {
-                string desDir = des.Remove(des.LastIndexOf("\\"), des.Length - des.LastIndexOf("\\"));
-                if (!Directory.Exists(desDir))
-                    Directory.CreateDirectory(desDir);
-
-                File.Copy(universal, des);
-                Debug.WriteLine($"{universal} \n {des}");
-                
-            }
-        }*/
-
-        // Source: CmlLib
+        #region Functions from CmlLib
+        /// <summary>
+        /// Asynchronously maps and starts processors for the specified Forge version profile and installer directory.
+        /// </summary>
+        /// <param name="installProfile">The Forge version profile.</param>
+        /// <param name="installerDir">The directory of the installer.</param>
+        /// <returns>
+        /// A <see cref="Task"/> representing the asynchronous operation.
+        /// </returns>
         protected async Task MapAndStartProcessors(ForgeVersionProfile installProfile, string installerDir)
         {
             JObject installerData = installProfile.Data;
@@ -150,6 +150,16 @@ namespace KonkordLibrary.Models.Forge
             await StartProcessors(installProfile.Processors, mapData ?? new());
         }
 
+        /// <summary>
+        /// Maps processor data using the specified parameters.
+        /// </summary>
+        /// <param name="data">The processor data.</param>
+        /// <param name="kind">The kind of processor.</param>
+        /// <param name="minecraftJar">The path of the Minecraft JAR file.</param>
+        /// <param name="installDir">The installation directory.</param>
+        /// <returns>
+        /// A dictionary containing mapped processor data.
+        /// </returns>
         protected Dictionary<string, string?> MapProcessorData(JObject data, string kind, string minecraftJar, string installDir)
         {
             Dictionary<string, string?> dataMapping = new Dictionary<string, string?>();
@@ -178,6 +188,14 @@ namespace KonkordLibrary.Models.Forge
             return dataMapping;
         }
 
+        /// <summary>
+        /// Asynchronously starts processors using the specified processor array and mapped data.
+        /// </summary>
+        /// <param name="processors">The array of processors to start.</param>
+        /// <param name="mapData">The mapped data for processors.</param>
+        /// <returns>
+        /// A <see cref="Task"/> representing the asynchronous operation.
+        /// </returns>
         protected async Task StartProcessors(JArray? processors, Dictionary<string, string?> mapData)
         {
             if (processors == null || processors.Count == 0)
@@ -199,6 +217,14 @@ namespace KonkordLibrary.Models.Forge
             }
         }
 
+        /// <summary>
+        /// Checks processor outputs using the specified outputs object and mapped data.
+        /// </summary>
+        /// <param name="outputs">The outputs object to check.</param>
+        /// <param name="mapData">The mapped data for processors.</param>
+        /// <returns>
+        /// True if processor outputs are valid; otherwise, false.
+        /// </returns>
         private bool checkProcessorOutputs(JObject outputs, Dictionary<string, string?> mapData)
         {
             foreach (var item in outputs)
@@ -216,6 +242,14 @@ namespace KonkordLibrary.Models.Forge
             return true;
         }
 
+        /// <summary>
+        /// Asynchronously starts a processor using the specified processor token and mapped data.
+        /// </summary>
+        /// <param name="processor">The processor token to start.</param>
+        /// <param name="mapData">The mapped data for the processor.</param>
+        /// <returns>
+        /// A <see cref="Task"/> representing the asynchronous operation.
+        /// </returns>
         private async Task startProcessor(JToken processor, Dictionary<string, string?> mapData)
         {
             string? name = processor["jar"]?.ToString();
@@ -265,6 +299,15 @@ namespace KonkordLibrary.Models.Forge
             await startJava(classpath.ToArray(), mainClass, args);
         }
 
+        /// <summary>
+        /// Asynchronously starts a Java process with the specified classpath, main class, and arguments.
+        /// </summary>
+        /// <param name="classpath">The classpath for the Java process.</param>
+        /// <param name="mainClass">The main class for the Java process.</param>
+        /// <param name="args">Optional: The arguments for the Java process.</param>
+        /// <returns>
+        /// A <see cref="Task"/> representing the asynchronous operation.
+        /// </returns>
         private async Task startJava(string[] classpath, string mainClass, string[]? args)
         {
             if (string.IsNullOrEmpty(JavaPath))
@@ -315,5 +358,6 @@ namespace KonkordLibrary.Models.Forge
                 NotificationHelper.SendError(o, "Error - ForgeInstaller");
 #endif
         }
+        #endregion
     }
 }

@@ -11,6 +11,7 @@ namespace KonkordLibrary.Models.Fabric
 {
     public class FabricInstaller : MinecraftInstaller
     {
+        #region Variables
         private static readonly string _fabricVersionManifestUrl = "https://meta.fabricmc.net/v2/versions";
         public static string FabricVersionManifestUrl { get { return _fabricVersionManifestUrl; } }
 
@@ -20,7 +21,7 @@ namespace KonkordLibrary.Models.Fabric
         private static readonly string _fabricLoaderJarUrl = "https://maven.fabricmc.net/net/fabricmc/fabric-loader/{0}/fabric-loader-{0}.jar";
         // Version Example: 0.15.6
         public static string FabricLoaderJarUrl { get { return _fabricLoaderJarUrl; } }
-
+        #endregion
 
         public FabricInstaller(Profile profile, Label label, ProgressBar progressBar, bool isDebug) : base(profile, label, progressBar, isDebug)
         {

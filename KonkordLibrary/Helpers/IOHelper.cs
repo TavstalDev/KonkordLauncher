@@ -1,15 +1,15 @@
 ﻿using KonkordLibrary.Enums;
 using KonkordLibrary.Managers;
 using KonkordLibrary.Models;
+using KonkordLibrary.Models.Fabric;
+using KonkordLibrary.Models.Forge;
+using KonkordLibrary.Models.Installer;
+using KonkordLibrary.Models.Quilt;
 using System.Diagnostics;
-using System.Text.Json;
 using System.IO;
 using System.Net.Http;
-using KonkordLibrary.Models.Forge;
 using System.Security.Cryptography;
-using KonkordLibrary.Models.Installer;
-using KonkordLibrary.Models.Fabric;
-using KonkordLibrary.Models.Quilt;
+using System.Text.Json;
 
 namespace KonkordLibrary.Helpers
 {
@@ -402,6 +402,10 @@ namespace KonkordLibrary.Helpers
 
         #region Functions
 
+        /// <summary>
+        /// Deletes the directory and all its contents recursively.
+        /// </summary>
+        /// <param name="path">The path of the directory to delete.</param>
         public static void DeleteDirectory(string path)
         {
             var forgeInstallerDirInfo = new DirectoryInfo(path);
@@ -412,6 +416,13 @@ namespace KonkordLibrary.Helpers
             Directory.Delete(path);
         }
 
+        /// <summary>
+        /// Moves a directory from the source to the destination directory.
+        /// </summary>
+        /// <param name="sourceDir">The path of the source directory.</param>
+        /// <param name="destinationDir">The path of the destination directory.</param>
+        /// <param name="recursive">A flag indicating whether to move the directory recursively.</param>
+        /// <param name="deleteSource">A flag indicating whether to delete the source directory after moving.</param>
         public static void MoveDirectory(string sourceDir, string destinationDir, bool recursive, bool deleteSource = true)
         {
             // Get information about the source directory
@@ -448,6 +459,14 @@ namespace KonkordLibrary.Helpers
                 DeleteDirectory(sourceDir);
         }
 
+        /// <summary>
+        /// Checks the SHA1 hash of the file against a provided hash value, if provided.
+        /// </summary>
+        /// <param name="path">The path of the file to check.</param>
+        /// <param name="compareHash">Optional: The SHA1 hash value to compare against.</param>
+        /// <returns>
+        /// True if the calculated SHA1 hash matches the provided hash value (if provided); otherwise, false.
+        /// </returns>
         public static bool CheckSHA1(string path, string? compareHash)
         {
             if (string.IsNullOrEmpty(compareHash))

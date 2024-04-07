@@ -4,7 +4,6 @@ using KonkordLibrary.Models.Forge.Legacy;
 using KonkordLibrary.Models.Installer;
 using KonkordLibrary.Models.Minecraft.Library;
 using Newtonsoft.Json;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Net.Http;

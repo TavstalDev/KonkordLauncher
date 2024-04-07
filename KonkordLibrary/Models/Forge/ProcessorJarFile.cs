@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using ICSharpCode.SharpZipLib.Zip;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using ICSharpCode.SharpZipLib.Zip;
 
 namespace KonkordLibrary.Models.Forge
 {
+    // Source: https://github.com/CmlLib/CmlLib.Core.Installer.Forge
     public class ProcessorJarFile
     {
         public string Path { get; private set; }

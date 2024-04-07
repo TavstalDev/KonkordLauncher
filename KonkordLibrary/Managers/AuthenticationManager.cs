@@ -352,7 +352,7 @@ namespace KonkordLibrary.Managers
             {
                 try
                 {
-                    StringContent reqContent = new StringContent($"{{\\\"identityToken\\\": \\\"XBL3.0 x={userHash};{token}\\\"}}");
+                    StringContent reqContent = new StringContent($"{{\"identityToken\": \"XBL3.0 x={userHash};{token}\"}}");
                     Debug.WriteLine("## SENT MINECRAFT ACCESS REQUEST");
                     var result = await client.PostAsync(MinecraftAuthUrl, reqContent).ConfigureAwait(false);
                     Debug.WriteLine("## MINECRAFT ACCESS REQUEST STATUS: " + result.StatusCode);

@@ -15,7 +15,6 @@ namespace KonkordLauncher.Converters
 
             Enum enumValue = (Enum)value;
 
-            // Modify this logic based on your requirements
             return enumValue.Equals(parameter) ? Visibility.Visible : Visibility.Collapsed;
         }
 

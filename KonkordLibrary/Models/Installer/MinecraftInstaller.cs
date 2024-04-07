@@ -12,13 +12,12 @@ using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
-using System.Xml.Linq;
 
 namespace KonkordLibrary.Models.Installer
 {
     public class MinecraftInstaller
     {
-        // File jsons can be get throught the manifest
+        // File jsons can be get through the manifest
         private static readonly string _mcVersionManifestUrl = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
         public static string MCVerisonManifestUrl { get { return _mcVersionManifestUrl; } }
 

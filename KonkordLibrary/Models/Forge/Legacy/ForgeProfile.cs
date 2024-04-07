@@ -1,7 +1,5 @@
-﻿using KonkordLibrary.Models.Minecraft.Library;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
 using System.Text.Json.Serialization;
-using Newtonsoft.Json;
 
 namespace KonkordLibrary.Models.Forge.Legacy
 {

@@ -12,6 +12,7 @@ namespace KonkordLibrary.Models.Quilt
 {
     public class QuiltInstaller : MinecraftInstaller
     {
+        #region Variables
         private static readonly string _quiltVersionManifestUrl = "https://meta.quiltmc.org/v3/versions";
         public static string QuiltVersionManifestUrl { get { return _quiltVersionManifestUrl; } }
         private static readonly string _quiltLoaderJsonUrl = "https://meta.quiltmc.org/v3/versions/loader/{0}/{1}/profile/json";
@@ -20,6 +21,7 @@ namespace KonkordLibrary.Models.Quilt
         private static readonly string _quiltLoaderJarUrl = "https://maven.quiltmc.org/repository/release/org/quiltmc/quilt-loader/{0}/quilt-loader-{0}.jar";
         // Version Example: 0.24.0
         public static string QuiltLoaderJarUrl { get { return _quiltLoaderJarUrl; } }
+        #endregion
 
         public QuiltInstaller(Profile profile, Label label, ProgressBar progressBar, bool isDebug) : base(profile, label, progressBar, isDebug)
         {

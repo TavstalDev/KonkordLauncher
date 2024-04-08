@@ -64,7 +64,7 @@
                     </ComboBox.Resources>
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock FontSize="{DynamicResource FontSize}" Tag="{Binding Code}" Text="{Binding Name}"></TextBlock>
+                            <TextBlock FontSize="{DynamicResource FontSize}" Tag="{Binding TwoLetterCode}" Text="{Binding Name}"></TextBlock>
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>

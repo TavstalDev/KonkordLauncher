@@ -213,7 +213,7 @@ namespace KonkordLibrary.Models.Forge
                         await startProcessor(item, mapData);
                 }
                 double percent = (double)i / (double)processors.Count * 100d;
-                UpdateProgressbar(percent, $"Building forge {percent:00}%...");
+                UpdateProgressbarTranslated(percent, $"ui_building", new object[] { "forge", percent.ToString("0.00") });
             }
         }
 
@@ -355,7 +355,7 @@ namespace KonkordLibrary.Models.Forge
 #if DEBUG
             string o = process.StandardError.ReadToEnd();
             if (!string.IsNullOrEmpty(o))
-                NotificationHelper.SendError(o, "Error - ForgeInstaller");
+                NotificationHelper.SendErrorMsg(o, "Error - ForgeInstaller");
 #endif
         }
         #endregion

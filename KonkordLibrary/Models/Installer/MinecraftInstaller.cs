@@ -1,5 +1,6 @@
 ﻿using KonkordLibrary.Enums;
 using KonkordLibrary.Helpers;
+using KonkordLibrary.Managers;
 using KonkordLibrary.Models.Forge.Installer;
 using KonkordLibrary.Models.Minecraft;
 using KonkordLibrary.Models.Minecraft.Library;
@@ -87,9 +88,9 @@ namespace KonkordLibrary.Models.Installer
         /// </summary>
         /// <param name="percent">The percentage value for the progress bar.</param>
         /// <param name="text">The text to display along with the progress bar.</param>
-        internal void UpdateProgressbar(double percent, string text)
+        internal void UpdateProgressbarTranslated(double percent, string text, params object[]? args)
         {
-            ProgressbarLabel.Content = text;
+            ProgressbarLabel.Content = TranslationManager.Translate(text, args);
             ProgressBar.Value = percent > ProgressBar.Maximum ? ProgressBar.Maximum : percent;
         }
 
@@ -172,7 +173,7 @@ namespace KonkordLibrary.Models.Installer
             // JSON
             if (!File.Exists(VersionData.VersionJsonPath))
             {
-                UpdateProgressbar(0, $"Downloading the '{MinecraftVersion.Id}' version json file...");
+                UpdateProgressbarTranslated(0, $"ui_downloading_version_json", new object[] { MinecraftVersion.Id });
                 using (HttpClient client = new HttpClient())
                 {
                     string jsonResult = await client.GetStringAsync(MinecraftVersion.Url);
@@ -183,7 +184,7 @@ namespace KonkordLibrary.Models.Installer
             }
             else
             {
-                UpdateProgressbar(0, $"Reading the '{MinecraftVersion.Id}' version json file...");
+                UpdateProgressbarTranslated(0, $"ui_reading_version_json", new object[] { MinecraftVersion.Id });
                 string jsonResult = await File.ReadAllTextAsync(VersionData.VersionJsonPath);
                 MinecraftVersionMeta = JsonConvert.DeserializeObject<MCVersionMeta>(jsonResult);
             }
@@ -194,7 +195,7 @@ namespace KonkordLibrary.Models.Installer
             // JAR
             if (!File.Exists(VersionData.VersionJarPath))
             {
-                UpdateProgressbar(0, $"Downloading the '{MinecraftVersion.Id}' version jar file...");
+                UpdateProgressbarTranslated(0, $"ui_downloading_version_jar", new object[] { MinecraftVersion.Id });
                 using (HttpClient client = new HttpClient())
                 {
                     byte[] bytes = await client.GetByteArrayAsync(MinecraftVersionMeta.Downloads.Client.Url);
@@ -212,13 +213,13 @@ namespace KonkordLibrary.Models.Installer
         private async Task DownloadAssets()
         {
             // AssetIndex
-            UpdateProgressbar(0, $"Checking the '{MinecraftVersionMeta.AssetIndex.Id}' assetIndex json file...");
+            UpdateProgressbarTranslated(0, $"ui_checking_asset_index_json", new object[] { MinecraftVersionMeta.AssetIndex.Id });
             string assetIndex = MinecraftVersionMeta.AssetIndex.Id;
             string assetPath = Path.Combine(IOHelper.AssetsDir, $"indexes/{assetIndex}.json");
             JToken? assetJToken = null;
             if (!File.Exists(assetPath))
             {
-                UpdateProgressbar(0, $"Downloading the '{assetIndex}' assetIndex json file...");
+                UpdateProgressbarTranslated(0, $"ui_downloading_asset_index_json", new object[] { assetIndex });
                 using (HttpClient client = new HttpClient())
                 {
                     string resultJson = await client.GetStringAsync(MinecraftVersionMeta.AssetIndex.Url);
@@ -228,7 +229,7 @@ namespace KonkordLibrary.Models.Installer
             }
             else
             {
-                UpdateProgressbar(0, $"Reading the '{assetIndex}' assetIndex json file...");
+                UpdateProgressbarTranslated(0, $"ui_reading_asset_index_json", new object[] { assetIndex });
                 string resultJson = await File.ReadAllTextAsync(assetPath);
                 assetJToken = JObject.Parse(resultJson)["objects"];
             }
@@ -236,7 +237,7 @@ namespace KonkordLibrary.Models.Installer
 
             if (assetJToken == null)
             {
-                NotificationHelper.SendError("Failed to get the assetJToken", "Error");
+                NotificationHelper.SendErrorTranslated("json_token_not_found", "messagebox_error", new object[] { "assetJToken (mc asset objects)" });
                 return;
             }
 
@@ -252,7 +253,7 @@ namespace KonkordLibrary.Models.Installer
                 string objectDir = string.Empty;
                 string objectPath = string.Empty;
                 int downloadedAssetSize = 0;
-                UpdateProgressbar(0, $"Checking assets...");
+                UpdateProgressbarTranslated(0, $"ui_checking_assets");
                 foreach (JToken token in assetJToken.ToList())
                 {
                     hash = token.First["hash"].ToString();
@@ -269,7 +270,7 @@ namespace KonkordLibrary.Models.Installer
                     }
                     downloadedAssetSize += int.Parse(token.First["size"].ToString());
                     double percent = (double)downloadedAssetSize / (double)MinecraftVersionMeta.AssetIndex.TotalSize * 100d;
-                    UpdateProgressbar(percent, $"Downloading assets... {percent:0.00}%");
+                    UpdateProgressbarTranslated(percent, $"ui_downloading_assets", new object[] { percent.ToString("0.00") });
                 }
             }
         }
@@ -284,7 +285,7 @@ namespace KonkordLibrary.Models.Installer
         {
             if (MinecraftVersionMeta.Logging != null && MinecraftVersionMeta.Logging.Client != null)
             {
-                UpdateProgressbar(0, $"Checking logging file...");
+                UpdateProgressbarTranslated(0, $"ui_checking_logging");
                 string logDirPath = Path.Combine(IOHelper.AssetsDir, "log_configs");
                 if (!Directory.Exists(logDirPath))
                     Directory.CreateDirectory(logDirPath);
@@ -294,7 +295,7 @@ namespace KonkordLibrary.Models.Installer
                 string logFilePath = Path.Combine(versionDirectory, MinecraftVersionMeta.Logging.Client.File.Id);
                 if (!File.Exists(logFilePath))
                 {
-                    UpdateProgressbar(0, $"Downloading logging file...");
+                    UpdateProgressbarTranslated(0, $"ui_downloading_logging");
                     using (HttpClient client = new HttpClient())
                     {
                         string r = await client.GetStringAsync(MinecraftVersionMeta.Logging.Client.File.Url);
@@ -317,14 +318,14 @@ namespace KonkordLibrary.Models.Installer
         /// </returns>
         private async Task DownloadMappings()
         {
-            UpdateProgressbar(0, $"Checking client mappings...");
+            UpdateProgressbarTranslated(0, $"ui_checking_client_mappings");
             if (MinecraftVersionMeta.Downloads.ClientMappings == null)
                 return;
 
             string clientMappinsPath = Path.Combine(VersionData.VersionDirectory, "client.txt");
             if (!File.Exists(clientMappinsPath))
             {
-                UpdateProgressbar(0, $"Downloading client mappings...");
+                UpdateProgressbarTranslated(0, $"ui_downloading_client_mappings");
                 using (HttpClient client = new HttpClient())
                 {
                     string r = await client.GetStringAsync(MinecraftVersionMeta.Downloads.ClientMappings.Url);
@@ -342,7 +343,7 @@ namespace KonkordLibrary.Models.Installer
         /// </returns>
         private async Task<List<MCLibrary>> DownloadLibraries(List<MCLibrary> mcLibs)
         {
-            UpdateProgressbar(0, $"Checking the libraries...");
+            UpdateProgressbarTranslated(0, $"ui_checking_libraries");
             List<MCLibrary> natives = new List<MCLibrary>();
             double libraryOverallSize = 0;
             double libraryDownloadedSize = 0;
@@ -354,7 +355,7 @@ namespace KonkordLibrary.Models.Installer
             using (HttpClient client = new HttpClient())
             {
                 // Calculate the overallSize or read it from cache
-                UpdateProgressbar(0, $"Calculating library sizes...");
+                UpdateProgressbarTranslated(0, $"ui_calculating_lib_size");
                 if (!File.Exists(librarySizeCacheFilePath))
                 {
                     foreach (var lib in mcLibs)
@@ -416,7 +417,7 @@ namespace KonkordLibrary.Models.Installer
                         if (libraryOverallSize == 0)
                             libraryOverallSize = 1; // NaN fix
                         double percent = libraryDownloadedSize / libraryOverallSize * 100;
-                        UpdateProgressbar(percent, $"Downloading the '{lib.Name}' library... {percent:0.00}%");
+                        UpdateProgressbarTranslated(percent, $"ui_library_download", new object[] { lib.Name, percent.ToString("0.00") });
                     }
                     else if (lib.Downloads.Classifiers != null)
                     {
@@ -462,7 +463,7 @@ namespace KonkordLibrary.Models.Installer
         /// </returns>
         private async Task DownloadNatives(List<MCLibrary> nativeLibs, string nativeDir)
         {
-            UpdateProgressbar(0, $"Checking natives...");
+            UpdateProgressbarTranslated(0, $"ui_checking_natives");
             if (!Directory.Exists(nativeDir))
                 Directory.CreateDirectory(nativeDir);
 
@@ -568,7 +569,7 @@ namespace KonkordLibrary.Models.Installer
         {
             List<string> arguments = new List<string>();
 
-            UpdateProgressbar(0, $"Building arguments...");
+            UpdateProgressbarTranslated(0, $"ui_building_args");
             #region JVM
             arguments.Add("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
             if (_jvmArgumentsBeforeClassPath.Count > 0)

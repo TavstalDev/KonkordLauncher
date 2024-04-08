@@ -15,7 +15,7 @@ namespace KonkordLibrary.Helpers
         /// <param name="image">The type of message box image.</param>
         public static void SendNotificationTranslated(string messageKey, string titleKey, object[]? messageArgs = null, object[]? titleArgs = null, MessageBoxImage image = MessageBoxImage.Information)
         {
-            MessageBox.Show(TranslationManager.Translate(messageKey, messageArgs), TranslationManager.Translate(titleKey, titleArgs));
+            MessageBox.Show(TranslationManager.Translate(messageKey, messageArgs), titleKey.Contains(' ') ? string.Format(titleKey, titleArgs ?? new object[] {}) : TranslationManager.Translate(titleKey, titleArgs));
         }
 
         /// <summary>
@@ -56,28 +56,24 @@ namespace KonkordLibrary.Helpers
 
         // Todo remove these and use translated versions instead
 
-        [Obsolete]
-        public static void SendNotification(string message, string title, MessageBoxImage image = MessageBoxImage.Information)
+        public static void SendNotificationMsg(string message, string title, MessageBoxImage image = MessageBoxImage.Information)
         {
             MessageBox.Show(message, title, MessageBoxButton.OK, image);
         }
 
-        [Obsolete]
-        public static void SendInfo(string message, string title)
+        public static void SendInfoMsg(string message, string title)
         {
-            SendNotification(message, title);
+            SendNotificationMsg(message, title);
         }
 
-        [Obsolete]
-        public static void SendWarning(string message, string title)
+        public static void SendWarningMsg(string message, string title)
         {
-            SendNotification(message, title, MessageBoxImage.Warning);
+            SendNotificationMsg(message, title, MessageBoxImage.Warning);
         }
 
-        [Obsolete]
-        public static void SendError(string message, string title)
+        public static void SendErrorMsg(string message, string title)
         {
-            SendNotification(message, title, MessageBoxImage.Error);
+            SendNotificationMsg(message, title, MessageBoxImage.Error);
         }
     }
 }

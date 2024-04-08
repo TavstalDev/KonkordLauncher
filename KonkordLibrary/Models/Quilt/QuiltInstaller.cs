@@ -30,10 +30,10 @@ namespace KonkordLibrary.Models.Quilt
 
         internal override async Task<ModedData?> InstallModed(string tempDir)
         {
-            UpdateProgressbar(0, $"Reading the quiltManifest file...");
+            UpdateProgressbarTranslated(0, "ui_reading_manifest", new object[] { "quiltManifest" });
             if (!File.Exists(IOHelper.QuiltManifestJsonFile))
             {
-                NotificationHelper.SendError("Failed to get the quilt manifest.", "Error");
+                NotificationHelper.SendErrorTranslated("manifest_file_not_found", "messagebox_error", new object[] { "quilt" });
                 return null;
             }
 
@@ -55,7 +55,7 @@ namespace KonkordLibrary.Models.Quilt
             if (!File.Exists(quiltVersion.VersionJsonPath))
             {
                 string resultJson = string.Empty;
-                UpdateProgressbar(0, $"Downloading the quilt version json file...");
+                UpdateProgressbarTranslated(0, $"ui_downloading_version_json", new object[] { "quilt" });
                 using (HttpClient client = new HttpClient())
                 {
                     resultJson = await client.GetStringAsync(string.Format(QuiltLoaderJsonUrl, quiltVersion.VanillaVersion, quiltVersion.InstanceVersion));
@@ -68,11 +68,11 @@ namespace KonkordLibrary.Models.Quilt
                 if (quiltVersionMeta == null)
                 {
                     File.Delete(quiltVersion.VersionJsonPath); // Delete it because this if part won't be executed again if it exists
-                    NotificationHelper.SendError("Failed to get the quilt version meta", "Error");
+                    NotificationHelper.SendErrorTranslated("version_meta_invalid", "messagebox_error", new object[] { "quilt" });
                     return null;
                 }
 
-                UpdateProgressbar(0, $"Reading the quilt version json file...");
+                UpdateProgressbarTranslated(0, $"ui_reading_version_json", new object[] { "quilt" });
                 foreach (var lib in quiltVersionMeta.Libraries)
                 {
                     localLibrarySize += lib.Size;
@@ -83,11 +83,11 @@ namespace KonkordLibrary.Models.Quilt
             }
             else
             {
-                UpdateProgressbar(0, $"Reading the quilt version json file...");
+                UpdateProgressbarTranslated(0, $"ui_reading_version_json", new object[] { "quilt" });
                 quiltVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(await File.ReadAllTextAsync(quiltVersion.VersionJsonPath));
                 if (quiltVersionMeta == null)
                 {
-                    NotificationHelper.SendError("Failed to get the quilt version meta", "Error");
+                    NotificationHelper.SendErrorTranslated("version_meta_invalid", "messagebox_error", new object[] { "quilt" });
                     return null;
                 }
 
@@ -106,7 +106,7 @@ namespace KonkordLibrary.Models.Quilt
 
             if (!File.Exists(loaderJarPath))
             {
-                UpdateProgressbar(0, $"Downloading the quilt loader...");
+                UpdateProgressbarTranslated(0, $"ui_downloading_loader", new object[] { "quilt" });
                 using (HttpClient client = new HttpClient())
                 {
                     byte[] bytes = await client.GetByteArrayAsync(string.Format(QuiltLoaderJarUrl, quiltVersion.InstanceVersion));
@@ -114,10 +114,10 @@ namespace KonkordLibrary.Models.Quilt
                 }
             }
 
-            UpdateProgressbar(0, $"Getting launch arguments...");
+            UpdateProgressbarTranslated(0, $"ui_getting_launch_arguments");
             if (!File.Exists(quiltVersion.VersionJarPath))
             {
-                UpdateProgressbar(0, $"Copying the vanilla jar file...");
+                UpdateProgressbarTranslated(0, $"ui_copying_jar", new object[] { "vanilla" });
                 File.Copy(quiltVersion.VanillaJarPath, quiltVersion.VersionJarPath);
             }
 

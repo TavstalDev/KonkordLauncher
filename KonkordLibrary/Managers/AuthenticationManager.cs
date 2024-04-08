@@ -54,7 +54,7 @@ namespace KonkordLibrary.Managers
             AccountData? accountData = await JsonHelper.ReadJsonFileAsync<AccountData>(Path.Combine(IOHelper.MainDirectory, "accounts.json"));
             if (accountData == null)
             {
-                NotificationHelper.SendError("Failed to get the account data.", "Error");
+                NotificationHelper.SendErrorTranslated("launcher_account_not_found", "messagebox_error");
                 return false;
             }
 
@@ -84,7 +84,7 @@ namespace KonkordLibrary.Managers
 
             if (_isListening)
             {
-                NotificationHelper.SendWarning("The HTTP listener is already active.", "Warning");
+                NotificationHelper.SendWarningTranslated("httplistener_already_active", "messagebox_warning");
                 return;
             }
 
@@ -95,7 +95,7 @@ namespace KonkordLibrary.Managers
             }
             catch (HttpListenerException hlex)
             {
-                NotificationHelper.SendError("Can't start the agent to listen transaction" + hlex, "Error");
+                NotificationHelper.SendErrorTranslated("httplistener_start_fail", "messagebox_error", new object[] { hlex });
                 _isListening = false;
                 return;
             }
@@ -115,7 +115,7 @@ namespace KonkordLibrary.Managers
         {
             if (_httpListener == null)
             {
-                NotificationHelper.SendWarning("Can't stop the HTTP listener because it is null.", "Warning");
+                NotificationHelper.SendWarningTranslated("httplistener_stop_not_valid", "messagebox_warning");
                 return;
             }
 
@@ -147,7 +147,7 @@ namespace KonkordLibrary.Managers
             Debug.WriteLine($"### RECIEVED CALLBACK FROM {context.Request.RawUrl}");
             if (context.Request.QueryString.AllKeys.Any(x => x == "error"))
             {
-                NotificationHelper.SendError(context.Request.QueryString.Get("error_description") ?? "Unknown error.", "Error");
+                NotificationHelper.SendErrorTranslated(context.Request.QueryString.Get("error_description") ?? TranslationManager.Translate("error_unknown"), "messagebox_error");
                 return;
             }
 
@@ -174,14 +174,14 @@ namespace KonkordLibrary.Managers
         {
             if (!request.QueryString.AllKeys.Contains("code"))
             {
-                NotificationHelper.SendError("Couldn't get the auth code key from the url.", "Error");
+                NotificationHelper.SendErrorTranslated("httplistener_authcode_not_found", "messagebox_error");
                 return;
             }
             string? code = request.QueryString["code"];
 
             if (string.IsNullOrEmpty(code))
             {
-                NotificationHelper.SendError("Couldn't get the auth code value from the url.", "Error");
+                NotificationHelper.SendErrorTranslated("httplistener_authcode_not_found", "messagebox_error");
                 return;
             }
 
@@ -272,7 +272,7 @@ namespace KonkordLibrary.Managers
                     else
                     {
                         Debug.WriteLine("## FAILED TO GET THE TOKEN FROM XBOX AUTH REQUEST");
-                        NotificationHelper.SendWarning(resultObj.ToString(Newtonsoft.Json.Formatting.None), "XBOX TOKEN CALLBACK");
+                        NotificationHelper.SendWarningMsg(resultObj.ToString(Newtonsoft.Json.Formatting.None), "XBOX TOKEN CALLBACK");
                     }
                 }
                 catch (Exception ex)
@@ -325,7 +325,7 @@ namespace KonkordLibrary.Managers
                     }
                     else
                     {
-                        NotificationHelper.SendWarning(resultObj.ToString(Newtonsoft.Json.Formatting.None), "XBOX XSTS CALLBACK");
+                        NotificationHelper.SendWarningMsg(resultObj.ToString(Newtonsoft.Json.Formatting.None), "XBOX XSTS CALLBACK");
                     }
                 }
                 catch (Exception ex)
@@ -366,7 +366,7 @@ namespace KonkordLibrary.Managers
                     }
                     else
                     {
-                        NotificationHelper.SendWarning(resultObj.ToString(Newtonsoft.Json.Formatting.None), "MINECRAFT ACCESS CALLBACK");
+                        NotificationHelper.SendWarningMsg(resultObj.ToString(Newtonsoft.Json.Formatting.None), "MINECRAFT ACCESS CALLBACK");
                     }
                 }
                 catch (Exception ex)
@@ -401,7 +401,7 @@ namespace KonkordLibrary.Managers
                     bool hasMinecraft = false;
                     // TODO implement function to get this,
                     // but I have no idea how to until I can get a full response as example
-                    NotificationHelper.SendWarning(resultObj.ToString(Formatting.Indented), "OWNERSHIP JSON");
+                    NotificationHelper.SendWarningMsg(resultObj.ToString(Formatting.Indented), "OWNERSHIP JSON");
 
                     if (hasMinecraft)
                     {
@@ -409,7 +409,7 @@ namespace KonkordLibrary.Managers
                     }
                     else
                     {
-                        NotificationHelper.SendWarning("Failed to authenticate your ownership.", "MINECRAFT OWNERSHIP CALLBACK");
+                        NotificationHelper.SendWarningTranslated("minecraft_ownership_validate_fail", "MINECRAFT OWNERSHIP CALLBACK");
                     }
                 }
                 catch (Exception ex)
@@ -475,7 +475,7 @@ namespace KonkordLibrary.Managers
                     }
                     else
                     {
-                        NotificationHelper.SendWarning("Failed to get your minecraft profile.", "MINECRAFT PROFILE CALLBACK");
+                        NotificationHelper.SendWarningTranslated("minecraft_profile_not_found", "MINECRAFT PROFILE CALLBACK");
                     }
                 }
                 catch (Exception ex)
@@ -500,11 +500,12 @@ namespace KonkordLibrary.Managers
             {
                 try
                 {
+                    // WIP
                     client.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
                     var result = await client.GetAsync(MinecraftProfileUrl).ConfigureAwait(false);
                     JObject resultObj = JObject.Parse(await result.Content.ReadAsStringAsync());
 
-                    NotificationHelper.SendNotification(resultObj.ToString(Newtonsoft.Json.Formatting.None), "AAAA");
+                    NotificationHelper.SendNotificationMsg(resultObj.ToString(Newtonsoft.Json.Formatting.None), "Preview Response");
                 }
                 catch (Exception ex)
                 {

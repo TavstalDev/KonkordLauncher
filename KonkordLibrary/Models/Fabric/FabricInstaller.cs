@@ -30,10 +30,10 @@ namespace KonkordLibrary.Models.Fabric
 
         internal override async Task<ModedData?> InstallModed(string tempDir)
         {
-            UpdateProgressbar(0, $"Reading the fabricManifest file...");
+            UpdateProgressbarTranslated(0, "ui_reading_manifest", new object[] { "fabricManifest" });
             if (!File.Exists(IOHelper.FabricManifestJsonFile))
             {
-                NotificationHelper.SendError("Failed to get the fabric manifest.", "Error");
+                NotificationHelper.SendErrorTranslated("manifest_file_not_found", "messagebox_error", new object[] { "fabric" });
                 return null;
             }
 
@@ -55,7 +55,7 @@ namespace KonkordLibrary.Models.Fabric
             if (!File.Exists(fabricVersion.VersionJsonPath))
             {
                 string resultJson = string.Empty;
-                UpdateProgressbar(0, $"Downloading the fabric version json file...");
+                UpdateProgressbarTranslated(0, $"ui_downloading_version_json", new object[] { "fabric" });
                 using (HttpClient client = new HttpClient())
                 {
                     resultJson = await client.GetStringAsync(string.Format(FabricLoaderJsonUrl, fabricVersion.VanillaVersion, fabricVersion.InstanceVersion));
@@ -68,11 +68,11 @@ namespace KonkordLibrary.Models.Fabric
                 if (fabricVersionMeta == null)
                 {
                     File.Delete(fabricVersion.VersionJsonPath); // Delete it because this if part won't be executed again if it exists
-                    NotificationHelper.SendError("Failed to get the fabric version meta", "Error");
+                    NotificationHelper.SendErrorTranslated("version_meta_invalid", "messagebox_error", new object[] { "fabric" });
                     return null;
                 }
 
-                UpdateProgressbar(0, $"Reading the fabric version json file...");
+                UpdateProgressbarTranslated(0, $"ui_reading_version_json", new object[] { "fabric" });
                 foreach (var lib in fabricVersionMeta.Libraries)
                 {
                     localLibrarySize += lib.Size;
@@ -83,11 +83,11 @@ namespace KonkordLibrary.Models.Fabric
             }
             else
             {
-                UpdateProgressbar(0, $"Reading the fabric version json file...");
+                UpdateProgressbarTranslated(0, $"ui_reading_version_json", new object[] { "fabric" });
                 fabricVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(await File.ReadAllTextAsync(fabricVersion.VersionJsonPath));
                 if (fabricVersionMeta == null)
                 {
-                    NotificationHelper.SendError("Failed to get the fabric version meta", "Error");
+                    NotificationHelper.SendErrorTranslated("version_meta_invalid", "messagebox_error", new object[] { "fabric" });
                     return null;
                 }
 
@@ -106,7 +106,7 @@ namespace KonkordLibrary.Models.Fabric
 
             if (!File.Exists(loaderJarPath))
             {
-                UpdateProgressbar(0, $"Downloading the fabric loader...");
+                UpdateProgressbarTranslated(0, $"ui_downloading_loader", new object[] { "fabric" });
                 using (HttpClient client = new HttpClient())
                 {
                     byte[] bytes = await client.GetByteArrayAsync(string.Format(FabricLoaderJarUrl, fabricVersion.InstanceVersion));
@@ -114,10 +114,10 @@ namespace KonkordLibrary.Models.Fabric
                 }
             }
 
-            UpdateProgressbar(0, $"Getting launch arguments...");
+            UpdateProgressbarTranslated(0, $"ui_getting_launch_arguments");
             if (!File.Exists(fabricVersion.VersionJarPath))
             {
-                UpdateProgressbar(0, $"Copying the vanilla jar file...");
+                UpdateProgressbarTranslated(0, $"ui_copying_jar", new object[] { "vanilla" });
                 File.Copy(fabricVersion.VanillaJarPath, fabricVersion.VersionJarPath);
             }
 

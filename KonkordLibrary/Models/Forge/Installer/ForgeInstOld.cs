@@ -37,7 +37,7 @@ namespace KonkordLibrary.Models.Forge.Installer
 
         internal override async Task<ModedData?> InstallModed(string tempDir)
         {
-            UpdateProgressbar(0, $"Trying to get recommended java path...");
+            UpdateProgressbarTranslated(0, "ui_finding_recommended_java");
             string? RecommendedJavaPath;
             if (MinecraftVersionMeta.JavaVersion != null)
                 MinecraftVersionMeta.JavaVersion.FindOnSystem(out RecommendedJavaPath);
@@ -50,16 +50,16 @@ namespace KonkordLibrary.Models.Forge.Installer
                     JavaPath = Path.Combine(RecommendedJavaPath, "bin", IsDebug ? "java.exe" : "javaw.exe");
             }
 
-            UpdateProgressbar(0, $"Reading the forgeManifest file...");
+            UpdateProgressbarTranslated(0, "ui_reading_manifest", new object[] { "forge" });
             if (!File.Exists(IOHelper.ForgeManifestJsonFile))
             {
-                NotificationHelper.SendError("Failed to get the forge manifest.", "Error");
+                NotificationHelper.SendErrorTranslated("manifest_file_not_found", "messagebox_error", new object[] { "forge" });
                 return null;
             }
 
             VersionDetails forgeVersion = Managers.GameManager.GetProfileVersionDetails(EProfileKind.FORGE, Profile.VersionId, Profile.VersionVanillaId, Profile.GameDirectory);
 
-            UpdateProgressbar(0, $"Creating directories...");
+            UpdateProgressbarTranslated(0, $"ui_creating_directories");
             // Create versionDir in the versions folder
             if (!Directory.Exists(forgeVersion.VersionDirectory))
                 Directory.CreateDirectory(forgeVersion.VersionDirectory);
@@ -70,7 +70,7 @@ namespace KonkordLibrary.Models.Forge.Installer
                 Directory.CreateDirectory(librarySizeCacheDir);
 
             // Download Installer
-            UpdateProgressbar(0, $"Downloading the forge installer...");
+            UpdateProgressbarTranslated(0, $"ui_downloading_installer", new object[] { "forge" });
 
             // Check Minecraft Version
             string[] rawVersion = VersionData.VanillaVersion.Split('.');
@@ -116,7 +116,7 @@ namespace KonkordLibrary.Models.Forge.Installer
             }
 
             // Extract Installer
-            UpdateProgressbar(0, $"Extracting the forge installer...");
+            UpdateProgressbarTranslated(0, $"ui_extracting_installer", new object[] { "forge" });
             ZipFile.ExtractToDirectory(installerJarPath, installerDir);
 
             ModedData modedData;
@@ -169,7 +169,7 @@ namespace KonkordLibrary.Models.Forge.Installer
                 if (forgeVersionMeta == null)
                     throw new FileNotFoundException("Failed to get the forge version meta.");
 
-                UpdateProgressbar(0, $"Checking forge installer libraries...");
+                UpdateProgressbarTranslated(0, $"ui_checking_installer_libraries", new object[] { "forge" });
                 List<MCLibrary> localLibraries = new List<MCLibrary>();
                 foreach (var lib in forgeVersionMeta.Libraries)
                 {
@@ -197,7 +197,7 @@ namespace KonkordLibrary.Models.Forge.Installer
                 }
 
                 // Add launch arguments
-                UpdateProgressbar(0, $"Adding forge arguments...");
+                UpdateProgressbarTranslated(0, $"ui_adding_arguments", new object[] { "forge" });
                 if (forgeVersionMeta.MinecraftArguments != null)
                 {
                     MinecraftVersionMeta.ArgumentsLegacy = forgeVersionMeta.MinecraftArguments;
@@ -206,7 +206,7 @@ namespace KonkordLibrary.Models.Forge.Installer
                 // Copy vanilla jar
                 if (!File.Exists(forgeVersion.VersionJarPath))
                 {
-                    UpdateProgressbar(0, $"Copying the vanilla jar file...");
+                    UpdateProgressbarTranslated(0, $"ui_copying_jar", new object[] { "vanilla" });
                     File.Copy(forgeVersion.VanillaJarPath, forgeVersion.VersionJarPath);
                 }
 

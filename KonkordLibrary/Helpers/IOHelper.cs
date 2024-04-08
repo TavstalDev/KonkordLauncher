@@ -83,7 +83,7 @@ namespace KonkordLibrary.Helpers
                 Process? pr = Process.Start(psi);
                 if (pr == null)
                 {
-                    throw new NullReferenceException($"The process to check the java version was null.");
+                    throw new NullReferenceException(TranslationManager.Translate($"java_version_process_null"));
                 }
                 else
                 {
@@ -100,7 +100,7 @@ namespace KonkordLibrary.Helpers
             }
             catch (Exception ex)
             {
-                NotificationHelper.SendError(ex.ToString(), "Error in ValidateJava");
+                NotificationHelper.SendErrorMsg(ex.ToString(), "Error in ValidateJava");
                 return false;
             }
 
@@ -160,7 +160,7 @@ namespace KonkordLibrary.Helpers
             }
             catch (Exception ex)
             {
-                NotificationHelper.SendError(ex.ToString(), "Error in ValidateDataFolder");
+                NotificationHelper.SendErrorMsg(ex.ToString(), "Error in ValidateDataFolder");
                 return false;
             }
         }
@@ -200,7 +200,7 @@ namespace KonkordLibrary.Helpers
             }
             catch (Exception ex)
             {
-                NotificationHelper.SendError(ex.ToString(), "Error in ValidateSettings");
+                NotificationHelper.SendErrorMsg(ex.ToString(), "Error in ValidateSettings");
                 return false;
             }
         }
@@ -252,7 +252,7 @@ namespace KonkordLibrary.Helpers
             }
             catch (Exception ex)
             {
-                NotificationHelper.SendError(ex.ToString(), "Error in ValidateAccounts");
+                NotificationHelper.SendErrorMsg(ex.ToString(), "Error in ValidateAccounts");
                 return false;
             }
         }
@@ -312,17 +312,18 @@ namespace KonkordLibrary.Helpers
                         }
                         else
                         {
-                            NotificationHelper.SendError($"Failed to read the translation file of '{locale}'. Loading defaults...", "Error");
+                            // Left it untranslated because it is a translation error
+                            NotificationHelper.SendErrorMsg($"Failed to read the translation file of '{locale}'. Loading defaults...", "Error");
                             TranslationManager.SetTranslations(TranslationManager.DefaultTranslations);
                         }    
                     }
                     else
                     {
-                        if (TranslationManager.LanguagePacks.ContainsKey(locale))
+                        if (TranslationManager.LanguagePacks.Any(x => x.TwoLetterCode == locale))
                         {
                             HttpClient client = new HttpClient();
 
-                            string resultJson = await client.GetStringAsync(TranslationManager.LanguagePacks[locale]);
+                            string resultJson = await client.GetStringAsync(TranslationManager.LanguagePacks.Find(x => x.TwoLetterCode == locale)?.Url);
                             Dictionary<string, string> translation = new Dictionary<string, string>();
                             using (var stream = new MemoryStream())
                             {
@@ -340,7 +341,7 @@ namespace KonkordLibrary.Helpers
             }
             catch (Exception ex)
             {
-                NotificationHelper.SendError(ex.ToString(), "Error in ValidateTranslations");
+                NotificationHelper.SendErrorMsg(ex.ToString(), "Error in ValidateTranslations");
                 return false;
             }
         }

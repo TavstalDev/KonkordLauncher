@@ -37,7 +37,7 @@ namespace KonkordLibrary.Helpers
             }
             catch (Exception ex)
             {
-                NotificationHelper.SendError(ex.ToString(), "Error in WriteJsonFile<T>");
+                NotificationHelper.SendErrorMsg(ex.ToString(), "Error in WriteJsonFile<T>");
                 return false;
             }
         }
@@ -73,7 +73,7 @@ namespace KonkordLibrary.Helpers
             }
             catch (Exception ex)
             {
-                NotificationHelper.SendError(ex.ToString(), "Error in WriteJsonFileAsync<T>");
+                NotificationHelper.SendErrorMsg(ex.ToString(), "Error in WriteJsonFileAsync<T>");
                 return false;
             }
         }
@@ -99,7 +99,7 @@ namespace KonkordLibrary.Helpers
             }
             catch (Exception ex)
             {
-                NotificationHelper.SendError(ex.ToString(), "Error in ReadJsonFile<T>");
+                NotificationHelper.SendErrorMsg(ex.ToString(), "Error in ReadJsonFile<T>");
                 return default;
             }
         }
@@ -125,7 +125,7 @@ namespace KonkordLibrary.Helpers
             }
             catch (Exception ex)
             {
-                NotificationHelper.SendError(ex.ToString(), "Error in ReadJsonFileAsync<T>");
+                NotificationHelper.SendErrorMsg(ex.ToString(), "Error in ReadJsonFileAsync<T>");
                 return default;
             }
         }

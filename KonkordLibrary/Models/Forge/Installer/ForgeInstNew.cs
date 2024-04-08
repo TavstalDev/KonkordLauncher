@@ -31,7 +31,7 @@ namespace KonkordLibrary.Models.Forge.Installer
 
         internal override async Task<ModedData?> InstallModed(string tempDir)
         {
-            UpdateProgressbar(0, $"Trying to get recommended java path...");
+            UpdateProgressbarTranslated(0, "ui_finding_recommended_java");
             MinecraftVersionMeta.JavaVersion.FindOnSystem(out string? RecommendedJavaPath);
             if (!string.IsNullOrEmpty(RecommendedJavaPath) && string.IsNullOrEmpty(Profile.JavaPath))
             {
@@ -39,16 +39,16 @@ namespace KonkordLibrary.Models.Forge.Installer
                     JavaPath = Path.Combine(RecommendedJavaPath, "bin", IsDebug ? "java.exe" : "javaw.exe");
             }
 
-            UpdateProgressbar(0, $"Reading the forgeManifest file...");
+            UpdateProgressbarTranslated(0, "ui_reading_manifest", new object[] { "forge" });
             if (!File.Exists(IOHelper.ForgeManifestJsonFile))
             {
-                NotificationHelper.SendError("Failed to get the forge manifest.", "Error");
+                NotificationHelper.SendErrorTranslated("manifest_file_not_found", "messagebox_error", new object[] { "forge" });
                 return null;
             }
 
             VersionDetails forgeVersion = Managers.GameManager.GetProfileVersionDetails(EProfileKind.FORGE, Profile.VersionId, Profile.VersionVanillaId, Profile.GameDirectory);
 
-            UpdateProgressbar(0, $"Creating directories...");
+            UpdateProgressbarTranslated(0, $"ui_creating_directories");
             // Create versionDir in the versions folder
             if (!Directory.Exists(forgeVersion.VersionDirectory))
                 Directory.CreateDirectory(forgeVersion.VersionDirectory);
@@ -59,7 +59,7 @@ namespace KonkordLibrary.Models.Forge.Installer
                 Directory.CreateDirectory(librarySizeCacheDir);
 
             // Download Installer
-            UpdateProgressbar(0, $"Downloading the forge installer...");
+            UpdateProgressbarTranslated(0, $"ui_downloading_installer", new object[] { "forge" });
             string installerJarPath = Path.Combine(tempDir, "installer.jar");
             string installerDir = Path.Combine(tempDir, "installer");
             using (HttpClient client = new HttpClient())
@@ -69,7 +69,7 @@ namespace KonkordLibrary.Models.Forge.Installer
             }
 
             // Extract Installer
-            UpdateProgressbar(0, $"Extracting the forge installer...");
+            UpdateProgressbarTranslated(0, $"ui_extracting_installer", new object[] { "forge" });
             ZipFile.ExtractToDirectory(installerJarPath, installerDir);
 
             // Move version.json and profile.json 
@@ -107,7 +107,7 @@ namespace KonkordLibrary.Models.Forge.Installer
             if (installProfile == null)
                 throw new FileNotFoundException("Failed to get the forge install profile meta.");
 
-            UpdateProgressbar(0, $"Checking forge installer libraries...");
+            UpdateProgressbarTranslated(0, $"ui_checking_installer_libraries", new object[] { "forge" });
             List<MCLibrary> localLibraries = new List<MCLibrary>();
             localLibraries.AddRange(forgeVersionMeta.Libraries);
 
@@ -121,7 +121,7 @@ namespace KonkordLibrary.Models.Forge.Installer
                 {
                     foreach (MCLibrary lib in installProfile.Libraries)
                         toDownloadSize += lib.Downloads.Artifact.Size;
-                    UpdateProgressbar(0, $"Saving library size cache file...");
+                    UpdateProgressbarTranslated(0, $"ui_saving_lib_cache");
                     await File.WriteAllTextAsync(librarySizeCachePath, toDownloadSize.ToString());
                 }
                 else
@@ -143,13 +143,13 @@ namespace KonkordLibrary.Models.Forge.Installer
                             downloadedSize += lib.Downloads.Artifact.Size;
                         }
                         double percent = (double)downloadedSize / (double)toDownloadSize * 100d;
-                        UpdateProgressbar(percent, $"Downloading the '{lib.Name}' library... {percent:0.00}%");
+                        UpdateProgressbarTranslated(percent, $"ui_library_download", new object[] { lib.Name, percent.ToString("0.00") });
                     }
                 }
             }
 
             // Add launch arguments
-            UpdateProgressbar(0, $"Adding forge arguments...");
+            UpdateProgressbarTranslated(0, $"ui_adding_arguments", new object[] { "forge" });
             if (forgeVersionMeta.Arguments != null)
             {
                 if (forgeVersionMeta.Arguments.Game != null)
@@ -166,7 +166,7 @@ namespace KonkordLibrary.Models.Forge.Installer
             _jvmArgumentsBeforeClassPath.Add(new LaunchArg("-Djava.rmi.server.useCodebaseOnly=true", 2));
             _jvmArgumentsBeforeClassPath.Add(new LaunchArg("-Dcom.sun.jndi.rmi.object.trustURLCodebase=false", 2));
 
-            UpdateProgressbar(0, $"Building forge...");
+            UpdateProgressbarTranslated(0, $"ui_building", new object[] { "forge", "0" });
             // Generate client libs
             await MapAndStartProcessors(installProfile, installerDir);
 
@@ -178,10 +178,10 @@ namespace KonkordLibrary.Models.Forge.Installer
             if (!Directory.Exists(forgeUniversalDir))
                 Directory.CreateDirectory(forgeUniversalDir);
 
-            UpdateProgressbar(0, $"Checking forge universal library file...");
+            UpdateProgressbarTranslated(0, $"ui_checking_forge_universal");
             if (!File.Exists(forgeUniversalPath))
             {
-                UpdateProgressbar(0, $"Downloadig forge universal library file...");
+                UpdateProgressbarTranslated(0, $"ui_downloading_forge_universal");
                 using (HttpClient client = new HttpClient())
                 {
                     byte[] bytes = await client.GetByteArrayAsync(forgeUniversal);

@@ -150,13 +150,19 @@ namespace KonkordLauncher
 
             if (string.IsNullOrEmpty(username))
             {
-                NotificationHelper.SendError("You must provide a valid username.", "Error");
+                NotificationHelper.SendErrorTranslated("username_is_empty", "messagebox_error");
+                return;
+            }
+
+            if (username.Length <= 2)
+            {
+                NotificationHelper.SendErrorTranslated("username_too_short", "messagebox_error");
                 return;
             }
 
             if (username.Length > 16)
             {
-                NotificationHelper.SendError("Your username must be equal or shorter than 16 characters.", "Error");
+                NotificationHelper.SendErrorTranslated("username_too_long", "messagebox_error");
                 return;
             }
 
@@ -164,7 +170,7 @@ namespace KonkordLauncher
             AccountData? accountData = await JsonHelper.ReadJsonFileAsync<AccountData>(accountsPath);
             if (accountData == null)
             {
-                NotificationHelper.SendError("Failed to get the accounts.json file.", "Error");
+                NotificationHelper.SendErrorTranslated("file_not_found", "messagebox_error", new object[] { "accounts.json" });
                 return;
             }
 

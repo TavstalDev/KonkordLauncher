@@ -20,6 +20,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using KonkordLibrary.Managers;
 
 namespace KonkordLauncher
 {
@@ -225,6 +226,9 @@ namespace KonkordLauncher
             #endregion
 
             OpenInstanceEdit(null, string.Empty);
+            // Load Languages
+            cb_launch_languages.DataContext = TranslationManager.LanguagePacks;
+            cb_launch_languages.SelectedIndex = 0;
         }
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
@@ -746,28 +750,28 @@ namespace KonkordLauncher
             AccountData? accountData = await  JsonHelper.ReadJsonFileAsync<AccountData>(System.IO.Path.Combine(IOHelper.MainDirectory, "accounts.json"));
             if (accountData == null)
             {
-                NotificationHelper.SendError("Could not launch the game because failed to get the account details.", "Error");
+                NotificationHelper.SendErrorTranslated("launch_fail_account_details", "messagebox_error");
                 return;
             }
 
             Account account = accountData.Accounts[accountData.SelectedAccountId];
             if (account == null)
             {
-                NotificationHelper.SendError("Could not launch the game because failed to get the current account.", "Error");
+                NotificationHelper.SendErrorTranslated("launch_fail_current_account", "messagebox_error");
                 return;
             }
 
             LauncherSettings? settings = IOHelper.GetLauncherSettings();
             if (settings == null)
             {
-                NotificationHelper.SendError("Could not launch the game because failed to get the launcher settings.", "Error");
+                NotificationHelper.SendErrorTranslated("launch_fail_settings", "messagebox_error");
                 return;
             }
 
             Profile? selectedProfile = settings.Profiles[settings.SelectedProfile];
             if (selectedProfile == null)
             {
-                NotificationHelper.SendError("Could not launch the game because an invalid profile is selected.", "Error");
+                NotificationHelper.SendErrorTranslated("launch_fail_invalid_profile", "messagebox_error");
                 return;
             }
             #endregion
@@ -796,7 +800,7 @@ namespace KonkordLauncher
                             // Disable progressbar
                             UpdateLaunchStatusBar(false);
 
-                            NotificationHelper.SendWarning($"The '{selectedProfile.VersionVanillaId}' minecraft version is not supported.", "Warning");
+                            NotificationHelper.SendWarningTranslated("minecraft_version_unsupported", "messagebox_warning", new object[] { selectedProfile.VersionVanillaId });
                             return;
                         }
 
@@ -849,7 +853,7 @@ namespace KonkordLauncher
 #if DEBUG
             string o = process.StandardError.ReadToEnd();
             if (!string.IsNullOrEmpty(o))
-                NotificationHelper.SendError(o, "Error - Minecraft");
+                NotificationHelper.SendErrorMsg(o, "Error - Minecraft");
 #endif
         }
 
@@ -959,13 +963,13 @@ namespace KonkordLauncher
         {
             if (string.IsNullOrEmpty(tb_instances_name.Text))
             {
-                NotificationHelper.SendError("You must provide the name of the instance.", "Error");
+                NotificationHelper.SendErrorTranslated("instance_name_empty", "messagebox_error");
                 return;
             }
 
             if ((cb_instances_mc_version.IsEnabled && cb_instances_mc_version.SelectedIndex < 0) || (cb_instances_mcmod_version.IsEnabled && (cb_instances_mcmod_version.SelectedIndex < 0 || cb_instances_mod_version.SelectedIndex < 0)))
             {
-                NotificationHelper.SendError("You must select a version.", "Error");
+                NotificationHelper.SendErrorTranslated("version_empty", "messagebox_error");
                 return;
             }
             EProfileKind profileKind;

@@ -1,9 +1,9 @@
 ﻿using KonkordLibrary.Enums;
 using KonkordLibrary.Managers;
-using KonkordLibrary.Models;
 using KonkordLibrary.Models.Fabric;
 using KonkordLibrary.Models.Forge;
 using KonkordLibrary.Models.Installer;
+using KonkordLibrary.Models.Launcher;
 using KonkordLibrary.Models.Quilt;
 using System.Diagnostics;
 using System.IO;
@@ -321,17 +321,15 @@ namespace KonkordLibrary.Helpers
                     {
                         if (TranslationManager.LanguagePacks.Any(x => x.TwoLetterCode == locale))
                         {
-                            HttpClient client = new HttpClient();
-
-                            string resultJson = await client.GetStringAsync(TranslationManager.LanguagePacks.Find(x => x.TwoLetterCode == locale)?.Url);
-                            Dictionary<string, string> translation = new Dictionary<string, string>();
-                            using (var stream = new MemoryStream())
+                            using (HttpClient client = new HttpClient())
                             {
-                                translation = await JsonSerializer.DeserializeAsync<Dictionary<string, string>>(stream) ?? TranslationManager.DefaultTranslations;
-                            }
+                                string resultJson = await client.GetStringAsync(TranslationManager.LanguagePacks.Find(x => x.TwoLetterCode == locale)?.Url);
+                                Dictionary<string, string> translation = new Dictionary<string, string>();
+                                translation = JsonSerializer.Deserialize<Dictionary<string, string>>(resultJson) ?? TranslationManager.DefaultTranslations;
 
-                            await TranslationManager.SaveTranslationAsync(localePath, translation ?? TranslationManager.DefaultTranslations);
-                            TranslationManager.SetTranslations(translation);
+                                await TranslationManager.SaveTranslationAsync(localePath, translation ?? TranslationManager.DefaultTranslations);
+                                TranslationManager.SetTranslations(translation);
+                            }
                         }
 
                         

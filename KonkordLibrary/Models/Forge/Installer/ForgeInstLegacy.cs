@@ -64,29 +64,31 @@ namespace KonkordLibrary.Models.Forge.Installer
             UpdateProgressbarTranslated(0, $"ui_downloading_installer", new object[] { "forge" });
             string installerJarPath = Path.Combine(tempDir, "installer.jar");
             string installerDir = Path.Combine(tempDir, "installer");
-            using (HttpClient client = new HttpClient())
+
+            byte[]? bytes;
+            // TODO, percent
+            try
             {
-                byte[] bytes;
-                try
-                {
-                    bytes = await client.GetByteArrayAsync(string.Format(ForgeInstallerJarUrl, $"{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}"));
-                }
-                catch
-                {
-                    int length = forgeVersion.VanillaVersion.Split('.').Length;
-                    if (length == 3)
-                    {
-                        bytes = await client.GetByteArrayAsync(string.Format(ForgeInstallerJarUrl, $"{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}-{forgeVersion.VanillaVersion}"));
-                        _extraVersion = $"-{forgeVersion.VanillaVersion}";
-                    }
-                    else
-                    {
-                        bytes = await client.GetByteArrayAsync(string.Format(ForgeInstallerJarUrl, $"{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}-{forgeVersion.VanillaVersion}.0"));
-                        _extraVersion = $"-{forgeVersion.VanillaVersion}.0";
-                    }
-                }
-                await File.WriteAllBytesAsync(installerJarPath, bytes);
+                bytes = await HttpHelper.GetByteArrayAsync(string.Format(ForgeInstallerJarUrl, $"{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}"));
             }
+            catch
+            {
+                int length = forgeVersion.VanillaVersion.Split('.').Length;
+                if (length == 3)
+                {
+                    bytes = await HttpHelper.GetByteArrayAsync(string.Format(ForgeInstallerJarUrl, $"{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}-{forgeVersion.VanillaVersion}"));
+                    _extraVersion = $"-{forgeVersion.VanillaVersion}";
+                }
+                else
+                {
+                    bytes = await HttpHelper.GetByteArrayAsync(string.Format(ForgeInstallerJarUrl, $"{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}-{forgeVersion.VanillaVersion}.0"));
+                    _extraVersion = $"-{forgeVersion.VanillaVersion}.0";
+                }
+            }
+            if (bytes == null)
+                return null;
+
+            await File.WriteAllBytesAsync(installerJarPath, bytes);
 
             // Extract Installer
             UpdateProgressbarTranslated(0, $"ui_extracting_installer", new object[] { "forge" });
@@ -171,7 +173,7 @@ namespace KonkordLibrary.Models.Forge.Installer
             // Copy vanilla jar
             if (!File.Exists(forgeVersion.VersionJarPath))
             {
-                UpdateProgressbarTranslated(0, $"ui_copying_jar", new object[] { "vanilla" } );
+                UpdateProgressbarTranslated(0, $"ui_copying_jar", new object[] { "vanilla" });
                 File.Copy(forgeVersion.VanillaJarPath, forgeVersion.VersionJarPath);
             }
             //_classPath += $"{forgeVersion.VersionJarPath};"; - not needed

@@ -55,13 +55,20 @@ namespace KonkordLibrary.Models.Fabric
             List<MCLibrary> localLibraries = new List<MCLibrary>();
             if (!File.Exists(fabricVersion.VersionJsonPath))
             {
-                string resultJson = string.Empty;
-                UpdateProgressbarTranslated(0, $"ui_downloading_version_json", new object[] { "fabric" });
-                using (HttpClient client = new HttpClient())
+                string? resultJson = string.Empty;
+                UpdateProgressbarTranslated(0, $"ui_downloading_version_json", new object[] { "fabric", 0 });
+
+                Progress<double> progress = new Progress<double>();
+                progress.ProgressChanged += (sender, e) =>
                 {
-                    resultJson = await client.GetStringAsync(string.Format(FabricLoaderJsonUrl, fabricVersion.VanillaVersion, fabricVersion.InstanceVersion));
-                    await File.WriteAllTextAsync(fabricVersion.VersionJsonPath, resultJson);
-                }
+                    UpdateProgressbarTranslated(e, "ui_downloading_version_json", new object[] { "fabric", e.ToString("0.00") });
+                };
+
+                resultJson = await HttpHelper.GetStringAsync(string.Format(FabricLoaderJsonUrl, fabricVersion.VanillaVersion, fabricVersion.InstanceVersion), progress);
+                if (resultJson == null)
+                    return null;
+                
+                await File.WriteAllTextAsync(fabricVersion.VersionJsonPath, resultJson);
 
                 // Add the libraries
                 fabricVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(resultJson);
@@ -107,12 +114,19 @@ namespace KonkordLibrary.Models.Fabric
 
             if (!File.Exists(loaderJarPath))
             {
-                UpdateProgressbarTranslated(0, $"ui_downloading_loader", new object[] { "fabric" });
-                using (HttpClient client = new HttpClient())
+                UpdateProgressbarTranslated(0, $"ui_downloading_loader", new object[] { "fabric", 0 });
+
+                Progress<double> progress = new Progress<double>();
+                progress.ProgressChanged += (sender, e) =>
                 {
-                    byte[] bytes = await client.GetByteArrayAsync(string.Format(FabricLoaderJarUrl, fabricVersion.InstanceVersion));
-                    await File.WriteAllBytesAsync(loaderJarPath, bytes);
-                }
+                    UpdateProgressbarTranslated(e, "ui_downloading_loader", new object[] { "fabric", e.ToString("0.00") });
+                };
+
+                byte[]? bytes = await HttpHelper.GetByteArrayAsync(string.Format(FabricLoaderJarUrl, fabricVersion.InstanceVersion), progress);
+                if (bytes == null)
+                    return null;
+                
+                await File.WriteAllBytesAsync(loaderJarPath, bytes);
             }
 
             UpdateProgressbarTranslated(0, $"ui_getting_launch_arguments");

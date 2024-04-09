@@ -185,13 +185,12 @@ namespace KonkordLibrary.Managers
                 return;
             }
 
-            using (HttpClient client = new HttpClient())
-            {
-                try
-                {
-                    Debug.WriteLine($"## SENDING MICROSOFT AUTH REQUEST");
 
-                    var requestParams = new Dictionary<string, string>
+            try
+            {
+                Debug.WriteLine($"## SENDING MICROSOFT AUTH REQUEST");
+
+                var requestParams = new Dictionary<string, string>
                     {
                         { "client_id", _msClientId },
                         { "grant_type", "authorization_code" },
@@ -199,29 +198,30 @@ namespace KonkordLibrary.Managers
                         { "redirect_uri", _redirectAuthenticateUrl}
                     };
 
-                    var requestContent = new FormUrlEncodedContent(requestParams);
+                var requestContent = new FormUrlEncodedContent(requestParams);
 
-                    Debug.WriteLine("## SENT MICROSOFT AUTH REQUEST");
-                    var response = await client.PostAsync($"{_microsoftTokenUrl}", requestContent).ConfigureAwait(false);
-                    Debug.WriteLine($"## MICROSOFT AUTH REQUEST STATUS: {response.StatusCode}");
-                    var responseString = await response.Content.ReadAsStringAsync();
-                    
-                    JObject obj = JObject.Parse(responseString);
-                    if (obj.ContainsKey("access_token"))
-                    {
-                        Debug.WriteLine("## FINISHED MICROSOFT AUTH REQUEST");
-                        await XboxTokenCall(obj["access_token"].ToString());
-                    }
-                    else
-                    {
-                        Debug.WriteLine("## FAILED TO GET THE TOKEN FROM THE MICROSOFT AUTH REQUEST");
-                        Debug.WriteLine(obj.ToString());
-                    }
-                }
-                catch (Exception ex)
+                Debug.WriteLine("## SENT MICROSOFT AUTH REQUEST");
+                var response = await HttpHelper.PostAsync($"{_microsoftTokenUrl}", requestContent).ConfigureAwait(false);
+                if (response == null)
+                    return;
+                Debug.WriteLine($"## MICROSOFT AUTH REQUEST STATUS: {response.StatusCode}");
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                JObject obj = JObject.Parse(responseString);
+                if (obj.ContainsKey("access_token"))
                 {
-                    Debug.Fail(ex.ToString());
+                    Debug.WriteLine("## FINISHED MICROSOFT AUTH REQUEST");
+                    await XboxTokenCall(obj["access_token"].ToString());
                 }
+                else
+                {
+                    Debug.WriteLine("## FAILED TO GET THE TOKEN FROM THE MICROSOFT AUTH REQUEST");
+                    Debug.WriteLine(obj.ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.Fail(ex.ToString());
             }
         }
 
@@ -235,50 +235,49 @@ namespace KonkordLibrary.Managers
         private static async Task XboxTokenCall(string token)
         {
             Debug.WriteLine($"## BUILDING XBOX TOKEN REQUEST");
-            using (HttpClient client = new HttpClient())
+            try
             {
-                try
+                object reqRawContent = new
                 {
-                    object reqRawContent = new
+                    Properties = new
                     {
-                        Properties = new
-                        {
-                            AuthMethod = "RPS",
-                            SiteName = "user.auth.xboxlive.com",
-                            RpsTicket = $"d={token}"
-                        },
-                        RelyingParty = "http://auth.xboxlive.com",
-                        TokenType = "JWT"
-                    };
-                    
-                    StringContent reqContent = new StringContent(JsonConvert.SerializeObject(reqRawContent));
-                    if (reqContent.Headers.Contains("Content-Type"))
-                    {
-                        reqContent.Headers.Remove("Content-Type");
-                        reqContent.Headers.Add("Content-Type", "application/json");
-                    }
-                    else
-                        reqContent.Headers.Add("Content-Type", "application/json");
+                        AuthMethod = "RPS",
+                        SiteName = "user.auth.xboxlive.com",
+                        RpsTicket = $"d={token}"
+                    },
+                    RelyingParty = "http://auth.xboxlive.com",
+                    TokenType = "JWT"
+                };
 
-                    Debug.WriteLine("## SENT XBOX AUTH REQUEST");
-                    var result = await client.PostAsync(XboxAuthUrl, reqContent);
-                    Debug.WriteLine($"## XBOX AUTH REQUEST STATUS: {result.StatusCode}");
-                    JObject resultObj = JObject.Parse(await result.Content.ReadAsStringAsync());
-                    if (resultObj.ContainsKey("Token"))
-                    {
-                        Debug.WriteLine("## FINISHED XBOX AUTH REQUEST");
-                        await XboxXstsCall(resultObj["Token"].ToString());
-                    }
-                    else
-                    {
-                        Debug.WriteLine("## FAILED TO GET THE TOKEN FROM XBOX AUTH REQUEST");
-                        NotificationHelper.SendWarningMsg(resultObj.ToString(Newtonsoft.Json.Formatting.None), "XBOX TOKEN CALLBACK");
-                    }
-                }
-                catch (Exception ex)
+                StringContent reqContent = new StringContent(JsonConvert.SerializeObject(reqRawContent));
+                if (reqContent.Headers.Contains("Content-Type"))
                 {
-                    Debug.Fail(ex.ToString());
+                    reqContent.Headers.Remove("Content-Type");
+                    reqContent.Headers.Add("Content-Type", "application/json");
                 }
+                else
+                    reqContent.Headers.Add("Content-Type", "application/json");
+
+                Debug.WriteLine("## SENT XBOX AUTH REQUEST");
+                var result = await HttpHelper.PostAsync(XboxAuthUrl, reqContent);
+                if (result == null)
+                    return;
+                Debug.WriteLine($"## XBOX AUTH REQUEST STATUS: {result.StatusCode}");
+                JObject resultObj = JObject.Parse(await result.Content.ReadAsStringAsync());
+                if (resultObj.ContainsKey("Token"))
+                {
+                    Debug.WriteLine("## FINISHED XBOX AUTH REQUEST");
+                    await XboxXstsCall(resultObj["Token"].ToString());
+                }
+                else
+                {
+                    Debug.WriteLine("## FAILED TO GET THE TOKEN FROM XBOX AUTH REQUEST");
+                    NotificationHelper.SendWarningMsg(resultObj.ToString(Newtonsoft.Json.Formatting.None), "XBOX TOKEN CALLBACK");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.Fail(ex.ToString());
             }
         }
 
@@ -291,47 +290,46 @@ namespace KonkordLibrary.Managers
         /// </returns>
         private static async Task XboxXstsCall(string token)
         {
-            using (HttpClient client = new HttpClient())
+            try
             {
-                try
+                object reqRawContent = new
                 {
-                    object reqRawContent = new
+                    Properties = new
                     {
-                        Properties = new
-                        {
-                            SandboxId = "RETAIL",
-                            UserTokens = new[] { token }
-                        },
-                        RelyingParty = "rp://api.minecraftservices.com/",
-                        TokenType = "JWT"
-                    };
+                        SandboxId = "RETAIL",
+                        UserTokens = new[] { token }
+                    },
+                    RelyingParty = "rp://api.minecraftservices.com/",
+                    TokenType = "JWT"
+                };
 
-                    StringContent reqContent = new StringContent(JsonConvert.SerializeObject(reqRawContent));
-                    if (reqContent.Headers.Contains("Content-Type"))
-                    {
-                        reqContent.Headers.Remove("Content-Type");
-                        reqContent.Headers.Add("Content-Type", "application/json");
-                    }
-                    else
-                        reqContent.Headers.Add("Content-Type", "application/json");
-
-                    Debug.WriteLine("## SENT XBOX XSTS REQUEST");
-                    var result = await client.PostAsync(XboxXSTSUrl, reqContent).ConfigureAwait(false);
-                    Debug.WriteLine("## XBOX XSTS REQUEST STATUS: " + result.StatusCode);
-                    JObject resultObj = JObject.Parse(await result.Content.ReadAsStringAsync());
-                    if (resultObj.ContainsKey("Token"))
-                    {
-                        await MinecraftAccessCall(resultObj["Token"].ToString(), resultObj["DisplayClaims"]["xui"][0]["uhs"].ToString());
-                    }
-                    else
-                    {
-                        NotificationHelper.SendWarningMsg(resultObj.ToString(Newtonsoft.Json.Formatting.None), "XBOX XSTS CALLBACK");
-                    }
-                }
-                catch (Exception ex)
+                StringContent reqContent = new StringContent(JsonConvert.SerializeObject(reqRawContent));
+                if (reqContent.Headers.Contains("Content-Type"))
                 {
-                    Debug.Fail(ex.ToString());
+                    reqContent.Headers.Remove("Content-Type");
+                    reqContent.Headers.Add("Content-Type", "application/json");
                 }
+                else
+                    reqContent.Headers.Add("Content-Type", "application/json");
+
+                Debug.WriteLine("## SENT XBOX XSTS REQUEST");
+                var result = await HttpHelper.PostAsync(XboxXSTSUrl, reqContent).ConfigureAwait(false);
+                if (result == null)
+                    return;
+                Debug.WriteLine("## XBOX XSTS REQUEST STATUS: " + result.StatusCode);
+                JObject resultObj = JObject.Parse(await result.Content.ReadAsStringAsync());
+                if (resultObj.ContainsKey("Token"))
+                {
+                    await MinecraftAccessCall(resultObj["Token"].ToString(), resultObj["DisplayClaims"]["xui"][0]["uhs"].ToString());
+                }
+                else
+                {
+                    NotificationHelper.SendWarningMsg(resultObj.ToString(Newtonsoft.Json.Formatting.None), "XBOX XSTS CALLBACK");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.Fail(ex.ToString());
             }
         }
 
@@ -345,34 +343,33 @@ namespace KonkordLibrary.Managers
         /// </returns>
         private static async Task MinecraftAccessCall(string token, string userHash)
         {
-            using (HttpClient client = new HttpClient())
+            try
             {
-                try
+                object reqObj = new
                 {
-                    object reqObj = new
-                    {
-                        identityToken = $"XBL3.0 x={userHash};{token}"
-                    };
+                    identityToken = $"XBL3.0 x={userHash};{token}"
+                };
 
-                    StringContent reqContent = new StringContent(JsonConvert.SerializeObject(reqObj));
-                    Debug.WriteLine("## SENT MINECRAFT ACCESS REQUEST");
-                    var result = await client.PostAsync(MinecraftAuthUrl, reqContent).ConfigureAwait(false);
-                    Debug.WriteLine("## MINECRAFT ACCESS REQUEST STATUS: " + result.StatusCode);
+                StringContent reqContent = new StringContent(JsonConvert.SerializeObject(reqObj));
+                Debug.WriteLine("## SENT MINECRAFT ACCESS REQUEST");
+                var result = await HttpHelper.PostAsync(MinecraftAuthUrl, reqContent).ConfigureAwait(false);
+                if (result == null)
+                    return;
+                Debug.WriteLine("## MINECRAFT ACCESS REQUEST STATUS: " + result.StatusCode);
 
-                    JObject resultObj = JObject.Parse(await result.Content.ReadAsStringAsync());
-                    if (resultObj.ContainsKey("access_token"))
-                    {
-                        await MinecraftCheckOwnership(resultObj["access_token"].ToString());
-                    }
-                    else
-                    {
-                        NotificationHelper.SendWarningMsg(resultObj.ToString(Newtonsoft.Json.Formatting.None), "MINECRAFT ACCESS CALLBACK");
-                    }
-                }
-                catch (Exception ex)
+                JObject resultObj = JObject.Parse(await result.Content.ReadAsStringAsync());
+                if (resultObj.ContainsKey("access_token"))
                 {
-                    Debug.Fail(ex.ToString());
+                    await MinecraftCheckOwnership(resultObj["access_token"].ToString());
                 }
+                else
+                {
+                    NotificationHelper.SendWarningMsg(resultObj.ToString(Newtonsoft.Json.Formatting.None), "MINECRAFT ACCESS CALLBACK");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.Fail(ex.ToString());
             }
         }
 
@@ -385,37 +382,35 @@ namespace KonkordLibrary.Managers
         /// </returns>
         private static async Task MinecraftCheckOwnership(string mcToken)
         {
-            using (HttpClient client = new HttpClient())
+            try
             {
-                try
+                HttpClient client = HttpHelper.GetHttpClient();
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", mcToken);
+
+
+                Debug.WriteLine("## SENT MINECRAFT OWNERSHIP REQUEST");
+                var result = await client.GetAsync(MinecraftAuthUrl).ConfigureAwait(false);
+                Debug.WriteLine("## MINECRAFT OWNERSHIP REQUEST STATUS: " + result.StatusCode);
+
+                JObject resultObj = JObject.Parse(await result.Content.ReadAsStringAsync());
+
+                bool hasMinecraft = false;
+                // TODO implement function to get this,
+                // but I have no idea how to until I can get a full response as example
+                NotificationHelper.SendWarningMsg(resultObj.ToString(Formatting.Indented), "OWNERSHIP JSON");
+
+                if (hasMinecraft)
                 {
-                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", mcToken);
-
-
-                    Debug.WriteLine("## SENT MINECRAFT OWNERSHIP REQUEST");
-                    var result = await client.GetAsync(MinecraftAuthUrl).ConfigureAwait(false);
-                    Debug.WriteLine("## MINECRAFT OWNERSHIP REQUEST STATUS: " + result.StatusCode);
-
-                    JObject resultObj = JObject.Parse(await result.Content.ReadAsStringAsync());
-
-                    bool hasMinecraft = false;
-                    // TODO implement function to get this,
-                    // but I have no idea how to until I can get a full response as example
-                    NotificationHelper.SendWarningMsg(resultObj.ToString(Formatting.Indented), "OWNERSHIP JSON");
-
-                    if (hasMinecraft)
-                    {
-                        await MinecraftGetProfile(mcToken);
-                    }
-                    else
-                    {
-                        NotificationHelper.SendWarningTranslated("minecraft_ownership_validate_fail", "MINECRAFT OWNERSHIP CALLBACK");
-                    }
+                    await MinecraftGetProfile(mcToken);
                 }
-                catch (Exception ex)
+                else
                 {
-                    Debug.Fail(ex.ToString());
+                    NotificationHelper.SendWarningTranslated("minecraft_ownership_validate_fail", "MINECRAFT OWNERSHIP CALLBACK");
                 }
+            }
+            catch (Exception ex)
+            {
+                Debug.Fail(ex.ToString());
             }
         }
 
@@ -428,60 +423,58 @@ namespace KonkordLibrary.Managers
         /// </returns>
         private static async Task MinecraftGetProfile(string mcToken)
         {
-            using (HttpClient client = new HttpClient())
+            try
             {
-                try
+                HttpClient client = HttpHelper.GetHttpClient();
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", mcToken);
+
+
+                Debug.WriteLine("## SENT MINECRAFT PROFILE REQUEST");
+                var result = await client.GetAsync(MinecraftAuthUrl).ConfigureAwait(false);
+                Debug.WriteLine("## MINECRAFT PROFILE REQUEST STATUS: " + result.StatusCode);
+
+                MojangProfile? profile = JsonConvert.DeserializeObject<MojangProfile>(await result.Content.ReadAsStringAsync());
+
+                if (profile != null)
                 {
-                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", mcToken);
+                    AccountData? accountData = await IOHelper.GetAccountDataAsync();
+                    if (accountData == null)
+                        return;
 
-
-                    Debug.WriteLine("## SENT MINECRAFT PROFILE REQUEST");
-                    var result = await client.GetAsync(MinecraftAuthUrl).ConfigureAwait(false);
-                    Debug.WriteLine("## MINECRAFT PROFILE REQUEST STATUS: " + result.StatusCode);
-
-                    MojangProfile? profile = JsonConvert.DeserializeObject<MojangProfile>(await result.Content.ReadAsStringAsync());
-
-                    if (profile != null)
+                    if (accountData.Accounts.TryGetValue(profile.Id, out Account? account))
                     {
-                        AccountData? accountData = await IOHelper.GetAccountDataAsync();
-                        if (accountData == null)
-                            return;
-
-                        if (accountData.Accounts.TryGetValue(profile.Id, out Account? account))
-                        {
-                            account.AccessToken = mcToken;
-                            account.RefreshToken = mcToken; // TODO: Needs to be checked
-                            account.UUID = profile.Id;
-                            account.DisplayName = profile.Name;
-                            accountData.Accounts[profile.Id] = account;
-                            accountData.SelectedAccountId = profile.Id;
-                            await JsonHelper.WriteJsonFileAsync(IOHelper.AccountsJsonFile, accountData);
-                        }
-                        else
-                        {
-                            account = new Account()
-                            {
-                                AccessToken = mcToken,
-                                RefreshToken = mcToken,  // TODO: Needs to be checked
-                                DisplayName = profile.Name,
-                                UUID = profile.Id,
-                                Type = Enums.EAccountType.MICROSOFT,
-                                UserId = profile.Id,
-                            };
-                            accountData.Accounts.Add(profile.Id, account);
-                            accountData.SelectedAccountId = profile.Id;
-                            await JsonHelper.WriteJsonFileAsync(IOHelper.AccountsJsonFile, accountData);
-                        }
+                        account.AccessToken = mcToken;
+                        account.RefreshToken = mcToken; // TODO: Needs to be checked
+                        account.UUID = profile.Id;
+                        account.DisplayName = profile.Name;
+                        accountData.Accounts[profile.Id] = account;
+                        accountData.SelectedAccountId = profile.Id;
+                        await JsonHelper.WriteJsonFileAsync(IOHelper.AccountsJsonFile, accountData);
                     }
                     else
                     {
-                        NotificationHelper.SendWarningTranslated("minecraft_profile_not_found", "MINECRAFT PROFILE CALLBACK");
+                        account = new Account()
+                        {
+                            AccessToken = mcToken,
+                            RefreshToken = mcToken,  // TODO: Needs to be checked
+                            DisplayName = profile.Name,
+                            UUID = profile.Id,
+                            Type = Enums.EAccountType.MICROSOFT,
+                            UserId = profile.Id,
+                        };
+                        accountData.Accounts.Add(profile.Id, account);
+                        accountData.SelectedAccountId = profile.Id;
+                        await JsonHelper.WriteJsonFileAsync(IOHelper.AccountsJsonFile, accountData);
                     }
                 }
-                catch (Exception ex)
+                else
                 {
-                    Debug.Fail(ex.ToString());
+                    NotificationHelper.SendWarningTranslated("minecraft_profile_not_found", "MINECRAFT PROFILE CALLBACK");
                 }
+            }
+            catch (Exception ex)
+            {
+                Debug.Fail(ex.ToString());
             }
         }
         #endregion
@@ -496,21 +489,19 @@ namespace KonkordLibrary.Managers
         /// </returns>
         public static async Task AttemptLogin(string token)
         {
-            using (HttpClient client = new HttpClient())
+            try
             {
-                try
-                {
-                    // WIP
-                    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
-                    var result = await client.GetAsync(MinecraftProfileUrl).ConfigureAwait(false);
-                    JObject resultObj = JObject.Parse(await result.Content.ReadAsStringAsync());
+                HttpClient client = HttpHelper.GetHttpClient();
+                // WIP
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+                var result = await client.GetAsync(MinecraftProfileUrl).ConfigureAwait(false);
+                JObject resultObj = JObject.Parse(await result.Content.ReadAsStringAsync());
 
-                    NotificationHelper.SendNotificationMsg(resultObj.ToString(Newtonsoft.Json.Formatting.None), "Preview Response");
-                }
-                catch (Exception ex)
-                {
-                    Debug.Fail(ex.ToString());
-                }
+                NotificationHelper.SendNotificationMsg(resultObj.ToString(Newtonsoft.Json.Formatting.None), "Preview Response");
+            }
+            catch (Exception ex)
+            {
+                Debug.Fail(ex.ToString());
             }
         }
     }

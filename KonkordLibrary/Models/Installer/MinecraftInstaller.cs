@@ -7,6 +7,7 @@ using KonkordLibrary.Models.Minecraft;
 using KonkordLibrary.Models.Minecraft.Library;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -37,7 +38,10 @@ namespace KonkordLibrary.Models.Installer
         internal List<LaunchArg> _gameArguments { get; set; }
         internal List<LaunchArg> _jvmArgumentsBeforeClassPath { get; set; }
 
-        public MinecraftInstaller() { }
+        public MinecraftInstaller() 
+        {
+
+        }
 
         public MinecraftInstaller(Profile profile, Label label, ProgressBar progressBar, bool isDebug)
         {
@@ -174,14 +178,19 @@ namespace KonkordLibrary.Models.Installer
             // JSON
             if (!File.Exists(VersionData.VersionJsonPath))
             {
-                UpdateProgressbarTranslated(0, $"ui_downloading_version_json", new object[] { MinecraftVersion.Id });
-                using (HttpClient client = new HttpClient())
-                {
-                    string jsonResult = await client.GetStringAsync(MinecraftVersion.Url);
+                UpdateProgressbarTranslated(0, $"ui_downloading_version_json", new object[] { MinecraftVersion.Id, 0 });
 
-                    MinecraftVersionMeta = JsonConvert.DeserializeObject<MCVersionMeta>(jsonResult);
-                    await File.WriteAllTextAsync(VersionData.VersionJsonPath, jsonResult);
-                }
+                Progress<double> progress = new Progress<double>();
+                progress.ProgressChanged += (sender, e) =>
+                {
+                    UpdateProgressbarTranslated(e, "ui_downloading_version_json", new object[] { MinecraftVersion.Id, e.ToString("0.00") });
+                };
+                string? jsonResult = await HttpHelper.GetStringAsync(MinecraftVersion.Url, progress);
+                if (jsonResult == null)
+                    return;
+
+                MinecraftVersionMeta = JsonConvert.DeserializeObject<MCVersionMeta>(jsonResult);
+                await File.WriteAllTextAsync(VersionData.VersionJsonPath, jsonResult);
             }
             else
             {
@@ -196,12 +205,18 @@ namespace KonkordLibrary.Models.Installer
             // JAR
             if (!File.Exists(VersionData.VersionJarPath))
             {
-                UpdateProgressbarTranslated(0, $"ui_downloading_version_jar", new object[] { MinecraftVersion.Id });
-                using (HttpClient client = new HttpClient())
+                UpdateProgressbarTranslated(0, $"ui_downloading_version_jar", new object[] { MinecraftVersion.Id, 0 });
+
+                Progress<double> progress = new Progress<double>();
+                progress.ProgressChanged += (sender, e) =>
                 {
-                    byte[] bytes = await client.GetByteArrayAsync(MinecraftVersionMeta.Downloads.Client.Url);
-                    await File.WriteAllBytesAsync(VersionData.VersionJarPath, bytes);
-                }
+                    UpdateProgressbarTranslated(e, "ui_downloading_version_jar", new object[] { MinecraftVersion.Id, e.ToString("0.00") });
+                };
+
+                byte[]? bytes = await HttpHelper.GetByteArrayAsync(MinecraftVersionMeta.Downloads.Client.Url, progress);
+                if (bytes == null)
+                    return;
+                await File.WriteAllBytesAsync(VersionData.VersionJarPath, bytes);
             }
         }
 
@@ -220,13 +235,20 @@ namespace KonkordLibrary.Models.Installer
             JToken? assetJToken = null;
             if (!File.Exists(assetPath))
             {
-                UpdateProgressbarTranslated(0, $"ui_downloading_asset_index_json", new object[] { assetIndex });
-                using (HttpClient client = new HttpClient())
+                UpdateProgressbarTranslated(0, $"ui_downloading_asset_index_json", new object[] { assetIndex, 0 });
+
+                Progress<double> progress = new Progress<double>();
+                progress.ProgressChanged += (sender, e) =>
                 {
-                    string resultJson = await client.GetStringAsync(MinecraftVersionMeta.AssetIndex.Url);
-                    assetJToken = JObject.Parse(resultJson)["objects"];
-                    await File.WriteAllTextAsync(assetPath, resultJson);
-                }
+                    UpdateProgressbarTranslated(e, "ui_downloading_asset_index_json", new object[] { assetIndex, e.ToString("0.00") });
+                };
+
+                string? resultJson = await HttpHelper.GetStringAsync(MinecraftVersionMeta.AssetIndex.Url, progress);
+                if (resultJson == null)
+                    return;
+
+                assetJToken = JObject.Parse(resultJson)["objects"];
+                await File.WriteAllTextAsync(assetPath, resultJson);
             }
             else
             {
@@ -248,31 +270,32 @@ namespace KonkordLibrary.Models.Installer
                 Directory.CreateDirectory(assetObjectDir);
 
             // Assets
-            using (HttpClient client = new HttpClient())
+
+            string hash = string.Empty;
+            string objectDir = string.Empty;
+            string objectPath = string.Empty;
+            int downloadedAssetSize = 0;
+            UpdateProgressbarTranslated(0, $"ui_checking_assets");
+            foreach (JToken token in assetJToken.ToList())
             {
-                string hash = string.Empty;
-                string objectDir = string.Empty;
-                string objectPath = string.Empty;
-                int downloadedAssetSize = 0;
-                UpdateProgressbarTranslated(0, $"ui_checking_assets");
-                foreach (JToken token in assetJToken.ToList())
+                hash = token.First["hash"].ToString();
+                objectDir = Path.Combine(assetObjectDir, hash.Substring(0, 2));
+                objectPath = Path.Combine(objectDir, $"{hash}");
+
+                if (!Directory.Exists(objectDir))
+                    Directory.CreateDirectory(objectDir);
+
+                if (!File.Exists(objectPath))
                 {
-                    hash = token.First["hash"].ToString();
-                    objectDir = Path.Combine(assetObjectDir, hash.Substring(0, 2));
-                    objectPath = Path.Combine(objectDir, $"{hash}");
+                    byte[]? array = await HttpHelper.GetByteArrayAsync($"https://resources.download.minecraft.net/{hash.Substring(0, 2)}/{hash}");
+                    if (array == null)
+                        return;
 
-                    if (!Directory.Exists(objectDir))
-                        Directory.CreateDirectory(objectDir);
-
-                    if (!File.Exists(objectPath))
-                    {
-                        byte[] array = await client.GetByteArrayAsync($"https://resources.download.minecraft.net/{hash.Substring(0, 2)}/{hash}");
-                        await File.WriteAllBytesAsync(objectPath, array);
-                    }
-                    downloadedAssetSize += int.Parse(token.First["size"].ToString());
-                    double percent = (double)downloadedAssetSize / (double)MinecraftVersionMeta.AssetIndex.TotalSize * 100d;
-                    UpdateProgressbarTranslated(percent, $"ui_downloading_assets", new object[] { percent.ToString("0.00") });
+                    await File.WriteAllBytesAsync(objectPath, array);
                 }
+                downloadedAssetSize += int.Parse(token.First["size"].ToString());
+                double percent = (double)downloadedAssetSize / (double)MinecraftVersionMeta.AssetIndex.TotalSize * 100d;
+                UpdateProgressbarTranslated(percent, $"ui_downloading_assets", new object[] { percent.ToString("0.00") });
             }
         }
 
@@ -296,16 +319,22 @@ namespace KonkordLibrary.Models.Installer
                 string logFilePath = Path.Combine(versionDirectory, MinecraftVersionMeta.Logging.Client.File.Id);
                 if (!File.Exists(logFilePath))
                 {
-                    UpdateProgressbarTranslated(0, $"ui_downloading_logging");
-                    using (HttpClient client = new HttpClient())
+                    UpdateProgressbarTranslated(0, $"ui_downloading_logging", new object[] { 0 });
+
+                    Progress<double> progress = new Progress<double>();
+                    progress.ProgressChanged += (sender, e) =>
                     {
-                        string r = await client.GetStringAsync(MinecraftVersionMeta.Logging.Client.File.Url);
+                        UpdateProgressbarTranslated(e, "ui_downloading_logging", new object[] { e.ToString("0.00") });
+                    };
 
-                        // FIX LOG LOCATION
-                        r = r.Replace("fileName=\"logs", $"fileName=\"{gameDir}\\logs").Replace("filePattern=\"logs", $"filePattern=\"{gameDir}\\logs");
+                    string? r = await HttpHelper.GetStringAsync(MinecraftVersionMeta.Logging.Client.File.Url, progress);
+                    if (r == null)
+                        return;
 
-                        await File.WriteAllTextAsync(logFilePath, r);
-                    }
+                    // FIX LOG LOCATION
+                    r = r.Replace("fileName=\"logs", $"fileName=\"{gameDir}\\logs").Replace("filePattern=\"logs", $"filePattern=\"{gameDir}\\logs");
+
+                    await File.WriteAllTextAsync(logFilePath, r);
                 }
                 _jvmArguments.Add(new LaunchArg(MinecraftVersionMeta.Logging.Client.Argument.Replace("${path}", logFilePath), 0));
             }
@@ -326,12 +355,19 @@ namespace KonkordLibrary.Models.Installer
             string clientMappinsPath = Path.Combine(VersionData.VersionDirectory, "client.txt");
             if (!File.Exists(clientMappinsPath))
             {
-                UpdateProgressbarTranslated(0, $"ui_downloading_client_mappings");
-                using (HttpClient client = new HttpClient())
+                UpdateProgressbarTranslated(0, $"ui_downloading_client_mappings", new object[] { 0 });
+
+                Progress<double> progress = new Progress<double>();
+                progress.ProgressChanged += (sender, e) =>
                 {
-                    string r = await client.GetStringAsync(MinecraftVersionMeta.Downloads.ClientMappings.Url);
-                    await File.WriteAllTextAsync(clientMappinsPath, r);
-                }
+                    UpdateProgressbarTranslated(e, "ui_downloading_client_mappings", new object[] { e.ToString("0.00") });
+                };
+
+                string? r = await HttpHelper.GetStringAsync(MinecraftVersionMeta.Downloads.ClientMappings.Url, progress);
+                if (r == null)
+                    return;
+
+                await File.WriteAllTextAsync(clientMappinsPath, r);
             }
         }
 
@@ -353,100 +389,107 @@ namespace KonkordLibrary.Models.Installer
                 Directory.CreateDirectory(libraryCacheDir);
             string librarySizeCacheFilePath = Path.Combine(libraryCacheDir, $"{VersionData.VanillaVersion}-{Profile.Kind}-{VersionData.InstanceVersion}.json");
 
-            using (HttpClient client = new HttpClient())
+
+            // Calculate the overallSize or read it from cache
+            UpdateProgressbarTranslated(0, $"ui_calculating_lib_size");
+            if (!File.Exists(librarySizeCacheFilePath))
             {
-                // Calculate the overallSize or read it from cache
-                UpdateProgressbarTranslated(0, $"ui_calculating_lib_size");
-                if (!File.Exists(librarySizeCacheFilePath))
-                {
-                    foreach (var lib in mcLibs)
-                    {
-                        // Check the library rule
-                        if (!lib.GetRulesResult())
-                            continue;
-
-                        if (lib.Downloads.Artifact == null)
-                            continue;
-
-                        libraryOverallSize += lib.Downloads.Artifact.Size;
-                    }
-
-                    await File.WriteAllTextAsync(librarySizeCacheFilePath, libraryOverallSize.ToString());
-                }
-                else
-                    libraryOverallSize = int.Parse(await File.ReadAllTextAsync(librarySizeCacheFilePath));
-
-                // Download the actual libs
                 foreach (var lib in mcLibs)
                 {
                     // Check the library rule
                     if (!lib.GetRulesResult())
                         continue;
 
-                    string libFilePath = string.Empty;
-                    if (lib.Downloads.Artifact != null)
+                    if (lib.Downloads.Artifact == null)
+                        continue;
+
+                    libraryOverallSize += lib.Downloads.Artifact.Size;
+                }
+
+                await File.WriteAllTextAsync(librarySizeCacheFilePath, libraryOverallSize.ToString());
+            }
+            else
+                libraryOverallSize = int.Parse(await File.ReadAllTextAsync(librarySizeCacheFilePath));
+
+            // Download the actual libs
+            foreach (var lib in mcLibs)
+            {
+                // Check the library rule
+                if (!lib.GetRulesResult())
+                    continue;
+
+                string libFilePath = string.Empty;
+                if (lib.Downloads.Artifact != null)
+                {
+                    string localPath = lib.Downloads.Artifact.Path.Replace('/', '\\');
+                    int libDirIndex = localPath.LastIndexOf('\\');
+                    string libDirPath = Path.Combine(IOHelper.LibrariesDir, localPath.Remove(libDirIndex, localPath.Length - libDirIndex));
+
+                    if (!Directory.Exists(libDirPath))
+                        Directory.CreateDirectory(libDirPath);
+
+                    libFilePath = Path.Combine(IOHelper.LibrariesDir, localPath);
+                    if (!File.Exists(libFilePath))
                     {
-                        string localPath = lib.Downloads.Artifact.Path.Replace('/', '\\');
-                        int libDirIndex = localPath.LastIndexOf('\\');
-                        string libDirPath = Path.Combine(IOHelper.LibrariesDir, localPath.Remove(libDirIndex, localPath.Length - libDirIndex));
-
-                        if (!Directory.Exists(libDirPath))
-                            Directory.CreateDirectory(libDirPath);
-
-                        libFilePath = Path.Combine(IOHelper.LibrariesDir, localPath);
-                        if (!File.Exists(libFilePath))
+                        try
                         {
-                            try
+                            if (!string.IsNullOrEmpty(lib.Downloads.Artifact.Url))
                             {
-                                if (!string.IsNullOrEmpty(lib.Downloads.Artifact.Url))
+                                Progress<double> progress = new Progress<double>();
+                                progress.ProgressChanged += (sender, e) =>
                                 {
-                                    byte[] bytes = await client.GetByteArrayAsync(lib.Downloads.Artifact.Url);
-                                    await File.WriteAllBytesAsync(libFilePath, bytes);
-                                }
-                                else
-                                    libraryDownloadedSize -= lib.Downloads.Artifact.Size; // Fix 100%+ bug
+                                    UpdateProgressbarTranslated(e, "ui_library_download", new object[] { lib.Name, e.ToString("0.00") });
+                                };
+
+                                byte[]? bytes = await HttpHelper.GetByteArrayAsync(lib.Downloads.Artifact.Url, progress);
+                                if (bytes == null)
+                                    continue;
+
+                                await File.WriteAllBytesAsync(libFilePath, bytes);
                             }
-                            catch (Exception e)
-                            {
-                                Debug.WriteLine($"Failed to get file: {lib.Downloads.Artifact.Url}");
-                                Debug.WriteLine($"Error: {e}");
-                            }
+                            else
+                                libraryDownloadedSize -= lib.Downloads.Artifact.Size; // Fix 100%+ bug
                         }
-                        
-
-                        libraryDownloadedSize += lib.Downloads.Artifact.Size;
-                        if (libraryOverallSize == 0)
-                            libraryOverallSize = 1; // NaN fix
-                        double percent = libraryDownloadedSize / libraryOverallSize * 100;
-                        UpdateProgressbarTranslated(percent, $"ui_library_download", new object[] { lib.Name, percent.ToString("0.00") });
-                    }
-                    else if (lib.Downloads.Classifiers != null)
-                    {
-                        string[] rawUrl = lib.Name.Split(':');
-                        string localPath = Path.Combine(rawUrl[0].Replace('.', '\\'), rawUrl[1], rawUrl[2], $"{rawUrl[1]}-{rawUrl[2]}.jar").Replace('/', '\\');
-                        int libDirIndex = localPath.LastIndexOf('\\');
-                        string libDirPath = Path.Combine(IOHelper.LibrariesDir, localPath.Remove(libDirIndex, localPath.Length - libDirIndex));
-
-                        if (!Directory.Exists(libDirPath))
-                            Directory.CreateDirectory(libDirPath);
-
-                        libFilePath = Path.Combine(IOHelper.LibrariesDir, localPath);
-                    }
-
-                    if (!_classPath.Contains(libFilePath))
-                    {
-                        _classPath += $"{libFilePath};";
-                        if (lib.Name.StartsWith("org.lwjgl") || lib.Downloads.Classifiers != null)
+                        catch (Exception e)
                         {
-                            natives.Add(lib);
+                            Debug.WriteLine($"Failed to get file: {lib.Downloads.Artifact.Url}");
+                            Debug.WriteLine($"Error: {e}");
                         }
                     }
-                    else
+
+
+                    //libraryDownloadedSize += lib.Downloads.Artifact.Size;
+                    //if (libraryOverallSize == 0)
+                        //libraryOverallSize = 1; // NaN fix
+                    //double percent = libraryDownloadedSize / libraryOverallSize * 100;
+                    //UpdateProgressbarTranslated(percent, $"ui_library_download", new object[] { lib.Name, percent.ToString("0.00") });
+                }
+                else if (lib.Downloads.Classifiers != null)
+                {
+                    string[] rawUrl = lib.Name.Split(':');
+                    string localPath = Path.Combine(rawUrl[0].Replace('.', '\\'), rawUrl[1], rawUrl[2], $"{rawUrl[1]}-{rawUrl[2]}.jar").Replace('/', '\\');
+                    int libDirIndex = localPath.LastIndexOf('\\');
+                    string libDirPath = Path.Combine(IOHelper.LibrariesDir, localPath.Remove(libDirIndex, localPath.Length - libDirIndex));
+
+                    if (!Directory.Exists(libDirPath))
+                        Directory.CreateDirectory(libDirPath);
+
+                    libFilePath = Path.Combine(IOHelper.LibrariesDir, localPath);
+                }
+
+                if (!_classPath.Contains(libFilePath))
+                {
+                    _classPath += $"{libFilePath};";
+                    if (lib.Name.StartsWith("org.lwjgl") || lib.Downloads.Classifiers != null)
                     {
-                        if (lib.Name.StartsWith("org.lwjgl") || lib.Downloads.Classifiers != null)
-                        {
-                            natives.Add(lib);
-                        }
+                        natives.Add(lib);
+                    }
+                }
+                else
+                {
+                    if (lib.Name.StartsWith("org.lwjgl") || lib.Downloads.Classifiers != null)
+                    {
+                        natives.Add(lib);
                     }
                 }
             }
@@ -510,11 +553,17 @@ namespace KonkordLibrary.Models.Installer
                         if (!Directory.Exists(libJarDir))
                             Directory.CreateDirectory(libJarDir);
 
-                        using (HttpClient client = new HttpClient())
+                        Progress<double> progress = new Progress<double>();
+                        progress.ProgressChanged += (sender, e) =>
                         {
-                            byte[] bytes = await client.GetByteArrayAsync(localUrl);
-                            await File.WriteAllBytesAsync(localFilePath, bytes);
-                        }
+                            UpdateProgressbarTranslated(e, "ui_library_download", new object[] { lib.Name, e.ToString("0.00") });
+                        };
+
+                        byte[]? bytes = await HttpHelper.GetByteArrayAsync(localUrl, progress);
+                        if (bytes == null)
+                            continue;
+
+                        await File.WriteAllBytesAsync(localFilePath, bytes);
                     }
                 }
                 else

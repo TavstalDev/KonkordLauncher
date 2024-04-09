@@ -46,7 +46,7 @@ namespace KonkordLibrary.Managers
             { "ui_finding_recommended_java", "Trying to get recommended java path..." },
             { "ui_reading_manifest", "Reading the {0} Manifest file..." },
             { "ui_creating_directories", "Creating directories..." },
-            { "ui_downloading_installer", "Downloading the {0} installer..." },
+            { "ui_downloading_installer", "Downloading the {0} installer... {1}%" },
             { "ui_extracting_installer", "Extracting the {0} installer..." },
             { "ui_checking_installer_libraries", "Checking {0} installer libraries..." },
             { "ui_adding_arguments", "Adding {0} arguments..." },
@@ -54,22 +54,22 @@ namespace KonkordLibrary.Managers
             { "ui_saving_lib_cache", "Saving library size cache file..." },
             { "ui_library_download", "Downloading the '{0}' library... {1}%" },
             { "ui_checking_forge_universal", "Checking forge universal library file..." },
-            { "ui_downloading_forge_universal", "Downloadig forge universal library file..." },
-            { "ui_downloading_version_json", "Downloading the {0} version json file..." },
+            { "ui_downloading_forge_universal", "Downloadig forge universal library file... {0}%" },
+            { "ui_downloading_version_json", "Downloading the {0} version json file... {1}%" },
             { "ui_reading_version_json", "Reading the {0} version json file..." },
-            { "ui_downloading_loader", "Downloading the {0} loader..." },
+            { "ui_downloading_loader", "Downloading the {0} loader... {1}%" },
             { "ui_checking_loader_libraries", "Checking {0} loader libraries..." },
             { "ui_getting_launch_arguments", "Getting launch arguments..." },
-            { "ui_downloading_version_jar", "Downloading the {0} version jar file..." },
+            { "ui_downloading_version_jar", "Downloading the {0} version jar file... {1}%" },
             { "ui_checking_asset_index_json", "Checking the '{0}' assetIndex json file..." },
-            { "ui_downloading_asset_index_json", "Downloading the '{0}' assetIndex json file..." },
+            { "ui_downloading_asset_index_json", "Downloading the '{0}' assetIndex json file... {1}%" },
             { "ui_reading_asset_index_jso", "Reading the '{0}' assetIndex json file..." },
             { "ui_checking_assets", "Checking assets..." },
             { "ui_downloading_assets", "Downloading assets... {0}%" },
             { "ui_checking_logging", "Checking logging file..." },
-            { "ui_downloading_logging", "Downloading logging file..." },
+            { "ui_downloading_logging", "Downloading logging file... {0}%" },
             { "ui_checking_client_mappings", "Checking client mappings..." },
-            { "ui_downloading_client_mappings", "Downloading client mappings..." },
+            { "ui_downloading_client_mappings", "Downloading client mappings... {0}%" },
             { "ui_checking_libraries", "Checking the libraries..." },
             { "ui_calculating_lib_size", "Calculating library sizes..." },
             { "ui_checking_natives", "Checking natives..." },
@@ -103,7 +103,9 @@ namespace KonkordLibrary.Managers
             { "ui_optional", "optional" },
             { "ui_game_dir", "Game Directory" },
             { "ui_java_dir", "Java Directory" },
-            { "ui_browse", "BROWSE" }
+            { "ui_browse", "BROWSE" },
+            { "ui_orimport", "Or Import..." },
+            { "ui_reading_asset_index_json", "Reading asset index json..." }
         };
 
         public static Dictionary<string, string> DefaultTranslations { get { return _defaultTranslations; } }
@@ -197,15 +199,14 @@ namespace KonkordLibrary.Managers
                     {
                         if (LanguagePacks.Any(x => x.TwoLetterCode == locale))
                         {
-                            using (HttpClient client = new HttpClient())
-                            {
-                                string resultJson = await client.GetStringAsync(LanguagePacks.Find(x => x.TwoLetterCode == locale)?.Url);
-                                Dictionary<string, string> translation = new Dictionary<string, string>();
-                                translation = JsonConvert.DeserializeObject<Dictionary<string, string>>(resultJson) ?? DefaultTranslations;
+                            string? resultJson = await HttpHelper.GetStringAsync(LanguagePacks.Find(x => x.TwoLetterCode == locale)?.Url);
+                            if (resultJson == null)
+                                return;
+                            Dictionary<string, string> translation = new Dictionary<string, string>();
+                            translation = JsonConvert.DeserializeObject<Dictionary<string, string>>(resultJson) ?? DefaultTranslations;
 
-                                await SaveTranslationAsync(localePath, translation ?? DefaultTranslations);
-                                _translations =  translation;
-                            }
+                            await SaveTranslationAsync(localePath, translation ?? DefaultTranslations);
+                            _translations = translation;
                         }
 
 

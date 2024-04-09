@@ -321,18 +321,15 @@ namespace KonkordLibrary.Helpers
                     {
                         if (TranslationManager.LanguagePacks.Any(x => x.TwoLetterCode == locale))
                         {
-                            using (HttpClient client = new HttpClient())
-                            {
-                                string resultJson = await client.GetStringAsync(TranslationManager.LanguagePacks.Find(x => x.TwoLetterCode == locale)?.Url);
-                                Dictionary<string, string> translation = new Dictionary<string, string>();
-                                translation = JsonSerializer.Deserialize<Dictionary<string, string>>(resultJson) ?? TranslationManager.DefaultTranslations;
+                            string? resultJson = await HttpHelper.GetStringAsync(TranslationManager.LanguagePacks.Find(x => x.TwoLetterCode == locale)?.Url);
+                            if (resultJson == null)
+                                return false;
+                            Dictionary<string, string> translation = new Dictionary<string, string>();
+                            translation = JsonSerializer.Deserialize<Dictionary<string, string>>(resultJson) ?? TranslationManager.DefaultTranslations;
 
-                                await TranslationManager.SaveTranslationAsync(localePath, translation ?? TranslationManager.DefaultTranslations);
-                                TranslationManager.SetTranslations(translation);
-                            }
+                            await TranslationManager.SaveTranslationAsync(localePath, translation ?? TranslationManager.DefaultTranslations);
+                            TranslationManager.SetTranslations(translation);
                         }
-
-                        
                     }
                 }
                 return true;

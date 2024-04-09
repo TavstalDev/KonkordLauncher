@@ -5,6 +5,7 @@ using KonkordLibrary.Models.Installer;
 using KonkordLibrary.Models.Launcher;
 using KonkordLibrary.Models.Minecraft.Library;
 using Newtonsoft.Json;
+using System;
 using System.IO;
 using System.Net.Http;
 using System.Windows.Controls;
@@ -55,13 +56,20 @@ namespace KonkordLibrary.Models.Quilt
             List<MCLibrary> localLibraries = new List<MCLibrary>();
             if (!File.Exists(quiltVersion.VersionJsonPath))
             {
-                string resultJson = string.Empty;
-                UpdateProgressbarTranslated(0, $"ui_downloading_version_json", new object[] { "quilt" });
-                using (HttpClient client = new HttpClient())
+                string? resultJson = string.Empty;
+                UpdateProgressbarTranslated(0, $"ui_downloading_version_json", new object[] { "quilt", 0 });
+
+                Progress<double> progress = new Progress<double>();
+                progress.ProgressChanged += (sender, e) =>
                 {
-                    resultJson = await client.GetStringAsync(string.Format(QuiltLoaderJsonUrl, quiltVersion.VanillaVersion, quiltVersion.InstanceVersion));
-                    await File.WriteAllTextAsync(quiltVersion.VersionJsonPath, resultJson);
-                }
+                    UpdateProgressbarTranslated(e, "ui_downloading_version_json", new object[] { "quilt", e.ToString("0.00") });
+                };
+
+                resultJson = await HttpHelper.GetStringAsync(string.Format(QuiltLoaderJsonUrl, quiltVersion.VanillaVersion, quiltVersion.InstanceVersion), progress);
+                if (resultJson == null)
+                    return null;
+
+                await File.WriteAllTextAsync(quiltVersion.VersionJsonPath, resultJson);
 
                 // Add the libraries
                 quiltVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(resultJson);
@@ -107,12 +115,18 @@ namespace KonkordLibrary.Models.Quilt
 
             if (!File.Exists(loaderJarPath))
             {
-                UpdateProgressbarTranslated(0, $"ui_downloading_loader", new object[] { "quilt" });
-                using (HttpClient client = new HttpClient())
+                UpdateProgressbarTranslated(0, $"ui_downloading_loader", new object[] { "quilt", 0 });
+
+                Progress<double> progress = new Progress<double>();
+                progress.ProgressChanged += (sender, e) =>
                 {
-                    byte[] bytes = await client.GetByteArrayAsync(string.Format(QuiltLoaderJarUrl, quiltVersion.InstanceVersion));
-                    await File.WriteAllBytesAsync(loaderJarPath, bytes);
-                }
+                    UpdateProgressbarTranslated(e, "ui_downloading_loader", new object[] { "quilt", e.ToString("0.00") });
+                };
+
+                byte[]? bytes = await HttpHelper.GetByteArrayAsync(string.Format(QuiltLoaderJarUrl, quiltVersion.InstanceVersion), progress);
+                if (bytes == null)
+                    return null;
+                await File.WriteAllBytesAsync(loaderJarPath, bytes);
             }
 
             UpdateProgressbarTranslated(0, $"ui_getting_launch_arguments");

@@ -60,14 +60,21 @@ namespace KonkordLibrary.Models.Forge.Installer
                 Directory.CreateDirectory(librarySizeCacheDir);
 
             // Download Installer
-            UpdateProgressbarTranslated(0, $"ui_downloading_installer", new object[] { "forge" });
+            UpdateProgressbarTranslated(0, $"ui_downloading_installer", new object[] { "forge", 0 });
             string installerJarPath = Path.Combine(tempDir, "installer.jar");
             string installerDir = Path.Combine(tempDir, "installer");
-            using (HttpClient client = new HttpClient())
+
+            Progress<double> progress = new Progress<double>();
+            progress.ProgressChanged += (sender, e) =>
             {
-                byte[] bytes = await client.GetByteArrayAsync(string.Format(ForgeInstallerJarUrl, $"{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}"));
-                await File.WriteAllBytesAsync(installerJarPath, bytes);
-            }
+                UpdateProgressbarTranslated(e, "ui_downloading_installer", new object[] { "forge", e.ToString("0.00") });
+            };
+
+            byte[]? bytes = await HttpHelper.GetByteArrayAsync(string.Format(ForgeInstallerJarUrl, $"{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}"), progress);
+            if (bytes == null)
+                return null;
+            
+            await File.WriteAllBytesAsync(installerJarPath, bytes);
 
             // Extract Installer
             UpdateProgressbarTranslated(0, $"ui_extracting_installer", new object[] { "forge" });
@@ -114,8 +121,7 @@ namespace KonkordLibrary.Models.Forge.Installer
 
             // Download installer libraries
             string librarySizeCachePath = Path.Combine(librarySizeCacheDir, $"{forgeVersion.VanillaVersion}-forge-installer-{forgeVersion.InstanceVersion}.json");
-            using (HttpClient client = new HttpClient())
-            {
+
                 int downloadedSize = 0;
                 int toDownloadSize = 0;
                 if (!File.Exists(librarySizeCachePath))
@@ -128,24 +134,31 @@ namespace KonkordLibrary.Models.Forge.Installer
                 else
                     toDownloadSize = int.Parse(await File.ReadAllTextAsync(librarySizeCachePath));
 
-                foreach (MCLibrary lib in installProfile.Libraries)
+            foreach (MCLibrary lib in installProfile.Libraries)
+            {
+                string localPath = lib.Downloads.Artifact.Path;
+                string libDirPath = Path.Combine(IOHelper.LibrariesDir, localPath.Remove(localPath.LastIndexOf('/'), localPath.Length - localPath.LastIndexOf('/')));
+                if (!Directory.Exists(libDirPath))
+                    Directory.CreateDirectory(libDirPath);
+                string libFilePath = Path.Combine(IOHelper.LibrariesDir, localPath);
+                if (!File.Exists(libFilePath))
                 {
-                    string localPath = lib.Downloads.Artifact.Path;
-                    string libDirPath = Path.Combine(IOHelper.LibrariesDir, localPath.Remove(localPath.LastIndexOf('/'), localPath.Length - localPath.LastIndexOf('/')));
-                    if (!Directory.Exists(libDirPath))
-                        Directory.CreateDirectory(libDirPath);
-                    string libFilePath = Path.Combine(IOHelper.LibrariesDir, localPath);
-                    if (!File.Exists(libFilePath))
+                    if (!string.IsNullOrEmpty(lib.Downloads.Artifact.Url))
                     {
-                        if (!string.IsNullOrEmpty(lib.Downloads.Artifact.Url))
+                        Progress<double> libProgress = new Progress<double>();
+                        libProgress.ProgressChanged += (sender, e) =>
                         {
-                            byte[] bytes = await client.GetByteArrayAsync(lib.Downloads.Artifact.Url);
-                            await File.WriteAllBytesAsync(libFilePath, bytes);
-                            downloadedSize += lib.Downloads.Artifact.Size;
-                        }
-                        double percent = (double)downloadedSize / (double)toDownloadSize * 100d;
-                        UpdateProgressbarTranslated(percent, $"ui_library_download", new object[] { lib.Name, percent.ToString("0.00") });
+                            UpdateProgressbarTranslated(e, "ui_library_download", new object[] { lib.Name, e.ToString("0.00") });
+                        };
+
+                        byte[]? libBytes = await HttpHelper.GetByteArrayAsync(lib.Downloads.Artifact.Url, libProgress);
+                        if (libBytes == null)
+                            continue;
+                        await File.WriteAllBytesAsync(libFilePath, libBytes);
+                        downloadedSize += lib.Downloads.Artifact.Size;
                     }
+                    /*double percent = (double)downloadedSize / (double)toDownloadSize * 100d;
+                    UpdateProgressbarTranslated(percent, $"ui_library_download", new object[] { lib.Name, percent.ToString("0.00") });*/
                 }
             }
 
@@ -182,12 +195,18 @@ namespace KonkordLibrary.Models.Forge.Installer
             UpdateProgressbarTranslated(0, $"ui_checking_forge_universal");
             if (!File.Exists(forgeUniversalPath))
             {
-                UpdateProgressbarTranslated(0, $"ui_downloading_forge_universal");
-                using (HttpClient client = new HttpClient())
+                UpdateProgressbarTranslated(0, $"ui_downloading_forge_universal", new byte[] { 0 });
+
+                Progress<double> univProgress = new Progress<double>();
+                univProgress.ProgressChanged += (sender, e) =>
                 {
-                    byte[] bytes = await client.GetByteArrayAsync(forgeUniversal);
-                    await File.WriteAllBytesAsync(forgeUniversalPath, bytes);
-                }
+                    UpdateProgressbarTranslated(e, "ui_downloading_forge_universal", new object[] { e.ToString("0.00") });
+                };
+
+                byte[]? univBytes = await HttpHelper.GetByteArrayAsync(forgeUniversal, univProgress);
+                if (univBytes == null)
+                    return null;
+                await File.WriteAllBytesAsync(forgeUniversalPath, univBytes);
             }
             #endregion
 

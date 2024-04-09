@@ -8,6 +8,7 @@
 	<UseWindowsForms>true</UseWindowsForms>
 	<ImplicitUsings>disable</ImplicitUsings>
     <StartupObject>KonkordLauncher.App</StartupObject>
+    <ApplicationIcon>assets\icons\workbench.ico</ApplicationIcon>
   </PropertyGroup>
 
 
@@ -56,6 +57,11 @@
     <None Remove="assets\images\konkord_logo.png" />
     <None Remove="assets\images\minceraft.png" />
     <None Remove="assets\images\steve_head.png" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Content Include="assets\icons\workbench.ico" />
   </ItemGroup>
 
   <ItemGroup>

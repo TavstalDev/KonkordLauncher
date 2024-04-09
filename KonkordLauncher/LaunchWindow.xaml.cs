@@ -119,6 +119,10 @@ namespace KonkordLauncher
             WindowHelper.ResizeFont(lab_instances_save, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(btn_instances_save, _heightMultiplier, _widthMultiplier);
 
+            WindowHelper.Resize(bo_instances_import, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_instances_import, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(btn_instances_import, _heightMultiplier, _widthMultiplier);
+
             WindowHelper.Resize(bo_instances_cancel, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(lab_instances_cancel, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(btn_instances_cancel, _heightMultiplier, _widthMultiplier);
@@ -527,6 +531,7 @@ namespace KonkordLauncher
             checkb_instances_version_betas.Content = TranslationManager.Translate("ui_versioncb_betas");
             lab_instances_cancel.Content = TranslationManager.Translate("ui_cancel");
             lab_instances_save.Content = TranslationManager.Translate("ui_save");
+            lab_instances_import.Content = TranslationManager.Translate("ui_orimport");
             btn_instances_javadir.Content = TranslationManager.Translate("ui_browse");
             btn_instances_gamedir.Content = TranslationManager.Translate("ui_browse");
 
@@ -563,6 +568,7 @@ namespace KonkordLauncher
                 cb_instances_launchopt.SelectedIndex = 0;
                 cb_instances_memory.SelectedIndex = 0;
                 lab_instances.Content = TranslationManager.Translate("ui_new_instance");
+                bo_instances_import.IsEnabled = true;
             }
             else
             {
@@ -652,6 +658,7 @@ namespace KonkordLauncher
                 cb_instances_launchopt.SelectedIndex = (int)EditedProfile.LauncherVisibility;
                 cb_instances_memory.SelectedItem = EditedProfile.Memory;
                 lab_instances.Content = TranslationManager.Translate("ui_edit_instance");
+                bo_instances_import.IsEnabled = false;
             }
         }
 
@@ -1558,5 +1565,9 @@ namespace KonkordLauncher
 
         #endregion
 
+        private void InstancesImport_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

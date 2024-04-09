@@ -326,16 +326,23 @@
                 </ScrollViewer>
 
                 <!-- Cancel -->
-                <Border x:Name="bo_instances_cancel" BorderBrush="#26000000" BorderThickness="1" CornerRadius="3,3,3,3" Canvas.Left="66" Canvas.Top="91" Background="#26000000" Margin="-110,0,0,10" ClipToBounds="True" Height="34" Width="100" VerticalAlignment="Bottom">
+                <Border x:Name="bo_instances_cancel" BorderBrush="#26000000" BorderThickness="1" CornerRadius="3,3,3,3" Canvas.Left="66" Canvas.Top="91" Background="#26000000" Margin="0,0,210,10" ClipToBounds="True" Height="25" Width="100" VerticalAlignment="Bottom">
                     <Grid>
-                        <Label x:Name="lab_instances_cancel" Content="Cancel" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Foreground="White" FontSize="14" Padding="0,0,0,0"  />
+                        <Label x:Name="lab_instances_cancel" Content="Cancel" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Foreground="White" Padding="0,0,0,0"  />
                         <Button x:Name="btn_instances_cancel" Style="{StaticResource BaseButton}" Content="" BorderThickness="2" Foreground="White" Canvas.Left="78" Canvas.Top="128" ClipToBounds="True" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" FontWeight="Bold" FontSize="14" Margin="0,0,0,0" Click="InstancesCancel_Click" />
                     </Grid>
                 </Border>
-                <!-- Save -->
-                <Border x:Name="bo_instances_save" BorderBrush="#FF5D6F95" BorderThickness="1" CornerRadius="3,3,3,3" Canvas.Left="66" Canvas.Top="91" Background="#FF5D6F95" Margin="110,0,0,10" ClipToBounds="True" Height="34" Width="100" VerticalAlignment="Bottom">
+                <!-- Or import -->
+                <Border x:Name="bo_instances_import" BorderBrush="#26000000" BorderThickness="1" CornerRadius="3,3,3,3" Canvas.Left="66" Canvas.Top="91" Background="#26000000" Margin="210,0,0,10" ClipToBounds="True" Height="25" Width="100" VerticalAlignment="Bottom">
                     <Grid>
-                        <Label x:Name="lab_instances_save" Content="Save" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Foreground="White" FontSize="14" Padding="0,0,0,0"  />
+                        <Label x:Name="lab_instances_import" Content="Or import..." VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Foreground="White" Padding="0,0,0,0"  />
+                        <Button x:Name="btn_instances_import" Style="{StaticResource BaseButton}" Content="" BorderThickness="2" Foreground="White" Canvas.Left="78" Canvas.Top="128" ClipToBounds="True" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" FontWeight="Bold" FontSize="14" Margin="0,0,0,0" Click="InstancesImport_Click"/>
+                    </Grid>
+                </Border>
+                <!-- Save -->
+                <Border x:Name="bo_instances_save" BorderBrush="#FF5D6F95" BorderThickness="1" CornerRadius="3,3,3,3" Canvas.Left="66" Canvas.Top="91" Background="#FF5D6F95" Margin="0,0,0,10" ClipToBounds="True" Height="25" Width="90" VerticalAlignment="Bottom">
+                    <Grid>
+                        <Label x:Name="lab_instances_save" Content="Save" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Foreground="White" Padding="0,0,0,0"  />
                         <Button x:Name="btn_instances_save" Style="{StaticResource BaseButton}" Content="" BorderThickness="2" Foreground="White" Canvas.Left="78" Canvas.Top="128" ClipToBounds="True" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" FontWeight="Bold" FontSize="14" Margin="0,0,0,0" Click="InstancesSave_Click"/>
                     </Grid>
                 </Border>

@@ -1,6 +1,5 @@
 ﻿using KonkordLibrary.Enums;
 using KonkordLibrary.Helpers;
-using KonkordLibrary.Models;
 using KonkordLibrary.Models.Fabric;
 using KonkordLibrary.Models.Installer;
 using KonkordLibrary.Models.Minecraft;
@@ -21,6 +20,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using KonkordLibrary.Managers;
+using KonkordLibrary.Models.Launcher;
 
 namespace KonkordLauncher
 {
@@ -226,9 +226,13 @@ namespace KonkordLauncher
             #endregion
 
             OpenInstanceEdit(null, string.Empty);
+            LauncherSettings? settings = IOHelper.GetLauncherSettings();
+            if (settings == null)
+                throw new Exception("Restart the launcher.");
             // Load Languages
             cb_launch_languages.DataContext = TranslationManager.LanguagePacks;
-            cb_launch_languages.SelectedIndex = 0;
+            cb_launch_languages.SelectedIndex = TranslationManager.LanguagePacks.FindIndex(x => x.TwoLetterCode == settings.Language);
+            //RefreshTranslations();
         }
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
@@ -259,12 +263,12 @@ namespace KonkordLauncher
             {
                 case EAccountType.OFFLINE:
                     {
-                        la_account_type.Content = "Offline account";
+                        la_account_type.Content = TranslationManager.Translate("ui_offline_account");
                         break;
                     }
                 case EAccountType.MICROSOFT:
                     {
-                        la_account_type.Content = "Microsoft account";
+                        la_account_type.Content = TranslationManager.Translate("ui_microsoft_account");
                         break;
                     }
             }
@@ -494,6 +498,40 @@ namespace KonkordLauncher
             }
         }
 
+        public void RefreshTranslations()
+        {
+            // Main
+            lab_new_instance.Content = TranslationManager.Translate("ui_new_instance");
+            listbox_launchinstances.Resources["BtnTextEdit"] = TranslationManager.Translate("ui_instance_edit");
+            listbox_launchinstances.Resources["BtnTextOpenDir"] = TranslationManager.Translate("ui_instance_opendir");
+            listbox_launchinstances.Resources["BtnTextDel"] = TranslationManager.Translate("ui_instance_delete");
+            lab_launc_play.Content = TranslationManager.Translate("ui_play");
+
+
+            // Instance
+            lab_instances.Content = TranslationManager.Translate("ui_new_instance");
+            lab_instances_name.Content = TranslationManager.Translate("ui_instance_name");
+            lab_instances_name_placeholder.Content = TranslationManager.Translate("ui_instance_name_placeholder");
+            lab_instances_gamedir.Content = TranslationManager.Translate("ui_game_dir");
+            lab_instances_gamedir_placeholder.Content = TranslationManager.Translate("ui_optional");
+            lab_instances_javadir.Content = TranslationManager.Translate("ui_java_dir");
+            lab_instances_javadir_placeholder.Content = TranslationManager.Translate("ui_optional");
+            lab_instances_jvm.Content = TranslationManager.Translate("ui_jvm_args");
+            lab_instances_jvm_placeholder.Content = TranslationManager.Translate("ui_optional");
+            lab_instances_launchopt.Content = TranslationManager.Translate("ui_launcher_visibility");
+            lab_instances_memory.Content = TranslationManager.Translate("ui_memory");
+            lab_instances_resolution.Content = TranslationManager.Translate("ui_resolution");
+            lab_instances_version.Content = TranslationManager.Translate("ui_version");
+            checkb_instances_version_releases.Content = TranslationManager.Translate("ui_versioncb_releases");
+            checkb_instances_version_snapshots.Content = TranslationManager.Translate("ui_versioncb_snapshots");
+            checkb_instances_version_betas.Content = TranslationManager.Translate("ui_versioncb_betas");
+            lab_instances_cancel.Content = TranslationManager.Translate("ui_cancel");
+            lab_instances_save.Content = TranslationManager.Translate("ui_save");
+            btn_instances_javadir.Content = TranslationManager.Translate("ui_browse");
+            btn_instances_gamedir.Content = TranslationManager.Translate("ui_browse");
+
+        }
+
         private void OpenInstanceEdit(Profile? profile, string profileKey)
         {
             if (profile == null)
@@ -524,6 +562,7 @@ namespace KonkordLauncher
                 tb_instances_resolution_y.Text = string.Empty;
                 cb_instances_launchopt.SelectedIndex = 0;
                 cb_instances_memory.SelectedIndex = 0;
+                lab_instances.Content = TranslationManager.Translate("ui_new_instance");
             }
             else
             {
@@ -612,6 +651,7 @@ namespace KonkordLauncher
                 }
                 cb_instances_launchopt.SelectedIndex = (int)EditedProfile.LauncherVisibility;
                 cb_instances_memory.SelectedItem = EditedProfile.Memory;
+                lab_instances.Content = TranslationManager.Translate("ui_edit_instance");
             }
         }
 
@@ -730,9 +770,22 @@ namespace KonkordLauncher
         }
         #endregion
 
-        private void Languages_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void Languages_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            LauncherSettings? settings = IOHelper.GetLauncherSettings();
+            if (settings == null)
+                throw new Exception("Restart the launcher.");
 
+            if (e.AddedItems.Count == 0)
+                return;
+
+            Language? item = e.AddedItems[0] as Language;
+            if (item == null) 
+                return;
+            settings.Language = item.TwoLetterCode;
+            await JsonHelper.WriteJsonFileAsync(IOHelper.LauncherJsonFile, settings);
+            await TranslationManager.UpdateTranslations();
+            RefreshTranslations();
         }
 
         /// <summary>

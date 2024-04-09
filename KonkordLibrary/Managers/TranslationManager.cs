@@ -1,5 +1,8 @@
 ﻿using KonkordLibrary.Helpers;
-using KonkordLibrary.Models;
+using KonkordLibrary.Models.Launcher;
+using Newtonsoft.Json;
+using System.IO;
+using System.Net.Http;
 
 namespace KonkordLibrary.Managers
 {
@@ -70,16 +73,46 @@ namespace KonkordLibrary.Managers
             { "ui_checking_libraries", "Checking the libraries..." },
             { "ui_calculating_lib_size", "Calculating library sizes..." },
             { "ui_checking_natives", "Checking natives..." },
-            { "ui_building_args", "Building arguments..." }
+            { "ui_building_args", "Building arguments..." },
+            { "ui_auth_switch_to_online", "Switch to online mode" },
+            { "ui_auth_switch_to_offline", "Switch to offline mode" },
+            { "ui_auth_buy_minecraft", "Buy minecraft" },
+            { "ui_username", "Username" },
+            { "ui_auth_login_microsoft", "LOGIN WITH MICROSOFT" },
+            { "ui_auth_play_offline", "PLAY OFFLINE" },
+            { "ui_offline_account", "Offline account" },
+            { "ui_microsoft_account", "Microsoft account" },
+            { "ui_new_instance", "New instance" },
+            { "ui_instance_edit", "&#xf044; Edit" },
+            { "ui_instance_opendir", "&#xf07b; Open directory" },
+            { "ui_instance_delete", "&#xf1f8; Delete" },
+            { "ui_play", "PLAY" },
+            { "ui_edit_instance", "Edit instance" },
+            { "ui_instance_name", "Name" },
+            { "ui_instance_name_placeholder", "unnamed instance" },
+            { "ui_version", "Version" },
+            { "ui_cancel", "Cancel" },
+            { "ui_save", "Save" },
+            { "ui_resolution", "Resolution" },
+            { "ui_memory", "Memory" },
+            { "ui_versioncb_releases", "Show Releases" },
+            { "ui_versioncb_snapshots", "Show Snapshots" },
+            { "ui_versioncb_betas", "Show Old Betas" },
+            { "ui_launcher_visibility", "Launcher Visibility" },
+            { "ui_jvm_args", "JVM Args" },
+            { "ui_optional", "optional" },
+            { "ui_game_dir", "Game Directory" },
+            { "ui_java_dir", "Java Directory" },
+            { "ui_browse", "BROWSE" }
         };
 
         public static Dictionary<string, string> DefaultTranslations { get { return _defaultTranslations; } }
 
         private static List<Language> _languagePacks = new List<Language>()
         {
-            new Language("English", "en", "eng", "", true),
-            new Language("German", "de", "deu", ""),
-            new Language("Hungarian", "hu", "hun", "")
+            new Language("English", "en", "eng", "https://pastebin.com/raw/Y9LXz0LV", true),
+            new Language("German", "de", "deu", "https://pastebin.com/raw/gyp2mnfN"),
+            new Language("Hungarian", "hu", "hun", "https://pastebin.com/raw/r60iz9PT")
         };
         public static List<Language> LanguagePacks { get { return _languagePacks; } }
 
@@ -98,6 +131,91 @@ namespace KonkordLibrary.Managers
                 _translations = translation;
 
             _initialized = true;
+        }
+
+        /// <summary>
+        /// Sets translations for the application.
+        /// </summary>
+        public static async Task UpdateTranslations()
+        {
+            if (!_initialized)
+                return;
+
+            try
+            {
+                LauncherSettings? settings = IOHelper.GetLauncherSettings();
+
+                string defaultTranslationFile = Path.Combine(IOHelper.TranslationsDir, "en.json");
+                if (!File.Exists(defaultTranslationFile))
+                {
+                    await SaveTranslationAsync(defaultTranslationFile, DefaultTranslations);
+                }
+
+
+                if (settings != null)
+                {
+                    string locale = settings.Language;
+                    string localePath = Path.Combine(IOHelper.TranslationsDir, $"{locale}.json");
+                    if (File.Exists(localePath))
+                    {
+                        var localLocale = await ReadTranslationAsync(localePath);
+                        if (localLocale != null)
+                        {
+                            if (localLocale.Count > 0)
+                            {
+                                if (DefaultTranslations.Count - localLocale.Count != 0)
+                                {
+                                    Dictionary<string, string> mixedLocalization = DefaultTranslations;
+                                    foreach (var l in localLocale)
+                                    {
+                                        if (mixedLocalization.ContainsKey(l.Key))
+                                            mixedLocalization[l.Key] = l.Value;
+                                        else
+                                            mixedLocalization.Add(l.Key, l.Value);
+                                    }
+                                    await SaveTranslationAsync(localePath, mixedLocalization);
+                                    _translations = mixedLocalization;
+                                }
+                                else
+                                    _translations = localLocale;
+
+                            }
+                            else if (localLocale.Count == 0 && locale == "en")
+                            {
+                                await SaveTranslationAsync(localePath, DefaultTranslations);
+                                _translations = DefaultTranslations;
+                            }
+                        }
+                        else
+                        {
+                            // Left it untranslated because it is a translation error
+                            NotificationHelper.SendErrorMsg($"Failed to read the translation file of '{locale}'. Loading defaults...", "Error");
+                            _translations = DefaultTranslations;
+                        }
+                    }
+                    else
+                    {
+                        if (LanguagePacks.Any(x => x.TwoLetterCode == locale))
+                        {
+                            using (HttpClient client = new HttpClient())
+                            {
+                                string resultJson = await client.GetStringAsync(LanguagePacks.Find(x => x.TwoLetterCode == locale)?.Url);
+                                Dictionary<string, string> translation = new Dictionary<string, string>();
+                                translation = JsonConvert.DeserializeObject<Dictionary<string, string>>(resultJson) ?? DefaultTranslations;
+
+                                await SaveTranslationAsync(localePath, translation ?? DefaultTranslations);
+                                _translations =  translation;
+                            }
+                        }
+
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                NotificationHelper.SendErrorMsg(ex.ToString(), "Error in ValidateTranslations");
+            }
         }
 
         /// <summary>

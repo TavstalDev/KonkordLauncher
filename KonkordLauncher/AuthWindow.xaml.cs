@@ -1,7 +1,7 @@
 ﻿using KonkordLibrary.Enums;
 using KonkordLibrary.Helpers;
 using KonkordLibrary.Managers;
-using KonkordLibrary.Models;
+using KonkordLibrary.Models.Launcher;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -59,6 +59,19 @@ namespace KonkordLauncher
             WindowHelper.ResizeFont(btn_auth_online_login, heightMultiplier, widthMultiplier);
             WindowHelper.ResizeFont(btn_auth_online_switch, heightMultiplier, widthMultiplier);
             #endregion
+
+            RefreshTranslations();
+        }
+
+        public void RefreshTranslations()
+        {
+            lab_auth_offline_username.Content = TranslationManager.Translate("ui_username");
+            btn_auth_offline_buy.Content = TranslationManager.Translate("ui_auth_buy_minecraft");
+            btn_auth_offline_login.Content = TranslationManager.Translate("ui_auth_play_offline");
+            btn_auth_offline_switch.Content = TranslationManager.Translate("ui_auth_switch_to_online");
+            btn_auth_online_buy.Content = TranslationManager.Translate("ui_auth_buy_minecraft");
+            btn_auth_online_login.Content = TranslationManager.Translate("ui_auth_login_microsoft");
+            btn_auth_online_switch.Content = TranslationManager.Translate("ui_auth_switch_to_offline");
         }
 
         #region Events
@@ -174,7 +187,7 @@ namespace KonkordLauncher
                 return;
             }
 
-            string guid = GameManager.GetOfflinePlayerUUID(username);
+            string guid = GameHelper.GetOfflinePlayerUUID(username);
             if (!accountData.Accounts.ContainsKey(guid))
             {
                 accountData.Accounts.Add(guid, new Account()

@@ -1,13 +1,12 @@
 ﻿using KonkordLibrary.Enums;
-using KonkordLibrary.Helpers;
-using KonkordLibrary.Models;
+using KonkordLibrary.Models.Launcher;
 using KonkordLibrary.Models.Minecraft;
 using System.IO;
 using System.Text;
 
-namespace KonkordLibrary.Managers
+namespace KonkordLibrary.Helpers
 {
-    public static class GameManager
+    public static class GameHelper
     {
         #region Version Functions
         /// <summary>
@@ -95,6 +94,10 @@ namespace KonkordLibrary.Managers
                         return GetProfileVersionDetails(profile.Kind, profile.VersionId, profile.VersionVanillaId, profile.GameDirectory);
                     }
                 case EProfileType.KONKORD_CREATE:
+                    {
+                        // TODO at the end
+                        throw new NotImplementedException();
+                    }
                 case EProfileType.KONKORD_VANILLAPLUS:
                     {
                         // TODO at the end

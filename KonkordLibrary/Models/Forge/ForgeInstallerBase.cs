@@ -2,6 +2,7 @@
 using KonkordLibrary.Models.Forge.Installer;
 using KonkordLibrary.Models.Forge.New;
 using KonkordLibrary.Models.Installer;
+using KonkordLibrary.Models.Launcher;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using System.IO;

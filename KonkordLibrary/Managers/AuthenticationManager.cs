@@ -1,5 +1,5 @@
 using KonkordLibrary.Helpers;
-using KonkordLibrary.Models;
+using KonkordLibrary.Models.Launcher;
 using KonkordLibrary.Models.Minecraft.API;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

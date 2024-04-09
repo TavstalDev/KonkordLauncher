@@ -1,4 +1,5 @@
-﻿using KonkordLibrary.Models.Minecraft.Library;
+﻿using KonkordLibrary.Models.Launcher;
+using KonkordLibrary.Models.Minecraft.Library;
 
 namespace KonkordLibrary.Models.Installer
 {

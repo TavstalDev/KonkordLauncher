@@ -54,23 +54,42 @@ namespace KonkordLibrary.Helpers
             SendNotificationTranslated(messageKey, titleKey, messageArgs, titleArgs, MessageBoxImage.Error);
         }
 
-        // Todo remove these and use translated versions instead
-
+        /// <summary>
+        /// Sends a notification message with the specified content, title, and optional image.
+        /// </summary>
+        /// <param name="message">The message content.</param>
+        /// <param name="title">The message title.</param>
+        /// <param name="image">Optional: The message image (default is Information).</param>
         public static void SendNotificationMsg(string message, string title, MessageBoxImage image = MessageBoxImage.Information)
         {
             MessageBox.Show(message, title, MessageBoxButton.OK, image);
         }
 
+        /// <summary>
+        /// Sends an informational message with the specified content and title.
+        /// </summary>
+        /// <param name="message">The message content.</param>
+        /// <param name="title">The message title.</param>
         public static void SendInfoMsg(string message, string title)
         {
             SendNotificationMsg(message, title);
         }
 
+        /// <summary>
+        /// Sends a warning message with the specified content and title.
+        /// </summary>
+        /// <param name="message">The message content.</param>
+        /// <param name="title">The message title.</param>
         public static void SendWarningMsg(string message, string title)
         {
             SendNotificationMsg(message, title, MessageBoxImage.Warning);
         }
 
+        /// <summary>
+        /// Sends an error message with the specified content and title.
+        /// </summary>
+        /// <param name="message">The message content.</param>
+        /// <param name="title">The message title.</param>
         public static void SendErrorMsg(string message, string title)
         {
             SendNotificationMsg(message, title, MessageBoxImage.Error);

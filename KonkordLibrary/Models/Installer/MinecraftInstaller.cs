@@ -2,6 +2,7 @@
 using KonkordLibrary.Helpers;
 using KonkordLibrary.Managers;
 using KonkordLibrary.Models.Forge.Installer;
+using KonkordLibrary.Models.Launcher;
 using KonkordLibrary.Models.Minecraft;
 using KonkordLibrary.Models.Minecraft.Library;
 using Newtonsoft.Json;
@@ -58,12 +59,12 @@ namespace KonkordLibrary.Models.Installer
             {
                 case EProfileType.CUSTOM:
                     {
-                        VersionData = Managers.GameManager.GetProfileVersionDetails(EProfileKind.VANILLA, profile.VersionVanillaId, profile.VersionVanillaId, null);
+                        VersionData = GameHelper.GetProfileVersionDetails(EProfileKind.VANILLA, profile.VersionVanillaId, profile.VersionVanillaId, null);
                         break;
                     }
                 default:
                     {
-                        VersionData = Managers.GameManager.GetProfileVersionDetails(profile.Type, VersionManifest, profile);
+                        VersionData = GameHelper.GetProfileVersionDetails(profile.Type, VersionManifest, profile);
                         break;
                     }
             }

@@ -2,6 +2,7 @@
 using KonkordLibrary.Helpers;
 using KonkordLibrary.Models.Forge.Legacy;
 using KonkordLibrary.Models.Installer;
+using KonkordLibrary.Models.Launcher;
 using KonkordLibrary.Models.Minecraft.Library;
 using KonkordLibrary.Models.Minecraft.Meta;
 using Newtonsoft.Json;
@@ -57,7 +58,7 @@ namespace KonkordLibrary.Models.Forge.Installer
                 return null;
             }
 
-            VersionDetails forgeVersion = Managers.GameManager.GetProfileVersionDetails(EProfileKind.FORGE, Profile.VersionId, Profile.VersionVanillaId, Profile.GameDirectory);
+            VersionDetails forgeVersion = GameHelper.GetProfileVersionDetails(EProfileKind.FORGE, Profile.VersionId, Profile.VersionVanillaId, Profile.GameDirectory);
 
             UpdateProgressbarTranslated(0, $"ui_creating_directories");
             // Create versionDir in the versions folder

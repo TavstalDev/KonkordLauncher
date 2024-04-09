@@ -839,7 +839,10 @@ namespace KonkordLauncher
             UpdateLaunchStatusBar(true);
             UpdateLaunchStatusBar(0, $"Reading the vanillaManifest file...");
             MinecraftInstaller installer;
-            bool debug = true;
+            bool debug = false;
+#if DEBUG
+            debug = true;
+#endif
             switch (selectedProfile.Kind)
             {
                 default:
@@ -1567,7 +1570,21 @@ namespace KonkordLauncher
 
         private void InstancesImport_Click(object sender, RoutedEventArgs e)
         {
+            System.Windows.Forms.OpenFileDialog dialog = new System.Windows.Forms.OpenFileDialog();
+            dialog.Title = "Select the instance.zip";
+            dialog.DefaultExt = "zip";
+            dialog.Filter = "(*.zip)|*.zip";
+            dialog.CheckFileExists = true;
+            dialog.CheckPathExists = true;
+            dialog.Multiselect = false;
+            var result = dialog.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                if (!File.Exists(dialog.FileName))
+                    return;
 
+                // Handle stuff in InstanceManager
+            }
         }
     }
 }

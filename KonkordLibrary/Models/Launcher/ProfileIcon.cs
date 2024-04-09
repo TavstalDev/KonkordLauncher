@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
-namespace KonkordLibrary.Models
+namespace KonkordLibrary.Models.Launcher
 {
     [Serializable]
     public class ProfileIcon
@@ -12,8 +12,8 @@ namespace KonkordLibrary.Models
         public string Path { get; set; }
 
         public ProfileIcon() { }
-        public ProfileIcon(string name, string path) 
-        { 
+        public ProfileIcon(string name, string path)
+        {
             Name = name;
             Path = path;
         }

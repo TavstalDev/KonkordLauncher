@@ -1,4 +1,4 @@
-﻿namespace KonkordLibrary.Models
+﻿namespace KonkordLibrary.Models.Launcher
 {
     public class VersionDetails
     {

@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
-namespace KonkordLibrary.Models
+namespace KonkordLibrary.Models.Launcher
 {
     [Serializable]
     public class LauncherSettings
@@ -37,7 +37,7 @@ namespace KonkordLibrary.Models
                         Memory = -1,
                         Resolution = null,
                         JVMArgs = "-XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M -Djava.net.preferIPv4Stack=true"
-                    } 
+                    }
                 },
                 { Guid.NewGuid().ToString(), new Profile()
                     {
@@ -53,7 +53,7 @@ namespace KonkordLibrary.Models
                         Memory= -1,
                         Resolution = null,
                         JVMArgs = "-XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M -Djava.net.preferIPv4Stack=true"
-                    } 
+                    }
                 }
             };
         }

@@ -2,13 +2,13 @@
 using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
-namespace KonkordLibrary.Models
+namespace KonkordLibrary.Models.Launcher
 {
     [Serializable]
     public class Account
     {
         [JsonPropertyName("userId"), JsonProperty("userId")]
-        public string UserId {  get; set; }
+        public string UserId { get; set; }
         [JsonPropertyName("uuid"), JsonProperty("uuid")]
         public string UUID { get; set; }
         [JsonPropertyName("displayName"), JsonProperty("displayName")]

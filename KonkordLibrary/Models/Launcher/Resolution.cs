@@ -1,13 +1,13 @@
 ﻿using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
-namespace KonkordLibrary.Models
+namespace KonkordLibrary.Models.Launcher
 {
     [Serializable]
     public class Resolution
     {
         [JsonPropertyName("x"), JsonProperty("x")]
-        public int X {  get; set; }
+        public int X { get; set; }
         [JsonPropertyName("y"), JsonProperty("y")]
         public int Y { get; set; }
         [JsonPropertyName("isFullScreen"), JsonProperty("isFullScreen")]

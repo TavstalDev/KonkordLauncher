@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 using System.IO;
 using System.Text.Json.Serialization;
 
-namespace KonkordLibrary.Models
+namespace KonkordLibrary.Models.Launcher
 {
     [Serializable]
     public class Profile
@@ -70,7 +70,7 @@ namespace KonkordLibrary.Models
 
         public string GetGameDirectory()
         {
-            VersionDetails version = KonkordLibrary.Managers.GameManager.GetProfileVersionDetails(Kind, VersionId, VersionVanillaId, GameDirectory);
+            VersionDetails version = GameHelper.GetProfileVersionDetails(Kind, VersionId, VersionVanillaId, GameDirectory);
             return version.GameDir;
         }
     }

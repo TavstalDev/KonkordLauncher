@@ -364,6 +364,8 @@ namespace KonkordLauncher
             List<VersionBase> localVersions = new List<VersionBase>();
 
             var manifest = JsonConvert.DeserializeObject<VersionManifest>(File.ReadAllText(Path.Combine(IOHelper.ManifestDir, "vanillaManifest.json")));
+            if (manifest == null)
+                return;
             foreach (var v in manifest.Versions)
             {
                 localVersions.Add(new VersionBase(v.Id, v.Id, v.GetVersionBaseType()));
@@ -380,7 +382,7 @@ namespace KonkordLauncher
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.LoadXml(raw);
             JObject jObj = JObject.Parse(JsonConvert.SerializeXmlNode(doc));
-            foreach (var v in jObj["metadata"]["versioning"]["versions"]["version"].ToList())
+            foreach (var v in jObj["metadata"]?["versioning"]?["versions"]?["version"]?.ToList())
             {
                 string[] s = v.ToString().Split('-');
                 localVersions.Add(new VersionBase(s[1], s[0], EVersionType.RELEASE));
@@ -562,7 +564,7 @@ namespace KonkordLauncher
                 tb_instances_gamedir.Text =  "";
                 tb_instances_javadir.Text = "";
                 tb_instances_name.Text = "";
-                tb_instances_jvm.Text = "-XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M -Djava.net.preferIPv4Stack=true";
+                tb_instances_jvm.Text = Profile.GetDefaultJVMArgs();
                 tb_instances_resolution_x.Text = string.Empty;
                 tb_instances_resolution_y.Text = string.Empty;
                 cb_instances_launchopt.SelectedIndex = 0;
@@ -930,10 +932,12 @@ namespace KonkordLauncher
             if (listbox_launchinstances.SelectedIndex < 0)
                 return;
 
-            ListBox listBox = e.Source as ListBox;
+            ListBox? listBox = e.Source as ListBox;
+            if (listBox == null)
+                return;
             try
             {
-                KeyValuePair<string, Profile> addedItem = (KeyValuePair<string, Profile>)e.AddedItems[0];
+                KeyValuePair<string, Profile>? addedItem = (KeyValuePair<string, Profile>?)e.AddedItems[0];
                 listBox.Resources["SelectedIndex"] = listBox.Items.IndexOf(addedItem);
 
                 LauncherSettings? settings = IOHelper.GetLauncherSettings();
@@ -1568,7 +1572,7 @@ namespace KonkordLauncher
 
         #endregion
 
-        private void InstancesImport_Click(object sender, RoutedEventArgs e)
+        private async void InstancesImport_Click(object sender, RoutedEventArgs e)
         {
             System.Windows.Forms.OpenFileDialog dialog = new System.Windows.Forms.OpenFileDialog();
             dialog.Title = "Select the instance.zip";
@@ -1583,7 +1587,7 @@ namespace KonkordLauncher
                 if (!File.Exists(dialog.FileName))
                     return;
 
-                // Handle stuff in InstanceManager
+               await InstanceManager.HandleInstanceZipImport(dialog.FileName);
             }
         }
     }

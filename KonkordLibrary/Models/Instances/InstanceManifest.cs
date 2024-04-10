@@ -7,8 +7,6 @@ namespace KonkordLibrary.Models.Instances
 {
     public class InstanceManifest : Profile
     {
-        [JsonProperty("useFileServer"), JsonPropertyName("useFileServer")]
-        public bool UseFileServer { get; set; }
         [JsonProperty("fileServer"), JsonPropertyName("fileServer")]
         public string? FileServer { get; set; }
         [JsonProperty("modList"), JsonPropertyName("modList")]
@@ -18,9 +16,8 @@ namespace KonkordLibrary.Models.Instances
 
         public InstanceManifest() { }
 
-        public InstanceManifest(bool useFileServer, string? fileServer, List<string> modList, int manifestVersion, string name, string icon, string versionId, string versionVanillaId, EProfileType type, EProfileKind kind, Resolution resolution, string gameDirectory, string javaPath, string jVMArgs, int memory, ELaucnherVisibility launcherVisibility)
+        public InstanceManifest(string? fileServer, List<string> modList, int manifestVersion, string name, string icon, string versionId, string versionVanillaId, EProfileType type, EProfileKind kind, Resolution resolution, string gameDirectory, string javaPath, string jVMArgs, int memory, ELaucnherVisibility launcherVisibility)
         {
-            UseFileServer = useFileServer;
             FileServer = fileServer;
             ModList = modList;
             ManifestVersion = manifestVersion;
@@ -36,6 +33,26 @@ namespace KonkordLibrary.Models.Instances
             JVMArgs = jVMArgs;
             Memory = memory;
             LauncherVisibility = launcherVisibility;
+        }
+
+        public Profile GetProfile()
+        {
+            return new Profile()
+            {
+                Name = Name,
+                Icon = Icon,
+                VersionId = VersionId,
+                VersionVanillaId = VersionVanillaId,
+                Type = Type,
+                Kind = Kind,
+                Resolution = Resolution,
+                GameDirectory = GameDirectory,
+                JavaPath = JavaPath,
+                JVMArgs = JVMArgs,
+                Memory = Memory,
+                LauncherVisibility = LauncherVisibility
+                
+            };
         }
     }
 }

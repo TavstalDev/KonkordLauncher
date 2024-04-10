@@ -321,7 +321,11 @@ namespace KonkordLibrary.Helpers
                     {
                         if (TranslationManager.LanguagePacks.Any(x => x.TwoLetterCode == locale))
                         {
-                            string? resultJson = await HttpHelper.GetStringAsync(TranslationManager.LanguagePacks.Find(x => x.TwoLetterCode == locale)?.Url);
+                            Language? lang = TranslationManager.LanguagePacks.Find(x => x.TwoLetterCode == locale);
+                            if (lang == null)
+                                return false;
+
+                            string ? resultJson = await HttpHelper.GetStringAsync(lang.Url);
                             if (resultJson == null)
                                 return false;
                             Dictionary<string, string> translation = new Dictionary<string, string>();
@@ -418,7 +422,7 @@ namespace KonkordLibrary.Helpers
         /// <param name="destinationDir">The path of the destination directory.</param>
         /// <param name="recursive">A flag indicating whether to move the directory recursively.</param>
         /// <param name="deleteSource">A flag indicating whether to delete the source directory after moving.</param>
-        public static void MoveDirectory(string sourceDir, string destinationDir, bool recursive, bool deleteSource = true)
+        public static void MoveDirectory(string sourceDir, string destinationDir, bool recursive, bool deleteSource = true, bool overwrite = true)
         {
             // Get information about the source directory
             var dir = new DirectoryInfo(sourceDir);
@@ -437,7 +441,8 @@ namespace KonkordLibrary.Helpers
             foreach (FileInfo file in dir.GetFiles())
             {
                 string targetFilePath = Path.Combine(destinationDir, file.Name);
-                file.CopyTo(targetFilePath, true);
+                if (overwrite || (!overwrite && !File.Exists(targetFilePath)))
+                    file.CopyTo(targetFilePath, true);
             }
 
             // If recursive and copying subdirectories, recursively call this method

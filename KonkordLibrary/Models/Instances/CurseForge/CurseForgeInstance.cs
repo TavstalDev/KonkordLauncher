@@ -1,4 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿using KonkordLibrary.Enums;
+using KonkordLibrary.Helpers;
+using KonkordLibrary.Models.Launcher;
+using Newtonsoft.Json;
+using System.IO;
 using System.Text.Json.Serialization;
 
 namespace KonkordLibrary.Models.Instances.CurseForge
@@ -32,6 +36,57 @@ namespace KonkordLibrary.Models.Instances.CurseForge
             Author = author;
             Files = files;
             Overrides = overrides;
+        }
+
+        public Profile GetProfile()
+        {
+            string gameDir = Path.Combine(IOHelper.InstancesDir, Name);
+
+            EProfileKind kind = EProfileKind.VANILLA;
+            string versionId = Minecraft.Version;
+            if (Minecraft.ModLoaders != null)
+            {
+                CurseModLoader? curseModLoader = Minecraft.ModLoaders.FirstOrDefault(x => x.IsPrimary);
+                if (curseModLoader != null)
+                {
+                    if (curseModLoader.Id.Contains("neoforge"))
+                    {
+                        kind = EProfileKind.FORGE;
+                        versionId = curseModLoader.Id.Replace("neoforge", "");
+                    }
+                    else if (curseModLoader.Id.Contains("fabric"))
+                    {
+                        kind = EProfileKind.FABRIC;
+                        versionId = curseModLoader.Id.Replace("fabric", "");
+                    }
+                    else if (curseModLoader.Id.Contains("quilt"))
+                    {
+                        kind = EProfileKind.QUILT;
+                        versionId = curseModLoader.Id.Replace("quilt", "");
+                    }
+                    else if (curseModLoader.Id.Contains("forge"))
+                    {
+                        kind = EProfileKind.FORGE;
+                        versionId = curseModLoader.Id.Replace("forge", "");
+                    }
+                }
+            }
+
+            return new Profile()
+            {
+                Name = Name,
+                Icon = ProfileIcon.Icons.ElementAt(0).Path,
+                GameDirectory = gameDir,
+                JavaPath = string.Empty,
+                JVMArgs = Profile.GetDefaultJVMArgs(),
+                Kind = kind,
+                Memory = -1,
+                Resolution = null,
+                Type = Enums.EProfileType.CUSTOM,
+                VersionId = versionId,
+                VersionVanillaId = Minecraft.Version,
+                LauncherVisibility = Enums.ELaucnherVisibility.HIDE_AND_REOPEN_ON_GAME_CLOSE
+            };
         }
     }
 }

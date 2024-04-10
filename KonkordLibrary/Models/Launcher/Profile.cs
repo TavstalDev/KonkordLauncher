@@ -22,7 +22,7 @@ namespace KonkordLibrary.Models.Launcher
         [JsonPropertyName("kind"), JsonProperty("kind")]
         public EProfileKind Kind { get; set; }
         [JsonPropertyName("resolution"), JsonProperty("resolution")]
-        public Resolution Resolution { get; set; }
+        public Resolution? Resolution { get; set; }
         [JsonPropertyName("gameDirectory"), JsonProperty("gameDirectory")]
         public string GameDirectory { get; set; }
         [JsonPropertyName("javaPath"), JsonProperty("javaPath")]
@@ -52,7 +52,7 @@ namespace KonkordLibrary.Models.Launcher
             LauncherVisibility = launcherVisibility;
         }
 
-        public Profile(string name, string icon, string versionId, string versionVanillaId, EProfileType type, EProfileKind kind, Resolution resolution, int memory, ELaucnherVisibility launcherVisibility)
+        public Profile(string name, string icon, string versionId, string versionVanillaId, EProfileType type, EProfileKind kind, Resolution? resolution, int memory, ELaucnherVisibility launcherVisibility)
         {
             Name = name;
             Icon = icon;
@@ -63,7 +63,7 @@ namespace KonkordLibrary.Models.Launcher
             Resolution = resolution;
             GameDirectory = Path.Combine(IOHelper.InstancesDir, name);
             JavaPath = string.Empty;
-            JVMArgs = "-XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M -Djava.net.preferIPv4Stack=true";
+            JVMArgs = GetDefaultJVMArgs();
             Memory = memory;
             LauncherVisibility = launcherVisibility;
         }
@@ -72,6 +72,11 @@ namespace KonkordLibrary.Models.Launcher
         {
             VersionDetails version = GameHelper.GetProfileVersionDetails(Kind, VersionId, VersionVanillaId, GameDirectory);
             return version.GameDir;
+        }
+
+        public static string GetDefaultJVMArgs()
+        {
+            return "-XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M -Djava.net.preferIPv4Stack=true";
         }
     }
 }

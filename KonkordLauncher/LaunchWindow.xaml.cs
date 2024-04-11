@@ -915,11 +915,13 @@ namespace KonkordLauncher
                     }
             }
 
-#if DEBUG
-            string o = process.StandardError.ReadToEnd();
-            if (!string.IsNullOrEmpty(o))
-                NotificationHelper.SendErrorMsg(o, "Error - Minecraft");
-#endif
+            if (debug)
+            {
+                string o = process.StandardError.ReadToEnd();
+                if (!string.IsNullOrEmpty(o))
+                    NotificationHelper.SendErrorMsg(o, "Error - Minecraft");
+            }
+
         }
 
         /// <summary>
@@ -1587,7 +1589,26 @@ namespace KonkordLauncher
                 if (!File.Exists(dialog.FileName))
                     return;
 
-               await InstanceManager.HandleInstanceZipImport(dialog.FileName);
+                // Hide instance editor
+                bo_instances.IsEnabled = false;
+                bo_instances.Visibility = Visibility.Hidden;
+
+                // Disable play button
+                bo_launch_play.IsEnabled = false;
+                btn_launch_play.IsEnabled = false;
+                // Enable progressbar
+                UpdateLaunchStatusBar(true);
+                UpdateLaunchStatusBar(0, $"Importing instance...");
+
+                await InstanceManager.HandleInstanceZipImport(dialog.FileName, pb_launch_progress, lab_launch_progress);
+
+                RefreshInstances();
+
+                // Enable play button
+                bo_launch_play.IsEnabled = true;
+                btn_launch_play.IsEnabled = true;
+                // Disable progressbar
+                UpdateLaunchStatusBar(false);
             }
         }
     }

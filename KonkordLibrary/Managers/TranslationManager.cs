@@ -105,7 +105,11 @@ namespace KonkordLibrary.Managers
             { "ui_java_dir", "Java Directory" },
             { "ui_browse", "BROWSE" },
             { "ui_orimport", "Or Import..." },
-            { "ui_reading_asset_index_json", "Reading asset index json..." }
+            { "ui_reading_asset_index_json", "Reading asset index json..." },
+            { "ui_copying_instance_ovverrides", "Copying instance overrides..." },
+            { "ui_downloading_mods", "Downloading mods..." },
+            { "ui_downloading_mod_manifest", "Downloading mod manifest of '{0}'... {1}%" },
+            { "ui_downloading_mod", "Downloading the '{0}' mod... {1}%" }
         };
 
         public static Dictionary<string, string> DefaultTranslations { get { return _defaultTranslations; } }

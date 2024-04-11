@@ -4,13 +4,18 @@ using KonkordLibrary.Models.Instances.CurseForge;
 using KonkordLibrary.Models.Launcher;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Windows.Controls;
 
 namespace KonkordLibrary.Managers
 {
     public static class InstanceManager
     {
+        private static ProgressBar? _progressBar {  get; set; }
+        private static Label? _label {  get; set; }
+
         /// <summary>
         /// Asynchronously handles the import of a Minecraft instance from a ZIP file located at the specified file path.
         /// </summary>
@@ -18,28 +23,39 @@ namespace KonkordLibrary.Managers
         /// <returns>
         /// A <see cref="Task"/> representing the asynchronous operation.
         /// </returns>
-        public static async Task HandleInstanceZipImport(string filePath)
+        public static async Task HandleInstanceZipImport(string filePath, ProgressBar? progressBar, Label? progressbarLabel)
         {
+            _progressBar = progressBar;
+            _label = progressbarLabel;
+
             // Get the temporal dir name from file
             filePath = filePath.Replace("/", "\\");
             string zipName = filePath.Remove(filePath.LastIndexOf('.'), filePath.Length - filePath.LastIndexOf('.')); // remove file format
             zipName = zipName.Remove(0, zipName.LastIndexOf('\\') + 1);
 
-            string instanceDir = Path.Combine(IOHelper.TempDir, zipName); 
+            string instanceDir = Path.Combine(IOHelper.TempDir, zipName);
+            
             if (Directory.Exists(instanceDir))
                 IOHelper.DeleteDirectory(instanceDir);
 
             // Extract the zip
             ZipFile.ExtractToDirectory(filePath, instanceDir);
 
-            // Handle the extracted stuff
-            if (File.Exists(Path.Combine(instanceDir, "manifest.json")))
+            try
             {
-                await HandleCurseForgeZipImport(instanceDir);
+                // Handle the extracted stuff
+                if (File.Exists(Path.Combine(instanceDir, "manifest.json")))
+                {
+                    await HandleCurseForgeZipImport(instanceDir);
+                }
+                else if (File.Exists(Path.Combine(instanceDir, "instance.json")))
+                {
+                    await HandleKonkordZipImport(instanceDir);
+                }
             }
-            else if (File.Exists(Path.Combine(instanceDir, "instance.json")))
+            catch (Exception ex)
             {
-                await HandleKonkordZipImport(instanceDir);
+                Debug.WriteLine(ex);
             }
 
             // Delete temporal files
@@ -57,7 +73,8 @@ namespace KonkordLibrary.Managers
         private static async Task HandleCurseForgeZipImport(string instanceDir)
         {
             string manifestPath = Path.Combine(instanceDir, "manifest.json");
-            CurseForgeInstance? manifest = JsonConvert.DeserializeObject<CurseForgeInstance>(manifestPath);
+            string rawManifestJson = await File.ReadAllTextAsync(manifestPath);
+            CurseForgeInstance? manifest = JsonConvert.DeserializeObject<CurseForgeInstance>(rawManifestJson);
             if (manifest == null)
                 return;
 
@@ -77,13 +94,17 @@ namespace KonkordLibrary.Managers
             if (!Directory.Exists(overridesDir))
                 return;
 
+            // Create Profile Dir
+            if (!Directory.Exists(profile.GameDirectory))
+                Directory.CreateDirectory(profile.GameDirectory);
+
             // Import files
+            UpdateProgressbarTranslated(0, "ui_copying_instance_ovverrides");
             foreach (string file in Directory.GetFiles(overridesDir))
             {
                 string? fileName = Path.GetFileName(file)?.ToString();
                 if (string.IsNullOrEmpty(fileName))
                     continue;
-                fileName = fileName.Remove(fileName.LastIndexOf('.'), fileName.Length - fileName.LastIndexOf('.'));
 
                 string targetFilePath = Path.Combine(profile.GameDirectory, fileName);
                 if (File.Exists(file) && !File.Exists(targetFilePath))
@@ -105,25 +126,71 @@ namespace KonkordLibrary.Managers
                 }
             }
 
+            // Create mods dir
+            string modsDir = Path.Combine(profile.GameDirectory, "mods");
+            if (!Directory.Exists(modsDir))
+                Directory.CreateDirectory(modsDir);
+
             // Download Mods
+            UpdateProgressbarTranslated(0, "ui_downloading_mods");
             foreach (CurseFile mod in manifest.Files)
             {
-                byte[]? bytes = await HttpHelper.GetByteArrayAsync($"https://www.curseforge.com/api/v1/mods/{mod.ProjectId}/files/{mod.FileId}/download");
-                if (bytes == null)
-                    continue;
+                Progress<double> progress = new Progress<double>();
+                progress.ProgressChanged += (sender, e) =>
+                {
+                    UpdateProgressbarTranslated(e, "ui_downloading_mod_manifest", new object[] { mod.ProjectId, e.ToString("0.00") });
+                };
 
-                string? rawManifest = await HttpHelper.GetStringAsync($"https://www.curseforge.com/api/v1/mods/{mod.ProjectId}/files/{mod.FileId}");
+                string? rawManifest = await HttpHelper.GetStringAsync($"https://www.curseforge.com/api/v1/mods/{mod.ProjectId}/files/{mod.FileId}", progress);
                 if (rawManifest == null)
                     continue;
+
                 JObject modManifest = JObject.Parse(rawManifest);
 
-                string? modName = modManifest["data"]?["fileName"]?.ToString();
+                string? modName = modManifest?["data"]?["fileName"]?.ToString();
+                string? modDisplayName = modManifest?["data"]?["displayName"]?.ToString() ?? modName;
                 if (string.IsNullOrEmpty(modName))
                     continue;
 
-                string filePath = Path.Combine(profile.GameDirectory, "mods", modName);
-                if (!File.Exists(filePath))
-                    await File.WriteAllBytesAsync(filePath, bytes);
+                JToken? gameVersions = modManifest?["data"]?["gameVersions"];
+
+                string parentDir = modsDir;
+                // Not a mod check
+                if (gameVersions != null && modName.EndsWith(".zip"))
+                {
+                    // Shader
+                    if (gameVersions.Any(x => x.ToString() == "OptiFine") || gameVersions.Any(x => x.ToString() == "Iris") || gameVersions.Any(x => x.ToString() == "Oculus"))
+                    {
+                        parentDir = Path.Combine(profile.GameDirectory, "shaderpacks");
+                    }
+                    else // Resourcepack
+                    {
+                        parentDir = Path.Combine(profile.GameDirectory, "resourcepacks");
+                    }
+                }
+
+               
+
+                string filePath = Path.Combine(parentDir, modName);
+                if (!mod.Required)
+                    filePath += ".disabled";
+                if (File.Exists(filePath))
+                    continue;
+
+                progress = new Progress<double>();
+                progress.ProgressChanged += (sender, e) =>
+                {
+                    UpdateProgressbarTranslated(e, "ui_downloading_mod", new object[] { modDisplayName, e.ToString("0.00") });
+                };
+
+                byte[]? bytes = await HttpHelper.GetByteArrayAsync($"https://www.curseforge.com/api/v1/mods/{mod.ProjectId}/files/{mod.FileId}/download", progress);
+                if (bytes == null)
+                    continue;
+
+                if (!Directory.Exists(parentDir))
+                    Directory.CreateDirectory(parentDir);
+
+                await File.WriteAllBytesAsync(filePath, bytes);
             }
         }
 
@@ -137,7 +204,8 @@ namespace KonkordLibrary.Managers
         private static async Task HandleKonkordZipImport(string instanceDir)
         {
             string profileJsonPath = Path.Combine(instanceDir, "profile.json");
-            InstanceManifest? manifest = JsonConvert.DeserializeObject<InstanceManifest>(profileJsonPath);
+            string rawManifest = await File.ReadAllTextAsync(profileJsonPath);
+            InstanceManifest? manifest = JsonConvert.DeserializeObject<InstanceManifest>(rawManifest);
             if (manifest == null)
                 return;
 
@@ -161,7 +229,10 @@ namespace KonkordLibrary.Managers
             if (!Directory.Exists(versionDetails.GameDir))
                 Directory.CreateDirectory(versionDetails.GameDir);
 
+            Progress<double> progress = new Progress<double>();
+
             // Import options.txt
+            UpdateProgressbarTranslated(0, "ui_copying_instance_ovverrides");
             string fileToCheck = Path.Combine(overridesDir, "options.txt");
             string targetFilePath = Path.Combine(versionDetails.GameDir, "options.txt");
             if (File.Exists(fileToCheck) && !File.Exists(targetFilePath))
@@ -201,7 +272,13 @@ namespace KonkordLibrary.Managers
                 string modName = mod.Remove(0, mod.LastIndexOf('/') + 1);
                 string modUrl = manifest.FileServer != null ? Path.Combine(manifest.FileServer, mod) : mod;
 
-                byte[]? modBytes = await HttpHelper.GetByteArrayAsync(modUrl);
+                progress = new Progress<double>();
+                progress.ProgressChanged += (sender, e) =>
+                {
+                    UpdateProgressbarTranslated(e, "ui_downloading_mod", new object[] { modName, e.ToString("0.00") });
+                };
+
+                byte[]? modBytes = await HttpHelper.GetByteArrayAsync(modUrl, progress);
                 if (modBytes == null)
                     continue;
 
@@ -219,6 +296,20 @@ namespace KonkordLibrary.Managers
         public static async Task ExportCurseForgeInstance(Profile profile, string targetPath)
         {
             await Task.Delay(1);
+        }
+
+        /// <summary>
+        /// Updates the progress bar with the specified percentage and text.
+        /// </summary>
+        /// <param name="percent">The percentage value for the progress bar.</param>
+        /// <param name="text">The text to display along with the progress bar.</param>
+        private static void UpdateProgressbarTranslated(double percent, string text, params object[]? args)
+        {
+            if (_label == null || _progressBar == null)
+                return;
+
+            _label.Content = TranslationManager.Translate(text, args);
+            _progressBar.Value = percent > _progressBar.Maximum ? _progressBar.Maximum : percent;
         }
     }
 }

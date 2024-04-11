@@ -52,22 +52,22 @@ namespace KonkordLibrary.Models.Instances.CurseForge
                     if (curseModLoader.Id.Contains("neoforge"))
                     {
                         kind = EProfileKind.FORGE;
-                        versionId = curseModLoader.Id.Replace("neoforge", "");
+                        versionId = curseModLoader.Id.Replace("neoforge", "").Replace("-", "");
                     }
                     else if (curseModLoader.Id.Contains("fabric"))
                     {
                         kind = EProfileKind.FABRIC;
-                        versionId = curseModLoader.Id.Replace("fabric", "");
+                        versionId = curseModLoader.Id.Replace("fabric", "").Replace("-", "");
                     }
                     else if (curseModLoader.Id.Contains("quilt"))
                     {
                         kind = EProfileKind.QUILT;
-                        versionId = curseModLoader.Id.Replace("quilt", "");
+                        versionId = curseModLoader.Id.Replace("quilt", "").Replace("-", "");
                     }
                     else if (curseModLoader.Id.Contains("forge"))
                     {
                         kind = EProfileKind.FORGE;
-                        versionId = curseModLoader.Id.Replace("forge", "");
+                        versionId = curseModLoader.Id.Replace("forge", "").Replace("-", "");
                     }
                 }
             }
@@ -75,7 +75,7 @@ namespace KonkordLibrary.Models.Instances.CurseForge
             return new Profile()
             {
                 Name = Name,
-                Icon = ProfileIcon.Icons.ElementAt(0).Path,
+                Icon = ProfileIcon.Icons.ElementAt(MathHelper.Next(0, ProfileIcon.Icons.Count - 1)).Path,
                 GameDirectory = gameDir,
                 JavaPath = string.Empty,
                 JVMArgs = Profile.GetDefaultJVMArgs(),

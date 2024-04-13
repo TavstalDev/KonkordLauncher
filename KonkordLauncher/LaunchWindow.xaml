@@ -112,12 +112,12 @@
                                 </Border>
                                 <Label x:Name="lab_listTemplate" Grid.ColumnSpan="2" Grid.Column="1" Content="{Binding Value.Name}" HorizontalAlignment="Center" Margin="{DynamicResource ListLabelMargin}" VerticalAlignment="Center" Foreground="#BFFFFFFF" FontSize="{DynamicResource ListLabelFontSize}" Width="{DynamicResource ListLabelWidth}" Height="{DynamicResource ListLabelHeight}" Padding="0,0,0,0" VerticalContentAlignment="Center"/>
                                 <ComboBox SelectionChanged="InstanceActionBox_SelectionChanged" SelectedIndex="-1" Margin="0,0,5,0" FontFamily="{StaticResource FontAwesome}" Grid.ColumnSpan="2" Style="{StaticResource MenuComboBox}" IsTextSearchEnabled="False" Foreground="White" HorizontalAlignment="Right" Grid.Column="2" FontSize="12" Visibility="{Binding Value.Type, Converter={StaticResource ETVConverter}, ConverterParameter={x:Static lib:EProfileType.CUSTOM}}">
-                                    <ComboBox.Resources>
-                                        <sys:Double x:Key="VersionTypeListFontSize">10</sys:Double>
-                                    </ComboBox.Resources>
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
-                                            <TextBlock FontSize="{DynamicResource VersionTypeListFontSize}" Text="{Binding Id}"></TextBlock>
+                                            <Grid>
+                                                <TextBlock FontSize="{DynamicResource ListButtonFontSize}" Text="{Binding Icon}" FontFamily="{StaticResource FontAwesome}"></TextBlock>
+                                                <TextBlock FontSize="{DynamicResource ListButtonFontSize}" Margin="5,0,0,0" Text="{Binding Name}"></TextBlock>
+                                            </Grid>
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
                                     <ComboBox.Items>

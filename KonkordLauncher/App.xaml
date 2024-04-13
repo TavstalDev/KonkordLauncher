@@ -248,7 +248,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type ToggleButton}">
-                        <Border Background="Transparent" x:Name="border" CornerRadius="0,4,4,0" BorderThickness="0,1,1,1" BorderBrush="Transparent">
+                        <Border Background="#30000000" BorderBrush="#30000000" x:Name="border" CornerRadius="4,4,4,4" BorderThickness="1,1,1,1">
                             <ContentPresenter />
                         </Border>
                         <ControlTemplate.Triggers>
@@ -266,7 +266,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type TextBox}">
                         <Grid>
-                            <Border CornerRadius="4,0,0,4" BorderThickness="1,1,0,1" Background="Transparent" BorderBrush="Transparent">
+                            <Border CornerRadius="4,4,4,4" BorderThickness="1,1,0,1" Background="#33000000" BorderBrush="#33000000">
                                 <ScrollViewer x:Name="PART_ContentHost"/>
                             </Border>
                         </Grid>
@@ -283,13 +283,15 @@
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="0"/>
-                                <ColumnDefinition MaxWidth="20"/>
+                                <ColumnDefinition MaxWidth="15" />
                             </Grid.ColumnDefinitions>
-                            <TextBox Name="PART_EditableTextBox" IsReadOnly="True" IsHitTestVisible="False"  Style="{StaticResource MenuComboboxTextBox}"  Padding="5,0,0,0"  Height="{TemplateBinding Height}"/>
-                            <ToggleButton Grid.Column="1" Margin="0" Height="{TemplateBinding Height}"  Style="{StaticResource MenuComboboxButton}"  Focusable="False"  IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"  ClickMode="Press">
-                                <TextBlock Foreground="White" Text="&#xf142;" FontSize="12" FontFamily="{StaticResource FontAwesome}" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                            <TextBox Name="PART_EditableTextBox" IsReadOnly="True" IsHitTestVisible="False"  Style="{StaticResource MenuComboboxTextBox}"  Padding="0,0,0,0" Width="0"/>
+                            
+                            <ToggleButton Grid.Column="1" Margin="0,5,0,5" Width="30px" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Style="{StaticResource MenuComboboxButton}"  Focusable="False"  IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"  ClickMode="Press">
+                                <TextBlock Foreground="#FFE4E4E4" Text="&#xf142;" FontSize="16" FontFamily="{StaticResource FontAwesome}" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center" />
                             </ToggleButton>
-                            <ContentPresenter Name="ContentSite" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10,0,0,0"/>
+                            
+                            <ContentPresenter Name="ContentSite" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,0,0"/>
                             <Popup Name="Popup"  Placement="Bottom"  IsOpen="{TemplateBinding IsDropDownOpen}"  AllowsTransparency="True"   Focusable="False"  PopupAnimation="Slide">
                                 <Grid Name="DropDown" SnapsToDevicePixels="True" MinWidth="{TemplateBinding ActualWidth}" MaxHeight="{TemplateBinding MaxDropDownHeight}">
                                     <Border x:Name="DropDownBorder" BorderThickness="1" CornerRadius="4" Background="#FF353743" BorderBrush="#FF5D6F95"/>

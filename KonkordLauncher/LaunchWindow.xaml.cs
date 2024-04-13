@@ -514,6 +514,8 @@ namespace KonkordLauncher
             lab_launc_play.Content = TranslationManager.Translate("ui_play");
 
 
+            listbox_launchinstances.UpdateLayout();
+
             // Instance
             lab_instances.Content = TranslationManager.Translate("ui_new_instance");
             lab_instances_name.Content = TranslationManager.Translate("ui_instance_name");
@@ -646,8 +648,8 @@ namespace KonkordLauncher
                 }
 
                 scroll_instances.ScrollToTop();
-                img_instances_icon.Source = new BitmapImage(new Uri(profile.Icon));
-                SelectedIcon = profile.Icon;
+                SelectedIcon = profile.Icon.StartsWith("/assets") ? "pack://application:,,," + profile.Icon : profile.Icon;
+                img_instances_icon.Source = new BitmapImage(new Uri(SelectedIcon));
                 tb_instances_gamedir.Text = EditedProfile.GameDirectory ?? "";
                 tb_instances_javadir.Text = EditedProfile.JavaPath ?? "";
                 tb_instances_name.Text = EditedProfile.Name;

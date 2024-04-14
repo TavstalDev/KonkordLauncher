@@ -115,15 +115,30 @@
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
                                             <Grid>
-                                                <TextBlock FontSize="{DynamicResource ListButtonFontSize}" Text="{Binding Icon}" FontFamily="{StaticResource FontAwesome}"></TextBlock>
-                                                <TextBlock FontSize="{DynamicResource ListButtonFontSize}" Margin="5,0,0,0" Text="{Binding Name}"></TextBlock>
+                                                <TextBlock FontSize="{DynamicResource ListButtonFontSize}" Margin="0,0,15,0" FontFamily="{StaticResource FontAwesome}"></TextBlock>
+                                                <TextBlock FontSize="{DynamicResource ListButtonFontSize}" Margin="0,0,0,0"></TextBlock>
                                             </Grid>
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
                                     <ComboBox.Items>
-                                        <ComboBoxItem Tag="{Binding}" x:Name="edit" FontFamily="{StaticResource FontAwesome}" Content="{DynamicResource BtnTextEdit}"></ComboBoxItem>
-                                        <ComboBoxItem Tag="{Binding}" x:Name="opendir" FontFamily="{StaticResource FontAwesome}" Content="{DynamicResource BtnTextOpenDir}"></ComboBoxItem>
-                                        <ComboBoxItem Tag="{Binding}" x:Name="delete" FontFamily="{StaticResource FontAwesome}" Content="{DynamicResource BtnTextDel}"></ComboBoxItem>
+                                        <ComboBoxItem Tag="{Binding}" x:Name="edit" FontFamily="{StaticResource FontAwesome}">
+                                            <Grid>
+                                                <TextBlock Text="&#xf044;"></TextBlock>
+                                                <TextBlock Margin="17,0,0,0" Text="{DynamicResource BtnTextEdit}"></TextBlock>
+                                            </Grid>
+                                        </ComboBoxItem>
+                                        <ComboBoxItem Tag="{Binding}" x:Name="opendir" FontFamily="{StaticResource FontAwesome}">
+                                            <Grid>
+                                                <TextBlock Text="&#xf07b;"></TextBlock>
+                                                <TextBlock Margin="17,0,0,0" Text="{DynamicResource BtnTextOpenDir}"></TextBlock>
+                                            </Grid>
+                                        </ComboBoxItem>
+                                        <ComboBoxItem Tag="{Binding}" x:Name="delete" FontFamily="{StaticResource FontAwesome}">
+                                            <Grid>
+                                                <TextBlock Text="&#xf1f8;"></TextBlock>
+                                                <TextBlock Margin="17,0,0,0" Text="{DynamicResource BtnTextDel}"></TextBlock>
+                                            </Grid>
+                                        </ComboBoxItem>
                                     </ComboBox.Items>
                                 </ComboBox>
                             </Grid>

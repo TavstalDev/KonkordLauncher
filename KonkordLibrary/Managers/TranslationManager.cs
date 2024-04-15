@@ -109,7 +109,8 @@ namespace KonkordLibrary.Managers
             { "ui_copying_instance_ovverrides", "Copying instance overrides..." },
             { "ui_downloading_mods", "Downloading mods..." },
             { "ui_downloading_mod_manifest", "Downloading mod manifest of '{0}'... {1}%" },
-            { "ui_downloading_mod", "Downloading the '{0}' mod... {1}%" }
+            { "ui_downloading_mod", "Downloading the '{0}' mod... {1}%" },
+            { "ui_instance_export", "Export Instance" }
         };
 
         public static Dictionary<string, string> DefaultTranslations { get { return _defaultTranslations; } }

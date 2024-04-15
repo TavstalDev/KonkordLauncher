@@ -113,7 +113,7 @@ namespace KonkordLibrary.Managers
                 }
             }
 
-            // Import dirs
+            // Import dir
             foreach (string dirPath in Directory.GetDirectories(overridesDir))
             {
                 string? dirName = Path.GetDirectoryName(dirPath)?.ToString();
@@ -231,23 +231,17 @@ namespace KonkordLibrary.Managers
 
             Progress<double> progress = new Progress<double>();
 
-            // Import options.txt
+            // Import files
             UpdateProgressbarTranslated(0, "ui_copying_instance_ovverrides");
-            string fileToCheck = Path.Combine(overridesDir, "options.txt");
-            string targetFilePath = Path.Combine(versionDetails.GameDir, "options.txt");
-            if (File.Exists(fileToCheck) && !File.Exists(targetFilePath))
-                File.Move(fileToCheck, targetFilePath);
+            foreach (string file in Directory.GetFiles(instanceDir))
+            {
+                string fileName = file.Replace("/", "\\");
+                fileName = fileName.Remove(0, fileName.LastIndexOf("\\") + 1);
 
-            // Import servers.dat and server.dat_old
-            fileToCheck = Path.Combine(overridesDir, "servers.dat");
-            targetFilePath = Path.Combine(versionDetails.GameDir, "servers.dat");
-            if (File.Exists(fileToCheck) && !File.Exists(targetFilePath))
-                File.Move(fileToCheck, targetFilePath);
-
-            fileToCheck = Path.Combine(overridesDir, "servers.dat_old");
-            targetFilePath = Path.Combine(versionDetails.GameDir, "servers.dat_old");
-            if (File.Exists(fileToCheck) && !File.Exists(targetFilePath))
-                File.Move(fileToCheck, targetFilePath);
+                string filePath = Path.Combine(versionDetails.GameDir, fileName);
+                if (File.Exists(file) && !File.Exists(filePath))
+                    File.Copy(file, filePath);
+            }
 
             // Import directories
             foreach (string dirPath in Directory.GetDirectories(overridesDir))
@@ -290,7 +284,47 @@ namespace KonkordLibrary.Managers
 
         public static async Task ExportKonkordInstance(Profile profile, string targetPath)
         {
-            await Task.Delay(1);
+            // Create tempDir
+            string tempDir = Path.Combine(IOHelper.TempDir, profile.Name);
+            if (Directory.Exists(tempDir))
+            {
+                IOHelper.DeleteDirectory(tempDir);
+                Directory.CreateDirectory(tempDir);
+            }
+            else
+                Directory.CreateDirectory(tempDir);
+
+            VersionDetails versionDetails = GameHelper.GetProfileVersionDetails(profile.Kind, profile.VersionId, profile.VersionVanillaId, profile.GameDirectory);
+
+            // Copy directories
+            foreach (string dir in Directory.GetDirectories(versionDetails.GameDir))
+            {
+                if (!(dir.Contains("config") || dir.Contains("logs") || dir.Contains("downloads") || dir.Contains(".fabric") || !dir.Contains("mods") || dir.Contains("resourcepacks") || dir.Contains("saves") || dir.Contains("shaderpacks")))
+                    continue;
+
+                string localDir = dir.Replace("/", "\\");
+                string dirName = localDir.Remove(0, localDir.LastIndexOf('\\') + 1);
+
+                IOHelper.MoveDirectory(dir, Path.Combine(tempDir, "overrides", dirName), true, false);
+            }
+
+            // Copy files
+            foreach (string file in Directory.GetFiles(versionDetails.GameDir))
+            {
+                string localFile = file.Replace("/", "\\");
+                string fileName = localFile.Remove(0, localFile.LastIndexOf('\\') + 1);
+
+                File.Copy(file, Path.Combine(tempDir, "overrides", fileName), true);
+            }
+
+            // Write manifest
+            InstanceManifest manifest = new InstanceManifest(string.Empty, new List<string>(), 1, profile.Name, profile.Icon, profile.VersionId, profile.VersionVanillaId, profile.Type, profile.Kind, profile.Resolution, profile.GameDirectory, profile.JavaPath, profile.JVMArgs, profile.Memory, profile.LauncherVisibility);
+            string manifestJson = Path.Combine(tempDir, "profile.json");
+            await File.WriteAllTextAsync(manifestJson, JsonConvert.SerializeObject(manifest));
+
+
+            // Copy zip
+            ZipFile.CreateFromDirectory(tempDir, targetPath);
         }
 
         public static async Task ExportCurseForgeInstance(Profile profile, string targetPath)

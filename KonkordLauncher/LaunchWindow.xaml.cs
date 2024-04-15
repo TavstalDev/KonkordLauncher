@@ -21,6 +21,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using KonkordLibrary.Managers;
 using KonkordLibrary.Models.Launcher;
+using System.IO.Compression;
 
 namespace KonkordLauncher
 {
@@ -511,6 +512,7 @@ namespace KonkordLauncher
             listbox_launchinstances.Resources["BtnTextEdit"] = TranslationManager.Translate("ui_instance_edit");
             listbox_launchinstances.Resources["BtnTextOpenDir"] = TranslationManager.Translate("ui_instance_opendir");
             listbox_launchinstances.Resources["BtnTextDel"] = TranslationManager.Translate("ui_instance_delete");
+            listbox_launchinstances.Resources["BtnTextExportInst"] = TranslationManager.Translate("ui_instance_export");
             lab_launc_play.Content = TranslationManager.Translate("ui_play");
 
 
@@ -965,6 +967,7 @@ namespace KonkordLauncher
             if (item == null)
                 return;
 
+
             switch (item.Name)
             {
                 case "edit":
@@ -973,6 +976,23 @@ namespace KonkordLauncher
                         OpenInstanceEdit(profile.Value, profile.Key);
                         bo_instances.Visibility = Visibility.Visible;
                         bo_instances.IsEnabled = true;
+                        break;
+                    }
+                case "exportinst":
+                    {
+                        KeyValuePair<string, Profile> profile = (KeyValuePair<string, Profile>)item.Tag;
+                        System.Windows.Forms.SaveFileDialog fileDialog = new System.Windows.Forms.SaveFileDialog();
+                        fileDialog.Title = "Select save location";
+                        fileDialog.AddExtension = true;
+                        fileDialog.CheckFileExists = false;
+                        fileDialog.CheckPathExists = true;
+                        fileDialog.DefaultExt = ".zip";
+                        fileDialog.Filter = "(*.zip)|*.zip";
+                        var dialogResult = fileDialog.ShowDialog();
+                        if (dialogResult == System.Windows.Forms.DialogResult.OK)
+                        {
+                            await InstanceManager.ExportKonkordInstance(profile.Value, fileDialog.FileName);
+                        }
                         break;
                     }
                 case "opendir":
@@ -1573,9 +1593,6 @@ namespace KonkordLauncher
             Debug.WriteLine($"mod version: {InstanceModVersionId}");
         }
 
-
-        #endregion
-
         private async void InstancesImport_Click(object sender, RoutedEventArgs e)
         {
             System.Windows.Forms.OpenFileDialog dialog = new System.Windows.Forms.OpenFileDialog();
@@ -1613,5 +1630,6 @@ namespace KonkordLauncher
                 UpdateLaunchStatusBar(false);
             }
         }
+        #endregion
     }
 }

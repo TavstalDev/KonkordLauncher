@@ -93,9 +93,10 @@
                         <sys:Double x:Key="ListButtonHeight">24</sys:Double>
                         <sys:Double x:Key="ListButtonWidth">10</sys:Double>
                         <sysw:Thickness x:Key="ListButtonMargin">0,0,0,0</sysw:Thickness>
-                        <sys:String x:Key="BtnTextOpenDir">&#xf07b; Open Directory</sys:String>
-                        <sys:String x:Key="BtnTextEdit">&#xf044; Edit</sys:String>
-                        <sys:String x:Key="BtnTextDel">&#xf1f8; Delete</sys:String>
+                        <sys:String x:Key="BtnTextOpenDir">Open Directory</sys:String>
+                        <sys:String x:Key="BtnTextExportInst">Export Instance</sys:String>
+                        <sys:String x:Key="BtnTextEdit">Edit</sys:String>
+                        <sys:String x:Key="BtnTextDel">Delete</sys:String>
                     </ListBox.Resources>
                     <ListBox.ItemTemplate>
                         <DataTemplate>
@@ -125,6 +126,12 @@
                                             <Grid>
                                                 <TextBlock Text="&#xf044;"></TextBlock>
                                                 <TextBlock Margin="17,0,0,0" Text="{DynamicResource BtnTextEdit}"></TextBlock>
+                                            </Grid>
+                                        </ComboBoxItem>
+                                        <ComboBoxItem Tag="{Binding}" x:Name="exportinst" FontFamily="{StaticResource FontAwesome}">
+                                            <Grid>
+                                                <TextBlock Text="&#xf1c6;"></TextBlock>
+                                                <TextBlock Margin="17,0,0,0" Text="{DynamicResource BtnTextExportInst}"></TextBlock>
                                             </Grid>
                                         </ComboBoxItem>
                                         <ComboBoxItem Tag="{Binding}" x:Name="opendir" FontFamily="{StaticResource FontAwesome}">

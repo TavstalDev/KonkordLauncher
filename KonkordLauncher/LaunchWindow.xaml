@@ -107,7 +107,7 @@
                                         <ImageBrush ImageSource="{Binding Value.Icon}"/>
                                     </Border.Background>
                                 </Border>
-                                <ComboBox SelectionChanged="InstanceActionBox_SelectionChanged" DockPanel.Dock="Right" SelectedIndex="-1" Margin="0,0,0,0" FontFamily="{StaticResource FontAwesome}" Style="{StaticResource MenuComboBox}" IsTextSearchEnabled="False" Foreground="White" HorizontalAlignment="Right" FontSize="12" Visibility="{Binding Value.Type, Converter={StaticResource ETVConverter}, ConverterParameter={x:Static lib:EProfileType.CUSTOM}}" Width="16" Height="28" VerticalAlignment="Center">
+                                <ComboBox SelectionChanged="InstanceActionBox_SelectionChanged" DockPanel.Dock="Right" SelectedIndex="-1"  Margin="0,0,0,0" FontFamily="{StaticResource FontAwesome}" Style="{StaticResource MenuComboBox}" IsTextSearchEnabled="False" Foreground="White" HorizontalAlignment="Right" FontSize="12" Visibility="{Binding Value.Type, Converter={StaticResource ETVConverter}, ConverterParameter={x:Static lib:EProfileType.CUSTOM}}" Width="16" Height="32" VerticalAlignment="Center">
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
                                             <Grid>

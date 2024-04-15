@@ -10,7 +10,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KonkordLibrary", "KonkordLibrary\KonkordLibrary.csproj", "{1675F09B-DB91-4049-80BD-ECEF22BAF8CD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KonkordLibrary", "KonkordLibrary\KonkordLibrary.csproj", "{1675F09B-DB91-4049-80BD-ECEF22BAF8CD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Translations", "Translations", "{9AAF672E-667F-4071-AA39-7DF6E670F95B}"
+	ProjectSection(SolutionItems) = preProject
+		default.json = default.json
+		german.json = german.json
+		hungarian.json = hungarian.json
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

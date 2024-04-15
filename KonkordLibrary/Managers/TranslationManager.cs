@@ -283,7 +283,10 @@ namespace KonkordLibrary.Managers
 
             if (Translations.ContainsKey(key))
             {
-                result = string.Format(Translations[key], args);
+                if (args == null)
+                    result = Translations[key];
+                else
+                    result = string.Format(Translations[key], args);
             }
             else
             {

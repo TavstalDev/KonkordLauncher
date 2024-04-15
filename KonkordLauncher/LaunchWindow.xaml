@@ -79,20 +79,21 @@
                 </Border>
 
                 <ListBox x:Name="listbox_launchinstances" ItemsSource="{Binding}" SelectionMode="Single" SelectionChanged="listbox_SelectionChanged" AlternationCount="{DynamicResource Alternation}"
-                  Margin="0,102,0,55" Background="{x:Null}" BorderBrush="{x:Null}" Grid.IsSharedSizeScope="True" ScrollViewer.HorizontalScrollBarVisibility="Hidden" d:ItemsSource="{d:SampleData ItemCount=5}" HorizontalContentAlignment="Center" VerticalContentAlignment="Top">
+                  Margin="0,102,0,55" Background="{x:Null}" BorderBrush="{x:Null}" Grid.IsSharedSizeScope="True" ScrollViewer.CanContentScroll="True" ScrollViewer.HorizontalScrollBarVisibility="Hidden" d:ItemsSource="{d:SampleData ItemCount=5}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Top">
                     <ListBox.Resources>
                         <sys:Int32 x:Key="Alternation">2</sys:Int32>
                         <sys:Double x:Key="ListLabelFontSize">10</sys:Double>
                         <sys:Double x:Key="ListLabelHeight">19</sys:Double>
-                        <sys:Double x:Key="ListLabelWidth">130</sys:Double>
+                        <sys:Double x:Key="ListLabelWidth">100</sys:Double>
                         <sysw:Thickness x:Key="ListLabelMargin"/>
                         <sys:Double x:Key="ListBorderHeight">24</sys:Double>
                         <sys:Double x:Key="ListBorderWidth">24</sys:Double>
-                        <sysw:Thickness x:Key="ListBorderMargin"/>
+                        <sysw:Thickness x:Key="ListBorderMargin">10,2,5,2</sysw:Thickness>
                         <sys:Double x:Key="ListButtonFontSize">14</sys:Double>
                         <sys:Double x:Key="ListButtonHeight">24</sys:Double>
                         <sys:Double x:Key="ListButtonWidth">10</sys:Double>
-                        <sysw:Thickness x:Key="ListButtonMargin">0,0,0,0</sysw:Thickness>
+                        <sysw:Thickness x:Key="ListButtonMargin">5,2,0,2</sysw:Thickness>
+                        
                         <sys:String x:Key="BtnTextOpenDir">Open Directory</sys:String>
                         <sys:String x:Key="BtnTextExportInst">Export Instance</sys:String>
                         <sys:String x:Key="BtnTextEdit">Edit</sys:String>
@@ -100,19 +101,13 @@
                     </ListBox.Resources>
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <Grid x:Name="dockpanel_launchinstances" Width="NaN" HorizontalAlignment="Left">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition  Width="*" SharedSizeGroup="A"/>
-                                    <ColumnDefinition  Width="2*" SharedSizeGroup="B"/>
-                                    <ColumnDefinition  Width="*" SharedSizeGroup="C"/>
-                                </Grid.ColumnDefinitions>
-                                <Border Grid.ColumnSpan="1" x:Name="bo_listTemplate" Grid.Column="0" Width="{DynamicResource ListBorderWidth}" Height="{DynamicResource ListBorderHeight}" Margin="{DynamicResource ListBorderMargin}" ClipToBounds="True" HorizontalAlignment="Left" VerticalAlignment="Stretch">
+                            <DockPanel x:Name="dockpanel_launchinstances" LastChildFill="True" Width="auto"> 
+                                <Border x:Name="bo_listTemplate" DockPanel.Dock="Left" VerticalAlignment="Center" Width="{DynamicResource ListBorderWidth}" Height="{DynamicResource ListBorderHeight}" Margin="{DynamicResource ListBorderMargin}">
                                     <Border.Background>
                                         <ImageBrush ImageSource="{Binding Value.Icon}"/>
                                     </Border.Background>
                                 </Border>
-                                <Label x:Name="lab_listTemplate" Grid.ColumnSpan="2" Grid.Column="1" Content="{Binding Value.Name}" HorizontalAlignment="Center" Margin="{DynamicResource ListLabelMargin}" VerticalAlignment="Center" Foreground="#BFFFFFFF" FontSize="{DynamicResource ListLabelFontSize}" Width="{DynamicResource ListLabelWidth}" Height="{DynamicResource ListLabelHeight}" Padding="0,0,0,0" VerticalContentAlignment="Center"/>
-                                <ComboBox SelectionChanged="InstanceActionBox_SelectionChanged" SelectedIndex="-1" Margin="0,0,5,0" FontFamily="{StaticResource FontAwesome}" Grid.ColumnSpan="2" Style="{StaticResource MenuComboBox}" IsTextSearchEnabled="False" Foreground="White" HorizontalAlignment="Right" Grid.Column="2" FontSize="12" Visibility="{Binding Value.Type, Converter={StaticResource ETVConverter}, ConverterParameter={x:Static lib:EProfileType.CUSTOM}}">
+                                <ComboBox SelectionChanged="InstanceActionBox_SelectionChanged" DockPanel.Dock="Right" SelectedIndex="-1" Margin="0,0,0,0" FontFamily="{StaticResource FontAwesome}" Style="{StaticResource MenuComboBox}" IsTextSearchEnabled="False" Foreground="White" HorizontalAlignment="Right" FontSize="12" Visibility="{Binding Value.Type, Converter={StaticResource ETVConverter}, ConverterParameter={x:Static lib:EProfileType.CUSTOM}}" Width="16" Height="28" VerticalAlignment="Center">
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
                                             <Grid>
@@ -148,11 +143,11 @@
                                         </ComboBoxItem>
                                     </ComboBox.Items>
                                 </ComboBox>
-                            </Grid>
+                                <Label x:Name="lab_listTemplate" Content="{Binding Value.Name}" VerticalContentAlignment="Center" Margin="{DynamicResource ListLabelMargin}" Foreground="#BFFFFFFF" FontSize="{DynamicResource ListLabelFontSize}" Height="{DynamicResource ListLabelHeight}" Padding="0,0,0,0"/>
+                            </DockPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
-
                 <Border x:Name="bo_launch_play" BorderBrush="#FF5D6F95" BorderThickness="1" CornerRadius="3,3,3,3" Canvas.Left="66" Canvas.Top="91" Background="#FF5D6F95" Margin="10,0,10,10" ClipToBounds="True" Height="40" Width="138" VerticalAlignment="Bottom">
                     <Grid>
                         <Label x:Name="lab_launc_play" Content="PLAY" VerticalContentAlignment="Bottom" HorizontalContentAlignment="Center" Foreground="White" FontSize="14" Margin="0,0,0,16" Padding="0,0,0,0"  />

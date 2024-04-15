@@ -21,7 +21,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using KonkordLibrary.Managers;
 using KonkordLibrary.Models.Launcher;
-using System.IO.Compression;
 
 namespace KonkordLauncher
 {
@@ -35,16 +34,6 @@ namespace KonkordLauncher
         public KeyValuePair<string, Profile> SelectedProfile { get; set; }
         private readonly double _heightMultiplier;
         private readonly double _widthMultiplier;
-        // CHANGE THESE IF THE LISTBOX TEMPLATE SIZES CHANGE
-        #region Listbox Fields
-        public double ListLabelFontSize { get; set; } = 10;
-        public double ListLabelHeight { get; set; } = 19;
-        public double ListLabelWidth { get; set; } = 131;
-        public Thickness ListLabelMargin { get; set; } = new Thickness(10,2,0,2);
-        public double ListBorderHeight { get; set; } = 24;
-        public double ListBorderWidth { get; set; } = 24;
-        public Thickness ListBorderMargin { get; set; } = new Thickness(5,2,0,2);
-        #endregion
 
         public LaunchWindow()
         {
@@ -97,13 +86,33 @@ namespace KonkordLauncher
             WindowHelper.Resize(bo_launch_progress_bar, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(lab_launch_progress, _heightMultiplier, _widthMultiplier);
 
-            WindowHelper.Resize(ref listbox_launchinstances, ListBorderHeight, ListBorderWidth, ListBorderMargin, _heightMultiplier, _widthMultiplier);
-            WindowHelper.ResizeFont(ref listbox_launchinstances, ListLabelFontSize, ListLabelHeight, ListLabelWidth, ListLabelMargin, _heightMultiplier, _widthMultiplier);
+            listbox_launchinstances.Resources["ListBorderHeight"] = (double)listbox_launchinstances.Resources["ListBorderHeight"] * _heightMultiplier;
+            listbox_launchinstances.Resources["ListBorderWidth"] = (double)listbox_launchinstances.Resources["ListBorderWidth"] * _widthMultiplier;
+
+            Thickness localThickness = (Thickness)listbox_launchinstances.Resources["ListBorderMargin"];
+            localThickness.Top *= _heightMultiplier;
+            localThickness.Bottom *= _heightMultiplier;
+            localThickness.Left *= _widthMultiplier;
+            localThickness.Right *= _widthMultiplier;
+            listbox_launchinstances.Resources["ListBorderMargin"] = localThickness;
+
+            listbox_launchinstances.Resources["ListLabelHeight"] = (double)listbox_launchinstances.Resources["ListLabelHeight"] * _heightMultiplier;
+            listbox_launchinstances.Resources["ListLabelWidth"] = (double)listbox_launchinstances.Resources["ListLabelWidth"] * _widthMultiplier;
+
+            localThickness = (Thickness)listbox_launchinstances.Resources["ListLabelMargin"];
+            localThickness.Top *= _heightMultiplier;
+            localThickness.Bottom *= _heightMultiplier;
+            localThickness.Left *= _widthMultiplier;
+            localThickness.Right *= _widthMultiplier;
+            listbox_launchinstances.Resources["ListLabelMargin"] = localThickness;
+
+            listbox_launchinstances.Resources["ListLabelFontSize"] = (double)listbox_launchinstances.Resources["ListLabelFontSize"] * _widthMultiplier;
+
             listbox_launchinstances.Resources["ListButtonFontSize"] = (double)listbox_launchinstances.Resources["ListButtonFontSize"] * _widthMultiplier;
             listbox_launchinstances.Resources["ListButtonWidth"] = (double)listbox_launchinstances.Resources["ListButtonWidth"] * _widthMultiplier;
             listbox_launchinstances.Resources["ListButtonHeight"] = (double)listbox_launchinstances.Resources["ListButtonHeight"] * _heightMultiplier;
 
-            Thickness localThickness = (Thickness)listbox_launchinstances.Resources["ListButtonMargin"];
+            localThickness = (Thickness)listbox_launchinstances.Resources["ListButtonMargin"];
             localThickness.Top *= _heightMultiplier;
             localThickness.Bottom *= _heightMultiplier;
             localThickness.Left *= _widthMultiplier;
@@ -348,6 +357,7 @@ namespace KonkordLauncher
             listbox_launchinstances.SelectedIndex = profiles.IndexOf(SelectedProfile.Value);
             listbox_launchinstances.ScrollIntoView(listbox_launchinstances.SelectedItem);
             lab_selected_profile.Content = SelectedProfile.Value.Name.ToLower();
+
 
         }
 
@@ -1471,93 +1481,100 @@ namespace KonkordLauncher
 
         private void InstancesMcmodVersion_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (checkb_instances_version_betas == null || checkb_instances_version_releases == null || checkb_instances_version_snapshots == null)
-                return;
-
-            bool showReleases = true;
-            if (checkb_instances_version_releases.IsEnabled)
-                showReleases = checkb_instances_version_releases.IsChecked.Value;
-            bool showSnapshots = false;
-            if (checkb_instances_version_snapshots.IsEnabled)
-                showSnapshots = checkb_instances_version_snapshots.IsChecked.Value;
-            bool showOldBetas = false;
-            if (checkb_instances_version_betas.IsEnabled)
-                showOldBetas = checkb_instances_version_betas.IsChecked.Value;
-
-
-            List<VersionBase> localVanillaList = new List<VersionBase>();
-            List<VersionBase> localModList = new List<VersionBase>();
-            string versionType = cb_instances_version_type.Text.ToLower();
-            if (versionType == "neoforge")
-                versionType = "forge";
-
-            ComboBox combo;
-            switch (versionType)
+            try
             {
-                case "fabric":
-                    {
-                        localVanillaList = VersionDic["fabricVanilla"].FindAll(x => (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
+                if (checkb_instances_version_betas == null || checkb_instances_version_releases == null || checkb_instances_version_snapshots == null)
+                    return;
 
-                        localModList = VersionDic[versionType];
-                        cb_instances_mod_version.DataContext = localModList.Select(x => x.Id);
-                        cb_instances_mod_version.SelectedIndex = 0;
+                bool showReleases = true;
+                if (checkb_instances_version_releases.IsEnabled)
+                    showReleases = checkb_instances_version_releases.IsChecked.Value;
+                bool showSnapshots = false;
+                if (checkb_instances_version_snapshots.IsEnabled)
+                    showSnapshots = checkb_instances_version_snapshots.IsChecked.Value;
+                bool showOldBetas = false;
+                if (checkb_instances_version_betas.IsEnabled)
+                    showOldBetas = checkb_instances_version_betas.IsChecked.Value;
 
-                        if (cb_instances_mcmod_version == null)
+
+                List<VersionBase> localVanillaList = new List<VersionBase>();
+                List<VersionBase> localModList = new List<VersionBase>();
+                string versionType = cb_instances_version_type.Text.ToLower();
+                if (versionType == "neoforge")
+                    versionType = "forge";
+
+                ComboBox combo;
+                switch (versionType)
+                {
+                    case "fabric":
+                        {
+                            localVanillaList = VersionDic["fabricVanilla"].FindAll(x => (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
+
+                            localModList = VersionDic[versionType];
+                            cb_instances_mod_version.DataContext = localModList.Select(x => x.Id);
+                            cb_instances_mod_version.SelectedIndex = 0;
+
+                            if (cb_instances_mcmod_version == null)
+                                return;
+
+                            if (!cb_instances_mcmod_version.IsEnabled)
+                                return;
+
+                            combo = (ComboBox)sender;
+
+                            if (combo.SelectedItem == null)
+                                return;
+                            InstanceMCVersionId = combo.SelectedItem.ToString();
+                            Debug.WriteLine($"minecraft moded version: {InstanceMCVersionId}");
                             return;
+                        }
+                    case "quilt":
+                        {
+                            localVanillaList = VersionDic["quiltVanilla"].FindAll(x => (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
 
-                        if (!cb_instances_mcmod_version.IsEnabled)
+                            localModList = VersionDic[versionType];
+                            cb_instances_mod_version.DataContext = localModList.Select(x => x.Id);
+                            cb_instances_mod_version.SelectedIndex = 0;
+
+                            if (cb_instances_mcmod_version == null)
+                                return;
+
+                            if (!cb_instances_mcmod_version.IsEnabled)
+                                return;
+
+                            combo = (ComboBox)sender;
+
+                            if (combo.SelectedItem == null)
+                                return;
+                            InstanceMCVersionId = combo.SelectedItem.ToString();
+                            Debug.WriteLine($"minecraft moded version: {InstanceMCVersionId}");
                             return;
+                        }
+                }
 
-                        combo = (ComboBox)sender;
+                localVanillaList = VersionDic["forgeVanilla"].FindAll(x => (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
 
-                        if (combo.SelectedItem == null)
-                            return;
-                        InstanceMCVersionId = combo.SelectedItem.ToString();
-                        Debug.WriteLine($"minecraft moded version: {InstanceMCVersionId}");
-                        return;
-                    }
-                case "quilt":
-                    {
-                        localVanillaList = VersionDic["quiltVanilla"].FindAll(x => (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
+                localModList = VersionDic[versionType].FindAll(x => x.VanillaId == localVanillaList[cb_instances_mcmod_version.SelectedIndex].Id && (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
+                cb_instances_mod_version.DataContext = localModList.Select(x => x.Id);
+                cb_instances_mod_version.SelectedIndex = localModList.FindIndex(x => x.VanillaId == localVanillaList[cb_instances_mcmod_version.SelectedIndex].Id);
 
-                        localModList = VersionDic[versionType];
-                        cb_instances_mod_version.DataContext = localModList.Select(x => x.Id);
-                        cb_instances_mod_version.SelectedIndex = 0;
+                if (cb_instances_mcmod_version == null)
+                    return;
 
-                        if (cb_instances_mcmod_version == null)
-                            return;
+                if (!cb_instances_mcmod_version.IsEnabled)
+                    return;
 
-                        if (!cb_instances_mcmod_version.IsEnabled)
-                            return;
+                combo = (ComboBox)sender;
 
-                        combo = (ComboBox)sender;
-
-                        if (combo.SelectedItem == null)
-                            return;
-                        InstanceMCVersionId = combo.SelectedItem.ToString();
-                        Debug.WriteLine($"minecraft moded version: {InstanceMCVersionId}");
-                        return;
-                    }
+                if (combo.SelectedItem == null)
+                    return;
+                InstanceMCVersionId = combo.SelectedItem.ToString();
+                Debug.WriteLine($"minecraft moded version: {InstanceMCVersionId}");
             }
-
-            localVanillaList = VersionDic["forgeVanilla"].FindAll(x => (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
-
-            localModList = VersionDic[versionType].FindAll(x => x.VanillaId == localVanillaList[cb_instances_mcmod_version.SelectedIndex].Id && (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
-            cb_instances_mod_version.DataContext = localModList.Select(x => x.Id);
-            cb_instances_mod_version.SelectedIndex = localModList.FindIndex(x => x.VanillaId == localVanillaList[cb_instances_mcmod_version.SelectedIndex].Id);
-
-            if (cb_instances_mcmod_version == null)
-                return;
-
-            if (!cb_instances_mcmod_version.IsEnabled)
-                return;
-
-            combo = (ComboBox)sender;
-
-            if (combo.SelectedItem == null)
-                return;
-            InstanceMCVersionId = combo.SelectedItem.ToString();
-            Debug.WriteLine($"minecraft moded version: {InstanceMCVersionId}");
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+            }
         }
 
         private void cb_instances_mc_version_SelectionChanged(object sender, SelectionChangedEventArgs e)

@@ -117,9 +117,9 @@ namespace KonkordLibrary.Managers
 
         private static List<Language> _languagePacks = new List<Language>()
         {
-            new Language("English", "en", "eng", "https://pastebin.com/raw/Y9LXz0LV", true),
-            new Language("German", "de", "deu", "https://pastebin.com/raw/gyp2mnfN"),
-            new Language("Hungarian", "hu", "hun", "https://pastebin.com/raw/r60iz9PT")
+            new Language("English", "en", "eng", "https://raw.githubusercontent.com/TavstalDev/KonkordLauncher/master/KonkordLauncher/Translations/default.json", true),
+            new Language("German", "de", "deu", "https://raw.githubusercontent.com/TavstalDev/KonkordLauncher/master/KonkordLauncher/Translations/german.json"),
+            new Language("Hungarian", "hu", "hun", "https://raw.githubusercontent.com/TavstalDev/KonkordLauncher/master/KonkordLauncher/Translations/hungarian.json")
         };
         public static List<Language> LanguagePacks { get { return _languagePacks; } }
 

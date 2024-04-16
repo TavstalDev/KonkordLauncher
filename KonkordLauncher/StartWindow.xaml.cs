@@ -1,17 +1,23 @@
-﻿using KonkordLibrary.Helpers;
-using KonkordLibrary.Managers;
+﻿using Tavstal.KonkordLibrary.Helpers;
+using Tavstal.KonkordLibrary.Managers;
+using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
+using Microsoft.Win32;
+using System;
+using System.Linq;
+using System.Diagnostics;
+using System.Net.Http;
 
-namespace KonkordLauncher
+namespace Tavstal.KonkordLauncher
 {
     /// <summary>
     /// Interaction logic for StartWindow.xaml
     /// </summary>
     public partial class StartWindow : Window
     {
-        private readonly double _maxStep = 7;
+        private readonly double _maxStep = 8;
 
         public StartWindow()
         {
@@ -22,6 +28,46 @@ namespace KonkordLauncher
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             double currentStep = 0;
+            #region Check Launcher Version
+            lab_status.Content = $"Validating launcher version... ({currentStep + 1}/{_maxStep})";
+
+            try
+            {
+                HttpClient client = HttpHelper.GetHttpClient();
+                client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36");
+
+                string? githubResult = await HttpHelper.GetStringAsync("https://api.github.com/repos/TavstalDev/KonkordLauncher/releases/latest", false);
+                if (githubResult != null)
+                {
+                    JObject obj = JObject.Parse(githubResult);
+
+                    string? version = obj["name"]?.ToString();
+                    if (version != null && version != App.Version.ToString())
+                    {
+                        string? downloadFolderPath = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders", "{374DE290-123F-4565-9164-39C4925E467B}", String.Empty)?.ToString();
+                        if (!string.IsNullOrEmpty(downloadFolderPath))
+                        {
+                            string newExePath = Path.Combine(downloadFolderPath, $"KonkordLauncher_{version}.exe");
+                            if (!File.Exists(newExePath))
+                            {
+                                string? exeDownloadUrl = obj["assets"]?.ToList()[0]?["browser_download_url"]?.ToString();
+                                byte[]? exeByteArray = await HttpHelper.GetByteArrayAsync(exeDownloadUrl);
+                                if (exeByteArray != null)
+                                {
+                                    await File.WriteAllBytesAsync(newExePath, exeByteArray);
+                                    NotificationHelper.SendNotificationMsg($"New version of the launcher has been downloaded to your downloads folder. Please delete the .exe of the current launcher.\nPath: {newExePath}", "Downloaded version");
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (Exception ex) { Debug.WriteLine(ex.ToString()); }
+
+            UpdateProgressbar(currentStep);
+            await Task.Delay(200); // Little delay, so people can read what the launcher is doing
+            currentStep++;
+            #endregion
+
             #region Check Java Version
             lab_status.Content = $"Validating java... ({currentStep + 1}/{_maxStep})";
             await IOHelper.ValidateJava();

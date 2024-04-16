@@ -1,6 +1,6 @@
-using KonkordLibrary.Helpers;
-using KonkordLibrary.Models.Launcher;
-using KonkordLibrary.Models.Minecraft.API;
+using Tavstal.KonkordLibrary.Helpers;
+using Tavstal.KonkordLibrary.Models.Launcher;
+using Tavstal.KonkordLibrary.Models.Minecraft.API;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
@@ -8,13 +8,15 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 
-namespace KonkordLibrary.Managers
+namespace Tavstal.KonkordLibrary.Managers
 {
     public class AuthenticationManager
     {
         private static HttpListener? _httpListener = null;
         private static bool _isListening = false;
+        public static bool IsListening { get { return _isListening; } }
         private static readonly string _listeningUrl = "http://localhost:43319/";
+        private static bool _wasAuthSuccessful = false;
         #region Redirectors
         private static readonly string _redirectAuthenticateUrl = Path.Combine(_listeningUrl, "microsoft/authcallback");
         private static readonly string _redirectTokenUrl = Path.Combine(_listeningUrl, "microsoft/tokencallback");
@@ -23,7 +25,7 @@ namespace KonkordLibrary.Managers
         private static readonly string _msClientId = "496a0c42-aa74-41fe-b7bc-0ad155cdaa26";
         #region Urls
         #region Microsoft
-        private static readonly string _microsoftAuthUrl = $"https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?client_id={_msClientId}&response_type=code&redirect_uri={Uri.EscapeDataString(_redirectAuthenticateUrl)}&response_mode=query&scope=XboxLive.signin+offline_access";
+        private static readonly string _microsoftAuthUrl = $"https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?client_id={_msClientId}&response_type=code&redirect_uri={Uri.EscapeDataString(_redirectAuthenticateUrl)}&response_mode=query&scope=XboxLive.signin%20offline_access";
         public static string MicrosoftAuthUrl { get { return _microsoftAuthUrl; } }
         private static readonly string _microsoftTokenUrl = $"https://login.microsoftonline.com/consumers/oauth2/v2.0/token";
         public static string MicrosoftTokenUrl { get { return _microsoftTokenUrl; } }
@@ -39,6 +41,8 @@ namespace KonkordLibrary.Managers
         public static string MinecraftAuthUrl { get { return _minecraftAuthUrl; } }
         private static readonly string _minecraftProfileUrl = "https://api.minecraftservices.com/minecraft/profile";
         public static string MinecraftProfileUrl { get { return _minecraftProfileUrl; } }
+        private static readonly string _minecraftOwnershipUrl = "https://api.minecraftservices.com/entitlements/mcstore";
+        public static string MinecraftOwnershipUrl { get { return _minecraftOwnershipUrl; } }
         #endregion
         #endregion
 
@@ -62,7 +66,7 @@ namespace KonkordLibrary.Managers
             {
                 if (account.Type == Enums.EAccountType.MICROSOFT)
                 {
-                    // TODO: After the authentication
+                    return await AuthenticationManager.AttemptLogin(account.AccessToken);
                 }
                 return true;
             }
@@ -74,7 +78,7 @@ namespace KonkordLibrary.Managers
         /// <summary>
         /// Starts an HTTP listener to handle incoming HTTP requests.
         /// </summary>
-        public static void StartListening()
+        public static async void StartListening()
         {
             if (_httpListener == null)
             {
@@ -100,12 +104,16 @@ namespace KonkordLibrary.Managers
                 return;
             }
 
-            while (_isListening)
+            try
             {
-                HttpListenerContext context = _httpListener.GetContext(); // get te context 
-                if (context != null)
-                    OnRequestRecieved(context);
+                while (_isListening)
+                {
+                    HttpListenerContext context = await _httpListener.GetContextAsync(); // get te context 
+                    if (context != null)
+                        await OnRequestRecieved(context);
+                }
             }
+            catch { }
         }
 
         /// <summary>
@@ -127,7 +135,7 @@ namespace KonkordLibrary.Managers
         /// Handles the asynchronous processing of an incoming HTTP request.
         /// </summary>
         /// <param name="context">The <see cref="HttpListenerContext"/> object representing the context of the incoming HTTP request.</param>
-        private static async void OnRequestRecieved(HttpListenerContext context)
+        private static async Task OnRequestRecieved(HttpListenerContext context)
         {
             Action closeBrowser = new Action(() =>
             {
@@ -154,6 +162,7 @@ namespace KonkordLibrary.Managers
             if (context.Request.RawUrl.StartsWith("/microsoft/authcallback"))
             {
                 closeBrowser.Invoke();
+                _wasAuthSuccessful = false;
                 await MicrosoftAuthCallback(context.Request);
                 return;
             }
@@ -356,10 +365,19 @@ namespace KonkordLibrary.Managers
             {
                 object reqObj = new
                 {
-                    identityToken = $"XBL3.0 x={userHash};{token}"
+                    identityToken = $"XBL3.0 x={userHash};{token}",
+                    ensureLegacyEnabled = true
                 };
 
                 StringContent reqContent = new StringContent(JsonConvert.SerializeObject(reqObj));
+                if (reqContent.Headers.Contains("Content-Type"))
+                {
+                    reqContent.Headers.Remove("Content-Type");
+                    reqContent.Headers.Add("Content-Type", "application/json");
+                }
+                else
+                    reqContent.Headers.Add("Content-Type", "application/json");
+
                 using (HttpClient client = HttpHelper.GetHttpClient())
                 {
                     Debug.WriteLine("## SENT MINECRAFT ACCESS REQUEST");
@@ -401,15 +419,20 @@ namespace KonkordLibrary.Managers
 
 
                 Debug.WriteLine("## SENT MINECRAFT OWNERSHIP REQUEST");
-                var result = await client.GetAsync(MinecraftAuthUrl);
+                var result = await client.GetAsync(_minecraftOwnershipUrl);
                 Debug.WriteLine("## MINECRAFT OWNERSHIP REQUEST STATUS: " + result.StatusCode);
 
-                JObject resultObj = JObject.Parse(await result.Content.ReadAsStringAsync());
+                OwnershipData? ownershipData = JsonConvert.DeserializeObject<OwnershipData>(await result.Content.ReadAsStringAsync());
 
                 bool hasMinecraft = false;
-                // TODO implement function to get this,
-                // but I have no idea how to until I can get a full response as example
-                NotificationHelper.SendWarningMsg(resultObj.ToString(Formatting.Indented), "OWNERSHIP JSON");
+                if (ownershipData != null)
+                {
+                    OwnershipItem? gameOwnership = ownershipData.Items.Find(x => x.Name == "game_minecraft");
+                    if (gameOwnership != null)
+                    {
+                        hasMinecraft = true;
+                    }
+                }
 
                 if (hasMinecraft)
                 {
@@ -442,7 +465,7 @@ namespace KonkordLibrary.Managers
 
 
                 Debug.WriteLine("## SENT MINECRAFT PROFILE REQUEST");
-                var result = await client.GetAsync(MinecraftAuthUrl);
+                var result = await client.GetAsync(_minecraftProfileUrl);
                 Debug.WriteLine("## MINECRAFT PROFILE REQUEST STATUS: " + result.StatusCode);
 
                 MojangProfile? profile = JsonConvert.DeserializeObject<MojangProfile>(await result.Content.ReadAsStringAsync());
@@ -478,6 +501,8 @@ namespace KonkordLibrary.Managers
                         accountData.SelectedAccountId = profile.Id;
                         await JsonHelper.WriteJsonFileAsync(IOHelper.AccountsJsonFile, accountData);
                     }
+                    _wasAuthSuccessful = true;
+                    StopListening();
                 }
                 else
                 {
@@ -493,27 +518,43 @@ namespace KonkordLibrary.Managers
         #endregion
 
         /// <summary>
+        /// Gets the Microsoft authentication status.
+        /// </summary>
+        /// <returns>
+        /// The Microsoft authentication status as a boolean value.
+        /// </returns>
+        public static bool GetMicrosoftAuthStatus()
+        {
+            return _wasAuthSuccessful;
+        }
+
+        /// <summary>
         /// Attempts to log in using the provided token asynchronously.
         /// </summary>
         /// <param name="token">The token to be used for login.</param>
         /// <returns>
         /// A <see cref="Task"/> representing the asynchronous login attempt.
         /// </returns>
-        public static async Task AttemptLogin(string token)
+        public static async Task<bool> AttemptLogin(string mcToken)
         {
             try
             {
                 HttpClient client = HttpHelper.GetHttpClient();
-                // WIP
-                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
-                var result = await client.GetAsync(MinecraftProfileUrl);
-                JObject resultObj = JObject.Parse(await result.Content.ReadAsStringAsync());
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", mcToken);
 
-                NotificationHelper.SendNotificationMsg(resultObj.ToString(Newtonsoft.Json.Formatting.None), "Preview Response");
+
+                Debug.WriteLine("## SENT MINECRAFT PROFILE REQUEST");
+                var result = await client.GetAsync(_minecraftProfileUrl);
+                Debug.WriteLine("## MINECRAFT PROFILE REQUEST STATUS: " + result.StatusCode);
+
+                MojangProfile? profile = JsonConvert.DeserializeObject<MojangProfile>(await result.Content.ReadAsStringAsync());
+
+                return profile != null;
             }
             catch (Exception ex)
             {
                 Debug.Fail(ex.ToString());
+                return false;
             }
         }
     }

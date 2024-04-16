@@ -80,6 +80,8 @@ namespace Tavstal.KonkordLauncher
             #region Check Java Version
             lab_status.Content = $"Validating java... ({currentStep + 1}/{_maxStep})";
             await IOHelper.ValidateJava();
+            this.Focus();
+            
             UpdateProgressbar(currentStep);
             await Task.Delay(200); // Little delay, so people can read what the launcher is doing
             currentStep++;

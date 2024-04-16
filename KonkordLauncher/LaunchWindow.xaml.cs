@@ -1036,6 +1036,7 @@ namespace Tavstal.KonkordLauncher
                             string dir = profile.Value.GetGameDirectory();
                             if (Directory.Exists(dir))
                                 IOHelper.DeleteDirectory(dir);
+                            RefreshInstances();
                         }
                         break;
                     }

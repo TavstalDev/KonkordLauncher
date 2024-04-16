@@ -1,11 +1,11 @@
-﻿using KonkordLibrary.Enums;
-using KonkordLibrary.Helpers;
-using KonkordLibrary.Models.Launcher;
+﻿using Tavstal.KonkordLibrary.Enums;
+using Tavstal.KonkordLibrary.Helpers;
+using Tavstal.KonkordLibrary.Models.Launcher;
 using Newtonsoft.Json;
 using System.IO;
 using System.Text.Json.Serialization;
 
-namespace KonkordLibrary.Models.Instances.CurseForge
+namespace Tavstal.KonkordLibrary.Models.Instances.CurseForge
 {
     public class CurseForgeInstance
     {

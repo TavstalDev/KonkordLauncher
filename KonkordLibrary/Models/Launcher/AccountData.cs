@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
-namespace KonkordLibrary.Models.Launcher
+namespace Tavstal.KonkordLibrary.Models.Launcher
 {
     public class AccountData
     {

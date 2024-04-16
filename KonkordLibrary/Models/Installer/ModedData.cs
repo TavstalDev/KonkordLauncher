@@ -1,7 +1,7 @@
-﻿using KonkordLibrary.Models.Launcher;
-using KonkordLibrary.Models.Minecraft.Library;
+﻿using Tavstal.KonkordLibrary.Models.Launcher;
+using Tavstal.KonkordLibrary.Models.Minecraft.Library;
 
-namespace KonkordLibrary.Models.Installer
+namespace Tavstal.KonkordLibrary.Models.Installer
 {
     public class ModedData
     {

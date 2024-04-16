@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Text.Json.Serialization;
 
-namespace KonkordLibrary.Models.Launcher
+namespace Tavstal.KonkordLibrary.Models.Launcher
 {
     public class Language
     {

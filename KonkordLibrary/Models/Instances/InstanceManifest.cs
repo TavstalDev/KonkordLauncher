@@ -1,9 +1,9 @@
-﻿using KonkordLibrary.Enums;
-using KonkordLibrary.Models.Launcher;
+﻿using Tavstal.KonkordLibrary.Enums;
+using Tavstal.KonkordLibrary.Models.Launcher;
 using Newtonsoft.Json;
 using System.Text.Json.Serialization;
 
-namespace KonkordLibrary.Models.Instances
+namespace Tavstal.KonkordLibrary.Models.Instances
 {
     public class InstanceManifest : Profile
     {

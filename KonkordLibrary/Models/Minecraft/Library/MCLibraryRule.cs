@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
-namespace KonkordLibrary.Models.Minecraft.Library
+namespace Tavstal.KonkordLibrary.Models.Minecraft.Library
 {
     public class MCLibraryRule
     {

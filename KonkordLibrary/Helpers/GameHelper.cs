@@ -1,10 +1,10 @@
-﻿using KonkordLibrary.Enums;
-using KonkordLibrary.Models.Launcher;
-using KonkordLibrary.Models.Minecraft;
+﻿using Tavstal.KonkordLibrary.Enums;
+using Tavstal.KonkordLibrary.Models.Launcher;
+using Tavstal.KonkordLibrary.Models.Minecraft;
 using System.IO;
 using System.Text;
 
-namespace KonkordLibrary.Helpers
+namespace Tavstal.KonkordLibrary.Helpers
 {
     public static class GameHelper
     {

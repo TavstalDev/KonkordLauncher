@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Text.Json.Serialization;
 
-namespace KonkordLibrary.Models.Minecraft.API
+namespace Tavstal.KonkordLibrary.Models.Minecraft.API
 {
     public class OwnershipItem
     {

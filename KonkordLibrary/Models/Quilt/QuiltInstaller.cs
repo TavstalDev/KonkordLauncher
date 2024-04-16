@@ -1,16 +1,16 @@
-﻿using KonkordLibrary.Enums;
-using KonkordLibrary.Helpers;
-using KonkordLibrary.Models.Fabric;
-using KonkordLibrary.Models.Installer;
-using KonkordLibrary.Models.Launcher;
-using KonkordLibrary.Models.Minecraft.Library;
+﻿using Tavstal.KonkordLibrary.Enums;
+using Tavstal.KonkordLibrary.Helpers;
+using Tavstal.KonkordLibrary.Models.Fabric;
+using Tavstal.KonkordLibrary.Models.Installer;
+using Tavstal.KonkordLibrary.Models.Launcher;
+using Tavstal.KonkordLibrary.Models.Minecraft.Library;
 using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Net.Http;
 using System.Windows.Controls;
 
-namespace KonkordLibrary.Models.Quilt
+namespace Tavstal.KonkordLibrary.Models.Quilt
 {
     public class QuiltInstaller : MinecraftInstaller
     {

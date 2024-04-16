@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text;
 
-namespace KonkordLibrary.Models.Forge
+namespace Tavstal.KonkordLibrary.Models.Forge
 {
     // Source: https://github.com/CmlLib/CmlLib.Core.Installer.Forge
     public class ProcessorJarFile

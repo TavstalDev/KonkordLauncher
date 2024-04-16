@@ -1,7 +1,7 @@
-﻿<Application x:Class="KonkordLauncher.App"
+﻿<Application x:Class="Tavstal.KonkordLauncher.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:KonkordLauncher"
+             xmlns:local="clr-namespace:Tavstal.KonkordLauncher"
              StartupUri="StartWindow.xaml">
     <Application.Resources>
         <FontFamily x:Key="FontAwesome">pack://application:,,,/FontAwesome.WPF;component/#FontAwesome</FontFamily>

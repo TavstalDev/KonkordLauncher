@@ -1,4 +1,4 @@
-﻿namespace KonkordLibrary.Models.Installer
+﻿namespace Tavstal.KonkordLibrary.Models.Installer
 {
     public class LaunchArg
     {

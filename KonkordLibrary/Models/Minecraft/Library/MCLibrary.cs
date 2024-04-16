@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
 
-namespace KonkordLibrary.Models.Minecraft.Library
+namespace Tavstal.KonkordLibrary.Models.Minecraft.Library
 {
     public class MCLibrary
     {

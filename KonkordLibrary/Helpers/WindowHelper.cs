@@ -1,10 +1,16 @@
-﻿using System.Windows;
+﻿using System.Reflection;
+using System.Windows;
 using System.Windows.Controls;
 
-namespace KonkordLibrary.Helpers
+namespace Tavstal.KonkordLibrary.Helpers
 {
     public static class WindowHelper
     {
+        private static readonly System.Version _version = Assembly.GetExecutingAssembly().GetName().Version;
+        private static readonly DateTime _buildDate = new DateTime(2000, 1, 1).AddDays(_version.Build).AddSeconds(_version.Revision * 2);
+        public static System.Version Version { get { return _version; } }
+        public static DateTime BuildDate { get { return _buildDate; } }
+
         /// <summary>
         /// Resizes a FrameworkElement based on the provided height and width multipliers.
         /// </summary>

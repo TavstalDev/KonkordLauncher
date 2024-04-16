@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <ImplicitUsings>enable</ImplicitUsings>
+	<AssemblyVersion>1.0.*</AssemblyVersion>
+	<Deterministic>false</Deterministic>
   </PropertyGroup>
 
   <ItemGroup>

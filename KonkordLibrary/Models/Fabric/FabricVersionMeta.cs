@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
-using KonkordLibrary.Models.Minecraft.Meta;
+using Tavstal.KonkordLibrary.Models.Minecraft.Meta;
 using System.Text.Json.Serialization;
 
-namespace KonkordLibrary.Models.Fabric
+namespace Tavstal.KonkordLibrary.Models.Fabric
 {
     public class FabricVersionMeta
     {

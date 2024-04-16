@@ -1,10 +1,10 @@
-﻿using KonkordLibrary.Enums;
-using KonkordLibrary.Helpers;
-using KonkordLibrary.Models.Fabric;
-using KonkordLibrary.Models.Installer;
-using KonkordLibrary.Models.Minecraft;
-using KonkordLibrary.Models.Quilt;
-using KonkordLibrary.Models.Forge;
+﻿using Tavstal.KonkordLibrary.Enums;
+using Tavstal.KonkordLibrary.Helpers;
+using Tavstal.KonkordLibrary.Models.Fabric;
+using Tavstal.KonkordLibrary.Models.Installer;
+using Tavstal.KonkordLibrary.Models.Minecraft;
+using Tavstal.KonkordLibrary.Models.Quilt;
+using Tavstal.KonkordLibrary.Models.Forge;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -19,10 +19,10 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using KonkordLibrary.Managers;
-using KonkordLibrary.Models.Launcher;
+using Tavstal.KonkordLibrary.Managers;
+using Tavstal.KonkordLibrary.Models.Launcher;
 
-namespace KonkordLauncher
+namespace Tavstal.KonkordLauncher
 {
     /// <summary>
     /// Interaction logic for LaunchWindow.xaml

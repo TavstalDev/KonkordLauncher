@@ -1,14 +1,14 @@
-﻿using KonkordLibrary.Helpers;
-using KonkordLibrary.Models.Forge.Installer;
-using KonkordLibrary.Models.Forge.New;
-using KonkordLibrary.Models.Installer;
-using KonkordLibrary.Models.Launcher;
+﻿using Tavstal.KonkordLibrary.Helpers;
+using Tavstal.KonkordLibrary.Models.Forge.Installer;
+using Tavstal.KonkordLibrary.Models.Forge.New;
+using Tavstal.KonkordLibrary.Models.Installer;
+using Tavstal.KonkordLibrary.Models.Launcher;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Controls;
 
-namespace KonkordLibrary.Models.Forge
+namespace Tavstal.KonkordLibrary.Models.Forge
 {
     public abstract class ForgeInstallerBase : MinecraftInstaller
     {

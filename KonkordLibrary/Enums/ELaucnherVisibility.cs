@@ -1,4 +1,4 @@
-﻿namespace KonkordLibrary.Enums
+﻿namespace Tavstal.KonkordLibrary.Enums
 {
     public enum ELaucnherVisibility
     {

@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace KonkordLibrary.Models.Forge
+namespace Tavstal.KonkordLibrary.Models.Forge
 {
     // Source: https://github.com/CmlLib/CmlLib.Core.Installer.Forge
     public class PackageName

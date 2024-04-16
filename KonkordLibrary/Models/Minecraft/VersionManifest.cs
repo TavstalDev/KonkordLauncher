@@ -2,7 +2,7 @@
 using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
-namespace KonkordLibrary.Models.Minecraft
+namespace Tavstal.KonkordLibrary.Models.Minecraft
 {
     public class VersionManifest
     {

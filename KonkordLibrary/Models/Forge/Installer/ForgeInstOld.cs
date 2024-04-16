@@ -1,17 +1,17 @@
-﻿using KonkordLibrary.Enums;
-using KonkordLibrary.Helpers;
-using KonkordLibrary.Models.Forge.Legacy;
-using KonkordLibrary.Models.Installer;
-using KonkordLibrary.Models.Launcher;
-using KonkordLibrary.Models.Minecraft.Library;
-using KonkordLibrary.Models.Minecraft.Meta;
+﻿using Tavstal.KonkordLibrary.Enums;
+using Tavstal.KonkordLibrary.Helpers;
+using Tavstal.KonkordLibrary.Models.Forge.Legacy;
+using Tavstal.KonkordLibrary.Models.Installer;
+using Tavstal.KonkordLibrary.Models.Launcher;
+using Tavstal.KonkordLibrary.Models.Minecraft.Library;
+using Tavstal.KonkordLibrary.Models.Minecraft.Meta;
 using Newtonsoft.Json;
 using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
 using System.Windows.Controls;
 
-namespace KonkordLibrary.Models.Forge.Installer
+namespace Tavstal.KonkordLibrary.Models.Forge.Installer
 {
     /*
      * 1.13+ are new

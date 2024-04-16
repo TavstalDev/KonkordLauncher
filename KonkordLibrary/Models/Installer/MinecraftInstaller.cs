@@ -1,10 +1,10 @@
-﻿using KonkordLibrary.Enums;
-using KonkordLibrary.Helpers;
-using KonkordLibrary.Managers;
-using KonkordLibrary.Models.Forge.Installer;
-using KonkordLibrary.Models.Launcher;
-using KonkordLibrary.Models.Minecraft;
-using KonkordLibrary.Models.Minecraft.Library;
+﻿using Tavstal.KonkordLibrary.Enums;
+using Tavstal.KonkordLibrary.Helpers;
+using Tavstal.KonkordLibrary.Managers;
+using Tavstal.KonkordLibrary.Models.Forge.Installer;
+using Tavstal.KonkordLibrary.Models.Launcher;
+using Tavstal.KonkordLibrary.Models.Minecraft;
+using Tavstal.KonkordLibrary.Models.Minecraft.Library;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -16,7 +16,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace KonkordLibrary.Models.Installer
+namespace Tavstal.KonkordLibrary.Models.Installer
 {
     public class MinecraftInstaller
     {

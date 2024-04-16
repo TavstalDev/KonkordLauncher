@@ -1,16 +1,16 @@
-﻿using KonkordLibrary.Enums;
-using KonkordLibrary.Helpers;
-using KonkordLibrary.Models.Forge.New;
-using KonkordLibrary.Models.Installer;
-using KonkordLibrary.Models.Launcher;
-using KonkordLibrary.Models.Minecraft.Library;
+﻿using Tavstal.KonkordLibrary.Enums;
+using Tavstal.KonkordLibrary.Helpers;
+using Tavstal.KonkordLibrary.Models.Forge.New;
+using Tavstal.KonkordLibrary.Models.Installer;
+using Tavstal.KonkordLibrary.Models.Launcher;
+using Tavstal.KonkordLibrary.Models.Minecraft.Library;
 using Newtonsoft.Json;
 using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
 using System.Windows.Controls;
 
-namespace KonkordLibrary.Models.Forge.Installer
+namespace Tavstal.KonkordLibrary.Models.Forge.Installer
 {
     /* 1.20 - ok
      * 1.19 - ok

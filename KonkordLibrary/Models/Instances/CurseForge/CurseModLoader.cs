@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Text.Json.Serialization;
 
-namespace KonkordLibrary.Models.Instances.CurseForge
+namespace Tavstal.KonkordLibrary.Models.Instances.CurseForge
 {
     public class CurseModLoader
     {

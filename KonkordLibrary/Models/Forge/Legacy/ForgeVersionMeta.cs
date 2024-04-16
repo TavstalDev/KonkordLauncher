@@ -1,8 +1,8 @@
-﻿using KonkordLibrary.Models.Minecraft.Meta;
+﻿using Tavstal.KonkordLibrary.Models.Minecraft.Meta;
 using Newtonsoft.Json;
 using System.Text.Json.Serialization;
 
-namespace KonkordLibrary.Models.Forge.Legacy
+namespace Tavstal.KonkordLibrary.Models.Forge.Legacy
 {
     public class ForgeVersionMeta
     {

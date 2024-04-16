@@ -1,7 +1,7 @@
-﻿using KonkordLibrary.Helpers;
-using KonkordLibrary.Models.Instances;
-using KonkordLibrary.Models.Instances.CurseForge;
-using KonkordLibrary.Models.Launcher;
+﻿using Tavstal.KonkordLibrary.Helpers;
+using Tavstal.KonkordLibrary.Models.Instances;
+using Tavstal.KonkordLibrary.Models.Instances.CurseForge;
+using Tavstal.KonkordLibrary.Models.Launcher;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Diagnostics;
@@ -9,7 +9,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Windows.Controls;
 
-namespace KonkordLibrary.Managers
+namespace Tavstal.KonkordLibrary.Managers
 {
     public static class InstanceManager
     {

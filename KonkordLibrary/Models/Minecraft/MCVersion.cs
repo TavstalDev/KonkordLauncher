@@ -1,9 +1,9 @@
-﻿using KonkordLibrary.Enums;
+﻿using Tavstal.KonkordLibrary.Enums;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
-namespace KonkordLibrary.Models.Minecraft
+namespace Tavstal.KonkordLibrary.Models.Minecraft
 {
     public class MCVersion
     {

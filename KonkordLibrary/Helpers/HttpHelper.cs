@@ -3,7 +3,7 @@ using System.IO;
 using System.Net.Http;
 using System.Net.Http.Json;
 
-namespace KonkordLibrary.Helpers
+namespace Tavstal.KonkordLibrary.Helpers
 {
     public static class HttpHelper
     {
@@ -26,7 +26,7 @@ namespace KonkordLibrary.Helpers
         /// <returns>
         /// A <see cref="Task"/> representing the asynchronous operation. The task result contains the HTTP response message, or null if the request fails.
         /// </returns>
-        public static async Task<HttpResponseMessage?> GetAsync(string request)
+        public static async Task<HttpResponseMessage?> GetAsync(string request, bool showMsg = true)
         {
             try
             {
@@ -34,7 +34,8 @@ namespace KonkordLibrary.Helpers
             }
             catch (Exception ex)
             {
-                NotificationHelper.SendErrorMsg(ex.ToString(), "HTTP Error");
+                if (showMsg)
+                    NotificationHelper.SendErrorMsg(ex.ToString(), "HTTP Error");
                 return null;
             }
         }
@@ -46,7 +47,7 @@ namespace KonkordLibrary.Helpers
         /// <returns>
         /// A <see cref="Task"/> representing the asynchronous operation. The task result contains the response body as a byte array, or null if the request fails.
         /// </returns>
-        public static async Task<byte[]?> GetByteArrayAsync(string request)
+        public static async Task<byte[]?> GetByteArrayAsync(string request, bool showMsg = true)
         {
             try
             {
@@ -54,7 +55,8 @@ namespace KonkordLibrary.Helpers
             }
             catch (Exception ex)
             {
-                NotificationHelper.SendErrorMsg(ex.ToString(), "HTTP Error");
+                if (showMsg)
+                    NotificationHelper.SendErrorMsg(ex.ToString(), "HTTP Error");
                 return null;
             }
         }
@@ -67,7 +69,7 @@ namespace KonkordLibrary.Helpers
         /// <returns>
         /// A <see cref="Task"/> representing the asynchronous operation. The task result contains the response body as a byte array, or null if the request fails.
         /// </returns>
-        public static async Task<byte[]?> GetByteArrayAsync(string url, IProgress<double>? progress = null)
+        public static async Task<byte[]?> GetByteArrayAsync(string url, IProgress<double>? progress, bool showMsg = true)
         {
             try
             {
@@ -102,7 +104,8 @@ namespace KonkordLibrary.Helpers
             }
             catch (Exception ex)
             {
-                NotificationHelper.SendErrorMsg(ex.ToString(), "HTTP Error");
+                if (showMsg)
+                    NotificationHelper.SendErrorMsg(ex.ToString(), "HTTP Error");
                 return null;
             }
         }
@@ -114,7 +117,7 @@ namespace KonkordLibrary.Helpers
         /// <returns>
         /// A <see cref="Task"/> representing the asynchronous operation. The task result contains the response body as a string, or null if the request fails.
         /// </returns>
-        public static async Task<string?> GetStringAsync(string request)
+        public static async Task<string?> GetStringAsync(string request, bool showMsg = true)
         {
             try
             {
@@ -122,7 +125,8 @@ namespace KonkordLibrary.Helpers
             }
             catch (Exception ex)
             {
-                NotificationHelper.SendErrorMsg(ex.ToString(), "HTTP Error");
+                if (showMsg)
+                    NotificationHelper.SendErrorMsg(ex.ToString(), "HTTP Error");
                 return null;
             }
         }
@@ -135,7 +139,7 @@ namespace KonkordLibrary.Helpers
         /// <returns>
         /// A <see cref="Task"/> representing the asynchronous operation. The task result contains the response body as a string, or null if the request fails.
         /// </returns>
-        public static async Task<string?> GetStringAsync(string url, IProgress<double>? progress = null)
+        public static async Task<string?> GetStringAsync(string url, IProgress<double>? progress, bool showMsg = true)
         {
             try
             {
@@ -170,7 +174,8 @@ namespace KonkordLibrary.Helpers
             }
             catch (Exception ex)
             {
-                NotificationHelper.SendErrorMsg(ex.ToString(), "HTTP Error");
+                if (showMsg)
+                    NotificationHelper.SendErrorMsg(ex.ToString(), "HTTP Error");
                 return null;
             }
         }
@@ -182,7 +187,7 @@ namespace KonkordLibrary.Helpers
         /// <returns>
         /// A <see cref="Task"/> representing the asynchronous operation. The task result contains the response body as a stream, or null if the request fails.
         /// </returns>
-        public static async Task<Stream?> GetStreamAsync(string request)
+        public static async Task<Stream?> GetStreamAsync(string request, bool showMsg = true)
         {
             try
             {
@@ -190,7 +195,8 @@ namespace KonkordLibrary.Helpers
             }
             catch (Exception ex)
             {
-                NotificationHelper.SendErrorMsg(ex.ToString(), "HTTP Error");
+                if (showMsg)
+                    NotificationHelper.SendErrorMsg(ex.ToString(), "HTTP Error");
                 return null;
             }
         }
@@ -203,7 +209,7 @@ namespace KonkordLibrary.Helpers
         /// <returns>
         /// A <see cref="Task"/> representing the asynchronous operation. The task result contains the deserialized object of type T, or null if the request fails.
         /// </returns>
-        public static async Task<T?> GetObjectFromJsonAsync<T>(string request)
+        public static async Task<T?> GetObjectFromJsonAsync<T>(string request, bool showMsg = true)
         {
             try
             {
@@ -211,7 +217,8 @@ namespace KonkordLibrary.Helpers
             }
             catch (Exception ex)
             {
-                NotificationHelper.SendErrorMsg(ex.ToString(), "HTTP Error");
+                if (showMsg)
+                    NotificationHelper.SendErrorMsg(ex.ToString(), "HTTP Error");
                 return default;
             }
         }
@@ -241,7 +248,7 @@ namespace KonkordLibrary.Helpers
         /// <returns>
         /// A <see cref="Task"/> representing the asynchronous operation. The task result contains the HTTP response message, or null if the request fails.
         /// </returns>
-        public static async Task<HttpResponseMessage?> PostAsync(string request, HttpContent? content)
+        public static async Task<HttpResponseMessage?> PostAsync(string request, HttpContent? content, bool showMsg = true)
         {
             try
             {
@@ -249,7 +256,8 @@ namespace KonkordLibrary.Helpers
             }
             catch (Exception ex)
             {
-                NotificationHelper.SendErrorMsg(ex.ToString(), "HTTP Error");
+                if (showMsg)
+                    NotificationHelper.SendErrorMsg(ex.ToString(), "HTTP Error");
                 return null;
             }
         }
@@ -263,7 +271,7 @@ namespace KonkordLibrary.Helpers
         /// <returns>
         /// A <see cref="Task"/> representing the asynchronous operation. The task result contains the HTTP response message, or null if the request fails.
         /// </returns>
-        public static async Task<HttpResponseMessage?> PostJsonAsync<T>(string request, T value)
+        public static async Task<HttpResponseMessage?> PostJsonAsync<T>(string request, T value, bool showMsg = true)
         {
             try
             {
@@ -271,7 +279,8 @@ namespace KonkordLibrary.Helpers
             }
             catch (Exception ex)
             {
-                NotificationHelper.SendErrorMsg(ex.ToString(), "HTTP Error");
+                if (showMsg)
+                    NotificationHelper.SendErrorMsg(ex.ToString(), "HTTP Error");
                 return null;
             }
         }

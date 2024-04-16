@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.IO;
 
-namespace KonkordLibrary.Helpers
+namespace Tavstal.KonkordLibrary.Helpers
 {
     public static class JsonHelper
     {

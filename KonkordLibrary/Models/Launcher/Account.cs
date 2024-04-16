@@ -1,8 +1,8 @@
-﻿using KonkordLibrary.Enums;
+﻿using Tavstal.KonkordLibrary.Enums;
 using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
-namespace KonkordLibrary.Models.Launcher
+namespace Tavstal.KonkordLibrary.Models.Launcher
 {
     [Serializable]
     public class Account

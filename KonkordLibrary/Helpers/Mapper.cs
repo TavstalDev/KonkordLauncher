@@ -1,8 +1,8 @@
-﻿using KonkordLibrary.Models.Forge;
+﻿using Tavstal.KonkordLibrary.Models.Forge;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace KonkordLibrary.Helpers
+namespace Tavstal.KonkordLibrary.Helpers
 {
     /// <summary>
     /// Provides methods for mapping and interpolation.

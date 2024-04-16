@@ -1,9 +1,9 @@
-﻿using KonkordLibrary.Models.Minecraft.Library;
+﻿using Tavstal.KonkordLibrary.Models.Minecraft.Library;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Text.Json.Serialization;
 
-namespace KonkordLibrary.Models.Forge.New
+namespace Tavstal.KonkordLibrary.Models.Forge.New
 {
     public class ForgeVersionProfile
     {

@@ -1,17 +1,17 @@
-﻿using KonkordLibrary.Enums;
-using KonkordLibrary.Managers;
-using KonkordLibrary.Models.Fabric;
-using KonkordLibrary.Models.Forge;
-using KonkordLibrary.Models.Installer;
-using KonkordLibrary.Models.Launcher;
-using KonkordLibrary.Models.Quilt;
+﻿using Tavstal.KonkordLibrary.Enums;
+using Tavstal.KonkordLibrary.Managers;
+using Tavstal.KonkordLibrary.Models.Fabric;
+using Tavstal.KonkordLibrary.Models.Forge;
+using Tavstal.KonkordLibrary.Models.Installer;
+using Tavstal.KonkordLibrary.Models.Launcher;
+using Tavstal.KonkordLibrary.Models.Quilt;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text.Json;
 
-namespace KonkordLibrary.Helpers
+namespace Tavstal.KonkordLibrary.Helpers
 {
     public static class IOHelper
     {

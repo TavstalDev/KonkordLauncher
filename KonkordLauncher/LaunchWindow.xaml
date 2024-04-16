@@ -1,4 +1,4 @@
-﻿<Window x:Class="KonkordLauncher.LaunchWindow"
+﻿<Window x:Class="Tavstal.KonkordLauncher.LaunchWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,8 +6,8 @@
         xmlns:fa="http://schemas.fontawesome.io/icons/"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:sysw="clr-namespace:System.Windows;assembly=PresentationFramework"
-        xmlns:self="clr-namespace:KonkordLauncher.Converters"
-        xmlns:lib="clr-namespace:KonkordLibrary.Enums;assembly=KonkordLibrary"
+        xmlns:self="clr-namespace:Tavstal.KonkordLauncher.Converters"
+        xmlns:lib="clr-namespace:Tavstal.KonkordLibrary.Enums;assembly=KonkordLibrary"
         mc:Ignorable="d"
         Title="LaunchWindow" Height="450" Width="800" WindowStyle="None" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Icon="/Assets/Images/workbench.png">
     <Window.Resources>

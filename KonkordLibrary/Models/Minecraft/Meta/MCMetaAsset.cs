@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
-namespace KonkordLibrary.Models.Minecraft.Meta
+namespace Tavstal.KonkordLibrary.Models.Minecraft.Meta
 {
     public class MCMetaAsset
     {

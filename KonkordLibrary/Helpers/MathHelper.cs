@@ -1,4 +1,4 @@
-﻿namespace KonkordLibrary.Helpers
+﻿namespace Tavstal.KonkordLibrary.Helpers
 {
     public static class MathHelper
     {

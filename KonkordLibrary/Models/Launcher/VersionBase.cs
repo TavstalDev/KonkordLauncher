@@ -1,6 +1,6 @@
-﻿using KonkordLibrary.Enums;
+﻿using Tavstal.KonkordLibrary.Enums;
 
-namespace KonkordLibrary.Models.Launcher
+namespace Tavstal.KonkordLibrary.Models.Launcher
 {
     public class VersionBase
     {

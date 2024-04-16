@@ -7,8 +7,13 @@
     <UseWPF>true</UseWPF>
 	<UseWindowsForms>true</UseWindowsForms>
 	<ImplicitUsings>disable</ImplicitUsings>
-    <StartupObject>KonkordLauncher.App</StartupObject>
     <ApplicationIcon>assets\icons\workbench.ico</ApplicationIcon>
+    <AssemblyVersion>1.0.*</AssemblyVersion>
+	<Deterministic>false</Deterministic>
+    <NeutralLanguage>en</NeutralLanguage>
+    <Authors>Tavstal</Authors>
+    <PackageId>Tavstal.$(AssemblyName)</PackageId>
+    <StartupObject>Tavstal.KonkordLauncher.App</StartupObject>
   </PropertyGroup>
 
 

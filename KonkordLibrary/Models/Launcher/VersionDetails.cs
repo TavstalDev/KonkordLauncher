@@ -1,4 +1,4 @@
-﻿namespace KonkordLibrary.Models.Launcher
+﻿namespace Tavstal.KonkordLibrary.Models.Launcher
 {
     public class VersionDetails
     {

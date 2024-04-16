@@ -1,10 +1,10 @@
-﻿using KonkordLibrary.Enums;
-using KonkordLibrary.Helpers;
+﻿using Tavstal.KonkordLibrary.Enums;
+using Tavstal.KonkordLibrary.Helpers;
 using Newtonsoft.Json;
 using System.IO;
 using System.Text.Json.Serialization;
 
-namespace KonkordLibrary.Models.Launcher
+namespace Tavstal.KonkordLibrary.Models.Launcher
 {
     [Serializable]
     public class Profile

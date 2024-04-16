@@ -1,7 +1,7 @@
-﻿using KonkordLibrary.Managers;
+﻿using Tavstal.KonkordLibrary.Managers;
 using System.Windows;
 
-namespace KonkordLibrary.Helpers
+namespace Tavstal.KonkordLibrary.Helpers
 {
     public static class NotificationHelper
     {

@@ -1,10 +1,10 @@
-﻿using KonkordLibrary.Helpers;
-using KonkordLibrary.Models.Launcher;
+﻿using Tavstal.KonkordLibrary.Helpers;
+using Tavstal.KonkordLibrary.Models.Launcher;
 using Newtonsoft.Json;
 using System.IO;
 using System.Net.Http;
 
-namespace KonkordLibrary.Managers
+namespace Tavstal.KonkordLibrary.Managers
 {
     public static class TranslationManager
     {

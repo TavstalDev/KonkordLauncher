@@ -1,9 +1,9 @@
-﻿using KonkordLibrary.Models.Minecraft.Library;
-using KonkordLibrary.Models.Minecraft.Meta;
+﻿using Tavstal.KonkordLibrary.Models.Minecraft.Library;
+using Tavstal.KonkordLibrary.Models.Minecraft.Meta;
 using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
-namespace KonkordLibrary.Models.Minecraft
+namespace Tavstal.KonkordLibrary.Models.Minecraft
 {
     public class MCVersionMeta
     {

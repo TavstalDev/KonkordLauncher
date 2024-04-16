@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace KonkordLauncher.Converters
+namespace Tavstal.KonkordLauncher.Converters
 {
     [ValueConversion(typeof(Enum), typeof(bool))]
     public class EnumToVisibilityConverter : IValueConverter

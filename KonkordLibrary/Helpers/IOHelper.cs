@@ -274,6 +274,13 @@ namespace Tavstal.KonkordLibrary.Helpers
                 {
                     await TranslationManager.SaveTranslationAsync(defaultTranslationFile, TranslationManager.DefaultTranslations);
                 }
+                else
+                {
+                    string localRawTrans = await File.ReadAllTextAsync(defaultTranslationFile);
+                    Dictionary<string, string>? defaultTranslationsLocal = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(localRawTrans);
+                    if (defaultTranslationsLocal == null || defaultTranslationsLocal.Count != TranslationManager.DefaultTranslations.Count)
+                        await TranslationManager.SaveTranslationAsync(defaultTranslationFile, TranslationManager.DefaultTranslations);
+                }
 
 
                 if (settings != null)

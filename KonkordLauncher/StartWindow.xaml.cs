@@ -51,7 +51,14 @@ namespace Tavstal.KonkordLauncher
                             if (!File.Exists(newExePath))
                             {
                                 string? exeDownloadUrl = obj["assets"]?.ToList()[0]?["browser_download_url"]?.ToString();
-                                byte[]? exeByteArray = await HttpHelper.GetByteArrayAsync(exeDownloadUrl);
+                                Progress<double> progress = new Progress<double>();
+                                progress.ProgressChanged += (sender, e) =>
+                                {
+                                    pb_status.Value = e;
+                                    lab_status.Content = $"Downloading new launcher... {e:0.00}%";
+                                };
+
+                                byte[]? exeByteArray = await HttpHelper.GetByteArrayAsync(exeDownloadUrl, progress);
                                 if (exeByteArray != null)
                                 {
                                     await File.WriteAllBytesAsync(newExePath, exeByteArray);

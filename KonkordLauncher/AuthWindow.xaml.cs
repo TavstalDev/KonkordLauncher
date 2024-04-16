@@ -1,13 +1,14 @@
-﻿using KonkordLibrary.Enums;
-using KonkordLibrary.Helpers;
-using KonkordLibrary.Managers;
-using KonkordLibrary.Models.Launcher;
+﻿using Tavstal.KonkordLibrary.Enums;
+using Tavstal.KonkordLibrary.Helpers;
+using Tavstal.KonkordLibrary.Managers;
+using Tavstal.KonkordLibrary.Models.Launcher;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 
-namespace KonkordLauncher
+namespace Tavstal.KonkordLauncher
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -233,15 +234,38 @@ namespace KonkordLauncher
         /// </summary>
         /// <param name="sender">The object that raised the event.</param>
         /// <param name="e">The event arguments.</param>
-        private void OnlineLogin_Click(object sender, RoutedEventArgs e)
+        private async void OnlineLogin_Click(object sender, RoutedEventArgs e)
         {
-            var psi = new ProcessStartInfo
+            try
             {
-                FileName = AuthenticationManager.MicrosoftAuthUrl,
-                UseShellExecute = true
-            };
-            Process.Start(psi);
-            AuthenticationManager.StartListening();
+                btn_auth_online_login.IsEnabled = false;
+                btn_auth_online_switch.IsEnabled = false;
+                var psi = new ProcessStartInfo
+                {
+                    FileName = AuthenticationManager.MicrosoftAuthUrl,
+                    UseShellExecute = true
+                };
+                Process.Start(psi);
+                AuthenticationManager.StartListening();
+
+                while (AuthenticationManager.IsListening)
+                {
+                    await Task.Delay(50);
+                    if (AuthenticationManager.GetMicrosoftAuthStatus())
+                    {
+                        LaunchWindow window = new LaunchWindow();
+                        window.Show();
+                        this.Close();
+                    }
+                }
+
+                btn_auth_online_login.IsEnabled = true;
+                btn_auth_online_switch.IsEnabled = true;
+            }
+            catch (Exception ex)
+            {
+                NotificationHelper.SendErrorMsg(ex.ToString(), "Online Login Error");
+            }
         }
         #endregion
     }

@@ -56,6 +56,8 @@ namespace Tavstal.KonkordLauncher
                                 {
                                     await File.WriteAllBytesAsync(newExePath, exeByteArray);
                                     NotificationHelper.SendNotificationMsg($"New version of the launcher has been downloaded to your downloads folder. Please delete the .exe of the current launcher.\nPath: {newExePath}", "Downloaded version");
+                                    this.Close();
+                                    return;
                                 }
                             }
                         }

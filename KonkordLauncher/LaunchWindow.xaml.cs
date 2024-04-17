@@ -55,6 +55,23 @@ namespace Tavstal.KonkordLauncher
 
             #region Resize Elements
             #region Main Window
+            WindowHelper.Resize(bo_topmenu, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(btn_topmenu_home, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(btn_topmenu_modpacks, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(btn_topmenu_patchs, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(btn_topmenu_skins, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(grid_main, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(grid_main_home, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(grid_main_skins, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(grid_main_patchs, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(grid_main_modpacks, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(grid_main, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(bo_grid_main_skins_bg, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(bo_grid_main, _heightMultiplier, _widthMultiplier);
+
+            
+
+            #region Home
             WindowHelper.Resize(bo_title_row, _heightMultiplier, _widthMultiplier);
             WindowHelper.Resize(img_window_icon, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(l_WindowName, _heightMultiplier, _widthMultiplier);
@@ -120,6 +137,7 @@ namespace Tavstal.KonkordLauncher
             listbox_launchinstances.Resources["ListButtonMargin"] = localThickness;
 
             WindowHelper.Resize(bo_instances, _heightMultiplier, _widthMultiplier);
+            #endregion
             #endregion
             #region Instances
             WindowHelper.ResizeFont(lab_instances, _heightMultiplier, _widthMultiplier);
@@ -714,6 +732,7 @@ namespace Tavstal.KonkordLauncher
         #endregion
 
         #region Main
+        
         #region Logout Button
         /// <summary>
         /// Handles the click event of the logout button in the launch interface.
@@ -793,6 +812,11 @@ namespace Tavstal.KonkordLauncher
         }
         #endregion
 
+        /// <summary>
+        /// Handles the event when the selection changes in the languages dropdown.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The event arguments containing information about the selection change.</param>
         private async void Languages_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             LauncherSettings? settings = IOHelper.GetLauncherSettings();
@@ -968,6 +992,11 @@ namespace Tavstal.KonkordLauncher
             catch { }
         }
 
+        /// <summary>
+        /// Handles the event when the selection changes in the instance action box.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The event arguments containing information about the selection change.</param>
         private async void InstanceActionBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.AddedItems.Count == 0)
@@ -1046,6 +1075,96 @@ namespace Tavstal.KonkordLauncher
             if (comboBox != null)
                 comboBox.SelectedIndex = -1;
         }
+
+        #region Category Menu
+        private void TopmenuHome_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (var child in dp_category.Children)
+            {
+                if (child is not Button button)
+                    continue;
+
+                if (sender == button)
+                    button.Style = (Style)FindResource("CategoryButtonSelected");
+                else
+                    button.Style = (Style)FindResource("CategoryButton");
+            }
+
+            foreach (var child in grid_main.Children)
+            {
+                if (child is not Grid grid)
+                    continue;
+
+                grid.Visibility = grid.Name == "grid_main_home" ? Visibility.Visible : Visibility.Hidden;
+            }
+        }
+
+        private void TopmenuModPacks_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (var child in dp_category.Children)
+            {
+                if (child is not Button button)
+                    continue;
+
+                if (sender == button)
+                    button.Style = (Style)FindResource("CategoryButtonSelected");
+                else
+                    button.Style = (Style)FindResource("CategoryButton");
+            }
+
+            foreach (var child in grid_main.Children)
+            {
+                if (child is not Grid grid)
+                    continue;
+
+                grid.Visibility = grid.Name == "grid_main_modpacks" ? Visibility.Visible : Visibility.Hidden;
+            }
+        }
+
+        private void TopmenuSkins_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (var child in dp_category.Children)
+            {
+                if (child is not Button button)
+                    continue;
+
+                if (sender == button)
+                    button.Style = (Style)FindResource("CategoryButtonSelected");
+                else
+                    button.Style = (Style)FindResource("CategoryButton");
+            }
+
+            foreach (var child in grid_main.Children)
+            {
+                if (child is not Grid grid)
+                    continue;
+
+                grid.Visibility = grid.Name == "grid_main_skins" ? Visibility.Visible : Visibility.Hidden;
+            }
+        }
+
+        private void TopmenuPatchs_Click(object sender, RoutedEventArgs e)
+        {
+            foreach (var child in dp_category.Children)
+            {
+                if (child is not Button button)
+                    continue;
+
+                if (sender == button)
+                    button.Style = (Style)FindResource("CategoryButtonSelected");
+                else
+                    button.Style = (Style)FindResource("CategoryButton");
+            }
+
+            foreach (var child in grid_main.Children)
+            {
+                if (child is not Grid grid)
+                    continue;
+
+                grid.Visibility = grid.Name == "grid_main_patchs" ? Visibility.Visible : Visibility.Hidden;
+            }
+        }
+        #endregion
         #endregion
 
         #region Instances

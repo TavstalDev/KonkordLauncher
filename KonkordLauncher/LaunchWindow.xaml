@@ -24,16 +24,7 @@
             <ImageBrush ImageSource="/assets/images/background.png"/>
         </Grid.Background>
 
-        <!-- Title row -->
-        <Border x:Name="bo_title_row" BorderThickness="1" BorderBrush="#FF515464" Background="#FF515464" VerticalAlignment="Top" Height="25">
-            <Grid>
-                <Image x:Name="img_window_icon" Margin="4,0,0,0" Width="18" Height="18" Source="/assets/images/workbench.png" HorizontalAlignment="Left"   VerticalAlignment="Center" />
-                <Label x:Name="l_WindowName" Content="Konkord Launcher" Canvas.Left="0" Canvas.Top="0" HorizontalAlignment="Left" VerticalContentAlignment="Center" Foreground="White" FontSize="10" Width="358" Height="24" IsHitTestVisible="False" Padding="5,0,0,0" Margin="24,0,0,0" VerticalAlignment="Center"/>
-            </Grid>
-        </Border>
-        <!-- WINDOW BUTTONS -->
-        <Button x:Name="bt_window_close" fa:Awesome.Content="Close" TextElement.FontFamily="{StaticResource FontAwesome}" HorizontalAlignment="Right" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Click="WindowClose_Click" Style="{StaticResource WindowClose}"/>
-        <Button x:Name="bt_window_minimize" fa:Awesome.Content="WindowMinimize" TextElement.FontFamily="{StaticResource FontAwesome}" HorizontalAlignment="Right" Margin="0,0,20,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Click="WindowMinimize_Click" Style="{StaticResource WindowButton}"/>
+        <!-- #region Content -->
 
         <!-- Install Row -->
         <Border x:Name="bo_launch_progress" IsEnabled="False" Visibility="Hidden" BorderBrush="#FF515464" Background="#FF515464" BorderThickness="1" Height="50" Width="622" VerticalAlignment="Bottom" HorizontalAlignment="Right" ClipToBounds="True">
@@ -45,8 +36,69 @@
             </Grid>
         </Border>
 
+        <!-- Top Menu -->
+        <Border x:Name="bo_topmenu" Background="#FF353743" BorderThickness="1" Margin="0,24,0,0" HorizontalAlignment="Right" VerticalAlignment="Top" Width="622" Height="35" BorderBrush="#FF353743">
+            <DockPanel x:Name="dp_category" HorizontalAlignment="Left" Margin="5,0,5,0">
+                <Button x:Name="btn_topmenu_home" Click="TopmenuHome_Click" Style="{DynamicResource CategoryButtonSelected}" Content="Home" Width="75" Foreground="White" FontSize="11" />
+                <Button x:Name="btn_topmenu_modpacks" Click="TopmenuModPacks_Click" Style="{DynamicResource CategoryButton}" Content="Mod Packs" Width="90" Foreground="White" FontSize="11" />
+                <Button x:Name="btn_topmenu_skins" Click="TopmenuSkins_Click" Style="{DynamicResource CategoryButton}" Content="Skins" Width="75" Foreground="White" FontSize="11" />
+                <Button x:Name="btn_topmenu_patchs" Click="TopmenuPatchs_Click" Style="{DynamicResource CategoryButton}" Content="Patch Notes" Width="100" Foreground="White" FontSize="11" />
+            </DockPanel>
+        </Border>
+
+        <!-- #region Main Content -->
+        <Border x:Name="bo_grid_main" VerticalAlignment="Bottom" HorizontalAlignment="Right" Height="391" Width="620">
+            <Grid x:Name="grid_main">
+                <Grid x:Name="grid_main_home" Visibility="Hidden" Margin="15,15,15,15">
+
+                </Grid>
+                <Grid x:Name="grid_main_modpacks" Visibility="Hidden" Margin="15,15,15,15">
+
+                </Grid>
+                <Grid x:Name="grid_main_skins" Margin="30,30,30,30">
+                    <Border x:Name="bo_grid_main_skins_bg" Background="#FF353743" BorderBrush="#FF353743" BorderThickness="1" CornerRadius="5" VerticalAlignment="Center" HorizontalAlignment="Center" Width="560" Height="331" />
+                    <!-- Current -->
+                    <Label x:Name="lab_main_skins_current" Content="Current" HorizontalAlignment="Left" VerticalAlignment="Top" FontWeight="SemiBold" Foreground="White" Margin="105,20,0,0"/>
+                    <Image x:Name="img_main_skins_current" Source="assets/images/steve_full.png" Margin="58,60,361,72" />
+                    
+                    <Border x:Name="bo_main_skins_reset" BorderBrush="#FF5D6F95" BorderThickness="1" CornerRadius="3,3,3,3" Canvas.Left="66" Canvas.Top="91" Background="#FF5D6F95" Margin="95,0,0,20" ClipToBounds="True" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="75">
+                        <Grid>
+                            <Label x:Name="lab_main_skins_reset" Content="Reset" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Foreground="White" Padding="0,0,0,0"  />
+                            <Button x:Name="btn_main_skins_reset" Style="{StaticResource BaseButton}" Content="" BorderThickness="2" Foreground="White" Canvas.Left="78" Canvas.Top="128" ClipToBounds="True" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" FontWeight="Bold" FontSize="14" Margin="0,0,0,-1" Click="LaunchPlay_Click"/>
+                        </Grid>
+                    </Border>
+                    
+                    <!-- Divider -->
+                    <Border x:Name="bo_main_skins_divider" Width="1" HorizontalAlignment="Left" Margin="205,50,0,50" Background="#3FFFFFFF" />
+
+                    <!-- Library -->
+                    <Label x:Name="lab_main_skins_library" Content="Library" HorizontalAlignment="Right" VerticalAlignment="Top" FontWeight="SemiBold" Foreground="White" Margin="0,20,155,0"/>
+
+                    <ListBox Name="listBox" ItemsSource="{Binding}" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="224,51,20,10" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Background="Transparent" Width="60" Height="90">
+                                    <Image Source="assets/images/steve_full.png" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ListBox>
+                </Grid>
+                <Grid x:Name="grid_main_patchs" Visibility="Hidden" Margin="15,15,15,15">
+
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- #endregion -->
+
         <!-- Left Menu -->
-        <Border x:Name="bo_leftmenu" Background="#FF353743" BorderBrush="#FF353743" BorderThickness="1" Width="180" Height="425" VerticalAlignment="Bottom" ClipToBounds="True" HorizontalAlignment="Left">
+        <Border x:Name="bo_leftmenu" Background="#FF353743" BorderBrush="#FF353743" BorderThickness="1" Width="180" Height="427" VerticalAlignment="Bottom" ClipToBounds="True" HorizontalAlignment="Left">
             <Grid Margin="0,0,0,0">
                 <Border x:Name="gr_account" CornerRadius="4,4,4,4" VerticalAlignment="Top" Height="48" Margin="5,5,5,5">
                     <Grid>
@@ -93,7 +145,7 @@
                         <sys:Double x:Key="ListButtonHeight">24</sys:Double>
                         <sys:Double x:Key="ListButtonWidth">10</sys:Double>
                         <sysw:Thickness x:Key="ListButtonMargin">5,2,0,2</sysw:Thickness>
-                        
+
                         <sys:String x:Key="BtnTextOpenDir">Open Directory</sys:String>
                         <sys:String x:Key="BtnTextExportInst">Export Instance</sys:String>
                         <sys:String x:Key="BtnTextEdit">Edit</sys:String>
@@ -101,7 +153,7 @@
                     </ListBox.Resources>
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <DockPanel x:Name="dockpanel_launchinstances" LastChildFill="True" Width="auto"> 
+                            <DockPanel x:Name="dockpanel_launchinstances" LastChildFill="True" Width="auto">
                                 <Border x:Name="bo_listTemplate" DockPanel.Dock="Left" VerticalAlignment="Center" Width="{DynamicResource ListBorderWidth}" Height="{DynamicResource ListBorderHeight}" Margin="{DynamicResource ListBorderMargin}">
                                     <Border.Background>
                                         <ImageBrush ImageSource="{Binding Value.Icon}"/>
@@ -264,7 +316,7 @@
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
-                            
+
                             <CheckBox x:Name="checkb_instances_version_releases" Checked="InstancesVersion_Checked" Unchecked="InstancesVersion_Checked" IsChecked="True" Content="Show Releases" HorizontalAlignment="Center" Margin="-205,55,0,0" VerticalAlignment="Top" Background="White" Foreground="White" FontWeight="Light" FontSize="10" VerticalContentAlignment="Center"/>
                             <CheckBox x:Name="checkb_instances_version_snapshots" Checked="InstancesVersion_Checked" Unchecked="InstancesVersion_Checked" Content="Show Snapshots" HorizontalAlignment="Center" Margin="0,55,0,0" VerticalAlignment="Top" Background="White" Foreground="White" FontWeight="Light" FontSize="10" VerticalContentAlignment="Center"/>
                             <CheckBox x:Name="checkb_instances_version_betas" Checked="InstancesVersion_Checked" Unchecked="InstancesVersion_Checked" Content="Show Old Betas" HorizontalAlignment="Left" Margin="205,55,0,0" VerticalAlignment="Top" Background="White" Foreground="White" FontWeight="Light" FontSize="10" VerticalContentAlignment="Center"/>
@@ -365,5 +417,19 @@
                 </Border>
             </Grid>
         </Border>
+
+        <!-- #endregion -->
+
+        <!-- Title row -->
+        <Border x:Name="bo_title_row" BorderThickness="1" BorderBrush="#FF515464" Background="#FF515464" VerticalAlignment="Top" Height="25">
+            <Grid>
+                <Image x:Name="img_window_icon" Margin="4,0,0,0" Width="18" Height="18" Source="/assets/images/workbench.png" HorizontalAlignment="Left"   VerticalAlignment="Center" />
+                <Label x:Name="l_WindowName" Content="Konkord Launcher" Canvas.Left="0" Canvas.Top="0" HorizontalAlignment="Left" VerticalContentAlignment="Center" Foreground="White" FontSize="10" Width="358" Height="24" IsHitTestVisible="False" Padding="5,0,0,0" Margin="24,0,0,0" VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+        <!-- WINDOW BUTTONS -->
+        <Button x:Name="bt_window_close" fa:Awesome.Content="Close" TextElement.FontFamily="{StaticResource FontAwesome}" HorizontalAlignment="Right" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Click="WindowClose_Click" Style="{StaticResource WindowClose}"/>
+        <Button x:Name="bt_window_minimize" fa:Awesome.Content="WindowMinimize" TextElement.FontFamily="{StaticResource FontAwesome}" HorizontalAlignment="Right" Margin="0,0,20,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" Click="WindowMinimize_Click" Style="{StaticResource WindowButton}"/>
+
     </Grid>
 </Window>

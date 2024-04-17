@@ -557,5 +557,21 @@ namespace Tavstal.KonkordLibrary.Managers
                 return false;
             }
         }
+    
+    
+        public static async Task UpdateUsername(string mcToken, string newUsername)
+        {
+
+        }
+
+        private static async Task CheckUsername()
+        {
+
+        }
+
+        public static async Task UpdateSkin(string mcToken)
+        {
+
+        }
     }
 }

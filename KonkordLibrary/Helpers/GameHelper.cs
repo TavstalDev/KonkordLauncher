@@ -93,16 +93,6 @@ namespace Tavstal.KonkordLibrary.Helpers
 
                         return GetProfileVersionDetails(profile.Kind, profile.VersionId, profile.VersionVanillaId, profile.GameDirectory);
                     }
-                case EProfileType.KONKORD_CREATE:
-                    {
-                        // TODO at the end
-                        throw new NotImplementedException();
-                    }
-                case EProfileType.KONKORD_VANILLAPLUS:
-                    {
-                        // TODO at the end
-                        throw new NotImplementedException();
-                    }
                 default:
                     {
                         throw new NotImplementedException("How did we get here ?");

@@ -13,7 +13,7 @@ namespace Tavstal.KonkordLibrary.Models.Minecraft.API
         [JsonProperty("skins"), JsonPropertyName("skins")]
         public List<Skin> Skins {  get; set; }
         [JsonProperty("capes"), JsonPropertyName("capes")]
-        public JArray Capes { get; set; } // TODO, find its model
+        public JArray Capes { get; set; }
 
         public MojangProfile() { }
 

@@ -213,13 +213,13 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
-    <None Update="Translations\default.json">
+    <None Update="assets\translations\default.json">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <None Update="Translations\german.json">
+    <None Update="assets\translations\german.json">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
-    <None Update="Translations\hungarian.json">
+    <None Update="assets\translations\hungarian.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

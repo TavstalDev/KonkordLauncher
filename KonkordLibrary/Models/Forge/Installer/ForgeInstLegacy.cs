@@ -61,27 +61,32 @@ namespace Tavstal.KonkordLibrary.Models.Forge.Installer
                 Directory.CreateDirectory(librarySizeCacheDir);
 
             // Download Installer
-            UpdateProgressbarTranslated(0, $"ui_downloading_installer", new object[] { "forge" });
+            UpdateProgressbarTranslated(0, $"ui_downloading_installer", new object[] { "forge", 0 });
             string installerJarPath = Path.Combine(tempDir, "installer.jar");
             string installerDir = Path.Combine(tempDir, "installer");
 
             byte[]? bytes;
-            // TODO, percent
+            Progress<double> progress = new Progress<double>();
+            progress.ProgressChanged += (sender, e) =>
+            {
+                UpdateProgressbarTranslated(e, "ui_downloading_installer", new object[] { MinecraftVersion.Id, e.ToString("0.00") });
+            };
+
             try
             {
-                bytes = await HttpHelper.GetByteArrayAsync(string.Format(ForgeInstallerJarUrl, $"{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}"));
+                bytes = await HttpHelper.GetByteArrayAsync(string.Format(ForgeInstallerJarUrl, $"{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}"), progress);
             }
             catch
             {
                 int length = forgeVersion.VanillaVersion.Split('.').Length;
                 if (length == 3)
                 {
-                    bytes = await HttpHelper.GetByteArrayAsync(string.Format(ForgeInstallerJarUrl, $"{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}-{forgeVersion.VanillaVersion}"));
+                    bytes = await HttpHelper.GetByteArrayAsync(string.Format(ForgeInstallerJarUrl, $"{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}-{forgeVersion.VanillaVersion}"), progress);
                     _extraVersion = $"-{forgeVersion.VanillaVersion}";
                 }
                 else
                 {
-                    bytes = await HttpHelper.GetByteArrayAsync(string.Format(ForgeInstallerJarUrl, $"{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}-{forgeVersion.VanillaVersion}.0"));
+                    bytes = await HttpHelper.GetByteArrayAsync(string.Format(ForgeInstallerJarUrl, $"{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}-{forgeVersion.VanillaVersion}.0"), progress);
                     _extraVersion = $"-{forgeVersion.VanillaVersion}.0";
                 }
             }

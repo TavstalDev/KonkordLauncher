@@ -31,6 +31,7 @@ namespace Tavstal.KonkordLauncher
     {
         private string? EditedProfileKey {  get; set; }
         private Profile? EditedProfile {  get; set; }
+        private Grid SelectedSkinGrid {  get; set; }
         public KeyValuePair<string, Profile> SelectedProfile { get; set; }
         private readonly double _heightMultiplier;
         private readonly double _widthMultiplier;
@@ -69,7 +70,19 @@ namespace Tavstal.KonkordLauncher
             WindowHelper.Resize(bo_grid_main_skins_bg, _heightMultiplier, _widthMultiplier);
             WindowHelper.Resize(bo_grid_main, _heightMultiplier, _widthMultiplier);
 
-            
+            WindowHelper.ResizeFont(lab_main_skins_current, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_main_skins_library, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_main_skins_reset, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(btn_main_skins_reset, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(bo_main_skins_divider, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(lb_main_skins, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(bo_main_skins_reset, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(img_main_skins_current, _heightMultiplier, _widthMultiplier);
+
+            lb_main_skins.Resources["ListButtonFontSize"] = double.Parse(lb_main_skins.Resources["ListButtonFontSize"].ToString()) * _widthMultiplier;
+            lb_main_skins.Resources["GridWidth"] = double.Parse(lb_main_skins.Resources["GridWidth"].ToString()) * _widthMultiplier;
+            lb_main_skins.Resources["GridHeight"] = double.Parse(lb_main_skins.Resources["GridHeight"].ToString()) * _heightMultiplier;
+            lb_main_skins.Resources["LabelFontSize"] = double.Parse(lb_main_skins.Resources["LabelFontSize"].ToString()) * _widthMultiplier;
 
             #region Home
             WindowHelper.Resize(bo_title_row, _heightMultiplier, _widthMultiplier);
@@ -272,6 +285,7 @@ namespace Tavstal.KonkordLauncher
             await RefreshAccount();
             
         }
+
 
         #region Functions
         /// <summary>
@@ -1768,5 +1782,131 @@ namespace Tavstal.KonkordLauncher
             }
         }
         #endregion
+
+        private void MainSkinsItem_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ListBox listBox = (ListBox)sender;
+
+            if (e.RemovedItems != null)
+            {
+                foreach (object selectedItem in e.RemovedItems)
+                {
+                    ListBoxItem? selectedListBoxItem = listBox.ItemContainerGenerator.ContainerFromItem(selectedItem) as ListBoxItem;
+
+                    if (selectedListBoxItem == null)
+                        return;
+                    Grid grid = FindVisualChild<Grid>(selectedListBoxItem);
+                    SelectedSkinGrid = grid;
+
+                    foreach (var child in grid.Children)
+                    {
+                        if (child is Image image)
+                        {
+                            image.Opacity = 0.5;
+                        }
+                        else if (child is Border button)
+                        {
+                            button.Visibility = Visibility.Hidden;
+                        }
+                        else if (child is ComboBox comboBox)
+                        {
+                            comboBox.Visibility = Visibility.Hidden;
+                        }
+                    }
+                }
+            }
+
+            if (e.AddedItems != null)
+            {
+                foreach (object selectedItem in e.AddedItems)
+                {
+                    ListBoxItem? selectedListBoxItem = listBox.ItemContainerGenerator.ContainerFromItem(selectedItem) as ListBoxItem;
+
+                    if (selectedListBoxItem == null)
+                        return;
+                    Grid grid = FindVisualChild<Grid>(selectedListBoxItem);
+                    SelectedSkinGrid = grid;
+
+                    foreach (var child in grid.Children)
+                    {
+                        if (child is Image image && grid != SelectedSkinGrid)
+                        {
+                            image.Opacity = 0.5;
+                        }
+                        else if (child is Border button && grid != SelectedSkinGrid)
+                        {
+                            button.Visibility = Visibility.Hidden;
+                        }
+                        else if (child is ComboBox comboBox && grid != SelectedSkinGrid)
+                        {
+                            comboBox.Visibility = Visibility.Hidden;
+                        }
+                    }
+                }
+            }
+
+            
+        }
+
+        private void SkinListGrid_MouseEnter(object sender, MouseEventArgs e)
+        {
+            Grid grid = (Grid)sender;
+
+            foreach (var child in grid.Children)
+            {
+                if (child is Image image)
+                {
+                    image.Opacity = 1d;
+                }
+                else if (child is Border button)
+                {
+                    button.Visibility = Visibility.Visible;
+                }
+                else if (child is ComboBox comboBox)
+                {
+                    comboBox.Visibility = Visibility.Visible;
+                }
+            }
+        }
+
+        private void SkinListGrid_MouseLeave(object sender, MouseEventArgs e)
+        {
+            Grid grid = (Grid)sender;
+
+            foreach (var child in grid.Children)
+            {
+                if (child is Image image && grid != SelectedSkinGrid)
+                {
+                    image.Opacity = 0.5;
+                }
+                else if (child is Border button && grid != SelectedSkinGrid)
+                {
+                    button.Visibility = Visibility.Hidden;
+                }
+                else if (child is ComboBox comboBox && grid != SelectedSkinGrid)
+                {
+                    comboBox.Visibility = Visibility.Hidden;
+                }
+            }
+        }
+
+        private T FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
+        {
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                DependencyObject child = VisualTreeHelper.GetChild(parent, i);
+                if (child != null && child is T)
+                {
+                    return (T)child;
+                }
+                else
+                {
+                    T childOfChild = FindVisualChild<T>(child);
+                    if (childOfChild != null)
+                        return childOfChild;
+                }
+            }
+            return null;
+        }
     }
 }

@@ -61,6 +61,7 @@
     <None Remove="assets\images\icon.png" />
     <None Remove="assets\images\konkord_logo.png" />
     <None Remove="assets\images\minceraft.png" />
+    <None Remove="assets\images\steve_full.png" />
     <None Remove="assets\images\steve_head.png" />
   </ItemGroup>
 
@@ -198,6 +199,9 @@
     </Resource>
     <Resource Include="assets\images\konkord_logo.png" />
     <Resource Include="assets\images\minceraft.png" />
+    <Resource Include="assets\images\steve_full.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="assets\images\steve_head.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>

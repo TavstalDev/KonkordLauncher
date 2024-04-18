@@ -11,6 +11,7 @@
         mc:Ignorable="d"
         Title="LaunchWindow" Height="450" Width="800" WindowStyle="None" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Icon="/Assets/Images/workbench.png">
     <Window.Resources>
+        <!-- BUILDING FIXES THE ERROR -->
         <self:EnumToVisibilityConverter x:Key="ETVConverter" />
     </Window.Resources>
     <Grid>
@@ -58,35 +59,88 @@
                 <Grid x:Name="grid_main_skins" Margin="30,30,30,30">
                     <Border x:Name="bo_grid_main_skins_bg" Background="#FF353743" BorderBrush="#FF353743" BorderThickness="1" CornerRadius="5" VerticalAlignment="Center" HorizontalAlignment="Center" Width="560" Height="331" />
                     <!-- Current -->
-                    <Label x:Name="lab_main_skins_current" Content="Current" HorizontalAlignment="Left" VerticalAlignment="Top" FontWeight="SemiBold" Foreground="White" Margin="105,20,0,0"/>
-                    <Image x:Name="img_main_skins_current" Source="assets/images/steve_full.png" Margin="58,60,361,72" />
-                    
-                    <Border x:Name="bo_main_skins_reset" BorderBrush="#FF5D6F95" BorderThickness="1" CornerRadius="3,3,3,3" Canvas.Left="66" Canvas.Top="91" Background="#FF5D6F95" Margin="95,0,0,20" ClipToBounds="True" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="75">
+                    <Label x:Name="lab_main_skins_current" Content="Current" HorizontalAlignment="Left" VerticalAlignment="Top" FontWeight="SemiBold" Foreground="White" Margin="80,20,0,0"/>
+                    <Image x:Name="img_main_skins_current" Source="/assets/images/steve_full.png" Margin="55,0,0,0" HorizontalAlignment="Left" Width="100" VerticalAlignment="Center" Height="200" Stretch="Fill" />
+
+                    <Border x:Name="bo_main_skins_reset" BorderBrush="#FF5D6F95" BorderThickness="1" CornerRadius="3,3,3,3" Canvas.Left="66" Canvas.Top="91" Background="#FF5D6F95" Margin="75,0,0,20" ClipToBounds="True" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="75">
                         <Grid>
                             <Label x:Name="lab_main_skins_reset" Content="Reset" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Foreground="White" Padding="0,0,0,0"  />
                             <Button x:Name="btn_main_skins_reset" Style="{StaticResource BaseButton}" Content="" BorderThickness="2" Foreground="White" Canvas.Left="78" Canvas.Top="128" ClipToBounds="True" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" FontWeight="Bold" FontSize="14" Margin="0,0,0,-1" Click="LaunchPlay_Click"/>
                         </Grid>
                     </Border>
-                    
+
                     <!-- Divider -->
                     <Border x:Name="bo_main_skins_divider" Width="1" HorizontalAlignment="Left" Margin="205,50,0,50" Background="#3FFFFFFF" />
 
                     <!-- Library -->
                     <Label x:Name="lab_main_skins_library" Content="Library" HorizontalAlignment="Right" VerticalAlignment="Top" FontWeight="SemiBold" Foreground="White" Margin="0,20,155,0"/>
 
-                    <ListBox Name="listBox" ItemsSource="{Binding}" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="224,51,20,10" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White">
+                    <ListBox x:Name="lb_main_skins" SelectionChanged="MainSkinsItem_SelectionChanged" ItemsSource="{Binding}" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="224,51,20,10" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White">
+                        <ListBox.Resources>
+                            <sys:String x:Key="BtnEditText">Edit</sys:String>
+                            <sys:String x:Key="BtnDuplicateText">Duplicate</sys:String>
+                            <sys:String x:Key="BtnDeleteText">Delete</sys:String>
+                            <sys:Double x:Key="ListButtonFontSize">10</sys:Double>
+                            <sys:Double x:Key="GridWidth">80</sys:Double>
+                            <sys:Double x:Key="GridHeight">120</sys:Double>
+                            <sys:Double x:Key="LabelFontSize">8</sys:Double>
+                        </ListBox.Resources>
                         <ListBox.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <WrapPanel Orientation="Horizontal" />
                             </ItemsPanelTemplate>
                         </ListBox.ItemsPanel>
                         <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Background="Transparent" Width="60" Height="90">
-                                    <Image Source="assets/images/steve_full.png" />
+                            <DataTemplate x:Name="SkinListboxItem">
+                                <Grid Background="Transparent" MouseEnter="SkinListGrid_MouseEnter" MouseLeave="SkinListGrid_MouseLeave" Width="{DynamicResource GridWidth}" Height="{DynamicResource GridHeight}">
+
+                                    <Image x:Name="img_main_skins" Source="/assets/images/steve_full.png" Margin="0,15,0,0" Opacity="0.5" />
+
+                                    <Label Content="NAME" FontSize="{DynamicResource LabelFontSize}" Foreground="White" HorizontalContentAlignment="Center" VerticalAlignment="Top" Padding="0,0,0,2" />
+
+                                    <Border x:Name="bo_main_skins_reset" Visibility="Hidden" BorderBrush="#FF5D6F95" BorderThickness="1" CornerRadius="3,3,3,3" Canvas.Left="66" Canvas.Top="91" Background="#FF5D6F95" ClipToBounds="True" Height="15.2" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Width="NaN" Margin="0,0,0,20">
+                                        <Grid>
+                                            <Label x:Name="lab_main_skins_reset" Content="USE" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Foreground="White" Padding="0,0,0,0" FontSize="{DynamicResource LabelFontSize}"  />
+                                            <Button x:Name="btn_main_skins_reset" Style="{StaticResource BaseButton}" Content="" BorderThickness="2" Foreground="White" Canvas.Left="78" Canvas.Top="128" ClipToBounds="True" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" FontWeight="Bold" FontSize="14" Margin="0,0,0,-1"/>
+                                        </Grid>
+                                    </Border>
+
+                                    <ComboBox Style="{StaticResource SkinMenuComboBox}" Visibility="Hidden" SelectedIndex="-1"  Margin="0,0,0,0" FontFamily="{StaticResource FontAwesome}" IsTextSearchEnabled="False" Foreground="White" HorizontalAlignment="Stretch" FontSize="12"  Width="NaN" Height="15" VerticalAlignment="Bottom">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid>
+                                                    <TextBlock FontSize="{DynamicResource ListButtonFontSize}" Margin="0,0,15,0" FontFamily="{StaticResource FontAwesome}"></TextBlock>
+                                                    <TextBlock FontSize="{DynamicResource ListButtonFontSize}" Margin="0,0,0,0"></TextBlock>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                        <ComboBox.Items>
+                                            <ComboBoxItem Tag="{Binding}" x:Name="edit" FontFamily="{StaticResource FontAwesome}">
+                                                <Grid>
+                                                    <TextBlock Text="&#xf044;"></TextBlock>
+                                                    <TextBlock Margin="17,0,0,0" Text="{DynamicResource BtnEditText}"></TextBlock>
+                                                </Grid>
+                                            </ComboBoxItem>
+                                            <ComboBoxItem Tag="{Binding}" x:Name="duplicate" FontFamily="{StaticResource FontAwesome}">
+                                                <Grid>
+                                                    <TextBlock Text="&#xf24d;"></TextBlock>
+                                                    <TextBlock Margin="17,0,0,0" Text="{DynamicResource BtnDuplicateText}"></TextBlock>
+                                                </Grid>
+                                            </ComboBoxItem>
+                                            <ComboBoxItem Tag="{Binding}" x:Name="delete" FontFamily="{StaticResource FontAwesome}">
+                                                <Grid>
+                                                    <TextBlock Text="&#xf1f8;"></TextBlock>
+                                                    <TextBlock Margin="17,0,0,0" Text="{DynamicResource BtnDeleteText}"></TextBlock>
+                                                </Grid>
+                                            </ComboBoxItem>
+                                        </ComboBox.Items>
+                                    </ComboBox>
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
+                        <ListBox.ItemContainerStyle>
+                            <StaticResource ResourceKey="SkinListboxItem" />
+                        </ListBox.ItemContainerStyle>
                     </ListBox>
                 </Grid>
                 <Grid x:Name="grid_main_patchs" Visibility="Hidden" Margin="15,15,15,15">

@@ -1,8 +1,7 @@
-﻿using Tavstal.KonkordLibrary.Helpers;
-using Tavstal.KonkordLibrary.Models.Launcher;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System.IO;
-using System.Net.Http;
+using Tavstal.KonkordLibrary.Helpers;
+using Tavstal.KonkordLibrary.Models.Launcher;
 
 namespace Tavstal.KonkordLibrary.Managers
 {

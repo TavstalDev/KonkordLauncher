@@ -55,6 +55,8 @@ namespace Tavstal.KonkordLauncher
             _widthMultiplier = Width / oldWidth;
 
             #region Resize Elements
+            Thickness localThickness;
+
             #region Main Window
             WindowHelper.Resize(bo_topmenu, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(btn_topmenu_home, _heightMultiplier, _widthMultiplier);
@@ -72,17 +74,34 @@ namespace Tavstal.KonkordLauncher
 
             WindowHelper.ResizeFont(lab_main_skins_current, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(lab_main_skins_library, _heightMultiplier, _widthMultiplier);
-            WindowHelper.ResizeFont(lab_main_skins_reset, _heightMultiplier, _widthMultiplier);
-            WindowHelper.ResizeFont(btn_main_skins_reset, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(btn_main_skins_addtolibrary, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(bo_main_skins_addtolibrary, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(btn_main_skins_newskin, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(bo_main_skins_newskin, _heightMultiplier, _widthMultiplier);
             WindowHelper.Resize(bo_main_skins_divider, _heightMultiplier, _widthMultiplier);
             WindowHelper.Resize(lb_main_skins, _heightMultiplier, _widthMultiplier);
-            WindowHelper.Resize(bo_main_skins_reset, _heightMultiplier, _widthMultiplier);
             WindowHelper.Resize(img_main_skins_current, _heightMultiplier, _widthMultiplier);
 
             lb_main_skins.Resources["ListButtonFontSize"] = double.Parse(lb_main_skins.Resources["ListButtonFontSize"].ToString()) * _widthMultiplier;
             lb_main_skins.Resources["GridWidth"] = double.Parse(lb_main_skins.Resources["GridWidth"].ToString()) * _widthMultiplier;
             lb_main_skins.Resources["GridHeight"] = double.Parse(lb_main_skins.Resources["GridHeight"].ToString()) * _heightMultiplier;
             lb_main_skins.Resources["LabelFontSize"] = double.Parse(lb_main_skins.Resources["LabelFontSize"].ToString()) * _widthMultiplier;
+            lb_main_skins.Resources["ButtonHeight"] = double.Parse(lb_main_skins.Resources["ButtonHeight"].ToString()) * _heightMultiplier;
+            lb_main_skins.Resources["ButtonFontSize"] = double.Parse(lb_main_skins.Resources["ButtonFontSize"].ToString()) * _widthMultiplier;
+
+            localThickness = (Thickness)lb_main_skins.Resources["ButtonMargin"];
+            localThickness.Top *= _heightMultiplier;
+            localThickness.Bottom *= _heightMultiplier;
+            localThickness.Left *= _widthMultiplier;
+            localThickness.Right *= _widthMultiplier;
+            lb_main_skins.Resources["ButtonMargin"] = localThickness;
+
+            localThickness = (Thickness)lb_main_skins.Resources["ImageMargin"];
+            localThickness.Top *= _heightMultiplier;
+            localThickness.Bottom *= _heightMultiplier;
+            localThickness.Left *= _widthMultiplier;
+            localThickness.Right *= _widthMultiplier;
+            lb_main_skins.Resources["ImageMargin"] = localThickness;
 
             #region Home
             WindowHelper.Resize(bo_title_row, _heightMultiplier, _widthMultiplier);
@@ -119,7 +138,7 @@ namespace Tavstal.KonkordLauncher
             listbox_launchinstances.Resources["ListBorderHeight"] = (double)listbox_launchinstances.Resources["ListBorderHeight"] * _heightMultiplier;
             listbox_launchinstances.Resources["ListBorderWidth"] = (double)listbox_launchinstances.Resources["ListBorderWidth"] * _widthMultiplier;
 
-            Thickness localThickness = (Thickness)listbox_launchinstances.Resources["ListBorderMargin"];
+            localThickness = (Thickness)listbox_launchinstances.Resources["ListBorderMargin"];
             localThickness.Top *= _heightMultiplier;
             localThickness.Bottom *= _heightMultiplier;
             localThickness.Left *= _widthMultiplier;

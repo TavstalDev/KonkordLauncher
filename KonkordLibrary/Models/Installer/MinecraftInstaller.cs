@@ -650,6 +650,8 @@ namespace Tavstal.KonkordLibrary.Models.Installer
             // The JVM args set by the user
             if (!string.IsNullOrEmpty(Profile.JVMArgs))
                 arguments.Add($"{Profile.JVMArgs}");
+
+            arguments.Add($"-Dminecraft.applet.TargetDirectory={gameDir}");
             #endregion
             #region Minecraft Args
             // The main class

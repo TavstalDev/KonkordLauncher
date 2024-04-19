@@ -60,6 +60,8 @@ namespace Tavstal.KonkordLibrary.Helpers
         public static string FabricManifestJsonFile { get { return _fabricManifestJsonFile; } }
         private static readonly string _quiltManifestJsonFile = Path.Combine(_manifestDir, "quiltManifest.json");
         public static string QuiltManifestJsonFile { get { return _quiltManifestJsonFile; } }
+        private static readonly string _skinLibJsonFile = Path.Combine(_mainDir, "skinLibrary.json");
+        public static string SkinLibraryJsonFile { get { return _skinLibJsonFile; } }
         #endregion
 
         #region Validating

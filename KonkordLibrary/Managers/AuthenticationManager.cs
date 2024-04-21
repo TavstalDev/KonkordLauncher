@@ -558,17 +558,27 @@ namespace Tavstal.KonkordLibrary.Managers
             }
         }
     
-    
-        public static async Task UpdateUsername(string mcToken, string newUsername)
+        public static async Task<MojangProfile?> GetMojangProfileAsync(string mcToken)
         {
+            try
+            {
+                HttpClient client = HttpHelper.GetHttpClient();
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", mcToken);
 
+                Debug.WriteLine("## SENT MINECRAFT PROFILE REQUEST");
+                var result = await client.GetAsync(_minecraftProfileUrl);
+                Debug.WriteLine("## MINECRAFT PROFILE REQUEST STATUS: " + result.StatusCode);
+
+                return JsonConvert.DeserializeObject<MojangProfile>(await result.Content.ReadAsStringAsync());
+            }
+            catch (Exception ex)
+            {
+                Debug.Fail(ex.ToString());
+                return null;
+            }
         }
 
-        private static async Task CheckUsername()
-        {
-
-        }
-
+        
         public static async Task UpdateSkin(string mcToken)
         {
 

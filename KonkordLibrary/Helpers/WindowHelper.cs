@@ -1,7 +1,10 @@
-﻿using System.Reflection;
+﻿using System.IO;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using Tavstal.KonkordLibrary.Models.Launcher;
 
 namespace Tavstal.KonkordLibrary.Helpers
 {
@@ -76,6 +79,31 @@ namespace Tavstal.KonkordLibrary.Helpers
                 }
             }
             return null;
+        }
+
+        public static async Task<ImageSource> GetImageSource(string filePath)
+        {
+            return GetImageSource(await File.ReadAllBytesAsync(filePath));
+        }
+
+        public static ImageSource GetImageSource(byte[] bytes)
+        {
+            BitmapImage bi;
+            using (var ms = new MemoryStream(bytes))
+            {
+                bi = new BitmapImage();
+                bi.BeginInit();
+                bi.CreateOptions = BitmapCreateOptions.None;
+                bi.CacheOption = BitmapCacheOption.OnLoad;
+                bi.StreamSource = ms;
+                bi.EndInit();
+            }
+            return bi;
+        }
+
+        public static ImageSource GetImageSourceFromUri(string path)
+        {
+            return new BitmapImage(new Uri(path.StartsWith("/assets") ? "pack://application:,,," + path : path));
         }
     }
 }

@@ -19,6 +19,8 @@
 
   <ItemGroup>
     <None Remove="assets\icons\grass.ico" />
+    <None Remove="assets\images\alex_full.png" />
+    <None Remove="assets\images\alex_texture.png" />
     <None Remove="assets\images\background.png" />
     <None Remove="assets\images\blocks\12_Sand.png" />
     <None Remove="assets\images\blocks\13_Gravel.png" />
@@ -63,6 +65,7 @@
     <None Remove="assets\images\minceraft.png" />
     <None Remove="assets\images\steve_full.png" />
     <None Remove="assets\images\steve_head.png" />
+    <None Remove="assets\images\steve_texture.png" />
   </ItemGroup>
 
 
@@ -82,6 +85,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="assets\images\alex_full.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\alex_texture.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="assets\images\background.png" />
     <Resource Include="assets\images\blocks\12_Sand.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -203,6 +212,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="assets\images\steve_head.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\images\steve_texture.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="assets\images\workbench.png">

@@ -10,6 +10,7 @@ using System.IO;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text.Json;
+using KonkordLibrary.Models.Launcher;
 
 namespace Tavstal.KonkordLibrary.Helpers
 {
@@ -156,6 +157,11 @@ namespace Tavstal.KonkordLibrary.Helpers
 
                     if (!Directory.Exists(TempDir))
                         Directory.CreateDirectory(TempDir);
+                }
+
+                if (!File.Exists(SkinLibraryJsonFile))
+                {
+                    File.WriteAllText(SkinLibraryJsonFile, Newtonsoft.Json.JsonConvert.SerializeObject(new SkinLibData(), formatting: Newtonsoft.Json.Formatting.None));
                 }
 
                 return true;

@@ -77,34 +77,34 @@
                         <!-- Library -->
                         <Label x:Name="lab_main_skins_library" Content="Library" HorizontalAlignment="Right" VerticalAlignment="Top" FontWeight="SemiBold" Foreground="White" Margin="0,20,155,0"/>
 
-                        <ListBox x:Name="lb_main_skins" SelectionChanged="MainSkinsItem_SelectionChanged" ItemsSource="{Binding}" d:ItemsSource="{d:SampleData ItemCount=15}" Margin="224,51,20,10" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White">
+                        <ListBox x:Name="lb_main_skins" SelectionChanged="MainSkinsItem_SelectionChanged" ItemsSource="{Binding}" d:ItemsSource="{d:SampleData ItemCount=15}" Margin="224,51,20,10" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" HorizontalAlignment="Left" VerticalContentAlignment="Top">
                             <ListBox.Resources>
                                 <sys:String x:Key="BtnEditText">Edit</sys:String>
                                 <sys:String x:Key="BtnDuplicateText">Duplicate</sys:String>
                                 <sys:String x:Key="BtnDeleteText">Delete</sys:String>
                                 <sys:Double x:Key="ListButtonFontSize">10</sys:Double>
-                                <sys:Double x:Key="GridWidth">80</sys:Double>
+                                <sys:Double x:Key="GridWidth">60</sys:Double>
                                 <sys:Double x:Key="GridHeight">120</sys:Double>
                                 <sys:Double x:Key="LabelFontSize">8</sys:Double>
                                 <sys:Double x:Key="ButtonHeight">15</sys:Double>
                                 <sys:Double x:Key="ButtonFontSize">12</sys:Double>
                                 <sysw:Thickness x:Key="ButtonMargin">0,0,0,20</sysw:Thickness>
-                                <sysw:Thickness x:Key="ImageMargin">0,20,0,00</sysw:Thickness>
+                                <sysw:Thickness x:Key="ImageMargin">0,20,0,0</sysw:Thickness>
                             </ListBox.Resources>
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <UniformGrid VerticalAlignment="Top" Columns="4" />
+                                    <UniformGrid VerticalAlignment="Top" Columns="4" HorizontalAlignment="Left" />
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:Name="SkinListboxItem">
                                     <Grid Background="Transparent" MouseEnter="SkinListGrid_MouseEnter" MouseLeave="SkinListGrid_MouseLeave" Width="{DynamicResource GridWidth}" Height="{DynamicResource GridHeight}">
 
-                                        <Image Source="{Binding Image}" Margin="{DynamicResource ImageMargin}" Opacity="0.5" />
+                                        <Image Source="{Binding ModelImage}" Margin="{DynamicResource ImageMargin}" Opacity="0.5" Stretch="Uniform" />
 
-                                        <Label Content="{Binding Name}" FontSize="{DynamicResource LabelFontSize}" Foreground="White" HorizontalContentAlignment="Center" VerticalAlignment="Top" Padding="0,0,0,0" Height="{DynamicResource ButtonHeight}" VerticalContentAlignment="Top" FontWeight="SemiBold" />
+                                        <Label Content="{Binding Name}" FontSize="{DynamicResource LabelFontSize}" Foreground="White" HorizontalContentAlignment="Center" VerticalAlignment="Top" Padding="0,0,0,0" Height="{DynamicResource ButtonHeight}" FontWeight="SemiBold" />
 
-                                        <Border Visibility="Hidden" BorderBrush="#FF5D6F95" BorderThickness="1" CornerRadius="3,3,3,3" Background="#FF5D6F95" ClipToBounds="True" Height="{DynamicResource ButtonHeight}" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="{DynamicResource ButtonMargin}">
+                                        <Border Visibility="Hidden" BorderBrush="#FF5D6F95" CornerRadius="3,3,3,3" Background="#FF5D6F95" ClipToBounds="True" Height="{DynamicResource ButtonHeight}" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="{DynamicResource ButtonMargin}">
                                             <Button x:Name="btn_main_skins_reset" Style="{StaticResource BaseButton}" Content="Use" Foreground="White"  HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" FontWeight="Bold" FontSize="{DynamicResource LabelFontSize}" Margin="0" Padding="0"/>
                                         </Border>
 

@@ -21,6 +21,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Tavstal.KonkordLibrary.Managers;
 using Tavstal.KonkordLibrary.Models.Launcher;
+using KonkordLibrary.Models.Launcher;
 
 namespace Tavstal.KonkordLauncher
 {
@@ -828,7 +829,22 @@ namespace Tavstal.KonkordLauncher
         /// </summary>
         private void RefreshSkinsMenu()
         {
+            string raw = File.ReadAllText(IOHelper.SkinLibraryJsonFile);
+            SkinLibData? skinLibData = JsonConvert.DeserializeObject<SkinLibData>(raw);
+            if (skinLibData == null)
+                return;
 
+            lb_main_skins.DataContext = SkinLib.IncludeDefs(skinLibData.Skins);
+
+            SkinLib? selectedSkin = skinLibData.Skins.Find(x => x.Id == skinLibData.SelectedSkin);
+            if (selectedSkin == null)
+            {
+
+            }
+            else
+            {
+
+            }
         }
         #endregion
 

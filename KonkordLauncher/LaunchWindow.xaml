@@ -64,11 +64,11 @@
                         <Image x:Name="img_main_skins_current" Source="/assets/images/steve_full.png" Margin="55,0,0,0" HorizontalAlignment="Left" Width="100" VerticalAlignment="Center" Height="200" Stretch="Fill" />
 
                         <Border x:Name="bo_main_skins_addtolibrary" BorderBrush="#FF5D6F95" BorderThickness="1" CornerRadius="3,3,3,3" Canvas.Left="66" Canvas.Top="91" Background="#FF5D6F95" Margin="25,0,0,20" ClipToBounds="True" Height="22" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="75">
-                            <Button x:Name="btn_main_skins_addtolibrary" Content="Add to library" Style="{StaticResource BaseButton}" BorderThickness="2" Foreground="White" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" FontWeight="SemiBold" FontSize="8" Margin="0" Click="LaunchPlay_Click"/>
+                            <Button x:Name="btn_main_skins_addtolibrary" Content="Add to library" Style="{StaticResource BaseButton}" BorderThickness="2" Foreground="White" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" FontWeight="SemiBold" FontSize="8" Margin="0" Click="SkinsAddToLibrary_Click"/>
                         </Border>
 
                         <Border x:Name="bo_main_skins_newskin" BorderBrush="#FF5D6F95" BorderThickness="1" CornerRadius="3,3,3,3" Canvas.Left="66" Canvas.Top="91" Background="#FF5D6F95" Margin="110,0,0,20" ClipToBounds="True" Height="22" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="75">
-                            <Button x:Name="btn_main_skins_newskin" Content="New skin" Style="{StaticResource BaseButton}" BorderThickness="2" Foreground="White" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" FontWeight="SemiBold" FontSize="8" Margin="0" Click="LaunchPlay_Click"/>
+                            <Button x:Name="btn_main_skins_newskin" Content="New skin" Style="{StaticResource BaseButton}" BorderThickness="2" Foreground="White" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" FontWeight="SemiBold" FontSize="8" Margin="0" Click="SkinsNewSkin_Click"/>
                         </Border>
 
                         <!-- Divider -->

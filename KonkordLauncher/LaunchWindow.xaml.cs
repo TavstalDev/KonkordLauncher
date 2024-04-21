@@ -22,6 +22,7 @@ using System.Windows.Media.Imaging;
 using Tavstal.KonkordLibrary.Managers;
 using Tavstal.KonkordLibrary.Models.Launcher;
 using KonkordLibrary.Models.Launcher;
+using Tavstal.KonkordLibrary.Models.Minecraft.API;
 
 namespace Tavstal.KonkordLauncher
 {
@@ -402,37 +403,12 @@ namespace Tavstal.KonkordLauncher
             {
                 using (var client = new HttpClient())
                 {
-                    BitmapImage bi;
-                    byte[] array = await client.GetByteArrayAsync($"https://mineskin.eu/head/{account.DisplayName}/256.png");
-                    await File.WriteAllBytesAsync(avatarPath, array);
-                    using (var ms = new MemoryStream(array))
-                    {
-                        bi = new BitmapImage();
-                        bi.BeginInit();
-                        bi.CreateOptions = BitmapCreateOptions.None;
-                        bi.CacheOption = BitmapCacheOption.OnLoad;
-                        bi.StreamSource = ms;
-                        bi.EndInit();
-                    }
-
-                    img_account.Source = bi;
+                    img_account.Source = WindowHelper.GetImageSource(await client.GetByteArrayAsync($"https://mineskin.eu/head/{account.DisplayName}/256.png"));
                 }
             }
             else
             {
-                BitmapImage bi;
-                byte[] array = await File.ReadAllBytesAsync(avatarPath);
-                using (var ms = new MemoryStream(array))
-                {
-                    bi = new BitmapImage();
-                    bi.BeginInit();
-                    bi.CreateOptions = BitmapCreateOptions.None;
-                    bi.CacheOption = BitmapCacheOption.OnLoad;
-                    bi.StreamSource = ms;
-                    bi.EndInit();
-                }
-
-                img_account.Source = bi;
+                img_account.Source = await WindowHelper.GetImageSource(avatarPath);
             }
         }
 
@@ -839,11 +815,13 @@ namespace Tavstal.KonkordLauncher
             SkinLib? selectedSkin = skinLibData.Skins.Find(x => x.Id == skinLibData.SelectedSkin);
             if (selectedSkin == null)
             {
-
+                btn_main_skins_addtolibrary.IsEnabled = true;
+                img_main_skins_current.Source = WindowHelper.GetImageSourceFromUri("/assets/images/steve_full.png");
             }
             else
             {
-
+                btn_main_skins_addtolibrary.IsEnabled = false;
+                img_main_skins_current.Source = WindowHelper.GetImageSourceFromUri(selectedSkin.ModelImage);
             }
         }
         #endregion
@@ -2026,6 +2004,37 @@ namespace Tavstal.KonkordLauncher
         }
 
         private void btn_main_skins_newskin_Save_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private async void SkinsAddToLibrary_Click(object sender, RoutedEventArgs e)
+        {
+            AccountData? accountsData = await JsonHelper.ReadJsonFileAsync<AccountData?>(IOHelper.AccountsJsonFile);
+            if (accountsData == null)
+                return;
+
+            if (!accountsData.Accounts.TryGetValue(accountsData.SelectedAccountId, out Account? account))
+                return;
+
+            if (account.Type != EAccountType.MICROSOFT)
+                return;
+
+            MojangProfile? mojangProfile = await AuthenticationManager.GetMojangProfileAsync(account.AccessToken);
+            if (mojangProfile == null)
+                return;
+
+            Skin? skin = mojangProfile.Skins.Find(x => x.State == "ACTIVE");
+            if (skin == null)
+                return;
+
+            string raw = File.ReadAllText(IOHelper.SkinLibraryJsonFile);
+            SkinLibData? skinLibData = JsonConvert.DeserializeObject<SkinLibData>(raw);
+            if (skinLibData == null)
+                return;
+        }
+
+        private void SkinsNewSkin_Click(object sender, RoutedEventArgs e)
         {
 
         }

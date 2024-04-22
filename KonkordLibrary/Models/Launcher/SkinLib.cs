@@ -1,6 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System.Text.Json.Serialization;
 using System.Windows;
+using Tavstal.KonkordLibrary.Helpers;
+using Tavstal.KonkordLibrary.Models.Minecraft.API;
+using System.IO;
 
 namespace KonkordLibrary.Models.Launcher
 {
@@ -32,6 +35,58 @@ namespace KonkordLibrary.Models.Launcher
             ModelImage = modelImage;
             TextureImage = textureImage;
             Visibility = visibility;
+        }
+
+        public async Task DownloadFiles(MojangProfile profile, Skin skin)
+        {
+            // Download Texture
+            // TODO, add progress window
+            if (!File.Exists(TextureImage))
+            {
+                byte[]? fileBytes = await HttpHelper.GetByteArrayAsync(skin.Url);
+                if (fileBytes != null)
+                {
+                    await File.WriteAllBytesAsync(TextureImage, fileBytes);
+                }
+            }
+
+            // Download Full Model
+            // https://starlightskins.lunareclipse.studio/render/default//full
+
+            if (!File.Exists(ModelImage))
+            {
+                byte[]? fileBytes = await HttpHelper.GetByteArrayAsync($"https://starlightskins.lunareclipse.studio/render/default/{profile.Id}/full?skinUrl={skin.Url}&skinType={Model}&capeEnabled=true");
+                if (fileBytes != null)
+                {
+                    await File.WriteAllBytesAsync(ModelImage, fileBytes);
+                }
+            }
+
+            // Download No Cape Model
+            string noCapeModel = Path.Combine(IOHelper.CacheDir, "skins", skin.Id, "model_cape_none.png");
+            if (!File.Exists(noCapeModel))
+            {
+                byte[]? fileBytes = await HttpHelper.GetByteArrayAsync($"https://starlightskins.lunareclipse.studio/render/default/{profile.Id}/full?skinUrl={skin.Url}&skinType={Model}&cameraPosition={{%22x%22:%220%22,%22y%22:%2216%22,%22z%22:%2232%22}}&cameraFocalPoint={{%22x%22:%223.67%22,%22y%22:%2216.31%22,%22z%22:%223.35%22}}&capeEnabled=false&capeTexture=https://laby.net/texture/download/5b37a01fde6a3e075f3bc5694c18e667.png");
+                if (fileBytes != null)
+                {
+                    await File.WriteAllBytesAsync(noCapeModel, fileBytes);
+                }
+            }
+
+            // Download Cape Models
+            // https://starlightskins.lunareclipse.studio/render/default/Gabenosz/full?cameraPosition={%22x%22:%220%22,%22y%22:%2216%22,%22z%22:%2232%22}&cameraFocalPoint={%22x%22:%223.67%22,%22y%22:%2216.31%22,%22z%22:%223.35%22}&capeEnabled=false&capeTexture=https://laby.net/texture/download/5b37a01fde6a3e075f3bc5694c18e667.png
+            foreach (Cape cape in profile.Capes)
+            {
+                string capeModel = Path.Combine(IOHelper.CacheDir, "skins", skin.Id, $"model_cape_{cape.Alias}.png");
+                if (File.Exists(capeModel))
+                    continue;
+
+                byte[]? fileBytes = await HttpHelper.GetByteArrayAsync($"https://starlightskins.lunareclipse.studio/render/default/{profile.Id}/full?skinUrl={skin.Url}&skinType={Model}&cameraPosition={{%22x%22:%220%22,%22y%22:%2216%22,%22z%22:%2232%22}}&cameraFocalPoint={{%22x%22:%223.67%22,%22y%22:%2216.31%22,%22z%22:%223.35%22}}&capeEnabled=true&capeTexture={cape.Url}");
+                if (fileBytes != null)
+                {
+                    await File.WriteAllBytesAsync(capeModel, fileBytes);
+                }
+            }
         }
 
         public static SkinLib GetSteve()

@@ -2032,6 +2032,33 @@ namespace Tavstal.KonkordLauncher
             SkinLibData? skinLibData = JsonConvert.DeserializeObject<SkinLibData>(raw);
             if (skinLibData == null)
                 return;
+
+            if (skinLibData.Skins.Any(x => x.Id == skin.Id))
+                return;
+
+            string skinDir = Path.Combine(IOHelper.CacheDir, "skins", skin.Id);
+            if (!Directory.Exists(skinDir))
+                Directory.CreateDirectory(skinDir);
+
+            string textureFilePath = Path.Combine(skinDir, "texture.png");
+            string modelFilePath = Path.Combine(skinDir, "model.png");
+            string model = skin.Variant == "SLIM" ? "slim" : "wide";
+            SkinLib skinLib = new SkinLib()
+            {
+                Id = skin.Id,
+                Name = "unnamed",
+                Model = model,
+                ModelImage = modelFilePath,
+                TextureImage = textureFilePath,
+                Visibility = Visibility.Visible,
+            };
+
+            await skinLib.DownloadFiles(mojangProfile, skin);
+
+            skinLibData.Skins.Add(skinLib);
+            await JsonHelper.WriteJsonFileAsync(IOHelper.SkinLibraryJsonFile, skinLibData);
+
+            RefreshSkinsMenu();
         }
 
         private void SkinsNewSkin_Click(object sender, RoutedEventArgs e)

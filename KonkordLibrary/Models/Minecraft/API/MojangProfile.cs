@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.Text.Json.Serialization;
 
 namespace Tavstal.KonkordLibrary.Models.Minecraft.API
@@ -13,11 +12,11 @@ namespace Tavstal.KonkordLibrary.Models.Minecraft.API
         [JsonProperty("skins"), JsonPropertyName("skins")]
         public List<Skin> Skins {  get; set; }
         [JsonProperty("capes"), JsonPropertyName("capes")]
-        public JArray Capes { get; set; }
+        public List<Cape> Capes { get; set; }
 
         public MojangProfile() { }
 
-        public MojangProfile(string id, string name, List<Skin> skins, JArray capes)
+        public MojangProfile(string id, string name, List<Skin> skins, List<Cape> capes)
         {
             Id = id;
             Name = name;

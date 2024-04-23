@@ -4,6 +4,9 @@ using System.Windows;
 using Tavstal.KonkordLibrary.Helpers;
 using Tavstal.KonkordLibrary.Models.Minecraft.API;
 using System.IO;
+using System.Net.Http;
+using Newtonsoft.Json.Linq;
+using System.Diagnostics;
 
 namespace KonkordLibrary.Models.Launcher
 {
@@ -27,6 +30,16 @@ namespace KonkordLibrary.Models.Launcher
 
         public SkinLib() { }
 
+        public SkinLib(Skin skin) 
+        {
+            Id = skin.Id;
+            Name = skin.Alias ?? "unnamed";
+            TextureImage = Path.Combine(IOHelper.CacheDir, "skins", skin.Id, "texture.png");
+            ModelImage = Path.Combine(IOHelper.CacheDir, "skins", skin.Id, "model.png");
+            Model = skin.Variant == "SLIM" ? "slim" : "wide";
+            Visibility = Visibility.Visible;
+        }
+
         public SkinLib(string id, string name, string model, string modelImage, string textureImage, Visibility visibility)
         {
             Id = id;
@@ -37,13 +50,35 @@ namespace KonkordLibrary.Models.Launcher
             Visibility = visibility;
         }
 
-        public async Task DownloadFiles(MojangProfile profile, Skin skin)
+        public async Task DownloadFilesAsync(MojangProfile profile, string mcToken, Skin skin, IProgressWindow? progressWindow = null)
         {
             // Download Texture
-            // TODO, add progress window
+            Progress<double> progress = new Progress<double>();
+            progress.ProgressChanged += (sender, e) =>
+            {
+                if (progressWindow != null)
+                    progressWindow.UpdateProgressBarTranslated(e, "ui_downloading_skin_texture", new object[] { e.ToString("0.00") });
+            };
+
+            string dir = IOHelper.GetDirectory(TextureImage);
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+            dir = IOHelper.GetDirectory(ModelImage);
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+
             if (!File.Exists(TextureImage))
             {
-                byte[]? fileBytes = await HttpHelper.GetByteArrayAsync(skin.Url);
+                HttpClient client = HttpHelper.GetHttpClient();
+                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0");
+                client.DefaultRequestHeaders.Add("Accept", "*/*");
+                client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br");
+
+                string localUrl = skin.Url;
+                if (!localUrl.Contains("https"))
+                    localUrl = localUrl.Replace("http", "https");
+
+                byte[]? fileBytes = await client.GetByteArrayAsync(localUrl);
                 if (fileBytes != null)
                 {
                     await File.WriteAllBytesAsync(TextureImage, fileBytes);
@@ -52,10 +87,18 @@ namespace KonkordLibrary.Models.Launcher
 
             // Download Full Model
             // https://starlightskins.lunareclipse.studio/render/default//full
+            progress = new Progress<double>();
+            progress.ProgressChanged += (sender, e) =>
+            {
+                if (progressWindow != null)
+                    progressWindow.UpdateProgressBarTranslated(e, "ui_downloading_skin_model", new object[] { e.ToString("0.00") });
+            };
+
+            
 
             if (!File.Exists(ModelImage))
             {
-                byte[]? fileBytes = await HttpHelper.GetByteArrayAsync($"https://starlightskins.lunareclipse.studio/render/default/{profile.Id}/full?skinUrl={skin.Url}&skinType={Model}&capeEnabled=true");
+                byte[]? fileBytes = await HttpHelper.GetByteArrayAsync($"https://starlightskins.lunareclipse.studio/render/default/{profile.Id}/full?skinUrl={skin.Url}&skinType={Model}&capeEnabled=true", progress);
                 if (fileBytes != null)
                 {
                     await File.WriteAllBytesAsync(ModelImage, fileBytes);
@@ -63,10 +106,17 @@ namespace KonkordLibrary.Models.Launcher
             }
 
             // Download No Cape Model
+            progress = new Progress<double>();
+            progress.ProgressChanged += (sender, e) =>
+            {
+                if (progressWindow != null)
+                    progressWindow.UpdateProgressBarTranslated(e, "ui_downloading_skin_cape", new object[] { e.ToString("0.00"), "hidden" });
+            };
+
             string noCapeModel = Path.Combine(IOHelper.CacheDir, "skins", skin.Id, "model_cape_none.png");
             if (!File.Exists(noCapeModel))
             {
-                byte[]? fileBytes = await HttpHelper.GetByteArrayAsync($"https://starlightskins.lunareclipse.studio/render/default/{profile.Id}/full?skinUrl={skin.Url}&skinType={Model}&cameraPosition={{%22x%22:%220%22,%22y%22:%2216%22,%22z%22:%2232%22}}&cameraFocalPoint={{%22x%22:%223.67%22,%22y%22:%2216.31%22,%22z%22:%223.35%22}}&capeEnabled=false&capeTexture=https://laby.net/texture/download/5b37a01fde6a3e075f3bc5694c18e667.png");
+                byte[]? fileBytes = await HttpHelper.GetByteArrayAsync($"https://starlightskins.lunareclipse.studio/render/default/{profile.Id}/full?skinUrl={skin.Url}&skinType={Model}&cameraPosition={{%22x%22:%220%22,%22y%22:%2216%22,%22z%22:%2232%22}}&cameraFocalPoint={{%22x%22:%223.67%22,%22y%22:%2216.31%22,%22z%22:%223.35%22}}&capeEnabled=false&capeTexture=https://laby.net/texture/download/5b37a01fde6a3e075f3bc5694c18e667.png", progress);
                 if (fileBytes != null)
                 {
                     await File.WriteAllBytesAsync(noCapeModel, fileBytes);
@@ -77,11 +127,18 @@ namespace KonkordLibrary.Models.Launcher
             // https://starlightskins.lunareclipse.studio/render/default/Gabenosz/full?cameraPosition={%22x%22:%220%22,%22y%22:%2216%22,%22z%22:%2232%22}&cameraFocalPoint={%22x%22:%223.67%22,%22y%22:%2216.31%22,%22z%22:%223.35%22}&capeEnabled=false&capeTexture=https://laby.net/texture/download/5b37a01fde6a3e075f3bc5694c18e667.png
             foreach (Cape cape in profile.Capes)
             {
+                progress = new Progress<double>();
+                progress.ProgressChanged += (sender, e) =>
+                {
+                    if (progressWindow != null)
+                        progressWindow.UpdateProgressBarTranslated(e, "ui_downloading_skin_cape", new object[] { e.ToString("0.00"), cape.Alias });
+                };
+
                 string capeModel = Path.Combine(IOHelper.CacheDir, "skins", skin.Id, $"model_cape_{cape.Alias}.png");
                 if (File.Exists(capeModel))
                     continue;
 
-                byte[]? fileBytes = await HttpHelper.GetByteArrayAsync($"https://starlightskins.lunareclipse.studio/render/default/{profile.Id}/full?skinUrl={skin.Url}&skinType={Model}&cameraPosition={{%22x%22:%220%22,%22y%22:%2216%22,%22z%22:%2232%22}}&cameraFocalPoint={{%22x%22:%223.67%22,%22y%22:%2216.31%22,%22z%22:%223.35%22}}&capeEnabled=true&capeTexture={cape.Url}");
+                byte[]? fileBytes = await HttpHelper.GetByteArrayAsync($"https://starlightskins.lunareclipse.studio/render/default/{profile.Id}/full?skinUrl={skin.Url}&skinType={Model}&cameraPosition={{%22x%22:%220%22,%22y%22:%2216%22,%22z%22:%2232%22}}&cameraFocalPoint={{%22x%22:%223.67%22,%22y%22:%2216.31%22,%22z%22:%223.35%22}}&capeEnabled=true&capeTexture={cape.Url}", progress);
                 if (fileBytes != null)
                 {
                     await File.WriteAllBytesAsync(capeModel, fileBytes);

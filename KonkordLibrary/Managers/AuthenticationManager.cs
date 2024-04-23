@@ -7,6 +7,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Reflection.Metadata.Ecma335;
+using System.Text;
 
 namespace Tavstal.KonkordLibrary.Managers
 {
@@ -66,7 +68,7 @@ namespace Tavstal.KonkordLibrary.Managers
             {
                 if (account.Type == Enums.EAccountType.MICROSOFT)
                 {
-                    return await AuthenticationManager.AttemptLogin(account.AccessToken);
+                    return await AttemptLogin(account.AccessToken);
                 }
                 return true;
             }
@@ -501,6 +503,11 @@ namespace Tavstal.KonkordLibrary.Managers
                         accountData.SelectedAccountId = profile.Id;
                         await JsonHelper.WriteJsonFileAsync(IOHelper.AccountsJsonFile, accountData);
                     }
+
+                    // Cache profile
+                    string profileCachePath = Path.Combine(IOHelper.CacheDir, $"{profile?.Id}.json");
+                    await File.WriteAllTextAsync(profileCachePath, JsonConvert.SerializeObject(profile, Formatting.None));
+
                     _wasAuthSuccessful = true;
                     StopListening();
                 }
@@ -548,8 +555,16 @@ namespace Tavstal.KonkordLibrary.Managers
                 Debug.WriteLine("## MINECRAFT PROFILE REQUEST STATUS: " + result.StatusCode);
 
                 MojangProfile? profile = JsonConvert.DeserializeObject<MojangProfile>(await result.Content.ReadAsStringAsync());
+                bool isProfileValid = profile != null;
 
-                return profile != null;
+                // Save profile cache
+                if (isProfileValid)
+                {
+                    string profileCachePath = Path.Combine(IOHelper.CacheDir, $"{profile?.Id}.json");
+                    await File.WriteAllTextAsync(profileCachePath, JsonConvert.SerializeObject(profile, Formatting.None));
+                }
+
+                return isProfileValid;
             }
             catch (Exception ex)
             {
@@ -558,18 +573,19 @@ namespace Tavstal.KonkordLibrary.Managers
             }
         }
     
-        public static async Task<MojangProfile?> GetMojangProfileAsync(string mcToken)
+        public static async Task<MojangProfile?> GetMojangProfileAsync()
         {
             try
             {
-                HttpClient client = HttpHelper.GetHttpClient();
-                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", mcToken);
+                AccountData? accountData = await JsonHelper.ReadJsonFileAsync<AccountData>(IOHelper.AccountsJsonFile);
+                if (accountData == null)
+                    return null;
 
-                Debug.WriteLine("## SENT MINECRAFT PROFILE REQUEST");
-                var result = await client.GetAsync(_minecraftProfileUrl);
-                Debug.WriteLine("## MINECRAFT PROFILE REQUEST STATUS: " + result.StatusCode);
+                if (!accountData.Accounts.TryGetValue(accountData.SelectedAccountId, out Account? account))
+                    return null;
 
-                return JsonConvert.DeserializeObject<MojangProfile>(await result.Content.ReadAsStringAsync());
+                string profileCachePath = Path.Combine(IOHelper.CacheDir, $"{account.UUID}.json");
+                return JsonConvert.DeserializeObject<MojangProfile>(await File.ReadAllTextAsync(profileCachePath));
             }
             catch (Exception ex)
             {
@@ -578,7 +594,7 @@ namespace Tavstal.KonkordLibrary.Managers
             }
         }
 
-        
+
         public static async Task UpdateSkin(string mcToken)
         {
 

@@ -97,7 +97,7 @@ namespace Tavstal.KonkordLibrary.Models.Forge.Installer
                 foreach (string file in files)
                 {
                     string newPath = file.Replace(mavenTempDir, IOHelper.LibrariesDir);
-                    string newDir = newPath.Remove(newPath.LastIndexOf('\\'), newPath.Length - newPath.LastIndexOf('\\'));
+                    string newDir = IOHelper.GetDirectory(newPath);
 
                     if (!Directory.Exists(newDir))
                         Directory.CreateDirectory(newDir);

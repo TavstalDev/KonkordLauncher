@@ -23,6 +23,7 @@ using Tavstal.KonkordLibrary.Managers;
 using Tavstal.KonkordLibrary.Models.Launcher;
 using KonkordLibrary.Models.Launcher;
 using Tavstal.KonkordLibrary.Models.Minecraft.API;
+using KonkordLauncher;
 
 namespace Tavstal.KonkordLauncher
 {
@@ -365,7 +366,6 @@ namespace Tavstal.KonkordLauncher
             await RefreshAccount();
         }
 
-
         #region Functions
         /// <summary>
         /// Asynchronously refreshes the displayed account information, such as icon and name.
@@ -408,7 +408,7 @@ namespace Tavstal.KonkordLauncher
             }
             else
             {
-                img_account.Source = await WindowHelper.GetImageSource(avatarPath);
+                img_account.Source = await WindowHelper.GetImageSourceAsync(avatarPath);
             }
         }
 
@@ -803,9 +803,9 @@ namespace Tavstal.KonkordLauncher
         /// <summary>
         /// Refreshes the skins menu in the application.
         /// </summary>
-        private void RefreshSkinsMenu()
+        private async void RefreshSkinsMenu()
         {
-            string raw = File.ReadAllText(IOHelper.SkinLibraryJsonFile);
+            string raw = await File.ReadAllTextAsync(IOHelper.SkinLibraryJsonFile);
             SkinLibData? skinLibData = JsonConvert.DeserializeObject<SkinLibData>(raw);
             if (skinLibData == null)
                 return;
@@ -816,7 +816,39 @@ namespace Tavstal.KonkordLauncher
             if (selectedSkin == null)
             {
                 btn_main_skins_addtolibrary.IsEnabled = true;
-                img_main_skins_current.Source = WindowHelper.GetImageSourceFromUri("/assets/images/steve_full.png");
+
+                AccountData? accountData = await JsonHelper.ReadJsonFileAsync<AccountData>(IOHelper.AccountsJsonFile);
+                if (accountData == null)
+                    return;
+
+                if (!accountData.Accounts.TryGetValue(accountData.SelectedAccountId, out Account? account))
+                    return;
+
+                if (account.Type == EAccountType.OFFLINE)
+                    return;
+
+                
+                MojangProfile? profile = await AuthenticationManager.GetMojangProfileAsync();
+                if (profile == null)
+                {
+                    img_main_skins_current.Source = WindowHelper.GetImageSourceFromUri(SkinLib.GetSteve().ModelImage);
+                    return;
+                }
+
+                Skin? activeSkin = profile.Skins.Find(x => x.State == "ACTIVE");
+                if (activeSkin == null)
+                {
+                    img_main_skins_current.Source = WindowHelper.GetImageSourceFromUri(SkinLib.GetSteve().ModelImage);
+                    return;
+                }
+
+                SkinLib skinLib = new SkinLib(activeSkin);
+                ProgressWindow progressWindow = new ProgressWindow();
+                progressWindow.Show();
+                await skinLib.DownloadFilesAsync(profile, account.AccessToken, activeSkin, progressWindow);
+                progressWindow.Close();
+
+                img_main_skins_current.Source = await WindowHelper.GetImageSourceAsync(skinLib.ModelImage);
             }
             else
             {
@@ -849,7 +881,8 @@ namespace Tavstal.KonkordLauncher
         #endregion
 
         #region Main
-        
+        #region Left Panel
+
         #region Logout Button
         /// <summary>
         /// Handles the click event of the logout button in the launch interface.
@@ -1084,7 +1117,7 @@ namespace Tavstal.KonkordLauncher
         /// </summary>
         /// <param name="sender">The object that raised the event.</param>
         /// <param name="e">The event arguments.</param>
-        private async void listbox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void InstanceLaunch_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (listbox_launchinstances.SelectedIndex < 0)
                 return;
@@ -1192,7 +1225,7 @@ namespace Tavstal.KonkordLauncher
             if (comboBox != null)
                 comboBox.SelectedIndex = -1;
         }
-
+        #endregion
         #region Category Menu
         private void TopmenuHome_Click(object sender, RoutedEventArgs e)
         {
@@ -1281,6 +1314,276 @@ namespace Tavstal.KonkordLauncher
                 grid.Visibility = grid.Name == "grid_main_patchs" ? Visibility.Visible : Visibility.Hidden;
             }
         }
+        #endregion
+        #region Home
+
+        #endregion
+        #region Skins
+        /// <summary>
+        /// Handles the event when a skin is selected (NOT EQUIPPED)
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The event arguments containing information about the selected skin.</param>
+        private void MainSkinsItem_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ListBox listBox = (ListBox)sender;
+
+            if (e.RemovedItems != null)
+            {
+                foreach (object selectedItem in e.RemovedItems)
+                {
+                    ListBoxItem? selectedListBoxItem = listBox.ItemContainerGenerator.ContainerFromItem(selectedItem) as ListBoxItem;
+
+                    if (selectedListBoxItem == null)
+                        return;
+                    Grid grid = WindowHelper.FindVisualChild<Grid>(selectedListBoxItem);
+                    SelectedSkinGrid = grid;
+
+                    foreach (var child in grid.Children)
+                    {
+                        if (child is Image image)
+                        {
+                            image.Opacity = 0.5;
+                        }
+                        else if (child is Border button)
+                        {
+                            button.Visibility = Visibility.Hidden;
+                        }
+                        else if (child is ComboBox comboBox)
+                        {
+                            comboBox.Visibility = Visibility.Hidden;
+                        }
+                    }
+                }
+            }
+
+            if (e.AddedItems != null)
+            {
+                foreach (object selectedItem in e.AddedItems)
+                {
+                    ListBoxItem? selectedListBoxItem = listBox.ItemContainerGenerator.ContainerFromItem(selectedItem) as ListBoxItem;
+
+                    if (selectedListBoxItem == null)
+                        return;
+                    Grid grid = WindowHelper.FindVisualChild<Grid>(selectedListBoxItem);
+                    SelectedSkinGrid = grid;
+
+                    foreach (var child in grid.Children)
+                    {
+                        if (child is Image image && grid != SelectedSkinGrid)
+                        {
+                            image.Opacity = 0.5;
+                        }
+                        else if (child is Border button && grid != SelectedSkinGrid)
+                        {
+                            button.Visibility = Visibility.Hidden;
+                        }
+                        else if (child is ComboBox comboBox && grid != SelectedSkinGrid)
+                        {
+                            comboBox.Visibility = Visibility.Hidden;
+                        }
+                    }
+                }
+            }
+
+
+        }
+
+        /// <summary>
+        /// Handles the event when the selection changes in the skin action box.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The event arguments containing information about the selection change.</param>
+        private void SkinActionBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBox comboBox = (ComboBox)sender;
+
+            var item = e.AddedItems[0] as ComboBoxItem;
+            if (item == null)
+                return;
+
+
+            switch (item.Name)
+            {
+                case "edit":
+                    {
+
+                        break;
+                    }
+                case "duplicate":
+                    {
+
+                        break;
+                    }
+                case "delete":
+                    {
+
+                        break;
+                    }
+            }
+
+            if (comboBox != null)
+                comboBox.SelectedIndex = -1;
+        }
+
+        /// <summary>
+        /// Handles the event when the mouse enters the skin list element's grid.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The event arguments containing information about the mouse enter event.</param>
+        private void SkinListGrid_MouseEnter(object sender, MouseEventArgs e)
+        {
+            Grid grid = (Grid)sender;
+
+            foreach (var child in grid.Children)
+            {
+                if (child is Image image)
+                {
+                    image.Opacity = 1d;
+                }
+                else if (child is Border button)
+                {
+                    button.Visibility = Visibility.Visible;
+                }
+                else if (child is ComboBox comboBox)
+                {
+                    comboBox.Visibility = Visibility.Visible;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handles the event when the mouse leaves the skin list element's grid.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The event arguments containing information about the mouse leave event.</param>
+        private void SkinListGrid_MouseLeave(object sender, MouseEventArgs e)
+        {
+            Grid grid = (Grid)sender;
+
+            foreach (var child in grid.Children)
+            {
+                if (child is Image image && grid != SelectedSkinGrid)
+                {
+                    image.Opacity = 0.5;
+                }
+                else if (child is Border button && grid != SelectedSkinGrid)
+                {
+                    button.Visibility = Visibility.Hidden;
+                }
+                else if (child is ComboBox comboBox && grid != SelectedSkinGrid)
+                {
+                    comboBox.Visibility = Visibility.Hidden;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handles the event when the cape radio button is clicked.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The event arguments containing information about the click event.</param>
+        private void CapeRadioButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        /// <summary>
+        /// Handles the event when the cancel button is clicked in the skin editor panel.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The event arguments containing information about the click event.</param>
+        private void btn_main_skins_newskin_cancel_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        /// <summary>
+        /// Handles the event when the save button is clicked in the skin editor panel.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The event arguments containing information about the click event.</param>
+        private void btn_main_skins_newskin_Save_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        /// <summary>
+        /// Handles the event when the "Add to Library" button is clicked in the skins window.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The event arguments containing information about the click event.</param>
+        private async void SkinsAddToLibrary_Click(object sender, RoutedEventArgs e)
+        {
+            AccountData? accountsData = await JsonHelper.ReadJsonFileAsync<AccountData?>(IOHelper.AccountsJsonFile);
+            if (accountsData == null)
+                return;
+
+            if (!accountsData.Accounts.TryGetValue(accountsData.SelectedAccountId, out Account? account))
+                return;
+
+            if (account.Type != EAccountType.MICROSOFT)
+                return;
+
+            MojangProfile? mojangProfile = await AuthenticationManager.GetMojangProfileAsync();
+            if (mojangProfile == null)
+                return;
+
+            Skin? skin = mojangProfile.Skins.Find(x => x.State == "ACTIVE");
+            if (skin == null)
+                return;
+
+            string raw = File.ReadAllText(IOHelper.SkinLibraryJsonFile);
+            SkinLibData? skinLibData = JsonConvert.DeserializeObject<SkinLibData>(raw);
+            if (skinLibData == null)
+                return;
+
+            if (skinLibData.Skins.Any(x => x.Id == skin.Id))
+                return;
+
+            string skinDir = Path.Combine(IOHelper.CacheDir, "skins", skin.Id);
+            if (!Directory.Exists(skinDir))
+                Directory.CreateDirectory(skinDir);
+
+            string textureFilePath = Path.Combine(skinDir, "texture.png");
+            string modelFilePath = Path.Combine(skinDir, "model.png");
+            string model = skin.Variant == "SLIM" ? "slim" : "wide";
+            SkinLib skinLib = new SkinLib()
+            {
+                Id = skin.Id,
+                Name = "unnamed",
+                Model = model,
+                ModelImage = modelFilePath,
+                TextureImage = textureFilePath,
+                Visibility = Visibility.Visible,
+            };
+
+            ProgressWindow progressWindow = new ProgressWindow();
+            progressWindow.Show();
+            await skinLib.DownloadFilesAsync(mojangProfile, account.AccessToken, skin, progressWindow);
+
+            progressWindow.Close();
+
+            skinLibData.Skins.Add(skinLib);
+            skinLibData.SelectedSkin = skinLib.Id;
+            await JsonHelper.WriteJsonFileAsync(IOHelper.SkinLibraryJsonFile, skinLibData);
+            btn_main_skins_addtolibrary.IsEnabled = false;
+            RefreshSkinsMenu();
+        }
+
+        /// <summary>
+        /// Handles the event when the "New Skin" button is clicked in the skins window.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The event arguments containing information about the click event.</param>
+        private void SkinsNewSkin_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        #endregion
+        #region Patches
+
         #endregion
         #endregion
 
@@ -1886,184 +2189,5 @@ namespace Tavstal.KonkordLauncher
         }
         #endregion
 
-        private void MainSkinsItem_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            ListBox listBox = (ListBox)sender;
-
-            if (e.RemovedItems != null)
-            {
-                foreach (object selectedItem in e.RemovedItems)
-                {
-                    ListBoxItem? selectedListBoxItem = listBox.ItemContainerGenerator.ContainerFromItem(selectedItem) as ListBoxItem;
-
-                    if (selectedListBoxItem == null)
-                        return;
-                    Grid grid = WindowHelper.FindVisualChild<Grid>(selectedListBoxItem);
-                    SelectedSkinGrid = grid;
-
-                    foreach (var child in grid.Children)
-                    {
-                        if (child is Image image)
-                        {
-                            image.Opacity = 0.5;
-                        }
-                        else if (child is Border button)
-                        {
-                            button.Visibility = Visibility.Hidden;
-                        }
-                        else if (child is ComboBox comboBox)
-                        {
-                            comboBox.Visibility = Visibility.Hidden;
-                        }
-                    }
-                }
-            }
-
-            if (e.AddedItems != null)
-            {
-                foreach (object selectedItem in e.AddedItems)
-                {
-                    ListBoxItem? selectedListBoxItem = listBox.ItemContainerGenerator.ContainerFromItem(selectedItem) as ListBoxItem;
-
-                    if (selectedListBoxItem == null)
-                        return;
-                    Grid grid = WindowHelper.FindVisualChild<Grid>(selectedListBoxItem);
-                    SelectedSkinGrid = grid;
-
-                    foreach (var child in grid.Children)
-                    {
-                        if (child is Image image && grid != SelectedSkinGrid)
-                        {
-                            image.Opacity = 0.5;
-                        }
-                        else if (child is Border button && grid != SelectedSkinGrid)
-                        {
-                            button.Visibility = Visibility.Hidden;
-                        }
-                        else if (child is ComboBox comboBox && grid != SelectedSkinGrid)
-                        {
-                            comboBox.Visibility = Visibility.Hidden;
-                        }
-                    }
-                }
-            }
-
-            
-        }
-
-        private void SkinListGrid_MouseEnter(object sender, MouseEventArgs e)
-        {
-            Grid grid = (Grid)sender;
-
-            foreach (var child in grid.Children)
-            {
-                if (child is Image image)
-                {
-                    image.Opacity = 1d;
-                }
-                else if (child is Border button)
-                {
-                    button.Visibility = Visibility.Visible;
-                }
-                else if (child is ComboBox comboBox)
-                {
-                    comboBox.Visibility = Visibility.Visible;
-                }
-            }
-        }
-
-        private void SkinListGrid_MouseLeave(object sender, MouseEventArgs e)
-        {
-            Grid grid = (Grid)sender;
-
-            foreach (var child in grid.Children)
-            {
-                if (child is Image image && grid != SelectedSkinGrid)
-                {
-                    image.Opacity = 0.5;
-                }
-                else if (child is Border button && grid != SelectedSkinGrid)
-                {
-                    button.Visibility = Visibility.Hidden;
-                }
-                else if (child is ComboBox comboBox && grid != SelectedSkinGrid)
-                {
-                    comboBox.Visibility = Visibility.Hidden;
-                }
-            }
-        }
-
-        private void CapeRadioButton_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void btn_main_skins_newskin_cancel_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void btn_main_skins_newskin_Save_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private async void SkinsAddToLibrary_Click(object sender, RoutedEventArgs e)
-        {
-            AccountData? accountsData = await JsonHelper.ReadJsonFileAsync<AccountData?>(IOHelper.AccountsJsonFile);
-            if (accountsData == null)
-                return;
-
-            if (!accountsData.Accounts.TryGetValue(accountsData.SelectedAccountId, out Account? account))
-                return;
-
-            if (account.Type != EAccountType.MICROSOFT)
-                return;
-
-            MojangProfile? mojangProfile = await AuthenticationManager.GetMojangProfileAsync(account.AccessToken);
-            if (mojangProfile == null)
-                return;
-
-            Skin? skin = mojangProfile.Skins.Find(x => x.State == "ACTIVE");
-            if (skin == null)
-                return;
-
-            string raw = File.ReadAllText(IOHelper.SkinLibraryJsonFile);
-            SkinLibData? skinLibData = JsonConvert.DeserializeObject<SkinLibData>(raw);
-            if (skinLibData == null)
-                return;
-
-            if (skinLibData.Skins.Any(x => x.Id == skin.Id))
-                return;
-
-            string skinDir = Path.Combine(IOHelper.CacheDir, "skins", skin.Id);
-            if (!Directory.Exists(skinDir))
-                Directory.CreateDirectory(skinDir);
-
-            string textureFilePath = Path.Combine(skinDir, "texture.png");
-            string modelFilePath = Path.Combine(skinDir, "model.png");
-            string model = skin.Variant == "SLIM" ? "slim" : "wide";
-            SkinLib skinLib = new SkinLib()
-            {
-                Id = skin.Id,
-                Name = "unnamed",
-                Model = model,
-                ModelImage = modelFilePath,
-                TextureImage = textureFilePath,
-                Visibility = Visibility.Visible,
-            };
-
-            await skinLib.DownloadFiles(mojangProfile, skin);
-
-            skinLibData.Skins.Add(skinLib);
-            await JsonHelper.WriteJsonFileAsync(IOHelper.SkinLibraryJsonFile, skinLibData);
-
-            RefreshSkinsMenu();
-        }
-
-        private void SkinsNewSkin_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
     }
 }

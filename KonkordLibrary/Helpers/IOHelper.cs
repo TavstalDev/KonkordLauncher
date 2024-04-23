@@ -506,6 +506,19 @@ namespace Tavstal.KonkordLibrary.Helpers
         }
 
         /// <summary>
+        /// Retrieves the directory path from the specified file path.
+        /// </summary>
+        /// <param name="filePath">The file path from which to extract the directory path.</param>
+        /// <returns>
+        /// The directory path extracted from the file path.
+        /// </returns>
+        public static string GetDirectory(string filePath)
+        {
+            string localPath = filePath.Replace("/", "\\");
+            return localPath.Remove(localPath.LastIndexOf("\\"), localPath.Length - localPath.LastIndexOf('\\'));
+        }
+
+        /// <summary>
         /// Retrieves the launcher settings, if available.
         /// </summary>
         /// <returns>

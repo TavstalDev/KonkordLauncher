@@ -81,7 +81,7 @@ namespace Tavstal.KonkordLibrary.Helpers
             return null;
         }
 
-        public static async Task<ImageSource> GetImageSource(string filePath)
+        public static async Task<ImageSource> GetImageSourceAsync(string filePath)
         {
             return GetImageSource(await File.ReadAllBytesAsync(filePath));
         }

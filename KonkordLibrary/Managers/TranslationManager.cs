@@ -109,7 +109,10 @@ namespace Tavstal.KonkordLibrary.Managers
             { "ui_downloading_mods", "Downloading mods..." },
             { "ui_downloading_mod_manifest", "Downloading mod manifest of '{0}'... {1}%" },
             { "ui_downloading_mod", "Downloading the '{0}' mod... {1}%" },
-            { "ui_instance_export", "Export Instance" }
+            { "ui_instance_export", "Export Instance" },
+            { "ui_downloading_skin_texture", "Downloading skin texture... {0}%" },
+            { "ui_downloading_skin_model", "Downloading skin model... {0}%" },
+            { "ui_downloading_skin_cape", "Downloading skin cape model for the '{1}' cape... {0}%" }
         };
 
         public static Dictionary<string, string> DefaultTranslations { get { return _defaultTranslations; } }

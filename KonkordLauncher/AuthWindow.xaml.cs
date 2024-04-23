@@ -25,8 +25,8 @@ namespace Tavstal.KonkordLauncher
 
             double oldHeight = Height;
             double oldWidth = Width;
-            Height = nHeight * 0.55; // 0.55 means 55% of the screen's height
-            Width = nWidth * 0.55; // 0.55 means 55% of the screen's width
+            Height = nHeight * 0.6; // 0.55 means 55% of the screen's height
+            Width = nWidth * 0.6; // 0.55 means 55% of the screen's width
 
             // Get the multiplier how much should the window's content to be resized.
             double heightMultiplier = Height / oldHeight; 

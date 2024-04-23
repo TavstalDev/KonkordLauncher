@@ -3,10 +3,32 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:fa="http://schemas.fontawesome.io/icons/"
         xmlns:local="clr-namespace:KonkordLauncher"
         mc:Ignorable="d"
-        Title="ProgressWindow" Height="450" Width="800">
-    <Grid>
-        
+        Title="ProgressWindow" Height="100" Width="250"
+        WindowStyle="None" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Icon="/Assets/Images/workbench.png" Topmost="True">
+    <Grid Background="#FF353743">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Title row -->
+        <Border x:Name="bo_title_row" BorderThickness="1" BorderBrush="#FF515464" Background="#FF515464" VerticalAlignment="Top" Height="29">
+            <Grid>
+                <Image x:Name="img_window_icon" Margin="4,0,0,0" Width="24" Height="24" Source="/assets/images/workbench.png" HorizontalAlignment="Left"   VerticalAlignment="Center" />
+                <Label x:Name="l_WindowName" Content="Progress Window" Canvas.Left="0" Canvas.Top="0" HorizontalAlignment="Left" VerticalContentAlignment="Center" Foreground="White" Width="198" Height="24" IsHitTestVisible="False" Padding="5,0,0,0" VerticalAlignment="Center" Margin="28,0,0,0"/>
+                <!-- WINDOW BUTTONS -->
+                <Button x:Name="bt_window_minimize" fa:Awesome.Content="WindowMinimize" TextElement.FontFamily="pack://application:,,,/FontAwesome.WPF;component/#FontAwesome" HorizontalAlignment="Right" RenderTransformOrigin="0.5,0.5" Click="WindowMinimize_Click" Style="{StaticResource WindowButton}" FontSize="10" Width="24" Height="NaN"/>
+            </Grid>
+        </Border>
+
+        <Border BorderThickness="1" HorizontalAlignment="Center" Height="12" VerticalAlignment="Bottom" Width="242" BorderBrush="#33000000" Background="#33000000" Margin="0,0,0,14">
+            <ProgressBar x:Name="pb_status" Background="{x:Null}" BorderBrush="{x:Null}" Height="12" Foreground="#FF0666B0" Padding="1,1,1,1"/>
+        </Border>
+        <Label x:Name="lab_status" Content="Starting up..." HorizontalAlignment="Center" VerticalAlignment="Bottom" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="0,0,0,25" Height="45"/>
     </Grid>
 </Window>

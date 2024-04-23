@@ -108,7 +108,7 @@
                                             <Button x:Name="btn_main_skins_reset" Style="{StaticResource BaseButton}" Content="Use" Foreground="White"  HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" FontWeight="Bold" FontSize="{DynamicResource LabelFontSize}" Margin="0" Padding="0"/>
                                         </Border>
 
-                                        <ComboBox Style="{StaticResource SkinMenuComboBox}" Visibility="Hidden" SelectedIndex="-1"  Margin="0,0,0,0" FontFamily="{StaticResource FontAwesome}" IsTextSearchEnabled="False" Foreground="White" HorizontalAlignment="Stretch" FontSize="{StaticResource ButtonFontSize}"  Width="NaN" Height="{DynamicResource ButtonHeight}" VerticalAlignment="Bottom">
+                                        <ComboBox Style="{StaticResource SkinMenuComboBox}" SelectionChanged="SkinActionBox_SelectionChanged" Visibility="Hidden" SelectedIndex="-1"  Margin="0,0,0,0" FontFamily="{StaticResource FontAwesome}" IsTextSearchEnabled="False" Foreground="White" HorizontalAlignment="Stretch" FontSize="{StaticResource ButtonFontSize}"  Width="NaN" Height="{DynamicResource ButtonHeight}" VerticalAlignment="Bottom">
                                             <ComboBox.ItemTemplate>
                                                 <DataTemplate>
                                                     <Grid>
@@ -278,7 +278,7 @@
                     </Grid>
                 </Border>
 
-                <ListBox x:Name="listbox_launchinstances" ItemsSource="{Binding}" SelectionMode="Single" SelectionChanged="listbox_SelectionChanged" AlternationCount="{DynamicResource Alternation}"
+                <ListBox x:Name="listbox_launchinstances" ItemsSource="{Binding}" SelectionMode="Single" SelectionChanged="InstanceLaunch_SelectionChanged" AlternationCount="{DynamicResource Alternation}"
                   Margin="0,102,0,55" Background="{x:Null}" BorderBrush="{x:Null}" Grid.IsSharedSizeScope="True" ScrollViewer.CanContentScroll="True" ScrollViewer.HorizontalScrollBarVisibility="Hidden" d:ItemsSource="{d:SampleData ItemCount=5}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Top">
                     <ListBox.Resources>
                         <sys:Int32 x:Key="Alternation">2</sys:Int32>

@@ -98,14 +98,14 @@
                             </ListBox.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:Name="SkinListboxItem">
-                                    <Grid Background="Transparent" MouseEnter="SkinListGrid_MouseEnter" MouseLeave="SkinListGrid_MouseLeave" Width="{DynamicResource GridWidth}" Height="{DynamicResource GridHeight}">
+                                    <Grid Tag="{Binding Id}" Background="Transparent" MouseEnter="SkinListGrid_MouseEnter" MouseLeave="SkinListGrid_MouseLeave" Width="{DynamicResource GridWidth}" Height="{DynamicResource GridHeight}">
 
                                         <Image Source="{Binding ModelImage}" Margin="{DynamicResource ImageMargin}" Opacity="0.5" Stretch="Uniform" />
 
                                         <Label Content="{Binding Name}" FontSize="{DynamicResource LabelFontSize}" Foreground="White" HorizontalContentAlignment="Center" VerticalAlignment="Top" Padding="0,0,0,0" Height="{DynamicResource ButtonHeight}" FontWeight="SemiBold" />
 
-                                        <Border Visibility="Hidden" BorderBrush="#FF5D6F95" CornerRadius="3,3,3,3" Background="#FF5D6F95" ClipToBounds="True" Height="{DynamicResource ButtonHeight}" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="{DynamicResource ButtonMargin}">
-                                            <Button x:Name="btn_main_skins_reset" Style="{StaticResource BaseButton}" Content="Use" Foreground="White"  HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" FontWeight="Bold" FontSize="{DynamicResource LabelFontSize}" Margin="0" Padding="0"/>
+                                        <Border x:Name="b_skin_use_button" Visibility="Hidden" BorderBrush="#FF5D6F95" CornerRadius="3,3,3,3" Background="#FF5D6F95" ClipToBounds="True" Height="{DynamicResource ButtonHeight}" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="{DynamicResource ButtonMargin}">
+                                            <Button Style="{StaticResource BaseButton}" Content="Use" Foreground="White"  HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" FontWeight="Bold" FontSize="{DynamicResource LabelFontSize}" Margin="0" Padding="0" Visibility="{Binding SelectedType}"/>
                                         </Border>
 
                                         <ComboBox Style="{StaticResource SkinMenuComboBox}" SelectionChanged="SkinActionBox_SelectionChanged" Visibility="Hidden" SelectedIndex="-1"  Margin="0,0,0,0" FontFamily="{StaticResource FontAwesome}" IsTextSearchEnabled="False" Foreground="White" HorizontalAlignment="Stretch" FontSize="{StaticResource ButtonFontSize}"  Width="NaN" Height="{DynamicResource ButtonHeight}" VerticalAlignment="Bottom">

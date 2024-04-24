@@ -24,6 +24,7 @@ using Tavstal.KonkordLibrary.Models.Launcher;
 using KonkordLibrary.Models.Launcher;
 using Tavstal.KonkordLibrary.Models.Minecraft.API;
 using KonkordLauncher;
+using System.Dynamic;
 
 namespace Tavstal.KonkordLauncher
 {
@@ -37,6 +38,7 @@ namespace Tavstal.KonkordLauncher
         private string? EditedProfileKey {  get; set; }
         private Profile? EditedProfile {  get; set; }
         private Grid SelectedSkinGrid {  get; set; }
+        private string SelectedSkinLibId {  get; set; }
         public KeyValuePair<string, Profile> SelectedProfile { get; set; }
         private readonly double _heightMultiplier;
         private readonly double _widthMultiplier;
@@ -810,9 +812,11 @@ namespace Tavstal.KonkordLauncher
             if (skinLibData == null)
                 return;
 
+            SkinLib? selectedSkin = skinLibData.Skins.Find(x => x.Id == skinLibData.SelectedSkin);
+            SelectedSkinLibId = skinLibData.SelectedSkin;
             lb_main_skins.DataContext = SkinLib.IncludeDefs(skinLibData.Skins);
 
-            SkinLib? selectedSkin = skinLibData.Skins.Find(x => x.Id == skinLibData.SelectedSkin);
+            
             if (selectedSkin == null)
             {
                 btn_main_skins_addtolibrary.IsEnabled = true;
@@ -1386,7 +1390,6 @@ namespace Tavstal.KonkordLauncher
                 }
             }
 
-
         }
 
         /// <summary>
@@ -1443,7 +1446,12 @@ namespace Tavstal.KonkordLauncher
                 }
                 else if (child is Border button)
                 {
-                    button.Visibility = Visibility.Visible;
+                    if (button.Name == "b_skin_use_button")
+                    {
+                        button.Visibility = SelectedSkinLibId == grid.Tag.ToString() ? Visibility.Collapsed : Visibility.Visible;
+                    }
+                    else
+                        button.Visibility = Visibility.Visible;
                 }
                 else if (child is ComboBox comboBox)
                 {

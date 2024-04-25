@@ -77,7 +77,7 @@
                         <!-- Library -->
                         <Label x:Name="lab_main_skins_library" Content="Library" HorizontalAlignment="Right" VerticalAlignment="Top" FontWeight="SemiBold" Foreground="White" Margin="0,20,155,0"/>
 
-                        <ListBox x:Name="lb_main_skins" SelectionChanged="MainSkinsItem_SelectionChanged" ItemsSource="{Binding}" d:ItemsSource="{d:SampleData ItemCount=15}" Margin="224,51,20,10" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" HorizontalAlignment="Left" VerticalContentAlignment="Top">
+                        <ListBox x:Name="lb_main_skins" SelectionChanged="SkinsListItem_SelectionChanged" ItemsSource="{Binding}" d:ItemsSource="{d:SampleData ItemCount=15}" Margin="224,51,20,10" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" HorizontalAlignment="Left" VerticalContentAlignment="Top">
                             <ListBox.Resources>
                                 <sys:String x:Key="BtnEditText">Edit</sys:String>
                                 <sys:String x:Key="BtnDuplicateText">Duplicate</sys:String>
@@ -213,7 +213,7 @@
                                             <DataTemplate>
                                                 <Grid Background="Transparent" MouseEnter="SkinListGrid_MouseEnter" MouseLeave="SkinListGrid_MouseLeave" Margin="{DynamicResource GridMargin}" Width="{DynamicResource GridWidth}" Height="{DynamicResource GridHeight}" HorizontalAlignment="Stretch">
                                                     <Image Source="{Binding Image}" Margin="{DynamicResource ImageMargin}" Opacity="0.5" />
-                                                    <RadioButton Content="{Binding Name}" Click="CapeRadioButton_Click" BorderThickness="0.5" FontSize="{DynamicResource LabelFontSize}" Foreground="White" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" Padding="0,0,0,0" Height="{DynamicResource ButtonHeight}" VerticalContentAlignment="Center" FontWeight="SemiBold" Background="{x:Null}" />
+                                                    <RadioButton Content="{Binding Name}" Tag="{Binding Id}" Click="CapeRadioButton_Click" BorderThickness="0.5" FontSize="{DynamicResource LabelFontSize}" Foreground="White" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" Padding="0,0,0,0" Height="{DynamicResource ButtonHeight}" VerticalContentAlignment="Center" FontWeight="SemiBold" Background="{x:Null}" />
                                                 </Grid>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
@@ -227,12 +227,12 @@
                     
                         <!-- Cancel -->
                         <Border x:Name="bo_main_skinsedit_cancel" BorderBrush="#33000000" BorderThickness="1" CornerRadius="3,3,3,3" Background="#33000000" Margin="25,0,0,20" ClipToBounds="True" Height="22" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="75">
-                            <Button x:Name="btn__main_skinsedit_cancel" Content="Cancel" Style="{StaticResource BaseButton}" BorderThickness="2" Foreground="White" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" FontWeight="SemiBold" FontSize="8" Margin="0" Click="btn_main_skins_newskin_cancel_Click"/>
+                            <Button x:Name="btn__main_skinsedit_cancel" Content="Cancel" Style="{StaticResource BaseButton}" BorderThickness="2" Foreground="White" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" FontWeight="SemiBold" FontSize="8" Margin="0" Click="SkinsNewSkinCancel_Click"/>
                         </Border>
 
                         <!-- Save -->
                         <Border x:Name="bo_main_skinsedit_save" BorderBrush="#FF5D6F95" BorderThickness="1" CornerRadius="3,3,3,3" Background="#FF5D6F95" Margin="110,0,0,20" ClipToBounds="True" Height="22" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="75">
-                            <Button x:Name="btn_main_skinsedit_save" Content="Save" Style="{StaticResource BaseButton}" BorderThickness="2" Foreground="White" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" FontWeight="SemiBold" FontSize="8" Margin="0" Click="btn_main_skins_newskin_Save_Click"/>
+                            <Button x:Name="btn_main_skinsedit_save" Content="Save" Style="{StaticResource BaseButton}" BorderThickness="2" Foreground="White" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" FontWeight="SemiBold" FontSize="8" Margin="0" Click="SkinsNewSkinSave_Click"/>
                         </Border>
 
                     </Grid>
@@ -434,7 +434,7 @@
                                     <ComboBoxItem Tag="quilt">Quilt</ComboBoxItem>
                                 </ComboBox.Items>
                             </ComboBox>
-                            <ComboBox x:Name="cb_instances_mc_version" SelectionChanged="cb_instances_mc_version_SelectionChanged" ItemsSource="{Binding}" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="0,22,0,25" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White" HorizontalAlignment="Right" Width="200">
+                            <ComboBox x:Name="cb_instances_mc_version" SelectionChanged="InstancesMcVersion_SelectionChanged" ItemsSource="{Binding}" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="0,22,0,25" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White" HorizontalAlignment="Right" Width="200">
                                 <ComboBox.Resources>
                                     <sys:Double x:Key="VersionListFontSize">10</sys:Double>
                                 </ComboBox.Resources>
@@ -454,7 +454,7 @@
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
-                            <ComboBox x:Name="cb_instances_mod_version" SelectionChanged="cb_instances_mod_version_SelectionChanged" ItemsSource="{Binding}" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="0,22,0,25" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White" HorizontalAlignment="Right" Width="95">
+                            <ComboBox x:Name="cb_instances_mod_version" SelectionChanged="InstancesModVersion_SelectionChanged" ItemsSource="{Binding}" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="0,22,0,25" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White" HorizontalAlignment="Right" Width="95">
                                 <ComboBox.Resources>
                                     <sys:Double x:Key="VersionListFontSize">10</sys:Double>
                                 </ComboBox.Resources>

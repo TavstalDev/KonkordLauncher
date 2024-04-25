@@ -1,10 +1,5 @@
-﻿using Tavstal.KonkordLibrary.Enums;
-using Tavstal.KonkordLibrary.Helpers;
-using Tavstal.KonkordLibrary.Models.Fabric;
-using Tavstal.KonkordLibrary.Models.Installer;
-using Tavstal.KonkordLibrary.Models.Minecraft;
-using Tavstal.KonkordLibrary.Models.Quilt;
-using Tavstal.KonkordLibrary.Models.Forge;
+﻿using KonkordLauncher;
+using KonkordLibrary.Models.Launcher;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -19,12 +14,16 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Tavstal.KonkordLibrary.Enums;
+using Tavstal.KonkordLibrary.Helpers;
 using Tavstal.KonkordLibrary.Managers;
+using Tavstal.KonkordLibrary.Models.Fabric;
+using Tavstal.KonkordLibrary.Models.Forge;
+using Tavstal.KonkordLibrary.Models.Installer;
 using Tavstal.KonkordLibrary.Models.Launcher;
-using KonkordLibrary.Models.Launcher;
+using Tavstal.KonkordLibrary.Models.Minecraft;
 using Tavstal.KonkordLibrary.Models.Minecraft.API;
-using KonkordLauncher;
-using System.Dynamic;
+using Tavstal.KonkordLibrary.Models.Quilt;
 
 namespace Tavstal.KonkordLauncher
 {
@@ -33,8 +32,6 @@ namespace Tavstal.KonkordLauncher
     /// </summary>
     public partial class LaunchWindow : Window
     {
-        // TODO - Patch the chaos
-
         private string? EditedProfileKey {  get; set; }
         private Profile? EditedProfile {  get; set; }
         private Grid SelectedSkinGrid {  get; set; }
@@ -358,6 +355,8 @@ namespace Tavstal.KonkordLauncher
             //RefreshTranslations();
         }
 
+        #region Events
+        #region Window
         /// <summary>
         /// Handles the event when the window is loaded.
         /// </summary>
@@ -368,501 +367,6 @@ namespace Tavstal.KonkordLauncher
             await RefreshAccount();
         }
 
-        #region Functions
-        /// <summary>
-        /// Asynchronously refreshes the displayed account information, such as icon and name.
-        /// </summary>
-        /// <returns>
-        /// A <see cref="Task"/> representing the asynchronous operation.
-        /// </returns>
-        private async Task RefreshAccount()
-        {
-            AccountData? accountData = await JsonHelper.ReadJsonFileAsync<AccountData>(System.IO.Path.Combine(IOHelper.MainDirectory, "accounts.json"));
-            if (accountData == null)
-                return;
-
-            var account = accountData.Accounts[accountData.SelectedAccountId];
-            if (account == null)
-                return;
-
-            la_account_name.Content = account.DisplayName;
-            switch (account.Type)
-            {
-                case EAccountType.OFFLINE:
-                    {
-                        la_account_type.Content = TranslationManager.Translate("ui_offline_account");
-                        break;
-                    }
-                case EAccountType.MICROSOFT:
-                    {
-                        la_account_type.Content = TranslationManager.Translate("ui_microsoft_account");
-                        break;
-                    }
-            }
-
-            string avatarPath = System.IO.Path.Combine(IOHelper.CacheDir, $"{account.DisplayName}.png");
-            if (!File.Exists(avatarPath))
-            {
-                using (var client = new HttpClient())
-                {
-                    img_account.Source = WindowHelper.GetImageSource(await client.GetByteArrayAsync($"https://mineskin.eu/head/{account.DisplayName}/256.png"));
-                }
-            }
-            else
-            {
-                img_account.Source = await WindowHelper.GetImageSourceAsync(avatarPath);
-            }
-        }
-
-        /// <summary>
-        /// Refreshes the Minecraft instances user interface.
-        /// </summary>
-        private void RefreshInstances()
-        {
-            LauncherSettings? settings = IOHelper.GetLauncherSettings();
-            if (settings == null)
-                return;
-
-            if (settings.Profiles == null)
-            {
-                DataContext = null;
-                return;
-            }
-
-            List<Profile> profiles = settings.Profiles.Values.ToList();
-
-            if (profiles.Count <= 2)
-                listbox_launchinstances.Resources["Alternation"] = profiles.Count;
-            else
-                listbox_launchinstances.Resources["Alternation"] = 2;
-  
-            if (settings.Profiles.TryGetValue(settings.SelectedProfile, out Profile? selectedProfile))
-                SelectedProfile = new KeyValuePair<string, Profile>(settings.SelectedProfile, selectedProfile);
-            else
-                SelectedProfile = settings.Profiles.ElementAt(0);
-
-            DataContext = settings.Profiles;
-            listbox_launchinstances.SelectedIndex = profiles.IndexOf(SelectedProfile.Value);
-            listbox_launchinstances.ScrollIntoView(listbox_launchinstances.SelectedItem);
-            lab_selected_profile.Content = SelectedProfile.Value.Name.ToLower();
-
-
-        }
-
-        /// <summary>
-        /// Fills the instanceVersion ComboBox with available versions.
-        /// </summary>
-        private void FillVersionComboBox()
-        {
-            if (VersionDic != null)
-                return;
-
-            VersionDic = new Dictionary<string, List<VersionBase>>();
-
-            #region Vanilla
-            List<VersionBase> localVersions = new List<VersionBase>();
-
-            var manifest = JsonConvert.DeserializeObject<VersionManifest>(File.ReadAllText(Path.Combine(IOHelper.ManifestDir, "vanillaManifest.json")));
-            if (manifest == null)
-                return;
-            foreach (var v in manifest.Versions)
-            {
-                localVersions.Add(new VersionBase(v.Id, v.Id, v.GetVersionBaseType()));
-            }
-
-            VersionDic.Add("vanilla", localVersions);
-            #endregion
-
-            #region Forge & NeoForge
-            localVersions = new List<VersionBase>();
-            List <VersionBase> forgeVanilla = new List<VersionBase>();
-
-            string raw = File.ReadAllText(Path.Combine(IOHelper.ManifestDir, "forgeManifest.json"));
-            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
-            doc.LoadXml(raw);
-            JObject jObj = JObject.Parse(JsonConvert.SerializeXmlNode(doc));
-            foreach (var v in jObj["metadata"]?["versioning"]?["versions"]?["version"]?.ToList())
-            {
-                string[] s = v.ToString().Split('-');
-                localVersions.Add(new VersionBase(s[1], s[0], EVersionType.RELEASE));
-
-                if (!forgeVanilla.Any(x => x.VanillaId == s[0]))
-                    forgeVanilla.Add(new VersionBase(s[0], s[0], EVersionType.RELEASE));
-            }
-
-            VersionDic.Add("forgeVanilla", forgeVanilla);
-            VersionDic.Add("forge", localVersions);
-            #endregion
-
-            #region Fabric
-
-            localVersions = new List<VersionBase>();
-            raw = File.ReadAllText(Path.Combine(IOHelper.ManifestDir, "fabricManifest.json"));
-            jObj = JObject.Parse(raw);
-            foreach (var token in jObj["game"].ToList())
-            {
-                localVersions.Add(new VersionBase(token["version"].ToString(), token["version"].ToString(), bool.Parse(token["stable"].ToString()) ? EVersionType.RELEASE : EVersionType.SNAPSHOT));
-            }
-
-            VersionDic.Add("fabricVanilla", localVersions);
-
-            localVersions = new List<VersionBase>();
-            foreach (var token in jObj["loader"].ToList())
-            {
-                localVersions.Add(new VersionBase(token["version"].ToString(), string.Empty, EVersionType.RELEASE));
-            }
-
-            VersionDic.Add("fabric", localVersions);
-            #endregion
-
-            #region Quilt
-            localVersions = new List<VersionBase>();
-            raw = File.ReadAllText(Path.Combine(IOHelper.ManifestDir, "quiltManifest.json"));
-            jObj = JObject.Parse(raw);
-            foreach (var token in jObj["game"].ToList())
-            {
-                localVersions.Add(new VersionBase(token["version"].ToString(), token["version"].ToString(), bool.Parse(token["stable"].ToString()) ? EVersionType.RELEASE : EVersionType.SNAPSHOT));
-            }
-
-            VersionDic.Add("quiltVanilla", localVersions);
-            localVersions = new List<VersionBase>();
-            foreach (var token in jObj["loader"].ToList())
-            {
-                localVersions.Add(new VersionBase(token["version"].ToString(), string.Empty, EVersionType.RELEASE));
-            }
-
-            VersionDic.Add("quilt", localVersions);
-            #endregion
-        }
-
-        /// <summary>
-        /// Refreshes the dropdown versions based on the specified instanceVersion type.
-        /// </summary>
-        /// <param name="versionType">The type of instanceVersion to refresh (e.g., "vanilla", "forge", etc.).</param>
-        private void RefreshDropdownVersions(string versionType)
-        {
-            if (checkb_instances_version_betas == null || checkb_instances_version_releases == null || checkb_instances_version_snapshots == null)
-                return;
-
-            if (versionType == "neoforge")
-                versionType = "forge";
-
-            bool showReleases = true;
-            if (checkb_instances_version_releases.IsEnabled)
-                showReleases = checkb_instances_version_releases.IsChecked.Value;
-            bool showSnapshots = false;
-            if (checkb_instances_version_snapshots.IsEnabled)
-                showSnapshots = checkb_instances_version_snapshots.IsChecked.Value;
-            bool showOldBetas = false;
-            if (checkb_instances_version_betas.IsEnabled)
-                showOldBetas = checkb_instances_version_betas.IsChecked.Value;
-
-            List<VersionBase> localVanillaList = new List<VersionBase>();
-            List<VersionBase> localModList = new List<VersionBase>();
-            switch (versionType)
-            {
-                case "vanilla":
-                    {
-                        cb_instances_mc_version.DataContext = VersionDic[versionType].FindAll(x => (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas)).Select(x => x.Id);
-                        cb_instances_mc_version.SelectedIndex = 0;
-                        break;
-                    }
-                case "fabric":
-                    {
-                        localVanillaList = VersionDic["fabricVanilla"].FindAll(x => (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
-                        cb_instances_mcmod_version.DataContext = localVanillaList.Select(x => x.Id);
-                        cb_instances_mcmod_version.SelectedIndex = 0;
-
-                        localModList = VersionDic[versionType];
-                        cb_instances_mod_version.DataContext = localModList.Select(x => x.Id);
-                        cb_instances_mod_version.SelectedIndex = 0;
-                        break;
-                    }
-                case "quilt":
-                    {
-                        localVanillaList = VersionDic["quiltVanilla"].FindAll(x => (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
-                        cb_instances_mcmod_version.DataContext = localVanillaList.Select(x => x.Id);
-                        cb_instances_mcmod_version.SelectedIndex = 0;
-
-                        localModList = VersionDic[versionType];
-                        cb_instances_mod_version.DataContext = localModList.Select(x => x.Id);
-                        cb_instances_mod_version.SelectedIndex = 0;
-                        break;
-                    }
-                case "forge":
-                    {
-                        localVanillaList = VersionDic["forgeVanilla"].FindAll(x => !ForgeInstallerBase.UnsupportedVersions.Contains(x.VanillaId) && (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
-                        cb_instances_mcmod_version.DataContext = localVanillaList.Select(x => x.Id);
-                        cb_instances_mcmod_version.SelectedIndex = 0;
-
-                        localModList = VersionDic[versionType].FindAll(x => !ForgeInstallerBase.UnsupportedVersions.Contains(x.VanillaId) && (x.VanillaId == localVanillaList[0].Id && (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas)));
-                        cb_instances_mod_version.DataContext = localModList.Select(x => x.Id);
-                        cb_instances_mod_version.SelectedIndex = localModList.FindIndex(x => x.VanillaId == localVanillaList[0].Id);
-                        break;
-                    }
-            }
-        }
-
-        /// <summary>
-        /// Refreshes the translations used in the application.
-        /// </summary>
-        public void RefreshTranslations()
-        {
-            // Main
-            lab_new_instance.Content = TranslationManager.Translate("ui_new_instance");
-            listbox_launchinstances.Resources["BtnTextEdit"] = TranslationManager.Translate("ui_instance_edit");
-            listbox_launchinstances.Resources["BtnTextOpenDir"] = TranslationManager.Translate("ui_instance_opendir");
-            listbox_launchinstances.Resources["BtnTextDel"] = TranslationManager.Translate("ui_instance_delete");
-            listbox_launchinstances.Resources["BtnTextExportInst"] = TranslationManager.Translate("ui_instance_export");
-            lab_launc_play.Content = TranslationManager.Translate("ui_play");
-
-            // Home
-
-            // Mods
-
-            // Skins
-
-            // Patches
-
-            listbox_launchinstances.UpdateLayout();
-
-            // Instance
-            lab_instances.Content = TranslationManager.Translate("ui_new_instance");
-            lab_instances_name.Content = TranslationManager.Translate("ui_instance_name");
-            lab_instances_name_placeholder.Content = TranslationManager.Translate("ui_instance_name_placeholder");
-            lab_instances_gamedir.Content = TranslationManager.Translate("ui_game_dir");
-            lab_instances_gamedir_placeholder.Content = TranslationManager.Translate("ui_optional");
-            lab_instances_javadir.Content = TranslationManager.Translate("ui_java_dir");
-            lab_instances_javadir_placeholder.Content = TranslationManager.Translate("ui_optional");
-            lab_instances_jvm.Content = TranslationManager.Translate("ui_jvm_args");
-            lab_instances_jvm_placeholder.Content = TranslationManager.Translate("ui_optional");
-            lab_instances_launchopt.Content = TranslationManager.Translate("ui_launcher_visibility");
-            lab_instances_memory.Content = TranslationManager.Translate("ui_memory");
-            lab_instances_resolution.Content = TranslationManager.Translate("ui_resolution");
-            lab_instances_version.Content = TranslationManager.Translate("ui_version");
-            checkb_instances_version_releases.Content = TranslationManager.Translate("ui_versioncb_releases");
-            checkb_instances_version_snapshots.Content = TranslationManager.Translate("ui_versioncb_snapshots");
-            checkb_instances_version_betas.Content = TranslationManager.Translate("ui_versioncb_betas");
-            lab_instances_cancel.Content = TranslationManager.Translate("ui_cancel");
-            lab_instances_save.Content = TranslationManager.Translate("ui_save");
-            lab_instances_import.Content = TranslationManager.Translate("ui_orimport");
-            btn_instances_javadir.Content = TranslationManager.Translate("ui_browse");
-            btn_instances_gamedir.Content = TranslationManager.Translate("ui_browse");
-
-        }
-
-        /// <summary>
-        /// Opens the instance editor for the specified profile.
-        /// </summary>
-        /// <param name="profile">The profile to edit.</param>
-        /// <param name="profileKey">The key of the profile.</param>
-        private void OpenInstanceEdit(Profile? profile, string profileKey)
-        {
-            if (profile == null)
-            {
-                EditedProfile = null;
-                EditedProfileKey = string.Empty;
-
-                scroll_instances.ScrollToTop();
-                img_instances_icon.Source = new BitmapImage(new Uri(ProfileIcon.Icons.ElementAt(0).Path, UriKind.Relative));
-                SelectedIcon = ProfileIcon.Icons.ElementAt(0).Path;
-                cb_instances_mc_version.IsEnabled = true;
-                cb_instances_mcmod_version.IsEnabled = false;
-                cb_instances_mod_version.IsEnabled = false;
-                cb_instances_mc_version.Visibility = Visibility.Visible;
-                cb_instances_mcmod_version.Visibility = Visibility.Hidden;
-                cb_instances_mod_version.Visibility = Visibility.Hidden;
-
-                //RefreshDropdownVersions("vanilla");
-                cb_instances_version_type.SelectedIndex = 0;
-                cb_instances_mc_version.SelectedIndex = 0;
-
-
-                tb_instances_gamedir.Text =  "";
-                tb_instances_javadir.Text = "";
-                tb_instances_name.Text = "";
-                tb_instances_jvm.Text = Profile.GetDefaultJVMArgs();
-                tb_instances_resolution_x.Text = string.Empty;
-                tb_instances_resolution_y.Text = string.Empty;
-                cb_instances_launchopt.SelectedIndex = 0;
-                cb_instances_memory.SelectedIndex = 0;
-                lab_instances.Content = TranslationManager.Translate("ui_new_instance");
-                bo_instances_import.IsEnabled = true;
-            }
-            else
-            {
-                EditedProfile = profile;
-                EditedProfileKey = profileKey;
-                switch (EditedProfile.Kind)
-                {
-                    case EProfileKind.VANILLA:
-                        {
-                            
-                            cb_instances_mc_version.IsEnabled = true;
-                            cb_instances_mcmod_version.IsEnabled = false;
-                            cb_instances_mod_version.IsEnabled = false;
-                            cb_instances_mc_version.Visibility = Visibility.Visible;
-                            cb_instances_mcmod_version.Visibility = Visibility.Hidden;
-                            cb_instances_mod_version.Visibility = Visibility.Hidden;
-
-                            cb_instances_version_type.SelectedValue = "Vanilla";
-                            //RefreshDropdownVersions("vanilla");
-                            cb_instances_mc_version.SelectedValue = EditedProfile.VersionId;
-
-                            break;
-                        }
-                    case EProfileKind.FORGE:
-                        {
-                            
-                            cb_instances_mc_version.IsEnabled = false;
-                            cb_instances_mcmod_version.IsEnabled = true;
-                            cb_instances_mod_version.IsEnabled = true;
-                            cb_instances_mc_version.Visibility = Visibility.Hidden;
-                            cb_instances_mcmod_version.Visibility = Visibility.Visible;
-                            cb_instances_mod_version.Visibility = Visibility.Visible;
-
-                            cb_instances_version_type.SelectedValue = "Forge";
-                            //RefreshDropdownVersions("forge");
-                            cb_instances_mcmod_version.SelectedValue = EditedProfile.VersionVanillaId;
-                            cb_instances_mod_version.SelectedValue = EditedProfile.VersionId;
-                            break;
-                        }
-                    case EProfileKind.FABRIC:
-                        {
-                            
-                            cb_instances_mc_version.IsEnabled = false;
-                            cb_instances_mcmod_version.IsEnabled = true;
-                            cb_instances_mod_version.IsEnabled = true;
-                            cb_instances_mc_version.Visibility = Visibility.Hidden;
-                            cb_instances_mcmod_version.Visibility = Visibility.Visible;
-                            cb_instances_mod_version.Visibility = Visibility.Visible;
-
-                            cb_instances_version_type.SelectedValue = "Fabric";
-                            //RefreshDropdownVersions("fabric");
-                            cb_instances_mcmod_version.SelectedValue = EditedProfile.VersionVanillaId;
-                            cb_instances_mod_version.SelectedValue = EditedProfile.VersionId;
-                            break;
-                        }
-                    case EProfileKind.QUILT:
-                        {
-                            
-                            cb_instances_mc_version.IsEnabled = false;
-                            cb_instances_mcmod_version.IsEnabled = true;
-                            cb_instances_mod_version.IsEnabled = true;
-                            cb_instances_mc_version.Visibility = Visibility.Hidden;
-                            cb_instances_mcmod_version.Visibility = Visibility.Visible;
-                            cb_instances_mod_version.Visibility = Visibility.Visible;
-
-                            cb_instances_version_type.SelectedValue = "Quilt";
-                            //RefreshDropdownVersions("quilt");
-
-                            cb_instances_mcmod_version.SelectedValue = EditedProfile.VersionVanillaId;
-                            cb_instances_mod_version.SelectedValue = EditedProfile.VersionId;
-                            break;
-                        }
-                }
-
-                scroll_instances.ScrollToTop();
-                SelectedIcon = profile.Icon.StartsWith("/assets") ? "pack://application:,,," + profile.Icon : profile.Icon;
-                img_instances_icon.Source = new BitmapImage(new Uri(SelectedIcon));
-                tb_instances_gamedir.Text = EditedProfile.GameDirectory ?? "";
-                tb_instances_javadir.Text = EditedProfile.JavaPath ?? "";
-                tb_instances_name.Text = EditedProfile.Name;
-                tb_instances_jvm.Text = EditedProfile.JVMArgs;
-                if (EditedProfile.Resolution != null)
-                {
-                    tb_instances_resolution_x.Text = EditedProfile.Resolution.X.ToString();
-                    tb_instances_resolution_y.Text = EditedProfile.Resolution.Y.ToString();
-                }
-                cb_instances_launchopt.SelectedIndex = (int)EditedProfile.LauncherVisibility;
-                cb_instances_memory.SelectedItem = EditedProfile.Memory;
-                lab_instances.Content = TranslationManager.Translate("ui_edit_instance");
-                bo_instances_import.IsEnabled = false;
-            }
-        }
-
-        /// <summary>
-        /// Updates the visibility of the launch status bar.
-        /// </summary>
-        /// <param name="isVisible">A boolean value indicating whether the launch status bar should be visible.</param>
-        private void UpdateLaunchStatusBar(bool isVisible)
-        {
-            bo_launch_progress.IsEnabled = isVisible;
-            bo_launch_progress.Visibility = isVisible ? Visibility.Visible : Visibility.Hidden;
-        }
-
-        /// <summary>
-        /// Updates the launch status bar with the specified progress value and content.
-        /// </summary>
-        /// <param name="value">The progress value to display.</param>
-        /// <param name="content">The content to display in the launch status bar.</param>
-        private void UpdateLaunchStatusBar(double value, string content)
-        {
-            lab_launch_progress.Content = content;
-            pb_launch_progress.Value = value;
-        }
-
-        /// <summary>
-        /// Refreshes the skins menu in the application.
-        /// </summary>
-        private async void RefreshSkinsMenu()
-        {
-            string raw = await File.ReadAllTextAsync(IOHelper.SkinLibraryJsonFile);
-            SkinLibData? skinLibData = JsonConvert.DeserializeObject<SkinLibData>(raw);
-            if (skinLibData == null)
-                return;
-
-            SkinLib? selectedSkin = skinLibData.Skins.Find(x => x.Id == skinLibData.SelectedSkin);
-            SelectedSkinLibId = skinLibData.SelectedSkin;
-            lb_main_skins.DataContext = SkinLib.IncludeDefs(skinLibData.Skins);
-
-            
-            if (selectedSkin == null)
-            {
-                btn_main_skins_addtolibrary.IsEnabled = true;
-
-                AccountData? accountData = await JsonHelper.ReadJsonFileAsync<AccountData>(IOHelper.AccountsJsonFile);
-                if (accountData == null)
-                    return;
-
-                if (!accountData.Accounts.TryGetValue(accountData.SelectedAccountId, out Account? account))
-                    return;
-
-                if (account.Type == EAccountType.OFFLINE)
-                    return;
-
-                
-                MojangProfile? profile = await AuthenticationManager.GetMojangProfileAsync();
-                if (profile == null)
-                {
-                    img_main_skins_current.Source = WindowHelper.GetImageSourceFromUri(SkinLib.GetSteve().ModelImage);
-                    return;
-                }
-
-                Skin? activeSkin = profile.Skins.Find(x => x.State == "ACTIVE");
-                if (activeSkin == null)
-                {
-                    img_main_skins_current.Source = WindowHelper.GetImageSourceFromUri(SkinLib.GetSteve().ModelImage);
-                    return;
-                }
-
-                SkinLib skinLib = new SkinLib(activeSkin);
-                ProgressWindow progressWindow = new ProgressWindow();
-                progressWindow.Show();
-                await skinLib.DownloadFilesAsync(profile, account.AccessToken, activeSkin, progressWindow);
-                progressWindow.Close();
-
-                img_main_skins_current.Source = await WindowHelper.GetImageSourceAsync(skinLib.ModelImage);
-            }
-            else
-            {
-                btn_main_skins_addtolibrary.IsEnabled = false;
-                img_main_skins_current.Source = WindowHelper.GetImageSourceFromUri(selectedSkin.ModelImage);
-            }
-        }
-        #endregion
-
-        #region Window Events
         /// <summary>
         /// Event handler for closing the window when a specific button is clicked.
         /// </summary>
@@ -883,10 +387,8 @@ namespace Tavstal.KonkordLauncher
             WindowState = WindowState.Minimized;
         }
         #endregion
-
         #region Main
-        #region Left Panel
-
+        #region Left Menu
         #region Logout Button
         /// <summary>
         /// Handles the click event of the logout button in the launch interface.
@@ -929,7 +431,6 @@ namespace Tavstal.KonkordLauncher
             gr_account.BorderBrush = new SolidColorBrush(Color.FromScRgb(0f, 0, 0, 0));
         }
         #endregion
-
         #region New Instance Button
         /// <summary>
         /// Handles the click event of the "New Instance" button.
@@ -981,7 +482,7 @@ namespace Tavstal.KonkordLauncher
                 return;
 
             Language? item = e.AddedItems[0] as Language;
-            if (item == null) 
+            if (item == null)
                 return;
             settings.Language = item.TwoLetterCode;
             await JsonHelper.WriteJsonFileAsync(IOHelper.LauncherJsonFile, settings);
@@ -1001,7 +502,7 @@ namespace Tavstal.KonkordLauncher
             btn_launch_play.IsEnabled = false;
 
             #region Check requirements
-            AccountData? accountData = await  JsonHelper.ReadJsonFileAsync<AccountData>(System.IO.Path.Combine(IOHelper.MainDirectory, "accounts.json"));
+            AccountData? accountData = await JsonHelper.ReadJsonFileAsync<AccountData>(System.IO.Path.Combine(IOHelper.MainDirectory, "accounts.json"));
             if (accountData == null)
             {
                 NotificationHelper.SendErrorTranslated("launch_fail_account_details", "messagebox_error");
@@ -1071,7 +572,7 @@ namespace Tavstal.KonkordLauncher
                     }
                 case EProfileKind.QUILT:
                     {
-                        
+
                         installer = new QuiltInstaller(selectedProfile, lab_launch_progress, pb_launch_progress, debug);
                         break;
                     }
@@ -1328,7 +829,7 @@ namespace Tavstal.KonkordLauncher
         /// </summary>
         /// <param name="sender">The sender of the event.</param>
         /// <param name="e">The event arguments containing information about the selected skin.</param>
-        private void MainSkinsItem_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void SkinsListItem_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ListBox listBox = (ListBox)sender;
 
@@ -1501,7 +1002,7 @@ namespace Tavstal.KonkordLauncher
         /// </summary>
         /// <param name="sender">The sender of the event.</param>
         /// <param name="e">The event arguments containing information about the click event.</param>
-        private void btn_main_skins_newskin_cancel_Click(object sender, RoutedEventArgs e)
+        private void SkinsNewSkinCancel_Click(object sender, RoutedEventArgs e)
         {
 
         }
@@ -1511,7 +1012,7 @@ namespace Tavstal.KonkordLauncher
         /// </summary>
         /// <param name="sender">The sender of the event.</param>
         /// <param name="e">The event arguments containing information about the click event.</param>
-        private void btn_main_skins_newskin_Save_Click(object sender, RoutedEventArgs e)
+        private void SkinsNewSkinSave_Click(object sender, RoutedEventArgs e)
         {
 
         }
@@ -1568,7 +1069,7 @@ namespace Tavstal.KonkordLauncher
 
             ProgressWindow progressWindow = new ProgressWindow();
             progressWindow.Show();
-            await skinLib.DownloadFilesAsync(mojangProfile, account.AccessToken, skin, progressWindow);
+            await skinLib.DownloadFilesAsync(mojangProfile, skin, progressWindow);
 
             progressWindow.Close();
 
@@ -1594,15 +1095,14 @@ namespace Tavstal.KonkordLauncher
 
         #endregion
         #endregion
-
         #region Instances
         #region Variables
         public string SelectedIcon { get; set; }
         public string InstanceMCVersionId { get; set; }
-        public string InstanceModVersionId {  get; set; }
-        public Dictionary<string, List<VersionBase>> VersionDic {  get; set; }
+        public string InstanceModVersionId { get; set; }
+        public Dictionary<string, List<VersionBase>> VersionDic { get; set; }
         #endregion
-
+        #region Buttons
         /// <summary>
         /// Handles the click event of the instances save button.
         /// </summary>
@@ -1675,7 +1175,7 @@ namespace Tavstal.KonkordLauncher
                     Resolution = resolution,
                     Type = EProfileType.CUSTOM,
                     VersionId = InstanceModVersionId,
-                    VersionVanillaId = InstanceMCVersionId, 
+                    VersionVanillaId = InstanceMCVersionId,
                     JVMArgs = tb_instances_jvm.Text ?? "",
                 };
 
@@ -1713,6 +1213,50 @@ namespace Tavstal.KonkordLauncher
             bo_instances.Visibility = Visibility.Hidden;
         }
 
+        /// <summary>
+        /// Handles the event when the "Import" button is clicked in the instances window, triggering the import process.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The event arguments containing information about the click event.</param>
+        private async void InstancesImport_Click(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Forms.OpenFileDialog dialog = new System.Windows.Forms.OpenFileDialog();
+            dialog.Title = "Select the instance.zip";
+            dialog.DefaultExt = "zip";
+            dialog.Filter = "(*.zip)|*.zip";
+            dialog.CheckFileExists = true;
+            dialog.CheckPathExists = true;
+            dialog.Multiselect = false;
+            var result = dialog.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                if (!File.Exists(dialog.FileName))
+                    return;
+
+                // Hide instance editor
+                bo_instances.IsEnabled = false;
+                bo_instances.Visibility = Visibility.Hidden;
+
+                // Disable play button
+                bo_launch_play.IsEnabled = false;
+                btn_launch_play.IsEnabled = false;
+                // Enable progressbar
+                UpdateLaunchStatusBar(true);
+                UpdateLaunchStatusBar(0, $"Importing instance...");
+
+                await InstanceManager.HandleInstanceZipImport(dialog.FileName, pb_launch_progress, lab_launch_progress);
+
+                RefreshInstances();
+
+                // Enable play button
+                bo_launch_play.IsEnabled = true;
+                btn_launch_play.IsEnabled = true;
+                // Disable progressbar
+                UpdateLaunchStatusBar(false);
+            }
+        }
+        #endregion
+        #region Input Fields and Dropdowns
         #region Icon Edit
         /// <summary>
         /// Handles the click event of the instances icon button.
@@ -1773,7 +1317,7 @@ namespace Tavstal.KonkordLauncher
                 Image image = (Image)btn.Content;
 
                 string rawPath = ((BitmapFrame)image.Source).Decoder.ToString();
-                SelectedIcon= rawPath.Remove(0, rawPath.IndexOf("assets"));
+                SelectedIcon = rawPath.Remove(0, rawPath.IndexOf("assets"));
                 img_instances_icon.Source = image.Source;
             }
         }
@@ -2027,6 +1571,11 @@ namespace Tavstal.KonkordLauncher
             RefreshDropdownVersions(cb_instances_version_type.SelectedValue.ToString().ToLower());
         }
 
+        /// <summary>
+        /// Handles the event when the selection changes in the Minecraft mod version dropdown in the instances window.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The event arguments containing information about the selection change.</param>
         private void InstancesMcmodVersion_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             try
@@ -2125,7 +1674,12 @@ namespace Tavstal.KonkordLauncher
             }
         }
 
-        private void cb_instances_mc_version_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        /// <summary>
+        /// Handles the event when the selection changes in the Minecraft version dropdown in the instances window.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The event arguments containing information about the selection change.</param>
+        private void InstancesMcVersion_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (cb_instances_mc_version == null)
                 return;
@@ -2142,7 +1696,12 @@ namespace Tavstal.KonkordLauncher
             Debug.WriteLine($"minecraft vanilla version: {InstanceMCVersionId}");
         }
 
-        private void cb_instances_mod_version_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        /// <summary>
+        /// Handles the event when the selection changes in the mod version dropdown in the instances window.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The event arguments containing information about the selection change.</param>
+        private void InstancesModVersion_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (cb_instances_mod_version == null)
                 return;
@@ -2158,44 +1717,559 @@ namespace Tavstal.KonkordLauncher
             Debug.WriteLine($"mod version: {InstanceModVersionId}");
         }
 
-        private async void InstancesImport_Click(object sender, RoutedEventArgs e)
+        #endregion
+        #endregion
+        #endregion
+
+        #region Functions
+        #region Base
+        /// <summary>
+        /// Refreshes the translations used in the application.
+        /// </summary>
+        public void RefreshTranslations()
         {
-            System.Windows.Forms.OpenFileDialog dialog = new System.Windows.Forms.OpenFileDialog();
-            dialog.Title = "Select the instance.zip";
-            dialog.DefaultExt = "zip";
-            dialog.Filter = "(*.zip)|*.zip";
-            dialog.CheckFileExists = true;
-            dialog.CheckPathExists = true;
-            dialog.Multiselect = false;
-            var result = dialog.ShowDialog();
-            if (result == System.Windows.Forms.DialogResult.OK)
-            {
-                if (!File.Exists(dialog.FileName))
-                    return;
+            // Main
+            lab_new_instance.Content = TranslationManager.Translate("ui_new_instance");
+            listbox_launchinstances.Resources["BtnTextEdit"] = TranslationManager.Translate("ui_instance_edit");
+            listbox_launchinstances.Resources["BtnTextOpenDir"] = TranslationManager.Translate("ui_instance_opendir");
+            listbox_launchinstances.Resources["BtnTextDel"] = TranslationManager.Translate("ui_instance_delete");
+            listbox_launchinstances.Resources["BtnTextExportInst"] = TranslationManager.Translate("ui_instance_export");
+            lab_launc_play.Content = TranslationManager.Translate("ui_play");
 
-                // Hide instance editor
-                bo_instances.IsEnabled = false;
-                bo_instances.Visibility = Visibility.Hidden;
+            // Home
 
-                // Disable play button
-                bo_launch_play.IsEnabled = false;
-                btn_launch_play.IsEnabled = false;
-                // Enable progressbar
-                UpdateLaunchStatusBar(true);
-                UpdateLaunchStatusBar(0, $"Importing instance...");
+            // Mods
 
-                await InstanceManager.HandleInstanceZipImport(dialog.FileName, pb_launch_progress, lab_launch_progress);
+            // Skins
 
-                RefreshInstances();
+            // Patches
 
-                // Enable play button
-                bo_launch_play.IsEnabled = true;
-                btn_launch_play.IsEnabled = true;
-                // Disable progressbar
-                UpdateLaunchStatusBar(false);
-            }
+            listbox_launchinstances.UpdateLayout();
+
+            // Instance
+            lab_instances.Content = TranslationManager.Translate("ui_new_instance");
+            lab_instances_name.Content = TranslationManager.Translate("ui_instance_name");
+            lab_instances_name_placeholder.Content = TranslationManager.Translate("ui_instance_name_placeholder");
+            lab_instances_gamedir.Content = TranslationManager.Translate("ui_game_dir");
+            lab_instances_gamedir_placeholder.Content = TranslationManager.Translate("ui_optional");
+            lab_instances_javadir.Content = TranslationManager.Translate("ui_java_dir");
+            lab_instances_javadir_placeholder.Content = TranslationManager.Translate("ui_optional");
+            lab_instances_jvm.Content = TranslationManager.Translate("ui_jvm_args");
+            lab_instances_jvm_placeholder.Content = TranslationManager.Translate("ui_optional");
+            lab_instances_launchopt.Content = TranslationManager.Translate("ui_launcher_visibility");
+            lab_instances_memory.Content = TranslationManager.Translate("ui_memory");
+            lab_instances_resolution.Content = TranslationManager.Translate("ui_resolution");
+            lab_instances_version.Content = TranslationManager.Translate("ui_version");
+            checkb_instances_version_releases.Content = TranslationManager.Translate("ui_versioncb_releases");
+            checkb_instances_version_snapshots.Content = TranslationManager.Translate("ui_versioncb_snapshots");
+            checkb_instances_version_betas.Content = TranslationManager.Translate("ui_versioncb_betas");
+            lab_instances_cancel.Content = TranslationManager.Translate("ui_cancel");
+            lab_instances_save.Content = TranslationManager.Translate("ui_save");
+            lab_instances_import.Content = TranslationManager.Translate("ui_orimport");
+            btn_instances_javadir.Content = TranslationManager.Translate("ui_browse");
+            btn_instances_gamedir.Content = TranslationManager.Translate("ui_browse");
+
+        }
+
+        /// <summary>
+        /// Updates the visibility of the launch status bar.
+        /// </summary>
+        /// <param name="isVisible">A boolean value indicating whether the launch status bar should be visible.</param>
+        private void UpdateLaunchStatusBar(bool isVisible)
+        {
+            bo_launch_progress.IsEnabled = isVisible;
+            bo_launch_progress.Visibility = isVisible ? Visibility.Visible : Visibility.Hidden;
+        }
+
+        /// <summary>
+        /// Updates the launch status bar with the specified progress value and content.
+        /// </summary>
+        /// <param name="value">The progress value to display.</param>
+        /// <param name="content">The content to display in the launch status bar.</param>
+        private void UpdateLaunchStatusBar(double value, string content)
+        {
+            lab_launch_progress.Content = content;
+            pb_launch_progress.Value = value;
         }
         #endregion
 
+        #region Main
+        /// <summary>
+        /// Asynchronously refreshes the displayed account information, such as icon and name.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="Task"/> representing the asynchronous operation.
+        /// </returns>
+        private async Task RefreshAccount()
+        {
+            AccountData? accountData = await JsonHelper.ReadJsonFileAsync<AccountData>(System.IO.Path.Combine(IOHelper.MainDirectory, "accounts.json"));
+            if (accountData == null)
+                return;
+
+            var account = accountData.Accounts[accountData.SelectedAccountId];
+            if (account == null)
+                return;
+
+            la_account_name.Content = account.DisplayName;
+            switch (account.Type)
+            {
+                case EAccountType.OFFLINE:
+                    {
+                        la_account_type.Content = TranslationManager.Translate("ui_offline_account");
+                        break;
+                    }
+                case EAccountType.MICROSOFT:
+                    {
+                        la_account_type.Content = TranslationManager.Translate("ui_microsoft_account");
+                        break;
+                    }
+            }
+
+            string avatarPath = System.IO.Path.Combine(IOHelper.CacheDir, $"{account.DisplayName}.png");
+            if (!File.Exists(avatarPath))
+            {
+                using (var client = new HttpClient())
+                {
+                    img_account.Source = WindowHelper.GetImageSource(await client.GetByteArrayAsync($"https://mineskin.eu/head/{account.DisplayName}/256.png"));
+                }
+            }
+            else
+            {
+                img_account.Source = await WindowHelper.GetImageSourceAsync(avatarPath);
+            }
+        }
+
+        /// <summary>
+        /// Refreshes the Minecraft instances user interface.
+        /// </summary>
+        private void RefreshInstances()
+        {
+            LauncherSettings? settings = IOHelper.GetLauncherSettings();
+            if (settings == null)
+                return;
+
+            if (settings.Profiles == null)
+            {
+                DataContext = null;
+                return;
+            }
+
+            List<Profile> profiles = settings.Profiles.Values.ToList();
+
+            if (profiles.Count <= 2)
+                listbox_launchinstances.Resources["Alternation"] = profiles.Count;
+            else
+                listbox_launchinstances.Resources["Alternation"] = 2;
+
+            if (settings.Profiles.TryGetValue(settings.SelectedProfile, out Profile? selectedProfile))
+                SelectedProfile = new KeyValuePair<string, Profile>(settings.SelectedProfile, selectedProfile);
+            else
+                SelectedProfile = settings.Profiles.ElementAt(0);
+
+            DataContext = settings.Profiles;
+            listbox_launchinstances.SelectedIndex = profiles.IndexOf(SelectedProfile.Value);
+            listbox_launchinstances.ScrollIntoView(listbox_launchinstances.SelectedItem);
+            lab_selected_profile.Content = SelectedProfile.Value.Name.ToLower();
+
+
+        }
+        
+        private void OpenSkinEdit(SkinLib? skin)
+        {
+            if (skin == null)
+            {
+                img_main_skinsedit_preview.Source = WindowHelper.GetImageSourceFromUri(SkinLib.GetSteve().ModelImage);
+
+                tb_main_skinsedit_name.Text = "";
+                cb_main_skinsedit_model.SelectedIndex = 0;
+                int i = 0;
+
+                // TODO, set the dataContext of capes, but in RefreshSkinsMenu
+                foreach (var item in itemcont_main_skinsedit_capes.Items)
+                {
+                    Grid grid = (Grid)itemcont_main_skinsedit_capes.ItemContainerGenerator.ContainerFromItem(item);
+                    foreach (var elem in grid.Children)
+                    {
+                        if (elem is RadioButton rbtn)
+                        {
+                            rbtn.IsChecked = i == 0;
+                        }
+                    }
+                    i++;
+                }
+            }
+            else
+            {
+                img_main_skinsedit_preview.Source = WindowHelper.GetImageSourceFromUri(skin.ModelImage);
+
+                tb_main_skinsedit_name.Text = skin.Name;
+                cb_main_skinsedit_model.SelectedIndex = skin.GetModelAsIndex();
+                int i = 0;
+
+                // TODO, set the dataContext of capes, but in RefreshSkinsMenu
+                foreach (var item in itemcont_main_skinsedit_capes.Items)
+                {
+                    Grid grid = (Grid)itemcont_main_skinsedit_capes.ItemContainerGenerator.ContainerFromItem(item);
+                    foreach (var elem in grid.Children)
+                    {
+                        if (elem is RadioButton rbtn)
+                        {
+                            rbtn.IsChecked = rbtn.Tag.ToString() == skin.CapeId || (i == 0 && skin.CapeId == null);
+                        }
+                    }
+                    i++;
+                }
+            }
+
+            grid_main_skins_library.Visibility = Visibility.Hidden;
+            grid_main_skins_edit.Visibility = Visibility.Visible;
+        }
+        #endregion
+
+        #region Instances
+        /// <summary>
+        /// Fills the instanceVersion ComboBox with available versions.
+        /// </summary>
+        private void FillVersionComboBox()
+        {
+            if (VersionDic != null)
+                return;
+
+            VersionDic = new Dictionary<string, List<VersionBase>>();
+
+            #region Vanilla
+            List<VersionBase> localVersions = new List<VersionBase>();
+
+            var manifest = JsonConvert.DeserializeObject<VersionManifest>(File.ReadAllText(Path.Combine(IOHelper.ManifestDir, "vanillaManifest.json")));
+            if (manifest == null)
+                return;
+            foreach (var v in manifest.Versions)
+            {
+                localVersions.Add(new VersionBase(v.Id, v.Id, v.GetVersionBaseType()));
+            }
+
+            VersionDic.Add("vanilla", localVersions);
+            #endregion
+
+            #region Forge & NeoForge
+            localVersions = new List<VersionBase>();
+            List<VersionBase> forgeVanilla = new List<VersionBase>();
+
+            string raw = File.ReadAllText(Path.Combine(IOHelper.ManifestDir, "forgeManifest.json"));
+            System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            doc.LoadXml(raw);
+            JObject jObj = JObject.Parse(JsonConvert.SerializeXmlNode(doc));
+            foreach (var v in jObj["metadata"]?["versioning"]?["versions"]?["version"]?.ToList())
+            {
+                string[] s = v.ToString().Split('-');
+                localVersions.Add(new VersionBase(s[1], s[0], EVersionType.RELEASE));
+
+                if (!forgeVanilla.Any(x => x.VanillaId == s[0]))
+                    forgeVanilla.Add(new VersionBase(s[0], s[0], EVersionType.RELEASE));
+            }
+
+            VersionDic.Add("forgeVanilla", forgeVanilla);
+            VersionDic.Add("forge", localVersions);
+            #endregion
+
+            #region Fabric
+
+            localVersions = new List<VersionBase>();
+            raw = File.ReadAllText(Path.Combine(IOHelper.ManifestDir, "fabricManifest.json"));
+            jObj = JObject.Parse(raw);
+            foreach (var token in jObj["game"].ToList())
+            {
+                localVersions.Add(new VersionBase(token["version"].ToString(), token["version"].ToString(), bool.Parse(token["stable"].ToString()) ? EVersionType.RELEASE : EVersionType.SNAPSHOT));
+            }
+
+            VersionDic.Add("fabricVanilla", localVersions);
+
+            localVersions = new List<VersionBase>();
+            foreach (var token in jObj["loader"].ToList())
+            {
+                localVersions.Add(new VersionBase(token["version"].ToString(), string.Empty, EVersionType.RELEASE));
+            }
+
+            VersionDic.Add("fabric", localVersions);
+            #endregion
+
+            #region Quilt
+            localVersions = new List<VersionBase>();
+            raw = File.ReadAllText(Path.Combine(IOHelper.ManifestDir, "quiltManifest.json"));
+            jObj = JObject.Parse(raw);
+            foreach (var token in jObj["game"].ToList())
+            {
+                localVersions.Add(new VersionBase(token["version"].ToString(), token["version"].ToString(), bool.Parse(token["stable"].ToString()) ? EVersionType.RELEASE : EVersionType.SNAPSHOT));
+            }
+
+            VersionDic.Add("quiltVanilla", localVersions);
+            localVersions = new List<VersionBase>();
+            foreach (var token in jObj["loader"].ToList())
+            {
+                localVersions.Add(new VersionBase(token["version"].ToString(), string.Empty, EVersionType.RELEASE));
+            }
+
+            VersionDic.Add("quilt", localVersions);
+            #endregion
+        }
+
+        /// <summary>
+        /// Refreshes the dropdown versions based on the specified instanceVersion type.
+        /// </summary>
+        /// <param name="versionType">The type of instanceVersion to refresh (e.g., "vanilla", "forge", etc.).</param>
+        private void RefreshDropdownVersions(string versionType)
+        {
+            if (checkb_instances_version_betas == null || checkb_instances_version_releases == null || checkb_instances_version_snapshots == null)
+                return;
+
+            if (versionType == "neoforge")
+                versionType = "forge";
+
+            bool showReleases = true;
+            if (checkb_instances_version_releases.IsEnabled)
+                showReleases = checkb_instances_version_releases.IsChecked.Value;
+            bool showSnapshots = false;
+            if (checkb_instances_version_snapshots.IsEnabled)
+                showSnapshots = checkb_instances_version_snapshots.IsChecked.Value;
+            bool showOldBetas = false;
+            if (checkb_instances_version_betas.IsEnabled)
+                showOldBetas = checkb_instances_version_betas.IsChecked.Value;
+
+            List<VersionBase> localVanillaList = new List<VersionBase>();
+            List<VersionBase> localModList = new List<VersionBase>();
+            switch (versionType)
+            {
+                case "vanilla":
+                    {
+                        cb_instances_mc_version.DataContext = VersionDic[versionType].FindAll(x => (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas)).Select(x => x.Id);
+                        cb_instances_mc_version.SelectedIndex = 0;
+                        break;
+                    }
+                case "fabric":
+                    {
+                        localVanillaList = VersionDic["fabricVanilla"].FindAll(x => (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
+                        cb_instances_mcmod_version.DataContext = localVanillaList.Select(x => x.Id);
+                        cb_instances_mcmod_version.SelectedIndex = 0;
+
+                        localModList = VersionDic[versionType];
+                        cb_instances_mod_version.DataContext = localModList.Select(x => x.Id);
+                        cb_instances_mod_version.SelectedIndex = 0;
+                        break;
+                    }
+                case "quilt":
+                    {
+                        localVanillaList = VersionDic["quiltVanilla"].FindAll(x => (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
+                        cb_instances_mcmod_version.DataContext = localVanillaList.Select(x => x.Id);
+                        cb_instances_mcmod_version.SelectedIndex = 0;
+
+                        localModList = VersionDic[versionType];
+                        cb_instances_mod_version.DataContext = localModList.Select(x => x.Id);
+                        cb_instances_mod_version.SelectedIndex = 0;
+                        break;
+                    }
+                case "forge":
+                    {
+                        localVanillaList = VersionDic["forgeVanilla"].FindAll(x => !ForgeInstallerBase.UnsupportedVersions.Contains(x.VanillaId) && (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas));
+                        cb_instances_mcmod_version.DataContext = localVanillaList.Select(x => x.Id);
+                        cb_instances_mcmod_version.SelectedIndex = 0;
+
+                        localModList = VersionDic[versionType].FindAll(x => !ForgeInstallerBase.UnsupportedVersions.Contains(x.VanillaId) && (x.VanillaId == localVanillaList[0].Id && (x.VersionType == EVersionType.RELEASE && showReleases) || (x.VersionType == EVersionType.SNAPSHOT && showSnapshots) || (x.VersionType == EVersionType.BETA && showOldBetas)));
+                        cb_instances_mod_version.DataContext = localModList.Select(x => x.Id);
+                        cb_instances_mod_version.SelectedIndex = localModList.FindIndex(x => x.VanillaId == localVanillaList[0].Id);
+                        break;
+                    }
+            }
+        }
+
+        /// <summary>
+        /// Opens the instance editor for the specified profile.
+        /// </summary>
+        /// <param name="profile">The profile to edit.</param>
+        /// <param name="profileKey">The key of the profile.</param>
+        private void OpenInstanceEdit(Profile? profile, string profileKey)
+        {
+            if (profile == null)
+            {
+                EditedProfile = null;
+                EditedProfileKey = string.Empty;
+
+                scroll_instances.ScrollToTop();
+                img_instances_icon.Source = new BitmapImage(new Uri(ProfileIcon.Icons.ElementAt(0).Path, UriKind.Relative));
+                SelectedIcon = ProfileIcon.Icons.ElementAt(0).Path;
+                cb_instances_mc_version.IsEnabled = true;
+                cb_instances_mcmod_version.IsEnabled = false;
+                cb_instances_mod_version.IsEnabled = false;
+                cb_instances_mc_version.Visibility = Visibility.Visible;
+                cb_instances_mcmod_version.Visibility = Visibility.Hidden;
+                cb_instances_mod_version.Visibility = Visibility.Hidden;
+
+                //RefreshDropdownVersions("vanilla");
+                cb_instances_version_type.SelectedIndex = 0;
+                cb_instances_mc_version.SelectedIndex = 0;
+
+
+                tb_instances_gamedir.Text = "";
+                tb_instances_javadir.Text = "";
+                tb_instances_name.Text = "";
+                tb_instances_jvm.Text = Profile.GetDefaultJVMArgs();
+                tb_instances_resolution_x.Text = string.Empty;
+                tb_instances_resolution_y.Text = string.Empty;
+                cb_instances_launchopt.SelectedIndex = 0;
+                cb_instances_memory.SelectedIndex = 0;
+                lab_instances.Content = TranslationManager.Translate("ui_new_instance");
+                bo_instances_import.IsEnabled = true;
+            }
+            else
+            {
+                EditedProfile = profile;
+                EditedProfileKey = profileKey;
+                switch (EditedProfile.Kind)
+                {
+                    case EProfileKind.VANILLA:
+                        {
+
+                            cb_instances_mc_version.IsEnabled = true;
+                            cb_instances_mcmod_version.IsEnabled = false;
+                            cb_instances_mod_version.IsEnabled = false;
+                            cb_instances_mc_version.Visibility = Visibility.Visible;
+                            cb_instances_mcmod_version.Visibility = Visibility.Hidden;
+                            cb_instances_mod_version.Visibility = Visibility.Hidden;
+
+                            cb_instances_version_type.SelectedValue = "Vanilla";
+                            //RefreshDropdownVersions("vanilla");
+                            cb_instances_mc_version.SelectedValue = EditedProfile.VersionId;
+
+                            break;
+                        }
+                    case EProfileKind.FORGE:
+                        {
+
+                            cb_instances_mc_version.IsEnabled = false;
+                            cb_instances_mcmod_version.IsEnabled = true;
+                            cb_instances_mod_version.IsEnabled = true;
+                            cb_instances_mc_version.Visibility = Visibility.Hidden;
+                            cb_instances_mcmod_version.Visibility = Visibility.Visible;
+                            cb_instances_mod_version.Visibility = Visibility.Visible;
+
+                            cb_instances_version_type.SelectedValue = "Forge";
+                            //RefreshDropdownVersions("forge");
+                            cb_instances_mcmod_version.SelectedValue = EditedProfile.VersionVanillaId;
+                            cb_instances_mod_version.SelectedValue = EditedProfile.VersionId;
+                            break;
+                        }
+                    case EProfileKind.FABRIC:
+                        {
+
+                            cb_instances_mc_version.IsEnabled = false;
+                            cb_instances_mcmod_version.IsEnabled = true;
+                            cb_instances_mod_version.IsEnabled = true;
+                            cb_instances_mc_version.Visibility = Visibility.Hidden;
+                            cb_instances_mcmod_version.Visibility = Visibility.Visible;
+                            cb_instances_mod_version.Visibility = Visibility.Visible;
+
+                            cb_instances_version_type.SelectedValue = "Fabric";
+                            //RefreshDropdownVersions("fabric");
+                            cb_instances_mcmod_version.SelectedValue = EditedProfile.VersionVanillaId;
+                            cb_instances_mod_version.SelectedValue = EditedProfile.VersionId;
+                            break;
+                        }
+                    case EProfileKind.QUILT:
+                        {
+
+                            cb_instances_mc_version.IsEnabled = false;
+                            cb_instances_mcmod_version.IsEnabled = true;
+                            cb_instances_mod_version.IsEnabled = true;
+                            cb_instances_mc_version.Visibility = Visibility.Hidden;
+                            cb_instances_mcmod_version.Visibility = Visibility.Visible;
+                            cb_instances_mod_version.Visibility = Visibility.Visible;
+
+                            cb_instances_version_type.SelectedValue = "Quilt";
+                            //RefreshDropdownVersions("quilt");
+
+                            cb_instances_mcmod_version.SelectedValue = EditedProfile.VersionVanillaId;
+                            cb_instances_mod_version.SelectedValue = EditedProfile.VersionId;
+                            break;
+                        }
+                }
+
+                scroll_instances.ScrollToTop();
+                SelectedIcon = profile.Icon.StartsWith("/assets") ? "pack://application:,,," + profile.Icon : profile.Icon;
+                img_instances_icon.Source = new BitmapImage(new Uri(SelectedIcon));
+                tb_instances_gamedir.Text = EditedProfile.GameDirectory ?? "";
+                tb_instances_javadir.Text = EditedProfile.JavaPath ?? "";
+                tb_instances_name.Text = EditedProfile.Name;
+                tb_instances_jvm.Text = EditedProfile.JVMArgs;
+                if (EditedProfile.Resolution != null)
+                {
+                    tb_instances_resolution_x.Text = EditedProfile.Resolution.X.ToString();
+                    tb_instances_resolution_y.Text = EditedProfile.Resolution.Y.ToString();
+                }
+                cb_instances_launchopt.SelectedIndex = (int)EditedProfile.LauncherVisibility;
+                cb_instances_memory.SelectedItem = EditedProfile.Memory;
+                lab_instances.Content = TranslationManager.Translate("ui_edit_instance");
+                bo_instances_import.IsEnabled = false;
+            }
+        }
+
+        /// <summary>
+        /// Refreshes the skins menu in the application.
+        /// </summary>
+        private async void RefreshSkinsMenu()
+        {
+            string raw = await File.ReadAllTextAsync(IOHelper.SkinLibraryJsonFile);
+            SkinLibData? skinLibData = JsonConvert.DeserializeObject<SkinLibData>(raw);
+            if (skinLibData == null)
+                return;
+
+            SkinLib? selectedSkin = skinLibData.Skins.Find(x => x.Id == skinLibData.SelectedSkin);
+            SelectedSkinLibId = skinLibData.SelectedSkin;
+            lb_main_skins.DataContext = SkinLib.IncludeDefs(skinLibData.Skins);
+
+
+            if (selectedSkin == null)
+            {
+                btn_main_skins_addtolibrary.IsEnabled = true;
+
+                AccountData? accountData = await JsonHelper.ReadJsonFileAsync<AccountData>(IOHelper.AccountsJsonFile);
+                if (accountData == null)
+                    return;
+
+                if (!accountData.Accounts.TryGetValue(accountData.SelectedAccountId, out Account? account))
+                    return;
+
+                if (account.Type == EAccountType.OFFLINE)
+                    return;
+
+
+                MojangProfile? profile = await AuthenticationManager.GetMojangProfileAsync();
+                if (profile == null)
+                {
+                    img_main_skins_current.Source = WindowHelper.GetImageSourceFromUri(SkinLib.GetSteve().ModelImage);
+                    return;
+                }
+
+                Skin? activeSkin = profile.Skins.Find(x => x.State == "ACTIVE");
+                if (activeSkin == null)
+                {
+                    img_main_skins_current.Source = WindowHelper.GetImageSourceFromUri(SkinLib.GetSteve().ModelImage);
+                    return;
+                }
+
+                SkinLib skinLib = new SkinLib(activeSkin);
+                ProgressWindow progressWindow = new ProgressWindow();
+                progressWindow.Show();
+                await skinLib.DownloadFilesAsync(profile, activeSkin, progressWindow);
+                progressWindow.Close();
+
+                img_main_skins_current.Source = await WindowHelper.GetImageSourceAsync(skinLib.ModelImage);
+            }
+            else
+            {
+                btn_main_skins_addtolibrary.IsEnabled = false;
+                img_main_skins_current.Source = WindowHelper.GetImageSourceFromUri(selectedSkin.ModelImage);
+            }
+        }
+        #endregion
+        #endregion
     }
 }

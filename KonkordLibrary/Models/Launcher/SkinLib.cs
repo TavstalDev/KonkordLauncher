@@ -1,12 +1,10 @@
 ﻿using Newtonsoft.Json;
+using System.IO;
+using System.Net.Http;
 using System.Text.Json.Serialization;
 using System.Windows;
 using Tavstal.KonkordLibrary.Helpers;
 using Tavstal.KonkordLibrary.Models.Minecraft.API;
-using System.IO;
-using System.Net.Http;
-using Newtonsoft.Json.Linq;
-using System.Diagnostics;
 
 namespace KonkordLibrary.Models.Launcher
 {
@@ -22,6 +20,8 @@ namespace KonkordLibrary.Models.Launcher
         public string ModelImage { get; set; }
         [JsonPropertyName("textureImage"), JsonProperty("textureImage")]
         public string TextureImage { get; set; }
+        [JsonProperty("capeId"), JsonPropertyName("capeId")]
+        public string? CapeId {  get; set; }
         [System.Text.Json.Serialization.JsonIgnore, Newtonsoft.Json.JsonIgnore]
         /// <summary>
         /// Functions as a IsReadonly field 
@@ -30,27 +30,52 @@ namespace KonkordLibrary.Models.Launcher
 
         public SkinLib() { }
 
-        public SkinLib(Skin skin) 
+        public SkinLib(Skin skin, string? capeId = null) 
         {
             Id = skin.Id;
             Name = skin.Alias ?? "unnamed";
             TextureImage = Path.Combine(IOHelper.CacheDir, "skins", skin.Id, "texture.png");
             ModelImage = Path.Combine(IOHelper.CacheDir, "skins", skin.Id, "model.png");
             Model = skin.Variant == "SLIM" ? "slim" : "wide";
+            CapeId = capeId;
             Visibility = Visibility.Visible;
         }
 
-        public SkinLib(string id, string name, string model, string modelImage, string textureImage, Visibility visibility)
+        public SkinLib(string id, string name, string model, string modelImage, string textureImage, string capeId, Visibility visibility)
         {
             Id = id;
             Name = name;
             Model = model;
             ModelImage = modelImage;
             TextureImage = textureImage;
+            CapeId = capeId;
             Visibility = visibility;
         }
 
-        public async Task DownloadFilesAsync(MojangProfile profile, string mcToken, Skin skin, IProgressWindow? progressWindow = null)
+        public int GetModelAsIndex()
+        {
+            switch (Model)
+            {
+                case "wide":
+                case "classic":
+                    return 0;
+                case "slim":
+                    return 1;
+                default:
+                    return -1;
+            }
+        }
+
+        /// <summary>
+        /// Asynchronously downloads skin files associated with the specified Mojang profile and skin.
+        /// </summary>
+        /// <param name="profile">The Mojang profile to download files for.</param>
+        /// <param name="skin">The skin to download files for.</param>
+        /// <param name="progressWindow">Optional: An instance of a progress window to show download progress.</param>
+        /// <returns>
+        /// A <see cref="Task"/> representing the asynchronous operation.
+        /// </returns>
+        public async Task DownloadFilesAsync(MojangProfile profile, Skin skin, IProgressWindow? progressWindow = null)
         {
             // Download Texture
             Progress<double> progress = new Progress<double>();
@@ -146,6 +171,12 @@ namespace KonkordLibrary.Models.Launcher
             }
         }
 
+        /// <summary>
+        /// Retrieves the skin library entry for Steve.
+        /// </summary>
+        /// <returns>
+        /// The skin library entry for Steve.
+        /// </returns>
         public static SkinLib GetSteve()
         {
             return new SkinLib()
@@ -155,10 +186,17 @@ namespace KonkordLibrary.Models.Launcher
                 TextureImage = "/assets/images/steve_texture.png",
                 ModelImage = "/assets/images/steve_full.png",
                 Visibility = Visibility.Collapsed,
+                CapeId = null,
                 Model = "wide"
             };
         }
 
+        /// <summary>
+        /// Retrieves the skin library entry for Alex.
+        /// </summary>
+        /// <returns>
+        /// The skin library entry for Alex.
+        /// </returns>
         public static SkinLib GetAlex()
         {
             return new SkinLib()
@@ -168,6 +206,7 @@ namespace KonkordLibrary.Models.Launcher
                 TextureImage = "/assets/images/alex_texture.png",
                 ModelImage = "/assets/images/alex_full.png",
                 Visibility = Visibility.Collapsed,
+                CapeId = null,
                 Model = "slim"
             };
         }

@@ -66,6 +66,18 @@ namespace KonkordLibrary.Models.Launcher
             }
         }
 
+        public static string GetIndexAsModel(int index)
+        {
+            switch (index)
+            {
+                default:
+                case 0:
+                    return "wide";
+                case 1:
+                    return "slim";
+            }
+        }
+
         /// <summary>
         /// Asynchronously downloads skin files associated with the specified Mojang profile and skin.
         /// </summary>
@@ -82,7 +94,11 @@ namespace KonkordLibrary.Models.Launcher
             progress.ProgressChanged += (sender, e) =>
             {
                 if (progressWindow != null)
+                {
+                    if (!progressWindow.GetIsVisible())
+                        progressWindow.ShowWindow();
                     progressWindow.UpdateProgressBarTranslated(e, "ui_downloading_skin_texture", new object[] { e.ToString("0.00") });
+                }
             };
 
             string dir = IOHelper.GetDirectory(TextureImage);
@@ -95,19 +111,21 @@ namespace KonkordLibrary.Models.Launcher
             if (!File.Exists(TextureImage))
             {
                 HttpClient client = HttpHelper.GetHttpClient();
+               
                 client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0");
                 client.DefaultRequestHeaders.Add("Accept", "*/*");
                 client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br");
+                client.DefaultRequestHeaders.Add("Connection", "keep-alive");
 
-                string localUrl = skin.Url;
-                if (!localUrl.Contains("https"))
-                    localUrl = localUrl.Replace("http", "https");
-
-                byte[]? fileBytes = await client.GetByteArrayAsync(localUrl);
-                if (fileBytes != null)
+                try
                 {
-                    await File.WriteAllBytesAsync(TextureImage, fileBytes);
+                    byte[]? fileBytes = await client.GetByteArrayAsync(skin.Url);
+                    if (fileBytes != null)
+                    {
+                        await File.WriteAllBytesAsync(TextureImage, fileBytes);
+                    }
                 }
+                catch { }
             }
 
             // Download Full Model
@@ -116,10 +134,12 @@ namespace KonkordLibrary.Models.Launcher
             progress.ProgressChanged += (sender, e) =>
             {
                 if (progressWindow != null)
+                {
+                    if (!progressWindow.GetIsVisible())
+                        progressWindow.ShowWindow();
                     progressWindow.UpdateProgressBarTranslated(e, "ui_downloading_skin_model", new object[] { e.ToString("0.00") });
+                }
             };
-
-            
 
             if (!File.Exists(ModelImage))
             {
@@ -131,11 +151,15 @@ namespace KonkordLibrary.Models.Launcher
             }
 
             // Download No Cape Model
-            progress = new Progress<double>();
+            /*progress = new Progress<double>();
             progress.ProgressChanged += (sender, e) =>
             {
                 if (progressWindow != null)
+                {
+                    if (!progressWindow.GetIsVisible())
+                        progressWindow.ShowWindow();
                     progressWindow.UpdateProgressBarTranslated(e, "ui_downloading_skin_cape", new object[] { e.ToString("0.00"), "hidden" });
+                }
             };
 
             string noCapeModel = Path.Combine(IOHelper.CacheDir, "skins", skin.Id, "model_cape_none.png");
@@ -146,24 +170,32 @@ namespace KonkordLibrary.Models.Launcher
                 {
                     await File.WriteAllBytesAsync(noCapeModel, fileBytes);
                 }
-            }
+            }*/
 
             // Download Cape Models
             // https://starlightskins.lunareclipse.studio/render/default/Gabenosz/full?cameraPosition={%22x%22:%220%22,%22y%22:%2216%22,%22z%22:%2232%22}&cameraFocalPoint={%22x%22:%223.67%22,%22y%22:%2216.31%22,%22z%22:%223.35%22}&capeEnabled=false&capeTexture=https://laby.net/texture/download/5b37a01fde6a3e075f3bc5694c18e667.png
+            string capeDir = Path.Combine(IOHelper.CacheDir, "capes");
+            if (!Directory.Exists(capeDir))
+                Directory.CreateDirectory(capeDir);
+            
             foreach (Cape cape in profile.Capes)
             {
                 progress = new Progress<double>();
                 progress.ProgressChanged += (sender, e) =>
                 {
                     if (progressWindow != null)
+                    {
+                        if (!progressWindow.GetIsVisible())
+                            progressWindow.ShowWindow();
                         progressWindow.UpdateProgressBarTranslated(e, "ui_downloading_skin_cape", new object[] { e.ToString("0.00"), cape.Alias });
+                    }
                 };
 
-                string capeModel = Path.Combine(IOHelper.CacheDir, "skins", skin.Id, $"model_cape_{cape.Alias}.png");
+                string capeModel = Path.Combine(capeDir, $"{cape.Alias}.png");
                 if (File.Exists(capeModel))
                     continue;
 
-                byte[]? fileBytes = await HttpHelper.GetByteArrayAsync($"https://starlightskins.lunareclipse.studio/render/default/{profile.Id}/full?skinUrl={skin.Url}&skinType={Model}&cameraPosition={{%22x%22:%220%22,%22y%22:%2216%22,%22z%22:%2232%22}}&cameraFocalPoint={{%22x%22:%223.67%22,%22y%22:%2216.31%22,%22z%22:%223.35%22}}&capeEnabled=true&capeTexture={cape.Url}", progress);
+                byte[]? fileBytes = await HttpHelper.GetByteArrayAsync($"https://starlightskins.lunareclipse.studio/render/default/{profile.Id}/full?skinUrl=https://raw.githubusercontent.com/TavstalDev/KonkordLauncher/master/KonkordLauncher/assets/images/steve_texture.png&skinType=slim&cameraPosition={{%22x%22:%220%22,%22y%22:%2216%22,%22z%22:%2232%22}}&cameraFocalPoint={{%22x%22:%223.67%22,%22y%22:%2216.31%22,%22z%22:%223.35%22}}&capeEnabled=true&capeTexture={cape.Url}", progress);
                 if (fileBytes != null)
                 {
                     await File.WriteAllBytesAsync(capeModel, fileBytes);

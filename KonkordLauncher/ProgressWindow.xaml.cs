@@ -1,6 +1,5 @@
 ﻿using KonkordLibrary.Models;
 using System.Windows;
-using Tavstal.KonkordLibrary.Helpers;
 using Tavstal.KonkordLibrary.Managers;
 
 namespace KonkordLauncher
@@ -35,6 +34,16 @@ namespace KonkordLauncher
         private void WindowMinimize_Click(object sender, RoutedEventArgs e)
         {
             WindowState = WindowState.Minimized;
+        }
+
+        public void ShowWindow()
+        {
+            Show();
+        }
+
+        public bool GetIsVisible()
+        {
+            return IsVisible;
         }
     }
 }

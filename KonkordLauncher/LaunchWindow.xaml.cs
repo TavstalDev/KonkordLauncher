@@ -36,6 +36,8 @@ namespace Tavstal.KonkordLauncher
         private Profile? EditedProfile {  get; set; }
         private Grid SelectedSkinGrid {  get; set; }
         private string SelectedSkinLibId {  get; set; }
+        private string SelectedCapeId { get; set; }
+        private string SelectedSkinFilePath {  get; set; }
         public KeyValuePair<string, Profile> SelectedProfile { get; set; }
         private readonly double _heightMultiplier;
         private readonly double _widthMultiplier;
@@ -59,6 +61,7 @@ namespace Tavstal.KonkordLauncher
             _widthMultiplier = Width / oldWidth;
 
             #region Resize Elements
+#pragma warning disable CS8604 // Possible null reference argument.
             Thickness localThickness;
 
             #region Main Window
@@ -66,7 +69,8 @@ namespace Tavstal.KonkordLauncher
             WindowHelper.ResizeFont(btn_topmenu_home, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(btn_topmenu_modpacks, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(btn_topmenu_patchs, _heightMultiplier, _widthMultiplier);
-            WindowHelper.ResizeFont(btn_topmenu_skins, _heightMultiplier, _widthMultiplier);
+            // TODO - Uncomment this after I have made a normal skin previewer
+            // WindowHelper.ResizeFont(btn_topmenu_skins, _heightMultiplier, _widthMultiplier);
             WindowHelper.Resize(grid_main, _heightMultiplier, _widthMultiplier);
             WindowHelper.Resize(grid_main_home, _heightMultiplier, _widthMultiplier);
             WindowHelper.Resize(grid_main_skins, _heightMultiplier, _widthMultiplier);
@@ -76,6 +80,73 @@ namespace Tavstal.KonkordLauncher
             WindowHelper.Resize(bo_grid_main_skins_bg, _heightMultiplier, _widthMultiplier);
             WindowHelper.Resize(bo_grid_main, _heightMultiplier, _widthMultiplier);
 
+            #region Home
+            WindowHelper.Resize(bo_title_row, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(img_window_icon, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(l_WindowName, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(bt_window_close, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(bt_window_minimize, _heightMultiplier, _widthMultiplier);
+
+            WindowHelper.Resize(bo_leftmenu, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(gr_account, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(img_account, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(la_account_name, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(la_account_type, _heightMultiplier, _widthMultiplier);
+
+            WindowHelper.Resize(cb_launch_languages, _heightMultiplier, _widthMultiplier);
+            cb_launch_languages.Resources["FontSize"] = double.Parse(cb_launch_languages.Resources["FontSize"].ToString()) * _widthMultiplier;
+
+            WindowHelper.Resize(bo_new_instance, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_new_instance, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_new_instance_icon, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(btn_new_instance, _heightMultiplier, _widthMultiplier);
+
+            WindowHelper.Resize(listbox_launchinstances, _heightMultiplier, _widthMultiplier);
+
+            WindowHelper.Resize(bo_launch_play, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(btn_launch_play, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_launc_play, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_selected_profile, _heightMultiplier, _widthMultiplier);
+
+            WindowHelper.Resize(bo_launch_progress, _heightMultiplier, _widthMultiplier);
+            WindowHelper.Resize(bo_launch_progress_bar, _heightMultiplier, _widthMultiplier);
+            WindowHelper.ResizeFont(lab_launch_progress, _heightMultiplier, _widthMultiplier);
+
+            listbox_launchinstances.Resources["ListBorderHeight"] = (double)listbox_launchinstances.Resources["ListBorderHeight"] * _heightMultiplier;
+            listbox_launchinstances.Resources["ListBorderWidth"] = (double)listbox_launchinstances.Resources["ListBorderWidth"] * _widthMultiplier;
+
+            localThickness = (Thickness)listbox_launchinstances.Resources["ListBorderMargin"];
+            localThickness.Top *= _heightMultiplier;
+            localThickness.Bottom *= _heightMultiplier;
+            localThickness.Left *= _widthMultiplier;
+            localThickness.Right *= _widthMultiplier;
+            listbox_launchinstances.Resources["ListBorderMargin"] = localThickness;
+
+            listbox_launchinstances.Resources["ListLabelHeight"] = (double)listbox_launchinstances.Resources["ListLabelHeight"] * _heightMultiplier;
+            listbox_launchinstances.Resources["ListLabelWidth"] = (double)listbox_launchinstances.Resources["ListLabelWidth"] * _widthMultiplier;
+
+            localThickness = (Thickness)listbox_launchinstances.Resources["ListLabelMargin"];
+            localThickness.Top *= _heightMultiplier;
+            localThickness.Bottom *= _heightMultiplier;
+            localThickness.Left *= _widthMultiplier;
+            localThickness.Right *= _widthMultiplier;
+            listbox_launchinstances.Resources["ListLabelMargin"] = localThickness;
+
+            listbox_launchinstances.Resources["ListLabelFontSize"] = (double)listbox_launchinstances.Resources["ListLabelFontSize"] * _widthMultiplier;
+
+            listbox_launchinstances.Resources["ListButtonFontSize"] = (double)listbox_launchinstances.Resources["ListButtonFontSize"] * _widthMultiplier;
+            listbox_launchinstances.Resources["ListButtonWidth"] = (double)listbox_launchinstances.Resources["ListButtonWidth"] * _widthMultiplier;
+            listbox_launchinstances.Resources["ListButtonHeight"] = (double)listbox_launchinstances.Resources["ListButtonHeight"] * _heightMultiplier;
+
+            localThickness = (Thickness)listbox_launchinstances.Resources["ListButtonMargin"];
+            localThickness.Top *= _heightMultiplier;
+            localThickness.Bottom *= _heightMultiplier;
+            localThickness.Left *= _widthMultiplier;
+            localThickness.Right *= _widthMultiplier;
+            listbox_launchinstances.Resources["ListButtonMargin"] = localThickness;
+
+            WindowHelper.Resize(bo_instances, _heightMultiplier, _widthMultiplier);
+            #endregion
             #region Skins
             WindowHelper.ResizeFont(lab_main_skins_current, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(lab_main_skins_library, _heightMultiplier, _widthMultiplier);
@@ -157,74 +228,10 @@ namespace Tavstal.KonkordLauncher
             WindowHelper.ResizeFont(btn_main_skinsedit_save, _heightMultiplier, _widthMultiplier);
             WindowHelper.ResizeFont(btn__main_skinsedit_cancel, _heightMultiplier, _widthMultiplier);
             #endregion
-
-            #region Home
-            WindowHelper.Resize(bo_title_row, _heightMultiplier, _widthMultiplier);
-            WindowHelper.Resize(img_window_icon, _heightMultiplier, _widthMultiplier);
-            WindowHelper.ResizeFont(l_WindowName, _heightMultiplier, _widthMultiplier);
-            WindowHelper.ResizeFont(bt_window_close, _heightMultiplier, _widthMultiplier);
-            WindowHelper.ResizeFont(bt_window_minimize, _heightMultiplier, _widthMultiplier);
-
-            WindowHelper.Resize(bo_leftmenu, _heightMultiplier, _widthMultiplier);
-            WindowHelper.Resize(gr_account, _heightMultiplier, _widthMultiplier);
-            WindowHelper.Resize(img_account, _heightMultiplier, _widthMultiplier);
-            WindowHelper.ResizeFont(la_account_name, _heightMultiplier, _widthMultiplier);
-            WindowHelper.ResizeFont(la_account_type, _heightMultiplier, _widthMultiplier);
-
-            WindowHelper.Resize(cb_launch_languages, _heightMultiplier, _widthMultiplier);
-            cb_launch_languages.Resources["FontSize"] = double.Parse(cb_launch_languages.Resources["FontSize"].ToString()) * _widthMultiplier;
-
-            WindowHelper.Resize(bo_new_instance, _heightMultiplier, _widthMultiplier);
-            WindowHelper.ResizeFont(lab_new_instance, _heightMultiplier, _widthMultiplier);
-            WindowHelper.ResizeFont(lab_new_instance_icon, _heightMultiplier, _widthMultiplier);
-            WindowHelper.ResizeFont(btn_new_instance, _heightMultiplier, _widthMultiplier);
-
-            WindowHelper.Resize(listbox_launchinstances, _heightMultiplier, _widthMultiplier);
-
-            WindowHelper.Resize(bo_launch_play, _heightMultiplier, _widthMultiplier);
-            WindowHelper.ResizeFont(btn_launch_play, _heightMultiplier, _widthMultiplier);
-            WindowHelper.ResizeFont(lab_launc_play, _heightMultiplier, _widthMultiplier);
-            WindowHelper.ResizeFont(lab_selected_profile, _heightMultiplier, _widthMultiplier);
-
-            WindowHelper.Resize(bo_launch_progress, _heightMultiplier, _widthMultiplier);
-            WindowHelper.Resize(bo_launch_progress_bar, _heightMultiplier, _widthMultiplier);
-            WindowHelper.ResizeFont(lab_launch_progress, _heightMultiplier, _widthMultiplier);
-
-            listbox_launchinstances.Resources["ListBorderHeight"] = (double)listbox_launchinstances.Resources["ListBorderHeight"] * _heightMultiplier;
-            listbox_launchinstances.Resources["ListBorderWidth"] = (double)listbox_launchinstances.Resources["ListBorderWidth"] * _widthMultiplier;
-
-            localThickness = (Thickness)listbox_launchinstances.Resources["ListBorderMargin"];
-            localThickness.Top *= _heightMultiplier;
-            localThickness.Bottom *= _heightMultiplier;
-            localThickness.Left *= _widthMultiplier;
-            localThickness.Right *= _widthMultiplier;
-            listbox_launchinstances.Resources["ListBorderMargin"] = localThickness;
-
-            listbox_launchinstances.Resources["ListLabelHeight"] = (double)listbox_launchinstances.Resources["ListLabelHeight"] * _heightMultiplier;
-            listbox_launchinstances.Resources["ListLabelWidth"] = (double)listbox_launchinstances.Resources["ListLabelWidth"] * _widthMultiplier;
-
-            localThickness = (Thickness)listbox_launchinstances.Resources["ListLabelMargin"];
-            localThickness.Top *= _heightMultiplier;
-            localThickness.Bottom *= _heightMultiplier;
-            localThickness.Left *= _widthMultiplier;
-            localThickness.Right *= _widthMultiplier;
-            listbox_launchinstances.Resources["ListLabelMargin"] = localThickness;
-
-            listbox_launchinstances.Resources["ListLabelFontSize"] = (double)listbox_launchinstances.Resources["ListLabelFontSize"] * _widthMultiplier;
-
-            listbox_launchinstances.Resources["ListButtonFontSize"] = (double)listbox_launchinstances.Resources["ListButtonFontSize"] * _widthMultiplier;
-            listbox_launchinstances.Resources["ListButtonWidth"] = (double)listbox_launchinstances.Resources["ListButtonWidth"] * _widthMultiplier;
-            listbox_launchinstances.Resources["ListButtonHeight"] = (double)listbox_launchinstances.Resources["ListButtonHeight"] * _heightMultiplier;
-
-            localThickness = (Thickness)listbox_launchinstances.Resources["ListButtonMargin"];
-            localThickness.Top *= _heightMultiplier;
-            localThickness.Bottom *= _heightMultiplier;
-            localThickness.Left *= _widthMultiplier;
-            localThickness.Right *= _widthMultiplier;
-            listbox_launchinstances.Resources["ListButtonMargin"] = localThickness;
-
-            WindowHelper.Resize(bo_instances, _heightMultiplier, _widthMultiplier);
+            #region Modpacks
+            WindowHelper.Resize(bo_grid_main_modpacks_bg, _heightMultiplier, _widthMultiplier);
             #endregion
+
             #endregion
             #region Instances
             WindowHelper.ResizeFont(lab_instances, _heightMultiplier, _widthMultiplier);
@@ -308,6 +315,7 @@ namespace Tavstal.KonkordLauncher
             WindowHelper.Resize(cb_instances_launchopt, _heightMultiplier, _widthMultiplier);
             cb_instances_launchopt.Resources["LaunchOptListFontSize"] = double.Parse(cb_instances_launchopt.Resources["LaunchOptListFontSize"].ToString()) * _widthMultiplier;
             #endregion
+#pragma warning restore CS8604 // Possible null reference argument.
             #endregion
 
             listbox_icons.DataContext = ProfileIcon.Icons;
@@ -841,24 +849,25 @@ namespace Tavstal.KonkordLauncher
 
                     if (selectedListBoxItem == null)
                         return;
-                    Grid grid = WindowHelper.FindVisualChild<Grid>(selectedListBoxItem);
+                    Grid? grid = WindowHelper.FindVisualChild<Grid>(selectedListBoxItem);
                     SelectedSkinGrid = grid;
 
-                    foreach (var child in grid.Children)
-                    {
-                        if (child is Image image)
+                    if (grid != null)
+                        foreach (var child in grid.Children)
                         {
-                            image.Opacity = 0.5;
+                            if (child is Image image)
+                            {
+                                image.Opacity = 0.5;
+                            }
+                            else if (child is Border button)
+                            {
+                                button.Visibility = Visibility.Hidden;
+                            }
+                            else if (child is ComboBox comboBox)
+                            {
+                                comboBox.Visibility = Visibility.Hidden;
+                            }
                         }
-                        else if (child is Border button)
-                        {
-                            button.Visibility = Visibility.Hidden;
-                        }
-                        else if (child is ComboBox comboBox)
-                        {
-                            comboBox.Visibility = Visibility.Hidden;
-                        }
-                    }
                 }
             }
 
@@ -870,24 +879,25 @@ namespace Tavstal.KonkordLauncher
 
                     if (selectedListBoxItem == null)
                         return;
-                    Grid grid = WindowHelper.FindVisualChild<Grid>(selectedListBoxItem);
+                    Grid? grid = WindowHelper.FindVisualChild<Grid>(selectedListBoxItem);
                     SelectedSkinGrid = grid;
 
-                    foreach (var child in grid.Children)
-                    {
-                        if (child is Image image && grid != SelectedSkinGrid)
+                    if (grid != null)
+                        foreach (var child in grid.Children)
                         {
-                            image.Opacity = 0.5;
+                            if (child is Image image && grid != SelectedSkinGrid)
+                            {
+                                image.Opacity = 0.5;
+                            }
+                            else if (child is Border button && grid != SelectedSkinGrid)
+                            {
+                                button.Visibility = Visibility.Hidden;
+                            }
+                            else if (child is ComboBox comboBox && grid != SelectedSkinGrid)
+                            {
+                                comboBox.Visibility = Visibility.Hidden;
+                            }
                         }
-                        else if (child is Border button && grid != SelectedSkinGrid)
-                        {
-                            button.Visibility = Visibility.Hidden;
-                        }
-                        else if (child is ComboBox comboBox && grid != SelectedSkinGrid)
-                        {
-                            comboBox.Visibility = Visibility.Hidden;
-                        }
-                    }
                 }
             }
 
@@ -906,12 +916,15 @@ namespace Tavstal.KonkordLauncher
             if (item == null)
                 return;
 
+            SkinLib? skinLib = item.Tag as SkinLib;
+            if (skinLib == null)
+                return;
 
             switch (item.Name)
             {
                 case "edit":
                     {
-
+                        OpenSkinEdit(skinLib);
                         break;
                     }
                 case "duplicate":
@@ -994,7 +1007,23 @@ namespace Tavstal.KonkordLauncher
         /// <param name="e">The event arguments containing information about the click event.</param>
         private void CapeRadioButton_Click(object sender, RoutedEventArgs e)
         {
-
+            RadioButton radioButton = (RadioButton)sender;
+            SelectedCapeId = radioButton.Tag.ToString();
+            int i = 0;
+            foreach (var item in itemcont_main_skinsedit_capes.Items)
+            {
+                ContentPresenter presenter = (ContentPresenter)itemcont_main_skinsedit_capes.ItemContainerGenerator.ContainerFromItem(item);
+                Grid? grid = WindowHelper.FindVisualChild<Grid>(presenter);
+                if (grid != null)
+                    foreach (var elem in grid.Children)
+                    {
+                        if (elem is RadioButton rbtn)
+                        {
+                            rbtn.IsChecked = rbtn == radioButton;
+                        }
+                    }
+                i++;
+            }
         }
 
         /// <summary>
@@ -1004,7 +1033,8 @@ namespace Tavstal.KonkordLauncher
         /// <param name="e">The event arguments containing information about the click event.</param>
         private void SkinsNewSkinCancel_Click(object sender, RoutedEventArgs e)
         {
-
+            grid_main_skins_library.Visibility = Visibility.Visible;
+            grid_main_skins_edit.Visibility = Visibility.Hidden;
         }
 
         /// <summary>
@@ -1068,7 +1098,6 @@ namespace Tavstal.KonkordLauncher
             };
 
             ProgressWindow progressWindow = new ProgressWindow();
-            progressWindow.Show();
             await skinLib.DownloadFilesAsync(mojangProfile, skin, progressWindow);
 
             progressWindow.Close();
@@ -1087,9 +1116,55 @@ namespace Tavstal.KonkordLauncher
         /// <param name="e">The event arguments containing information about the click event.</param>
         private void SkinsNewSkin_Click(object sender, RoutedEventArgs e)
         {
-
+            OpenSkinEdit(null);
         }
 
+        /// <summary>
+        /// Handles the event when the "Browse File" button is clicked in the skins window.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The event arguments containing information about the click event.</param>
+        private void SkinsEditFile_Click(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Forms.OpenFileDialog dialog = new System.Windows.Forms.OpenFileDialog();
+            dialog.Title = "Select the skin texture";
+            dialog.DefaultExt = "png";
+            dialog.Filter = "(*.png)|*.png";
+            dialog.CheckFileExists = true;
+            dialog.CheckPathExists = true;
+            dialog.Multiselect = false;
+            var result = dialog.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                if (!File.Exists(dialog.FileName))
+                    return;
+
+                SelectedSkinFilePath = dialog.FileName;
+                // TODO Update skin preview
+            }
+        }
+
+        /// <summary>
+        /// Handles the event when the text changes in the skin edit name textbox.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The event arguments containing information about the text change.</param>
+        private void SkinsEditName_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            bool enab = string.IsNullOrEmpty(tb_main_skinsedit_name.Text);
+            lab_main_skinsedit_name_placeholder.IsEnabled = enab;
+            lab_main_skinsedit_name_placeholder.Visibility = enab ? Visibility.Visible : Visibility.Hidden;
+        }
+
+        /// <summary>
+        /// Handles the event when the selection changes in the skin edit model dropdown.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The event arguments containing information about the selection change.</param>
+        private void SkinsEditModel_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // TODO Update skin preview
+        }
         #endregion
         #region Patches
 
@@ -1722,7 +1797,7 @@ namespace Tavstal.KonkordLauncher
         #endregion
 
         #region Functions
-        #region Base
+        #region Window
         /// <summary>
         /// Refreshes the translations used in the application.
         /// </summary>
@@ -1792,7 +1867,6 @@ namespace Tavstal.KonkordLauncher
             pb_launch_progress.Value = value;
         }
         #endregion
-
         #region Main
         /// <summary>
         /// Asynchronously refreshes the displayed account information, such as icon and name.
@@ -1873,7 +1947,11 @@ namespace Tavstal.KonkordLauncher
 
 
         }
-        
+
+        /// <summary>
+        /// Opens the skin editor for the specified skin library entry.
+        /// </summary>
+        /// <param name="skin">(Optional) The skin library entry to edit.</param>
         private void OpenSkinEdit(SkinLib? skin)
         {
             if (skin == null)
@@ -1884,17 +1962,18 @@ namespace Tavstal.KonkordLauncher
                 cb_main_skinsedit_model.SelectedIndex = 0;
                 int i = 0;
 
-                // TODO, set the dataContext of capes, but in RefreshSkinsMenu
                 foreach (var item in itemcont_main_skinsedit_capes.Items)
                 {
-                    Grid grid = (Grid)itemcont_main_skinsedit_capes.ItemContainerGenerator.ContainerFromItem(item);
-                    foreach (var elem in grid.Children)
-                    {
-                        if (elem is RadioButton rbtn)
+                    ContentPresenter presenter = (ContentPresenter)itemcont_main_skinsedit_capes.ItemContainerGenerator.ContainerFromItem(item);
+                    Grid? grid = WindowHelper.FindVisualChild<Grid>(presenter);
+                    if (grid != null)
+                        foreach (var elem in grid.Children)
                         {
-                            rbtn.IsChecked = i == 0;
+                            if (elem is RadioButton rbtn)
+                            {
+                                rbtn.IsChecked = i == 0;
+                            }
                         }
-                    }
                     i++;
                 }
             }
@@ -1906,17 +1985,19 @@ namespace Tavstal.KonkordLauncher
                 cb_main_skinsedit_model.SelectedIndex = skin.GetModelAsIndex();
                 int i = 0;
 
-                // TODO, set the dataContext of capes, but in RefreshSkinsMenu
+
                 foreach (var item in itemcont_main_skinsedit_capes.Items)
                 {
-                    Grid grid = (Grid)itemcont_main_skinsedit_capes.ItemContainerGenerator.ContainerFromItem(item);
-                    foreach (var elem in grid.Children)
-                    {
-                        if (elem is RadioButton rbtn)
+                    ContentPresenter presenter = (ContentPresenter)itemcont_main_skinsedit_capes.ItemContainerGenerator.ContainerFromItem(item);
+                    Grid? grid = WindowHelper.FindVisualChild<Grid>(presenter);
+                    if (grid != null)
+                        foreach (var elem in grid.Children)
                         {
-                            rbtn.IsChecked = rbtn.Tag.ToString() == skin.CapeId || (i == 0 && skin.CapeId == null);
+                            if (elem is RadioButton rbtn)
+                            {
+                                rbtn.IsChecked = rbtn.Tag.ToString() == skin.CapeId || (i == 0 && skin.CapeId == null);
+                            }
                         }
-                    }
                     i++;
                 }
             }
@@ -1924,8 +2005,8 @@ namespace Tavstal.KonkordLauncher
             grid_main_skins_library.Visibility = Visibility.Hidden;
             grid_main_skins_edit.Visibility = Visibility.Visible;
         }
+        
         #endregion
-
         #region Instances
         /// <summary>
         /// Fills the instanceVersion ComboBox with available versions.
@@ -2225,31 +2306,49 @@ namespace Tavstal.KonkordLauncher
             SelectedSkinLibId = skinLibData.SelectedSkin;
             lb_main_skins.DataContext = SkinLib.IncludeDefs(skinLibData.Skins);
 
+            AccountData? accountData = await JsonHelper.ReadJsonFileAsync<AccountData>(IOHelper.AccountsJsonFile);
+            List<Cape> capes = new List<Cape>();
+            MojangProfile? profile = null;
+
+            // Build capes list
+            if (accountData != null)
+            {
+                if (accountData.Accounts.TryGetValue(accountData.SelectedAccountId, out Account? account))
+                {
+                    if (account.Type == EAccountType.OFFLINE)
+                    {
+                        capes.Add(new Cape("nocapeid", "ACTIVE", string.Empty, "None"));
+                    }
+                    else
+                    {
+                        profile = await AuthenticationManager.GetMojangProfileAsync();
+                        if (profile == null)
+                        {
+                            img_main_skins_current.Source = WindowHelper.GetImageSourceFromUri(SkinLib.GetSteve().ModelImage);
+                            return;
+                        }
+
+                        capes.Add(new Cape("nocapeid", profile.Capes.Any(x => x.State == "ACTIVE") ? "INACTIVE" : "ACTIVE", string.Empty, "None"));
+
+                        if (profile.Capes != null)
+                            foreach (Cape cape in profile.Capes)
+                            {
+                                if (string.IsNullOrEmpty(cape.Path))
+                                    cape.Path = cape.GetPath();
+
+                                capes.Add(cape);
+                            }
+
+                    }
+                }
+            }
 
             if (selectedSkin == null)
             {
                 btn_main_skins_addtolibrary.IsEnabled = true;
 
-                AccountData? accountData = await JsonHelper.ReadJsonFileAsync<AccountData>(IOHelper.AccountsJsonFile);
-                if (accountData == null)
-                    return;
-
-                if (!accountData.Accounts.TryGetValue(accountData.SelectedAccountId, out Account? account))
-                    return;
-
-                if (account.Type == EAccountType.OFFLINE)
-                    return;
-
-
-                MojangProfile? profile = await AuthenticationManager.GetMojangProfileAsync();
-                if (profile == null)
-                {
-                    img_main_skins_current.Source = WindowHelper.GetImageSourceFromUri(SkinLib.GetSteve().ModelImage);
-                    return;
-                }
-
-                Skin? activeSkin = profile.Skins.Find(x => x.State == "ACTIVE");
-                if (activeSkin == null)
+                Skin? activeSkin = profile?.Skins.Find(x => x.State == "ACTIVE");
+                if (activeSkin == null || profile == null)
                 {
                     img_main_skins_current.Source = WindowHelper.GetImageSourceFromUri(SkinLib.GetSteve().ModelImage);
                     return;
@@ -2257,7 +2356,6 @@ namespace Tavstal.KonkordLauncher
 
                 SkinLib skinLib = new SkinLib(activeSkin);
                 ProgressWindow progressWindow = new ProgressWindow();
-                progressWindow.Show();
                 await skinLib.DownloadFilesAsync(profile, activeSkin, progressWindow);
                 progressWindow.Close();
 
@@ -2268,6 +2366,7 @@ namespace Tavstal.KonkordLauncher
                 btn_main_skins_addtolibrary.IsEnabled = false;
                 img_main_skins_current.Source = WindowHelper.GetImageSourceFromUri(selectedSkin.ModelImage);
             }
+            itemcont_main_skinsedit_capes.DataContext = capes;
         }
         #endregion
         #endregion

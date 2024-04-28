@@ -42,7 +42,7 @@
             <DockPanel x:Name="dp_category" HorizontalAlignment="Left" Margin="5,0,5,0">
                 <Button x:Name="btn_topmenu_home" Click="TopmenuHome_Click" Style="{DynamicResource CategoryButtonSelected}" Content="Home" Width="75" Foreground="White" FontSize="11" />
                 <Button x:Name="btn_topmenu_modpacks" Click="TopmenuModPacks_Click" Style="{DynamicResource CategoryButton}" Content="Mod Packs" Width="90" Foreground="White" FontSize="11" />
-                <Button x:Name="btn_topmenu_skins" Click="TopmenuSkins_Click" Style="{DynamicResource CategoryButton}" Content="Skins" Width="75" Foreground="White" FontSize="11" />
+                <!--<Button x:Name="btn_topmenu_skins" Click="TopmenuSkins_Click" Style="{DynamicResource CategoryButton}" Content="Skins" Width="75" Foreground="White" FontSize="11" />-->
                 <Button x:Name="btn_topmenu_patchs" Click="TopmenuPatchs_Click" Style="{DynamicResource CategoryButton}" Content="Patch Notes" Width="100" Foreground="White" FontSize="11" />
             </DockPanel>
         </Border>
@@ -53,10 +53,11 @@
                 <Grid x:Name="grid_main_home" Visibility="Hidden" Margin="15,15,15,15">
 
                 </Grid>
-                <Grid x:Name="grid_main_modpacks" Visibility="Hidden" Margin="15,15,15,15">
+                <Grid x:Name="grid_main_modpacks" Visibility="Visible" Margin="15,15,15,15">
+                    <Border x:Name="bo_grid_main_modpacks_bg" Background="#FF353743" BorderBrush="#FF353743" BorderThickness="1" CornerRadius="5" VerticalAlignment="Center" HorizontalAlignment="Center" Width="560" Height="331" />
 
                 </Grid>
-                <Grid x:Name="grid_main_skins" Margin="30,30,30,30">
+                <Grid x:Name="grid_main_skins" Visibility="Hidden" Margin="30,30,30,30">
                     <Border x:Name="bo_grid_main_skins_bg" Background="#FF353743" BorderBrush="#FF353743" BorderThickness="1" CornerRadius="5" VerticalAlignment="Center" HorizontalAlignment="Center" Width="560" Height="331" />
                     <Grid x:Name="grid_main_skins_library" Visibility="Visible">
                         <!-- Current -->
@@ -163,14 +164,14 @@
                                 <!-- Name input -->
                                 <Grid x:Name="grid_main_skinsedit_name" Height="48" Margin="0,10,0,0">
                                     <Label x:Name="lab_main_skinsedit_name" Content="Name" Foreground="White" Padding="5,0,5,0" VerticalContentAlignment="Center" FontWeight="SemiBold" Margin="0,0,0,30" />
-                                    <TextBox x:Name="tb_main_skinsedit_name" Style="{StaticResource InstanceTextBox}" Margin="0,20,0,0" Foreground="White" SelectionBrush="#FFABADB3" BorderBrush="#FF5D6F95" VerticalContentAlignment="Center" Padding="10,0,10,0" TextChanged="InstancesName_TextChanged" Background="#33000000" />
+                                    <TextBox x:Name="tb_main_skinsedit_name" Style="{StaticResource InstanceTextBox}" Margin="0,20,0,0" Foreground="White" SelectionBrush="#FFABADB3" BorderBrush="#FF5D6F95" VerticalContentAlignment="Center" Padding="10,0,10,0" TextChanged="SkinsEditName_TextChanged" Background="#33000000" />
                                     <Label x:Name="lab_main_skinsedit_name_placeholder" Content="unnamed skin" Foreground="#4DFFFFFF" Margin="0,20,0,0" Padding="10,0,10,0" VerticalContentAlignment="Center" IsHitTestVisible="False" />
                                 </Grid>
 
                                 <!-- Model -->
                                 <Grid x:Name="grid_main_skinsedit_model" Height="48" Margin="0,10,0,0">
                                     <Label x:Name="lab_main_skinsedit_model" Content="Model" Foreground="White" Padding="5,0,5,0" VerticalContentAlignment="Center" FontWeight="SemiBold" Margin="0,0,0,29" Height="19" />
-                                    <ComboBox x:Name="cb_main_skinsedit_model" SelectedValuePath="Content" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="0,22,0,0" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White" HorizontalAlignment="Left" Width="95">
+                                    <ComboBox x:Name="cb_main_skinsedit_model" SelectionChanged="SkinsEditModel_SelectionChanged" SelectedValuePath="Content" Style="{StaticResource InstanceComboBox}" IsTextSearchEnabled="False" Margin="0,22,0,0" BorderBrush="#FF5D6F95" Background="#33000000" Foreground="White" HorizontalAlignment="Left" Width="95">
                                         <ComboBox.Resources>
                                             <sys:Double x:Key="FontSize">10</sys:Double>
                                         </ComboBox.Resources>
@@ -189,7 +190,7 @@
                                 <!-- File -->
                                 <Grid x:Name="grid_main_skinsedit_file" Height="48" Margin="0,10,0,0">
                                     <Label x:Name="lab_main_skinsedit_file" Content="Skin File" Foreground="White" Padding="5,0,5,0" VerticalContentAlignment="Center" FontWeight="SemiBold" Margin="0,0,0,30" />
-                                    <Button x:Name="btn_main_skinsedit_file" Click="InstancesGamedir_Click" Style="{StaticResource BaseButton}" Content="  Browse  " Foreground="White" Background="#00000000" BorderBrush="#FF5D6F95" Margin="0,20,0,0" FontSize="10" FontWeight="Light" Padding="10,0,10,0" HorizontalAlignment="Left" />
+                                    <Button x:Name="btn_main_skinsedit_file" Click="SkinsEditFile_Click" Style="{StaticResource BaseButton}" Content="  Browse  " Foreground="White" Background="#00000000" BorderBrush="#FF5D6F95" Margin="0,20,0,0" FontSize="10" FontWeight="Light" Padding="10,0,10,0" HorizontalAlignment="Left" />
                                 </Grid>
 
                                 <!-- Capes -->
@@ -212,8 +213,8 @@
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <Grid Background="Transparent" MouseEnter="SkinListGrid_MouseEnter" MouseLeave="SkinListGrid_MouseLeave" Margin="{DynamicResource GridMargin}" Width="{DynamicResource GridWidth}" Height="{DynamicResource GridHeight}" HorizontalAlignment="Stretch">
-                                                    <Image Source="{Binding Image}" Margin="{DynamicResource ImageMargin}" Opacity="0.5" />
-                                                    <RadioButton Content="{Binding Name}" Tag="{Binding Id}" Click="CapeRadioButton_Click" BorderThickness="0.5" FontSize="{DynamicResource LabelFontSize}" Foreground="White" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" Padding="0,0,0,0" Height="{DynamicResource ButtonHeight}" VerticalContentAlignment="Center" FontWeight="SemiBold" Background="{x:Null}" />
+                                                    <Image Source="{Binding Path}" Margin="{DynamicResource ImageMargin}" Opacity="0.5" />
+                                                    <RadioButton Content="{Binding Alias}" Tag="{Binding Id}" Click="CapeRadioButton_Click" BorderThickness="0.5" FontSize="{DynamicResource LabelFontSize}" Foreground="White" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" Padding="0,0,0,0" Height="{DynamicResource ButtonHeight}" VerticalContentAlignment="Center" FontWeight="SemiBold" Background="{x:Null}" />
                                                 </Grid>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>

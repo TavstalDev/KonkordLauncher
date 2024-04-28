@@ -70,7 +70,8 @@ namespace Tavstal.KonkordLauncher
                         }
                     }
                 }
-            } catch (Exception ex) { Debug.WriteLine(ex.ToString()); }
+            }
+            catch (Exception ex) { Debug.WriteLine(ex.ToString()); }
 
             UpdateProgressbar(currentStep);
             await Task.Delay(200); // Little delay, so people can read what the launcher is doing
@@ -81,7 +82,7 @@ namespace Tavstal.KonkordLauncher
             lab_status.Content = $"Validating java... ({currentStep + 1}/{_maxStep})";
             await IOHelper.ValidateJava();
             this.Focus();
-            
+
             UpdateProgressbar(currentStep);
             await Task.Delay(200); // Little delay, so people can read what the launcher is doing
             currentStep++;
@@ -141,8 +142,11 @@ namespace Tavstal.KonkordLauncher
             lab_status.Content = $"Trying to authenticate... ({currentStep + 1}/{_maxStep})";
             UpdateProgressbar(currentStep);
 
-            bool result = await AuthenticationManager.ValidateAuthentication();
-            if (result)
+            bool? result = await AuthenticationManager.ValidateAuthentication<LaunchWindow, AuthWindow>(this);
+            if (result == null) // The authentication is valid, but it is going to be updated
+                return;
+
+            if (result.Value)
             {
                 // The authentication is valid, redirecting to launch window
                 LaunchWindow window = new LaunchWindow();

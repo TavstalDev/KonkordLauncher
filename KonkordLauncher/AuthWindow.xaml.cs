@@ -194,7 +194,7 @@ namespace Tavstal.KonkordLauncher
                 accountData.Accounts.Add(guid, new Account()
                 {
                     AccessToken = string.Empty,
-                    RefreshToken = string.Empty,
+                    AccessTokenExpireDate = DateTime.Now,
                     DisplayName = username,
                     Type = EAccountType.OFFLINE,
                     UserId = guid,

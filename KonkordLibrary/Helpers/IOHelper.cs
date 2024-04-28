@@ -252,7 +252,7 @@ namespace Tavstal.KonkordLibrary.Helpers
                             }
                         case EAccountType.MICROSOFT:
                             {
-                                return !(string.IsNullOrEmpty(account.AccessToken) && string.IsNullOrEmpty(account.RefreshToken));
+                                return !string.IsNullOrEmpty(account.AccessToken);
                             }
                     }
                 }

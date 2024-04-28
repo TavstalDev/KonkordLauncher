@@ -9,6 +9,7 @@ using System.Net;
 using System.Net.Http;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
+using System.Windows;
 
 namespace Tavstal.KonkordLibrary.Managers
 {
@@ -19,6 +20,7 @@ namespace Tavstal.KonkordLibrary.Managers
         public static bool IsListening { get { return _isListening; } }
         private static readonly string _listeningUrl = "http://localhost:43319/";
         private static bool _wasAuthSuccessful = false;
+        private static bool _wasAuthCancelled = false;
         #region Redirectors
         private static readonly string _redirectAuthenticateUrl = Path.Combine(_listeningUrl, "microsoft/authcallback");
         private static readonly string _redirectTokenUrl = Path.Combine(_listeningUrl, "microsoft/tokencallback");
@@ -54,7 +56,7 @@ namespace Tavstal.KonkordLibrary.Managers
         /// <returns>
         /// A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains a <see cref="bool"/> value indicating whether the authentication is valid or not.
         /// </returns>
-        public static async Task<bool> ValidateAuthentication()
+        public static async Task<bool?> ValidateAuthentication<LWindow, AWindow>(Window startWindow) where LWindow : Window where AWindow : Window
         {
             // Check account data and stuff
             AccountData? accountData = await JsonHelper.ReadJsonFileAsync<AccountData>(Path.Combine(IOHelper.MainDirectory, "accounts.json"));
@@ -68,7 +70,41 @@ namespace Tavstal.KonkordLibrary.Managers
             {
                 if (account.Type == Enums.EAccountType.MICROSOFT)
                 {
-                    return await AttemptLogin(account.AccessToken);
+                    if (account.AccessTokenExpireDate > DateTime.Now)
+                        if (await AttemptLogin(account.AccessToken))
+                            return true;
+
+                    // Start reauthenticate
+                    StartListening();
+
+                    var psi = new ProcessStartInfo
+                    {
+                        FileName = MicrosoftAuthUrl,
+                        UseShellExecute = true
+                    };
+                    Process.Start(psi);
+
+                    while (IsListening)
+                    {
+                        await Task.Delay(50);
+                        if (GetMicrosoftAuthStatus())
+                        {
+                            LWindow window = Activator.CreateInstance<LWindow>();
+                            window.Show();
+                            startWindow.Close();
+                            break;
+                        }
+
+                        if (_wasAuthCancelled)
+                        {
+                            AWindow window = Activator.CreateInstance<AWindow>();
+                            window.Show();
+                            startWindow.Close();
+                            break;
+                        }
+                    }
+
+                    return null;
                 }
                 return true;
             }
@@ -165,7 +201,16 @@ namespace Tavstal.KonkordLibrary.Managers
             {
                 closeBrowser.Invoke();
                 _wasAuthSuccessful = false;
+                _wasAuthCancelled = false;
                 await MicrosoftAuthCallback(context.Request);
+                return;
+            }
+
+            if (context.Request.RawUrl.StartsWith("/cancel"))
+            {
+                closeBrowser.Invoke();
+                _wasAuthCancelled = true;
+                _wasAuthSuccessful = false;
                 return;
             }
 
@@ -391,7 +436,7 @@ namespace Tavstal.KonkordLibrary.Managers
                     JObject resultObj = JObject.Parse(await result.Content.ReadAsStringAsync());
                     if (resultObj.ContainsKey("access_token"))
                     {
-                        await MinecraftCheckOwnership(resultObj["access_token"].ToString());
+                        await MinecraftCheckOwnership(resultObj["access_token"].ToString(), int.Parse(resultObj["expires_in"].ToString()));
                     }
                     else
                     {
@@ -412,7 +457,7 @@ namespace Tavstal.KonkordLibrary.Managers
         /// <returns>
         /// A <see cref="Task"/> representing the asynchronous operation.
         /// </returns>
-        private static async Task MinecraftCheckOwnership(string mcToken)
+        private static async Task MinecraftCheckOwnership(string mcToken, int expireSecs)
         {
             try
             {
@@ -438,7 +483,7 @@ namespace Tavstal.KonkordLibrary.Managers
 
                 if (hasMinecraft)
                 {
-                    await MinecraftGetProfile(mcToken);
+                    await MinecraftGetProfile(mcToken, expireSecs);
                 }
                 else
                 {
@@ -458,7 +503,7 @@ namespace Tavstal.KonkordLibrary.Managers
         /// <returns>
         /// A <see cref="Task"/> representing the asynchronous operation. The task result contains the profile data as a string.
         /// </returns>
-        private static async Task MinecraftGetProfile(string mcToken)
+        private static async Task MinecraftGetProfile(string mcToken, int expireSecs)
         {
             try
             {
@@ -481,7 +526,7 @@ namespace Tavstal.KonkordLibrary.Managers
                     if (accountData.Accounts.TryGetValue(profile.Id, out Account? account))
                     {
                         account.AccessToken = mcToken;
-                        account.RefreshToken = mcToken; // TODO: Needs to be checked
+                        account.AccessTokenExpireDate = DateTime.Now.AddSeconds(expireSecs); 
                         account.UUID = profile.Id;
                         account.DisplayName = profile.Name;
                         accountData.Accounts[profile.Id] = account;
@@ -493,7 +538,7 @@ namespace Tavstal.KonkordLibrary.Managers
                         account = new Account()
                         {
                             AccessToken = mcToken,
-                            RefreshToken = mcToken,  // TODO: Needs to be checked
+                            AccessTokenExpireDate = DateTime.Now.AddSeconds(expireSecs),  
                             DisplayName = profile.Name,
                             UUID = profile.Id,
                             Type = Enums.EAccountType.MICROSOFT,
@@ -553,18 +598,18 @@ namespace Tavstal.KonkordLibrary.Managers
                 Debug.WriteLine("## SENT MINECRAFT PROFILE REQUEST");
                 var result = await client.GetAsync(_minecraftProfileUrl);
                 Debug.WriteLine("## MINECRAFT PROFILE REQUEST STATUS: " + result.StatusCode);
+                if (result.StatusCode == HttpStatusCode.Unauthorized || result.StatusCode == HttpStatusCode.NotFound || result.StatusCode == HttpStatusCode.BadRequest)
+                    return false;
 
                 MojangProfile? profile = JsonConvert.DeserializeObject<MojangProfile>(await result.Content.ReadAsStringAsync());
-                bool isProfileValid = profile != null;
-
                 // Save profile cache
-                if (isProfileValid)
+                if (profile != null)
                 {
-                    string profileCachePath = Path.Combine(IOHelper.CacheDir, $"{profile?.Id}.json");
+                    string profileCachePath = Path.Combine(IOHelper.CacheDir, $"{profile.Id}.json");
                     await File.WriteAllTextAsync(profileCachePath, JsonConvert.SerializeObject(profile, Formatting.None));
                 }
 
-                return isProfileValid;
+                return profile != null;
             }
             catch (Exception ex)
             {
@@ -572,7 +617,7 @@ namespace Tavstal.KonkordLibrary.Managers
                 return false;
             }
         }
-    
+
         public static async Task<MojangProfile?> GetMojangProfileAsync()
         {
             try

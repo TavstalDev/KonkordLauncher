@@ -17,19 +17,19 @@ namespace Tavstal.KonkordLibrary.Models.Launcher
         public EAccountType Type { get; set; }
         [JsonPropertyName("accessToken"), JsonProperty("accessToken")]
         public string AccessToken { get; set; }
-        [JsonPropertyName("refreshToken"), JsonProperty("refreshToken")]
-        public string RefreshToken { get; set; }
+        [JsonPropertyName("accessTokenExpDate"), JsonProperty("accessTokenExpDate")]
+        public DateTime AccessTokenExpireDate { get; set; }
 
         public Account() { }
 
-        public Account(string userId, string uUID, string displayName, EAccountType type, string accessToken, string refreshToken)
+        public Account(string userId, string uUID, string displayName, EAccountType type, string accessToken, DateTime accessTokenExpDate)
         {
             UserId = userId;
             UUID = uUID;
             DisplayName = displayName;
             Type = type;
             AccessToken = accessToken;
-            RefreshToken = refreshToken;
+            AccessTokenExpireDate = accessTokenExpDate;
         }
     }
 }

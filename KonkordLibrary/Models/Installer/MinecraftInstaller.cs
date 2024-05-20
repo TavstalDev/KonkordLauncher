@@ -651,7 +651,7 @@ namespace Tavstal.KonkordLibrary.Models.Installer
             if (!string.IsNullOrEmpty(Profile.JVMArgs))
                 arguments.Add($"{Profile.JVMArgs}");
 
-            arguments.Add($"-Dminecraft.applet.TargetDirectory={gameDir}");
+            arguments.Add($"-Dminecraft.applet.TargetDirectory=\"{gameDir}\"");
             #endregion
             #region Minecraft Args
             // The main class

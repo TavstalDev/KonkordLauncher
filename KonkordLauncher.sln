@@ -12,6 +12,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Desktop", "Desktop\Desktop.csproj", "{4DD28DA2-2CE4-4255-858C-25B2C2ED6130}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{6B1C6ADC-151D-4383-9B40-A7A69B259266}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,6 +32,10 @@ Global
 		{4DD28DA2-2CE4-4255-858C-25B2C2ED6130}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4DD28DA2-2CE4-4255-858C-25B2C2ED6130}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4DD28DA2-2CE4-4255-858C-25B2C2ED6130}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B1C6ADC-151D-4383-9B40-A7A69B259266}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B1C6ADC-151D-4383-9B40-A7A69B259266}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B1C6ADC-151D-4383-9B40-A7A69B259266}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B1C6ADC-151D-4383-9B40-A7A69B259266}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

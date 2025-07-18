@@ -2,9 +2,9 @@
 using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Core.Enums;
 
-namespace Tavstal.KonkordLauncher.Core.Models.Minecraft
+namespace Tavstal.KonkordLauncher.Core.Models.MojangApi
 {
-    public class MCVersion
+    public class MinecraftVersion
     {
         [JsonPropertyName("id"), JsonProperty("id")]
         public string Id {  get; set; }
@@ -53,9 +53,9 @@ namespace Tavstal.KonkordLauncher.Core.Models.Minecraft
             }
         }
 
-        public MCVersion() { }
+        public MinecraftVersion() { }
 
-        public MCVersion(string id, string type, string url, DateTime time, DateTime releaseTime)
+        public MinecraftVersion(string id, string type, string url, DateTime time, DateTime releaseTime)
         {
             Id = id;
             Type = type;

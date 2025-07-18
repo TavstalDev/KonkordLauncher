@@ -1,8 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using Newtonsoft.Json;
-using Tavstal.KonkordLauncher.Core.Helpers;
 
-namespace Tavstal.KonkordLauncher.Core.Models.Minecraft.API
+namespace Tavstal.KonkordLauncher.Core.Models.MojangApi.User
 {
     public class Cape
     {
@@ -14,8 +13,6 @@ namespace Tavstal.KonkordLauncher.Core.Models.Minecraft.API
         public string Url {  get; set; }
         [JsonPropertyName("alias"), JsonProperty("alias")]
         public string Alias {  get; set; }
-        [System.Text.Json.Serialization.JsonIgnore, Newtonsoft.Json.JsonIgnore]
-        public string Path { get; set; }
 
         public Cape() { }
 
@@ -25,15 +22,6 @@ namespace Tavstal.KonkordLauncher.Core.Models.Minecraft.API
             State = state;
             Url = url;
             Alias = alias;
-            Path = GetPath();
-        }
-
-        public string GetPath()
-        {
-            if (Alias.ToLower() == "none")
-                return "/assets/images/steve_full_nocape.png";
-            else
-                return System.IO.Path.Combine(IOHelper.CacheDir, "capes", $"{Alias}.png");
         }
     }
 }

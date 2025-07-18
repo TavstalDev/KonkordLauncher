@@ -1,18 +1,18 @@
 ﻿using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
-namespace Tavstal.KonkordLauncher.Core.Models.Minecraft
+namespace Tavstal.KonkordLauncher.Core.Models.MojangApi
 {
     public class VersionManifest
     {
         [JsonPropertyName("latest"), JsonProperty("latest")]
-        public MCLatest Latest {  get; set; }
+        public VersionManifestLatest Latest {  get; set; }
         [JsonPropertyName("versions"), JsonProperty("versions")]
-        public List<MCVersion> Versions { get; set; }
+        public List<MinecraftVersion> Versions { get; set; }
 
         public VersionManifest() { }
 
-        public VersionManifest(MCLatest latest, List<MCVersion> versions)
+        public VersionManifest(VersionManifestLatest latest, List<MinecraftVersion> versions)
         {
             Latest = latest;
             Versions = versions;

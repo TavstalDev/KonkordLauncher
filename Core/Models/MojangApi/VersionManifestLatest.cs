@@ -1,18 +1,18 @@
 ﻿using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
-namespace Tavstal.KonkordLauncher.Core.Models.Minecraft
+namespace Tavstal.KonkordLauncher.Core.Models.MojangApi
 {
-    public class MCLatest
+    public class VersionManifestLatest
     {
         [JsonPropertyName("release"), JsonProperty("release")]
         public string Release { get; set; }
         [JsonPropertyName("snapshot"), JsonProperty("snapshot")]
         public string Snapshot { get; set; }
 
-        public MCLatest() { }
+        public VersionManifestLatest() { }
 
-        public MCLatest(string release, string snapshot)
+        public VersionManifestLatest(string release, string snapshot)
         {
             Release = release;
             Snapshot = snapshot;

@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
-namespace Tavstal.KonkordLauncher.Core.Models.Minecraft.API
+namespace Tavstal.KonkordLauncher.Core.Models.MojangApi.User
 {
     public class OwnershipItem
     {

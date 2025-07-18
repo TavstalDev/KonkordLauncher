@@ -7,17 +7,7 @@ namespace Tavstal.KonkordLauncher.Core.Helpers;
 
 public static class GameHelper
 {
-    /// <summary>
-    /// Gets the version details for a profile based on the specified parameters.
-    /// </summary>
-    /// <param name="kind">The kind of profile.</param>
-    /// <param name="versionId">The version ID.</param>
-    /// <param name="vanillaVersionId">Optional: The vanilla version ID.</param>
-    /// <param name="customDirectory">Optional: The custom directory.</param>
-    /// <returns>
-    /// The version details.
-    /// </returns>
-    public static VersionDetails GetProfileVersionDetails(EProfileKind kind, string versionId,
+    public static VersionDetails GetProfileVersionDetails(string versionsDir, EProfileKind kind, string versionId,
         string? vanillaVersionId = null, string? customDirectory = null)
     {
         string vanillaVersion = vanillaVersionId ?? versionId;
@@ -47,7 +37,7 @@ public static class GameHelper
             }
         }
 
-        response.VersionDirectory = Path.Combine(PathHelper.VersionsDir, versionName);
+        response.VersionDirectory = Path.Combine(versionsDir, versionName);
         response.VersionJsonPath = Path.Combine(response.VersionDirectory, $"{versionName}.json");
         response.VersionJarPath = Path.Combine(response.VersionDirectory, $"{versionName}.jar");
         response.VanillaJarPath = Path.Combine(PathHelper.VersionsDir, vanillaVersion, $"{vanillaVersionId}.jar");

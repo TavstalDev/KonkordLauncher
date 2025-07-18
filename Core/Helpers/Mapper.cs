@@ -1,5 +1,5 @@
 ﻿using System.Text.RegularExpressions;
-using Tavstal.KonkordLauncher.Core.Models.Forge;
+using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
 
 namespace Tavstal.KonkordLauncher.Core.Helpers;
 

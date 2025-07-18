@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Models.Launcher;
-using Tavstal.KonkordLauncher.Core.Models.Minecraft;
+using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 
 namespace Tavstal.KonkordLauncher.Core.Helpers;
 
@@ -40,10 +40,10 @@ public static class GameHelper
         response.VersionDirectory = Path.Combine(versionsDir, versionName);
         response.VersionJsonPath = Path.Combine(response.VersionDirectory, $"{versionName}.json");
         response.VersionJarPath = Path.Combine(response.VersionDirectory, $"{versionName}.jar");
-        response.VanillaJarPath = Path.Combine(PathHelper.VersionsDir, vanillaVersion, $"{vanillaVersionId}.jar");
+        response.VanillaJarPath = Path.Combine(versionsDir, vanillaVersion, $"{vanillaVersionId}.jar");
         response.NativesDir = Path.Combine(response.VersionDirectory, "natives");
         if (string.IsNullOrEmpty(customDirectory))
-            response.GameDir = Path.Combine(PathHelper.InstancesDir, versionName);
+            response.GameDir = Path.Combine(versionsDir, versionName);
         else
             response.GameDir = customDirectory;
 

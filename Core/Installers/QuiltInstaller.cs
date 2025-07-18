@@ -1,12 +1,14 @@
 ﻿using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
-using Tavstal.KonkordLauncher.Core.Models.Fabric;
+using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.Launcher;
-using Tavstal.KonkordLauncher.Core.Models.Minecraft.Library;
+using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Fabric;
+using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
+using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta.Library;
 
-namespace Tavstal.KonkordLauncher.Core.Models.Quilt
+namespace Tavstal.KonkordLauncher.Core.Installers
 {
     public class QuiltInstaller : MinecraftInstaller
     {
@@ -26,7 +28,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.Quilt
 
         }
 
-        internal override async Task<ModedData?> InstallModed(string tempDir)
+        internal override async Task<ModdedData?> InstallModed(string tempDir)
         {
             UpdateProgressbarTranslated(0, "ui_reading_manifest", new object[] { "quiltManifest" });
             if (!File.Exists(IOHelper.QuiltManifestJsonFile))
@@ -49,7 +51,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.Quilt
 
             // Download version json
             FabricVersionMeta? quiltVersionMeta = null;
-            List<MCLibrary> localLibraries = new List<MCLibrary>();
+            List<LibraryMeta> localLibraries = new List<LibraryMeta>();
             if (!File.Exists(quiltVersion.VersionJsonPath))
             {
                 string? resultJson = string.Empty;
@@ -81,7 +83,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.Quilt
                 foreach (var lib in quiltVersionMeta.Libraries)
                 {
                     localLibrarySize += lib.Size;
-                    localLibraries.Add(new MCLibrary(lib.Name, new MCLibraryDownloads(new MCLibraryArtifact(lib.GetPath(), lib.Sha1, lib.Size, lib.GetURL()), null), new List<MCLibraryRule>()));
+                    localLibraries.Add(new LibraryMeta(lib.Name, new LibraryDownloads(new Artifact(lib.GetPath(), lib.Sha1, lib.Size, lib.GetURL()), null), new List<Rule>()));
                 }
                 // Save the version cache
                 await JsonHelper.WriteJsonFileAsync(librarySizeCachePath, localLibrarySize);
@@ -98,7 +100,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.Quilt
 
                 foreach (var lib in quiltVersionMeta.Libraries)
                 {
-                    localLibraries.Add(new MCLibrary(lib.Name, new MCLibraryDownloads(new MCLibraryArtifact(lib.GetPath(), lib.Sha1, lib.Size, lib.GetURL()), null), new List<MCLibraryRule>()));
+                    localLibraries.Add(new LibraryMeta(lib.Name, new LibraryDownloads(new Artifact(lib.GetPath(), lib.Sha1, lib.Size, lib.GetURL()), null), new List<Rule>()));
                 }
             }
 
@@ -132,12 +134,12 @@ namespace Tavstal.KonkordLauncher.Core.Models.Quilt
                 File.Copy(quiltVersion.VanillaJarPath, quiltVersion.VersionJarPath);
             }
 
-            ModedData modedData = new ModedData(quiltVersionMeta.MainClass, quiltVersion, localLibraries);
+            ModdedData moddedData = new ModdedData(quiltVersionMeta.MainClass, quiltVersion, localLibraries);
 
             foreach (var arg in quiltVersionMeta.Arguments.GetGameArgs())
                 _gameArguments.Add(new LaunchArg(arg, 1));
 
-            foreach (var arg in quiltVersionMeta.Arguments.GetJVMArgs())
+            foreach (var arg in quiltVersionMeta.Arguments.GetJvmArgs())
             {
                 if (arg == "-DFabricMcEmu= net.minecraft.client.main.Main ")
                 {
@@ -152,7 +154,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.Quilt
             _jvmArguments.Add(new LaunchArg("-Dlog4j2.formatMsgNoLookups=true", 1));
             _jvmArguments.Add(new LaunchArg("-Djava.rmi.server.useCodebaseOnly=true", 1));
             _jvmArguments.Add(new LaunchArg("-Dcom.sun.jndi.rmi.object.trustURLCodebase=false", 1));
-            return modedData;
+            return moddedData;
         }
     }
 }

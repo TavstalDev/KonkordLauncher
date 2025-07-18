@@ -5,25 +5,22 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
-using Tavstal.KonkordLauncher.Core.Managers;
-using Tavstal.KonkordLauncher.Core.Models.Forge.Installer;
+using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.Launcher;
-using Tavstal.KonkordLauncher.Core.Models.Minecraft;
-using Tavstal.KonkordLauncher.Core.Models.Minecraft.Library;
+using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Installer;
+using Tavstal.KonkordLauncher.Core.Models.MojangApi;
+using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 
-namespace Tavstal.KonkordLauncher.Core.Models.Installer
+namespace Tavstal.KonkordLauncher.Core.Installers
 {
     public class MinecraftInstaller
     {
-        // File jsons can be get through the manifest
-        private static readonly string _mcVersionManifestUrl = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
-        public static string MCVerisonManifestUrl { get { return _mcVersionManifestUrl; } }
-
         public Profile Profile { get; }
         public VersionDetails VersionData { get; }
         public VersionManifest VersionManifest { get; }
-        public MCVersion MinecraftVersion { get; }
-        public MCVersionMeta MinecraftVersionMeta { get; private set; }
+        public MinecraftVersion MinecraftVersion { get; }
+        public VersionMeta MinecraftVersionMeta { get; private set; }
         public string JavaPath { get; internal set; }
         public bool IsDebug { get; }
         protected IProgressReporter _progressReporter { get; }
@@ -66,7 +63,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.Installer
                     }
             }
 
-            MCVersion? mcVersion = VersionManifest.Versions.Find(x => x.Id == VersionData.VanillaVersion);
+            MinecraftVersion? mcVersion = VersionManifest.Versions.Find(x => x.Id == VersionData.VanillaVersion);
             if (mcVersion == null)
                 throw new Exception($"Failed to get the minecraft version for '{VersionData.VanillaVersion}'.");
             MinecraftVersion = mcVersion;
@@ -113,8 +110,8 @@ namespace Tavstal.KonkordLauncher.Core.Models.Installer
 
             var modedData = await InstallModed(tempDir);
             string arguments = string.Empty;
-            List<MCLibrary> libraries = MinecraftVersionMeta.Libraries;
-            List<MCLibrary> natives = new List<MCLibrary>();
+            List<LibraryMeta> libraries = MinecraftVersionMeta.Libraries;
+            List<LibraryMeta> natives = new List<LibraryMeta>();
             if (modedData != null)
             {
                 if (!Directory.Exists(modedData.VersionData.GameDir))
@@ -151,9 +148,9 @@ namespace Tavstal.KonkordLauncher.Core.Models.Installer
         /// Asynchronously installs modded data using mod loaders such as Forge, Fabric, or Quilt.
         /// </summary>
         /// <returns>
-        /// A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains a <see cref="ModedData"/> representing the modded data, or null if installation fails.
+        /// A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains a <see cref="ModdedData"/> representing the modded data, or null if installation fails.
         /// </returns>
-        internal virtual async Task<ModedData?> InstallModed(string tempDir)
+        internal virtual async Task<ModdedData?> InstallModed(string tempDir)
         {
             // Vanilla installer, do nothing
             await Task.Delay(1);
@@ -182,14 +179,14 @@ namespace Tavstal.KonkordLauncher.Core.Models.Installer
                 if (jsonResult == null)
                     return;
 
-                MinecraftVersionMeta = JsonConvert.DeserializeObject<MCVersionMeta>(jsonResult);
+                MinecraftVersionMeta = JsonConvert.DeserializeObject<VersionMeta>(jsonResult);
                 await File.WriteAllTextAsync(VersionData.VersionJsonPath, jsonResult);
             }
             else
             {
                 UpdateProgressbarTranslated(0, $"ui_reading_version_json", new object[] { MinecraftVersion.Id });
                 string jsonResult = await File.ReadAllTextAsync(VersionData.VersionJsonPath);
-                MinecraftVersionMeta = JsonConvert.DeserializeObject<MCVersionMeta>(jsonResult);
+                MinecraftVersionMeta = JsonConvert.DeserializeObject<VersionMeta>(jsonResult);
             }
 
             if (MinecraftVersionMeta == null)
@@ -222,8 +219,8 @@ namespace Tavstal.KonkordLauncher.Core.Models.Installer
         private async Task DownloadAssets()
         {
             // AssetIndex
-            UpdateProgressbarTranslated(0, $"ui_checking_asset_index_json", new object[] { MinecraftVersionMeta.AssetIndex.Id });
-            string assetIndex = MinecraftVersionMeta.AssetIndex.Id;
+            UpdateProgressbarTranslated(0, $"ui_checking_asset_index_json", new object[] { MinecraftVersionMeta.Index.Id });
+            string assetIndex = MinecraftVersionMeta.Index.Id;
             string assetPath = Path.Combine(IOHelper.AssetsDir, $"indexes/{assetIndex}.json");
             JToken? assetJToken = null;
             if (!File.Exists(assetPath))
@@ -236,7 +233,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.Installer
                     UpdateProgressbarTranslated(e, "ui_downloading_asset_index_json", new object[] { assetIndex, e.ToString("0.00") });
                 };
 
-                string? resultJson = await HttpHelper.GetStringAsync(MinecraftVersionMeta.AssetIndex.Url, progress);
+                string? resultJson = await HttpHelper.GetStringAsync(MinecraftVersionMeta.Index.Url, progress);
                 if (resultJson == null)
                     return;
 
@@ -287,7 +284,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.Installer
                     await File.WriteAllBytesAsync(objectPath, array);
                 }
                 downloadedAssetSize += int.Parse(token.First["size"].ToString());
-                double percent = (double)downloadedAssetSize / (double)MinecraftVersionMeta.AssetIndex.TotalSize * 100d;
+                double percent = (double)downloadedAssetSize / (double)MinecraftVersionMeta.Index.TotalSize * 100d;
                 UpdateProgressbarTranslated(percent, $"ui_downloading_assets", new object[] { percent.ToString("0.00") });
             }
         }
@@ -300,7 +297,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.Installer
         /// </returns>
         private async Task DownloadLogging(string versionDirectory, string gameDir)
         {
-            if (MinecraftVersionMeta.Logging != null && MinecraftVersionMeta.Logging.Client != null)
+            if (MinecraftVersionMeta.LoggingMeta != null && MinecraftVersionMeta.LoggingMeta.Client != null)
             {
                 UpdateProgressbarTranslated(0, $"ui_checking_logging");
                 string logDirPath = Path.Combine(IOHelper.AssetsDir, "log_configs");
@@ -309,7 +306,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.Installer
                 string logReadmePath = Path.Combine(logDirPath, "readme.txt");
                 if (!File.Exists(logReadmePath))
                     await File.WriteAllTextAsync(logReadmePath, $"The log config files has been moved to {IOHelper.VersionsDir}\\<your_version> so the logs can be made per instance.");
-                string logFilePath = Path.Combine(versionDirectory, MinecraftVersionMeta.Logging.Client.File.Id);
+                string logFilePath = Path.Combine(versionDirectory, MinecraftVersionMeta.LoggingMeta.Client.File.Id);
                 if (!File.Exists(logFilePath))
                 {
                     UpdateProgressbarTranslated(0, $"ui_downloading_logging", new object[] { 0 });
@@ -320,7 +317,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.Installer
                         UpdateProgressbarTranslated(e, "ui_downloading_logging", new object[] { e.ToString("0.00") });
                     };
 
-                    string? r = await HttpHelper.GetStringAsync(MinecraftVersionMeta.Logging.Client.File.Url, progress);
+                    string? r = await HttpHelper.GetStringAsync(MinecraftVersionMeta.LoggingMeta.Client.File.Url, progress);
                     if (r == null)
                         return;
 
@@ -329,7 +326,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.Installer
 
                     await File.WriteAllTextAsync(logFilePath, r);
                 }
-                _jvmArguments.Add(new LaunchArg(MinecraftVersionMeta.Logging.Client.Argument.Replace("${path}", logFilePath), 0));
+                _jvmArguments.Add(new LaunchArg(MinecraftVersionMeta.LoggingMeta.Client.Argument.Replace("${path}", logFilePath), 0));
             }
         }
 
@@ -369,12 +366,12 @@ namespace Tavstal.KonkordLauncher.Core.Models.Installer
         /// </summary>
         /// <param name="mcLibs">The list of Minecraft libraries to download.</param>
         /// <returns>
-        /// A <see cref="Task"/> representing the asynchronous operation. The task result contains a list of downloaded <see cref="MCLibrary"/> objects.
+        /// A <see cref="Task"/> representing the asynchronous operation. The task result contains a list of downloaded <see cref="LibraryMeta"/> objects.
         /// </returns>
-        private async Task<List<MCLibrary>> DownloadLibraries(List<MCLibrary> mcLibs)
+        private async Task<List<LibraryMeta>> DownloadLibraries(List<LibraryMeta> mcLibs)
         {
             UpdateProgressbarTranslated(0, $"ui_checking_libraries");
-            List<MCLibrary> natives = new List<MCLibrary>();
+            List<LibraryMeta> natives = new List<LibraryMeta>();
             double libraryOverallSize = 0;
             double libraryDownloadedSize = 0;
             string libraryCacheDir = Path.Combine(IOHelper.CacheDir, "libsizes");
@@ -498,7 +495,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.Installer
         /// <returns>
         /// A <see cref="Task"/> representing the asynchronous operation.
         /// </returns>
-        private async Task DownloadNatives(List<MCLibrary> nativeLibs, string nativeDir)
+        private async Task DownloadNatives(List<LibraryMeta> nativeLibs, string nativeDir)
         {
             UpdateProgressbarTranslated(0, $"ui_checking_natives");
             if (!Directory.Exists(nativeDir))
@@ -506,7 +503,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.Installer
 
             string libJarFilePath = string.Empty;
             string libJarFileDir = string.Empty;
-            foreach (MCLibrary lib in nativeLibs)
+            foreach (LibraryMeta lib in nativeLibs)
             {
                 Debug.WriteLine("nativeLib: " + lib.Name);
                 if (lib.Downloads.Classifiers != null)
@@ -621,7 +618,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.Installer
                 });
 
             // Vanilla Args
-            arguments.Add(MinecraftVersionMeta.GetJVMArgumentString());
+            arguments.Add(MinecraftVersionMeta.GetJvmArgumentString());
 
             // Moded Args
             if (_jvmArguments.Count > 0)
@@ -733,7 +730,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.Installer
                 .Replace("${version_name}", versionName)
                 .Replace("${game_directory}", gameDir)
                 .Replace("${assets_root}", IOHelper.AssetsDir)
-                .Replace("${assets_index_name}", MinecraftVersionMeta.AssetIndex.Id)
+                .Replace("${assets_index_name}", MinecraftVersionMeta.Index.Id)
                 .Replace("${auth_uuid}", account.UUID)
                 .Replace("${auth_access_token}", string.IsNullOrEmpty(account.AccessToken) ? "none" : account.AccessToken)
                 .Replace("${clientid}", clientId)

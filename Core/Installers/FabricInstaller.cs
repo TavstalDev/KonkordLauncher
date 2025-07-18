@@ -1,11 +1,14 @@
 ﻿using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
+using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.Launcher;
-using Tavstal.KonkordLauncher.Core.Models.Minecraft.Library;
+using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Fabric;
+using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
+using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta.Library;
 
-namespace Tavstal.KonkordLauncher.Core.Models.Fabric
+namespace Tavstal.KonkordLauncher.Core.Installers
 {
     public class FabricInstaller : MinecraftInstaller
     {
@@ -26,7 +29,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.Fabric
 
         }
 
-        internal override async Task<ModedData?> InstallModed(string tempDir)
+        internal override async Task<ModdedData?> InstallModed(string tempDir)
         {
             UpdateProgressbarTranslated(0, "ui_reading_manifest", new object[] { "fabricManifest" });
             if (!File.Exists(IOHelper.FabricManifestJsonFile))
@@ -49,7 +52,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.Fabric
 
             // Download version json
             FabricVersionMeta? fabricVersionMeta = null;
-            List<MCLibrary> localLibraries = new List<MCLibrary>();
+            List<LibraryMeta> localLibraries = new List<LibraryMeta>();
             if (!File.Exists(fabricVersion.VersionJsonPath))
             {
                 string? resultJson = string.Empty;
@@ -81,7 +84,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.Fabric
                 foreach (var lib in fabricVersionMeta.Libraries)
                 {
                     localLibrarySize += lib.Size;
-                    localLibraries.Add(new MCLibrary(lib.Name, new MCLibraryDownloads(new MCLibraryArtifact(lib.GetPath(), lib.Sha1, lib.Size, lib.GetURL()), null), new List<MCLibraryRule>()));
+                    localLibraries.Add(new LibraryMeta(lib.Name, new LibraryDownloads(new Artifact(lib.GetPath(), lib.Sha1, lib.Size, lib.GetURL()), null), new List<Rule>()));
                 }
                 // Save the version cache
                 await JsonHelper.WriteJsonFileAsync(librarySizeCachePath, localLibrarySize);
@@ -98,7 +101,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.Fabric
 
                 foreach (var lib in fabricVersionMeta.Libraries)
                 {
-                    localLibraries.Add(new MCLibrary(lib.Name, new MCLibraryDownloads(new MCLibraryArtifact(lib.GetPath(), lib.Sha1, lib.Size, lib.GetURL()), null), new List<MCLibraryRule>()));
+                    localLibraries.Add(new LibraryMeta(lib.Name, new LibraryDownloads(new Artifact(lib.GetPath(), lib.Sha1, lib.Size, lib.GetURL()), null), new List<Rule>()));
                 }
             }
 
@@ -133,12 +136,12 @@ namespace Tavstal.KonkordLauncher.Core.Models.Fabric
                 File.Copy(fabricVersion.VanillaJarPath, fabricVersion.VersionJarPath);
             }
 
-            ModedData modedData = new ModedData(fabricVersionMeta.MainClass, fabricVersion, localLibraries);
+            ModdedData moddedData = new ModdedData(fabricVersionMeta.MainClass, fabricVersion, localLibraries);
 
             foreach (var arg in fabricVersionMeta.Arguments.GetGameArgs())
                 _gameArguments.Add(new LaunchArg(arg, 1));
 
-            foreach (var arg in fabricVersionMeta.Arguments.GetJVMArgs())
+            foreach (var arg in fabricVersionMeta.Arguments.GetJvmArgs())
             {
                 if (arg == "-DFabricMcEmu= net.minecraft.client.main.Main ")
                 {
@@ -153,7 +156,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.Fabric
             _jvmArguments.Add(new LaunchArg("-Dlog4j2.formatMsgNoLookups=true", 1));
             _jvmArguments.Add(new LaunchArg("-Djava.rmi.server.useCodebaseOnly=true", 1));
             _jvmArguments.Add(new LaunchArg("-Dcom.sun.jndi.rmi.object.trustURLCodebase=false", 1));
-            return modedData;
+            return moddedData;
         }
     }
 }

@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Models.Launcher;
 
-namespace Tavstal.KonkordLauncher.Core.Models.Instances
+namespace Tavstal.KonkordLauncher.Core.Models.Platforms
 {
     public class InstanceManifest : Profile
     {

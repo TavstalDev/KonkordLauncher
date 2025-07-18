@@ -4,7 +4,7 @@ using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models.Launcher;
 
-namespace Tavstal.KonkordLauncher.Core.Models.Instances.CurseForge
+namespace Tavstal.KonkordLauncher.Core.Models.Platforms.CurseForge
 {
     public class CurseForgeInstance
     {

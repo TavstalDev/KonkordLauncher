@@ -1,13 +1,13 @@
 ﻿using System.Text.Json.Serialization;
 using Newtonsoft.Json;
-using Tavstal.KonkordLauncher.Core.Models.Minecraft.Meta;
+using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 
-namespace Tavstal.KonkordLauncher.Core.Models.Fabric
+namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Fabric
 {
     public class FabricVersionMeta
     {
         [JsonPropertyName("arguments"), JsonProperty("arguments")]
-        public MCMetaArgument Arguments { get; set; }
+        public ArgumentMeta Arguments { get; set; }
         [JsonPropertyName("id"), JsonProperty("id")]
         public string Id { get; set; }
         [JsonPropertyName("inheritsFrom"), JsonProperty("inheritsFrom")]

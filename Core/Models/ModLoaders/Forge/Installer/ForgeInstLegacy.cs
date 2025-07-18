@@ -2,12 +2,13 @@
 using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
-using Tavstal.KonkordLauncher.Core.Models.Forge.Legacy;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.Launcher;
-using Tavstal.KonkordLauncher.Core.Models.Minecraft.Library;
+using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Legacy;
+using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
+using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta.Library;
 
-namespace Tavstal.KonkordLauncher.Core.Models.Forge.Installer
+namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Installer
 {
     /*
      * 1.13+ are new
@@ -28,10 +29,10 @@ namespace Tavstal.KonkordLauncher.Core.Models.Forge.Installer
         {
         }
 
-        internal override async Task<ModedData?> InstallModed(string tempDir)
+        internal override async Task<ModdedData?> InstallModed(string tempDir)
         {
             UpdateProgressbarTranslated(0, "ui_finding_recommended_java");
-            MinecraftVersionMeta.JavaVersion.FindOnSystem(out string? RecommendedJavaPath);
+            MinecraftVersionMeta.JavaVersionMeta.FindOnSystem(out string? RecommendedJavaPath);
             if (!string.IsNullOrEmpty(RecommendedJavaPath) && string.IsNullOrEmpty(Profile.JavaPath))
             {
                 if (Directory.Exists(RecommendedJavaPath))
@@ -133,19 +134,19 @@ namespace Tavstal.KonkordLauncher.Core.Models.Forge.Installer
                 throw new FileNotFoundException("Failed to get the forge version meta.");
 
             UpdateProgressbarTranslated(0, $"ui_checking_installer_libraries", new object[] { "forge" });
-            List<MCLibrary> localLibraries = new List<MCLibrary>();
+            List<LibraryMeta> localLibraries = new List<LibraryMeta>();
             foreach (var lib in forgeVersionMeta.Libraries)
             {
                 string? url = lib.GetUrl(true);
                 if (url == null)
                     continue;
 
-                localLibraries.Add(new MCLibrary()
+                localLibraries.Add(new LibraryMeta()
                 {
                     Name = lib.Name,
-                    Downloads = new MCLibraryDownloads()
+                    Downloads = new LibraryDownloads()
                     {
-                        Artifact = new MCLibraryArtifact()
+                        Artifact = new Artifact()
                         {
                             Path = lib.GetPath(),
                             Sha1 = string.Empty,
@@ -155,7 +156,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.Forge.Installer
                         Classifiers = null
                     },
                     Natives = null,
-                    Rules = new List<MCLibraryRule>()
+                    Rules = new List<Rule>()
                 });
             }
 
@@ -181,8 +182,8 @@ namespace Tavstal.KonkordLauncher.Core.Models.Forge.Installer
             //_classPath += $"{forgeVersion.VersionJarPath};"; - not needed
 
 
-            ModedData modedData = new ModedData(forgeVersionMeta.MainClass, forgeVersion, localLibraries);
-            return modedData;
+            ModdedData moddedData = new ModdedData(forgeVersionMeta.MainClass, forgeVersion, localLibraries);
+            return moddedData;
         }
     }
 }

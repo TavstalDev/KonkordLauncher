@@ -1,8 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 using Newtonsoft.Json;
-using Tavstal.KonkordLauncher.Core.Models.Minecraft.Meta;
+using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 
-namespace Tavstal.KonkordLauncher.Core.Models.Forge.Legacy
+namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Legacy
 {
     public class ForgeVersionMeta
     {
@@ -19,7 +19,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.Forge.Legacy
         [JsonPropertyName("jar"), JsonProperty("jar")]
         public string Jar { get; set; }
         [JsonPropertyName("logging"), JsonProperty("logging")]
-        public MCLogging? Logging { get; set; }
+        public LoggingMeta? Logging { get; set; }
         [JsonPropertyName("libraries"), JsonProperty("libraries")]
         public List<ForgeLibrary> Libraries { get; set; }
     }

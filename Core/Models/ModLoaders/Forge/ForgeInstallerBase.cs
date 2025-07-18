@@ -1,12 +1,12 @@
 ﻿using System.Diagnostics;
 using Newtonsoft.Json.Linq;
 using Tavstal.KonkordLauncher.Core.Helpers;
-using Tavstal.KonkordLauncher.Core.Models.Forge.Installer;
-using Tavstal.KonkordLauncher.Core.Models.Forge.New;
-using Tavstal.KonkordLauncher.Core.Models.Installer;
+using Tavstal.KonkordLauncher.Core.Installers;
 using Tavstal.KonkordLauncher.Core.Models.Launcher;
+using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Installer;
+using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.New;
 
-namespace Tavstal.KonkordLauncher.Core.Models.Forge
+namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge
 {
     public abstract class ForgeInstallerBase : MinecraftInstaller
     {

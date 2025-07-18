@@ -1,9 +1,9 @@
 ﻿using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Tavstal.KonkordLauncher.Core.Models.Minecraft.Library;
+using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 
-namespace Tavstal.KonkordLauncher.Core.Models.Forge.New
+namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.New
 {
     public class ForgeVersionProfile
     {
@@ -24,6 +24,6 @@ namespace Tavstal.KonkordLauncher.Core.Models.Forge.New
         [JsonPropertyName("processors"), JsonProperty("processors")]
         public JArray Processors { get; set; }
         [JsonPropertyName("libraries"), JsonProperty("libraries")]
-        public List<MCLibrary> Libraries { get; set; }
+        public List<LibraryMeta> Libraries { get; set; }
     }
 }

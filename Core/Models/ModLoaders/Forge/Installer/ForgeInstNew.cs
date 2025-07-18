@@ -2,12 +2,12 @@
 using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
-using Tavstal.KonkordLauncher.Core.Models.Forge.New;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.Launcher;
-using Tavstal.KonkordLauncher.Core.Models.Minecraft.Library;
+using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.New;
+using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 
-namespace Tavstal.KonkordLauncher.Core.Models.Forge.Installer
+namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Installer
 {
     /* 1.20 - ok
      * 1.19 - ok
@@ -27,10 +27,10 @@ namespace Tavstal.KonkordLauncher.Core.Models.Forge.Installer
         {
         }
 
-        internal override async Task<ModedData?> InstallModed(string tempDir)
+        internal override async Task<ModdedData?> InstallModed(string tempDir)
         {
             UpdateProgressbarTranslated(0, "ui_finding_recommended_java");
-            MinecraftVersionMeta.JavaVersion.FindOnSystem(out string? RecommendedJavaPath);
+            MinecraftVersionMeta.JavaVersionMeta.FindOnSystem(out string? RecommendedJavaPath);
             if (!string.IsNullOrEmpty(RecommendedJavaPath) && string.IsNullOrEmpty(Profile.JavaPath))
             {
                 if (Directory.Exists(RecommendedJavaPath))
@@ -113,7 +113,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.Forge.Installer
                 throw new FileNotFoundException("Failed to get the forge install profile meta.");
 
             UpdateProgressbarTranslated(0, $"ui_checking_installer_libraries", new object[] { "forge" });
-            List<MCLibrary> localLibraries = new List<MCLibrary>();
+            List<LibraryMeta> localLibraries = new List<LibraryMeta>();
             localLibraries.AddRange(forgeVersionMeta.Libraries);
 
             // Download installer libraries
@@ -123,7 +123,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.Forge.Installer
                 int toDownloadSize = 0;
                 if (!File.Exists(librarySizeCachePath))
                 {
-                    foreach (MCLibrary lib in installProfile.Libraries)
+                    foreach (LibraryMeta lib in installProfile.Libraries)
                         toDownloadSize += lib.Downloads.Artifact.Size;
                     UpdateProgressbarTranslated(0, $"ui_saving_lib_cache");
                     await File.WriteAllTextAsync(librarySizeCachePath, toDownloadSize.ToString());
@@ -131,7 +131,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.Forge.Installer
                 else
                     toDownloadSize = int.Parse(await File.ReadAllTextAsync(librarySizeCachePath));
 
-            foreach (MCLibrary lib in installProfile.Libraries)
+            foreach (LibraryMeta lib in installProfile.Libraries)
             {
                 string localPath = lib.Downloads.Artifact.Path;
                 string libDirPath = Path.Combine(IOHelper.LibrariesDir, localPath.Remove(localPath.LastIndexOf('/'), localPath.Length - localPath.LastIndexOf('/')));
@@ -167,8 +167,8 @@ namespace Tavstal.KonkordLauncher.Core.Models.Forge.Installer
                     foreach (var arg in forgeVersionMeta.Arguments.GetGameArgs())
                         _gameArguments.Add(new LaunchArg(arg, 1));
 
-                if (forgeVersionMeta.Arguments.JVM != null)
-                    foreach (var arg in forgeVersionMeta.Arguments.GetJVMArgs())
+                if (forgeVersionMeta.Arguments.Jvm != null)
+                    foreach (var arg in forgeVersionMeta.Arguments.GetJvmArgs())
                         _jvmArguments.Add(new LaunchArg(arg, 1));
             }
 
@@ -207,8 +207,8 @@ namespace Tavstal.KonkordLauncher.Core.Models.Forge.Installer
             }
             #endregion
 
-            ModedData modedData = new ModedData(forgeVersionMeta.MainClass, forgeVersion, localLibraries);
-            return modedData;
+            ModdedData moddedData = new ModdedData(forgeVersionMeta.MainClass, forgeVersion, localLibraries);
+            return moddedData;
         }
     }
 }

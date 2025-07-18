@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
-namespace Tavstal.KonkordLauncher.Core.Models.Fabric
+namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Fabric
 {
     public class FabricLibrary
     {

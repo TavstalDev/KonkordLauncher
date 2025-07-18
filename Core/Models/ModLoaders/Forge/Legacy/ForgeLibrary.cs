@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
-namespace Tavstal.KonkordLauncher.Core.Models.Forge.Legacy
+namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Legacy
 {
     public class ForgeLibrary
     {

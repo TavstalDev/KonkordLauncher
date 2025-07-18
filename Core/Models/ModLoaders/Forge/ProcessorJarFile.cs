@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using ICSharpCode.SharpZipLib.Zip;
 
-namespace Tavstal.KonkordLauncher.Core.Models.Forge
+namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge
 {
     // Source: https://github.com/CmlLib/CmlLib.Core.Installer.Forge
     public class ProcessorJarFile

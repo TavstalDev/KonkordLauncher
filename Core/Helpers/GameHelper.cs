@@ -1,101 +1,76 @@
 ﻿using System.Text;
 using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Models.Launcher;
-using Tavstal.KonkordLauncher.Core.Models.MojangApi;
+using Tavstal.KonkordLauncher.Core.Models;
 
 namespace Tavstal.KonkordLauncher.Core.Helpers;
 
 public static class GameHelper
 {
-    public static VersionDetails GetProfileVersionDetails(string versionsDir, EProfileKind kind, string versionId,
-        string? vanillaVersionId = null, string? customDirectory = null)
+    /// <summary>
+    /// Retrieves the version details for a specific Minecraft version based on the provided parameters.
+    /// </summary>
+    /// <param name="versionsDir">The directory where version files are stored.</param>
+    /// <param name="minecraftVersion">The Minecraft version identifier.</param>
+    /// <param name="kind">The kind of profile (e.g., Forge, Fabric, Quilt).</param>
+    /// <param name="customVersion">
+    /// Optional: A custom version identifier. If not provided, the Minecraft version will be used.
+    /// </param>
+    /// <param name="customDirectory">
+    /// Optional: A custom directory for the game files. If not provided, a default directory will be used.
+    /// </param>
+    /// <returns>
+    /// A <see cref="VersionDetails"/> object containing the details of the specified Minecraft version.
+    /// </returns>
+    public static VersionDetails GetVersionDetails(string versionsDir, string minecraftVersion, EMinecraftKind kind,
+        string? customVersion = null, string? customDirectory = null)
     {
-        string vanillaVersion = vanillaVersionId ?? versionId;
+        // Initialize the response object with the custom and Minecraft version details
         VersionDetails response = new VersionDetails
         {
-            InstanceVersion = versionId,
-            VanillaVersion = vanillaVersion
+            CustomVersion = customVersion ?? minecraftVersion,
+            MinecraftVersion = minecraftVersion
         };
 
-        string versionName = $"{response.VanillaVersion}";
+        // Construct the version name based on the profile kind
+        string versionName = $"{response.MinecraftVersion}";
         switch (kind)
         {
-            case EProfileKind.FORGE:
+            case EMinecraftKind.FORGE:
             {
-                versionName = $"{vanillaVersionId}-forge-{versionId}";
+                versionName = $"{minecraftVersion}-forge-{customVersion}";
                 break;
             }
-            case EProfileKind.FABRIC:
+            case EMinecraftKind.FABRIC:
             {
-                versionName = $"{vanillaVersionId}-fabric-{versionId}";
+                versionName = $"{minecraftVersion}-fabric-{customVersion}";
                 break;
             }
-            case EProfileKind.QUILT:
+            case EMinecraftKind.QUILT:
             {
-                versionName = $"{vanillaVersionId}-quilt-{versionId}";
+                versionName = $"{minecraftVersion}-quilt-{customVersion}";
                 break;
             }
         }
 
-        response.VersionDirectory = Path.Combine(versionsDir, versionName);
-        response.VersionJsonPath = Path.Combine(response.VersionDirectory, $"{versionName}.json");
-        response.VersionJarPath = Path.Combine(response.VersionDirectory, $"{versionName}.jar");
-        response.VanillaJarPath = Path.Combine(versionsDir, vanillaVersion, $"{vanillaVersionId}.jar");
-        response.NativesDir = Path.Combine(response.VersionDirectory, "natives");
-        if (string.IsNullOrEmpty(customDirectory))
-            response.GameDir = Path.Combine(versionsDir, versionName);
-        else
-            response.GameDir = customDirectory;
+        // Set the paths for various version-related files and directories
+        var versionDir = Path.Combine(versionsDir, versionName);
+        response.VersionDirectory = versionDir;
+        response.VersionJsonPath = Path.Combine(versionDir, $"{versionName}.json");
+        response.VersionJarPath = Path.Combine(versionDir, $"{versionName}.jar");
+        response.NativesDir = Path.Combine(versionDir, "natives");
 
+        // Set the path to the vanilla JAR file
+        response.VanillaJarPath = Path.Combine(versionsDir, minecraftVersion, $"{minecraftVersion}.jar");
+
+        // Determine the game directory, using the custom directory if provided
+        response.GameDir = string.IsNullOrEmpty(customDirectory)
+            ? Path.Combine(versionsDir, versionName)
+            : customDirectory;
+
+        // Return the constructed version details
         return response;
     }
 
-    /// <summary>
-    /// Gets the version details for a profile based on the specified parameters.
-    /// </summary>
-    /// <param name="type">The type of profile.</param>
-    /// <param name="manifest">Optional: The version manifest.</param>
-    /// <param name="profile">Optional: The profile.</param>
-    /// <returns>
-    /// The version details.
-    /// </returns>
-    public static VersionDetails GetProfileVersionDetails(EProfileType type, VersionManifest? manifest = null,
-        Profile? profile = null)
-    {
-        switch (type)
-        {
-            case EProfileType.LATEST_RELEASE:
-            {
-                if (manifest == null)
-                    throw new ArgumentNullException(nameof(manifest));
-
-                return GetProfileVersionDetails(EProfileKind.VANILLA, manifest.Latest.Release, manifest.Latest.Release,
-                    null);
-            }
-            case EProfileType.LATEST_SNAPSHOT:
-            {
-                if (manifest == null)
-                    throw new ArgumentNullException(nameof(manifest));
-
-                return GetProfileVersionDetails(EProfileKind.VANILLA, manifest.Latest.Snapshot,
-                    manifest.Latest.Snapshot, null);
-            }
-            case EProfileType.CUSTOM:
-            {
-                if (profile == null)
-                    throw new ArgumentNullException(nameof(profile));
-
-
-                return GetProfileVersionDetails(profile.Kind, profile.VersionId, profile.VersionVanillaId,
-                    profile.GameDirectory);
-            }
-            default:
-            {
-                throw new NotImplementedException("How did we get here ?");
-            }
-        }
-    }
-    
     /// <summary>
     /// Retrieves the UUID (Universally Unique Identifier) of a player based on the provided username.
     /// </summary>
@@ -128,17 +103,5 @@ public static class GameHelper
     public static string GetOfflinePlayerUUID(string username)
     {
         return GetPlayerUUID($"OfflinePlayer:{username}");
-    }
-
-    /// <summary>
-    /// Retrieves the UUID (Universally Unique Identifier) of an online player based on the provided username.
-    /// </summary>
-    /// <param name="username">The username of the online player.</param>
-    /// <returns>
-    /// A <see cref="string"/> representing the UUID of the online player.
-    /// </returns>
-    public static string GetOnlinePlayerUUID(string username)
-    {
-        return GetPlayerUUID($"{username}");
     }
 }

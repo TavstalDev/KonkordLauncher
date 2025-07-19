@@ -2,13 +2,15 @@
 using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
+using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Core.Models.Endpoints;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
-using Tavstal.KonkordLauncher.Core.Models.Launcher;
+using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Legacy;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta.Library;
 
-namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Installer
+namespace Tavstal.KonkordLauncher.Core.Installers.Forge
 {
     /*
      * 1.13+ are new
@@ -21,45 +23,41 @@ namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Installer
     */
     public class ForgeInstLegacy : ForgeInstallerBase
     {
+        private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(ForgeInstLegacy));
         private string _extraVersion {  get; set; }
 
-        public ForgeInstLegacy() : base() { }
-
-        public ForgeInstLegacy(Profile profile, Label label, ProgressBar progressBar, bool isDebug) : base(profile, label, progressBar, isDebug)
+        public ForgeInstLegacy(string javaPath, string minecraftVersion, int memory, LauncherDetails launcherDetails, ClientDetails clientDetails, 
+            EMinecraftKind kind = EMinecraftKind.VANILLA, string? gameDirectory = null, Resolution? resolution = null, 
+            string? jvmArgs = "-XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M -Djava.net.preferIPv4Stack=true", 
+            string? customVersion = null, IProgressReporter? progressReporter = null, bool isDebug = false) 
+            : base(javaPath, minecraftVersion, memory, launcherDetails, clientDetails, kind, gameDirectory, resolution, jvmArgs, customVersion, progressReporter, isDebug)
         {
         }
 
-        internal override async Task<ModdedData?> InstallModed(string tempDir)
+        protected override async Task<ModdedData?> InstallModedAsync(string tempDir)
         {
-            UpdateProgressbarTranslated(0, "ui_finding_recommended_java");
-            MinecraftVersionMeta.JavaVersionMeta.FindOnSystem(out string? RecommendedJavaPath);
-            if (!string.IsNullOrEmpty(RecommendedJavaPath) && string.IsNullOrEmpty(Profile.JavaPath))
+            ReportProgress(0, "ui_finding_recommended_java");
+            ReportProgress(0, "ui_reading_manifest", "forge");
+            if (!File.Exists(PathHelper.ForgeManifestPath))
             {
-                if (Directory.Exists(RecommendedJavaPath))
-                    JavaPath = Path.Combine(RecommendedJavaPath, "bin", IsDebug ? "java.exe" : "javaw.exe");
-            }
-
-            UpdateProgressbarTranslated(0, "ui_reading_manifest", new object[] { "forge" });
-            if (!File.Exists(IOHelper.ForgeManifestJsonFile))
-            {
-                NotificationHelper.SendErrorTranslated("manifest_file_not_found", "messagebox_error", new object[] { "forge" });
+                _logger.Error("Forge manifest file does not exist. Please ensure the manifest is downloaded.");
                 return null;
             }
 
-            VersionDetails forgeVersion = GameHelper.GetProfileVersionDetails(EProfileKind.FORGE, Profile.VersionId, Profile.VersionVanillaId, Profile.GameDirectory);
+            VersionDetails forgeVersion = GameHelper.GetVersionDetails(PathHelper.VersionsDir, this.MinecraftVersion.Id, EMinecraftKind.FORGE, this.VersionData.CustomVersion, this.VersionData.GameDir);
 
-            UpdateProgressbarTranslated(0, $"ui_creating_directories");
+            ReportProgress(0, $"ui_creating_directories");
             // Create versionDir in the versions folder
             if (!Directory.Exists(forgeVersion.VersionDirectory))
                 Directory.CreateDirectory(forgeVersion.VersionDirectory);
 
             // Check libsizes dir
-            string librarySizeCacheDir = Path.Combine(IOHelper.CacheDir, "libsizes");
+            string librarySizeCacheDir = Path.Combine(PathHelper.CacheDir, "libsizes");
             if (!Directory.Exists(librarySizeCacheDir))
                 Directory.CreateDirectory(librarySizeCacheDir);
 
             // Download Installer
-            UpdateProgressbarTranslated(0, $"ui_downloading_installer", new object[] { "forge", 0 });
+            ReportProgress(0, $"ui_downloading_installer", "forge", 0);
             string installerJarPath = Path.Combine(tempDir, "installer.jar");
             string installerDir = Path.Combine(tempDir, "installer");
 
@@ -67,25 +65,25 @@ namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Installer
             Progress<double> progress = new Progress<double>();
             progress.ProgressChanged += (sender, e) =>
             {
-                UpdateProgressbarTranslated(e, "ui_downloading_installer", new object[] { MinecraftVersion.Id, e.ToString("0.00") });
+                ReportProgress(e, "ui_downloading_installer", MinecraftVersion.Id, e.ToString("0.00"));
             };
 
             try
             {
-                bytes = await HttpHelper.GetByteArrayAsync(string.Format(ForgeInstallerJarUrl, $"{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}"), progress);
+                bytes = await HttpHelper.GetByteArrayAsync(string.Format(ForgeEndpoints.InstallerJarUrl, $"{forgeVersion.MinecraftVersion}-{forgeVersion.CustomVersion}"), progress);
             }
             catch
             {
-                int length = forgeVersion.VanillaVersion.Split('.').Length;
+                int length = forgeVersion.MinecraftVersion.Split('.').Length;
                 if (length == 3)
                 {
-                    bytes = await HttpHelper.GetByteArrayAsync(string.Format(ForgeInstallerJarUrl, $"{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}-{forgeVersion.VanillaVersion}"), progress);
-                    _extraVersion = $"-{forgeVersion.VanillaVersion}";
+                    bytes = await HttpHelper.GetByteArrayAsync(string.Format(ForgeEndpoints.InstallerJarUrl, $"{forgeVersion.MinecraftVersion}-{forgeVersion.CustomVersion}-{forgeVersion.MinecraftVersion}"), progress);
+                    _extraVersion = $"-{forgeVersion.MinecraftVersion}";
                 }
                 else
                 {
-                    bytes = await HttpHelper.GetByteArrayAsync(string.Format(ForgeInstallerJarUrl, $"{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}-{forgeVersion.VanillaVersion}.0"), progress);
-                    _extraVersion = $"-{forgeVersion.VanillaVersion}.0";
+                    bytes = await HttpHelper.GetByteArrayAsync(string.Format(ForgeEndpoints.InstallerJarUrl, $"{forgeVersion.MinecraftVersion}-{forgeVersion.CustomVersion}-{forgeVersion.MinecraftVersion}.0"), progress);
+                    _extraVersion = $"-{forgeVersion.MinecraftVersion}.0";
                 }
             }
             if (bytes == null)
@@ -94,7 +92,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Installer
             await File.WriteAllBytesAsync(installerJarPath, bytes);
 
             // Extract Installer
-            UpdateProgressbarTranslated(0, $"ui_extracting_installer", new object[] { "forge" });
+            ReportProgress(0, $"ui_extracting_installer", "forge");
             ZipFile.ExtractToDirectory(installerJarPath, installerDir);
 
             // Move version.json and profile.json 
@@ -104,16 +102,16 @@ namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Installer
                 File.Move(Path.Combine(installerDir, "install_profile.json"), installProfileJson);
 
             // EXTRACT UNIVERSAL
-            string universalJarPath = Path.Combine(installerDir, $"forge-{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}{_extraVersion}-universal.jar");
-            string universalDir = Path.Combine(installerDir, $"forge-{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}{_extraVersion}-universal");
+            string universalJarPath = Path.Combine(installerDir, $"forge-{forgeVersion.MinecraftVersion}-{forgeVersion.CustomVersion}{_extraVersion}-universal.jar");
+            string universalDir = Path.Combine(installerDir, $"forge-{forgeVersion.MinecraftVersion}-{forgeVersion.CustomVersion}{_extraVersion}-universal");
             if (!Directory.Exists(universalDir) && File.Exists(universalJarPath))
             {
                 ZipFile.ExtractToDirectory(universalJarPath, universalDir);
             }
 
             // COPY UNIVERSAL
-            string forgeUniversalDir = Path.Combine(IOHelper.LibrariesDir, $"net\\minecraftforge\\forge\\{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}");
-            string forgeUniversalPath = Path.Combine(forgeUniversalDir, $"forge-{forgeVersion.VanillaVersion}-{forgeVersion.InstanceVersion}{_extraVersion}-universal.jar");
+            string forgeUniversalDir = Path.Combine(PathHelper.LibrariesDir, $"net\\minecraftforge\\forge\\{forgeVersion.MinecraftVersion}-{forgeVersion.CustomVersion}");
+            string forgeUniversalPath = Path.Combine(forgeUniversalDir, $"forge-{forgeVersion.MinecraftVersion}-{forgeVersion.CustomVersion}{_extraVersion}-universal.jar");
             if (!Directory.Exists(forgeUniversalDir))
                 Directory.CreateDirectory(forgeUniversalDir);
 
@@ -133,7 +131,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Installer
             if (forgeVersionMeta == null)
                 throw new FileNotFoundException("Failed to get the forge version meta.");
 
-            UpdateProgressbarTranslated(0, $"ui_checking_installer_libraries", new object[] { "forge" });
+            ReportProgress(0, $"ui_checking_installer_libraries", "forge");
             List<LibraryMeta> localLibraries = new List<LibraryMeta>();
             foreach (var lib in forgeVersionMeta.Libraries)
             {
@@ -161,7 +159,8 @@ namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Installer
             }
 
             // Add launch arguments
-            UpdateProgressbarTranslated(0, $"ui_adding_arguments", new object[] { "forge" });
+            ReportProgress(0, $"ui_adding_arguments", "forge");
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
             if (forgeVersionMeta.MinecraftArguments != null)
             {
                 MinecraftVersionMeta.ArgumentsLegacy = forgeVersionMeta.MinecraftArguments;
@@ -176,7 +175,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Installer
             // Copy vanilla jar
             if (!File.Exists(forgeVersion.VersionJarPath))
             {
-                UpdateProgressbarTranslated(0, $"ui_copying_jar", new object[] { "vanilla" });
+                ReportProgress(0, $"ui_copying_jar", "vanilla");
                 File.Copy(forgeVersion.VanillaJarPath, forgeVersion.VersionJarPath);
             }
             //_classPath += $"{forgeVersion.VersionJarPath};"; - not needed

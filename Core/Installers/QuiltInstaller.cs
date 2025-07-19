@@ -2,8 +2,8 @@
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Core.Models.Endpoints;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
-using Tavstal.KonkordLauncher.Core.Models.Launcher;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Fabric;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta.Library;
@@ -12,58 +12,52 @@ namespace Tavstal.KonkordLauncher.Core.Installers
 {
     public class QuiltInstaller : MinecraftInstaller
     {
-        #region Variables
-        private static readonly string _quiltVersionManifestUrl = "https://meta.quiltmc.org/v3/versions";
-        public static string QuiltVersionManifestUrl { get { return _quiltVersionManifestUrl; } }
-        private static readonly string _quiltLoaderJsonUrl = "https://meta.quiltmc.org/v3/versions/loader/{0}/{1}/profile/json";
-        // https://meta.quiltmc.org/v3/versions/loader/1.20.4/0.24.0/profile/json
-        public static string QuiltLoaderJsonUrl { get { return _quiltLoaderJsonUrl; } }
-        private static readonly string _quiltLoaderJarUrl = "https://maven.quiltmc.org/repository/release/org/quiltmc/quilt-loader/{0}/quilt-loader-{0}.jar";
-        // Version Example: 0.24.0
-        public static string QuiltLoaderJarUrl { get { return _quiltLoaderJarUrl; } }
-        #endregion
-
-        public QuiltInstaller(Profile profile, IProgressReporter progressReporter, bool isDebug) : base(profile, progressReporter, isDebug)
+        private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(QuiltInstaller));
+        
+        public QuiltInstaller(string javaPath, string minecraftVersion, int memory, LauncherDetails launcherDetails, ClientDetails clientDetails, 
+            EMinecraftKind kind = EMinecraftKind.VANILLA, string? gameDirectory = null, Resolution? resolution = null, 
+            string? jvmArgs = "-XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M -Djava.net.preferIPv4Stack=true", 
+            string? customVersion = null, IProgressReporter? progressReporter = null, bool isDebug = false) 
+            : base(javaPath, minecraftVersion, memory, launcherDetails, clientDetails, kind, gameDirectory, resolution, jvmArgs, customVersion, progressReporter, isDebug)
         {
 
         }
 
-        internal override async Task<ModdedData?> InstallModed(string tempDir)
+        protected override async Task<ModdedData?> InstallModedAsync(string tempDir)
         {
-            UpdateProgressbarTranslated(0, "ui_reading_manifest", new object[] { "quiltManifest" });
-            if (!File.Exists(IOHelper.QuiltManifestJsonFile))
+            ReportProgress(0, "ui_reading_manifest", "quiltManifest");
+            if (!File.Exists(PathHelper.QuiltManifestPath))
             {
-                NotificationHelper.SendErrorTranslated("manifest_file_not_found", "messagebox_error", new object[] { "quilt" });
+                _logger.Error("Quilt manifest file does not exist. Please ensure the manifest is downloaded.");
                 return null;
             }
 
-            VersionDetails quiltVersion = GameHelper.GetProfileVersionDetails(EProfileKind.QUILT, Profile.VersionId, Profile.VersionVanillaId, Profile.GameDirectory);
+            VersionDetails quiltVersion = GameHelper.GetVersionDetails(PathHelper.VersionsDir, this.MinecraftVersion.Id, EMinecraftKind.QUILT, this.VersionData.CustomVersion, this.VersionData.GameDir);
 
             // Create versionDir in the versions folder
             if (!Directory.Exists(quiltVersion.VersionDirectory))
                 Directory.CreateDirectory(quiltVersion.VersionDirectory);
 
             // Check libsizes dir
-            string librarySizeCacheDir = Path.Combine(IOHelper.CacheDir, "libsizes");
+            string librarySizeCacheDir = Path.Combine(PathHelper.CacheDir, "libsizes");
             if (!Directory.Exists(librarySizeCacheDir))
                 Directory.CreateDirectory(librarySizeCacheDir);
-            string librarySizeCachePath = Path.Combine(librarySizeCacheDir, $"{quiltVersion.VanillaVersion}-quilt-{quiltVersion.InstanceVersion}.json");
+            string librarySizeCachePath = Path.Combine(librarySizeCacheDir, $"{quiltVersion.MinecraftVersion}-quilt-{quiltVersion.CustomVersion}.json");
 
             // Download version json
-            FabricVersionMeta? quiltVersionMeta = null;
+            FabricVersionMeta? quiltVersionMeta;
             List<LibraryMeta> localLibraries = new List<LibraryMeta>();
             if (!File.Exists(quiltVersion.VersionJsonPath))
             {
-                string? resultJson = string.Empty;
-                UpdateProgressbarTranslated(0, $"ui_downloading_version_json", new object[] { "quilt", 0 });
+                ReportProgress(0, $"ui_downloading_version_json", "quilt", 0);
 
                 Progress<double> progress = new Progress<double>();
                 progress.ProgressChanged += (sender, e) =>
                 {
-                    UpdateProgressbarTranslated(e, "ui_downloading_version_json", new object[] { "quilt", e.ToString("0.00") });
+                    ReportProgress(e, "ui_downloading_version_json", "quilt", e.ToString("0.00"));
                 };
 
-                resultJson = await HttpHelper.GetStringAsync(string.Format(QuiltLoaderJsonUrl, quiltVersion.VanillaVersion, quiltVersion.InstanceVersion), progress);
+                var resultJson = await HttpHelper.GetStringAsync(string.Format(QuiltEndpoints.LoaderJsonUrl, quiltVersion.MinecraftVersion, quiltVersion.CustomVersion), progress);
                 if (resultJson == null)
                     return null;
 
@@ -75,11 +69,11 @@ namespace Tavstal.KonkordLauncher.Core.Installers
                 if (quiltVersionMeta == null)
                 {
                     File.Delete(quiltVersion.VersionJsonPath); // Delete it because this if part won't be executed again if it exists
-                    NotificationHelper.SendErrorTranslated("version_meta_invalid", "messagebox_error", new object[] { "quilt" });
+                    _logger.Error("Failed to parse the Quilt version JSON. Please check the file format.");
                     return null;
                 }
 
-                UpdateProgressbarTranslated(0, $"ui_reading_version_json", new object[] { "quilt" });
+                ReportProgress(0, $"ui_reading_version_json", "quilt");
                 foreach (var lib in quiltVersionMeta.Libraries)
                 {
                     localLibrarySize += lib.Size;
@@ -90,11 +84,11 @@ namespace Tavstal.KonkordLauncher.Core.Installers
             }
             else
             {
-                UpdateProgressbarTranslated(0, $"ui_reading_version_json", new object[] { "quilt" });
+                ReportProgress(0, $"ui_reading_version_json", "quilt");
                 quiltVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(await File.ReadAllTextAsync(quiltVersion.VersionJsonPath));
                 if (quiltVersionMeta == null)
                 {
-                    NotificationHelper.SendErrorTranslated("version_meta_invalid", "messagebox_error", new object[] { "quilt" });
+                    _logger.Error("Failed to parse the Quilt version JSON. Please check the file format.");
                     return null;
                 }
 
@@ -106,31 +100,31 @@ namespace Tavstal.KonkordLauncher.Core.Installers
 
 
             // Download Loader
-            string loaderDirPath = Path.Combine(IOHelper.LibrariesDir, $"net\\fabricmc\\fabric-loader\\{quiltVersion.InstanceVersion}");
-            string loaderJarPath = Path.Combine(loaderDirPath, $"fabric-loader-{quiltVersion.InstanceVersion}.jar");
+            string loaderDirPath = Path.Combine(PathHelper.LibrariesDir, $"net\\fabricmc\\fabric-loader\\{quiltVersion.CustomVersion}");
+            string loaderJarPath = Path.Combine(loaderDirPath, $"fabric-loader-{quiltVersion.CustomVersion}.jar");
             if (!Directory.Exists(loaderDirPath))
                 Directory.CreateDirectory(loaderDirPath);
 
             if (!File.Exists(loaderJarPath))
             {
-                UpdateProgressbarTranslated(0, $"ui_downloading_loader", new object[] { "quilt", 0 });
+                ReportProgress(0, $"ui_downloading_loader", "quilt", 0);
 
                 Progress<double> progress = new Progress<double>();
-                progress.ProgressChanged += (sender, e) =>
+                progress.ProgressChanged += (_, e) =>
                 {
-                    UpdateProgressbarTranslated(e, "ui_downloading_loader", new object[] { "quilt", e.ToString("0.00") });
+                    ReportProgress(e, "ui_downloading_loader", "quilt", e.ToString("0.00"));
                 };
 
-                byte[]? bytes = await HttpHelper.GetByteArrayAsync(string.Format(QuiltLoaderJarUrl, quiltVersion.InstanceVersion), progress);
+                byte[]? bytes = await HttpHelper.GetByteArrayAsync(string.Format(QuiltEndpoints.LoaderJarUrl, quiltVersion.CustomVersion), progress);
                 if (bytes == null)
                     return null;
                 await File.WriteAllBytesAsync(loaderJarPath, bytes);
             }
 
-            UpdateProgressbarTranslated(0, $"ui_getting_launch_arguments");
+            ReportProgress(0, $"ui_getting_launch_arguments");
             if (!File.Exists(quiltVersion.VersionJarPath))
             {
-                UpdateProgressbarTranslated(0, $"ui_copying_jar", new object[] { "vanilla" });
+                ReportProgress(0, $"ui_copying_jar", "vanilla");
                 File.Copy(quiltVersion.VanillaJarPath, quiltVersion.VersionJarPath);
             }
 

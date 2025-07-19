@@ -2,8 +2,8 @@
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Core.Models.Endpoints;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
-using Tavstal.KonkordLauncher.Core.Models.Launcher;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Fabric;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta.Library;
@@ -12,59 +12,52 @@ namespace Tavstal.KonkordLauncher.Core.Installers
 {
     public class FabricInstaller : MinecraftInstaller
     {
-        #region Variables
-        private static readonly string _fabricVersionManifestUrl = "https://meta.fabricmc.net/v2/versions";
-        public static string FabricVersionManifestUrl { get { return _fabricVersionManifestUrl; } }
-
-        private static readonly string _fabricLoaderJsonUrl = "https://meta.fabricmc.net/v2/versions/loader/{0}/{1}/profile/json";
-        // https://meta.fabricmc.net/v2/versions/loader/1.16.5/0.15.6/profile/json
-        public static string FabricLoaderJsonUrl { get { return _fabricLoaderJsonUrl; } }
-        private static readonly string _fabricLoaderJarUrl = "https://maven.fabricmc.net/net/fabricmc/fabric-loader/{0}/fabric-loader-{0}.jar";
-        // Version Example: 0.15.6
-        public static string FabricLoaderJarUrl { get { return _fabricLoaderJarUrl; } }
-        #endregion
-
-        public FabricInstaller(Profile profile, IProgressReporter progressReporter, bool isDebug) : base(profile, progressReporter, isDebug)
+        private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(FabricInstaller));
+        
+        public FabricInstaller(string javaPath, string minecraftVersion, int memory, LauncherDetails launcherDetails, ClientDetails clientDetails, 
+            EMinecraftKind kind = EMinecraftKind.VANILLA, string? gameDirectory = null, Resolution? resolution = null, 
+            string? jvmArgs = "-XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M -Djava.net.preferIPv4Stack=true", 
+            string? customVersion = null, IProgressReporter? progressReporter = null, bool isDebug = false) 
+            : base(javaPath, minecraftVersion, memory, launcherDetails, clientDetails, kind, gameDirectory, resolution, jvmArgs, customVersion, progressReporter, isDebug)
         {
 
         }
 
-        internal override async Task<ModdedData?> InstallModed(string tempDir)
+        protected override async Task<ModdedData?> InstallModedAsync(string tempDir)
         {
-            UpdateProgressbarTranslated(0, "ui_reading_manifest", new object[] { "fabricManifest" });
-            if (!File.Exists(IOHelper.FabricManifestJsonFile))
+            ReportProgress(0, "ui_reading_manifest", "fabricManifest");
+            if (!File.Exists(PathHelper.FabricManifestPath))
             {
-                NotificationHelper.SendErrorTranslated("manifest_file_not_found", "messagebox_error", new object[] { "fabric" });
+                _logger.Error("Fabric manifest file not found at path: " + PathHelper.FabricManifestPath);
                 return null;
             }
 
-            VersionDetails fabricVersion = GameHelper.GetProfileVersionDetails(EProfileKind.FABRIC, Profile.VersionId, Profile.VersionVanillaId, Profile.GameDirectory);
+            VersionDetails fabricVersion = GameHelper.GetVersionDetails(PathHelper.VersionsDir, this.MinecraftVersion.Id, EMinecraftKind.QUILT, this.VersionData.CustomVersion, this.VersionData.GameDir);
 
             // Create versionDir in the versions folder
             if (!Directory.Exists(fabricVersion.VersionDirectory))
                 Directory.CreateDirectory(fabricVersion.VersionDirectory);
 
             // Check libsizes dir
-            string librarySizeCacheDir = Path.Combine(IOHelper.CacheDir, "libsizes");
+            string librarySizeCacheDir = Path.Combine(PathHelper.CacheDir, "libsizes");
             if (!Directory.Exists(librarySizeCacheDir))
                 Directory.CreateDirectory(librarySizeCacheDir);
-            string librarySizeCachePath = Path.Combine(librarySizeCacheDir, $"{fabricVersion.VanillaVersion}-fabric-{fabricVersion.InstanceVersion}.json");
+            string librarySizeCachePath = Path.Combine(librarySizeCacheDir, $"{fabricVersion.MinecraftVersion}-fabric-{fabricVersion.CustomVersion}.json");
 
             // Download version json
-            FabricVersionMeta? fabricVersionMeta = null;
+            FabricVersionMeta? fabricVersionMeta;
             List<LibraryMeta> localLibraries = new List<LibraryMeta>();
             if (!File.Exists(fabricVersion.VersionJsonPath))
             {
-                string? resultJson = string.Empty;
-                UpdateProgressbarTranslated(0, $"ui_downloading_version_json", new object[] { "fabric", 0 });
+                ReportProgress(0, $"ui_downloading_version_json", "fabric", 0);
 
                 Progress<double> progress = new Progress<double>();
                 progress.ProgressChanged += (sender, e) =>
                 {
-                    UpdateProgressbarTranslated(e, "ui_downloading_version_json", new object[] { "fabric", e.ToString("0.00") });
+                    ReportProgress(e, "ui_downloading_version_json", "fabric", e.ToString("0.00"));
                 };
 
-                resultJson = await HttpHelper.GetStringAsync(string.Format(FabricLoaderJsonUrl, fabricVersion.VanillaVersion, fabricVersion.InstanceVersion), progress);
+                var resultJson = await HttpHelper.GetStringAsync(string.Format(FabricEndpoints.LoaderJsonUrl, fabricVersion.MinecraftVersion, fabricVersion.CustomVersion), progress);
                 if (resultJson == null)
                     return null;
                 
@@ -76,11 +69,11 @@ namespace Tavstal.KonkordLauncher.Core.Installers
                 if (fabricVersionMeta == null)
                 {
                     File.Delete(fabricVersion.VersionJsonPath); // Delete it because this if part won't be executed again if it exists
-                    NotificationHelper.SendErrorTranslated("version_meta_invalid", "messagebox_error", new object[] { "fabric" });
+                    _logger.Error("Fabric version meta is null after deserialization. Invalid JSON format.");
                     return null;
                 }
 
-                UpdateProgressbarTranslated(0, $"ui_reading_version_json", new object[] { "fabric" });
+                ReportProgress(0, $"ui_reading_version_json", "fabric");
                 foreach (var lib in fabricVersionMeta.Libraries)
                 {
                     localLibrarySize += lib.Size;
@@ -91,11 +84,11 @@ namespace Tavstal.KonkordLauncher.Core.Installers
             }
             else
             {
-                UpdateProgressbarTranslated(0, $"ui_reading_version_json", new object[] { "fabric" });
+                ReportProgress(0, $"ui_reading_version_json", "fabric");
                 fabricVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(await File.ReadAllTextAsync(fabricVersion.VersionJsonPath));
                 if (fabricVersionMeta == null)
                 {
-                    NotificationHelper.SendErrorTranslated("version_meta_invalid", "messagebox_error", new object[] { "fabric" });
+                    _logger.Error("Fabric version meta is null after deserialization. Invalid JSON format.");
                     return null;
                 }
 
@@ -107,32 +100,32 @@ namespace Tavstal.KonkordLauncher.Core.Installers
 
 
             // Download Loader
-            string loaderDirPath = Path.Combine(IOHelper.LibrariesDir, $"net\\fabricmc\\fabric-loader\\{fabricVersion.InstanceVersion}");
-            string loaderJarPath = Path.Combine(loaderDirPath, $"fabric-loader-{fabricVersion.InstanceVersion}.jar");
+            string loaderDirPath = Path.Combine(PathHelper.LibrariesDir, $"net\\fabricmc\\fabric-loader\\{fabricVersion.CustomVersion}");
+            string loaderJarPath = Path.Combine(loaderDirPath, $"fabric-loader-{fabricVersion.CustomVersion}.jar");
             if (!Directory.Exists(loaderDirPath))
                 Directory.CreateDirectory(loaderDirPath);
 
             if (!File.Exists(loaderJarPath))
             {
-                UpdateProgressbarTranslated(0, $"ui_downloading_loader", new object[] { "fabric", 0 });
+                ReportProgress(0, $"ui_downloading_loader", "fabric", 0);
 
                 Progress<double> progress = new Progress<double>();
-                progress.ProgressChanged += (sender, e) =>
+                progress.ProgressChanged += (_, e) =>
                 {
-                    UpdateProgressbarTranslated(e, "ui_downloading_loader", new object[] { "fabric", e.ToString("0.00") });
+                    ReportProgress(e, "ui_downloading_loader", "fabric", e.ToString("0.00"));
                 };
 
-                byte[]? bytes = await HttpHelper.GetByteArrayAsync(string.Format(FabricLoaderJarUrl, fabricVersion.InstanceVersion), progress);
+                byte[]? bytes = await HttpHelper.GetByteArrayAsync(string.Format(FabricEndpoints.LoaderJarUrl, fabricVersion.CustomVersion), progress);
                 if (bytes == null)
                     return null;
                 
                 await File.WriteAllBytesAsync(loaderJarPath, bytes);
             }
 
-            UpdateProgressbarTranslated(0, $"ui_getting_launch_arguments");
+            ReportProgress(0, $"ui_getting_launch_arguments");
             if (!File.Exists(fabricVersion.VersionJarPath))
             {
-                UpdateProgressbarTranslated(0, $"ui_copying_jar", new object[] { "vanilla" });
+                ReportProgress(0, $"ui_copying_jar", "vanilla");
                 File.Copy(fabricVersion.VanillaJarPath, fabricVersion.VersionJarPath);
             }
 

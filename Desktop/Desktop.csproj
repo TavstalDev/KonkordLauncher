@@ -24,4 +24,8 @@
     <ItemGroup>
       <ProjectReference Include="..\Core\Core.csproj" />
     </ItemGroup>
+    
+    <ItemGroup>
+        <AvaloniaResource Include="**\*.png" />
+    </ItemGroup>
 </Project>

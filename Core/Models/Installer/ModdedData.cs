@@ -1,5 +1,4 @@
-﻿using Tavstal.KonkordLauncher.Core.Models.Launcher;
-using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
+﻿using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 
 namespace Tavstal.KonkordLauncher.Core.Models.Installer;
 

@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Core.Enums;
 
-namespace Tavstal.KonkordLauncher.Core.Models.Launcher
+namespace Tavstal.KonkordLauncher.Core.Models
 {
     [Serializable]
     public class Account

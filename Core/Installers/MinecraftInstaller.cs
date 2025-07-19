@@ -1,40 +1,46 @@
 ﻿using System.Diagnostics;
-using System.IO.Compression;
-using System.Runtime.InteropServices;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
+using Tavstal.KonkordLauncher.Core.Installers.Forge;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
-using Tavstal.KonkordLauncher.Core.Models.Launcher;
-using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Installer;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
+using Tavstal.KonkordLauncher.Core.Services;
 
 namespace Tavstal.KonkordLauncher.Core.Installers
 {
     public class MinecraftInstaller
     {
-        public Profile Profile { get; }
+        private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MinecraftInstaller));
+        private readonly MinecraftFileService _minecraftFileService;
+        private readonly LauncherDetails _launcherDetails;
+        private readonly ClientDetails _client;
+        public string JavaPath { get; protected set; }
+        public int Memory { get; protected set; }
+        public Resolution? Resolution { get; protected set; }
+        
+        public EMinecraftKind Kind { get; protected set; }
+        public string? UserJvmArgs { get; protected set; }
         public VersionDetails VersionData { get; }
         public VersionManifest VersionManifest { get; }
         public MinecraftVersion MinecraftVersion { get; }
-        public VersionMeta MinecraftVersionMeta { get; private set; }
-        public string JavaPath { get; internal set; }
-        public bool IsDebug { get; }
-        protected IProgressReporter _progressReporter { get; }
+
+
+        protected bool IsDebug { get; }
+        protected IProgressReporter? _progressReporter { get; }
+
+
+        protected VersionMeta MinecraftVersionMeta { get; private set; }
         protected string _classPath { get; set; }
         protected List<LaunchArg> _jvmArguments { get; set; }
         protected List<LaunchArg> _gameArguments { get; set; }
         protected List<LaunchArg> _jvmArgumentsBeforeClassPath { get; set; }
 
-        public MinecraftInstaller() 
-        {
-
-        }
-
-        public MinecraftInstaller(Profile profile, IProgressReporter progressReporter, bool isDebug)
+        public MinecraftInstaller(string javaPath, string minecraftVersion, int memory, LauncherDetails launcherDetails, ClientDetails clientDetails, 
+            EMinecraftKind kind = EMinecraftKind.VANILLA, string? gameDirectory = null, Resolution? resolution = null, 
+            string? jvmArgs = "-XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M -Djava.net.preferIPv4Stack=true", 
+            string? customVersion = null, IProgressReporter? progressReporter = null, bool isDebug = false)
         {
             _jvmArguments = [];
             _gameArguments = [];
@@ -43,75 +49,64 @@ namespace Tavstal.KonkordLauncher.Core.Installers
             IsDebug = isDebug;
             _classPath = string.Empty; // Null fix
 
-            VersionManifest? localManifest = JsonHelper.ReadJsonFile<VersionManifest>(Path.Combine(IOHelper.ManifestDir, "vanillaManifest.json"));
-            if (localManifest == null)
-                throw new FileNotFoundException("Failed to get the vanillaManifest");
-
-            VersionManifest = localManifest;
-            Profile = profile;
-            switch (profile.Type)
-            {
-                case EProfileType.CUSTOM:
-                    {
-                        VersionData = GameHelper.GetProfileVersionDetails(EProfileKind.VANILLA, profile.VersionVanillaId, profile.VersionVanillaId, null);
-                        break;
-                    }
-                default:
-                    {
-                        VersionData = GameHelper.GetProfileVersionDetails(profile.Type, VersionManifest, profile);
-                        break;
-                    }
-            }
-
-            MinecraftVersion? mcVersion = VersionManifest.Versions.Find(x => x.Id == VersionData.VanillaVersion);
-            if (mcVersion == null)
-                throw new Exception($"Failed to get the minecraft version for '{VersionData.VanillaVersion}'.");
-            MinecraftVersion = mcVersion;
-
+            _launcherDetails = launcherDetails;
+            _client = clientDetails;
             
+            JavaPath = javaPath;
+            Memory = memory;
+            Resolution = resolution;
+            Kind = kind;
+            UserJvmArgs = jvmArgs;
 
-            JavaPath = string.IsNullOrEmpty(profile.JavaPath) ? (isDebug ? "java" : "javaw") : profile.JavaPath;
-            if (!(JavaPath.EndsWith("java") || JavaPath.EndsWith("javaw") || JavaPath.EndsWith("java.exe") || JavaPath.EndsWith("javaw.exe")))
+            VersionManifest? localManifest = JsonHelper.ReadJsonFile<VersionManifest>(PathHelper.VanillaManifestPath);
+            if (localManifest == null)
             {
-                JavaPath = Path.Combine(JavaPath, isDebug ? "java.exe" : "javaw.exe");
+                _logger.Error("Failed to read the local vanilla manifest. Please ensure that the file exists and is valid.");
+                return;
             }
-
+            VersionManifest = localManifest;
+            MinecraftVersion? mcVersion = VersionManifest.Versions.Find(x => x.Id == minecraftVersion);
+            if (mcVersion == null)
+            {
+                _logger.Error("The specified Minecraft version does not exist in the manifest: " + minecraftVersion);
+                return;
+            }
+            MinecraftVersion = mcVersion;
+            
+            // Get Version Data
+            VersionData = GameHelper.GetVersionDetails(PathHelper.VersionsDir, minecraftVersion, kind, customVersion, gameDirectory);
+            _minecraftFileService = new MinecraftFileService();
         }
-
-        /// <summary>
-        /// Updates the progress bar with the specified percentage and text.
-        /// </summary>
-        /// <param name="percent">The percentage value for the progress bar.</param>
-        /// <param name="text">The text to display along with the progress bar.</param>
-        internal void UpdateProgressbarTranslated(double percent, string text, params object[]? args)
+        
+        protected void ReportProgress(double percent, string translationKey, params object[]? args)
         {
-            _progressReporter.SetStatus(TranslationManager.Translate(text, args));
-            _progressReporter.SetProgress(percent);
+            _progressReporter?.SetStatusTranslated(translationKey, args);
+            _progressReporter?.SetProgress(percent);
         }
-
-        /// <summary>
-        /// Initiates the Minecraft installation process asynchronously but does not wait for its completion.
-        /// </summary>
-        /// <returns>
-        /// A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains a <see cref="Process"/> representing the installation process.
-        /// </returns>
-        public async Task<Process> Install()
+        
+        public async Task<Process?> Install()
         {
-            string tempDir = Path.Combine(IOHelper.TempDir, Path.GetRandomFileName());
+            string tempDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
             if (!Directory.Exists(tempDir))
                 Directory.CreateDirectory(tempDir);
 
             if (!Directory.Exists(VersionData.VersionDirectory))
                 Directory.CreateDirectory(VersionData.VersionDirectory);
 
-            await DownloadVersion();
-            await DownloadMappings();
-            await DownloadAssets();
+            var localVersionMeta = await MinecraftFileService.DownloadVersionAsync(VersionData, MinecraftVersion, _progressReporter);
+            if (localVersionMeta == null)
+            {
+                _logger.Error("Failed to download the version meta data. Please check your internet connection and try again.");
+                return null;
+            }
+            MinecraftVersionMeta = localVersionMeta;
+            await MinecraftFileService.DownloadMappingsAsync(MinecraftVersionMeta, VersionData, _progressReporter);
+            await MinecraftFileService.DownloadAssetsAsync(MinecraftVersionMeta, _progressReporter);
 
-            var modedData = await InstallModed(tempDir);
-            string arguments = string.Empty;
+            var modedData = await InstallModedAsync(tempDir);
+            string arguments;
             List<LibraryMeta> libraries = MinecraftVersionMeta.Libraries;
-            List<LibraryMeta> natives = new List<LibraryMeta>();
+            List<LibraryMeta> natives;
             if (modedData != null)
             {
                 if (!Directory.Exists(modedData.VersionData.GameDir))
@@ -120,11 +115,16 @@ namespace Tavstal.KonkordLauncher.Core.Installers
                 if (modedData.Libraries.Count > 0)
                     libraries.InsertRange(0, modedData.Libraries);
 
-                await DownloadLogging(modedData.VersionData.VersionDirectory, modedData.VersionData.GameDir); // 0
-                natives = await DownloadLibraries(libraries); // 1
-                if (Profile.Kind != EProfileKind.FORGE || (Profile.Kind == EProfileKind.FORGE && this.GetType() != typeof(ForgeInstNew)))
-                    _classPath += modedData.VersionData.VersionJarPath; // 2
-                arguments = await BuildArguments(modedData.VersionData.GameDir, modedData.MainClass, modedData.VersionData.NativesDir, modedData.VersionData.InstanceVersion); // 3
+                var arg = await MinecraftFileService.DownloadLoggingAsync(MinecraftVersionMeta, modedData.VersionData.VersionDirectory, modedData.VersionData.GameDir, _progressReporter);
+                if (arg != null)
+                    _jvmArguments.Add(arg);
+                
+                var libResult = await MinecraftFileService.DownloadLibrariesAsync(Kind, VersionData, libraries, _classPath, _progressReporter);
+                _classPath = libResult.Item1;
+                natives = libResult.Item2;
+                if (this.GetType() != typeof(ForgeInstNew))
+                    _classPath += modedData.VersionData.VersionJarPath;
+                arguments = await BuildArguments(modedData.VersionData.GameDir, modedData.MainClass, modedData.VersionData.NativesDir, modedData.VersionData.CustomVersion);
                 
             }
             else
@@ -132,518 +132,71 @@ namespace Tavstal.KonkordLauncher.Core.Installers
                 if (!Directory.Exists(VersionData.GameDir))
                     Directory.CreateDirectory(VersionData.GameDir);
 
-                await DownloadLogging(VersionData.VersionDirectory, VersionData.GameDir); // 0
-                natives = await DownloadLibraries(libraries); // 1
-                _classPath += VersionData.VersionJarPath; // 2
-                arguments = await BuildArguments(VersionData.GameDir, MinecraftVersionMeta.MainClass, VersionData.NativesDir); // 3
+                var arg = await MinecraftFileService.DownloadLoggingAsync(MinecraftVersionMeta, VersionData.VersionDirectory, VersionData.GameDir, _progressReporter);
+                if (arg != null)
+                    _jvmArguments.Add(arg);
+                
+                var libResult = await MinecraftFileService.DownloadLibrariesAsync(Kind, VersionData, libraries, _classPath, _progressReporter);
+                _classPath = libResult.Item1;
+                natives = libResult.Item2;
+                _classPath += VersionData.VersionJarPath;
+                arguments = await BuildArguments(VersionData.GameDir, MinecraftVersionMeta.MainClass, VersionData.NativesDir);
             }
 
             
-            await DownloadNatives(natives, modedData != null ? modedData.VersionData.NativesDir : VersionData.NativesDir);
-            IOHelper.DeleteDirectory(tempDir);
-            return StartJava(arguments);
+            await MinecraftFileService.DownloadNatives(natives, modedData != null ? modedData.VersionData.NativesDir : VersionData.NativesDir, _progressReporter);
+            FileSystemHelper.DeleteDirectory(tempDir);
+            return JavaProcessLauncher.StartJava(JavaPath, arguments);
         }
-
-        /// <summary>
-        /// Asynchronously installs modded data using mod loaders such as Forge, Fabric, or Quilt.
-        /// </summary>
-        /// <returns>
-        /// A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains a <see cref="ModdedData"/> representing the modded data, or null if installation fails.
-        /// </returns>
-        internal virtual async Task<ModdedData?> InstallModed(string tempDir)
+        
+        protected virtual Task<ModdedData?> InstallModedAsync(string tempDir)
         {
             // Vanilla installer, do nothing
-            await Task.Delay(1);
-            return default;
+            return Task.FromResult<ModdedData?>(null);
         }
 
-        /// <summary>
-        /// Asynchronously downloads the Minecraft version JSON and JAR files.
-        /// </summary>
-        /// <returns>
-        /// A <see cref="Task"/> representing the asynchronous operation.
-        /// </returns>
-        private async Task DownloadVersion()
-        {
-            // JSON
-            if (!File.Exists(VersionData.VersionJsonPath))
-            {
-                UpdateProgressbarTranslated(0, $"ui_downloading_version_json", new object[] { MinecraftVersion.Id, 0 });
-
-                Progress<double> progress = new Progress<double>();
-                progress.ProgressChanged += (sender, e) =>
-                {
-                    UpdateProgressbarTranslated(e, "ui_downloading_version_json", new object[] { MinecraftVersion.Id, e.ToString("0.00") });
-                };
-                string? jsonResult = await HttpHelper.GetStringAsync(MinecraftVersion.Url, progress);
-                if (jsonResult == null)
-                    return;
-
-                MinecraftVersionMeta = JsonConvert.DeserializeObject<VersionMeta>(jsonResult);
-                await File.WriteAllTextAsync(VersionData.VersionJsonPath, jsonResult);
-            }
-            else
-            {
-                UpdateProgressbarTranslated(0, $"ui_reading_version_json", new object[] { MinecraftVersion.Id });
-                string jsonResult = await File.ReadAllTextAsync(VersionData.VersionJsonPath);
-                MinecraftVersionMeta = JsonConvert.DeserializeObject<VersionMeta>(jsonResult);
-            }
-
-            if (MinecraftVersionMeta == null)
-                throw new NullReferenceException($"Failed to get the minecraft version meta.");
-
-            // JAR
-            if (!File.Exists(VersionData.VersionJarPath))
-            {
-                UpdateProgressbarTranslated(0, $"ui_downloading_version_jar", new object[] { MinecraftVersion.Id, 0 });
-
-                Progress<double> progress = new Progress<double>();
-                progress.ProgressChanged += (sender, e) =>
-                {
-                    UpdateProgressbarTranslated(e, "ui_downloading_version_jar", new object[] { MinecraftVersion.Id, e.ToString("0.00") });
-                };
-
-                byte[]? bytes = await HttpHelper.GetByteArrayAsync(MinecraftVersionMeta.Downloads.Client.Url, progress);
-                if (bytes == null)
-                    return;
-                await File.WriteAllBytesAsync(VersionData.VersionJarPath, bytes);
-            }
-        }
-
-        /// <summary>
-        /// Asynchronously downloads the Minecraft assets.
-        /// </summary>
-        /// <returns>
-        /// A <see cref="Task"/> representing the asynchronous operation.
-        /// </returns>
-        private async Task DownloadAssets()
-        {
-            // AssetIndex
-            UpdateProgressbarTranslated(0, $"ui_checking_asset_index_json", new object[] { MinecraftVersionMeta.Index.Id });
-            string assetIndex = MinecraftVersionMeta.Index.Id;
-            string assetPath = Path.Combine(IOHelper.AssetsDir, $"indexes/{assetIndex}.json");
-            JToken? assetJToken = null;
-            if (!File.Exists(assetPath))
-            {
-                UpdateProgressbarTranslated(0, $"ui_downloading_asset_index_json", new object[] { assetIndex, 0 });
-
-                Progress<double> progress = new Progress<double>();
-                progress.ProgressChanged += (sender, e) =>
-                {
-                    UpdateProgressbarTranslated(e, "ui_downloading_asset_index_json", new object[] { assetIndex, e.ToString("0.00") });
-                };
-
-                string? resultJson = await HttpHelper.GetStringAsync(MinecraftVersionMeta.Index.Url, progress);
-                if (resultJson == null)
-                    return;
-
-                assetJToken = JObject.Parse(resultJson)["objects"];
-                await File.WriteAllTextAsync(assetPath, resultJson);
-            }
-            else
-            {
-                UpdateProgressbarTranslated(0, $"ui_reading_asset_index_json", new object[] { assetIndex });
-                string resultJson = await File.ReadAllTextAsync(assetPath);
-                assetJToken = JObject.Parse(resultJson)["objects"];
-            }
-
-
-            if (assetJToken == null)
-            {
-                NotificationHelper.SendErrorTranslated("json_token_not_found", "messagebox_error", new object[] { "assetJToken (mc asset objects)" });
-                return;
-            }
-
-            // Asset Dir
-            string assetObjectDir = Path.Combine(IOHelper.AssetsDir, "objects");
-            if (!Directory.Exists(assetObjectDir))
-                Directory.CreateDirectory(assetObjectDir);
-
-            // Assets
-
-            string hash = string.Empty;
-            string objectDir = string.Empty;
-            string objectPath = string.Empty;
-            int downloadedAssetSize = 0;
-            UpdateProgressbarTranslated(0, $"ui_checking_assets");
-            foreach (JToken token in assetJToken.ToList())
-            {
-                hash = token.First["hash"].ToString();
-                objectDir = Path.Combine(assetObjectDir, hash.Substring(0, 2));
-                objectPath = Path.Combine(objectDir, $"{hash}");
-
-                if (!Directory.Exists(objectDir))
-                    Directory.CreateDirectory(objectDir);
-
-                if (!File.Exists(objectPath))
-                {
-                    byte[]? array = await HttpHelper.GetByteArrayAsync($"https://resources.download.minecraft.net/{hash.Substring(0, 2)}/{hash}");
-                    if (array == null)
-                        return;
-
-                    await File.WriteAllBytesAsync(objectPath, array);
-                }
-                downloadedAssetSize += int.Parse(token.First["size"].ToString());
-                double percent = (double)downloadedAssetSize / (double)MinecraftVersionMeta.Index.TotalSize * 100d;
-                UpdateProgressbarTranslated(percent, $"ui_downloading_assets", new object[] { percent.ToString("0.00") });
-            }
-        }
-
-        /// <summary>
-        /// Asynchronously downloads the logging configuration file if present in the MinecraftVersionMeta and adds its path to the arguments.
-        /// </summary>
-        /// <returns>
-        /// A <see cref="Task"/> representing the asynchronous operation.
-        /// </returns>
-        private async Task DownloadLogging(string versionDirectory, string gameDir)
-        {
-            if (MinecraftVersionMeta.LoggingMeta != null && MinecraftVersionMeta.LoggingMeta.Client != null)
-            {
-                UpdateProgressbarTranslated(0, $"ui_checking_logging");
-                string logDirPath = Path.Combine(IOHelper.AssetsDir, "log_configs");
-                if (!Directory.Exists(logDirPath))
-                    Directory.CreateDirectory(logDirPath);
-                string logReadmePath = Path.Combine(logDirPath, "readme.txt");
-                if (!File.Exists(logReadmePath))
-                    await File.WriteAllTextAsync(logReadmePath, $"The log config files has been moved to {IOHelper.VersionsDir}\\<your_version> so the logs can be made per instance.");
-                string logFilePath = Path.Combine(versionDirectory, MinecraftVersionMeta.LoggingMeta.Client.File.Id);
-                if (!File.Exists(logFilePath))
-                {
-                    UpdateProgressbarTranslated(0, $"ui_downloading_logging", new object[] { 0 });
-
-                    Progress<double> progress = new Progress<double>();
-                    progress.ProgressChanged += (sender, e) =>
-                    {
-                        UpdateProgressbarTranslated(e, "ui_downloading_logging", new object[] { e.ToString("0.00") });
-                    };
-
-                    string? r = await HttpHelper.GetStringAsync(MinecraftVersionMeta.LoggingMeta.Client.File.Url, progress);
-                    if (r == null)
-                        return;
-
-                    // FIX LOG LOCATION
-                    r = r.Replace("fileName=\"logs", $"fileName=\"{gameDir}\\logs").Replace("filePattern=\"logs", $"filePattern=\"{gameDir}\\logs");
-
-                    await File.WriteAllTextAsync(logFilePath, r);
-                }
-                _jvmArguments.Add(new LaunchArg(MinecraftVersionMeta.LoggingMeta.Client.Argument.Replace("${path}", logFilePath), 0));
-            }
-        }
-
-        /// <summary>
-        /// Asynchronously downloads the mappings for the Minecraft version.
-        /// </summary>
-        /// <returns>
-        /// A <see cref="Task"/> representing the asynchronous operation.
-        /// </returns>
-        private async Task DownloadMappings()
-        {
-            UpdateProgressbarTranslated(0, $"ui_checking_client_mappings");
-            if (MinecraftVersionMeta.Downloads.ClientMappings == null)
-                return;
-
-            string clientMappinsPath = Path.Combine(VersionData.VersionDirectory, "client.txt");
-            if (!File.Exists(clientMappinsPath))
-            {
-                UpdateProgressbarTranslated(0, $"ui_downloading_client_mappings", new object[] { 0 });
-
-                Progress<double> progress = new Progress<double>();
-                progress.ProgressChanged += (sender, e) =>
-                {
-                    UpdateProgressbarTranslated(e, "ui_downloading_client_mappings", new object[] { e.ToString("0.00") });
-                };
-
-                string? r = await HttpHelper.GetStringAsync(MinecraftVersionMeta.Downloads.ClientMappings.Url, progress);
-                if (r == null)
-                    return;
-
-                await File.WriteAllTextAsync(clientMappinsPath, r);
-            }
-        }
-
-        /// <summary>
-        /// Asynchronously downloads Minecraft and mod loader libraries.
-        /// </summary>
-        /// <param name="mcLibs">The list of Minecraft libraries to download.</param>
-        /// <returns>
-        /// A <see cref="Task"/> representing the asynchronous operation. The task result contains a list of downloaded <see cref="LibraryMeta"/> objects.
-        /// </returns>
-        private async Task<List<LibraryMeta>> DownloadLibraries(List<LibraryMeta> mcLibs)
-        {
-            UpdateProgressbarTranslated(0, $"ui_checking_libraries");
-            List<LibraryMeta> natives = new List<LibraryMeta>();
-            double libraryOverallSize = 0;
-            double libraryDownloadedSize = 0;
-            string libraryCacheDir = Path.Combine(IOHelper.CacheDir, "libsizes");
-            if (!Directory.Exists(libraryCacheDir))
-                Directory.CreateDirectory(libraryCacheDir);
-            string librarySizeCacheFilePath = Path.Combine(libraryCacheDir, $"{VersionData.VanillaVersion}-{Profile.Kind}-{VersionData.InstanceVersion}.json");
-
-
-            // Calculate the overallSize or read it from cache
-            UpdateProgressbarTranslated(0, $"ui_calculating_lib_size");
-            if (!File.Exists(librarySizeCacheFilePath))
-            {
-                foreach (var lib in mcLibs)
-                {
-                    // Check the library rule
-                    if (!lib.GetRulesResult())
-                        continue;
-
-                    if (lib.Downloads.Artifact == null)
-                        continue;
-
-                    libraryOverallSize += lib.Downloads.Artifact.Size;
-                }
-
-                await File.WriteAllTextAsync(librarySizeCacheFilePath, libraryOverallSize.ToString());
-            }
-            else
-                libraryOverallSize = int.Parse(await File.ReadAllTextAsync(librarySizeCacheFilePath));
-
-            // Download the actual libs
-            foreach (var lib in mcLibs)
-            {
-                // Check the library rule
-                if (!lib.GetRulesResult())
-                    continue;
-
-                string libFilePath = string.Empty;
-                if (lib.Downloads.Artifact != null)
-                {
-                    string localPath = lib.Downloads.Artifact.Path.Replace('/', '\\');
-                    int libDirIndex = localPath.LastIndexOf('\\');
-                    string libDirPath = Path.Combine(IOHelper.LibrariesDir, localPath.Remove(libDirIndex, localPath.Length - libDirIndex));
-
-                    if (!Directory.Exists(libDirPath))
-                        Directory.CreateDirectory(libDirPath);
-
-                    libFilePath = Path.Combine(IOHelper.LibrariesDir, localPath);
-                    if (!File.Exists(libFilePath))
-                    {
-                        try
-                        {
-                            if (!string.IsNullOrEmpty(lib.Downloads.Artifact.Url))
-                            {
-                                Progress<double> progress = new Progress<double>();
-                                progress.ProgressChanged += (sender, e) =>
-                                {
-                                    UpdateProgressbarTranslated(e, "ui_library_download", new object[] { lib.Name, e.ToString("0.00") });
-                                };
-
-                                byte[]? bytes = await HttpHelper.GetByteArrayAsync(lib.Downloads.Artifact.Url, progress);
-                                if (bytes == null)
-                                    continue;
-
-                                await File.WriteAllBytesAsync(libFilePath, bytes);
-                            }
-                            else
-                                libraryDownloadedSize -= lib.Downloads.Artifact.Size; // Fix 100%+ bug
-                        }
-                        catch (Exception e)
-                        {
-                            Debug.WriteLine($"Failed to get file: {lib.Downloads.Artifact.Url}");
-                            Debug.WriteLine($"Error: {e}");
-                        }
-                    }
-
-
-                    //libraryDownloadedSize += lib.Downloads.Artifact.Size;
-                    //if (libraryOverallSize == 0)
-                        //libraryOverallSize = 1; // NaN fix
-                    //double percent = libraryDownloadedSize / libraryOverallSize * 100;
-                    //UpdateProgressbarTranslated(percent, $"ui_library_download", new object[] { lib.Name, percent.ToString("0.00") });
-                }
-                else if (lib.Downloads.Classifiers != null)
-                {
-                    string[] rawUrl = lib.Name.Split(':');
-                    string localPath = Path.Combine(rawUrl[0].Replace('.', '\\'), rawUrl[1], rawUrl[2], $"{rawUrl[1]}-{rawUrl[2]}.jar").Replace('/', '\\');
-                    int libDirIndex = localPath.LastIndexOf('\\');
-                    string libDirPath = Path.Combine(IOHelper.LibrariesDir, localPath.Remove(libDirIndex, localPath.Length - libDirIndex));
-
-                    if (!Directory.Exists(libDirPath))
-                        Directory.CreateDirectory(libDirPath);
-
-                    libFilePath = Path.Combine(IOHelper.LibrariesDir, localPath);
-                }
-
-                if (!_classPath.Contains(libFilePath))
-                {
-                    _classPath += $"{libFilePath};";
-                    if (lib.Name.StartsWith("org.lwjgl") || lib.Downloads.Classifiers != null)
-                    {
-                        natives.Add(lib);
-                    }
-                }
-                else
-                {
-                    if (lib.Name.StartsWith("org.lwjgl") || lib.Downloads.Classifiers != null)
-                    {
-                        natives.Add(lib);
-                    }
-                }
-            }
-
-            return natives;
-        }
-
-        /// <summary>
-        /// Asynchronously downloads native libraries.
-        /// </summary>
-        /// <param name="nativeLibs">The list of native libraries to download.</param>
-        /// <param name="nativeDir">The directory to download the native libraries to.</param>
-        /// <returns>
-        /// A <see cref="Task"/> representing the asynchronous operation.
-        /// </returns>
-        private async Task DownloadNatives(List<LibraryMeta> nativeLibs, string nativeDir)
-        {
-            UpdateProgressbarTranslated(0, $"ui_checking_natives");
-            if (!Directory.Exists(nativeDir))
-                Directory.CreateDirectory(nativeDir);
-
-            string libJarFilePath = string.Empty;
-            string libJarFileDir = string.Empty;
-            foreach (LibraryMeta lib in nativeLibs)
-            {
-                Debug.WriteLine("nativeLib: " + lib.Name);
-                if (lib.Downloads.Classifiers != null)
-                {
-                    string localUrl = string.Empty;
-                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                    {
-                        if (lib.Downloads.Classifiers.WindowsNatives == null)
-                            continue;
-
-                        localUrl = lib.Downloads.Classifiers.WindowsNatives.Url;
-                        libJarFilePath = lib.Downloads.Classifiers.WindowsNatives.Path;
-                    }
-                    else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                    {
-                        if (lib.Downloads.Classifiers.LinuxNatives == null)
-                            continue;
-
-                        localUrl = lib.Downloads.Classifiers.LinuxNatives.Url;
-                        libJarFilePath = lib.Downloads.Classifiers.LinuxNatives.Path;
-                    }
-                    else // OSX
-                    {
-                        if (lib.Downloads.Classifiers.OsxNatives == null)
-                            continue;
-
-                        localUrl = lib.Downloads.Classifiers.OsxNatives.Url;
-                        libJarFilePath = lib.Downloads.Classifiers.OsxNatives.Path;
-                    }
-
-                    // Add dir
-                    string localFilePath = Path.Combine(IOHelper.LibrariesDir, libJarFilePath);
-
-                    if (!File.Exists(localFilePath))
-                    {
-                        string libJarDir = localFilePath.Remove(localFilePath.LastIndexOf('/'), localFilePath.Length - localFilePath.LastIndexOf('/'));
-                        if (!Directory.Exists(libJarDir))
-                            Directory.CreateDirectory(libJarDir);
-
-                        Progress<double> progress = new Progress<double>();
-                        progress.ProgressChanged += (sender, e) =>
-                        {
-                            UpdateProgressbarTranslated(e, "ui_library_download", new object[] { lib.Name, e.ToString("0.00") });
-                        };
-
-                        byte[]? bytes = await HttpHelper.GetByteArrayAsync(localUrl, progress);
-                        if (bytes == null)
-                            continue;
-
-                        await File.WriteAllBytesAsync(localFilePath, bytes);
-                    }
-                }
-                else
-                    continue;
-
-                string libFilePath = Path.Combine(IOHelper.LibrariesDir, libJarFilePath);
-                List <string> dirBaseRaw = libJarFilePath.Split('.').ToList();
-                dirBaseRaw.RemoveAt(dirBaseRaw.Count - 1);
-
-                string dirRaw = string.Empty;
-                foreach (var ba in dirBaseRaw)
-                {
-                    if (string.IsNullOrEmpty(dirRaw))
-                        dirRaw += ba;
-                    else
-                        dirRaw += $".{ba}";
-                }
-                string tempZipDir = Path.Combine(IOHelper.TempDir, dirRaw);
-                ZipFile.ExtractToDirectory(libFilePath, tempZipDir, true);
-
-                string[] files = Directory.GetFiles(tempZipDir, "*.dll", searchOption: SearchOption.AllDirectories);
-                if (files != null)
-                {
-                    foreach (string file in files)
-                    {
-                        if (Environment.Is64BitOperatingSystem && file.Contains("32"))
-                            continue;
-                        else if (!Environment.Is64BitOperatingSystem && !file.Contains("32"))
-                            continue;
-
-                        string fileName = file.Remove(0, file.LastIndexOf('\\') + 1);
-                        string filePath = Path.Combine(nativeDir, fileName);
-                        if (!File.Exists(filePath))
-                            File.Move(file, filePath);
-                    }
-                }
-
-                IOHelper.DeleteDirectory(tempZipDir);
-            }
-            await Task.Delay(1); // temporal
-        }
-
-        /// <summary>
-        /// Asynchronously builds the launch arguments for Minecraft.
-        /// </summary>
-        /// <param name="gameDir">The game directory.</param>
-        /// <param name="mainClass">The main class to launch.</param>
-        /// <param name="modVersion">Optional: The mod version to include in the launch arguments.</param>
-        /// <returns>
-        /// A <see cref="Task{TResult}"/> representing the asynchronous operation. The task result contains the built launch arguments as a string.
-        /// </returns>
-        private async Task<string> BuildArguments(string gameDir, string mainClass, string nativesDir, string? modVersion = null)
+        protected async Task<string> BuildArguments(string gameDir, string mainClass, string nativesDir, string? modVersion = null)
         {
             List<string> arguments = new List<string>();
 
-            UpdateProgressbarTranslated(0, $"ui_building_args");
+            //UpdateProgressbarTranslated(0, $"ui_building_args");
+
             #region JVM
+
             arguments.Add("-XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump");
             if (_jvmArgumentsBeforeClassPath.Count > 0)
-                _jvmArgumentsBeforeClassPath.OrderByDescending(x => x.Priority).ToList().ForEach((LaunchArg a) => {
-                    arguments.Add(a.Arg);
-                });
+                _jvmArgumentsBeforeClassPath.OrderByDescending(x => x.Priority).ToList()
+                    .ForEach(a => { arguments.Add(a.Arg); });
 
             // Vanilla Args
             arguments.Add(MinecraftVersionMeta.GetJvmArgumentString());
 
             // Moded Args
             if (_jvmArguments.Count > 0)
-                _jvmArguments.OrderByDescending(x => x.Priority).ToList().ForEach((LaunchArg a) => {
-                    arguments.Add(a.Arg);
-                });
+                _jvmArguments.OrderByDescending(x => x.Priority).ToList()
+                    .ForEach(a => { arguments.Add(a.Arg); });
 
             // Maximum Memory
-            if (Profile.Memory > 0 && Profile.Memory <= 256)
-                arguments.Add($"-Xmx{Profile.Memory * 1024}M");
-            else if (Profile.Memory > 256)
-                arguments.Add($"-Xmx{Profile.Memory}M");
+            if (Memory is > 0 and <= 256)
+                arguments.Add($"-Xmx{Memory * 1024}M");
+            else if (Memory > 256)
+                arguments.Add($"-Xmx{Memory}M");
             else
                 arguments.Add($"-Xmx4G");
+
             // Minimum Memory
-            // If someone breaks it by setting the maximum memory lower than 256MB... do not hit them
             arguments.Add($"-Xms256M");
 
             // The JVM args set by the user
-            if (!string.IsNullOrEmpty(Profile.JVMArgs))
-                arguments.Add($"{Profile.JVMArgs}");
+            if (!string.IsNullOrEmpty(UserJvmArgs))
+                arguments.Add($"{UserJvmArgs}");
 
             arguments.Add($"-Dminecraft.applet.TargetDirectory=\"{gameDir}\"");
+
             #endregion
+
             #region Minecraft Args
+
             // The main class
             arguments.Add(mainClass);
             // Vanilla Args
@@ -651,121 +204,75 @@ namespace Tavstal.KonkordLauncher.Core.Installers
 
             // Moded Args
             if (_gameArguments.Count > 0)
-                _gameArguments.OrderByDescending(x => x.Priority).ToList().ForEach((LaunchArg a) => {
-                    arguments.Add(a.Arg);
-                });
+                _gameArguments.OrderByDescending(x => x.Priority).ToList()
+                    .ForEach(a => { arguments.Add(a.Arg); });
+
             #endregion
 
             // Screen resolution
-            if (Profile.Resolution != null)
+            if (Resolution != null)
             {
-                if (Profile.Resolution.IsFullScreen)
-                {
-                    arguments.Add($"--width {(int)SystemParameters.PrimaryScreenWidth}");
-                    arguments.Add($"--height {(int)SystemParameters.PrimaryScreenHeight}");
-                }
-                else
-                {
-                    if (Profile.Resolution.X > 0)
-                        arguments.Add($"--width {Profile.Resolution.X}");
-                    else
-                        arguments.Add($"--width {(int)(SystemParameters.PrimaryScreenWidth * 0.44)}");
+                if (Resolution.X > 0)
+                    arguments.Add($"--width {Resolution.X}");
 
-                    if (Profile.Resolution.Y > 0)
-                        arguments.Add($"--height {Profile.Resolution.Y}");
-                    else
-                        arguments.Add($"--height {(int)(SystemParameters.PrimaryScreenHeight * 0.44)}");
-                }
+                if (Resolution.Y > 0)
+                    arguments.Add($"--height {Resolution.Y}");
             }
-            else
-            {
-                arguments.Add($"--width {(int)(SystemParameters.PrimaryScreenWidth * 0.44)}");
-                arguments.Add($"--height {(int)(SystemParameters.PrimaryScreenHeight * 0.44)}");
-            }
-
-            AccountData? accountData = await JsonHelper.ReadJsonFileAsync<AccountData>(Path.Combine(IOHelper.MainDirectory, "accounts.json"));
-            if (accountData == null)
-                throw new Exception("Could not launch the game because failed to get the account details.");
-
-            Account account = accountData.Accounts[accountData.SelectedAccountId];
-            if (account == null)
-                throw new Exception("Could not launch the game because failed to get the current account.");
-
-            string clientId = "0";
-            string xUID = "0";
 
             string versionName = string.Empty;
-            switch (Profile.Kind)
+            switch (Kind)
             {
-                case EProfileKind.VANILLA:
-                    {
-                        versionName = VersionData.VanillaVersion;
-                        break;
-                    }
-                case EProfileKind.FABRIC:
-                    {
-                        versionName = $"fabric-loader-{modVersion}-{VersionData.VanillaVersion}";
-                        break;
-                    }
-                case EProfileKind.QUILT:
-                    {
-                        versionName = $"quilt-loader-{modVersion}-{VersionData.VanillaVersion}";
-                        break;
-                    }
-                case EProfileKind.FORGE:
-                    {
-                        versionName = $"forge-{modVersion}";
-                        break;
-                    }
+                case EMinecraftKind.VANILLA:
+                {
+                    versionName = VersionData.MinecraftVersion;
+                    break;
+                }
+                case EMinecraftKind.FABRIC:
+                {
+                    versionName = $"fabric-loader-{modVersion}-{VersionData.MinecraftVersion}";
+                    break;
+                }
+                case EMinecraftKind.QUILT:
+                {
+                    versionName = $"quilt-loader-{modVersion}-{VersionData.MinecraftVersion}";
+                    break;
+                }
+                case EMinecraftKind.FORGE:
+                {
+                    versionName = $"forge-{modVersion}";
+                    break;
+                }
             }
 
             string argumentString = string.Join(' ', arguments);
+
             #region Replace Variable Placeholders
+
             argumentString = argumentString
                 //.Replace("-Djava.library.path=${natives_directory}", "")
                 .Replace("${natives_directory}", nativesDir)
-                .Replace("${launcher_name}", "konkord-launcher")
-                .Replace("${launcher_version}", "release")
-                .Replace("${auth_player_name}", account.DisplayName)
+                .Replace("${launcher_name}", _launcherDetails.LauncherName)
+                .Replace("${launcher_version}", _launcherDetails.LauncherVersion)
+                .Replace("${auth_player_name}", _client.DisplayName)
                 .Replace("${version_name}", versionName)
                 .Replace("${game_directory}", gameDir)
-                .Replace("${assets_root}", IOHelper.AssetsDir)
+                .Replace("${assets_root}", PathHelper.AssetsDir)
                 .Replace("${assets_index_name}", MinecraftVersionMeta.Index.Id)
-                .Replace("${auth_uuid}", account.UUID)
-                .Replace("${auth_access_token}", string.IsNullOrEmpty(account.AccessToken) ? "none" : account.AccessToken)
-                .Replace("${clientid}", clientId)
-                .Replace("${auth_xuid}", xUID)
+                .Replace("${auth_uuid}", _client.UUID)
+                .Replace("${auth_access_token}",
+                    string.IsNullOrEmpty(_client.AccessToken) ? "none" : _client.AccessToken)
+                .Replace("${clientid}", _client.ClientId)
+                .Replace("${auth_xuid}", _client.Xuid)
                 .Replace("${user_type}", "msa")
                 .Replace("${version_type}", "release")
                 .Replace("${classpath}", $"\"{_classPath}\"")
-                .Replace("${library_directory}", IOHelper.LibrariesDir)
+                .Replace("${library_directory}", PathHelper.LibrariesDir)
                 .Replace("${classpath_separator}", ";")
                 .Replace("${user_properties}", "{}");
+
             #endregion
 
             return argumentString;
-        }
-
-        /// <summary>
-        /// Starts the Java process with the specified arguments.
-        /// </summary>
-        /// <param name="arguments">The arguments to pass to the Java process.</param>
-        /// <returns>
-        /// A <see cref="Process"/> representing the started Java process.
-        /// </returns>
-        private Process StartJava(string arguments)
-        {
-            var psi = new ProcessStartInfo()
-            {
-                FileName = JavaPath,
-                Arguments = arguments,
-                UseShellExecute = false,
-                RedirectStandardError = true,
-            };
-
-            Debug.WriteLine(arguments.Replace(' ', '\n'));
-            Process? p = Process.Start(psi);
-            return p;
         }
     }
 }

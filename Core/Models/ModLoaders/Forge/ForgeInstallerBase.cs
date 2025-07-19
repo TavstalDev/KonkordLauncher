@@ -1,28 +1,18 @@
 ﻿using System.Diagnostics;
 using Newtonsoft.Json.Linq;
+using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Installers;
-using Tavstal.KonkordLauncher.Core.Models.Launcher;
-using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Installer;
+using Tavstal.KonkordLauncher.Core.Installers.Forge;
+using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.New;
 
 namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge
 {
     public abstract class ForgeInstallerBase : MinecraftInstaller
     {
-        #region Variables
-        private static readonly string _forgeVersionManifestUrl = "https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml";
-        public static string ForgeVersionManifest { get { return _forgeVersionManifestUrl; } }
-
-        // neoforge is the same as forge (but why, I can't tell)
-        private static readonly string _forgeLoaderUniversalJarUrl = "https://files.minecraftforge.net/maven/net/minecraftforge/forge/{0}/forge-{0}-universal.jar";
-        // Version Example: 1.20.4-49.0.38
-        public static string ForgeLoaderUniversalJarUrl { get { return _forgeLoaderUniversalJarUrl; } }
-        private static readonly string _forgeInstallerJarUrl = "https://files.minecraftforge.net/maven/net/minecraftforge/forge/{0}/forge-{0}-installer.jar";
-        // Version Example: 1.20.4-49.0.38
-        public static string ForgeInstallerJarUrl { get { return _forgeInstallerJarUrl; } }
-
-        private static readonly Dictionary<string, Type> _installers = new Dictionary<string, Type>
+        private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(ForgeInstallerBase));
+        private static readonly Dictionary<string, Type> _installers = new()
         {
             #region New
             { "1.20.4", typeof(ForgeInstNew) },
@@ -93,32 +83,23 @@ namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge
             #endregion
         };
 
-        public static Dictionary<string, Type> Installers { get { return _installers; } }
+        public static Dictionary<string, Type> Installers => _installers;
 
-        private static readonly List<string> _unsupportedVersions = new List<string>()
-        {
-           "1.1", "1.2.3", "1.2.4", "1.2.5", "1.3.2", "1.4.0", "1.4.1", "1.4.2", "1.4.3", "1.4.4", "1.4.5", "1.4.6", "1.4.7", "1.5", "1.5.1", "1.5.2"
-        };
+        private static readonly List<string> _unsupportedVersions =
+        [
+            "1.1", "1.2.3", "1.2.4", "1.2.5", "1.3.2", "1.4.0", "1.4.1", "1.4.2", "1.4.3", "1.4.4", "1.4.5", "1.4.6",
+            "1.4.7", "1.5", "1.5.1", "1.5.2"
+        ];
 
-        public static List<string> UnsupportedVersions {  get { return _unsupportedVersions; } }
-        #endregion
-
-        public ForgeInstallerBase() : base() { }
-
-        public ForgeInstallerBase(Profile profile, IProgressReporter progressReporter, bool isDebug) : base(profile, progressReporter, isDebug)
-        {
-        }
+        public static List<string> UnsupportedVersions => _unsupportedVersions;
         
-        public static ForgeInstallerBase? Create(Profile profile, IProgressReporter progressReporter, bool isDebug)
+
+        protected ForgeInstallerBase(string javaPath, string minecraftVersion, int memory, LauncherDetails launcherDetails, ClientDetails clientDetails, 
+            EMinecraftKind kind = EMinecraftKind.VANILLA, string? gameDirectory = null, Resolution? resolution = null, 
+            string? jvmArgs = "-XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M -Djava.net.preferIPv4Stack=true", 
+            string? customVersion = null, IProgressReporter? progressReporter = null, bool isDebug = false) 
+            : base(javaPath, minecraftVersion, memory, launcherDetails, clientDetails, kind, gameDirectory, resolution, jvmArgs, customVersion, progressReporter, isDebug)
         {
-            ForgeInstallerBase? localInstaller = null;
-
-            if (_installers.TryGetValue(profile.VersionVanillaId, out Type? value))
-            {
-                localInstaller = (ForgeInstallerBase?)Activator.CreateInstance(value, profile, progressReporter, isDebug);
-            }
-
-            return localInstaller;
         }
 
         #region Functions from CmlLib
@@ -134,6 +115,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge
         {
             JObject installerData = installProfile.Data;
             Dictionary<string, string?>? mapData = null;
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
             if (installerData != null)
                 mapData = MapProcessorData(installerData, "client", VersionData.VanillaJarPath, installerDir);
             await StartProcessors(installProfile.Processors, mapData ?? new());
@@ -160,7 +142,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge
                 if (string.IsNullOrEmpty(value))
                     continue;
 
-                string? fullPath = Mapper.ToFullPath(value, IOHelper.LibrariesDir);
+                string? fullPath = Mapper.ToFullPath(value, PathHelper.LibrariesDir);
                 if (fullPath == value)
                 {
                     value = value.Trim('/');
@@ -202,7 +184,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge
                         await startProcessor(item, mapData);
                 }
                 double percent = (double)i / (double)processors.Count * 100d;
-                UpdateProgressbarTranslated(percent, $"ui_building", new object[] { "forge", percent.ToString("0.00") });
+                ReportProgress(percent, $"ui_building", "forge", percent.ToString("0.00"));
             }
         }
 
@@ -224,7 +206,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge
                 string key = Mapper.Interpolation(item.Key, mapData, true);
                 string value = Mapper.Interpolation(item.Value.ToString(), mapData, true);
 
-                if (!File.Exists(key) || !IOHelper.CheckSHA1(key, value))
+                if (!File.Exists(key) || !FileSystemHelper.CheckSHA1(key, value))
                     return false;
             }
 
@@ -247,7 +229,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge
 
             // jar
             PackageName jar = PackageName.Parse(name);
-            string jarPath = Path.Combine(IOHelper.LibrariesDir, jar.GetPath());
+            string jarPath = Path.Combine(PathHelper.LibrariesDir, jar.GetPath());
 
             ProcessorJarFile jarFile = new ProcessorJarFile(jarPath);
             Dictionary<string, string?>? jarManifest = jarFile.GetManifest();
@@ -260,7 +242,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge
 
             // classpath
             JToken? classpathObj = processor["classpath"];
-            List<string> classpath = new List<string>();
+            List<string> classpath = [];
             if (classpathObj != null)
             {
                 foreach (var libName in classpathObj)
@@ -269,7 +251,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge
                     if (string.IsNullOrEmpty(libNameString))
                         continue;
 
-                    string? lib = Path.Combine(IOHelper.LibrariesDir,
+                    string? lib = Path.Combine(PathHelper.LibrariesDir,
                         PackageName.Parse(libNameString).GetPath());
                     classpath.Add(lib);
                 }
@@ -282,7 +264,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge
             if (argsArr != null)
             {
                 string[]? arrStrs = argsArr.Select(x => x.ToString()).ToArray();
-                args = Mapper.Map(arrStrs, mapData, IOHelper.LibrariesDir);
+                args = Mapper.Map(arrStrs, mapData, PathHelper.LibrariesDir);
             }
 
             await startJava(classpath.ToArray(), mainClass, args);
@@ -308,15 +290,14 @@ namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge
                     string path = Path.GetFullPath(x);
                     if (path.Contains(' '))
                         return "\"" + path + "\"";
-                    else
-                        return path;
+                    return path;
                 }));
 
             string? arg =
                 $"-cp {combinedPath} " +
                 $"{mainClass}";
 
-            if (args != null && args.Length > 0)
+            if (args is { Length: > 0 })
                 arg += " " + string.Join(" ", args);
 
             Process process = new Process();
@@ -342,9 +323,9 @@ namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge
             await process.WaitForExitAsync();
 
 #if DEBUG
-            string o = process.StandardError.ReadToEnd();
+            string o = await process.StandardError.ReadToEndAsync();
             if (!string.IsNullOrEmpty(o))
-                NotificationHelper.SendErrorMsg(o, "Error - ForgeInstaller");
+                _logger.Error($"Forge Installer Error: {o}");
 #endif
         }
         #endregion

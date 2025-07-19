@@ -18,10 +18,8 @@ namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge
             string text = null;
             using (FileStream baseInputStream = File.OpenRead(Path))
             {
-
                 using ZipInputStream zipInputStream = new ZipInputStream(baseInputStream);
-                ZipEntry nextEntry;
-                while ((nextEntry = zipInputStream.GetNextEntry()) != null)
+                while (zipInputStream.GetNextEntry() is { } nextEntry)
                 {
                     if (nextEntry.Name == "META-INF/MANIFEST.MF")
                     {
@@ -46,8 +44,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge
                     string key = array2[0].Trim();
                     if (array2.Length == 1)
                     {
-                        if (!dictionary.ContainsKey(key))
-                            dictionary.Add(key, null);
+                        dictionary.TryAdd(key, null);
                         continue;
                     }
 
@@ -59,8 +56,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge
                     }
 
                     string value = string.Join(":", array2, 1, array2.Length - 1).Trim();
-                    if (!dictionary.ContainsKey(key))
-                        dictionary.Add(key, value);
+                    dictionary.TryAdd(key, value);
                 }
             }
 

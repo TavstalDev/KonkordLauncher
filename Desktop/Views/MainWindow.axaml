@@ -1,0 +1,145 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:Tavstal.KonkordLauncher.Desktop.ViewModels"
+        xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models"
+        mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="550"
+        x:Class="Tavstal.KonkordLauncher.Desktop.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="Konkord Launcher"
+        Icon="../Assets/Images/logo.png"
+        CanResize="False"
+        MaxWidth="900"
+        MaxHeight="550"
+        >
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+    
+    <Window.DataTemplates>
+        <DataTemplate DataType="models:PlayCardModel">
+            <Border Classes="PlayCard">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Image Grid.Row="0" Source="{Binding IconPath}" Classes="PlayCardImage" />
+                    <TextBlock Grid.Row="1" Classes="PlayCardText" Text="{Binding Title}" />
+                    <Button Grid.Row="2" Classes="PlayCardLaunchButton">
+                        <StackPanel Classes="PlayCardLaunchButton" Orientation="Horizontal">
+                            <TextBlock Classes="PlayCardLaunchButtonIcon" Text="&#xf04b;" />
+                            <TextBlock Text="{Binding LaunchText}" />
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </Window.DataTemplates>
+    
+    <Grid Margin="25">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300" />
+            <ColumnDefinition Width="25" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        
+        <!-- Sidebar Content -->
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" Margin="0, 0, 0, 30">
+                <Image Source="../Assets/Images/logo2.png" />
+                <Label Content="Ready for Adventure?" HorizontalAlignment="Center" />
+            </StackPanel>
+
+            <StackPanel Grid.Row="1">
+                <Button Name="PlaySideBtn" Content="Play" Click="OnPlaySideButtonClick" Classes="SidebarSelectedBtn"/>
+                <Button Name="InstancesSideBtn" Content="Instances" Click="OnInstancesSideButtonClick" Classes="SidebarBtn" />
+                <Button Name="NewsSideBtn" Content="News" Click="OnNewsSideButtonClick" Classes="SidebarBtn" />
+                <Button Name="AccountsSideBtn" Content="Accounts" Click="OnAccountsSideButtonClick" Classes="SidebarBtn" />
+                <Button Name="SettingsSideBtn" Content="Settings" Click="OnSettingsSideButtonClick" Classes="SidebarBtn" />
+            </StackPanel>
+
+            <StackPanel Grid.Row="2" VerticalAlignment="Bottom">
+                <Label Content="Ready to launch. No update available." Classes="SidebarLabel" />
+                <Label Content="© 2025 Konkord Launcher" Classes="SidebarLabel" />
+            </StackPanel>
+        </Grid>
+        
+        <!-- Main Content Area -->
+        <Border Grid.Column="2" Classes="MainContentArea">
+            <Carousel SelectedIndex="{Binding CurrentPageIndex}">
+                <Carousel.PageTransition >
+                    <CompositePageTransition>
+                        <PageSlide Duration="0:00:00.200" Orientation="Vertical" />
+                    </CompositePageTransition>
+                </Carousel.PageTransition>
+                <Carousel.Items>
+                    <!-- Play Page -->
+                    <StackPanel Classes="MainContentArea">
+                        <TextBlock Text="Launch Game" Classes="MainContentTitle"/>
+                        <TextBlock Text="You don't have instances yet."/>
+                        <Grid MaxHeight="440">
+                            <ScrollViewer Classes="PlayPageScrollViewer">
+                                <ItemsControl ItemsSource="{Binding InstancesOnPlayPage}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Classes="PlayPageWrapper" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Grid>
+                    </StackPanel>
+                    <!-- Instances Page -->
+                    <StackPanel Classes="MainContentArea">
+                        <TextBlock Text="Instances" Classes="MainContentTitle"/>
+                        <TextBlock Text="You don't have instances yet."/>
+                        <Grid MaxHeight="440">
+                            <ScrollViewer Classes="PlayPageScrollViewer">
+                                
+                            </ScrollViewer>
+                        </Grid>
+                    </StackPanel>
+                    <!-- News Page -->
+                    <StackPanel Classes="MainContentArea">
+                        <TextBlock Text="News" Classes="MainContentTitle"/>
+                        <TextBlock Text="We do not have news."/>
+                        <Grid MaxHeight="440">
+                            <ScrollViewer Classes="PlayPageScrollViewer">
+                                
+                            </ScrollViewer>
+                        </Grid>
+                    </StackPanel>
+                    <!-- Accounts Page -->
+                    <StackPanel Classes="MainContentArea">
+                        <TextBlock Text="Accounts" Classes="MainContentTitle"/>
+                        <TextBlock Text="You don't have accounts yet."/>
+                        <Grid MaxHeight="440">
+                            <ScrollViewer Classes="PlayPageScrollViewer">
+                                
+                            </ScrollViewer>
+                        </Grid>
+                    </StackPanel>
+                    <!-- Settings Page -->
+                    <StackPanel Classes="MainContentArea">
+                        <TextBlock Text="Settings" Classes="MainContentTitle"/>
+                        <Grid MaxHeight="440">
+                            <ScrollViewer Classes="PlayPageScrollViewer">
+                                
+                            </ScrollViewer>
+                        </Grid>
+                    </StackPanel>
+                </Carousel.Items>
+            </Carousel>
+        </Border>
+    </Grid>
+
+</Window>

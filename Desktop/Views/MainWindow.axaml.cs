@@ -6,6 +6,7 @@ using Tavstal.KonkordLauncher.Desktop.ViewModels;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views;
 
+// ReSharper disable once PartialTypeWithSinglePart
 public partial class MainWindow : Window
 {
     private Button _selectedButton;

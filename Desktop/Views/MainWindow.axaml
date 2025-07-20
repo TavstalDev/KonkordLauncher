@@ -114,17 +114,77 @@
                         <TextBlock Text="We do not have news."/>
                         <Grid MaxHeight="440">
                             <ScrollViewer Classes="PlayPageScrollViewer">
-                                
+                                <WrapPanel MaxHeight="440" ItemSpacing="10" LineSpacing="10">
+                                    <Border Background="{StaticResource BG-Surface-Dark}" 
+                                            Padding="15"
+                                            CornerRadius="8">
+                                        <StackPanel>
+                                            <TextBlock Text="The standard Lorem Ipsum passage, used since the 1500s"
+                                                       FontSize="18"
+                                                       FontWeight="SemiBold"
+                                                       Margin="0, 0, 0, 8"
+                                                       TextWrapping="Wrap"
+                                            />
+                                            <TextBlock Text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." 
+                                                       TextWrapping="Wrap"
+                                                       Margin="0, 0, 0, 8" />
+                                            <Button Content="Read More" />
+                                        </StackPanel>
+                                    </Border>
+                                </WrapPanel>
                             </ScrollViewer>
                         </Grid>
                     </StackPanel>
                     <!-- Accounts Page -->
                     <StackPanel Classes="MainContentArea">
-                        <TextBlock Text="Accounts" Classes="MainContentTitle"/>
+                        <Grid Width="480">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                <ColumnDefinition Width="50"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+                            
+                            <TextBlock Text="Accounts" Classes="MainContentTitle"/>
+                            <Button Grid.Column="1" Background="{StaticResource Accent-Green}" HorizontalAlignment="Right">
+                                <TextBlock Text="&#xf234;" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="{StaticResource FontAwesome}" />
+                            </Button>
+                        </Grid>
                         <TextBlock Text="You don't have accounts yet."/>
                         <Grid MaxHeight="440">
                             <ScrollViewer Classes="PlayPageScrollViewer">
-                                
+                                <WrapPanel MaxHeight="440" ItemSpacing="10" LineSpacing="10">
+                                    <Border Background="{StaticResource BG-Surface-Dark}" 
+                                            Padding="15"
+                                            CornerRadius="8">
+                                        <Grid Width="450">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                                <ColumnDefinition Width="150"></ColumnDefinition>
+                                            </Grid.ColumnDefinitions>
+                                            <WrapPanel Orientation="Vertical">
+                                                <TextBlock Text="PlayerOne"
+                                                           FontSize="16"
+                                                           FontWeight="SemiBold"
+                                                           Margin="0, 0, 0, 0"
+                                                           TextWrapping="Wrap"
+                                                />
+                                                <TextBlock Text="Microsoft" 
+                                                           TextWrapping="Wrap"
+                                                />
+                                            </WrapPanel>
+                                            <WrapPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" ItemSpacing="5" LineSpacing="5" Orientation="Horizontal">
+                                                <Button Background="{StaticResource Accent-Green}">
+                                                    <TextBlock Text="&#xf00c;" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="{StaticResource FontAwesome}" />
+                                                </Button>
+                                                <Button Background="{StaticResource Accent-Indigo}" >
+                                                    <TextBlock Text="&#xf2f9;" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="{StaticResource FontAwesome}" />
+                                                </Button>
+                                                <Button Background="{StaticResource Accent-Red}">
+                                                    <TextBlock Text="&#xf1f8;" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="{StaticResource FontAwesome}" />
+                                                </Button>
+                                            </WrapPanel>
+                                        </Grid>
+                                    </Border>
+                                </WrapPanel>
                             </ScrollViewer>
                         </Grid>
                     </StackPanel>

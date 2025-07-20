@@ -13,3 +13,14 @@
 Regarding this project, my primary focus is to produce detailed documentation explaining how to build a C# Minecraft Launcher. 
 I intend to continue working on the launcher's development once my other current projects are finalized. 
 Furthermore, I am exploring the possibility of a full rewrite, which would involve leveraging alternative technologies.
+
+## Disclaimer
+
+KonkordLauncher is an independent project and is **not affiliated with Mojang AB**, Microsoft, or the official Minecraft team in any way.
+
+## Asset Credits
+
+This project uses the following third-party assets:
+- **FontAwesome** icons
+- **Minecraft Block Icons** (source: [https://minecraft.wiki/](https://minecraft.wiki/))
+- **TextStudio's Minecraft 3D Text Creator** ([https://www.textstudio.com/logo/minecraft-3d-text-41](https://www.textstudio.com/logo/minecraft-3d-text-41))

@@ -12,6 +12,7 @@
     <ItemGroup>
         <PackageReference Include="Avalonia" Version="11.3.2"/>
         <PackageReference Include="Avalonia.Desktop" Version="11.3.2"/>
+        <PackageReference Include="Avalonia.ReactiveUI" Version="11.3.2" />
         <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.2"/>
         <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.2"/>
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
@@ -26,6 +27,13 @@
     </ItemGroup>
     
     <ItemGroup>
-        <AvaloniaResource Include="**\*.png" />
+        <AvaloniaResource Include="Assets\**" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Compile Update="Views\MainWindow.axaml.cs">
+        <DependentUpon>MainWindow.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
 </Project>

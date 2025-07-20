@@ -4,8 +4,12 @@
              RequestedThemeVariant="Dark">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
+    <Application.Resources>
+        <FontFamily x:Key="FontAwesome">Assets/Fonts/fa-solid-900.ttf#Font Awesome 6 Free</FontFamily>
+    </Application.Resources>
     <Application.Styles>
         <FluentTheme />
-        <StyleInclude Source="Styles/ButtonStyles.axaml" />
+        <StyleInclude Source="Styles/Themes/DarkTheme.axaml" />
+        <StyleInclude Source="Styles/Style.axaml" />
     </Application.Styles>
 </Application>

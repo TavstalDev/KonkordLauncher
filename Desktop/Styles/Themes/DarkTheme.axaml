@@ -1,0 +1,55 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Styles.Resources>
+        <!-- Main application background -->
+        <SolidColorBrush x:Key="BG-Body" Color="#363636"/>
+        <!-- Cards, panels, inputs, modals, internal list items -->
+        <SolidColorBrush x:Key="BG-Surface-Dark" Color="#363636"/>
+        <!-- Right panel background, mods list background -->
+        <SolidColorBrush x:Key="BG-Surface-Medium" Color="#444"/>
+        <!-- Borders for cards, panels, inputs, modals -->
+        <SolidColorBrush x:Key="BG-Border-Main" Color="#555"/>
+        <!-- Borders for inner sections like the right panel and mod list -->
+        <SolidColorBrush x:Key="BG-Border-Secondary" Color="#666666"/>
+        <!-- Modal overlay -->
+        <SolidColorBrush x:Key="BG-Overlay" Color="#B3000000"/> 
+        <!-- Main text, headings, active content -->
+        <SolidColorBrush x:Key="Text-Primary" Color="#FFFFFF"/>
+        <!-- Less prominent text like labels, inactive buttons -->
+        <SolidColorBrush x:Key="Text-Secondary" Color="#D1D5DB"/>
+        <!-- Muted text, descriptions, placeholders -->
+        <SolidColorBrush x:Key="Text-Faded" Color="#9CA3AF"/>
+        <!-- Copyright, minor details -->
+        <SolidColorBrush x:Key="Text-Muted" Color="#626773"/>
+
+        <SolidColorBrush x:Key="Accent-Green" Color="#10B981"/>
+        <SolidColorBrush x:Key="Accent-Green-Active" Color="#22C55E"/>
+        <SolidColorBrush x:Key="Accent-Green-Hover" Color="#16A34A"/>
+        <SolidColorBrush x:Key="Accent-Indigo" Color="#4F46E5"/>
+        <SolidColorBrush x:Key="Accent-Indigo-Hover" Color="#4338CA"/>
+        <SolidColorBrush x:Key="Accent-Blue" Color="#2563EB"/>
+        <SolidColorBrush x:Key="Accent-Blue-Hover" Color="#1D4ED8"/>
+        <SolidColorBrush x:Key="Accent-Red" Color="#DC2626"/>
+        <SolidColorBrush x:Key="Accent-Red-Hover" Color="#B91C1C"/>
+        <SolidColorBrush x:Key="Accent-Purple" Color="#9333EA"/>
+        <SolidColorBrush x:Key="Accent-Purple-Hover" Color="#7C3AED"/>
+        
+        <SolidColorBrush x:Key="Btn-Primary" Color="#16a34a" />
+        <SolidColorBrush x:Key="Btn-Primary-Border" Color="#0f7133" />
+        <SolidColorBrush x:Key="Btn-Primary-Hover" Color="#15803d" />
+        <SolidColorBrush x:Key="Btn-Primary-Hover-Border" Color="#0f592b" />
+        <SolidColorBrush x:Key="Btn-Secondary" Color="#374151" />
+        <SolidColorBrush x:Key="Btn-Secondary-Border" Color="#262d38" />
+        <SolidColorBrush x:Key="Btn-Secondary-Hover" Color="#4b5563" />
+        <SolidColorBrush x:Key="Btn-Secondary-Hover-Border" Color="#353c45" />
+        
+        <SolidColorBrush x:Key="Placeholder-MC" Color="#34D399"/>
+        <SolidColorBrush x:Key="Placeholder-Survival" Color="#5cb85c"/>
+        <SolidColorBrush x:Key="Placeholder-Modded" Color="#f0ad4e"/>
+
+        <Color x:Key="Shadow-Strong-Color">#80000000</Color>
+        <Color x:Key="Shadow-Medium-Color">#66000000</Color>
+        <Color x:Key="Shadow-Light-Color">#4D000000</Color>
+        <Color x:Key="Shadow-Lighter-Color">#33000000</Color>
+    </Styles.Resources>
+</Styles>

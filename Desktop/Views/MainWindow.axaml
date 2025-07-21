@@ -1,91 +1,140 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:vm="using:Tavstal.KonkordLauncher.Desktop.ViewModels"
-        xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models"
-        mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="550"
-        x:Class="Tavstal.KonkordLauncher.Desktop.Views.MainWindow"
-        x:DataType="vm:MainWindowViewModel"
-        Title="Konkord Launcher"
-        Icon="../Assets/Images/logo.png"
-        CanResize="False"
-        MaxWidth="900"
-        MaxHeight="550"
-        >
+<Window
+    CanResize="False"
+    Icon="../Assets/Images/logo.png"
+    Loaded="MainWindow_Loaded"
+    MaxHeight="550"
+    MaxWidth="900"
+    Title="Konkord Launcher"
+    d:DesignHeight="550"
+    d:DesignWidth="900"
+    mc:Ignorable="d"
+    x:Class="Tavstal.KonkordLauncher.Desktop.Views.MainWindow"
+    x:DataType="vm:MainWindowViewModel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models"
+    xmlns:vm="using:Tavstal.KonkordLauncher.Desktop.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Design.DataContext>
-        <vm:MainWindowViewModel/>
+        <vm:MainWindowViewModel />
     </Design.DataContext>
-    
+
     <Window.DataTemplates>
+        <!--  Play Card  -->
         <DataTemplate DataType="models:PlayCardModel">
             <Border Classes="PlayCard">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <Image Grid.Row="0" Source="{Binding IconPath}" Classes="PlayCardImage" />
-                    <TextBlock Grid.Row="1" Classes="PlayCardText" Text="{Binding Title}" />
-                    <Button Grid.Row="2" Classes="PlayCardLaunchButton">
-                        <StackPanel Classes="PlayCardLaunchButton" Orientation="Horizontal">
-                            <TextBlock Classes="PlayCardLaunchButtonIcon" Text="&#xf04b;" />
-                            <TextBlock Text="{Binding LaunchText}" />
-                        </StackPanel>
-                    </Button>
+                    <Image
+                        Classes="PlayCardImage"
+                        Grid.Row="0"
+                        Source="{Binding IconPath}" />
+                    <TextBlock
+                        Classes="PlayCardText"
+                        Grid.Row="1"
+                        Text="{Binding Title}" />
+                    <WrapPanel Classes="PlayCardButtonWrapper" Grid.Row="2">
+                        <Button Classes="PlayCardPlayButton">
+                            <TextBlock
+                                Classes="FontAwesome"
+                                Padding="4,0"
+                                Text="&#xf04b;" />
+                        </Button>
+                        <Button Classes="PlayCardEditButton">
+                            <TextBlock
+                                Classes="FontAwesome"
+                                Padding="4,0"
+                                Text="&#xf304;" />
+                        </Button>
+                        <Button Classes="PlayCardMenuButton">
+                            <TextBlock
+                                Classes="FontAwesome"
+                                Padding="6,0"
+                                Text="&#xf142;" />
+                        </Button>
+                    </WrapPanel>
                 </Grid>
             </Border>
         </DataTemplate>
     </Window.DataTemplates>
-    
+
     <Grid Margin="25">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="300" />
             <ColumnDefinition Width="25" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        
-        <!-- Sidebar Content -->
+
+        <!--  Sidebar Content  -->
         <Grid Grid.Column="0">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <StackPanel Grid.Row="0" Margin="0, 0, 0, 30">
+            <StackPanel Grid.Row="0" Margin="0,0,0,30">
                 <Image Source="../Assets/Images/logo2.png" />
                 <Label Content="Ready for Adventure?" HorizontalAlignment="Center" />
             </StackPanel>
 
             <StackPanel Grid.Row="1">
-                <Button Name="PlaySideBtn" Content="Play" Click="OnPlaySideButtonClick" Classes="SidebarSelectedBtn"/>
-                <Button Name="InstancesSideBtn" Content="Instances" Click="OnInstancesSideButtonClick" Classes="SidebarBtn" />
-                <Button Name="NewsSideBtn" Content="News" Click="OnNewsSideButtonClick" Classes="SidebarBtn" />
-                <Button Name="AccountsSideBtn" Content="Accounts" Click="OnAccountsSideButtonClick" Classes="SidebarBtn" />
-                <Button Name="SettingsSideBtn" Content="Settings" Click="OnSettingsSideButtonClick" Classes="SidebarBtn" />
+                <Button
+                    Classes="SidebarSelectedBtn"
+                    Click="OnPlaySideButtonClick"
+                    Content="Play"
+                    Name="PlaySideBtn" />
+                <Button
+                    Classes="SidebarBtn"
+                    Click="OnNewsSideButtonClick"
+                    Content="News"
+                    Name="NewsSideBtn" />
+                <Button
+                    Classes="SidebarBtn"
+                    Click="OnAccountsSideButtonClick"
+                    Content="Accounts"
+                    Name="AccountsSideBtn" />
+                <Button
+                    Classes="SidebarBtn"
+                    Click="OnSettingsSideButtonClick"
+                    Content="Settings"
+                    Name="SettingsSideBtn" />
             </StackPanel>
 
             <StackPanel Grid.Row="2" VerticalAlignment="Bottom">
-                <Label Content="Ready to launch. No update available." Classes="SidebarLabel" />
-                <Label Content="© 2025 Konkord Launcher" Classes="SidebarLabel" />
+                <Label Classes="SidebarLabel" Content="Ready to launch. No update available." />
+                <Label Classes="SidebarLabel" Content="© 2025 Konkord Launcher" />
             </StackPanel>
         </Grid>
-        
-        <!-- Main Content Area -->
-        <Border Grid.Column="2" Classes="MainContentArea">
+
+        <!--  Main Content Area  -->
+        <Border Classes="MainContentArea" Grid.Column="2">
             <Carousel SelectedIndex="{Binding CurrentPageIndex}">
-                <Carousel.PageTransition >
+                <Carousel.PageTransition>
                     <CompositePageTransition>
                         <PageSlide Duration="0:00:00.200" Orientation="Vertical" />
                     </CompositePageTransition>
                 </Carousel.PageTransition>
                 <Carousel.Items>
-                    <!-- Play Page -->
+                    <!--  Play Page  -->
                     <StackPanel Classes="MainContentArea">
-                        <TextBlock Text="Launch Game" Classes="MainContentTitle"/>
-                        <TextBlock Text="You don't have instances yet."/>
+                        <Grid Width="480">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="50" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Classes="MainContentTitle" Text="Launch Game" />
+                            <Button Classes="AddInstanceButton" Grid.Column="1">
+                                <TextBlock Classes="FontAwesome" Text="&#x2b;" />
+                            </Button>
+                        </Grid>
+                        <TextBlock Name="NoPlayInstancesTextBlock" Text="You don't have instances yet." />
                         <Grid MaxHeight="440">
                             <ScrollViewer Classes="PlayPageScrollViewer">
                                 <ItemsControl ItemsSource="{Binding InstancesOnPlayPage}">
@@ -98,88 +147,91 @@
                             </ScrollViewer>
                         </Grid>
                     </StackPanel>
-                    <!-- Instances Page -->
+                    <!--  News Page  -->
                     <StackPanel Classes="MainContentArea">
-                        <TextBlock Text="Instances" Classes="MainContentTitle"/>
-                        <TextBlock Text="You don't have instances yet."/>
+                        <TextBlock Classes="MainContentTitle" Text="News" />
+                        <TextBlock Text="We do not have news." />
                         <Grid MaxHeight="440">
                             <ScrollViewer Classes="PlayPageScrollViewer">
-                                
-                            </ScrollViewer>
-                        </Grid>
-                    </StackPanel>
-                    <!-- News Page -->
-                    <StackPanel Classes="MainContentArea">
-                        <TextBlock Text="News" Classes="MainContentTitle"/>
-                        <TextBlock Text="We do not have news."/>
-                        <Grid MaxHeight="440">
-                            <ScrollViewer Classes="PlayPageScrollViewer">
-                                <WrapPanel MaxHeight="440" ItemSpacing="10" LineSpacing="10">
-                                    <Border Background="{StaticResource BG-Surface-Dark}" 
-                                            Padding="15"
-                                            CornerRadius="8">
+                                <WrapPanel
+                                    ItemSpacing="10"
+                                    LineSpacing="10"
+                                    MaxHeight="440">
+                                    <Border
+                                        Background="{StaticResource base-200}"
+                                        CornerRadius="8"
+                                        Padding="15">
                                         <StackPanel>
-                                            <TextBlock Text="The standard Lorem Ipsum passage, used since the 1500s"
-                                                       FontSize="18"
-                                                       FontWeight="SemiBold"
-                                                       Margin="0, 0, 0, 8"
-                                                       TextWrapping="Wrap"
-                                            />
-                                            <TextBlock Text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." 
-                                                       TextWrapping="Wrap"
-                                                       Margin="0, 0, 0, 8" />
-                                            <Button Content="Read More" />
+                                            <TextBlock
+                                                FontSize="18"
+                                                FontWeight="SemiBold"
+                                                Margin="0,0,0,8"
+                                                Text="The standard Lorem Ipsum passage, used since the 1500s"
+                                                TextWrapping="Wrap" />
+                                            <TextBlock
+                                                Margin="0,0,0,8"
+                                                Text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+                                                TextWrapping="Wrap" />
+                                            <Button Classes="NewsReadButton" Content="Read More" />
                                         </StackPanel>
                                     </Border>
                                 </WrapPanel>
                             </ScrollViewer>
                         </Grid>
                     </StackPanel>
-                    <!-- Accounts Page -->
+                    <!--  Accounts Page  -->
                     <StackPanel Classes="MainContentArea">
                         <Grid Width="480">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"></ColumnDefinition>
-                                <ColumnDefinition Width="50"></ColumnDefinition>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="50" />
                             </Grid.ColumnDefinitions>
-                            
-                            <TextBlock Text="Accounts" Classes="MainContentTitle"/>
-                            <Button Grid.Column="1" Background="{StaticResource Accent-Green}" HorizontalAlignment="Right">
-                                <TextBlock Text="&#xf234;" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="{StaticResource FontAwesome}" />
+
+                            <TextBlock Classes="MainContentTitle" Text="Accounts" />
+                            <Button Classes="AddAccountButton" Grid.Column="1">
+                                <TextBlock Classes="FontAwesome" Text="&#xf234;" />
                             </Button>
                         </Grid>
-                        <TextBlock Text="You don't have accounts yet."/>
+                        <TextBlock Text="You don't have accounts yet." />
                         <Grid MaxHeight="440">
                             <ScrollViewer Classes="PlayPageScrollViewer">
-                                <WrapPanel MaxHeight="440" ItemSpacing="10" LineSpacing="10">
-                                    <Border Background="{StaticResource BG-Surface-Dark}" 
-                                            Padding="15"
-                                            CornerRadius="8">
+                                <WrapPanel
+                                    ItemSpacing="10"
+                                    LineSpacing="10"
+                                    MaxHeight="440">
+                                    <Border
+                                        Background="{StaticResource base-200}"
+                                        CornerRadius="8"
+                                        Padding="15">
                                         <Grid Width="450">
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"></ColumnDefinition>
-                                                <ColumnDefinition Width="150"></ColumnDefinition>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="150" />
                                             </Grid.ColumnDefinitions>
                                             <WrapPanel Orientation="Vertical">
-                                                <TextBlock Text="PlayerOne"
-                                                           FontSize="16"
-                                                           FontWeight="SemiBold"
-                                                           Margin="0, 0, 0, 0"
-                                                           TextWrapping="Wrap"
-                                                />
-                                                <TextBlock Text="Microsoft" 
-                                                           TextWrapping="Wrap"
-                                                />
+                                                <TextBlock
+                                                    FontSize="16"
+                                                    FontWeight="SemiBold"
+                                                    Margin="0,0,0,0"
+                                                    Text="PlayerOne"
+                                                    TextWrapping="Wrap" />
+                                                <TextBlock Text="Microsoft" TextWrapping="Wrap" />
                                             </WrapPanel>
-                                            <WrapPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" ItemSpacing="5" LineSpacing="5" Orientation="Horizontal">
-                                                <Button Background="{StaticResource Accent-Green}">
-                                                    <TextBlock Text="&#xf00c;" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="{StaticResource FontAwesome}" />
+                                            <WrapPanel
+                                                Grid.Column="1"
+                                                HorizontalAlignment="Right"
+                                                ItemSpacing="5"
+                                                LineSpacing="5"
+                                                Orientation="Horizontal"
+                                                VerticalAlignment="Center">
+                                                <Button Classes="SelectAccountButton">
+                                                    <TextBlock Classes="FontAwesome" Text="&#xf00c;" />
                                                 </Button>
-                                                <Button Background="{StaticResource Accent-Indigo}" >
-                                                    <TextBlock Text="&#xf2f9;" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="{StaticResource FontAwesome}" />
+                                                <Button Classes="ReLoginAccountButton">
+                                                    <TextBlock Classes="FontAwesome" Text="&#xf2f9;" />
                                                 </Button>
-                                                <Button Background="{StaticResource Accent-Red}">
-                                                    <TextBlock Text="&#xf1f8;" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="{StaticResource FontAwesome}" />
+                                                <Button Classes="RemoveAccountButton">
+                                                    <TextBlock Classes="FontAwesome" Text="&#xf1f8;" />
                                                 </Button>
                                             </WrapPanel>
                                         </Grid>
@@ -188,12 +240,435 @@
                             </ScrollViewer>
                         </Grid>
                     </StackPanel>
-                    <!-- Settings Page -->
+                    <!--  Settings Page  -->
                     <StackPanel Classes="MainContentArea">
-                        <TextBlock Text="Settings" Classes="MainContentTitle"/>
+                        <TextBlock Classes="MainContentTitle" Text="Settings" />
                         <Grid MaxHeight="440">
                             <ScrollViewer Classes="PlayPageScrollViewer">
-                                
+                                <TabControl
+                                    Background="{StaticResource base-200}"
+                                    CornerRadius="8"
+                                    Margin="0,0,0,10"
+                                    Padding="0">
+                                    <TabItem FontSize="18" Header="Launcher">
+                                        <WrapPanel
+                                            ItemSpacing="10"
+                                            ItemWidth="440"
+                                            LineSpacing="10"
+                                            Margin="25,10,25,25"
+                                            Orientation="Vertical"
+                                            Width="440">
+                                            <CheckBox>
+                                                <TextBlock Text="Enable automatic updates" />
+                                            </CheckBox>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Update Interval</TextBlock>
+                                                <NumericUpDown
+                                                    FormatString="0\h"
+                                                    Grid.Column="1"
+                                                    Increment="1"
+                                                    Maximum="8760"
+                                                    Minimum="1"
+                                                    ParsingNumberStyle="Integer"
+                                                    ShowButtonSpinner="True"
+                                                    Value="24" />
+                                            </Grid>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Language</TextBlock>
+                                                <ComboBox
+                                                    Grid.Column="1"
+                                                    HorizontalAlignment="Stretch"
+                                                    SelectedIndex="0">
+                                                    <ComboBoxItem Content="English (US)" />
+                                                    <ComboBoxItem Content="Español (ES)" />
+                                                    <ComboBoxItem Content="Français (FR)" />
+                                                    <ComboBoxItem Content="Deutsch (DE)" />
+                                                </ComboBox>
+                                            </Grid>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Theme</TextBlock>
+                                                <ComboBox
+                                                    Grid.Column="1"
+                                                    HorizontalAlignment="Stretch"
+                                                    SelectedIndex="0">
+                                                    <ComboBoxItem Content="Automatic" />
+                                                    <ComboBoxItem Content="Light" />
+                                                    <ComboBoxItem Content="Dark" />
+                                                </ComboBox>
+                                            </Grid>
+                                            <TextBlock
+                                                FontSize="16"
+                                                FontWeight="SemiBold"
+                                                Margin="0,10"
+                                                VerticalAlignment="Center">
+                                                Directories
+                                            </TextBlock>
+                                            <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto">
+                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Assets</TextBlock>
+
+                                                <TextBox
+                                                    Grid.Column="1"
+                                                    IsReadOnly="True"
+                                                    Margin="0,0,5,0"
+                                                    Text="/home/user/example"
+                                                    VerticalAlignment="Center"
+                                                    Watermark="Select a directory..." />
+
+                                                <Button
+                                                    Content="Browse..."
+                                                    Grid.Column="2"
+                                                    VerticalAlignment="Center" />
+                                            </Grid>
+                                            <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto">
+                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Cache</TextBlock>
+
+                                                <TextBox
+                                                    Grid.Column="1"
+                                                    IsReadOnly="True"
+                                                    Margin="0,0,5,0"
+                                                    Text="/home/user/example"
+                                                    VerticalAlignment="Center"
+                                                    Watermark="Select a directory..." />
+
+                                                <Button
+                                                    Content="Browse..."
+                                                    Grid.Column="2"
+                                                    VerticalAlignment="Center" />
+                                            </Grid>
+                                            <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto">
+                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Instances</TextBlock>
+
+                                                <TextBox
+                                                    Grid.Column="1"
+                                                    IsReadOnly="True"
+                                                    Margin="0,0,5,0"
+                                                    Text="/home/user/example"
+                                                    VerticalAlignment="Center"
+                                                    Watermark="Select a directory..." />
+
+                                                <Button
+                                                    Content="Browse..."
+                                                    Grid.Column="2"
+                                                    VerticalAlignment="Center" />
+                                            </Grid>
+                                            <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto">
+                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Libraries</TextBlock>
+
+                                                <TextBox
+                                                    Grid.Column="1"
+                                                    IsReadOnly="True"
+                                                    Margin="0,0,5,0"
+                                                    Text="/home/user/example"
+                                                    VerticalAlignment="Center"
+                                                    Watermark="Select a directory..." />
+
+                                                <Button
+                                                    Content="Browse..."
+                                                    Grid.Column="2"
+                                                    VerticalAlignment="Center" />
+                                            </Grid>
+                                            <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto">
+                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Manifests</TextBlock>
+
+                                                <TextBox
+                                                    Grid.Column="1"
+                                                    IsReadOnly="True"
+                                                    Margin="0,0,5,0"
+                                                    Text="/home/user/example"
+                                                    VerticalAlignment="Center"
+                                                    Watermark="Select a directory..." />
+
+                                                <Button
+                                                    Content="Browse..."
+                                                    Grid.Column="2"
+                                                    VerticalAlignment="Center" />
+                                            </Grid>
+                                            <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto">
+                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Translations</TextBlock>
+
+                                                <TextBox
+                                                    Grid.Column="1"
+                                                    IsReadOnly="True"
+                                                    Margin="0,0,5,0"
+                                                    Text="/home/user/example"
+                                                    VerticalAlignment="Center"
+                                                    Watermark="Select a directory..." />
+
+                                                <Button
+                                                    Content="Browse..."
+                                                    Grid.Column="2"
+                                                    VerticalAlignment="Center" />
+                                            </Grid>
+                                            <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto">
+                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Versions</TextBlock>
+
+                                                <TextBox
+                                                    Grid.Column="1"
+                                                    IsReadOnly="True"
+                                                    Margin="0,0,5,0"
+                                                    Text="/home/user/example"
+                                                    VerticalAlignment="Center"
+                                                    Watermark="Select a directory..." />
+
+                                                <Button
+                                                    Content="Browse..."
+                                                    Grid.Column="2"
+                                                    VerticalAlignment="Center" />
+                                            </Grid>
+                                        </WrapPanel>
+                                    </TabItem>
+                                    <TabItem FontSize="18" Header="Minecraft">
+                                        <WrapPanel
+                                            ItemSpacing="10"
+                                            ItemWidth="440"
+                                            LineSpacing="10"
+                                            Margin="25,10,25,25"
+                                            Orientation="Vertical"
+                                            Width="440">
+                                            <CheckBox>
+                                                <TextBlock Text="Start Minecraft maximized" />
+                                            </CheckBox>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Window width</TextBlock>
+                                                <NumericUpDown
+                                                    FormatString="0"
+                                                    Grid.Column="1"
+                                                    Increment="1"
+                                                    Maximum="1920"
+                                                    Minimum="100"
+                                                    ParsingNumberStyle="Integer"
+                                                    ShowButtonSpinner="True"
+                                                    Value="1920" />
+                                            </Grid>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Window height</TextBlock>
+                                                <NumericUpDown
+                                                    FormatString="0"
+                                                    Grid.Column="1"
+                                                    Increment="1"
+                                                    Maximum="1080"
+                                                    Minimum="100"
+                                                    ParsingNumberStyle="Integer"
+                                                    ShowButtonSpinner="True"
+                                                    Value="1080" />
+                                            </Grid>
+                                            <CheckBox>
+                                                <TextBlock Text="Close launcher after game opens" />
+                                            </CheckBox>
+                                            <CheckBox>
+                                                <TextBlock Text="Close launcher after game closes" />
+                                            </CheckBox>
+                                        </WrapPanel>
+                                    </TabItem>
+                                    <TabItem FontSize="18" Header="Java">
+                                        <WrapPanel
+                                            ItemSpacing="10"
+                                            ItemWidth="440"
+                                            LineSpacing="10"
+                                            Margin="25,10,25,25"
+                                            Orientation="Vertical"
+                                            Width="440">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Minimum memory</TextBlock>
+                                                <NumericUpDown
+                                                    FormatString="0\ MB"
+                                                    Grid.Column="1"
+                                                    Increment="1"
+                                                    Maximum="131072"
+                                                    Minimum="512"
+                                                    ParsingNumberStyle="Integer"
+                                                    ShowButtonSpinner="True"
+                                                    Value="512" />
+                                            </Grid>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Maximum memory</TextBlock>
+                                                <NumericUpDown
+                                                    FormatString="0\ MB"
+                                                    Grid.Column="1"
+                                                    Increment="1"
+                                                    Maximum="131072"
+                                                    Minimum="512"
+                                                    ParsingNumberStyle="Integer"
+                                                    ShowButtonSpinner="True"
+                                                    Value="2048" />
+                                            </Grid>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+
+                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">PermGen</TextBlock>
+                                                <NumericUpDown
+                                                    FormatString="0\ MB"
+                                                    Grid.Column="1"
+                                                    Increment="1"
+                                                    Maximum="1024"
+                                                    Minimum="8"
+                                                    ParsingNumberStyle="Integer"
+                                                    ShowButtonSpinner="True"
+                                                    Value="128" />
+                                            </Grid>
+                                            <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto">
+                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Java path</TextBlock>
+
+                                                <TextBox
+                                                    Grid.Column="1"
+                                                    IsReadOnly="True"
+                                                    Margin="0,0,5,0"
+                                                    Text="/home/user/example"
+                                                    VerticalAlignment="Center"
+                                                    Watermark="Select a directory..." />
+                                                <Button
+                                                    Content="Browse..."
+                                                    Grid.Column="2"
+                                                    VerticalAlignment="Center" />
+                                            </Grid>
+                                            <TextBlock
+                                                FontSize="16"
+                                                FontWeight="SemiBold"
+                                                Margin="0,10"
+                                                VerticalAlignment="Center">
+                                                JVM Arguments
+                                            </TextBlock>
+                                            <TextBox
+                                                MaxLines="512"
+                                                MinHeight="128"
+                                                TextWrapping="Wrap" />
+                                        </WrapPanel>
+                                    </TabItem>
+                                    <TabItem FontSize="18" Header="Misc">
+                                        <WrapPanel
+                                            ItemSpacing="10"
+                                            ItemWidth="440"
+                                            LineSpacing="10"
+                                            Margin="25,0,25,25"
+                                            Orientation="Vertical"
+                                            Width="440">
+                                            <TextBlock
+                                                FontSize="16"
+                                                FontWeight="SemiBold"
+                                                Margin="0,10"
+                                                VerticalAlignment="Center">
+                                                Custom Commands
+                                            </TextBlock>
+                                            <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto">
+                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Pre-launch</TextBlock>
+
+                                                <TextBox
+                                                    Grid.Column="1"
+                                                    IsReadOnly="True"
+                                                    Margin="0,0,5,0"
+                                                    Text=""
+                                                    VerticalAlignment="Center" />
+                                            </Grid>
+                                            <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto">
+                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Wrapper</TextBlock>
+
+                                                <TextBox
+                                                    Grid.Column="1"
+                                                    IsReadOnly="True"
+                                                    Margin="0,0,5,0"
+                                                    Text=""
+                                                    VerticalAlignment="Center" />
+                                            </Grid>
+                                            <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto">
+                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Post-exit</TextBlock>
+
+                                                <TextBox
+                                                    Grid.Column="1"
+                                                    IsReadOnly="True"
+                                                    Margin="0,0,5,0"
+                                                    Text=""
+                                                    VerticalAlignment="Center" />
+                                            </Grid>
+                                            <TextBlock
+                                                FontSize="16"
+                                                FontWeight="SemiBold"
+                                                Margin="0,5"
+                                                VerticalAlignment="Center">
+                                                Native libraries
+                                            </TextBlock>
+                                            <CheckBox>
+                                                <TextBlock Text="Use custom GLFW" />
+                                            </CheckBox>
+                                            <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto">
+                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">GLFW library path</TextBlock>
+
+                                                <TextBox
+                                                    Grid.Column="1"
+                                                    IsReadOnly="True"
+                                                    Margin="0,0,5,0"
+                                                    Text=""
+                                                    VerticalAlignment="Center" />
+                                            </Grid>
+                                            <CheckBox>
+                                                <TextBlock Text="Use custom OpenAL" />
+                                            </CheckBox>
+                                            <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto">
+                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">OpenAL library path</TextBlock>
+
+                                                <TextBox
+                                                    Grid.Column="1"
+                                                    IsReadOnly="True"
+                                                    Margin="0,0,5,0"
+                                                    Text=""
+                                                    VerticalAlignment="Center" />
+                                            </Grid>
+                                            <TextBlock
+                                                FontSize="16"
+                                                FontWeight="SemiBold"
+                                                Margin="0,5"
+                                                VerticalAlignment="Center">
+                                                Performance
+                                            </TextBlock>
+                                            <CheckBox>
+                                                <TextBlock Text="Enable Feral GameMode" />
+                                            </CheckBox>
+                                            <CheckBox>
+                                                <TextBlock Text="Enable MangoHud" />
+                                            </CheckBox>
+                                            <CheckBox>
+                                                <TextBlock Text="Use dedicated GPU" />
+                                            </CheckBox>
+                                        </WrapPanel>
+                                    </TabItem>
+                                </TabControl>
                             </ScrollViewer>
                         </Grid>
                     </StackPanel>

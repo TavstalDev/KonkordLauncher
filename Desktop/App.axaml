@@ -10,6 +10,18 @@
     <Application.Styles>
         <FluentTheme />
         <StyleInclude Source="Styles/Themes/DarkTheme.axaml" />
+        
+        <StyleInclude Source="Styles/Controls/Buttons.axaml" />
+        <StyleInclude Source="Styles/Controls/Navigation.axaml" />
+        <StyleInclude Source="Styles/Controls/TextBoxes.axaml" />
+        
+        <StyleInclude Source="Styles/Components/Alerts.axaml" />
+        <StyleInclude Source="Styles/Components/Modals.axaml" />
+        
+        <StyleInclude Source="Styles/Layout/InstancePage.axaml" />
+        <StyleInclude Source="Styles/Layout/PlayPage.axaml" />
+        <StyleInclude Source="Styles/Layout/SettingsPage.axaml" />
+        
         <StyleInclude Source="Styles/Style.axaml" />
     </Application.Styles>
 </Application>

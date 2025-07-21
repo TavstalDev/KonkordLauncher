@@ -7,7 +7,7 @@ namespace Tavstal.KonkordLauncher.Desktop.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase
 {
-    private ESidebarType _currentPageIndex = 0;
+    private ESidebarType _currentPageIndex = ESidebarType.Play;
     public ESidebarType CurrentPageIndex
     {
         get => _currentPageIndex;

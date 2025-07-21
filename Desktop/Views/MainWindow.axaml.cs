@@ -40,41 +40,35 @@ public partial class MainWindow : Window
             return;
 
         viewModel.CurrentPageIndex = sidebarType;
-        _selectedButton.Classes.Remove("SidebarSelectedBtn");
-        _selectedButton.Classes.Add("SidebarBtn");
+        _selectedButton.Classes.Remove("PrimaryBtn");
+        _selectedButton.Classes.Add("SecondaryBtn");
 
         switch (sidebarType)
         {
             case ESidebarType.Play:
             {
-                PlaySideBtn.Classes.Remove("SidebarBtn");
-                PlaySideBtn.Classes.Add("SidebarSelectedBtn");
+                
                 _selectedButton = PlaySideBtn;
                 break;
             }
             case ESidebarType.News:
             {
-                NewsSideBtn.Classes.Remove("SidebarBtn");
-                NewsSideBtn.Classes.Add("SidebarSelectedBtn");
                 _selectedButton = NewsSideBtn;
                 break;
             }
             case ESidebarType.Accounts:
             {
-                AccountsSideBtn.Classes.Remove("SidebarBtn");
-                AccountsSideBtn.Classes.Add("SidebarSelectedBtn");
                 _selectedButton = AccountsSideBtn;
                 break;
             }
             case ESidebarType.Settings:
             {
-                SettingsSideBtn.Classes.Remove("SidebarBtn");
-                SettingsSideBtn.Classes.Add("SidebarSelectedBtn");
                 _selectedButton = SettingsSideBtn;
                 break;
             }
         }
-
+        _selectedButton.Classes.Remove("SecondaryBtn");
+        _selectedButton.Classes.Add("PrimaryBtn");
     }
 
     private void UpdateInstancesOnPlayPage()

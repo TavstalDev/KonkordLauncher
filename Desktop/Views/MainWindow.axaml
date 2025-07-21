@@ -39,19 +39,19 @@
                         Grid.Row="1"
                         Text="{Binding Title}" />
                     <WrapPanel Classes="PlayCardButtonWrapper" Grid.Row="2">
-                        <Button Classes="PlayCardPlayButton">
+                        <Button Classes="IconBtn PrimaryBtn">
                             <TextBlock
                                 Classes="FontAwesome"
                                 Padding="4,0"
                                 Text="&#xf04b;" />
                         </Button>
-                        <Button Classes="PlayCardEditButton">
+                        <Button Classes="IconBtn InfoBtn">
                             <TextBlock
                                 Classes="FontAwesome"
                                 Padding="4,0"
                                 Text="&#xf304;" />
                         </Button>
-                        <Button Classes="PlayCardMenuButton">
+                        <Button Classes="IconBtn SecondaryBtn">
                             <TextBlock
                                 Classes="FontAwesome"
                                 Padding="6,0"
@@ -85,22 +85,22 @@
 
             <StackPanel Grid.Row="1">
                 <Button
-                    Classes="SidebarSelectedBtn"
+                    Classes="SidebarBtn PrimaryBtn"
                     Click="OnPlaySideButtonClick"
                     Content="Play"
                     Name="PlaySideBtn" />
                 <Button
-                    Classes="SidebarBtn"
+                    Classes="SidebarBtn SecondaryBtn"
                     Click="OnNewsSideButtonClick"
                     Content="News"
                     Name="NewsSideBtn" />
                 <Button
-                    Classes="SidebarBtn"
+                    Classes="SidebarBtn SecondaryBtn"
                     Click="OnAccountsSideButtonClick"
                     Content="Accounts"
                     Name="AccountsSideBtn" />
                 <Button
-                    Classes="SidebarBtn"
+                    Classes="SidebarBtn SecondaryBtn"
                     Click="OnSettingsSideButtonClick"
                     Content="Settings"
                     Name="SettingsSideBtn" />
@@ -126,11 +126,11 @@
                         <Grid Width="480">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="50" />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
 
                             <TextBlock Classes="MainContentTitle" Text="Launch Game" />
-                            <Button Classes="AddInstanceButton" Grid.Column="1">
+                            <Button Classes="IconBtn InfoBtn" Grid.Column="1">
                                 <TextBlock Classes="FontAwesome" Text="&#x2b;" />
                             </Button>
                         </Grid>
@@ -172,7 +172,7 @@
                                                 Margin="0,0,0,8"
                                                 Text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
                                                 TextWrapping="Wrap" />
-                                            <Button Classes="NewsReadButton" Content="Read More" />
+                                            <Button Classes="IconBtn InfoBtn" Content="Read More" />
                                         </StackPanel>
                                     </Border>
                                 </WrapPanel>
@@ -184,11 +184,11 @@
                         <Grid Width="480">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="50" />
+                                <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
 
                             <TextBlock Classes="MainContentTitle" Text="Accounts" />
-                            <Button Classes="AddAccountButton" Grid.Column="1">
+                            <Button Classes="IconBtn InfoBtn" Grid.Column="1">
                                 <TextBlock Classes="FontAwesome" Text="&#xf234;" />
                             </Button>
                         </Grid>
@@ -224,13 +224,13 @@
                                                 LineSpacing="5"
                                                 Orientation="Horizontal"
                                                 VerticalAlignment="Center">
-                                                <Button Classes="SelectAccountButton">
+                                                <Button Classes="IconBtn SuccessBtn">
                                                     <TextBlock Classes="FontAwesome" Text="&#xf00c;" />
                                                 </Button>
-                                                <Button Classes="ReLoginAccountButton">
+                                                <Button Classes="IconBtn WarningBtn">
                                                     <TextBlock Classes="FontAwesome" Text="&#xf2f9;" />
                                                 </Button>
-                                                <Button Classes="RemoveAccountButton">
+                                                <Button Classes="IconBtn ErrorBtn">
                                                     <TextBlock Classes="FontAwesome" Text="&#xf1f8;" />
                                                 </Button>
                                             </WrapPanel>

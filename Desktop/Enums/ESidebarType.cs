@@ -11,22 +11,17 @@ public enum ESidebarType
     Play = 0,
 
     /// <summary>
-    /// The "Instances" sidebar option, used for managing game instances.
-    /// </summary>
-    Instances = 1,
-
-    /// <summary>
     /// The "News" sidebar option, displaying news and updates.
     /// </summary>
-    News = 2,
+    News = 1,
 
     /// <summary>
     /// The "Accounts" sidebar option, for managing user accounts.
     /// </summary>
-    Accounts = 3,
+    Accounts = 2,
 
     /// <summary>
     /// The "Settings" sidebar option, for configuring application settings.
     /// </summary>
-    Settings = 4
+    Settings = 3
 }

@@ -1,178 +1,441 @@
-<Styles xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Style Selector="Window">
-        <Setter Property="Background" Value="{StaticResource BG-Body}"/>
+        <Setter Property="Background" Value="{StaticResource base-200}" />
     </Style>
 
-    <!-- region Side Bar -->
-    <!-- Button -->
+    <!--  region Common  -->
+    <Style Selector="TextBlock.FontAwesome">
+        <Setter Property="FontFamily" Value="{StaticResource FontAwesome}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="TextAlignment" Value="Center" />
+        <Setter Property="Padding" Value="2" />
+    </Style>
+    <!--  endregion  -->
+
+    <!--  region Side Bar  -->
+    <!--  Button  -->
     <Style Selector="Button.SidebarBtn">
         <Setter Property="Height" Value="40" />
-        <Setter Property="Width" Value="240"/>
+        <Setter Property="Width" Value="240" />
         <Setter Property="FontSize" Value="18" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="HorizontalContentAlignment" Value="Center"/>
-        <Setter Property="Padding" Value="4"></Setter>
-        <Setter Property="Margin" Value="0, 0, 0, 10"/>
-        <Setter Property="Background" Value="{StaticResource Btn-Secondary}" />
-        <Setter Property="BorderBrush" Value="{StaticResource Btn-Secondary-Border}" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="Padding" Value="4" />
+        <Setter Property="Margin" Value="0, 0, 0, 10" />
+        <Setter Property="Background" Value="{StaticResource secondary}" />
+        <Setter Property="BorderBrush" Value="{StaticResource secondary-border}" />
+        <Setter Property="Opacity" Value="0.8" />
         <Setter Property="BorderThickness" Value="0,0,4,4" />
-        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Cursor" Value="Hand" />
     </Style>
-    <!-- Button Hover -->
+    <!--  Button Hover  -->
     <Style Selector="Button.SidebarBtn:pointerover /template/ ContentPresenter">
-        <Setter Property="Background" Value="{StaticResource Btn-Secondary-Hover}" />
-        <Setter Property="BorderBrush" Value="{StaticResource Btn-Secondary-Hover-Border}" />
+        <Setter Property="Background" Value="{StaticResource secondary}" />
+        <Setter Property="BorderBrush" Value="{StaticResource secondary-border}" />
+        <Setter Property="Opacity" Value="0.9" />
         <Setter Property="BorderThickness" Value="0,0,4,4" />
-        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Cursor" Value="Hand" />
     </Style>
 
-    <!-- Button Active -->
+    <!--  Button Active  -->
     <Style Selector="Button.SidebarBtn:pressed /template/ ContentPresenter">
-        <Setter Property="Background" Value="{StaticResource Btn-Secondary-Hover}" />
-        <Setter Property="BorderBrush" Value="{StaticResource Btn-Secondary-Hover-Border}" />
+        <Setter Property="Background" Value="{StaticResource secondary}" />
+        <Setter Property="BorderBrush" Value="{StaticResource secondary-border}" />
+        <Setter Property="Opacity" Value="1.0" />
         <Setter Property="BorderThickness" Value="0,0,2,2" />
-        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Cursor" Value="Hand" />
     </Style>
-    
-    <!-- Selected Button -->
+
+    <!--  Selected Button  -->
     <Style Selector="Button.SidebarSelectedBtn">
         <Setter Property="Height" Value="40" />
-        <Setter Property="Width" Value="240"/>
+        <Setter Property="Width" Value="240" />
         <Setter Property="FontSize" Value="18" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="HorizontalContentAlignment" Value="Center"/>
-        <Setter Property="Padding" Value="4"></Setter>
-        <Setter Property="Margin" Value="0, 0, 0, 10"/>
-        <Setter Property="Background" Value="{StaticResource Btn-Primary}" />
-        <Setter Property="BorderBrush" Value="{StaticResource Btn-Primary-Border}" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="Padding" Value="4" />
+        <Setter Property="Margin" Value="0, 0, 0, 10" />
+        <Setter Property="Background" Value="{StaticResource primary}" />
+        <Setter Property="BorderBrush" Value="{StaticResource primary-border}" />
+        <Setter Property="Opacity" Value="0.8" />
         <Setter Property="BorderThickness" Value="0,0,4,4" />
-        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Cursor" Value="Hand" />
     </Style>
-    <!-- Selected Button Hover -->
+    <!--  Selected Button Hover  -->
     <Style Selector="Button.SidebarSelectedBtn:pointerover /template/ ContentPresenter">
-        <Setter Property="Background" Value="{StaticResource Btn-Primary-Hover}" />
-        <Setter Property="BorderBrush" Value="{StaticResource Btn-Primary-Hover-Border}" />
+        <Setter Property="Background" Value="{StaticResource primary}" />
+        <Setter Property="BorderBrush" Value="{StaticResource primary-border}" />
+        <Setter Property="Opacity" Value="0.9" />
         <Setter Property="BorderThickness" Value="0,0,4,4" />
-        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Cursor" Value="Hand" />
     </Style>
 
-    <!-- Selected Button Active -->
+    <!--  Selected Button Active  -->
     <Style Selector="Button.SidebarSelectedBtn:pressed /template/ ContentPresenter">
-        <Setter Property="Background" Value="{StaticResource Btn-Primary-Hover}" />
-        <Setter Property="BorderBrush" Value="{StaticResource Btn-Primary-Hover-Border}" />
+        <Setter Property="Background" Value="{StaticResource primary}" />
+        <Setter Property="BorderBrush" Value="{StaticResource primary-border}" />
+        <Setter Property="Opacity" Value="1.0" />
         <Setter Property="BorderThickness" Value="0,0,2,2" />
-        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Cursor" Value="Hand" />
     </Style>
-    
-    <!-- Label -->
+
+    <!--  Label  -->
     <Style Selector="Label.SidebarLabel">
         <Setter Property="FontSize" Value="14" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />
-        <Setter Property="Foreground" Value="{StaticResource Text-Muted}"/>
+        <Setter Property="Foreground" Value="{StaticResource text-muted}" />
     </Style>
-    <!-- endregion -->
-    
-    <!-- region Main Content Area -->
-    
+    <!--  endregion  -->
+
+    <!--  region Main Content Area  -->
+
+    <!--  MainContentArea Border  -->
     <Style Selector="Border.MainContentArea">
-        <Setter Property="Background" Value="{StaticResource BG-Surface-Medium}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource BG-Border-Secondary}" />
+        <Setter Property="Background" Value="{StaticResource base-100}" />
+        <Setter Property="BorderBrush" Value="{StaticResource border-two}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="CornerRadius" Value="8" />
     </Style>
-    
+
+    <!--  MainContentArea StackPanel  -->
     <Style Selector="StackPanel.MainContentArea">
-        <Setter Property="Margin" Value="20"/>
-    </Style>
-    
-    <Style Selector="TextBlock.MainContentTitle">
-        <Setter Property="FontSize" Value="24"/>
-        <Setter Property="FontWeight" Value="Medium"/>
-        <Setter Property="Foreground" Value="{StaticResource Text-Primary}"/>
-        <Setter Property="Margin" Value="0, 0, 0, 10"/>
-        
+        <Setter Property="Margin" Value="20" />
     </Style>
 
-    <!-- region Play Page -->
-    <Style Selector="ScrollViewer.PlayPageScrollViewer">
-        <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
-        <Setter Property="HorizontalScrollBarVisibility" Value="Disabled"/>
-        
+    <!--  MainContentTitle  -->
+    <Style Selector="TextBlock.MainContentTitle">
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="Foreground" Value="{StaticResource base-content}" />
+        <Setter Property="Margin" Value="0, 0, 0, 10" />
+
     </Style>
-    
+
+    <!--  region Play Page  -->
+
+    <!--  PlayPageScrollViewer  -->
+    <Style Selector="ScrollViewer.PlayPageScrollViewer">
+        <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
+        <Setter Property="HorizontalScrollBarVisibility" Value="Disabled" />
+
+    </Style>
+
+    <!--  PlayPageWrapper  -->
     <Style Selector="WrapPanel.PlayPageWrapper">
         <Setter Property="Orientation" Value="Horizontal" />
-        <Setter Property="ItemSpacing" Value="15"/>
-        <Setter Property="LineSpacing" Value="15"/>
-        <Setter Property="Margin" Value="0, 0, 0, 20"/>
-        
-    </Style>
-    
-    <Style Selector="Border.PlayCard">
-        <Setter Property="Background" Value="{StaticResource BG-Surface-Dark}" />
-        <Setter Property="CornerRadius" Value="8" />
-        <Setter Property="Padding" Value="10"/>
-        <Setter Property="Width" Value="150"/>
-    </Style>
-    
-    <Style Selector="Image.PlayCardImage">
-        <Setter Property="Height" Value="50"/>
-        <Setter Property="Width" Value="50"/>
-        
-    </Style>
-    
-    <Style Selector="TextBlock.PlayCardText">
-        <Setter Property="FontSize" Value="16"/>
-        <Setter Property="Foreground" Value="{StaticResource Text-Primary}"/>
-        <Setter Property="TextWrapping" Value="Wrap"/>
-        <Setter Property="TextAlignment" Value="Center"/>
-        <Setter Property="HorizontalAlignment" Value="Center"/>
-        <Setter Property="Margin" Value="10"/>
-        
-    </Style>
-    
-    <!-- Play Button -->
-    <Style Selector="Button.PlayCardLaunchButton">
-        <Setter Property="Background" Value="{StaticResource Btn-Primary}" />
-        <Setter Property="BorderBrush" Value="{StaticResource Btn-Primary-Border}" />
-        <Setter Property="Foreground" Value="{StaticResource Text-Primary}"/>
-        <Setter Property="Padding" Value="5"></Setter>
-        <Setter Property="HorizontalAlignment" Value="Center"/>
-        <Setter Property="BorderThickness" Value="0,0,2,2" />
-        <Setter Property="Cursor" Value="Hand"/>
-    </Style>
-    <!-- Play Button Hover -->
-    <Style Selector="Button.PlayCardLaunchButton:pointerover /template/ ContentPresenter">
-        <Setter Property="Background" Value="{StaticResource Btn-Primary-Hover}" />
-        <Setter Property="BorderBrush" Value="{StaticResource Btn-Primary-Hover-Border}" />
-        <Setter Property="BorderThickness" Value="0,0,2,2" />
-        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="ItemSpacing" Value="15" />
+        <Setter Property="LineSpacing" Value="15" />
+        <Setter Property="Margin" Value="0, 0, 0, 20" />
+
     </Style>
 
-    <!-- Play Button Active -->
-    <Style Selector="Button.PlayCardLaunchButton:pressed /template/ ContentPresenter">
-        <Setter Property="Background" Value="{StaticResource Btn-Primary-Hover}" />
-        <Setter Property="BorderBrush" Value="{StaticResource Btn-Primary-Hover-Border}" />
+    <!--  Add Instance Button  -->
+    <Style Selector="Button.AddInstanceButton">
+        <Setter Property="Background" Value="{StaticResource info}" />
+        <Setter Property="BorderBrush" Value="{StaticResource info-content}" />
+        <Setter Property="Foreground" Value="{StaticResource secondary-content}" />
+        <Setter Property="Opacity" Value="0.8" />
+        <Setter Property="Padding" Value="5" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="BorderThickness" Value="0,0,2,2" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <!--  Add Instance Button Hover  -->
+    <Style Selector="Button.AddInstanceButton:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource info}" />
+        <Setter Property="BorderBrush" Value="{StaticResource info-content}" />
+        <Setter Property="Opacity" Value="0.9" />
+        <Setter Property="BorderThickness" Value="0,0,2,2" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <!--  Add Instance Button Active  -->
+    <Style Selector="Button.AddInstanceButton:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource info}" />
+        <Setter Property="BorderBrush" Value="{StaticResource info-content}" />
+        <Setter Property="Opacity" Value="1.0" />
         <Setter Property="BorderThickness" Value="0,0,1,1" />
-        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Cursor" Value="Hand" />
     </Style>
-    
-    <Style Selector="StackPanel.PlayCardLaunchButton">
-        <Setter Property="Orientation" Value="Horizontal" />
-        <Setter Property="Margin" Value="10, 0"></Setter>
+
+    <!--  PlayCard  -->
+    <Style Selector="Border.PlayCard">
+        <Setter Property="Background" Value="{StaticResource base-200}" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Padding" Value="10" />
+        <Setter Property="Width" Value="150" />
     </Style>
-    
-    <Style Selector="TextBlock.PlayCardLaunchButtonIcon">
-        <Setter Property="FontFamily" Value="{StaticResource FontAwesome}" />
-        <Setter Property="Margin" Value="0,0,5,0" />
-        <Setter Property="VerticalAlignment" Value="Center" />
+
+    <!--  PlayCardImage  -->
+    <Style Selector="Image.PlayCardImage">
+        <Setter Property="Height" Value="50" />
+        <Setter Property="Width" Value="50" />
+
     </Style>
-    <!-- endregion -->
-    
-    
-    <!-- endregion -->
+
+    <!--  PlayCardText  -->
+    <Style Selector="TextBlock.PlayCardText">
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="Foreground" Value="{StaticResource primary-content}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="TextAlignment" Value="Center" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="10" />
+
+    </Style>
+
+    <!--  PlayCardButton Wrapper  -->
+    <Style Selector="WrapPanel.PlayCardButtonWrapper">
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="ItemSpacing" Value="10" />
+        <Setter Property="LineSpacing" Value="10" />
+    </Style>
+
+    <!--  Play Button  -->
+    <Style Selector="Button.PlayCardPlayButton">
+        <Setter Property="Background" Value="{StaticResource primary}" />
+        <Setter Property="BorderBrush" Value="{StaticResource primary-border}" />
+        <Setter Property="Foreground" Value="{StaticResource primary-content}" />
+        <Setter Property="Opacity" Value="0.8" />
+        <Setter Property="Padding" Value="5" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="BorderThickness" Value="0,0,2,2" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <!--  Play Button Hover  -->
+    <Style Selector="Button.PlayCardPlayButton:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource primary}" />
+        <Setter Property="BorderBrush" Value="{StaticResource primary-border}" />
+        <Setter Property="Opacity" Value="0.9" />
+        <Setter Property="BorderThickness" Value="0,0,2,2" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+
+    <!--  Play Button Active  -->
+    <Style Selector="Button.PlayCardPlayButton:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource primary}" />
+        <Setter Property="BorderBrush" Value="{StaticResource primary-border}" />
+        <Setter Property="Opacity" Value="1.0" />
+        <Setter Property="BorderThickness" Value="0,0,1,1" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+
+    <!--  Edit Button  -->
+    <Style Selector="Button.PlayCardEditButton">
+        <Setter Property="Background" Value="{StaticResource info}" />
+        <Setter Property="BorderBrush" Value="{StaticResource info-content}" />
+        <Setter Property="Foreground" Value="{StaticResource primary-content}" />
+        <Setter Property="Opacity" Value="0.8" />
+        <Setter Property="Padding" Value="5" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="BorderThickness" Value="0,0,2,2" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <!--  Edit Button Hover  -->
+    <Style Selector="Button.PlayCardEditButton:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource info}" />
+        <Setter Property="BorderBrush" Value="{StaticResource info-content}" />
+        <Setter Property="Opacity" Value="0.9" />
+        <Setter Property="BorderThickness" Value="0,0,2,2" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+
+    <!--  Edit Button Active  -->
+    <Style Selector="Button.PlayCardEditButton:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource info}" />
+        <Setter Property="BorderBrush" Value="{StaticResource info-content}" />
+        <Setter Property="Opacity" Value="1.0" />
+        <Setter Property="BorderThickness" Value="0,0,1,1" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+
+    <!--  Menu Button  -->
+    <Style Selector="Button.PlayCardMenuButton">
+        <Setter Property="Background" Value="{StaticResource warning}" />
+        <Setter Property="BorderBrush" Value="{StaticResource warning-content}" />
+        <Setter Property="Foreground" Value="{StaticResource primary-content}" />
+        <Setter Property="Opacity" Value="0.8" />
+        <Setter Property="Padding" Value="5" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="BorderThickness" Value="0,0, 2, 2" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <!--  Menu Button Hover  -->
+    <Style Selector="Button.PlayCardMenuButton:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource warning}" />
+        <Setter Property="BorderBrush" Value="{StaticResource warning-content}" />
+        <Setter Property="Opacity" Value="0.9" />
+        <Setter Property="BorderThickness" Value="0,0,2,2" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+
+    <!--  Menu Button Active  -->
+    <Style Selector="Button.PlayCardMenuButton:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource warning}" />
+        <Setter Property="BorderBrush" Value="{StaticResource warning-content}" />
+        <Setter Property="Opacity" Value="1.0" />
+        <Setter Property="BorderThickness" Value="0,0,1,1" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <!--  endregion  -->
+
+    <!--  region News Page  -->
+
+    <!--  Read Button  -->
+    <Style Selector="Button.NewsReadButton">
+        <Setter Property="Background" Value="{StaticResource primary}" />
+        <Setter Property="BorderBrush" Value="{StaticResource primary-border}" />
+        <Setter Property="Foreground" Value="{StaticResource secondary-content}" />
+        <Setter Property="Opacity" Value="0.8" />
+        <Setter Property="Padding" Value="5" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="BorderThickness" Value="0,0,2,2" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <!--  Read Button Hover  -->
+    <Style Selector="Button.NewsReadButton:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource primary}" />
+        <Setter Property="BorderBrush" Value="{StaticResource primary-border}" />
+        <Setter Property="Opacity" Value="0.9" />
+        <Setter Property="BorderThickness" Value="0,0,2,2" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+
+    <!--  Read Button Active  -->
+    <Style Selector="Button.NewsReadButton:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource primary}" />
+        <Setter Property="BorderBrush" Value="{StaticResource primary-border}" />
+        <Setter Property="Opacity" Value="1.0" />
+        <Setter Property="BorderThickness" Value="0,0,1,1" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <!--  endregion  -->
+
+    <!--  region Accounts Page  -->
+
+
+    <!--  Add Account Button  -->
+    <Style Selector="Button.AddAccountButton">
+        <Setter Property="Background" Value="{StaticResource info}" />
+        <Setter Property="BorderBrush" Value="{StaticResource info-content}" />
+        <Setter Property="Foreground" Value="{StaticResource secondary-content}" />
+        <Setter Property="Opacity" Value="0.8" />
+        <Setter Property="Padding" Value="5" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="BorderThickness" Value="0,0,2,2" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <!--  Add Account Button Hover  -->
+    <Style Selector="Button.AddAccountButton:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource info}" />
+        <Setter Property="BorderBrush" Value="{StaticResource info-content}" />
+        <Setter Property="Opacity" Value="0.9" />
+        <Setter Property="BorderThickness" Value="0,0,2,2" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <!--  Add Account Button Active  -->
+    <Style Selector="Button.AddAccountButton:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource info}" />
+        <Setter Property="BorderBrush" Value="{StaticResource info-content}" />
+        <Setter Property="Opacity" Value="1.0" />
+        <Setter Property="BorderThickness" Value="0,0,1,1" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+
+    <!--  Select Account Button  -->
+    <Style Selector="Button.SelectAccountButton">
+        <Setter Property="Background" Value="{StaticResource success}" />
+        <Setter Property="BorderBrush" Value="{StaticResource success-content}" />
+        <Setter Property="Foreground" Value="{StaticResource secondary-content}" />
+        <Setter Property="Opacity" Value="0.8" />
+        <Setter Property="Padding" Value="5" />
+        <Setter Property="BorderThickness" Value="0,0,2,2" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <!--  Select Account Button Hover  -->
+    <Style Selector="Button.SelectAccountButton:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource success}" />
+        <Setter Property="BorderBrush" Value="{StaticResource success-content}" />
+        <Setter Property="Opacity" Value="0.9" />
+        <Setter Property="BorderThickness" Value="0,0,2,2" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <!--  Select Account Button Active  -->
+    <Style Selector="Button.SelectAccountButton:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource success}" />
+        <Setter Property="BorderBrush" Value="{StaticResource success-content}" />
+        <Setter Property="Opacity" Value="1.0" />
+        <Setter Property="BorderThickness" Value="0,0,1,1" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+
+    <!--  Re-login Account Button  -->
+    <Style Selector="Button.ReLoginAccountButton">
+        <Setter Property="Background" Value="{StaticResource warning}" />
+        <Setter Property="BorderBrush" Value="{StaticResource warning-content}" />
+        <Setter Property="Foreground" Value="{StaticResource secondary-content}" />
+        <Setter Property="Opacity" Value="0.8" />
+        <Setter Property="Padding" Value="5" />
+        <Setter Property="BorderThickness" Value="0,0,2,2" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <!--  Re-login Account Button Hover  -->
+    <Style Selector="Button.ReLoginAccountButton:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource warning}" />
+        <Setter Property="BorderBrush" Value="{StaticResource warning-content}" />
+        <Setter Property="Opacity" Value="0.9" />
+        <Setter Property="BorderThickness" Value="0,0,2,2" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <!--  Re-login Account Button Active  -->
+    <Style Selector="Button.ReLoginAccountButton:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource warning}" />
+        <Setter Property="BorderBrush" Value="{StaticResource warning-content}" />
+        <Setter Property="Opacity" Value="1.0" />
+        <Setter Property="BorderThickness" Value="0,0,1,1" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+
+    <!--  Remove Account Button  -->
+    <Style Selector="Button.RemoveAccountButton">
+        <Setter Property="Background" Value="{StaticResource error}" />
+        <Setter Property="BorderBrush" Value="{StaticResource error-content}" />
+        <Setter Property="Foreground" Value="{StaticResource secondary-content}" />
+        <Setter Property="Opacity" Value="0.8" />
+        <Setter Property="Padding" Value="5" />
+        <Setter Property="BorderThickness" Value="0,0,2,2" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <!--  Remove Account Button Hover  -->
+    <Style Selector="Button.RemoveAccountButton:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource error}" />
+        <Setter Property="BorderBrush" Value="{StaticResource error-content}" />
+        <Setter Property="Opacity" Value="0.9" />
+        <Setter Property="BorderThickness" Value="0,0,2,2" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <!--  Remove Account Button Active  -->
+    <Style Selector="Button.RemoveAccountButton:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource error}" />
+        <Setter Property="BorderBrush" Value="{StaticResource error-content}" />
+        <Setter Property="Opacity" Value="1.0" />
+        <Setter Property="BorderThickness" Value="0,0,1,1" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <!--  endregion  -->
+
+    <!--  region Settings Page  -->
+
+    <!--  endregion  -->
+
+    <!--  endregion  -->
 </Styles>

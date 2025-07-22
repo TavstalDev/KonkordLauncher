@@ -29,7 +29,7 @@ public partial class MainWindow : Window
        
         
         // Instantiate your ViewModel and assign it to the DataContext
-        this.DataContext = new MainWindowViewModel();
+        this.DataContext = new MainViewModel();
         _selectedButton = PlaySideBtn;
     }
     
@@ -43,7 +43,7 @@ public partial class MainWindow : Window
 
     private void HandleSidebarChange(ESidebarType sidebarType)
     {
-        if (DataContext is not MainWindowViewModel viewModel)
+        if (DataContext is not MainViewModel viewModel)
             return;
         
         if (viewModel.CurrentPageIndex == sidebarType)
@@ -83,7 +83,7 @@ public partial class MainWindow : Window
 
     private void UpdateInstancesOnPlayPage()
     {
-        if (DataContext is not MainWindowViewModel viewModel)
+        if (DataContext is not MainViewModel viewModel)
             return;
 
         // TODO: Here you would typically fetch or update the instances on the play page.
@@ -97,7 +97,7 @@ public partial class MainWindow : Window
 
     private void UpdateNewsCards()
     {
-        if (DataContext is not MainWindowViewModel viewModel)
+        if (DataContext is not MainViewModel viewModel)
             return;
         
         // TODO: Fetch or update the news cards.
@@ -130,4 +130,10 @@ public partial class MainWindow : Window
     }
 
     #endregion
+
+    private void OnTestButtonClick(object? sender, RoutedEventArgs e)
+    {
+        var dialog = new AlertWindow("Test", "Test Message", EAlertType.Success);
+        dialog.ShowDialog(this);
+    }
 }

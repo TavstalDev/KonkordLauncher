@@ -9,7 +9,7 @@
     d:DesignWidth="900"
     mc:Ignorable="d"
     x:Class="Tavstal.KonkordLauncher.Desktop.Views.MainWindow"
-    x:DataType="vm:MainWindowViewModel"
+    x:DataType="vm:MainViewModel"
     xmlns="https://github.com/avaloniaui"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -17,7 +17,7 @@
     xmlns:vm="using:Tavstal.KonkordLauncher.Desktop.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Design.DataContext>
-        <vm:MainWindowViewModel />
+        <vm:MainViewModel />
     </Design.DataContext>
 
     <Window.DataTemplates>
@@ -158,6 +158,11 @@
                     Click="OnSettingsSideButtonClick"
                     Content="Settings"
                     Name="SettingsSideBtn" />
+                <Button
+                    Classes="SidebarBtn WarningBtn"
+                    Click="OnTestButtonClick"
+                    Content="Test"
+                    Name="TestBtn" />
             </StackPanel>
 
             <!--  Footer with Version and Copyright  -->

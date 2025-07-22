@@ -5,7 +5,7 @@ using Tavstal.KonkordLauncher.Desktop.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.ViewModels;
 
-public class MainWindowViewModel : ViewModelBase
+public class MainViewModel : ViewModelBase
 {
     private ESidebarType _currentPageIndex = ESidebarType.Play;
     public ESidebarType CurrentPageIndex

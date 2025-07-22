@@ -18,7 +18,7 @@ public partial class App : Application
         {
             desktop.MainWindow = new Views.MainWindow
             {
-                DataContext = new MainWindowViewModel(),
+                DataContext = new MainViewModel(),
             };
         }
 

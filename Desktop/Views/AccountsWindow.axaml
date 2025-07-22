@@ -1,0 +1,29 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:Tavstal.KonkordLauncher.Desktop.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="400"
+        x:Class="Tavstal.KonkordLauncher.Desktop.Views.AccountsWindow"
+        Title="Alert"
+        CanResize="False"
+        ShowInTaskbar="False"
+        Icon="../Assets/Images/logo.png"
+        MinHeight="400"
+        MinWidth="500"
+        Height="400"
+        Width="500">
+    
+    <Border Classes="ModalView">
+        <Grid Classes="AlertView">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>  
+            
+            
+        </Grid>
+    </Border>
+</Window>

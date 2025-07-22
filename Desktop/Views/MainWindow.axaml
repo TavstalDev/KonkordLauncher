@@ -618,17 +618,17 @@
                                                 Native libraries
                                             </TextBlock>
                                             <!-- Use custom GLFW -->
-                                            <CheckBox Name="StUseCustomGLFWCb">
-                                                <TextBlock Name="StUseCustomGLFWTb" Text="Use custom GLFW" />
+                                            <CheckBox Name="StUseCustomGlfwCb">
+                                                <TextBlock Name="StUseCustomGlfwTb" Text="Use custom GLFW" />
                                             </CheckBox>
                                             <!-- GLFW library path -->
                                             <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto">
                                                 <!-- Text -->
-                                                <TextBlock Name="StGLFWPathTb" Classes="TextInput">GLFW library path</TextBlock>
+                                                <TextBlock Name="StGlfwPathTb" Classes="TextInput">GLFW library path</TextBlock>
                                                 <!-- Input -->
                                                 <TextBox
                                                     Grid.Column="1"
-                                                    Name="StGLFWPathInput"
+                                                    Name="StGlfwPathInput"
                                                     Classes="TextInput"
                                                     Text=""/>
                                             </Grid>

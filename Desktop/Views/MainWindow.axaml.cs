@@ -1,3 +1,4 @@
+using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
@@ -10,6 +11,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 // ReSharper disable once PartialTypeWithSinglePart
 public partial class MainWindow : Window
 {
+    private PixelSize _screenSize;
     private Button _selectedButton;
     
     public MainWindow()
@@ -19,6 +21,13 @@ public partial class MainWindow : Window
 #if DEBUG
         this.AttachDevTools(); // Attaches Avalonia Dev Tools for debugging
 #endif
+        
+        var screen = Screens.Primary;
+        if (screen == null)
+            throw new InvalidOperationException("No primary screen found."); // Ensure there is a primary screen
+        _screenSize = screen.Bounds.Size;
+       
+        
         // Instantiate your ViewModel and assign it to the DataContext
         this.DataContext = new MainWindowViewModel();
         _selectedButton = PlaySideBtn;
@@ -27,6 +36,7 @@ public partial class MainWindow : Window
     private void MainWindow_Loaded(object? sender, RoutedEventArgs e)
     {
         UpdateInstancesOnPlayPage();
+        UpdateNewsCards();
     }
 
     #region Methods
@@ -78,11 +88,22 @@ public partial class MainWindow : Window
 
         // TODO: Here you would typically fetch or update the instances on the play page.
         // For demonstration, let's assume we are adding a new instance.
-        viewModel.InstancesOnPlayPage.Add(new PlayCardModel { Title = "New Instance" });
+        viewModel.Instances.Add(new PlayCardModel { Title = "New Instance" });
         
         // After Updating:
-        bool hasInstances = viewModel.InstancesOnPlayPage.Count > 0;
+        bool hasInstances = viewModel.Instances.Count > 0;
         NoPlayInstancesTextBlock.IsVisible = !hasInstances;
+    }
+
+    private void UpdateNewsCards()
+    {
+        if (DataContext is not MainWindowViewModel viewModel)
+            return;
+        
+        // TODO: Fetch or update the news cards.
+        
+        bool hasNews = viewModel.News.Count > 0;
+        NoNewsTextBlock.IsVisible = !hasNews;
     }
     #endregion
 

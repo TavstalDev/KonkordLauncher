@@ -1,8 +1,9 @@
-<Application xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="Tavstal.KonkordLauncher.Desktop.App"
-             RequestedThemeVariant="Dark">
-             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+<Application
+    RequestedThemeVariant="Dark"
+    x:Class="Tavstal.KonkordLauncher.Desktop.App"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!--  "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options.  -->
 
     <Application.Resources>
         <FontFamily x:Key="FontAwesome">Assets/Fonts/fa-solid-900.ttf#Font Awesome 6 Free</FontFamily>
@@ -10,18 +11,23 @@
     <Application.Styles>
         <FluentTheme />
         <StyleInclude Source="Styles/Themes/DarkTheme.axaml" />
-        
+
+        <!--  Controls  -->
         <StyleInclude Source="Styles/Controls/Buttons.axaml" />
         <StyleInclude Source="Styles/Controls/Navigation.axaml" />
         <StyleInclude Source="Styles/Controls/TextBoxes.axaml" />
-        
+
+        <!--  Components  -->
         <StyleInclude Source="Styles/Components/Alerts.axaml" />
         <StyleInclude Source="Styles/Components/Modals.axaml" />
-        
-        <StyleInclude Source="Styles/Layout/InstancePage.axaml" />
+
+        <!--  Layouts  -->
         <StyleInclude Source="Styles/Layout/PlayPage.axaml" />
+        <StyleInclude Source="Styles/Layout/NewsPage.axaml" />
+        <StyleInclude Source="Styles/Layout/AccountsPage.axaml" />
         <StyleInclude Source="Styles/Layout/SettingsPage.axaml" />
-        
+
+        <!--  Global Styles  -->
         <StyleInclude Source="Styles/Style.axaml" />
     </Application.Styles>
 </Application>

@@ -30,32 +30,81 @@
                         <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
+
+                    <!--  Icon  -->
                     <Image
                         Classes="PlayCardImage"
                         Grid.Row="0"
                         Source="{Binding IconPath}" />
+                    <!--  Name  -->
                     <TextBlock
                         Classes="PlayCardText"
                         Grid.Row="1"
                         Text="{Binding Title}" />
+                    <!--  Buttons  -->
                     <WrapPanel Classes="PlayCardButtonWrapper" Grid.Row="2">
+                        <!--  Launch Button  -->
                         <Button Classes="IconBtn PrimaryBtn">
                             <TextBlock
                                 Classes="FontAwesome"
                                 Padding="4,0"
                                 Text="&#xf04b;" />
                         </Button>
+                        <!--  Edit Button  -->
                         <Button Classes="IconBtn InfoBtn">
                             <TextBlock
                                 Classes="FontAwesome"
                                 Padding="4,0"
                                 Text="&#xf304;" />
                         </Button>
+                        <!--  Menu Button  -->
                         <Button Classes="IconBtn SecondaryBtn">
                             <TextBlock
                                 Classes="FontAwesome"
                                 Padding="6,0"
                                 Text="&#xf142;" />
+                        </Button>
+                    </WrapPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+        <!--  News Card  -->
+        <DataTemplate DataType="models:NewsCardModel">
+            <Border Classes="NewsCard">
+                <StackPanel>
+                    <!--  News Card Title  -->
+                    <TextBlock Classes="NewsCardTitle" Text="{Binding Title}" />
+                    <!--  News Card Description  -->
+                    <TextBlock Classes="NewsCardDescription" Text="{Binding Description}" />
+                    <!--  Read More Button  -->
+                    <Button Classes="IconBtn InfoBtn" Content="Read More" />
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+        <!--  Account Card  -->
+        <DataTemplate DataType="models:AccountCardModel">
+            <Border Classes="AccountsCard">
+                <Grid Width="450">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <!--  Name & Type  -->
+                    <WrapPanel Orientation="Vertical">
+                        <TextBlock Classes="AccountsCardName" Text="{Binding Name}" />
+                        <TextBlock Text="{Binding Type}" TextWrapping="Wrap" />
+                    </WrapPanel>
+
+                    <!--  Buttons  -->
+                    <WrapPanel Classes="AccountsCardWrapper" Grid.Column="1">
+                        <Button Classes="IconBtn SuccessBtn">
+                            <TextBlock Classes="FontAwesome" Text="&#xf00c;" />
+                        </Button>
+                        <Button Classes="IconBtn WarningBtn">
+                            <TextBlock Classes="FontAwesome" Text="&#xf2f9;" />
+                        </Button>
+                        <Button Classes="IconBtn ErrorBtn">
+                            <TextBlock Classes="FontAwesome" Text="&#xf1f8;" />
                         </Button>
                     </WrapPanel>
                 </Grid>
@@ -78,11 +127,16 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
+            <!--  Logo and Welcome Text  -->
             <StackPanel Grid.Row="0" Margin="0,0,0,30">
                 <Image Source="../Assets/Images/logo2.png" />
-                <Label Content="Ready for Adventure?" HorizontalAlignment="Center" />
+                <Label
+                    Content="Ready for Adventure?"
+                    HorizontalAlignment="Center"
+                    Name="WelcomeLabel" />
             </StackPanel>
 
+            <!--  Navigation Buttons  -->
             <StackPanel Grid.Row="1">
                 <Button
                     Classes="SidebarBtn PrimaryBtn"
@@ -106,8 +160,12 @@
                     Name="SettingsSideBtn" />
             </StackPanel>
 
+            <!--  Footer with Version and Copyright  -->
             <StackPanel Grid.Row="2" VerticalAlignment="Bottom">
-                <Label Classes="SidebarLabel" Content="Ready to launch. No update available." />
+                <Label
+                    Classes="SidebarLabel"
+                    Content="Ready to launch. No update available."
+                    Name="VersionTextBox" />
                 <Label Classes="SidebarLabel" Content="© 2025 Konkord Launcher" />
             </StackPanel>
         </Grid>
@@ -129,15 +187,25 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
 
-                            <TextBlock Classes="MainContentTitle" Text="Launch Game" />
-                            <Button Classes="IconBtn InfoBtn" Grid.Column="1">
+                            <!--  Title  -->
+                            <TextBlock
+                                Classes="MainContentTitle"
+                                Name="PlayPageTitleTextBlock"
+                                Text="Launch Game" />
+                            <!--  Add instance button  -->
+                            <Button
+                                Classes="IconBtn InfoBtn"
+                                Grid.Column="1"
+                                Name="AddInstanceBtn">
                                 <TextBlock Classes="FontAwesome" Text="&#x2b;" />
                             </Button>
                         </Grid>
+                        <!--  No instances text  -->
                         <TextBlock Name="NoPlayInstancesTextBlock" Text="You don't have instances yet." />
+                        <!--  Instances on Play Page  -->
                         <Grid MaxHeight="440">
-                            <ScrollViewer Classes="PlayPageScrollViewer">
-                                <ItemsControl ItemsSource="{Binding InstancesOnPlayPage}">
+                            <ScrollViewer>
+                                <ItemsControl ItemsSource="{Binding Instances}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <WrapPanel Classes="PlayPageWrapper" />
@@ -149,33 +217,23 @@
                     </StackPanel>
                     <!--  News Page  -->
                     <StackPanel Classes="MainContentArea">
-                        <TextBlock Classes="MainContentTitle" Text="News" />
-                        <TextBlock Text="We do not have news." />
+                        <!--  Title  -->
+                        <TextBlock
+                            Classes="MainContentTitle"
+                            Name="NewsPageTitleTextBlock"
+                            Text="News" />
+                        <!--  No news text  -->
+                        <TextBlock Name="NoNewsTextBlock" Text="We do not have news." />
+                        <!--  News Grid  -->
                         <Grid MaxHeight="440">
-                            <ScrollViewer Classes="PlayPageScrollViewer">
-                                <WrapPanel
-                                    ItemSpacing="10"
-                                    LineSpacing="10"
-                                    MaxHeight="440">
-                                    <Border
-                                        Background="{StaticResource base-200}"
-                                        CornerRadius="8"
-                                        Padding="15">
-                                        <StackPanel>
-                                            <TextBlock
-                                                FontSize="18"
-                                                FontWeight="SemiBold"
-                                                Margin="0,0,0,8"
-                                                Text="The standard Lorem Ipsum passage, used since the 1500s"
-                                                TextWrapping="Wrap" />
-                                            <TextBlock
-                                                Margin="0,0,0,8"
-                                                Text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-                                                TextWrapping="Wrap" />
-                                            <Button Classes="IconBtn InfoBtn" Content="Read More" />
-                                        </StackPanel>
-                                    </Border>
-                                </WrapPanel>
+                            <ScrollViewer>
+                                <ItemsControl ItemsSource="{Binding News}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Classes="NewsPageWrapper" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                </ItemsControl>
                             </ScrollViewer>
                         </Grid>
                     </StackPanel>
@@ -186,57 +244,28 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-
-                            <TextBlock Classes="MainContentTitle" Text="Accounts" />
+                            <!--  Title  -->
+                            <TextBlock
+                                Classes="MainContentTitle"
+                                Name="AccountsPageTitleTextBlock"
+                                Text="Accounts" />
+                            <!--  Add account button  -->
                             <Button Classes="IconBtn InfoBtn" Grid.Column="1">
                                 <TextBlock Classes="FontAwesome" Text="&#xf234;" />
                             </Button>
                         </Grid>
-                        <TextBlock Text="You don't have accounts yet." />
+                        <!--  No accounts text  -->
+                        <TextBlock Name="NoAccountsTextBlock" Text="You don't have accounts yet." />
+                        <!--  Accounts Grid  -->
                         <Grid MaxHeight="440">
-                            <ScrollViewer Classes="PlayPageScrollViewer">
-                                <WrapPanel
-                                    ItemSpacing="10"
-                                    LineSpacing="10"
-                                    MaxHeight="440">
-                                    <Border
-                                        Background="{StaticResource base-200}"
-                                        CornerRadius="8"
-                                        Padding="15">
-                                        <Grid Width="450">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="150" />
-                                            </Grid.ColumnDefinitions>
-                                            <WrapPanel Orientation="Vertical">
-                                                <TextBlock
-                                                    FontSize="16"
-                                                    FontWeight="SemiBold"
-                                                    Margin="0,0,0,0"
-                                                    Text="PlayerOne"
-                                                    TextWrapping="Wrap" />
-                                                <TextBlock Text="Microsoft" TextWrapping="Wrap" />
-                                            </WrapPanel>
-                                            <WrapPanel
-                                                Grid.Column="1"
-                                                HorizontalAlignment="Right"
-                                                ItemSpacing="5"
-                                                LineSpacing="5"
-                                                Orientation="Horizontal"
-                                                VerticalAlignment="Center">
-                                                <Button Classes="IconBtn SuccessBtn">
-                                                    <TextBlock Classes="FontAwesome" Text="&#xf00c;" />
-                                                </Button>
-                                                <Button Classes="IconBtn WarningBtn">
-                                                    <TextBlock Classes="FontAwesome" Text="&#xf2f9;" />
-                                                </Button>
-                                                <Button Classes="IconBtn ErrorBtn">
-                                                    <TextBlock Classes="FontAwesome" Text="&#xf1f8;" />
-                                                </Button>
-                                            </WrapPanel>
-                                        </Grid>
-                                    </Border>
-                                </WrapPanel>
+                            <ScrollViewer>
+                                <ItemsControl ItemsSource="{Binding Accounts}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Classes="AccountsPageWrapper" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                </ItemsControl>
                             </ScrollViewer>
                         </Grid>
                     </StackPanel>
@@ -244,50 +273,45 @@
                     <StackPanel Classes="MainContentArea">
                         <TextBlock Classes="MainContentTitle" Text="Settings" />
                         <Grid MaxHeight="440">
-                            <ScrollViewer Classes="PlayPageScrollViewer">
-                                <TabControl
-                                    Background="{StaticResource base-200}"
-                                    CornerRadius="8"
-                                    Margin="0,0,0,10"
-                                    Padding="0">
-                                    <TabItem FontSize="18" Header="Launcher">
-                                        <WrapPanel
-                                            ItemSpacing="10"
-                                            ItemWidth="440"
-                                            LineSpacing="10"
-                                            Margin="25,10,25,25"
-                                            Orientation="Vertical"
-                                            Width="440">
-                                            <CheckBox>
-                                                <TextBlock Text="Enable automatic updates" />
+                            <ScrollViewer>
+                                <TabControl Classes="SettingsTab">
+                                    <!-- Launcher Settings -->
+                                    <TabItem Classes="SettingsTabItem" Header="Launcher">
+                                        <WrapPanel Classes="SettingsWrapper">
+                                            <!-- Enable Launcher Updates -->
+                                            <CheckBox Name="StEnableUpdatesCb">
+                                                <TextBlock Name="StEnableUpdatesTb" Text="Enable automatic updates" />
                                             </CheckBox>
+                                            <!-- Update Interval -->
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto" />
                                                     <ColumnDefinition Width="*" />
                                                 </Grid.ColumnDefinitions>
-
-                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Update Interval</TextBlock>
-                                                <NumericUpDown
-                                                    FormatString="0\h"
-                                                    Grid.Column="1"
-                                                    Increment="1"
-                                                    Maximum="8760"
-                                                    Minimum="1"
-                                                    ParsingNumberStyle="Integer"
-                                                    ShowButtonSpinner="True"
-                                                    Value="24" />
+                                                <!-- Text -->
+                                                <TextBlock Name="StUpdateIntervalTb" Classes="NumericInput">Update Interval</TextBlock>
+                                                <!-- Input -->
+                                                <NumericUpDown Grid.Column="1" Name="StUpdateIntervalInput"
+                                                               Classes="NumericInput"
+                                                               FormatString="0\h"
+                                                               Increment="1"
+                                                               Minimum="1"
+                                                               Maximum="8760"
+                                                               Value="24" />
                                             </Grid>
+                                            <!-- Language -->
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto" />
                                                     <ColumnDefinition Width="*" />
                                                 </Grid.ColumnDefinitions>
-
-                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Language</TextBlock>
+                                                <!-- Text -->
+                                                <TextBlock Name="StLanguageTb" Classes="TextDropdown">Language</TextBlock>
+                                                <!-- Input -->
                                                 <ComboBox
                                                     Grid.Column="1"
-                                                    HorizontalAlignment="Stretch"
+                                                    Name="StLanguageInput"
+                                                    Classes="TextDropdown"
                                                     SelectedIndex="0">
                                                     <ComboBoxItem Content="English (US)" />
                                                     <ComboBoxItem Content="Español (ES)" />
@@ -295,376 +319,338 @@
                                                     <ComboBoxItem Content="Deutsch (DE)" />
                                                 </ComboBox>
                                             </Grid>
+                                            <!-- Theme -->
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto" />
                                                     <ColumnDefinition Width="*" />
                                                 </Grid.ColumnDefinitions>
-
-                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Theme</TextBlock>
+                                                <!-- Text -->
+                                                <TextBlock Name="StThemeTb" Classes="TextDropdown">Theme</TextBlock>
+                                                <!-- Input -->
                                                 <ComboBox
                                                     Grid.Column="1"
-                                                    HorizontalAlignment="Stretch"
+                                                    Name="StThemeInput"
+                                                    Classes="TextDropdown"
                                                     SelectedIndex="0">
                                                     <ComboBoxItem Content="Automatic" />
                                                     <ComboBoxItem Content="Light" />
                                                     <ComboBoxItem Content="Dark" />
                                                 </ComboBox>
                                             </Grid>
-                                            <TextBlock
-                                                FontSize="16"
-                                                FontWeight="SemiBold"
-                                                Margin="0,10"
-                                                VerticalAlignment="Center">
+                                            <!-- Directories -->
+                                            <TextBlock Name="StDirectoriesSubTitle" Classes="SettingsCategory">
                                                 Directories
                                             </TextBlock>
+                                            <!-- Assets Directory -->
                                             <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto">
-                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Assets</TextBlock>
-
-                                                <TextBox
-                                                    Grid.Column="1"
-                                                    IsReadOnly="True"
-                                                    Margin="0,0,5,0"
-                                                    Text="/home/user/example"
-                                                    VerticalAlignment="Center"
-                                                    Watermark="Select a directory..." />
-
-                                                <Button
-                                                    Content="Browse..."
-                                                    Grid.Column="2"
-                                                    VerticalAlignment="Center" />
+                                                <!-- Text -->
+                                                <TextBlock Name="StAssetsTb" Classes="TextInput">Assets</TextBlock>
+                                                <!-- Input -->
+                                                <TextBox Grid.Column="1" Name="StAssetsInput" Classes="TextInput" Watermark="Select a directory..." />
+                                                <!-- Button -->
+                                                <Button Grid.Column="2" Name="StAssetsBtn" Classes="IconBtn">
+                                                    <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                                </Button>
                                             </Grid>
+                                            <!-- Cache Directory -->
                                             <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto">
-                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Cache</TextBlock>
-
-                                                <TextBox
-                                                    Grid.Column="1"
-                                                    IsReadOnly="True"
-                                                    Margin="0,0,5,0"
-                                                    Text="/home/user/example"
-                                                    VerticalAlignment="Center"
-                                                    Watermark="Select a directory..." />
-
-                                                <Button
-                                                    Content="Browse..."
-                                                    Grid.Column="2"
-                                                    VerticalAlignment="Center" />
+                                                <!-- Text -->
+                                                <TextBlock Name="StCacheTb" Classes="TextInput">Cache</TextBlock>
+                                                <!-- Input -->
+                                                <TextBox Grid.Column="1" Name="StCacheInput" Classes="TextInput" Watermark="Select a directory..." />
+                                                <!-- Button -->
+                                                <Button Grid.Column="2" Name="StCacheBtn" Classes="IconBtn">
+                                                    <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                                </Button>
                                             </Grid>
+                                            <!-- Instances Directory -->
                                             <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto">
-                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Instances</TextBlock>
-
-                                                <TextBox
-                                                    Grid.Column="1"
-                                                    IsReadOnly="True"
-                                                    Margin="0,0,5,0"
-                                                    Text="/home/user/example"
-                                                    VerticalAlignment="Center"
-                                                    Watermark="Select a directory..." />
-
-                                                <Button
-                                                    Content="Browse..."
-                                                    Grid.Column="2"
-                                                    VerticalAlignment="Center" />
+                                                <!-- Text -->
+                                                <TextBlock Name="StInstancesTb" Classes="TextInput">Instances</TextBlock>
+                                                <!-- Input -->
+                                                <TextBox Grid.Column="1" Name="StInstancesInput" Classes="TextInput" Watermark="Select a directory..." />
+                                                <!-- Button -->
+                                                <Button Grid.Column="2" Name="StInstancesBtn" Classes="IconBtn">
+                                                    <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                                </Button>
                                             </Grid>
+                                            <!-- Libraries Directory -->
                                             <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto">
-                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Libraries</TextBlock>
-
-                                                <TextBox
-                                                    Grid.Column="1"
-                                                    IsReadOnly="True"
-                                                    Margin="0,0,5,0"
-                                                    Text="/home/user/example"
-                                                    VerticalAlignment="Center"
-                                                    Watermark="Select a directory..." />
-
-                                                <Button
-                                                    Content="Browse..."
-                                                    Grid.Column="2"
-                                                    VerticalAlignment="Center" />
+                                                <!-- Text -->
+                                                <TextBlock Name="StLibrariesTb" Classes="TextInput">Libraries</TextBlock>
+                                                <!-- Input -->
+                                                <TextBox Grid.Column="1" Name="StLibrariesInput" Classes="TextInput" Watermark="Select a directory..." />
+                                                <!-- Button -->
+                                                <Button Grid.Column="2" Name="StLibrariesBtn" Classes="IconBtn">
+                                                    <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                                </Button>
                                             </Grid>
+                                            <!-- Manifests Directory -->
                                             <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto">
-                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Manifests</TextBlock>
-
-                                                <TextBox
-                                                    Grid.Column="1"
-                                                    IsReadOnly="True"
-                                                    Margin="0,0,5,0"
-                                                    Text="/home/user/example"
-                                                    VerticalAlignment="Center"
-                                                    Watermark="Select a directory..." />
-
-                                                <Button
-                                                    Content="Browse..."
-                                                    Grid.Column="2"
-                                                    VerticalAlignment="Center" />
+                                                <!-- Text -->
+                                                <TextBlock Name="StManifestsTb" Classes="TextInput">Manifests</TextBlock>
+                                                <!-- Input -->
+                                                <TextBox Grid.Column="1" Name="StManifestsInput" Classes="TextInput" Watermark="Select a directory..." />
+                                                <!-- Button -->
+                                                <Button Grid.Column="2" Name="StManifestsBtn" Classes="IconBtn">
+                                                    <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                                </Button>
                                             </Grid>
+                                            <!-- Translations Directory -->
                                             <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto">
-                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Translations</TextBlock>
-
-                                                <TextBox
-                                                    Grid.Column="1"
-                                                    IsReadOnly="True"
-                                                    Margin="0,0,5,0"
-                                                    Text="/home/user/example"
-                                                    VerticalAlignment="Center"
-                                                    Watermark="Select a directory..." />
-
-                                                <Button
-                                                    Content="Browse..."
-                                                    Grid.Column="2"
-                                                    VerticalAlignment="Center" />
+                                                <!-- Text -->
+                                                <TextBlock Name="StTranslationsTb" Classes="TextInput">Translations</TextBlock>
+                                                <!-- Input -->
+                                                <TextBox Grid.Column="1" Name="StTranslationsInput" Classes="TextInput" Watermark="Select a directory..." />
+                                                <!-- Button -->
+                                                <Button Grid.Column="2" Name="StTranslationsBtn" Classes="IconBtn">
+                                                    <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                                </Button>
                                             </Grid>
+                                            <!-- Versions Directory -->
                                             <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto">
-                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Versions</TextBlock>
-
-                                                <TextBox
-                                                    Grid.Column="1"
-                                                    IsReadOnly="True"
-                                                    Margin="0,0,5,0"
-                                                    Text="/home/user/example"
-                                                    VerticalAlignment="Center"
-                                                    Watermark="Select a directory..." />
-
-                                                <Button
-                                                    Content="Browse..."
-                                                    Grid.Column="2"
-                                                    VerticalAlignment="Center" />
+                                                <!-- Text -->
+                                                <TextBlock Name="StVersionsTb" Classes="TextInput">Versions</TextBlock>
+                                                <!-- Input -->
+                                                <TextBox Grid.Column="1" Name="StVersionsInput" Classes="TextInput" Watermark="Select a directory..." />
+                                                <!-- Button -->
+                                                <Button Grid.Column="2" Name="StVersionsBtn" Classes="IconBtn">
+                                                    <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                                </Button>
                                             </Grid>
                                         </WrapPanel>
                                     </TabItem>
-                                    <TabItem FontSize="18" Header="Minecraft">
-                                        <WrapPanel
-                                            ItemSpacing="10"
-                                            ItemWidth="440"
-                                            LineSpacing="10"
-                                            Margin="25,10,25,25"
-                                            Orientation="Vertical"
-                                            Width="440">
-                                            <CheckBox>
-                                                <TextBlock Text="Start Minecraft maximized" />
+                                    <!-- Minecraft Settings -->
+                                    <TabItem Classes="SettingsTabItem" Header="Minecraft">
+                                        <WrapPanel Classes="SettingsWrapper">
+                                            <!-- Minecraft Maximized -->
+                                            <CheckBox Name="StMinecraftMaximizedCb">
+                                                <TextBlock Name="StMinecraftMaximizedTb" Text="Start Minecraft maximized" />
                                             </CheckBox>
+                                            <!-- Window Width -->
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto" />
                                                     <ColumnDefinition Width="*" />
                                                 </Grid.ColumnDefinitions>
-
-                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Window width</TextBlock>
+                                                <!-- Text -->
+                                                <TextBlock Name="StWindowWidthTb" Classes="NumericInput">Window width</TextBlock>
+                                                <!-- Input -->
                                                 <NumericUpDown
-                                                    FormatString="0"
                                                     Grid.Column="1"
+                                                    Name="StWindowWidthInput"
+                                                    Classes="NumericInput"
+                                                    FormatString="0"
                                                     Increment="1"
                                                     Maximum="1920"
                                                     Minimum="100"
-                                                    ParsingNumberStyle="Integer"
-                                                    ShowButtonSpinner="True"
                                                     Value="1920" />
                                             </Grid>
+                                            <!-- Window Height -->
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto" />
                                                     <ColumnDefinition Width="*" />
                                                 </Grid.ColumnDefinitions>
-
-                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Window height</TextBlock>
+                                                <!-- Text -->
+                                                <TextBlock Name="StWindowHeightTb" Classes="NumericInput">Window height</TextBlock>
+                                                <!-- Input -->
                                                 <NumericUpDown
-                                                    FormatString="0"
                                                     Grid.Column="1"
+                                                    Name="StWindowHeightInput"
+                                                    Classes="NumericInput"
+                                                    FormatString="0"
                                                     Increment="1"
                                                     Maximum="1080"
                                                     Minimum="100"
-                                                    ParsingNumberStyle="Integer"
-                                                    ShowButtonSpinner="True"
                                                     Value="1080" />
                                             </Grid>
-                                            <CheckBox>
-                                                <TextBlock Text="Close launcher after game opens" />
+                                            <!-- Close Launcher after game opens -->
+                                            <CheckBox Name="StCloseAfterOpenCb">
+                                                <TextBlock Name="StCloseAfterOpenTb" Text="Close launcher after game opens" />
                                             </CheckBox>
-                                            <CheckBox>
-                                                <TextBlock Text="Close launcher after game closes" />
+                                            <!-- Close Launcher after game closes -->
+                                            <!-- PS: Yes, I have read it twice. Still leaving it as is. -->
+                                            <CheckBox Name="StCloseAfterCloseCb">
+                                                <TextBlock Name="StCloseAfterCloseTb" Text="Close launcher after game closes" />
                                             </CheckBox>
                                         </WrapPanel>
                                     </TabItem>
-                                    <TabItem FontSize="18" Header="Java">
-                                        <WrapPanel
-                                            ItemSpacing="10"
-                                            ItemWidth="440"
-                                            LineSpacing="10"
-                                            Margin="25,10,25,25"
-                                            Orientation="Vertical"
-                                            Width="440">
+                                    <!-- Java Settings -->
+                                    <TabItem Classes="SettingsTabItem" Header="Java">
+                                        <WrapPanel Classes="SettingsWrapper">
+                                            <!-- Minimum Memory -->
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto" />
                                                     <ColumnDefinition Width="*" />
                                                 </Grid.ColumnDefinitions>
-
-                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Minimum memory</TextBlock>
+                                                <!-- Text -->
+                                                <TextBlock Name="StMinMemoryTb" Classes="NumericInput">Minimum memory</TextBlock>
+                                                <!-- Input -->
                                                 <NumericUpDown
-                                                    FormatString="0\ MB"
                                                     Grid.Column="1"
+                                                    Name="StMinMemoryInput"
+                                                    FormatString="0\ MB"
+                                                    Classes="NumericInput"
                                                     Increment="1"
-                                                    Maximum="131072"
                                                     Minimum="512"
-                                                    ParsingNumberStyle="Integer"
-                                                    ShowButtonSpinner="True"
+                                                    Maximum="131072"
                                                     Value="512" />
                                             </Grid>
+                                            <!-- Maximum Memory -->
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto" />
                                                     <ColumnDefinition Width="*" />
                                                 </Grid.ColumnDefinitions>
-
-                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Maximum memory</TextBlock>
+                                                <!-- Text -->
+                                                <TextBlock Name="StMaxMemoryTb" Classes="NumericInput">Maximum memory</TextBlock>
+                                                <!-- Input -->
                                                 <NumericUpDown
-                                                    FormatString="0\ MB"
                                                     Grid.Column="1"
+                                                    Name="StMaxMemoryInput"
+                                                    FormatString="0\ MB"
+                                                    Classes="NumericInput"
                                                     Increment="1"
-                                                    Maximum="131072"
                                                     Minimum="512"
-                                                    ParsingNumberStyle="Integer"
-                                                    ShowButtonSpinner="True"
+                                                    Maximum="131072"
                                                     Value="2048" />
                                             </Grid>
+                                            <!-- PermGen -->
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto" />
                                                     <ColumnDefinition Width="*" />
                                                 </Grid.ColumnDefinitions>
-
-                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">PermGen</TextBlock>
+                                                <!-- Text -->
+                                                <TextBlock Name="StPermaGenTb" Classes="NumericInput">PermGen</TextBlock>
+                                                <!-- Input -->
                                                 <NumericUpDown
-                                                    FormatString="0\ MB"
                                                     Grid.Column="1"
+                                                    Name="StPermaGenInput"
+                                                    FormatString="0\ MB"
+                                                    Classes="NumericInput"
                                                     Increment="1"
-                                                    Maximum="1024"
                                                     Minimum="8"
-                                                    ParsingNumberStyle="Integer"
-                                                    ShowButtonSpinner="True"
+                                                    Maximum="1024"
                                                     Value="128" />
                                             </Grid>
+                                            <!-- Java Path -->
                                             <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto">
-                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Java path</TextBlock>
-
+                                                <!-- Text -->
+                                                <TextBlock Name="StJavaPathTb" Classes="TextInput">Java path</TextBlock>
+                                                <!-- Input -->
                                                 <TextBox
                                                     Grid.Column="1"
-                                                    IsReadOnly="True"
-                                                    Margin="0,0,5,0"
-                                                    Text="/home/user/example"
-                                                    VerticalAlignment="Center"
+                                                    Name="StJavaPathInput"
+                                                    Classes="TextInput"
                                                     Watermark="Select a directory..." />
-                                                <Button
-                                                    Content="Browse..."
-                                                    Grid.Column="2"
-                                                    VerticalAlignment="Center" />
+                                                <Button Grid.Column="2" Classes="IconBtn">
+                                                    <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                                </Button>
                                             </Grid>
-                                            <TextBlock
-                                                FontSize="16"
-                                                FontWeight="SemiBold"
-                                                Margin="0,10"
-                                                VerticalAlignment="Center">
+                                            <!-- JVM Arguments -->
+                                            <TextBlock Name="StJvmArgsTb" Classes="SettingsCategory">
                                                 JVM Arguments
                                             </TextBlock>
                                             <TextBox
+                                                Name="StJvmArgsInput"
                                                 MaxLines="512"
                                                 MinHeight="128"
                                                 TextWrapping="Wrap" />
                                         </WrapPanel>
                                     </TabItem>
-                                    <TabItem FontSize="18" Header="Misc">
-                                        <WrapPanel
-                                            ItemSpacing="10"
-                                            ItemWidth="440"
-                                            LineSpacing="10"
-                                            Margin="25,0,25,25"
-                                            Orientation="Vertical"
-                                            Width="440">
-                                            <TextBlock
-                                                FontSize="16"
-                                                FontWeight="SemiBold"
-                                                Margin="0,10"
-                                                VerticalAlignment="Center">
+                                    <!-- Misc Settings -->
+                                    <TabItem Classes="SettingsTabItem" Header="Misc">
+                                        <WrapPanel Classes="SettingsWrapper">
+                                            <!-- Subtitle -->
+                                            <TextBlock Name="StCustomCommandsTb" Classes="SettingsCategory">
                                                 Custom Commands
                                             </TextBlock>
+                                            <!-- Pre-launch Command -->
                                             <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto">
-                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Pre-launch</TextBlock>
-
+                                                <!-- Text -->
+                                                <TextBlock Name="StPreLaunchTb" Classes="TextInput">Pre-launch</TextBlock>
+                                                <!-- Input -->
                                                 <TextBox
                                                     Grid.Column="1"
-                                                    IsReadOnly="True"
-                                                    Margin="0,0,5,0"
-                                                    Text=""
-                                                    VerticalAlignment="Center" />
+                                                    Name="StPreLaunchInput"
+                                                    Classes="TextInput"
+                                                    Text="" />
                                             </Grid>
+                                            <!-- Wrapper Command -->
                                             <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto">
-                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Wrapper</TextBlock>
-
+                                                <!-- Text -->
+                                                <TextBlock Name="StWrapperTb" Classes="TextInput">Wrapper</TextBlock>
+                                                <!-- Input -->
                                                 <TextBox
                                                     Grid.Column="1"
-                                                    IsReadOnly="True"
-                                                    Margin="0,0,5,0"
-                                                    Text=""
-                                                    VerticalAlignment="Center" />
+                                                    Name="StWrapperInput"
+                                                    Classes="TextInput"
+                                                    Text="" />
                                             </Grid>
+                                            <!-- Post-exit Command -->
                                             <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto">
-                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">Post-exit</TextBlock>
-
+                                                <!-- Text -->
+                                                <TextBlock Name="StPostExitTb" Classes="TextInput">Post-exit</TextBlock>
+                                                <!-- Input -->
                                                 <TextBox
                                                     Grid.Column="1"
-                                                    IsReadOnly="True"
-                                                    Margin="0,0,5,0"
-                                                    Text=""
-                                                    VerticalAlignment="Center" />
+                                                    Name="StPostExitInput"
+                                                    Classes="TextInput"
+                                                    Text="" />
                                             </Grid>
-                                            <TextBlock
-                                                FontSize="16"
-                                                FontWeight="SemiBold"
-                                                Margin="0,5"
-                                                VerticalAlignment="Center">
+                                            <!-- Subtitle -->
+                                            <TextBlock Name="StNativeLibrariesTb" Classes="SettingsCategory">
                                                 Native libraries
                                             </TextBlock>
-                                            <CheckBox>
-                                                <TextBlock Text="Use custom GLFW" />
+                                            <!-- Use custom GLFW -->
+                                            <CheckBox Name="StUseCustomGLFWCb">
+                                                <TextBlock Name="StUseCustomGLFWTb" Text="Use custom GLFW" />
                                             </CheckBox>
+                                            <!-- GLFW library path -->
                                             <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto">
-                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">GLFW library path</TextBlock>
-
+                                                <!-- Text -->
+                                                <TextBlock Name="StGLFWPathTb" Classes="TextInput">GLFW library path</TextBlock>
+                                                <!-- Input -->
                                                 <TextBox
                                                     Grid.Column="1"
-                                                    IsReadOnly="True"
-                                                    Margin="0,0,5,0"
-                                                    Text=""
-                                                    VerticalAlignment="Center" />
+                                                    Name="StGLFWPathInput"
+                                                    Classes="TextInput"
+                                                    Text=""/>
                                             </Grid>
-                                            <CheckBox>
-                                                <TextBlock Text="Use custom OpenAL" />
+                                            <!-- Use custom OpenAL -->
+                                            <CheckBox Name="StUseCustomOpenAlCb">
+                                                <TextBlock Name="StUseCustomOpenAlTb" Text="Use custom OpenAL" />
                                             </CheckBox>
+                                            <!-- OpenAL library path -->
                                             <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto">
-                                                <TextBlock Margin="0,0,10,0" VerticalAlignment="Center">OpenAL library path</TextBlock>
-
+                                                <!-- Text -->
+                                                <TextBlock Name="StOpenAlPathTb" Classes="TextInput">OpenAL library path</TextBlock>
+                                                <!-- Input -->
                                                 <TextBox
                                                     Grid.Column="1"
-                                                    IsReadOnly="True"
-                                                    Margin="0,0,5,0"
-                                                    Text=""
-                                                    VerticalAlignment="Center" />
+                                                    Name="StOpenAlPathInput"
+                                                    Classes="TextInput"
+                                                    Text="" />
                                             </Grid>
-                                            <TextBlock
-                                                FontSize="16"
-                                                FontWeight="SemiBold"
-                                                Margin="0,5"
-                                                VerticalAlignment="Center">
+                                            <!-- Subtitle -->
+                                            <TextBlock Name="StPerformanceTb" Classes="SettingsCategory">
                                                 Performance
                                             </TextBlock>
-                                            <CheckBox>
-                                                <TextBlock Text="Enable Feral GameMode" />
+                                            <!-- Enable Feral GameMode -->
+                                            <CheckBox Name="StFeralGameModeCb">
+                                                <TextBlock Name="StFeralGameModeTb" Text="Enable Feral GameMode" />
                                             </CheckBox>
-                                            <CheckBox>
-                                                <TextBlock Text="Enable MangoHud" />
+                                            <!-- Enable MangoHud -->
+                                            <CheckBox Name="StEnableMangoHudCb">
+                                                <TextBlock Name="StEnableMangoHudTb" Text="Enable MangoHud" />
                                             </CheckBox>
-                                            <CheckBox>
-                                                <TextBlock Text="Use dedicated GPU" />
+                                            <!-- Use dedicated GPU -->
+                                            <CheckBox Name="StUseDedicatedGpuCb">
+                                                <TextBlock Name="StUseDedicatedGpuTb" Text="Use dedicated GPU" />
                                             </CheckBox>
                                         </WrapPanel>
                                     </TabItem>
@@ -676,5 +662,4 @@
             </Carousel>
         </Border>
     </Grid>
-
 </Window>

@@ -8,6 +8,9 @@
         <SolidColorBrush Color="#555" x:Key="border-one" />
         <SolidColorBrush Color="#666666" x:Key="border-two" />
 
+        <SolidColorBrush Color="#5e5e5e" x:Key="default" />
+        <SolidColorBrush Color="#232323" x:Key="default-border" />
+        
         <SolidColorBrush Color="#16a34a" x:Key="primary" />
         <SolidColorBrush Color="#0f7133" x:Key="primary-border" />
         <SolidColorBrush Color="#FFFFFF" x:Key="primary-content" />

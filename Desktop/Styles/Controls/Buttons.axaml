@@ -49,6 +49,25 @@
         <Setter Property="Cursor" Value="Hand" />
     </Style>
     
+    <!-- Default Button  -->
+    <Style Selector="Button">
+        <Setter Property="Background" Value="{StaticResource default}" />
+        <Setter Property="BorderBrush" Value="{StaticResource default-border}" />
+        <Setter Property="Foreground" Value="{StaticResource primary-content}" />
+    </Style>
+    <!-- Default Button Hover  -->
+    <Style Selector="Button:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource default}" />
+        <Setter Property="BorderBrush" Value="{StaticResource default-border}" />
+        <Setter Property="Foreground" Value="{StaticResource primary-content}" />
+    </Style>
+    <!-- Default Button Active  -->
+    <Style Selector="Button:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource default}" />
+        <Setter Property="BorderBrush" Value="{StaticResource default-border}" />
+        <Setter Property="Foreground" Value="{StaticResource primary-content}" />
+    </Style>
+    
     <!--  Primary Button  -->
     <Style Selector="Button.PrimaryBtn">
         <Setter Property="Background" Value="{StaticResource primary}" />

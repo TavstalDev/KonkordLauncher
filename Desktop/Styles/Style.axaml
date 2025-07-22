@@ -1,9 +1,10 @@
 <Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!--  Window Style  -->
     <Style Selector="Window">
         <Setter Property="Background" Value="{StaticResource base-200}" />
     </Style>
 
-    <!--  region Common  -->
+    <!--  FontAwesome Icon Style  -->
     <Style Selector="TextBlock.FontAwesome">
         <Setter Property="FontFamily" Value="{StaticResource FontAwesome}" />
         <Setter Property="HorizontalAlignment" Value="Center" />
@@ -11,10 +12,8 @@
         <Setter Property="TextAlignment" Value="Center" />
         <Setter Property="Padding" Value="2" />
     </Style>
-    <!--  endregion  -->
 
-    <!--  region Side Bar  -->
-    
+
 
     <!--  Label  -->
     <Style Selector="Label.SidebarLabel">
@@ -23,9 +22,7 @@
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="Foreground" Value="{StaticResource text-muted}" />
     </Style>
-    <!--  endregion  -->
 
-    <!--  region Main Content Area  -->
 
     <!--  MainContentArea Border  -->
     <Style Selector="Border.MainContentArea">
@@ -49,76 +46,9 @@
 
     </Style>
 
-    <!--  region Play Page  -->
-
-    <!--  PlayPageScrollViewer  -->
-    <Style Selector="ScrollViewer.PlayPageScrollViewer">
+    <!--  ScrollViewer  -->
+    <Style Selector="ScrollViewer">
         <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
         <Setter Property="HorizontalScrollBarVisibility" Value="Disabled" />
-
     </Style>
-
-    <!--  PlayPageWrapper  -->
-    <Style Selector="WrapPanel.PlayPageWrapper">
-        <Setter Property="Orientation" Value="Horizontal" />
-        <Setter Property="ItemSpacing" Value="15" />
-        <Setter Property="LineSpacing" Value="15" />
-        <Setter Property="Margin" Value="0, 0, 0, 20" />
-
-    </Style>
-
-    
-
-    <!--  PlayCard  -->
-    <Style Selector="Border.PlayCard">
-        <Setter Property="Background" Value="{StaticResource base-200}" />
-        <Setter Property="CornerRadius" Value="8" />
-        <Setter Property="Padding" Value="10" />
-        <Setter Property="Width" Value="150" />
-    </Style>
-
-    <!--  PlayCardImage  -->
-    <Style Selector="Image.PlayCardImage">
-        <Setter Property="Height" Value="50" />
-        <Setter Property="Width" Value="50" />
-
-    </Style>
-
-    <!--  PlayCardText  -->
-    <Style Selector="TextBlock.PlayCardText">
-        <Setter Property="FontSize" Value="16" />
-        <Setter Property="Foreground" Value="{StaticResource primary-content}" />
-        <Setter Property="TextWrapping" Value="Wrap" />
-        <Setter Property="TextAlignment" Value="Center" />
-        <Setter Property="HorizontalAlignment" Value="Center" />
-        <Setter Property="Margin" Value="10" />
-
-    </Style>
-
-    <!--  PlayCardButton Wrapper  -->
-    <Style Selector="WrapPanel.PlayCardButtonWrapper">
-        <Setter Property="HorizontalAlignment" Value="Center" />
-        <Setter Property="ItemSpacing" Value="10" />
-        <Setter Property="LineSpacing" Value="10" />
-    </Style>
-
-    
-    <!--  endregion  -->
-
-    <!--  region News Page  -->
-
-    
-    <!--  endregion  -->
-
-    <!--  region Accounts Page  -->
-
-
-    
-    <!--  endregion  -->
-
-    <!--  region Settings Page  -->
-
-    <!--  endregion  -->
-
-    <!--  endregion  -->
 </Styles>

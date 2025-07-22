@@ -1,0 +1,39 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:Tavstal.KonkordLauncher.Desktop.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="210"
+        x:Class="Tavstal.KonkordLauncher.Desktop.Views.AlertWindow"
+        x:DataType="vm:AlertViewModel"
+        Title="Alert"
+        Loaded="AlertWindow_Loaded"
+        CanResize="False"
+        ShowInTaskbar="False"
+        Icon="../Assets/Images/logo.png"
+        MinHeight="210"
+        MinWidth="300"
+        Height="210"
+        Width="300">
+    
+    <Border Classes="AlertView">
+        <Grid Classes="AlertView">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>  
+            
+            <TextBlock Name="Icon" Classes="FontAwesome AlertIcon" Text="{Binding GetIcon}"/>
+            <TextBlock Grid.Row="1" Name="Title" Classes="AlertTitle" Text="{Binding Title}" />
+            <ScrollViewer Grid.Row="2" Classes="AlertMessage">
+                <TextBlock Name="Message" Classes="AlertMessage" Text="{Binding Message}" />
+            </ScrollViewer>
+            <WrapPanel Grid.Row="3" Name="ButtonWrapper" Classes="AlertButtonWrapper">
+                <Button Classes="IconBtn PrimaryBtn" Name="AcceptBtn" Click="Accept_OnClick" Padding="10, 5" Content="{Binding AcceptedButtonText}" />
+                <Button Classes="IconBtn" Padding="10, 5" Name="CancelBtn" Click="Cancel_OnClick" Content="{Binding CancelButtonText}" />
+            </WrapPanel>
+        </Grid>
+    </Border>
+</Window>

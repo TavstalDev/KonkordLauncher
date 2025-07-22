@@ -29,5 +29,6 @@
 
         <!--  Global Styles  -->
         <StyleInclude Source="Styles/Style.axaml" />
+        <StyleInclude Source="Styles/Views/AlertView.axaml" />
     </Application.Styles>
 </Application>

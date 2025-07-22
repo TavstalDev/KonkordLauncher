@@ -109,6 +109,7 @@ public partial class MainWindow : Window
 
     #region Event Handlers
 
+    #region Sidebar Button Click Handlers
     public void OnPlaySideButtonClick(object? sender, RoutedEventArgs e)
     {
         HandleSidebarChange(ESidebarType.Play);
@@ -128,7 +129,21 @@ public partial class MainWindow : Window
     {
         HandleSidebarChange(ESidebarType.Settings);
     }
+    #endregion
 
+    #region Account Button Click Handlers
+
+    private void OnAddOfflineAccountClicked(object? sender, RoutedEventArgs e)
+    {
+        
+    }
+
+    private void OnAddMicrosoftAccountClicked(object? sender, RoutedEventArgs e)
+    {
+        
+    }
+
+    #endregion
     #endregion
 
     private void OnTestButtonClick(object? sender, RoutedEventArgs e)
@@ -136,4 +151,5 @@ public partial class MainWindow : Window
         var dialog = new AlertWindow("Test", "Test Message", EAlertType.Success);
         dialog.ShowDialog(this);
     }
+    
 }

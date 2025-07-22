@@ -14,5 +14,9 @@ public class MainWindowViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _currentPageIndex, value);
     }
     
-    public ObservableCollection<PlayCardModel> InstancesOnPlayPage { get; } = [];
+    public ObservableCollection<PlayCardModel> Instances { get; } = [];
+    
+    public ObservableCollection<NewsCardModel> News { get; } = [];
+    
+    public ObservableCollection<AccountCardModel> Accounts { get; } = [];
 }

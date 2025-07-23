@@ -2,4 +2,54 @@
     <Style Selector="Border.ModalView">
         <Setter Property="Padding" Value="15" />
     </Style>
+    
+    <Style Selector="TextBlock.ModalTitle">
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="FontWeight" Value="600" />
+        <Setter Property="Foreground" Value="{StaticResource primary-content}" />
+        <Setter Property="Margin" Value="0, 10, 0, 20" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="TextAlignment" Value="Center" />
+    </Style>
+    
+    <Style Selector="TabControl.ModalTab">
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Margin" Value="0,0,0,10" />
+        <Setter Property="Padding" Value="0" />
+    </Style>
+    
+    <Style Selector="TabItem.ModalTabItem">
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="Background" Value="{StaticResource base-100}" />
+        <Setter Property="BorderBrush" Value="{StaticResource border-two}" />
+        <Setter Property="BorderThickness" Value="1, 1, 1, 0" />
+        <Setter Property="CornerRadius" Value="8, 8, 0, 0" />
+        <Setter Property="Padding" Value="15 0"/>
+        <Setter Property="Margin" Value="0" />
+    </Style>
+    
+    <Style Selector="TabItem.ModalTabItem:selected">
+        <Setter Property="Background" Value="{StaticResource base-200}"/>
+    </Style>
+    
+    <Style Selector="TabItem.ModalTabItem:selected /template/ Border#PART_SelectedPipe">
+        <Setter Property="IsVisible" Value="False" />
+    </Style>
+
+    <Style Selector="Border.ModalWrapper">
+        <Setter Property="Background" Value="{StaticResource base-100}" />
+        <Setter Property="BorderBrush" Value="{StaticResource border-two}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="0, 8, 8, 8" />
+        <Setter Property="Margin" Value="0,-2,0,0" />
+    </Style>
+    
+    <Style Selector="WrapPanel.ModalWrapper">
+        <Setter Property="LineSpacing" Value="10" />
+        <Setter Property="ItemSpacing" Value="15" />
+        <Setter Property="Width" Value="440"></Setter>
+        <Setter Property="ItemWidth" Value="440" />
+        <Setter Property="Margin" Value="25,20,25,25" />
+        <Setter Property="Orientation" Value="Vertical" />
+    </Style>
 </Styles>

@@ -1,0 +1,69 @@
+<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Modal Description -->
+    <Style Selector="TextBlock.AccountsModalDescription">
+        <Setter Property="Margin" Value="15, 0" />
+        <Setter Property="Opacity" Value="0.8" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="TextAlignment" Value="Center" />
+    </Style>
+    
+    <!-- Brand Image -->
+    <Style Selector="Image.AccountsModalImage">
+        <Setter Property="Width" Value="80" />
+        <Setter Property="Height" Value="80" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+    
+    <!-- Microsoft Button -->
+    <Style Selector="TextBlock.MicrosoftButtonText">
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="FontWeight" Value="600" />
+        <Setter Property="Foreground" Value="{StaticResource primary-content}" />
+        <Setter Property="Padding" Value="15, 5"></Setter>
+        <Setter Property="TextAlignment" Value="Center" />
+    </Style>
+    
+    <!-- Note Text -->
+    <Style Selector="TextBlock.AccountsNote">
+        <Setter Property="FontSize" Value="12"></Setter>
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="TextAlignment" Value="Center" />
+        <Setter Property="Opacity" Value="0.4" />
+        <Setter Property="Margin" Value="30, 0" />
+    </Style>
+    
+    <!-- Accounts Modal Input -->
+    <Style Selector="TextBox.AccountsModalInput">
+        <Setter Property="Margin" Value="50, 10" />
+        <Setter Property="TextAlignment" Value="Center" />
+        <Setter Property="TextWrapping" Value="NoWrap" />
+        <Setter Property="MaxLines" Value="1" />
+    </Style>
+    
+    <!-- Progress Bar -->
+    <Style Selector="ProgressBar.AccountsModalProgress">
+        <Setter Property="Height" Value="4" />
+        <Setter Property="Width" Value="300" />
+        <Setter Property="IsIndeterminate" Value="True" />
+        <Setter Property="Margin" Value="0,10,0,0" />
+    </Style>
+    
+    <!-- Progress Text -->
+    <Style Selector="TextBlock.AccountsModalProgressText">
+        <Setter Property="Foreground" Value="{StaticResource primary-content}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="TextAlignment" Value="Center" />
+        <Setter Property="Margin" Value="30, 0, 30, 10" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+    
+    <!-- Progress Wrapper -->
+    <Style Selector="WrapPanel.AccountsModalProgressWrapper">
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="ItemSpacing" Value="10" />
+        <Setter Property="LineSpacing" Value="10" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+</Styles>

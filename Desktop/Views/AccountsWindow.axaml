@@ -5,6 +5,7 @@
         xmlns:vm="using:Tavstal.KonkordLauncher.Desktop.ViewModels"
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="400"
         x:Class="Tavstal.KonkordLauncher.Desktop.Views.AccountsWindow"
+        x:DataType="vm:AccountsViewModel"
         Title="Alert"
         CanResize="False"
         ShowInTaskbar="False"
@@ -15,15 +16,68 @@
         Width="500">
     
     <Border Classes="ModalView">
-        <Grid Classes="AlertView">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>  
-            
-            
-        </Grid>
+        <StackPanel>
+            <TextBlock Classes="ModalTitle" Text="Add New Account" />
+            <TabControl Classes="ModalTab">
+                <!-- Microsoft account login tab -->
+                <TabItem Classes="ModalTabItem" Header="Microsoft">
+                    <Border Classes="ModalWrapper">
+                        <WrapPanel>
+                            <!-- Start with Microsoft account login -->
+                            <WrapPanel Classes="ModalWrapper" IsVisible="{Binding !IsLoggingInMicrosoftAccount}">
+                                <!-- Description text -->
+                                <TextBlock Classes="AccountsModalDescription" Text="Sign in with your Microsoft Account to access official Minecraft servers and features. " />
+                                <!-- Microsoft logo -->
+                                <Image Classes="AccountsModalImage" Source="../Assets/Images/Brands/microsoft.png" />
+                                <!-- Start login button -->
+                                <Button Classes="IconBtn PrimaryBtn" HorizontalAlignment="Center" Click="MicrosoftLogin_OnClick">
+                                    <TextBlock Classes="MicrosoftButtonText" Text="Sign in with Microsoft" />
+                                </Button>
+                                <!-- Note text -->
+                                <TextBlock Classes="AccountsNote" Text="This will open a browser window for authentication. " />
+                            </WrapPanel>
+                            <!-- Show progress while waiting for browser confirmation -->
+                            <WrapPanel Classes="ModalWrapper" IsVisible="{Binding IsLoggingInMicrosoftAccount}">
+                                <ProgressBar Classes="AccountsModalProgress" />
+                                <!-- Progress text -->
+                                <TextBlock Name="ProgressText" Classes="AccountsModalProgressText" Text="Waiting for confirmation..." />
+                                <!-- Buttons -->
+                                <WrapPanel Classes="AccountsModalProgressWrapper">
+                                    <!-- Open link button -->
+                                    <Button Classes="IconBtn PrimaryBtn" Click="OpenLink_OnClick">
+                                        <TextBlock Classes="FontAwesome" Text="&#xf0ac;" />
+                                    </Button>
+                                    <!-- Copy link button -->
+                                    <Button Classes="IconBtn" Click="CopyLink_OnClick">
+                                        <TextBlock Classes="FontAwesome" Text="&#xf0c1;" />
+                                    </Button>
+                                    <!-- Cancel button -->
+                                    <Button Classes="IconBtn ErrorBtn" Click="CancelLogin_OnClick" >
+                                        <TextBlock Classes="FontAwesome" Text="&#xf00d;" />
+                                    </Button>
+                                </WrapPanel>
+                            </WrapPanel>
+                        </WrapPanel>
+                    </Border>
+                </TabItem>
+                <!-- Offline account login tab -->
+                <TabItem Classes="ModalTabItem" Header="Offline">
+                    <Border Classes="ModalWrapper">
+                        <WrapPanel Classes="ModalWrapper">
+                            <!-- Description text -->
+                            <TextBlock Classes="AccountsModalDescription" Text="Play with an offline account." />
+                            <!-- Username input -->
+                            <TextBox Classes="AccountsModalInput" MaxLength="16"  TextChanged="OfflineUsername_OnTextChanged" />
+                            <!-- Offline login button -->
+                            <Button Classes="IconBtn PrimaryBtn" HorizontalAlignment="Center" Click="OfflineLogin_OnClick">
+                                <TextBlock Classes="MicrosoftButtonText" Text="Login as Offline User" />
+                            </Button>
+                            <!-- Note text -->
+                            <TextBlock Classes="AccountsNote" Text="Offline accounts can only connect to offline servers; online multiplayer is unavailable." />
+                        </WrapPanel>
+                    </Border>
+                </TabItem>
+            </TabControl>
+        </StackPanel>
     </Border>
 </Window>

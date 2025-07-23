@@ -255,13 +255,7 @@
                                 Name="AccountsPageTitleTextBlock"
                                 Text="Accounts" />
                             <!--  Add account button  -->
-                            <Button Name="AddAccountBtn" Classes="IconBtn InfoBtn" Grid.Column="1">
-                                <Button.Flyout>
-                                    <MenuFlyout>
-                                        <MenuItem Header="Add Offline Account" Click="OnAddOfflineAccountClicked" />
-                                        <MenuItem Header="Add Microsoft Account" Click="OnAddMicrosoftAccountClicked" />
-                                    </MenuFlyout>
-                                </Button.Flyout>
+                            <Button Name="AddAccountBtn" Classes="IconBtn InfoBtn" Grid.Column="1" Click="AddAccount_OnClick">
                                 <TextBlock Name="AddAccountTb" Classes="FontAwesome" Text="&#xf234;" />
                             </Button>
                         </Grid>

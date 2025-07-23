@@ -133,14 +133,10 @@ public partial class MainWindow : Window
 
     #region Account Button Click Handlers
 
-    private void OnAddOfflineAccountClicked(object? sender, RoutedEventArgs e)
+    private void AddAccount_OnClick(object? sender, RoutedEventArgs e)
     {
-        
-    }
-
-    private void OnAddMicrosoftAccountClicked(object? sender, RoutedEventArgs e)
-    {
-        
+        var dialog = new AccountsWindow();
+        dialog.ShowDialog(this);
     }
 
     #endregion
@@ -148,8 +144,9 @@ public partial class MainWindow : Window
 
     private void OnTestButtonClick(object? sender, RoutedEventArgs e)
     {
-        var dialog = new AlertWindow("Test", "Test Message", EAlertType.Success);
+        var dialog = new AccountsWindow();
         dialog.ShowDialog(this);
     }
-    
+
+   
 }

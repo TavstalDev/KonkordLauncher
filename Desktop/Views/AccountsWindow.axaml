@@ -6,7 +6,7 @@
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="400"
         x:Class="Tavstal.KonkordLauncher.Desktop.Views.AccountsWindow"
         x:DataType="vm:AccountsViewModel"
-        Title="Alert"
+        Title="Add New Account"
         CanResize="False"
         ShowInTaskbar="False"
         Icon="../Assets/Images/logo.png"

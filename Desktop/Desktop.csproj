@@ -39,5 +39,9 @@
         <DependentUpon>AccountsWindow.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
+      <Compile Update="Views\CreateInstanceWindow.axaml.cs">
+        <DependentUpon>CreateInstanceWindow.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
 </Project>

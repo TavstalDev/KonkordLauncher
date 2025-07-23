@@ -144,7 +144,7 @@ public partial class MainWindow : Window
 
     private void OnTestButtonClick(object? sender, RoutedEventArgs e)
     {
-        var dialog = new AccountsWindow();
+        var dialog = new CreateInstanceWindow();
         dialog.ShowDialog(this);
     }
 

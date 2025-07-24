@@ -1,155 +1,247 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:vm="using:Tavstal.KonkordLauncher.Desktop.ViewModels"
-        mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="500"
-        x:Class="Tavstal.KonkordLauncher.Desktop.Views.CreateInstanceWindow"
-        x:DataType="vm:CreateInstanceViewModel"
-        Title="Create Instance"
-        CanResize="False"
-        ShowInTaskbar="False"
-        Icon="../Assets/Images/logo.png"
-        MinHeight="500"
-        MinWidth="900"
-        Height="500"
-        Width="900"
-        Loaded="Control_OnLoaded">
-    
+<Window
+    CanResize="False"
+    Height="500"
+    Icon="../Assets/Images/logo.png"
+    Loaded="Control_OnLoaded"
+    MinHeight="500"
+    MinWidth="900"
+    ShowInTaskbar="False"
+    Title="Create Instance"
+    Width="900"
+    d:DesignHeight="500"
+    d:DesignWidth="900"
+    mc:Ignorable="d"
+    x:Class="Tavstal.KonkordLauncher.Desktop.Views.CreateInstanceWindow"
+    x:DataType="vm:CreateInstanceViewModel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:Tavstal.KonkordLauncher.Desktop.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
     <Border Classes="InstanceView">
         <Grid RowDefinitions="Auto,*">
-            <!-- Title -->
-            <TextBlock Classes="InstanceTitle" HorizontalAlignment="Left" Text="Create Instance" />
-            
-            <!-- Content -->
+            <!--  Title  -->
+            <TextBlock
+                Classes="InstanceTitle"
+                HorizontalAlignment="Left"
+                Text="Create Instance" />
+
+            <!--  Content  -->
             <Grid Grid.Row="1" MaxHeight="400">
-                <ScrollViewer>
-                    <TabControl Classes="ModalTab">
-                        <!-- Custom -->
-                        <TabItem Classes="ModalTabItem" Header="Custom">
-                            <Border Classes="InstanceWrapper">
+                <TabControl Classes="ModalTab">
+                    <!--  Custom  -->
+                    <TabItem Classes="ModalTabItem" Header="Custom">
+                        <Border Classes="InstanceWrapper">
+                            <ScrollViewer>
                                 <Grid Classes="InstanceWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
-                                    <!-- Icon, Name & Group -->
+                                    <!--  Icon, Name & Group  -->
                                     <Grid ColumnDefinitions="100,*,*" RowDefinitions="Auto">
-                                        <!-- Icon -->
+                                        <!--  Icon  -->
                                         <Button Name="CustomIconBtn">
-                                            <Image Name="CustomIconImg" Classes="InstanceIcon" Source="../Assets/Icons/dirt.png" />
+                                            <Image
+                                                Classes="InstanceIcon"
+                                                Name="CustomIconImg"
+                                                Source="../Assets/Icons/dirt.png" />
                                         </Button>
-                                        <!-- Name -->
-                                        <Grid Grid.Column="1" RowDefinitions="Auto, Auto" RowSpacing="8">
-                                            <!-- Text -->
-                                            <TextBlock Name="CustomNameTb" Classes="TextInput">Name</TextBlock>
-                                            <!-- Input -->
-                                            <TextBox Grid.Row="1" Name="CustomNameInput" Classes="TextInput" Watermark="My Instance" />
+                                        <!--  Name  -->
+                                        <Grid
+                                            Grid.Column="1"
+                                            RowDefinitions="Auto, Auto"
+                                            RowSpacing="8">
+                                            <!--  Text  -->
+                                            <TextBlock Classes="TextInput" Name="CustomNameTb">Name</TextBlock>
+                                            <!--  Input  -->
+                                            <TextBox
+                                                Classes="TextInput"
+                                                Grid.Row="1"
+                                                Name="CustomNameInput"
+                                                Watermark="My Instance" />
                                         </Grid>
-                                        <!-- Group -->
-                                        <Grid Grid.Column="2" RowDefinitions="Auto, Auto" RowSpacing="8">
-                                            <!-- Text -->
-                                            <TextBlock Name="CustomGroupTb" Classes="TextInput">Group</TextBlock>
-                                            <!-- Input -->
+                                        <!--  Group  -->
+                                        <Grid
+                                            Grid.Column="2"
+                                            RowDefinitions="Auto, Auto"
+                                            RowSpacing="8">
+                                            <!--  Text  -->
+                                            <TextBlock Classes="TextInput" Name="CustomGroupTb">Group</TextBlock>
+                                            <!--  Input  -->
                                             <ComboBox
+                                                Classes="TextDropdown"
                                                 Grid.Row="1"
                                                 Name="CustomGroupInput"
-                                                Classes="TextDropdown"
                                                 SelectedIndex="0">
                                                 <ComboBoxItem Content="None" />
                                             </ComboBox>
                                         </Grid>
                                     </Grid>
-                                    <!-- Vanilla Version -->
-                                    <Grid Grid.Row="1" RowDefinitions="Auto, Auto" RowSpacing="8">
-                                        <!-- Text -->
-                                        <TextBlock Name="CustomMinecraftVersionTb" Classes="InstanceCategory">Minecraft Version</TextBlock>
-                                        <!-- Table -->
-                                        <Grid Grid.Row="1" Name="CustomMinecraftVersionTable" ColumnDefinitions="*, Auto" RowDefinitions="Auto" ColumnSpacing="15">
-                                            <!-- Input -->
-                                            <DataGrid Grid.Column="0" Classes="InstanceTable" ItemsSource="{Binding Versions}">
+                                    <!--  Vanilla Version  -->
+                                    <Grid
+                                        Grid.Row="1"
+                                        RowDefinitions="Auto, Auto"
+                                        RowSpacing="8">
+                                        <!--  Text  -->
+                                        <TextBlock Classes="InstanceCategory" Name="CustomMinecraftVersionTb">Minecraft Version</TextBlock>
+                                        <!--  Table  -->
+                                        <Grid
+                                            ColumnDefinitions="*, Auto"
+                                            ColumnSpacing="15"
+                                            Grid.Row="1"
+                                            Name="CustomMinecraftVersionTable"
+                                            RowDefinitions="Auto">
+                                            <!--  Input  -->
+                                            <DataGrid
+                                                Classes="InstanceTable"
+                                                Grid.Column="0"
+                                                ItemsSource="{Binding Versions}">
                                                 <DataGrid.Columns>
-                                                    <DataGridTextColumn Header="Version" Width="*" Binding="{Binding Version}"/>
-                                                    <DataGridTextColumn Header="Released" Width="*" Binding="{Binding ReleaseDate}" />
-                                                    <DataGridTextColumn Header="Type" Width="*" Binding="{Binding Type}" />
+                                                    <DataGridTextColumn
+                                                        Binding="{Binding Version}"
+                                                        Header="Version"
+                                                        Width="*" />
+                                                    <DataGridTextColumn
+                                                        Binding="{Binding ReleaseDate}"
+                                                        Header="Released"
+                                                        Width="*" />
+                                                    <DataGridTextColumn
+                                                        Binding="{Binding Type}"
+                                                        Header="Type"
+                                                        Width="*" />
                                                 </DataGrid.Columns>
                                             </DataGrid>
-                                            <!-- Version Options -->
+                                            <!--  Version Options  -->
                                             <StackPanel Grid.Column="1" MaxWidth="175">
-                                                <!-- Release -->
-                                                <CheckBox Name="CustomReleaseCb" Content="Releases" IsChecked="{Binding ShowReleases}" />
-                                                <!-- Snapshot -->
-                                                <CheckBox Name="CustomSnapshotCb" Content="Snapshots" IsChecked="{Binding ShowSnapshots}" />
-                                                <!-- Beta -->
-                                                <CheckBox Name="CustomBetaCb" Content="Betas" IsChecked="{Binding ShowBetas}" />
-                                                <!-- Alpha -->
-                                                <CheckBox Name="CustomAlphaCb" Content="Alphas" IsChecked="{Binding ShowAlphas}" />
-                                                <!-- Experiment -->
-                                                <CheckBox Name="CustomExperimentCb" Content="Experiments" IsChecked="{Binding ShowExperiments}" />
-                                                
-                                                <!-- Search Box -->
-                                                <TextBox Name="CustomVersionSearch" Classes="InstanceSearch"
-                                                         Watermark="Search"
-                                                         Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}" />
+                                                <!--  Release  -->
+                                                <CheckBox
+                                                    Content="Releases"
+                                                    IsChecked="{Binding ShowReleases}"
+                                                    Name="CustomReleaseCb" />
+                                                <!--  Snapshot  -->
+                                                <CheckBox
+                                                    Content="Snapshots"
+                                                    IsChecked="{Binding ShowSnapshots}"
+                                                    Name="CustomSnapshotCb" />
+                                                <!--  Beta  -->
+                                                <CheckBox
+                                                    Content="Betas"
+                                                    IsChecked="{Binding ShowBetas}"
+                                                    Name="CustomBetaCb" />
+                                                <!--  Alpha  -->
+                                                <CheckBox
+                                                    Content="Alphas"
+                                                    IsChecked="{Binding ShowAlphas}"
+                                                    Name="CustomAlphaCb" />
+                                                <!--  Experiment  -->
+                                                <CheckBox
+                                                    Content="Experiments"
+                                                    IsChecked="{Binding ShowExperiments}"
+                                                    Name="CustomExperimentCb" />
+
+                                                <!--  Search Box  -->
+                                                <TextBox
+                                                    Classes="InstanceSearch"
+                                                    Name="CustomVersionSearch"
+                                                    Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                                                    Watermark="Search" />
                                             </StackPanel>
                                         </Grid>
                                     </Grid>
-                                    <!-- ModLoader Version -->
-                                    <Grid Grid.Row="2" RowDefinitions="Auto, Auto" RowSpacing="8">
-                                        <!-- Text -->
-                                        <TextBlock Name="CustomModLoaderTb" Classes="InstanceCategory">Mod loader</TextBlock>
-                                        <!-- Table -->
-                                        <Grid Grid.Row="1" Name="CustomModVersionTable" ColumnDefinitions="*, Auto" RowDefinitions="Auto" ColumnSpacing="15">
-                                            <!-- Input -->
-                                            <DataGrid Grid.Column="0" Classes="InstanceTable" ItemsSource="{Binding Versions}">
+                                    <!--  ModLoader Version  -->
+                                    <Grid
+                                        Grid.Row="2"
+                                        RowDefinitions="Auto, Auto"
+                                        RowSpacing="8">
+                                        <!--  Text  -->
+                                        <TextBlock Classes="InstanceCategory" Name="CustomModLoaderTb">Mod loader</TextBlock>
+                                        <!--  Table  -->
+                                        <Grid
+                                            ColumnDefinitions="*, Auto"
+                                            ColumnSpacing="15"
+                                            Grid.Row="1"
+                                            Name="CustomModVersionTable"
+                                            RowDefinitions="Auto">
+                                            <!--  Input  -->
+                                            <DataGrid
+                                                Classes="InstanceTable"
+                                                Grid.Column="0"
+                                                ItemsSource="{Binding Versions}">
                                                 <DataGrid.Columns>
-                                                    <DataGridTextColumn Header="Version" Width="*" Binding="{Binding Version}"/>
-                                                    <DataGridTextColumn Header="Released" Width="*" Binding="{Binding ReleaseDate}" />
-                                                    <DataGridTextColumn Header="Type" Width="*" Binding="{Binding Type}" />
+                                                    <DataGridTextColumn
+                                                        Binding="{Binding Version}"
+                                                        Header="Version"
+                                                        Width="*" />
+                                                    <DataGridTextColumn
+                                                        Binding="{Binding ReleaseDate}"
+                                                        Header="Released"
+                                                        Width="*" />
+                                                    <DataGridTextColumn
+                                                        Binding="{Binding Type}"
+                                                        Header="Type"
+                                                        Width="*" />
                                                 </DataGrid.Columns>
                                             </DataGrid>
-                                            <!-- Mod Loader Options -->
+                                            <!--  Mod Loader Options  -->
                                             <StackPanel Grid.Column="1" MaxWidth="175">
-                                                <!-- None -->
-                                                <RadioButton Name="CustomNoModLoaderRb" Content="None" IsChecked="True" />
-                                                <!-- NeoForge -->
-                                                <RadioButton Name="CustomNeoForgeRb" Content="NeoForge" />
-                                                <!-- Forge -->
-                                                <RadioButton Name="CustomForgeRb" Content="Forge" />
-                                                <!-- Fabric -->
-                                                <RadioButton Name="CustomFabricRb" Content="Fabric"  />
-                                                <!-- Quilt -->
-                                                <RadioButton Name="CustomQuiltRb" Content="Quilt"  />
-                                                
-                                                <!-- Search Box -->
-                                                <TextBox Name="CustomModVersionSearch" Classes="InstanceSearch"
-                                                         Watermark="Search"
-                                                         Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}" />
+                                                <!--  None  -->
+                                                <RadioButton
+                                                    Content="None"
+                                                    IsChecked="True"
+                                                    Name="CustomNoModLoaderRb" />
+                                                <!--  NeoForge  -->
+                                                <RadioButton Content="NeoForge" Name="CustomNeoForgeRb" />
+                                                <!--  Forge  -->
+                                                <RadioButton Content="Forge" Name="CustomForgeRb" />
+                                                <!--  Fabric  -->
+                                                <RadioButton Content="Fabric" Name="CustomFabricRb" />
+                                                <!--  Quilt  -->
+                                                <RadioButton Content="Quilt" Name="CustomQuiltRb" />
+
+                                                <!--  Search Box  -->
+                                                <TextBox
+                                                    Classes="InstanceSearch"
+                                                    Name="CustomModVersionSearch"
+                                                    Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                                                    Watermark="Search" />
                                             </StackPanel>
                                         </Grid>
                                     </Grid>
-                                    <!-- Buttons -->
-                                    <StackPanel Grid.Row="3" Classes="InstanceButtonWrapper">
-                                        <Button Name="CustomCreateInstanceBtn" Classes="IconBtn SuccessBtn">
-                                            <TextBlock Name="CustomCreateInstanceTb" Classes="InstanceButtonText" Text="Create Instance" />
+                                    <!--  Buttons  -->
+                                    <StackPanel Classes="InstanceButtonWrapper" Grid.Row="3">
+                                        <Button Classes="IconBtn SuccessBtn" Name="CustomCreateInstanceBtn">
+                                            <TextBlock
+                                                Classes="InstanceButtonText"
+                                                Name="CustomCreateInstanceTb"
+                                                Text="Create Instance" />
                                         </Button>
-                                        <Button Name="CustomCancelBtn" Classes="IconBtn ErrorBtn">
-                                            <TextBlock Name="CustomCancelTb" Classes="InstanceButtonText" Text="Cancel" />
+                                        <Button Classes="IconBtn ErrorBtn" Name="CustomCancelBtn">
+                                            <TextBlock
+                                                Classes="InstanceButtonText"
+                                                Name="CustomCancelTb"
+                                                Text="Cancel" />
                                         </Button>
                                     </StackPanel>
                                 </Grid>
-                            </Border>
-                        </TabItem>
-                        <!-- Modpacks -->
-                        <TabItem Classes="ModalTabItem" Header="Modpacks">
-                            <Border Classes="InstanceWrapper">
-                                <Grid  Classes="InstanceWrapper" RowDefinitions="*, Auto" RowSpacing="8">
+                            </ScrollViewer>
+                        </Border>
+                    </TabItem>
+                    <!--  Modpacks  -->
+                    <TabItem Classes="ModalTabItem" Header="Modpacks">
+                        <Border Classes="InstanceWrapper">
+                            <ScrollViewer>
+                                <Grid
+                                    Classes="InstanceWrapper"
+                                    RowDefinitions="*, Auto"
+                                    RowSpacing="8">
                                     <Grid ColumnDefinitions="160,*">
                                         <StackPanel Spacing="5">
-                                            <!-- Platform -->
+                                            <!--  Platform  -->
                                             <Grid RowDefinitions="Auto, Auto" RowSpacing="8">
-                                                <!-- Text -->
+                                                <!--  Text  -->
                                                 <TextBlock Classes="TextInput">Platform</TextBlock>
-                                                <!-- Input -->
+                                                <!--  Input  -->
                                                 <ComboBox
-                                                    Grid.Row="1"
                                                     Classes="TextDropdown"
+                                                    Grid.Row="1"
                                                     SelectedIndex="0">
                                                     <ComboBoxItem Content="Modrinth" />
                                                     <ComboBoxItem Content="CurseForge" />
@@ -157,14 +249,14 @@
                                                     <ComboBoxItem Content="FTB" />
                                                 </ComboBox>
                                             </Grid>
-                                            <!-- ModLoader -->
+                                            <!--  ModLoader  -->
                                             <Grid RowDefinitions="Auto, Auto" RowSpacing="8">
-                                                <!-- Text -->
+                                                <!--  Text  -->
                                                 <TextBlock Classes="TextInput">Mod Loader</TextBlock>
-                                                <!-- Input -->
+                                                <!--  Input  -->
                                                 <ComboBox
-                                                    Grid.Row="1"
                                                     Classes="TextDropdown"
+                                                    Grid.Row="1"
                                                     SelectedIndex="0">
                                                     <ComboBoxItem Content="NeoForge" />
                                                     <ComboBoxItem Content="Forge" />
@@ -172,14 +264,14 @@
                                                     <ComboBoxItem Content="Quilt" />
                                                 </ComboBox>
                                             </Grid>
-                                            <!-- Minecraft Version -->
+                                            <!--  Minecraft Version  -->
                                             <Grid RowDefinitions="Auto, Auto" RowSpacing="8">
-                                                <!-- Text -->
+                                                <!--  Text  -->
                                                 <TextBlock Classes="TextInput">Minecraft Version</TextBlock>
-                                                <!-- Input -->
+                                                <!--  Input  -->
                                                 <ComboBox
-                                                    Grid.Row="1"
                                                     Classes="TextDropdown"
+                                                    Grid.Row="1"
                                                     SelectedIndex="0">
                                                     <ComboBoxItem Content="1.20.1" />
                                                     <ComboBoxItem Content="1.19.2" />
@@ -196,31 +288,33 @@
                                             <CheckBox Content="Quests" />
                                             <CheckBox Content="Technology" />
                                         </StackPanel>
-                                        <Grid Grid.Column="1" ColumnDefinitions="*, Auto, *">
-                                            <!-- Left Sub-Grid -->
-                                            <Grid Grid.Column="0">
-                                                <!-- Your content -->
+                                        <Grid ColumnDefinitions="*, 2, *" Grid.Column="1">
+                                            <!--  Left Sub-Grid  -->
+                                            <ScrollViewer Grid.Column="0" Margin="25,0">
+                                                <!--  Your content  -->
                                                 <TextBlock Text="Left Grid Content" />
-                                            </Grid>
+                                            </ScrollViewer>
 
-                                            <!-- Grid Splitter -->
-                                            <GridSplitter Grid.Column="1"
-                                                          Width="5"
-                                                          Background="Gray"
-                                                          ShowsPreview="True"
-                                                          ResizeDirection="Columns"
-                                                          HorizontalAlignment="Stretch" />
+                                            <!--  Grid Splitter  -->
+                                            <GridSplitter
+                                                Background="Gray"
+                                                CornerRadius="8"
+                                                Grid.Column="1"
+                                                HorizontalAlignment="Stretch"
+                                                MaxWidth="2"
+                                                ResizeDirection="Columns"
+                                                ShowsPreview="True" />
 
-                                            <!-- Right Sub-Grid -->
-                                            <Grid Grid.Column="2">
-                                                <!-- Your content -->
+                                            <!--  Right Sub-Grid  -->
+                                            <ScrollViewer Grid.Column="2" Margin="25,5">
+                                                <!--  Your content  -->
                                                 <TextBlock Text="Right Grid Content" />
-                                            </Grid>
+                                            </ScrollViewer>
                                         </Grid>
 
                                     </Grid>
-                                    <!-- Buttons -->
-                                    <StackPanel Grid.Row="1" Classes="InstanceButtonWrapper">
+                                    <!--  Buttons  -->
+                                    <StackPanel Classes="InstanceButtonWrapper" Grid.Row="1">
                                         <Button Classes="IconBtn SuccessBtn">
                                             <TextBlock Classes="InstanceButtonText" Text="Create Instance" />
                                         </Button>
@@ -229,64 +323,98 @@
                                         </Button>
                                     </StackPanel>
                                 </Grid>
-                            </Border>
-                        </TabItem>
-                        <!-- Import -->
-                        <TabItem Classes="ModalTabItem" Header="Import">
-                            <Border Classes="InstanceWrapper">
+                            </ScrollViewer>
+                        </Border>
+                    </TabItem>
+                    <!--  Import  -->
+                    <TabItem Classes="ModalTabItem" Header="Import">
+                        <Border Classes="InstanceWrapper">
+                            <ScrollViewer>
                                 <Grid Classes="InstanceWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
                                     <TextBlock Name="ImportSelect" Text="Import an instance from a file or URL." />
-                                    <!-- Source -->
-                                    <Grid Grid.Row="1" RowDefinitions="Auto, Auto" RowSpacing="8">
-                                        <!-- Text -->
-                                        <TextBlock Name="ImportSourceTb" Classes="TextInput">Import Source</TextBlock>
-                                        <!-- Input -->
+                                    <!--  Source  -->
+                                    <Grid
+                                        Grid.Row="1"
+                                        RowDefinitions="Auto, Auto"
+                                        RowSpacing="8">
+                                        <!--  Text  -->
+                                        <TextBlock Classes="TextInput" Name="ImportSourceTb">Import Source</TextBlock>
+                                        <!--  Input  -->
                                         <ComboBox
+                                            Classes="TextDropdown"
                                             Grid.Row="1"
                                             Name="ImportSourceInput"
-                                            Classes="TextDropdown"
                                             SelectedIndex="0">
                                             <ComboBoxItem Content="From File" />
                                             <ComboBoxItem Content="From URL" />
                                         </ComboBox>
                                     </Grid>
-                                    <!-- File -->
-                                    <Grid Grid.Row="2" RowDefinitions="Auto, Auto, Auto" RowSpacing="8">
-                                        <!-- Text -->
-                                        <TextBlock Name="ImportInstanceTb" Classes="TextInput">Select Instance File</TextBlock>
-                                        <!-- Input -->
-                                        <Grid Grid.Row="1" ColumnDefinitions="*, Auto" RowDefinitions="Auto">
-                                            <!-- Input -->
-                                            <TextBox Grid.Column="0" Name="ImportInstanceInput" Classes="TextInput" Watermark="Select a file..." />
-                                            <!-- Button -->
-                                            <Button Grid.Column="1" Name="ImportInstanceOpenBtn" Classes="IconBtn InfoBtn">
+                                    <!--  File  -->
+                                    <Grid
+                                        Grid.Row="2"
+                                        RowDefinitions="Auto, Auto, Auto"
+                                        RowSpacing="8">
+                                        <!--  Text  -->
+                                        <TextBlock Classes="TextInput" Name="ImportInstanceTb">Select Instance File</TextBlock>
+                                        <!--  Input  -->
+                                        <Grid
+                                            ColumnDefinitions="*, Auto"
+                                            Grid.Row="1"
+                                            RowDefinitions="Auto">
+                                            <!--  Input  -->
+                                            <TextBox
+                                                Classes="TextInput"
+                                                Grid.Column="0"
+                                                Name="ImportInstanceInput"
+                                                Watermark="Select a file..." />
+                                            <!--  Button  -->
+                                            <Button
+                                                Classes="IconBtn InfoBtn"
+                                                Grid.Column="1"
+                                                Name="ImportInstanceOpenBtn">
                                                 <TextBlock Classes="FontAwesome" Text="&#xf56f;" />
                                             </Button>
                                         </Grid>
-                                        <!-- Note -->
-                                        <TextBlock Grid.Row="2" Opacity="0.5" Text="Supported formats: .zip, .mrpack, .json"/>
+                                        <!--  Note  -->
+                                        <TextBlock
+                                            Grid.Row="2"
+                                            Opacity="0.5"
+                                            Text="Supported formats: .zip, .mrpack, .json" />
                                     </Grid>
-                                    <!-- URL -->
-                                    <Grid Grid.Row="2" RowDefinitions="Auto, Auto" RowSpacing="8" IsVisible="False">
-                                        <!-- Text -->
+                                    <!--  URL  -->
+                                    <Grid
+                                        Grid.Row="2"
+                                        IsVisible="False"
+                                        RowDefinitions="Auto, Auto"
+                                        RowSpacing="8">
+                                        <!--  Text  -->
                                         <TextBlock Classes="TextInput">Instance URL</TextBlock>
-                                        <!-- Input -->
-                                        <TextBox Grid.Row="1"  Classes="TextInput" Watermark="e.g., https://example.com/my-modpack.mrpack" />
+                                        <!--  Input  -->
+                                        <TextBox
+                                            Classes="TextInput"
+                                            Grid.Row="1"
+                                            Watermark="e.g., https://example.com/my-modpack.mrpack" />
                                     </Grid>
-                                    <!-- Buttons -->
-                                    <StackPanel Grid.Row="3" Classes="InstanceButtonWrapper">
-                                        <Button Name="ImportCreateInstanceBtn" Classes="IconBtn SuccessBtn">
-                                            <TextBlock Name="ImportCreateInstanceTb" Classes="InstanceButtonText" Text="Create Instance" />
+                                    <!--  Buttons  -->
+                                    <StackPanel Classes="InstanceButtonWrapper" Grid.Row="3">
+                                        <Button Classes="IconBtn SuccessBtn" Name="ImportCreateInstanceBtn">
+                                            <TextBlock
+                                                Classes="InstanceButtonText"
+                                                Name="ImportCreateInstanceTb"
+                                                Text="Create Instance" />
                                         </Button>
-                                        <Button Name="ImportCancelBtn" Classes="IconBtn ErrorBtn">
-                                            <TextBlock Name="ImportCancelTb" Classes="InstanceButtonText" Text="Cancel" />
+                                        <Button Classes="IconBtn ErrorBtn" Name="ImportCancelBtn">
+                                            <TextBlock
+                                                Classes="InstanceButtonText"
+                                                Name="ImportCancelTb"
+                                                Text="Cancel" />
                                         </Button>
                                     </StackPanel>
                                 </Grid>
-                            </Border>
-                        </TabItem>
-                    </TabControl>
-                </ScrollViewer>
+                            </ScrollViewer>
+                        </Border>
+                    </TabItem>
+                </TabControl>
             </Grid>
         </Grid>
     </Border>

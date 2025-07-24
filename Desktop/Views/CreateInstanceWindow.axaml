@@ -33,7 +33,7 @@
                                     <Grid ColumnDefinitions="100,*,*" RowDefinitions="Auto">
                                         <!-- Icon -->
                                         <Button Name="CustomIconBtn">
-                                            <Image Name="CustomIconImg" Source="../Assets/Icons/dirt.png" Height="60" Width="60"/>
+                                            <Image Name="CustomIconImg" Classes="InstanceIcon" Source="../Assets/Icons/dirt.png" />
                                         </Button>
                                         <!-- Name -->
                                         <Grid Grid.Column="1" RowDefinitions="Auto, Auto" RowSpacing="8">
@@ -84,7 +84,7 @@
                                                 <CheckBox Name="CustomExperimentCb" Content="Experiments" IsChecked="{Binding ShowExperiments}" />
                                                 
                                                 <!-- Search Box -->
-                                                <TextBox Name="CustomVersionSearch" Width="175" MaxWidth="175" Margin="0,5,0,0"
+                                                <TextBox Name="CustomVersionSearch" Classes="InstanceSearch"
                                                          Watermark="Search"
                                                          Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}" />
                                             </StackPanel>
@@ -118,19 +118,19 @@
                                                 <RadioButton Name="CustomQuiltRb" Content="Quilt"  />
                                                 
                                                 <!-- Search Box -->
-                                                <TextBox Name="CustomModVersionSearch" Width="175" MaxWidth="175" Margin="0,5,0,0"
+                                                <TextBox Name="CustomModVersionSearch" Classes="InstanceSearch"
                                                          Watermark="Search"
                                                          Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}" />
                                             </StackPanel>
                                         </Grid>
                                     </Grid>
                                     <!-- Buttons -->
-                                    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+                                    <StackPanel Grid.Row="3" Classes="InstanceButtonWrapper">
                                         <Button Name="CustomCreateInstanceBtn" Classes="IconBtn SuccessBtn">
-                                            <TextBlock Name="CustomCreateInstanceTb" Padding="5" FontWeight="600" FontSize="14" Text="Create Instance" />
+                                            <TextBlock Name="CustomCreateInstanceTb" Classes="InstanceButtonText" Text="Create Instance" />
                                         </Button>
                                         <Button Name="CustomCancelBtn" Classes="IconBtn ErrorBtn">
-                                            <TextBlock Name="CustomCancelTb" Padding="5" FontWeight="600" FontSize="14" Text="Cancel" />
+                                            <TextBlock Name="CustomCancelTb" Classes="InstanceButtonText" Text="Cancel" />
                                         </Button>
                                     </StackPanel>
                                 </Grid>
@@ -138,15 +138,63 @@
                         </TabItem>
                         <!-- Modpacks -->
                         <TabItem Classes="ModalTabItem" Header="Modpacks">
-                            <WrapPanel Classes="ModalWrapper">
-
-                            </WrapPanel>
+                            <Border Classes="InstanceWrapper">
+                                
+                            </Border>
                         </TabItem>
                         <!-- Import -->
                         <TabItem Classes="ModalTabItem" Header="Import">
-                            <WrapPanel Classes="ModalWrapper">
-
-                            </WrapPanel>
+                            <Border Classes="InstanceWrapper">
+                                <Grid Classes="InstanceWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
+                                    <TextBlock Name="ImportSelect" Text="Import an instance from a file or URL." />
+                                    <!-- Source -->
+                                    <Grid Grid.Row="1" RowDefinitions="Auto, Auto" RowSpacing="8">
+                                        <!-- Text -->
+                                        <TextBlock Name="ImportSourceTb" Classes="TextInput">Import Source</TextBlock>
+                                        <!-- Input -->
+                                        <ComboBox
+                                            Grid.Row="1"
+                                            Name="ImportSourceInput"
+                                            Classes="TextDropdown"
+                                            SelectedIndex="0">
+                                            <ComboBoxItem Content="From File" />
+                                            <ComboBoxItem Content="From URL" />
+                                        </ComboBox>
+                                    </Grid>
+                                    <!-- File -->
+                                    <Grid Grid.Row="2" RowDefinitions="Auto, Auto, Auto" RowSpacing="8">
+                                        <!-- Text -->
+                                        <TextBlock Name="ImportInstanceTb" Classes="TextInput">Select Instance File</TextBlock>
+                                        <!-- Input -->
+                                        <Grid Grid.Row="1" ColumnDefinitions="*, Auto" RowDefinitions="Auto">
+                                            <!-- Input -->
+                                            <TextBox Grid.Column="0" Name="ImportInstanceInput" Classes="TextInput" Watermark="Select a file..." />
+                                            <!-- Button -->
+                                            <Button Grid.Column="1" Name="ImportInstanceOpenBtn" Classes="IconBtn InfoBtn">
+                                                <TextBlock Classes="FontAwesome" Text="&#xf56f;" />
+                                            </Button>
+                                        </Grid>
+                                        <!-- Note -->
+                                        <TextBlock Grid.Row="2" Opacity="0.5" Text="Supported formats: .zip, .mrpack, .json"/>
+                                    </Grid>
+                                    <!-- URL -->
+                                    <Grid Grid.Row="2" RowDefinitions="Auto, Auto" RowSpacing="8" IsVisible="False">
+                                        <!-- Text -->
+                                        <TextBlock Classes="TextInput">Instance URL</TextBlock>
+                                        <!-- Input -->
+                                        <TextBox Grid.Row="1"  Classes="TextInput" Watermark="e.g., https://example.com/my-modpack.mrpack" />
+                                    </Grid>
+                                    <!-- Buttons -->
+                                    <StackPanel Grid.Row="3" Classes="InstanceButtonWrapper">
+                                        <Button Name="ImportCreateInstanceBtn" Classes="IconBtn SuccessBtn">
+                                            <TextBlock Name="ImportCreateInstanceTb" Classes="InstanceButtonText" Text="Create Instance" />
+                                        </Button>
+                                        <Button Name="ImportCancelBtn" Classes="IconBtn ErrorBtn">
+                                            <TextBlock Name="ImportCancelTb" Classes="InstanceButtonText" Text="Cancel" />
+                                        </Button>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
                         </TabItem>
                     </TabControl>
                 </ScrollViewer>

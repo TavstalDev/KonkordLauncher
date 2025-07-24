@@ -23,6 +23,8 @@ public partial class AlertWindow : Window
     /// </summary>
     public event ButtonClicked? OnButtonResponse;
 
+    public AlertWindow() {}
+    
     /// <summary>
     /// Initializes a new instance of the <see cref="AlertWindow"/> class with the specified title, message, and alert type.
     /// </summary>

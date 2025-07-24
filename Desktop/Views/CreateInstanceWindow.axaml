@@ -139,7 +139,96 @@
                         <!-- Modpacks -->
                         <TabItem Classes="ModalTabItem" Header="Modpacks">
                             <Border Classes="InstanceWrapper">
-                                
+                                <Grid  Classes="InstanceWrapper" RowDefinitions="*, Auto" RowSpacing="8">
+                                    <Grid ColumnDefinitions="160,*">
+                                        <StackPanel Spacing="5">
+                                            <!-- Platform -->
+                                            <Grid RowDefinitions="Auto, Auto" RowSpacing="8">
+                                                <!-- Text -->
+                                                <TextBlock Classes="TextInput">Platform</TextBlock>
+                                                <!-- Input -->
+                                                <ComboBox
+                                                    Grid.Row="1"
+                                                    Classes="TextDropdown"
+                                                    SelectedIndex="0">
+                                                    <ComboBoxItem Content="Modrinth" />
+                                                    <ComboBoxItem Content="CurseForge" />
+                                                    <ComboBoxItem Content="Technic" />
+                                                    <ComboBoxItem Content="FTB" />
+                                                </ComboBox>
+                                            </Grid>
+                                            <!-- ModLoader -->
+                                            <Grid RowDefinitions="Auto, Auto" RowSpacing="8">
+                                                <!-- Text -->
+                                                <TextBlock Classes="TextInput">Mod Loader</TextBlock>
+                                                <!-- Input -->
+                                                <ComboBox
+                                                    Grid.Row="1"
+                                                    Classes="TextDropdown"
+                                                    SelectedIndex="0">
+                                                    <ComboBoxItem Content="NeoForge" />
+                                                    <ComboBoxItem Content="Forge" />
+                                                    <ComboBoxItem Content="Fabric" />
+                                                    <ComboBoxItem Content="Quilt" />
+                                                </ComboBox>
+                                            </Grid>
+                                            <!-- Minecraft Version -->
+                                            <Grid RowDefinitions="Auto, Auto" RowSpacing="8">
+                                                <!-- Text -->
+                                                <TextBlock Classes="TextInput">Minecraft Version</TextBlock>
+                                                <!-- Input -->
+                                                <ComboBox
+                                                    Grid.Row="1"
+                                                    Classes="TextDropdown"
+                                                    SelectedIndex="0">
+                                                    <ComboBoxItem Content="1.20.1" />
+                                                    <ComboBoxItem Content="1.19.2" />
+                                                </ComboBox>
+                                            </Grid>
+                                            <CheckBox Content="Adventure" />
+                                            <CheckBox Content="Challenging" />
+                                            <CheckBox Content="Combat" />
+                                            <CheckBox Content="Kitchen Sink" />
+                                            <CheckBox Content="Lightweight" />
+                                            <CheckBox Content="Magic" />
+                                            <CheckBox Content="Multiplayer" />
+                                            <CheckBox Content="Optimization" />
+                                            <CheckBox Content="Quests" />
+                                            <CheckBox Content="Technology" />
+                                        </StackPanel>
+                                        <Grid Grid.Column="1" ColumnDefinitions="*, Auto, *">
+                                            <!-- Left Sub-Grid -->
+                                            <Grid Grid.Column="0">
+                                                <!-- Your content -->
+                                                <TextBlock Text="Left Grid Content" />
+                                            </Grid>
+
+                                            <!-- Grid Splitter -->
+                                            <GridSplitter Grid.Column="1"
+                                                          Width="5"
+                                                          Background="Gray"
+                                                          ShowsPreview="True"
+                                                          ResizeDirection="Columns"
+                                                          HorizontalAlignment="Stretch" />
+
+                                            <!-- Right Sub-Grid -->
+                                            <Grid Grid.Column="2">
+                                                <!-- Your content -->
+                                                <TextBlock Text="Right Grid Content" />
+                                            </Grid>
+                                        </Grid>
+
+                                    </Grid>
+                                    <!-- Buttons -->
+                                    <StackPanel Grid.Row="1" Classes="InstanceButtonWrapper">
+                                        <Button Classes="IconBtn SuccessBtn">
+                                            <TextBlock Classes="InstanceButtonText" Text="Create Instance" />
+                                        </Button>
+                                        <Button Classes="IconBtn ErrorBtn">
+                                            <TextBlock Classes="InstanceButtonText" Text="Cancel" />
+                                        </Button>
+                                    </StackPanel>
+                                </Grid>
                             </Border>
                         </TabItem>
                         <!-- Import -->

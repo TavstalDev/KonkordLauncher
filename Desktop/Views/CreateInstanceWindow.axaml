@@ -5,6 +5,7 @@
         xmlns:vm="using:Tavstal.KonkordLauncher.Desktop.ViewModels"
         mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="500"
         x:Class="Tavstal.KonkordLauncher.Desktop.Views.CreateInstanceWindow"
+        x:DataType="vm:CreateInstanceViewModel"
         Title="Create Instance"
         CanResize="False"
         ShowInTaskbar="False"
@@ -12,11 +13,144 @@
         MinHeight="500"
         MinWidth="900"
         Height="500"
-        Width="900">
+        Width="900"
+        Loaded="Control_OnLoaded">
     
-    <Border Classes="ModalView">
-        <StackPanel>
-            <TextBlock Classes="ModalTitle" HorizontalAlignment="Left" Text="New Instance" />
-        </StackPanel>
+    <Border Classes="InstanceView">
+        <Grid RowDefinitions="Auto,*">
+            <!-- Title -->
+            <TextBlock Classes="InstanceTitle" HorizontalAlignment="Left" Text="Create Instance" />
+            
+            <!-- Content -->
+            <Grid Grid.Row="1" MaxHeight="400">
+                <ScrollViewer>
+                    <TabControl Classes="ModalTab">
+                        <!-- Custom -->
+                        <TabItem Classes="ModalTabItem" Header="Custom">
+                            <Border Classes="InstanceWrapper">
+                                <Grid Classes="InstanceWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
+                                    <!-- Icon, Name & Group -->
+                                    <Grid ColumnDefinitions="100,*,*" RowDefinitions="Auto">
+                                        <!-- Icon -->
+                                        <Button Name="CustomIconBtn">
+                                            <Image Name="CustomIconImg" Source="../Assets/Icons/dirt.png" Height="60" Width="60"/>
+                                        </Button>
+                                        <!-- Name -->
+                                        <Grid Grid.Column="1" RowDefinitions="Auto, Auto" RowSpacing="8">
+                                            <!-- Text -->
+                                            <TextBlock Name="CustomNameTb" Classes="TextInput">Name</TextBlock>
+                                            <!-- Input -->
+                                            <TextBox Grid.Row="1" Name="CustomNameInput" Classes="TextInput" Watermark="My Instance" />
+                                        </Grid>
+                                        <!-- Group -->
+                                        <Grid Grid.Column="2" RowDefinitions="Auto, Auto" RowSpacing="8">
+                                            <!-- Text -->
+                                            <TextBlock Name="CustomGroupTb" Classes="TextInput">Group</TextBlock>
+                                            <!-- Input -->
+                                            <ComboBox
+                                                Grid.Row="1"
+                                                Name="CustomGroupInput"
+                                                Classes="TextDropdown"
+                                                SelectedIndex="0">
+                                                <ComboBoxItem Content="None" />
+                                            </ComboBox>
+                                        </Grid>
+                                    </Grid>
+                                    <!-- Vanilla Version -->
+                                    <Grid Grid.Row="1" RowDefinitions="Auto, Auto" RowSpacing="8">
+                                        <!-- Text -->
+                                        <TextBlock Name="CustomMinecraftVersionTb" Classes="InstanceCategory">Minecraft Version</TextBlock>
+                                        <!-- Table -->
+                                        <Grid Grid.Row="1" Name="CustomMinecraftVersionTable" ColumnDefinitions="*, Auto" RowDefinitions="Auto" ColumnSpacing="15">
+                                            <!-- Input -->
+                                            <DataGrid Grid.Column="0" Classes="InstanceTable" ItemsSource="{Binding Versions}">
+                                                <DataGrid.Columns>
+                                                    <DataGridTextColumn Header="Version" Width="*" Binding="{Binding Version}"/>
+                                                    <DataGridTextColumn Header="Released" Width="*" Binding="{Binding ReleaseDate}" />
+                                                    <DataGridTextColumn Header="Type" Width="*" Binding="{Binding Type}" />
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                            <!-- Version Options -->
+                                            <StackPanel Grid.Column="1" MaxWidth="175">
+                                                <!-- Release -->
+                                                <CheckBox Name="CustomReleaseCb" Content="Releases" IsChecked="{Binding ShowReleases}" />
+                                                <!-- Snapshot -->
+                                                <CheckBox Name="CustomSnapshotCb" Content="Snapshots" IsChecked="{Binding ShowSnapshots}" />
+                                                <!-- Beta -->
+                                                <CheckBox Name="CustomBetaCb" Content="Betas" IsChecked="{Binding ShowBetas}" />
+                                                <!-- Alpha -->
+                                                <CheckBox Name="CustomAlphaCb" Content="Alphas" IsChecked="{Binding ShowAlphas}" />
+                                                <!-- Experiment -->
+                                                <CheckBox Name="CustomExperimentCb" Content="Experiments" IsChecked="{Binding ShowExperiments}" />
+                                                
+                                                <!-- Search Box -->
+                                                <TextBox Name="CustomVersionSearch" Width="175" MaxWidth="175" Margin="0,5,0,0"
+                                                         Watermark="Search"
+                                                         Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </Grid>
+                                    <!-- ModLoader Version -->
+                                    <Grid Grid.Row="2" RowDefinitions="Auto, Auto" RowSpacing="8">
+                                        <!-- Text -->
+                                        <TextBlock Name="CustomModLoaderTb" Classes="InstanceCategory">Mod loader</TextBlock>
+                                        <!-- Table -->
+                                        <Grid Grid.Row="1" Name="CustomModVersionTable" ColumnDefinitions="*, Auto" RowDefinitions="Auto" ColumnSpacing="15">
+                                            <!-- Input -->
+                                            <DataGrid Grid.Column="0" Classes="InstanceTable" ItemsSource="{Binding Versions}">
+                                                <DataGrid.Columns>
+                                                    <DataGridTextColumn Header="Version" Width="*" Binding="{Binding Version}"/>
+                                                    <DataGridTextColumn Header="Released" Width="*" Binding="{Binding ReleaseDate}" />
+                                                    <DataGridTextColumn Header="Type" Width="*" Binding="{Binding Type}" />
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                            <!-- Mod Loader Options -->
+                                            <StackPanel Grid.Column="1" MaxWidth="175">
+                                                <!-- None -->
+                                                <RadioButton Name="CustomNoModLoaderRb" Content="None" IsChecked="True" />
+                                                <!-- NeoForge -->
+                                                <RadioButton Name="CustomNeoForgeRb" Content="NeoForge" />
+                                                <!-- Forge -->
+                                                <RadioButton Name="CustomForgeRb" Content="Forge" />
+                                                <!-- Fabric -->
+                                                <RadioButton Name="CustomFabricRb" Content="Fabric"  />
+                                                <!-- Quilt -->
+                                                <RadioButton Name="CustomQuiltRb" Content="Quilt"  />
+                                                
+                                                <!-- Search Box -->
+                                                <TextBox Name="CustomModVersionSearch" Width="175" MaxWidth="175" Margin="0,5,0,0"
+                                                         Watermark="Search"
+                                                         Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </Grid>
+                                    <!-- Buttons -->
+                                    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+                                        <Button Name="CustomCreateInstanceBtn" Classes="IconBtn SuccessBtn">
+                                            <TextBlock Name="CustomCreateInstanceTb" Padding="5" FontWeight="600" FontSize="14" Text="Create Instance" />
+                                        </Button>
+                                        <Button Name="CustomCancelBtn" Classes="IconBtn ErrorBtn">
+                                            <TextBlock Name="CustomCancelTb" Padding="5" FontWeight="600" FontSize="14" Text="Cancel" />
+                                        </Button>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </TabItem>
+                        <!-- Modpacks -->
+                        <TabItem Classes="ModalTabItem" Header="Modpacks">
+                            <WrapPanel Classes="ModalWrapper">
+
+                            </WrapPanel>
+                        </TabItem>
+                        <!-- Import -->
+                        <TabItem Classes="ModalTabItem" Header="Import">
+                            <WrapPanel Classes="ModalWrapper">
+
+                            </WrapPanel>
+                        </TabItem>
+                    </TabControl>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
     </Border>
 </Window>

@@ -1,0 +1,42 @@
+<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Styles.Resources>
+        <SolidColorBrush Color="#ffffff" x:Key="base-100" />
+        <SolidColorBrush Color="#f8f8f8" x:Key="base-200" />
+        <SolidColorBrush Color="#eeeeee" x:Key="base-300" />
+        <SolidColorBrush Color="#18181b" x:Key="base-content" />
+        <SolidColorBrush Color="#B3000000" x:Key="base-overlay" />
+        <SolidColorBrush Color="#555" x:Key="border-one" />
+        <SolidColorBrush Color="#666666" x:Key="border-two" />
+
+        <SolidColorBrush Color="#5e5e5e" x:Key="default" />
+        <SolidColorBrush Color="#232323" x:Key="default-border" />
+        
+        <SolidColorBrush Color="#008033" x:Key="primary" />
+        <SolidColorBrush Color="#00481D" x:Key="primary-border" />
+        <SolidColorBrush Color="#FFFFFF" x:Key="primary-content" />
+        <SolidColorBrush Color="#374151" x:Key="secondary" />
+        <SolidColorBrush Color="#262d38" x:Key="secondary-border" />
+        <SolidColorBrush Color="#FFFFFF" x:Key="secondary-content" />
+
+        <SolidColorBrush Color="#00d3bb" x:Key="accent" />
+        <SolidColorBrush Color="#084d49" x:Key="accent-content" />
+
+        <SolidColorBrush Color="#09090b" x:Key="neutral" />
+        <SolidColorBrush Color="#FFFFFF" x:Key="neutral-content" />
+
+        <SolidColorBrush Color="#00bafe" x:Key="info" />
+        <SolidColorBrush Color="#042e49" x:Key="info-content" />
+
+        <SolidColorBrush Color="#00d390" x:Key="success" />
+        <SolidColorBrush Color="#004c39" x:Key="success-content" />
+
+        <SolidColorBrush Color="#fcb700" x:Key="warning" />
+        <SolidColorBrush Color="#793205" x:Key="warning-content" />
+
+        <SolidColorBrush Color="#ff637d" x:Key="error" />
+        <SolidColorBrush Color="#4d0218" x:Key="error-content" />
+
+        <SolidColorBrush Color="#9CA3AF" x:Key="text-faded" />
+        <SolidColorBrush Color="#626773" x:Key="text-muted" />
+    </Styles.Resources>
+</Styles>

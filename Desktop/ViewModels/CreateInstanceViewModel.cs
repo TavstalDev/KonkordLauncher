@@ -1,0 +1,59 @@
+using System.Collections.ObjectModel;
+using ReactiveUI;
+using Tavstal.KonkordLauncher.Desktop.Models;
+
+namespace Tavstal.KonkordLauncher.Desktop.ViewModels;
+
+public class CreateInstanceViewModel : ViewModelBase
+{
+    private string _searchQuery;
+    public string SearchQuery
+    {
+        get => _searchQuery;
+        set => this.RaiseAndSetIfChanged(ref _searchQuery, value);
+    }
+    
+    private bool _showReleases;
+    public bool ShowReleases
+    {
+        get => _showReleases;
+        set => this.RaiseAndSetIfChanged(ref _showReleases, value);
+    }
+    private bool _showSnapshots;
+    public bool ShowSnapshots
+    {
+        get => _showSnapshots;
+        set => this.RaiseAndSetIfChanged(ref _showSnapshots, value);
+    }
+    
+    private bool _showAlphas;
+    public bool ShowAlphas
+    {
+        get => _showAlphas;
+        set => this.RaiseAndSetIfChanged(ref _showAlphas, value);
+    }
+    
+    private bool _showBetas;
+    public bool ShowBetas
+    {
+        get => _showBetas;
+        set => this.RaiseAndSetIfChanged(ref _showBetas, value);
+    }
+    
+    private bool _showExperiments;
+    public bool ShowExperiments
+    {
+        get => _showExperiments;
+        set => this.RaiseAndSetIfChanged(ref _showExperiments, value);
+    }
+    
+    public ObservableCollection<VersionModel> Versions { get; set; } =
+    [
+        new VersionModel
+        {
+            Version = "1.20.2",
+            ReleaseDate = "2023-10-01",
+            Type = "Release",
+        }
+    ];
+}

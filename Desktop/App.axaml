@@ -10,10 +10,13 @@
     </Application.Resources>
     <Application.Styles>
         <FluentTheme />
-        <StyleInclude Source="Styles/Themes/DarkTheme.axaml" />
+        <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
+        
+        <!-- Theme -->
+        <StyleInclude Source="Styles/Themes/DarkTheme.axaml"  />
 
         <!--  Controls  -->
-        <StyleInclude Source="Styles/Controls/Buttons.axaml" />
+        <StyleInclude Source="Styles/Controls/Buttons.axaml"  />
         <StyleInclude Source="Styles/Controls/Navigation.axaml" />
         <StyleInclude Source="Styles/Controls/TextBoxes.axaml" />
 
@@ -28,6 +31,7 @@
         <StyleInclude Source="Styles/Layout/Main/SettingsPage.axaml" />
         
         <StyleInclude Source="Styles/Layout/Accounts/AccountsView.axaml" />
+        <StyleInclude Source="Styles/Layout/Instances/InstancesView.axaml" />
 
         <!--  Global Styles  -->
         <StyleInclude Source="Styles/Style.axaml" />

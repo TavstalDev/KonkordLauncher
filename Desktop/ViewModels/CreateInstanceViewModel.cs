@@ -64,6 +64,27 @@ public class CreateInstanceViewModel : ViewModelBase
     
     #region Modpack
 
+    public ObservableCollection<ModPackModel> Modpacks { get; set; } = new();
+
+    
+    private ModPackModel? _selectedModpack;
+    public ModPackModel? SelectedModpack
+    {
+        get => _selectedModpack;
+        set
+        {
+            this.RaiseAndSetIfChanged(ref _selectedModpack, value);
+            if (value != null)
+            {
+                ModpackPreview = _converter.Convert(value.RawPage);
+            }
+            else
+            {
+                ModpackPreview = _converter.Convert("<p>Select a modpack to see its preview.</p>");
+            }
+        }
+    }
+    
     private string _modpackPreview = _converter.Convert(@"<p>Select a modpack to see its preview.</p>");
     public string ModpackPreview 
     {

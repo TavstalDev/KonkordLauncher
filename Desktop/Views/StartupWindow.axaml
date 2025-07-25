@@ -1,0 +1,39 @@
+<Window
+    CanResize="False"
+    Height="350"
+    Icon="../Assets/Images/logo.png"
+    ShowInTaskbar="False"
+    Title="Starting..."
+    Width="300"
+    d:DesignHeight="350"
+    d:DesignWidth="300"
+    mc:Ignorable="d"
+    x:Class="Tavstal.KonkordLauncher.Desktop.Views.StartupWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:Tavstal.KonkordLauncher.Desktop.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Border Classes="ModalView">
+        <Grid
+            Classes="ModalWrapper"
+            RowDefinitions="Auto,Auto,Auto"
+            RowSpacing="10">
+            <!-- Logo -->
+            <Image
+                Classes="StartupLogo"
+                Source="../Assets/Images/logo.png" />
+            <!-- Progress bar -->
+            <ProgressBar
+                Grid.Row="1"
+                Classes="StartupProgress" />
+            <!--  Progress text  -->
+            <TextBlock
+                Grid.Row="2"
+                Classes="StartupProgressText"
+                Name="ProgressText"
+                Text="Loading..." />
+        </Grid>
+    </Border>
+</Window>

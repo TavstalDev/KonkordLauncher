@@ -33,6 +33,12 @@
         <Setter Property="Margin" Value="25,20,50,25" />
     </Style>
     
+    <Style Selector="Grid.InstanceModpackWrapper">
+        <Setter Property="ColumnSpacing" Value="15" />
+        <Setter Property="RowSpacing" Value="15" />
+        <Setter Property="Margin" Value="25,20,25,25" />
+    </Style>
+    
     <Style Selector="Image.InstanceIcon">
         <Setter Property="Height" Value="60" />
         <Setter Property="Width" Value="60" />
@@ -77,5 +83,52 @@
         <Setter Property="FontWeight" Value="600" />
         <Setter Property="Foreground" Value="{StaticResource primary-content}" />
         <Setter Property="Padding" Value="5" />
+    </Style>
+    
+    <Style Selector="GridSplitter.InstanceSplitter">
+        <Setter Property="Background" Value="{StaticResource border-two}" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="MinWidth" Value="4" />
+        <Setter Property="Width" Value="4" />
+        <Setter Property="MaxWidth" Value="4" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Stretch" />
+        <Setter Property="ResizeDirection" Value="Columns" />
+        <Setter Property="ShowsPreview" Value="True" />
+        <Setter Property="PreviewContent">
+            <Template>
+                <Border Classes="InstanceSplitter" />
+            </Template>
+        </Setter>
+    </Style>
+    
+    <Style Selector="Border.InstanceSplitter">
+        <Setter Property="Background" Value="{StaticResource primary}" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="MinWidth" Value="4" />
+        <Setter Property="Width" Value="4" />
+        <Setter Property="MaxWidth" Value="4" />
+    </Style>
+    
+    <Style Selector="Border.InstanceModCard">
+        <Setter Property="Background" Value="{StaticResource base-200}" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Padding" Value="10" />
+    </Style>
+
+    <Style Selector="TextBlock.InstanceModTitle">
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="FontWeight" Value="500" />
+        <Setter Property="Foreground" Value="{StaticResource primary-content}" />
+        <Setter Property="TextWrapping" Value="NoWrap" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        <Setter Property="Margin" Value="0, 0, 10, 0" />
+    </Style>
+
+    <Style Selector="TextBlock.InstanceModDescription">
+        <Setter Property="Foreground" Value="{StaticResource primary-content}" />
+        <Setter Property="TextWrapping" Value="NoWrap" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        <Setter Property="Margin" Value="0, 0, 10, 0" />
     </Style>
 </Styles>

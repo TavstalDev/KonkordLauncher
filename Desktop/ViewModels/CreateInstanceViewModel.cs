@@ -6,6 +6,10 @@ namespace Tavstal.KonkordLauncher.Desktop.ViewModels;
 
 public class CreateInstanceViewModel : ViewModelBase
 {
+    private static readonly ReverseMarkdown.Converter _converter = new();
+    
+    #region Custom
+    
     private string _searchQuery;
     public string SearchQuery
     {
@@ -56,4 +60,20 @@ public class CreateInstanceViewModel : ViewModelBase
             Type = "Release",
         }
     ];
+    #endregion
+    
+    #region Modpack
+
+    private string _modpackPreview = _converter.Convert(@"<p>Select a modpack to see its preview.</p>");
+    public string ModpackPreview 
+    {
+        get => _modpackPreview;
+        set => this.RaiseAndSetIfChanged(ref _modpackPreview, value);
+    }
+
+    #endregion
+
+    #region Import
+
+    #endregion
 }

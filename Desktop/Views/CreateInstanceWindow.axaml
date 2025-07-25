@@ -1,5 +1,5 @@
 <Window
-    CanResize="False"
+    CanResize="True"
     Height="500"
     Icon="../Assets/Images/logo.png"
     Loaded="Control_OnLoaded"
@@ -17,7 +17,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="using:Tavstal.KonkordLauncher.Desktop.ViewModels"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mdxaml="https://github.com/whistyun/Markdown.Avalonia.Tight">
 
     <Border Classes="InstanceView">
         <Grid RowDefinitions="Auto,*">
@@ -28,8 +29,8 @@
                 Text="Create Instance" />
 
             <!--  Content  -->
-            <Grid Grid.Row="1" MaxHeight="400">
-                <TabControl Classes="ModalTab">
+            <Grid Grid.Row="1">
+                <TabControl Classes="ModalTab" SelectedIndex="1">
                     <!--  Custom  -->
                     <TabItem Classes="ModalTabItem" Header="Custom">
                         <Border Classes="InstanceWrapper">
@@ -226,108 +227,170 @@
                     </TabItem>
                     <!--  Modpacks  -->
                     <TabItem Classes="ModalTabItem" Header="Modpacks">
-                        <Border Classes="InstanceWrapper">
-                            <ScrollViewer>
-                                <Grid
-                                    Classes="InstanceWrapper"
-                                    RowDefinitions="*, Auto"
-                                    RowSpacing="8">
-                                    <Grid ColumnDefinitions="160,*">
-                                        <StackPanel Spacing="5">
-                                            <!--  Platform  -->
-                                            <Grid RowDefinitions="Auto, Auto" RowSpacing="8">
-                                                <!--  Text  -->
-                                                <TextBlock Classes="TextInput">Platform</TextBlock>
-                                                <!--  Input  -->
-                                                <ComboBox
-                                                    Classes="TextDropdown"
-                                                    Grid.Row="1"
-                                                    SelectedIndex="0">
-                                                    <ComboBoxItem Content="Modrinth" />
-                                                    <ComboBoxItem Content="CurseForge" />
-                                                    <ComboBoxItem Content="Technic" />
-                                                    <ComboBoxItem Content="FTB" />
-                                                </ComboBox>
-                                            </Grid>
-                                            <!--  ModLoader  -->
-                                            <Grid RowDefinitions="Auto, Auto" RowSpacing="8">
-                                                <!--  Text  -->
-                                                <TextBlock Classes="TextInput">Mod Loader</TextBlock>
-                                                <!--  Input  -->
-                                                <ComboBox
-                                                    Classes="TextDropdown"
-                                                    Grid.Row="1"
-                                                    SelectedIndex="0">
-                                                    <ComboBoxItem Content="NeoForge" />
-                                                    <ComboBoxItem Content="Forge" />
-                                                    <ComboBoxItem Content="Fabric" />
-                                                    <ComboBoxItem Content="Quilt" />
-                                                </ComboBox>
-                                            </Grid>
-                                            <!--  Minecraft Version  -->
-                                            <Grid RowDefinitions="Auto, Auto" RowSpacing="8">
-                                                <!--  Text  -->
-                                                <TextBlock Classes="TextInput">Minecraft Version</TextBlock>
-                                                <!--  Input  -->
-                                                <ComboBox
-                                                    Classes="TextDropdown"
-                                                    Grid.Row="1"
-                                                    SelectedIndex="0">
-                                                    <ComboBoxItem Content="1.20.1" />
-                                                    <ComboBoxItem Content="1.19.2" />
-                                                </ComboBox>
-                                            </Grid>
-                                            <TextBlock
-                                                FontWeight="500"
-                                                Margin="0,5,0,0"
-                                                Text="Categories" />
-                                            <CheckBox Content="Adventure" />
-                                            <CheckBox Content="Challenging" />
-                                            <CheckBox Content="Combat" />
-                                            <CheckBox Content="Kitchen Sink" />
-                                            <CheckBox Content="Lightweight" />
-                                            <CheckBox Content="Magic" />
-                                            <CheckBox Content="Multiplayer" />
-                                            <CheckBox Content="Optimization" />
-                                            <CheckBox Content="Quests" />
-                                            <CheckBox Content="Technology" />
-                                        </StackPanel>
-                                        <Grid ColumnDefinitions="*, 2, *" Grid.Column="1">
-                                            <!--  Left Sub-Grid  -->
-                                            <ScrollViewer Grid.Column="0" Margin="25,0">
-                                                <!--  Your content  -->
-                                                <TextBlock Text="Left Grid Content" />
-                                            </ScrollViewer>
-
-                                            <!--  Grid Splitter  -->
-                                            <GridSplitter
-                                                Background="Gray"
-                                                CornerRadius="8"
-                                                Grid.Column="1"
-                                                HorizontalAlignment="Stretch"
-                                                MaxWidth="2"
-                                                ResizeDirection="Columns"
-                                                ShowsPreview="True" />
-
-                                            <!--  Right Sub-Grid  -->
-                                            <ScrollViewer Grid.Column="2" Margin="25,5">
-                                                <!--  Your content  -->
-                                                <TextBlock Text="Right Grid Content" />
-                                            </ScrollViewer>
+                        <Border Classes="InstanceWrapper" >
+                            <Grid Classes="InstanceModpackWrapper" ColumnDefinitions="180, *" >
+                                <!-- Filters -->
+                                <ScrollViewer>
+                                    <StackPanel Margin="0,0,25,0" Spacing="5">
+                                        <!--  Name  -->
+                                        <Grid
+                                            RowDefinitions="Auto, Auto"
+                                            RowSpacing="8">
+                                            <!--  Text  -->
+                                            <TextBlock Classes="TextInput" Name="ModpackSearchTb">Search</TextBlock>
+                                            <!--  Input  -->
+                                            <TextBox
+                                                Classes="TextInput"
+                                                Grid.Row="1"
+                                                Name="ModpackSearchInput"
+                                                Watermark="Optimized" />
                                         </Grid>
-
-                                    </Grid>
-                                    <!--  Buttons  -->
-                                    <StackPanel Classes="InstanceButtonWrapper" Grid.Row="1">
-                                        <Button Classes="IconBtn SuccessBtn">
-                                            <TextBlock Classes="InstanceButtonText" Text="Create Instance" />
-                                        </Button>
-                                        <Button Classes="IconBtn ErrorBtn">
-                                            <TextBlock Classes="InstanceButtonText" Text="Cancel" />
-                                        </Button>
+                                        <!--  Platform  -->
+                                        <Grid RowDefinitions="Auto, Auto" RowSpacing="8">
+                                            <!--  Text  -->
+                                            <TextBlock Name="ModpackPlatformTb" Classes="TextInput">Platform</TextBlock>
+                                            <!--  Input  -->
+                                            <ComboBox
+                                                Classes="TextDropdown"
+                                                Grid.Row="1"
+                                                Name="ModpackPlatformInput"
+                                                SelectedIndex="0">
+                                                <ComboBoxItem Content="Modrinth" />
+                                                <ComboBoxItem Content="CurseForge" />
+                                                <ComboBoxItem Content="Technic" />
+                                                <ComboBoxItem Content="FTB" />
+                                            </ComboBox>
+                                        </Grid>
+                                        <!--  ModLoader  -->
+                                        <Grid RowDefinitions="Auto, Auto" RowSpacing="8">
+                                            <!--  Text  -->
+                                            <TextBlock Name="ModpackModLoaderTb" Classes="TextInput">Mod Loader</TextBlock>
+                                            <!--  Input  -->
+                                            <ComboBox
+                                                Classes="TextDropdown"
+                                                Grid.Row="1"
+                                                Name="ModpackModLoaderInput"
+                                                SelectedIndex="0">
+                                                <ComboBoxItem Content="NeoForge" />
+                                                <ComboBoxItem Content="Forge" />
+                                                <ComboBoxItem Content="Fabric" />
+                                                <ComboBoxItem Content="Quilt" />
+                                            </ComboBox>
+                                        </Grid>
+                                        <!--  Minecraft Version  -->
+                                        <Grid RowDefinitions="Auto, Auto" RowSpacing="8">
+                                            <!--  Text  -->
+                                            <TextBlock Name="ModpackMinecraftVersionTb" Classes="TextInput">Minecraft Version</TextBlock>
+                                            <!--  Input  -->
+                                            <ComboBox
+                                                Classes="TextDropdown"
+                                                Grid.Row="1"
+                                                Name="ModpackMinecraftVersionInput"
+                                                SelectedIndex="0">
+                                                <ComboBoxItem Content="1.20.1" />
+                                                <ComboBoxItem Content="1.19.2" />
+                                            </ComboBox>
+                                        </Grid>
+                                        <!-- Categories Subtitle -->
+                                        <TextBlock
+                                            Name="ModpackCategoriesSubtitle"
+                                            FontWeight="500"
+                                            Margin="0,5,0,0"
+                                            Text="Categories" />
+                                        <!-- Adventure Checkbox -->
+                                        <CheckBox Name="ModpackAdventureCb" Content="Adventure" />
+                                        <!-- Challenging Checkbox -->
+                                        <CheckBox Name="ModpackChallengingCb" Content="Challenging" />
+                                        <!-- Combat Checkbox -->
+                                        <CheckBox Name="ModpackCombatCb" Content="Combat" />
+                                        <!-- Kitchen Sink Checkbox -->
+                                        <CheckBox Name="ModpackKitchenSinkCb" Content="Kitchen Sink" />
+                                        <!-- Lightweight Checkbox -->
+                                        <CheckBox Name="ModpackLightweightCb" Content="Lightweight" />
+                                        <!-- Magic Checkbox -->
+                                        <CheckBox Name="ModpackMagicCb" Content="Magic" />
+                                        <!-- Multiplayer Checkbox -->
+                                        <CheckBox Name="ModpackMultiplayerCb" Content="Multiplayer" />
+                                        <!-- Optimization Checkbox -->
+                                        <CheckBox Name="ModpackOptimizationCb" Content="Optimization" />
+                                        <!-- Quests Checkbox -->
+                                        <CheckBox Name="ModpackQuestsCb" Content="Quests" />
+                                        <!-- Technology Checkbox -->
+                                        <CheckBox Name="ModpackTechnologyCb" Content="Technology" />
                                     </StackPanel>
+                                </ScrollViewer>
+                                <!-- Modpack List & Preview -->
+                                <Grid Grid.Column="1" RowDefinitions="*, Auto">
+                                    <!-- Content Grid -->
+                                    <Grid ColumnDefinitions="*, Auto, *" Margin="0, 0, 0, 15">
+                                        <!--  Modpack List  -->
+                                        <ScrollViewer Grid.Column="0" Margin="0, 0, 10, 0">
+                                            <!--  Content  -->
+                                            <ListBox ItemsSource="{Binding Modpacks}"
+                                                     SelectedItem="{Binding SelectedModpack}"
+                                                     SelectionMode="Single">
+                                                <ListBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border Classes="InstanceModCard">
+                                                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                                                <!-- Icon -->
+                                                                <Image Source="{Binding Icon}" Width="35" />
+                                                                <StackPanel>
+                                                                    <!-- Title -->
+                                                                    <TextBlock Classes="InstanceModTitle"  Text="{Binding  Name}" />
+                                                                    <!-- Description -->
+                                                                    <TextBlock Classes="InstanceModDescription" Text="{Binding Description}" />
+                                                                </StackPanel>
+                                                            </StackPanel>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ListBox.ItemTemplate>
+                                            </ListBox>
+                                        </ScrollViewer>
+
+                                        <!--  Grid Splitter  -->
+                                        <GridSplitter
+                                            Grid.Column="1"
+                                            Classes="InstanceSplitter" />
+                                        
+                                        <!--  Modpack preview  -->
+                                        <mdxaml:MarkdownScrollViewer Grid.Column="2" Margin="10, 0, 0, 0" Markdown="{Binding ModpackPreview}" />
+                                    </Grid>
+                                    <!-- Modpack Version & Buttons  -->
+                                    <Grid Grid.Row="1" ColumnDefinitions="*, *">
+                                        <!-- Modpack Version -->
+                                        <Grid Grid.Column="0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <!-- Text -->
+                                            <TextBlock Name="ModpackVersionTb" Classes="TextDropdown">Pack Version</TextBlock>
+                                            <!-- Input -->
+                                            <ComboBox
+                                                Grid.Column="1"
+                                                Name="ModpackVersionInput"
+                                                Classes="TextDropdown"
+                                                VerticalAlignment="Center"
+                                                SelectedIndex="0"
+                                                ItemsSource="{Binding SelectedModpack.Versions}">
+                                                <ComboBoxItem Content="Select a modpack" />
+                                            </ComboBox>
+                                        </Grid>
+                                        <!-- Buttons -->
+                                        <StackPanel Grid.Column="1" Classes="InstanceButtonWrapper">
+                                            <!-- Create Instance Button -->
+                                            <Button Name="ModpackCreateInstanceBtn" Classes="IconBtn SuccessBtn">
+                                                <TextBlock Name="ModpackCreateInstanceTb" Classes="InstanceButtonText" Text="Create Instance" />
+                                            </Button>
+                                            <!-- Cancel Button -->
+                                            <Button Name="ModpackCancelBtn" Classes="IconBtn ErrorBtn">
+                                                <TextBlock Name="ModpackCancelTb" Classes="InstanceButtonText" Text="Cancel" />
+                                            </Button>
+                                        </StackPanel>
+                                    </Grid>
                                 </Grid>
-                            </ScrollViewer>
+                            </Grid>
                         </Border>
                     </TabItem>
                     <!--  Import  -->
@@ -359,7 +422,7 @@
                                         RowDefinitions="Auto, Auto, Auto"
                                         RowSpacing="8">
                                         <!--  Text  -->
-                                        <TextBlock Classes="TextInput" Name="ImportInstanceTb">Select Instance File</TextBlock>
+                                        <TextBlock Classes="TextInput" Name="ImportInstanceFileTb">Select Instance File</TextBlock>
                                         <!--  Input  -->
                                         <Grid
                                             ColumnDefinitions="*, Auto"
@@ -369,19 +432,20 @@
                                             <TextBox
                                                 Classes="TextInput"
                                                 Grid.Column="0"
-                                                Name="ImportInstanceInput"
+                                                Name="ImportInstanceFileInput"
                                                 Watermark="Select a file..." />
                                             <!--  Button  -->
                                             <Button
                                                 Classes="IconBtn InfoBtn"
                                                 Grid.Column="1"
-                                                Name="ImportInstanceOpenBtn">
+                                                Name="ImportInstanceFileBtn">
                                                 <TextBlock Classes="FontAwesome" Text="&#xf56f;" />
                                             </Button>
                                         </Grid>
                                         <!--  Note  -->
                                         <TextBlock
                                             Grid.Row="2"
+                                            Name="ImportNoteTb"
                                             Opacity="0.5"
                                             Text="Supported formats: .zip, .mrpack, .json" />
                                     </Grid>
@@ -392,11 +456,12 @@
                                         RowDefinitions="Auto, Auto"
                                         RowSpacing="8">
                                         <!--  Text  -->
-                                        <TextBlock Classes="TextInput">Instance URL</TextBlock>
+                                        <TextBlock Name="ImportInstanceUrlTb" Classes="TextInput">Instance URL</TextBlock>
                                         <!--  Input  -->
                                         <TextBox
-                                            Classes="TextInput"
                                             Grid.Row="1"
+                                            Name="ImportInstanceUrlInput"
+                                            Classes="TextInput"
                                             Watermark="e.g., https://example.com/my-modpack.mrpack" />
                                     </Grid>
                                     <!--  Buttons  -->

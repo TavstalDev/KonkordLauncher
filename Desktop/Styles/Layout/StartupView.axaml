@@ -1,0 +1,18 @@
+<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Style Selector="Image.StartupLogo">
+        <Setter Property="Width" Value="200" />
+        <Setter Property="Margin" Value="0,20" />
+    </Style>
+    
+    <Style Selector="ProgressBar.StartupProgress">
+        <Setter Property="Margin" Value="0, 0, 0, 10" />
+        <Setter Property="IsIndeterminate" Value="True" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+    </Style>
+    
+    <Style Selector="TextBlock.StartupProgressText">
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="TextAlignment" Value="Center" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+</Styles>

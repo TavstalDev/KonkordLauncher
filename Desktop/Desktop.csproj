@@ -46,5 +46,13 @@
         <DependentUpon>CreateInstanceWindow.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
+      <Compile Update="Views\StartupWindow.axaml.cs">
+        <DependentUpon>StartupWindow.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Views\InstallWindow.axaml.cs">
+        <DependentUpon>InstallWindow.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
 </Project>

@@ -32,6 +32,7 @@
         
         <StyleInclude Source="Styles/Layout/Accounts/AccountsView.axaml" />
         <StyleInclude Source="Styles/Layout/Instances/InstancesView.axaml" />
+        <StyleInclude Source="Styles/Layout/StartupView.axaml" />
 
         <!--  Global Styles  -->
         <StyleInclude Source="Styles/Style.axaml" />

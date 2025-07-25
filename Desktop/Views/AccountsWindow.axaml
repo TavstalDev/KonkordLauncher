@@ -3,16 +3,16 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="using:Tavstal.KonkordLauncher.Desktop.ViewModels"
-        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="400"
+        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="410"
         x:Class="Tavstal.KonkordLauncher.Desktop.Views.AccountsWindow"
         x:DataType="vm:AccountsViewModel"
         Title="Add New Account"
         CanResize="False"
         ShowInTaskbar="False"
         Icon="../Assets/Images/logo.png"
-        MinHeight="400"
+        MinHeight="410"
         MinWidth="500"
-        Height="400"
+        Height="410"
         Width="500">
     
     <Border Classes="ModalView">

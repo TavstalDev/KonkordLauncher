@@ -16,9 +16,9 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mdxaml="https://github.com/whistyun/Markdown.Avalonia.Tight"
     xmlns:vm="using:Tavstal.KonkordLauncher.Desktop.ViewModels"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:mdxaml="https://github.com/whistyun/Markdown.Avalonia.Tight">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <Border Classes="InstanceView">
         <Grid RowDefinitions="Auto,*">
@@ -30,7 +30,7 @@
 
             <!--  Content  -->
             <Grid Grid.Row="1">
-                <TabControl Classes="ModalTab" SelectedIndex="1">
+                <TabControl Classes="ModalTab">
                     <!--  Custom  -->
                     <TabItem Classes="ModalTabItem" Header="Custom">
                         <Border Classes="InstanceWrapper">
@@ -227,15 +227,13 @@
                     </TabItem>
                     <!--  Modpacks  -->
                     <TabItem Classes="ModalTabItem" Header="Modpacks">
-                        <Border Classes="InstanceWrapper" >
-                            <Grid Classes="InstanceModpackWrapper" ColumnDefinitions="180, *" >
-                                <!-- Filters -->
+                        <Border Classes="InstanceWrapper">
+                            <Grid Classes="InstanceModpackWrapper" ColumnDefinitions="180, *">
+                                <!--  Filters  -->
                                 <ScrollViewer>
                                     <StackPanel Margin="0,0,25,0" Spacing="5">
                                         <!--  Name  -->
-                                        <Grid
-                                            RowDefinitions="Auto, Auto"
-                                            RowSpacing="8">
+                                        <Grid RowDefinitions="Auto, Auto" RowSpacing="8">
                                             <!--  Text  -->
                                             <TextBlock Classes="TextInput" Name="ModpackSearchTb">Search</TextBlock>
                                             <!--  Input  -->
@@ -248,7 +246,7 @@
                                         <!--  Platform  -->
                                         <Grid RowDefinitions="Auto, Auto" RowSpacing="8">
                                             <!--  Text  -->
-                                            <TextBlock Name="ModpackPlatformTb" Classes="TextInput">Platform</TextBlock>
+                                            <TextBlock Classes="TextInput" Name="ModpackPlatformTb">Platform</TextBlock>
                                             <!--  Input  -->
                                             <ComboBox
                                                 Classes="TextDropdown"
@@ -264,7 +262,7 @@
                                         <!--  ModLoader  -->
                                         <Grid RowDefinitions="Auto, Auto" RowSpacing="8">
                                             <!--  Text  -->
-                                            <TextBlock Name="ModpackModLoaderTb" Classes="TextInput">Mod Loader</TextBlock>
+                                            <TextBlock Classes="TextInput" Name="ModpackModLoaderTb">Mod Loader</TextBlock>
                                             <!--  Input  -->
                                             <ComboBox
                                                 Classes="TextDropdown"
@@ -280,7 +278,7 @@
                                         <!--  Minecraft Version  -->
                                         <Grid RowDefinitions="Auto, Auto" RowSpacing="8">
                                             <!--  Text  -->
-                                            <TextBlock Name="ModpackMinecraftVersionTb" Classes="TextInput">Minecraft Version</TextBlock>
+                                            <TextBlock Classes="TextInput" Name="ModpackMinecraftVersionTb">Minecraft Version</TextBlock>
                                             <!--  Input  -->
                                             <ComboBox
                                                 Classes="TextDropdown"
@@ -291,54 +289,55 @@
                                                 <ComboBoxItem Content="1.19.2" />
                                             </ComboBox>
                                         </Grid>
-                                        <!-- Categories Subtitle -->
+                                        <!--  Categories Subtitle  -->
                                         <TextBlock
-                                            Name="ModpackCategoriesSubtitle"
                                             FontWeight="500"
                                             Margin="0,5,0,0"
+                                            Name="ModpackCategoriesSubtitle"
                                             Text="Categories" />
-                                        <!-- Adventure Checkbox -->
-                                        <CheckBox Name="ModpackAdventureCb" Content="Adventure" />
-                                        <!-- Challenging Checkbox -->
-                                        <CheckBox Name="ModpackChallengingCb" Content="Challenging" />
-                                        <!-- Combat Checkbox -->
-                                        <CheckBox Name="ModpackCombatCb" Content="Combat" />
-                                        <!-- Kitchen Sink Checkbox -->
-                                        <CheckBox Name="ModpackKitchenSinkCb" Content="Kitchen Sink" />
-                                        <!-- Lightweight Checkbox -->
-                                        <CheckBox Name="ModpackLightweightCb" Content="Lightweight" />
-                                        <!-- Magic Checkbox -->
-                                        <CheckBox Name="ModpackMagicCb" Content="Magic" />
-                                        <!-- Multiplayer Checkbox -->
-                                        <CheckBox Name="ModpackMultiplayerCb" Content="Multiplayer" />
-                                        <!-- Optimization Checkbox -->
-                                        <CheckBox Name="ModpackOptimizationCb" Content="Optimization" />
-                                        <!-- Quests Checkbox -->
-                                        <CheckBox Name="ModpackQuestsCb" Content="Quests" />
-                                        <!-- Technology Checkbox -->
-                                        <CheckBox Name="ModpackTechnologyCb" Content="Technology" />
+                                        <!--  Adventure Checkbox  -->
+                                        <CheckBox Content="Adventure" Name="ModpackAdventureCb" />
+                                        <!--  Challenging Checkbox  -->
+                                        <CheckBox Content="Challenging" Name="ModpackChallengingCb" />
+                                        <!--  Combat Checkbox  -->
+                                        <CheckBox Content="Combat" Name="ModpackCombatCb" />
+                                        <!--  Kitchen Sink Checkbox  -->
+                                        <CheckBox Content="Kitchen Sink" Name="ModpackKitchenSinkCb" />
+                                        <!--  Lightweight Checkbox  -->
+                                        <CheckBox Content="Lightweight" Name="ModpackLightweightCb" />
+                                        <!--  Magic Checkbox  -->
+                                        <CheckBox Content="Magic" Name="ModpackMagicCb" />
+                                        <!--  Multiplayer Checkbox  -->
+                                        <CheckBox Content="Multiplayer" Name="ModpackMultiplayerCb" />
+                                        <!--  Optimization Checkbox  -->
+                                        <CheckBox Content="Optimization" Name="ModpackOptimizationCb" />
+                                        <!--  Quests Checkbox  -->
+                                        <CheckBox Content="Quests" Name="ModpackQuestsCb" />
+                                        <!--  Technology Checkbox  -->
+                                        <CheckBox Content="Technology" Name="ModpackTechnologyCb" />
                                     </StackPanel>
                                 </ScrollViewer>
-                                <!-- Modpack List & Preview -->
+                                <!--  Modpack List & Preview  -->
                                 <Grid Grid.Column="1" RowDefinitions="*, Auto">
-                                    <!-- Content Grid -->
-                                    <Grid ColumnDefinitions="*, Auto, *" Margin="0, 0, 0, 15">
+                                    <!--  Content Grid  -->
+                                    <Grid ColumnDefinitions="*, Auto, *" Margin="0,0,0,15">
                                         <!--  Modpack List  -->
-                                        <ScrollViewer Grid.Column="0" Margin="0, 0, 10, 0">
+                                        <ScrollViewer Grid.Column="0" Margin="0,0,10,0">
                                             <!--  Content  -->
-                                            <ListBox ItemsSource="{Binding Modpacks}"
-                                                     SelectedItem="{Binding SelectedModpack}"
-                                                     SelectionMode="Single">
+                                            <ListBox
+                                                ItemsSource="{Binding Modpacks}"
+                                                SelectedItem="{Binding SelectedModpack}"
+                                                SelectionMode="Single">
                                                 <ListBox.ItemTemplate>
                                                     <DataTemplate>
                                                         <Border Classes="InstanceModCard">
                                                             <StackPanel Orientation="Horizontal" Spacing="10">
-                                                                <!-- Icon -->
+                                                                <!--  Icon  -->
                                                                 <Image Source="{Binding Icon}" Width="35" />
                                                                 <StackPanel>
-                                                                    <!-- Title -->
-                                                                    <TextBlock Classes="InstanceModTitle"  Text="{Binding  Name}" />
-                                                                    <!-- Description -->
+                                                                    <!--  Title  -->
+                                                                    <TextBlock Classes="InstanceModTitle" Text="{Binding Name}" />
+                                                                    <!--  Description  -->
                                                                     <TextBlock Classes="InstanceModDescription" Text="{Binding Description}" />
                                                                 </StackPanel>
                                                             </StackPanel>
@@ -349,43 +348,50 @@
                                         </ScrollViewer>
 
                                         <!--  Grid Splitter  -->
-                                        <GridSplitter
-                                            Grid.Column="1"
-                                            Classes="InstanceSplitter" />
-                                        
+                                        <GridSplitter Classes="InstanceSplitter" Grid.Column="1" />
+
                                         <!--  Modpack preview  -->
-                                        <mdxaml:MarkdownScrollViewer Grid.Column="2" Margin="10, 0, 0, 0" Markdown="{Binding ModpackPreview}" />
+                                        <mdxaml:MarkdownScrollViewer
+                                            Grid.Column="2"
+                                            Margin="10,0,0,0"
+                                            Markdown="{Binding ModpackPreview}" />
                                     </Grid>
-                                    <!-- Modpack Version & Buttons  -->
-                                    <Grid Grid.Row="1" ColumnDefinitions="*, *">
-                                        <!-- Modpack Version -->
+                                    <!--  Modpack Version & Buttons  -->
+                                    <Grid ColumnDefinitions="*, *" Grid.Row="1">
+                                        <!--  Modpack Version  -->
                                         <Grid Grid.Column="0">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto" />
                                                 <ColumnDefinition Width="*" />
                                             </Grid.ColumnDefinitions>
-                                            <!-- Text -->
-                                            <TextBlock Name="ModpackVersionTb" Classes="TextDropdown">Pack Version</TextBlock>
-                                            <!-- Input -->
+                                            <!--  Text  -->
+                                            <TextBlock Classes="TextDropdown" Name="ModpackVersionTb">Pack Version</TextBlock>
+                                            <!--  Input  -->
                                             <ComboBox
-                                                Grid.Column="1"
-                                                Name="ModpackVersionInput"
                                                 Classes="TextDropdown"
-                                                VerticalAlignment="Center"
+                                                Grid.Column="1"
+                                                ItemsSource="{Binding SelectedModpack.Versions}"
+                                                Name="ModpackVersionInput"
                                                 SelectedIndex="0"
-                                                ItemsSource="{Binding SelectedModpack.Versions}">
+                                                VerticalAlignment="Center">
                                                 <ComboBoxItem Content="Select a modpack" />
                                             </ComboBox>
                                         </Grid>
-                                        <!-- Buttons -->
-                                        <StackPanel Grid.Column="1" Classes="InstanceButtonWrapper">
-                                            <!-- Create Instance Button -->
-                                            <Button Name="ModpackCreateInstanceBtn" Classes="IconBtn SuccessBtn">
-                                                <TextBlock Name="ModpackCreateInstanceTb" Classes="InstanceButtonText" Text="Create Instance" />
+                                        <!--  Buttons  -->
+                                        <StackPanel Classes="InstanceButtonWrapper" Grid.Column="1">
+                                            <!--  Create Instance Button  -->
+                                            <Button Classes="IconBtn SuccessBtn" Name="ModpackCreateInstanceBtn">
+                                                <TextBlock
+                                                    Classes="InstanceButtonText"
+                                                    Name="ModpackCreateInstanceTb"
+                                                    Text="Create Instance" />
                                             </Button>
-                                            <!-- Cancel Button -->
-                                            <Button Name="ModpackCancelBtn" Classes="IconBtn ErrorBtn">
-                                                <TextBlock Name="ModpackCancelTb" Classes="InstanceButtonText" Text="Cancel" />
+                                            <!--  Cancel Button  -->
+                                            <Button Classes="IconBtn ErrorBtn" Name="ModpackCancelBtn">
+                                                <TextBlock
+                                                    Classes="InstanceButtonText"
+                                                    Name="ModpackCancelTb"
+                                                    Text="Cancel" />
                                             </Button>
                                         </StackPanel>
                                     </Grid>
@@ -456,12 +462,12 @@
                                         RowDefinitions="Auto, Auto"
                                         RowSpacing="8">
                                         <!--  Text  -->
-                                        <TextBlock Name="ImportInstanceUrlTb" Classes="TextInput">Instance URL</TextBlock>
+                                        <TextBlock Classes="TextInput" Name="ImportInstanceUrlTb">Instance URL</TextBlock>
                                         <!--  Input  -->
                                         <TextBox
+                                            Classes="TextInput"
                                             Grid.Row="1"
                                             Name="ImportInstanceUrlInput"
-                                            Classes="TextInput"
                                             Watermark="e.g., https://example.com/my-modpack.mrpack" />
                                     </Grid>
                                     <!--  Buttons  -->

@@ -1,0 +1,126 @@
+<Window
+    CanResize="True"
+    Height="500"
+    Icon="../Assets/Images/logo.png"
+    MinHeight="500"
+    MinWidth="900"
+    ShowInTaskbar="False"
+    Title="Edit Instance"
+    Width="900"
+    d:DesignHeight="500"
+    d:DesignWidth="900"
+    mc:Ignorable="d"
+    x:Class="Tavstal.KonkordLauncher.Desktop.Views.EditInstanceWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mdxaml="https://github.com/whistyun/Markdown.Avalonia.Tight"
+    xmlns:vm="using:Tavstal.KonkordLauncher.Desktop.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Border Classes="InstanceView">
+        <Grid RowDefinitions="Auto,*">
+            <!--  Title  -->
+            <TextBlock
+                Classes="InstanceTitle"
+                HorizontalAlignment="Left"
+                Text="Editing Instance: My Pack" />
+
+            <!--  Content  -->
+            <Grid Grid.Row="1">
+                <TabControl Classes="ModalTab">
+                    <!--  Logs -->
+                    <TabItem Classes="ModalTabItem" Header="Logs">
+                        <Border Classes="InstanceWrapper">
+                            <ScrollViewer>
+                                <Grid Classes="InstanceWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
+                                   
+                                </Grid>
+                            </ScrollViewer>
+                        </Border>
+                    </TabItem>
+                    <!-- Version -->
+                    <TabItem Classes="ModalTabItem" Header="Version">
+                        <Border Classes="InstanceWrapper">
+                            <ScrollViewer>
+                                <Grid Classes="InstanceWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
+                                   
+                                </Grid>
+                            </ScrollViewer>
+                        </Border>
+                    </TabItem>
+                    <!-- Mods -->
+                    <TabItem Classes="ModalTabItem" Header="Mods">
+                        <Border Classes="InstanceWrapper">
+                            <ScrollViewer>
+                                <Grid Classes="InstanceWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
+                                   
+                                </Grid>
+                            </ScrollViewer>
+                        </Border>
+                    </TabItem>
+                    <!--  Resource packs -->
+                    <TabItem Classes="ModalTabItem" Header="Resource packs">
+                        <Border Classes="InstanceWrapper">
+                            <ScrollViewer>
+                                <Grid Classes="InstanceWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
+                                   
+                                </Grid>
+                            </ScrollViewer>
+                        </Border>
+                    </TabItem>
+                    <!--  Shader packs -->
+                    <TabItem Classes="ModalTabItem" Header="Shader packs">
+                        <Border Classes="InstanceWrapper">
+                            <ScrollViewer>
+                                <Grid Classes="InstanceWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
+                                   
+                                </Grid>
+                            </ScrollViewer>
+                        </Border>
+                    </TabItem>
+                    <!--  Worlds -->
+                    <TabItem Classes="ModalTabItem" Header="Worlds">
+                        <Border Classes="InstanceWrapper">
+                            <ScrollViewer>
+                                <Grid Classes="InstanceWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
+                                   
+                                </Grid>
+                            </ScrollViewer>
+                        </Border>
+                    </TabItem>
+                    <!-- Servers -->
+                    <TabItem Classes="ModalTabItem" Header="Servers">
+                        <Border Classes="InstanceWrapper">
+                            <ScrollViewer>
+                                <Grid Classes="InstanceWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
+                                   
+                                </Grid>
+                            </ScrollViewer>
+                        </Border>
+                    </TabItem>
+                    <!--  Screenshots -->
+                    <TabItem Classes="ModalTabItem" Header="Screenshots">
+                        <Border Classes="InstanceWrapper">
+                            <ScrollViewer>
+                                <Grid Classes="InstanceWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
+                                   
+                                </Grid>
+                            </ScrollViewer>
+                        </Border>
+                    </TabItem>
+                    <!--  Settings -->
+                    <TabItem Classes="ModalTabItem" Header="Settings">
+                        <Border Classes="InstanceWrapper">
+                            <ScrollViewer>
+                                <Grid Classes="InstanceWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
+                                   
+                                </Grid>
+                            </ScrollViewer>
+                        </Border>
+                    </TabItem>
+                </TabControl>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

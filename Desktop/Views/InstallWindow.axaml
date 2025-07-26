@@ -20,14 +20,13 @@
             Classes="ModalWrapper"
             Spacing="10">
             <!-- Title -->
-            <TextBlock Classes="StartupProgressText" FontWeight="500" FontSize="18" Margin="0, 0, 0, 10" Text="Downloading Game Files..." />
+            <TextBlock Classes="InstallTitleText" Text="Downloading Game Files..." />
             <!-- Step -->
-            <TextBlock Classes="StartupProgressText" FontSize="14" Margin="0, 0, 0, 5" Text="Download Complete!" />
+            <TextBlock Classes="InstallStepText" Text="Download Complete!" />
             <!-- Detail -->
-            <TextBlock Classes="StartupProgressText" FontWeight="300" FontSize="12" Margin="0, 0, 0, 20" Text="Installation finished. You can close this window." />
+            <TextBlock Classes="InstallDetailText" Text="Installation finished. You can close this window." />
             <!-- Progress bar -->
-            <ProgressBar
-                Classes="StartupProgress" Margin="0, 0, 0, 20" />
+            <ProgressBar Classes="InstallProgress" />
             <!-- Button -->
             <Button Classes="IconBtn PrimaryBtn" HorizontalAlignment="Center">
                 <TextBlock Text="Close" Padding="5" />

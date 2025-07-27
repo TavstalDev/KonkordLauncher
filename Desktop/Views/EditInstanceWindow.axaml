@@ -28,92 +28,118 @@
 
             <!--  Content  -->
             <Grid Grid.Row="1">
-                <TabControl Classes="ModalTab">
+                <TabControl Classes="ModalVerticalTab" TabStripPlacement="Left">
                     <!--  Logs -->
-                    <TabItem Classes="ModalTabItem" Header="Logs">
-                        <Border Classes="InstanceWrapper">
-                            <ScrollViewer>
-                                <Grid Classes="InstanceWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
-                                   
+                    <TabItem Classes="ModalVerticalTabItem" Header="Logs">
+                        <Border Classes="ModalScrollableWrapper">
+                            <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, *, Auto">
+                                <!-- Title -->
+                                <TextBlock FontWeight="500" FontSize="20" Text="Latest Log" />
+                                <!-- Log content -->
+                                <Border Grid.Row="1" Background="{StaticResource base-200}" CornerRadius="8" Padding="15">
+                                    <ScrollViewer>
+                                        <TextBlock Opacity="0.8" FontFamily="Consolas" TextWrapping="Wrap" Text="Loading..." />
+                                    </ScrollViewer>
+                                </Border>
+                                <!-- Actions -->
+                                <Grid Grid.Row="2" ColumnDefinitions="*, Auto, Auto, Auto, Auto" ColumnSpacing="5">
+                                    <!-- Search bar -->
+                                    <TextBox Grid.Column="0" Name="StAssetsInput" Classes="TextInput" Watermark="Search..." />
+                                    <!-- Search button -->
+                                    <Button Grid.Column="1" Classes="IconBtn InfoBtn">
+                                        <TextBlock Text="Search" />
+                                    </Button>
+                                    <!-- To bottom button -->
+                                    <Button Grid.Column="2" Classes="IconBtn InfoBtn">
+                                        <TextBlock Text="Bottom" />
+                                    </Button>
+                                    <!-- Copy button -->
+                                    <Button Grid.Column="3" Classes="IconBtn WarningBtn">
+                                        <TextBlock Text="Copy" />
+                                    </Button>
+                                    <!-- Clear button -->
+                                    <Button Grid.Column="4" Classes="IconBtn ErrorBtn">
+                                        <TextBlock Text="Clear" />
+                                    </Button>
                                 </Grid>
-                            </ScrollViewer>
+                            </Grid>
                         </Border>
                     </TabItem>
                     <!-- Version -->
-                    <TabItem Classes="ModalTabItem" Header="Version">
-                        <Border Classes="InstanceWrapper">
+                    <TabItem Classes="ModalVerticalTabItem" Header="Version">
+                        <Border Classes="ModalScrollableWrapper">
                             <ScrollViewer>
-                                <Grid Classes="InstanceWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
+                                <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
                                    
                                 </Grid>
                             </ScrollViewer>
                         </Border>
                     </TabItem>
                     <!-- Mods -->
-                    <TabItem Classes="ModalTabItem" Header="Mods">
-                        <Border Classes="InstanceWrapper">
+                    <TabItem Classes="ModalVerticalTabItem" Header="Mods">
+                        <Border Classes="ModalScrollableWrapper">
                             <ScrollViewer>
-                                <Grid Classes="InstanceWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
+                                <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
                                    
                                 </Grid>
                             </ScrollViewer>
                         </Border>
                     </TabItem>
                     <!--  Resource packs -->
-                    <TabItem Classes="ModalTabItem" Header="Resource packs">
-                        <Border Classes="InstanceWrapper">
+                    <TabItem Classes="ModalVerticalTabItem" Header="Resource packs">
+                        <Border Classes="ModalScrollableWrapper">
                             <ScrollViewer>
-                                <Grid Classes="InstanceWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
+                                <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
                                    
                                 </Grid>
                             </ScrollViewer>
                         </Border>
                     </TabItem>
                     <!--  Shader packs -->
-                    <TabItem Classes="ModalTabItem" Header="Shader packs">
-                        <Border Classes="InstanceWrapper">
+                    <TabItem Classes="ModalVerticalTabItem" Header="Shader packs">
+                        <Border Classes="ModalScrollableWrapper">
                             <ScrollViewer>
-                                <Grid Classes="InstanceWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
+                                <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
                                    
                                 </Grid>
                             </ScrollViewer>
                         </Border>
                     </TabItem>
                     <!--  Worlds -->
-                    <TabItem Classes="ModalTabItem" Header="Worlds">
-                        <Border Classes="InstanceWrapper">
+                    <TabItem Classes="ModalVerticalTabItem" Header="Worlds">
+                        <Border Classes="ModalScrollableWrapper">
                             <ScrollViewer>
-                                <Grid Classes="InstanceWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
+                                <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
                                    
                                 </Grid>
                             </ScrollViewer>
                         </Border>
                     </TabItem>
                     <!-- Servers -->
-                    <TabItem Classes="ModalTabItem" Header="Servers">
-                        <Border Classes="InstanceWrapper">
+                    <TabItem Classes="ModalVerticalTabItem" Header="Servers">
+                        <Border Classes="ModalScrollableWrapper">
                             <ScrollViewer>
-                                <Grid Classes="InstanceWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
+                                <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
                                    
                                 </Grid>
                             </ScrollViewer>
                         </Border>
                     </TabItem>
                     <!--  Screenshots -->
-                    <TabItem Classes="ModalTabItem" Header="Screenshots">
-                        <Border Classes="InstanceWrapper">
+                    <TabItem Classes="ModalVerticalTabItem" Header="Screenshots">
+                        <Border Classes="ModalScrollableWrapper">
                             <ScrollViewer>
-                                <Grid Classes="InstanceWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
+                                <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
                                    
                                 </Grid>
                             </ScrollViewer>
                         </Border>
                     </TabItem>
                     <!--  Settings -->
-                    <TabItem Classes="ModalTabItem" Header="Settings">
-                        <Border Classes="InstanceWrapper">
+                    <TabItem Classes="ModalVerticalTabItem" Header="Settings">
+                        <Border Classes="ModalScrollableWrapper">
                             <ScrollViewer>
-                                <Grid Classes="InstanceWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
+                                <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
                                    
                                 </Grid>
                             </ScrollViewer>

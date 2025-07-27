@@ -34,7 +34,7 @@
     <Style Selector="TabItem.ModalTabItem:selected /template/ Border#PART_SelectedPipe">
         <Setter Property="IsVisible" Value="False" />
     </Style>
-
+    
     <Style Selector="Border.ModalWrapper">
         <Setter Property="Background" Value="{StaticResource base-100}" />
         <Setter Property="BorderBrush" Value="{StaticResource border-two}" />
@@ -50,5 +50,73 @@
         <Setter Property="ItemWidth" Value="440" />
         <Setter Property="Margin" Value="25,20,25,25" />
         <Setter Property="Orientation" Value="Vertical" />
+    </Style>
+    
+    <!-- Scrollable Tab Control -->
+    <Style Selector="TabControl.ModalVerticalTab">
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{TemplateBinding CornerRadius}"
+                        Background="{TemplateBinding Background}"
+                        HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+                        VerticalAlignment="{TemplateBinding VerticalAlignment}">
+                    <DockPanel>
+                        <ScrollViewer DockPanel.Dock="{TemplateBinding TabStripPlacement}"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      VerticalScrollBarVisibility="Auto"
+                                      Margin="0">
+                             <ItemsPresenter Name="PART_ItemsPresenter"
+                                                     ItemsPanel="{TemplateBinding ItemsPanel}" />
+                        </ScrollViewer>
+                        <ContentPresenter Name="PART_SelectedContentHost"
+                                          Margin="{TemplateBinding Padding}"
+                                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          Content="{TemplateBinding SelectedContent}"
+                                          ContentTemplate="{TemplateBinding SelectedContentTemplate}" />
+                    </DockPanel>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    
+    <!-- Scrollable Tab Item -->
+    <Style Selector="TabItem.ModalVerticalTabItem">
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="Background" Value="{StaticResource base-100}" />
+        <Setter Property="BorderBrush" Value="{StaticResource border-two}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="8, 0, 0, 8" />
+        <Setter Property="Padding" Value="15 0"/>
+        <Setter Property="Margin" Value="0" />
+    </Style>
+    
+    <!-- Selected Scrollable Tab Item -->
+    <Style Selector="TabItem.ModalVerticalTabItem:selected">
+        <Setter Property="Background" Value="{StaticResource base-200}"/>
+    </Style>
+    
+    <!-- Hide the selected pipe in Scrollable Tab Item -->
+    <Style Selector="TabItem.ModalVerticalTabItem:selected /template/ Border#PART_SelectedPipe">
+        <Setter Property="IsVisible" Value="False" />
+    </Style>
+    
+    <!-- Scrollable Wrapper Border for Modals -->
+    <Style Selector="Border.ModalScrollableWrapper">
+        <Setter Property="Background" Value="{StaticResource base-100}" />
+        <Setter Property="BorderBrush" Value="{StaticResource border-two}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="0, 8, 8, 0" />
+        <Setter Property="Padding" Value="25,20,40,25" />
+    </Style>
+    
+    <!-- Scrollable Wrapper Grid for Modals -->
+    <Style Selector="Grid.ModalScrollableWrapper">
+        <Setter Property="ColumnSpacing" Value="15" />
+        <Setter Property="RowSpacing" Value="15" />
     </Style>
 </Styles>

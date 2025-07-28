@@ -1,63 +1,86 @@
 <Window
-    CanResize="True"
-    Height="500"
-    Icon="../Assets/Images/logo.png"
-    MinHeight="500"
-    MinWidth="900"
-    ShowInTaskbar="False"
-    Title="Edit Instance"
-    Width="900"
-    d:DesignHeight="500"
-    d:DesignWidth="900"
-    mc:Ignorable="d"
     x:Class="Tavstal.KonkordLauncher.Desktop.Views.EditInstanceWindow"
     xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:mdxaml="https://github.com/whistyun/Markdown.Avalonia.Tight"
     xmlns:vm="using:Tavstal.KonkordLauncher.Desktop.ViewModels"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    Title="Edit Instance"
+    Width="900"
+    Height="500"
+    MinWidth="900"
+    MinHeight="500"
+    d:DesignHeight="500"
+    d:DesignWidth="900"
+    x:DataType="vm:EditInstanceViewModel"
+    CanResize="True"
+    Icon="../Assets/Images/logo.png"
+    ShowInTaskbar="False"
+    mc:Ignorable="d">
 
+    <!-- Design DataContext -->
+    <Design.DataContext>
+        <vm:EditInstanceViewModel />
+    </Design.DataContext>
+
+    <!-- Content -->
     <Border Classes="InstanceView">
         <Grid RowDefinitions="Auto,*">
             <!--  Title  -->
             <TextBlock
-                Classes="InstanceTitle"
                 HorizontalAlignment="Left"
+                Classes="InstanceTitle"
                 Text="Editing Instance: My Pack" />
 
             <!--  Content  -->
             <Grid Grid.Row="1">
-                <TabControl Classes="ModalVerticalTab" TabStripPlacement="Left">
-                    <!--  Logs -->
+                <TabControl
+                    Classes="ModalVerticalTab"
+                    SelectedIndex="7"
+                    TabStripPlacement="Left">
+                    <!--  Logs  -->
                     <TabItem Classes="ModalVerticalTabItem" Header="Logs">
                         <Border Classes="ModalScrollableWrapper">
                             <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, *, Auto">
-                                <!-- Title -->
-                                <TextBlock FontWeight="500" FontSize="20" Text="Latest Log" />
-                                <!-- Log content -->
-                                <Border Grid.Row="1" Background="{StaticResource base-200}" CornerRadius="8" Padding="15">
+                                <!--  Title  -->
+                                <TextBlock
+                                    FontSize="20"
+                                    FontWeight="500"
+                                    Text="Latest Log" />
+                                <!--  Log content  -->
+                                <Border Grid.Row="1" Classes="GridInnerContent">
                                     <ScrollViewer>
-                                        <TextBlock Opacity="0.8" FontFamily="Consolas" TextWrapping="Wrap" Text="Loading..." />
+                                        <TextBlock
+                                            FontFamily="Consolas"
+                                            Opacity="0.8"
+                                            Text="Loading..."
+                                            TextWrapping="Wrap" />
                                     </ScrollViewer>
                                 </Border>
-                                <!-- Actions -->
-                                <Grid Grid.Row="2" ColumnDefinitions="*, Auto, Auto, Auto, Auto" ColumnSpacing="5">
-                                    <!-- Search bar -->
-                                    <TextBox Grid.Column="0" Name="StAssetsInput" Classes="TextInput" Watermark="Search..." />
-                                    <!-- Search button -->
+                                <!--  Actions  -->
+                                <Grid
+                                    Grid.Row="2"
+                                    ColumnDefinitions="*, Auto, Auto, Auto, Auto"
+                                    ColumnSpacing="5">
+                                    <!--  Search bar  -->
+                                    <TextBox
+                                        Grid.Column="0"
+                                        Classes="TextInput"
+                                        Watermark="Search..." />
+                                    <!--  Search button  -->
                                     <Button Grid.Column="1" Classes="IconBtn InfoBtn">
                                         <TextBlock Text="Search" />
                                     </Button>
-                                    <!-- To bottom button -->
+                                    <!--  To bottom button  -->
                                     <Button Grid.Column="2" Classes="IconBtn InfoBtn">
                                         <TextBlock Text="Bottom" />
                                     </Button>
-                                    <!-- Copy button -->
+                                    <!--  Copy button  -->
                                     <Button Grid.Column="3" Classes="IconBtn WarningBtn">
                                         <TextBlock Text="Copy" />
                                     </Button>
-                                    <!-- Clear button -->
+                                    <!--  Clear button  -->
                                     <Button Grid.Column="4" Classes="IconBtn ErrorBtn">
                                         <TextBlock Text="Clear" />
                                     </Button>
@@ -65,84 +88,471 @@
                             </Grid>
                         </Border>
                     </TabItem>
-                    <!-- Version -->
+                    <!--  Version  -->
                     <TabItem Classes="ModalVerticalTabItem" Header="Version">
                         <Border Classes="ModalScrollableWrapper">
-                            <ScrollViewer>
-                                <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
-                                   
-                                </Grid>
-                            </ScrollViewer>
+                            <!-- TODO -->
                         </Border>
                     </TabItem>
-                    <!-- Mods -->
+                    <!--  Mods  -->
                     <TabItem Classes="ModalVerticalTabItem" Header="Mods">
                         <Border Classes="ModalScrollableWrapper">
-                            <ScrollViewer>
-                                <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
-                                   
+                            <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, *, Auto">
+                                <!--  Title  -->
+                                <TextBlock Classes="ModalGridTitle" Text="Mods" />
+                                <!--  Content  -->
+                                <Border Grid.Row="1">
+                                    <ScrollViewer Classes="TableScrollViewer">
+                                        <DataGrid
+                                            Classes="InstanceMultiTable"
+                                            ItemsSource="{Binding Mods}"
+                                            LoadingRow="ModsDataGrid_OnLoading">
+                                            <DataGrid.Columns>
+                                                <!--  Enabled  -->
+                                                <DataGridCheckBoxColumn 
+                                                    Width="Auto"
+                                                    IsReadOnly="False"
+                                                    Binding="{Binding IsEnabled}"
+                                                    Header="Enabled"
+                                                />
+                                                <!--  Image  -->
+                                                <DataGridTemplateColumn
+                                                    Width="Auto"
+                                                    Header="Image">
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <Image
+                                                                Source="{Binding Icon}"
+                                                                Width="32"
+                                                                Height="32"
+                                                                Stretch="UniformToFill" />
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                                <!--  Name  -->
+                                                <DataGridTextColumn
+                                                    Width="Auto"
+                                                    Binding="{Binding Name}"
+                                                    Header="Name" />
+                                                <!--  Version  -->
+                                                <DataGridTextColumn
+                                                    Width="Auto"
+                                                    Binding="{Binding Version}"
+                                                    Header="Version" />
+                                                <!--  Last Modified  -->
+                                                <DataGridTextColumn
+                                                    Width="Auto"
+                                                    Binding="{Binding LastModified}"
+                                                    Header="Last Modified" />
+                                                <!--  Provider  -->
+                                                <DataGridTextColumn
+                                                    Width="Auto"
+                                                    Binding="{Binding Provider}"
+                                                    Header="Provider" />
+                                                <!--  Size  -->
+                                                <DataGridTextColumn
+                                                    Width="Auto"
+                                                    Binding="{Binding Size}"
+                                                    Header="Size" />
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </ScrollViewer>
+                                </Border>
+                                <!--  Actions  -->
+                                <Grid
+                                    Grid.Row="2"
+                                    ColumnDefinitions="*, Auto, Auto, Auto"
+                                    ColumnSpacing="5">
+                                    <!--  Search bar  -->
+                                    <TextBox
+                                        Grid.Column="0"
+                                        Classes="TextInput"
+                                        Watermark="Search..." />
+                                    <!--  Search button  -->
+                                    <Button Grid.Column="1" Classes="IconBtn">
+                                        <TextBlock Text="Search" />
+                                    </Button>
+                                    <!--  Download  -->
+                                    <Button Grid.Column="2" Classes="IconBtn">
+                                        <TextBlock Text="Download Mods" />
+                                    </Button>
+                                    <!--  View Folder  -->
+                                    <Button Grid.Column="3" Classes="IconBtn">
+                                        <TextBlock Text="View Folder" />
+                                    </Button>
                                 </Grid>
-                            </ScrollViewer>
+                            </Grid>
                         </Border>
                     </TabItem>
-                    <!--  Resource packs -->
+                    <!--  Resource packs  -->
                     <TabItem Classes="ModalVerticalTabItem" Header="Resource packs">
                         <Border Classes="ModalScrollableWrapper">
-                            <ScrollViewer>
-                                <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
-                                   
+                            <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, *, Auto">
+                                <!--  Title  -->
+                                <TextBlock Classes="ModalGridTitle" Text="Resource Packs" />
+                                <!--  Content  -->
+                                <Border Grid.Row="1">
+                                    <ScrollViewer Classes="TableScrollViewer">
+                                        <DataGrid
+                                            Classes="InstanceMultiTable"
+                                            ItemsSource="{Binding ResourcePacks}"
+                                            LoadingRow="ResourcePacksDataGrid_OnLoading">
+                                            <DataGrid.Columns>
+                                                <!-- Enabled -->
+                                                <DataGridCheckBoxColumn 
+                                                    Width="Auto"
+                                                    IsReadOnly="False"
+                                                    Binding="{Binding IsEnabled}"
+                                                    Header="Enabled"
+                                                    />
+                                                <!-- Image -->
+                                                <DataGridTemplateColumn
+                                                    Width="Auto"
+                                                    Header="Image">
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <Image
+                                                                Source="{Binding Icon}"
+                                                                Width="32"
+                                                                Height="32"
+                                                                Stretch="UniformToFill" />
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                                <!-- Name -->
+                                                <DataGridTextColumn
+                                                    Width="Auto"
+                                                    Binding="{Binding Name}"
+                                                    Header="Name" />
+                                                <!-- Version -->
+                                                <DataGridTextColumn
+                                                    Width="Auto"
+                                                    Binding="{Binding Version}"
+                                                    Header="Version" />
+                                                <!-- Last Modified -->
+                                                <DataGridTextColumn
+                                                    Width="Auto"
+                                                    Binding="{Binding LastModified}"
+                                                    Header="Last Modified" />
+                                                <!-- Provider -->
+                                                <DataGridTextColumn
+                                                    Width="Auto"
+                                                    Binding="{Binding Provider}"
+                                                    Header="Provider" />
+                                                <!-- Size -->
+                                                <DataGridTextColumn
+                                                    Width="Auto"
+                                                    Binding="{Binding Size}"
+                                                    Header="Size" />
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </ScrollViewer>
+                                </Border>
+                                <!--  Actions  -->
+                                <Grid
+                                    Grid.Row="2"
+                                    ColumnDefinitions="*, Auto, Auto, Auto"
+                                    ColumnSpacing="5">
+                                    <!--  Search bar  -->
+                                    <TextBox
+                                        Grid.Column="0"
+                                        Classes="TextInput"
+                                        Watermark="Search..." />
+                                    <!--  Search button  -->
+                                    <Button Grid.Column="1" Classes="IconBtn">
+                                        <TextBlock Text="Search" />
+                                    </Button>
+                                    <!--  Download  -->
+                                    <Button Grid.Column="2" Classes="IconBtn">
+                                        <TextBlock Text="Download Packs" />
+                                    </Button>
+                                    <!--  View Folder  -->
+                                    <Button Grid.Column="3" Classes="IconBtn">
+                                        <TextBlock Text="View Folder" />
+                                    </Button>
                                 </Grid>
-                            </ScrollViewer>
+                            </Grid>
                         </Border>
                     </TabItem>
-                    <!--  Shader packs -->
+                    <!--  Shader packs  -->
                     <TabItem Classes="ModalVerticalTabItem" Header="Shader packs">
                         <Border Classes="ModalScrollableWrapper">
-                            <ScrollViewer>
-                                <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
-                                   
+                            <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, *, Auto">
+                                <!--  Title  -->
+                                <TextBlock Classes="ModalGridTitle" Text="Shader Packs" />
+                                <!--  Content  -->
+                                <Border Grid.Row="1">
+                                    <ScrollViewer Classes="TableScrollViewer">
+                                        <DataGrid
+                                            Classes="InstanceMultiTable"
+                                            ItemsSource="{Binding ShaderPacks}"
+                                            LoadingRow="ShaderDataGrid_OnLoading">
+                                            <DataGrid.Columns>
+                                                <!-- Enabled -->
+                                                <DataGridCheckBoxColumn 
+                                                    Width="Auto"
+                                                    IsReadOnly="False"
+                                                    Binding="{Binding IsEnabled}"
+                                                    Header="Enabled"
+                                                />
+                                                <!-- Image -->
+                                                <DataGridTemplateColumn
+                                                    Width="Auto"
+                                                    Header="Image">
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <Image
+                                                                Source="{Binding Icon}"
+                                                                Width="32"
+                                                                Height="32"
+                                                                Stretch="UniformToFill" />
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                                <!-- Name -->
+                                                <DataGridTextColumn
+                                                    Width="Auto"
+                                                    Binding="{Binding Name}"
+                                                    Header="Name" />
+                                                <!-- Version -->
+                                                <DataGridTextColumn
+                                                    Width="Auto"
+                                                    Binding="{Binding Version}"
+                                                    Header="Version" />
+                                                <!-- Last Modified -->
+                                                <DataGridTextColumn
+                                                    Width="Auto"
+                                                    Binding="{Binding LastModified}"
+                                                    Header="Last Modified" />
+                                                <!-- Provider -->
+                                                <DataGridTextColumn
+                                                    Width="Auto"
+                                                    Binding="{Binding Provider}"
+                                                    Header="Provider" />
+                                                <!-- Size -->
+                                                <DataGridTextColumn
+                                                    Width="Auto"
+                                                    Binding="{Binding Size}"
+                                                    Header="Size" />
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </ScrollViewer>
+                                </Border>
+                                <!--  Actions  -->
+                                <Grid
+                                    Grid.Row="2"
+                                    ColumnDefinitions="*, Auto, Auto, Auto"
+                                    ColumnSpacing="5">
+                                    <!--  Search bar  -->
+                                    <TextBox
+                                        Grid.Column="0"
+                                        Classes="TextInput"
+                                        Watermark="Search..." />
+                                    <!--  Search button  -->
+                                    <Button Grid.Column="1" Classes="IconBtn">
+                                        <TextBlock Text="Search" />
+                                    </Button>
+                                    <!--  Download  -->
+                                    <Button Grid.Column="2" Classes="IconBtn">
+                                        <TextBlock Text="Download Shaders" />
+                                    </Button>
+                                    <!--  View Folder  -->
+                                    <Button Grid.Column="3" Classes="IconBtn">
+                                        <TextBlock Text="View Folder" />
+                                    </Button>
                                 </Grid>
-                            </ScrollViewer>
+                            </Grid>
                         </Border>
                     </TabItem>
-                    <!--  Worlds -->
+                    <!--  Worlds  -->
                     <TabItem Classes="ModalVerticalTabItem" Header="Worlds">
                         <Border Classes="ModalScrollableWrapper">
-                            <ScrollViewer>
-                                <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
-                                   
+                            <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, *, Auto">
+                                <!--  Title  -->
+                                <TextBlock Classes="ModalGridTitle" Text="Worlds" />
+                                <!--  Content  -->
+                                <Border Grid.Row="1">
+                                    <ScrollViewer Classes="TableScrollViewer">
+                                        <DataGrid
+                                            Classes="InstanceMultiTable"
+                                            ItemsSource="{Binding Worlds}"
+                                            LoadingRow="WorldDataGrid_OnLoading">
+                                            <DataGrid.Columns>
+                                                <!-- Icon & Name -->
+                                                <DataGridTemplateColumn
+                                                    Width="Auto"
+                                                    Header="Name">
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <StackPanel Spacing="5" Orientation="Horizontal">
+                                                                <Image
+                                                                    Source="{Binding Icon}"
+                                                                    Margin="5"
+                                                                    MaxWidth="48"
+                                                                    Height="48"
+                                                                    Stretch="UniformToFill" />
+                                                                <TextBlock Margin="0, 0, 25 0" TextAlignment="Center" VerticalAlignment="Center" Text="{Binding Name}" />
+                                                            </StackPanel>
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                                <!-- GameMode -->
+                                                <DataGridTextColumn
+                                                    Width="Auto"
+                                                    Binding="{Binding Gamemode}"
+                                                    Header="GameMode" />
+                                                <!-- Last Played -->
+                                                <DataGridTextColumn
+                                                    Width="Auto"
+                                                    Binding="{Binding LastPlayed}"
+                                                    Header="Last Played" />
+                                                <!-- Size -->
+                                                <DataGridTextColumn
+                                                    Width="Auto"
+                                                    Binding="{Binding Size}"
+                                                    Header="Size" />
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </ScrollViewer>
+                                </Border>
+                                <!--  Actions  -->
+                                <Grid
+                                    Grid.Row="2"
+                                    ColumnDefinitions="*, Auto, Auto"
+                                    ColumnSpacing="5">
+                                    <!--  Search bar  -->
+                                    <TextBox
+                                        Grid.Column="0"
+                                        Classes="TextInput"
+                                        Watermark="Search..." />
+                                    <!--  Search button  -->
+                                    <Button Grid.Column="1" Classes="IconBtn">
+                                        <TextBlock Text="Search" />
+                                    </Button>
+                                    <!--  View Folder  -->
+                                    <Button Grid.Column="2" Classes="IconBtn">
+                                        <TextBlock Text="View Folder" />
+                                    </Button>
                                 </Grid>
-                            </ScrollViewer>
+                            </Grid>
                         </Border>
                     </TabItem>
-                    <!-- Servers -->
+                    <!--  Servers  -->
                     <TabItem Classes="ModalVerticalTabItem" Header="Servers">
                         <Border Classes="ModalScrollableWrapper">
-                            <ScrollViewer>
-                                <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
-                                   
+                            <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, *, Auto">
+                                <!--  Title  -->
+                                <TextBlock Classes="ModalGridTitle" Text="Servers" />
+                                <!--  Content  -->
+                                <Border Grid.Row="1">
+                                    <ScrollViewer Classes="TableScrollViewer">
+                                        <DataGrid
+                                            Classes="InstanceMultiTable"
+                                            ItemsSource="{Binding Servers}"
+                                            LoadingRow="ServerDataGrid_OnLoading">
+                                            <DataGrid.Columns>
+                                                <!-- Icon & Name -->
+                                                <DataGridTemplateColumn
+                                                    Width="Auto"
+                                                    Header="Name">
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <StackPanel Spacing="5" Orientation="Horizontal">
+                                                                <Image
+                                                                    Source="{Binding Icon}"
+                                                                    Margin="5"
+                                                                    MaxWidth="48"
+                                                                    Height="48"
+                                                                    Stretch="UniformToFill" />
+                                                                <TextBlock Margin="0, 0, 25 0" TextAlignment="Center" VerticalAlignment="Center" Text="{Binding Name}" />
+                                                            </StackPanel>
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                                <!-- Address -->
+                                                <DataGridTextColumn
+                                                    Width="Auto"
+                                                    Binding="{Binding Address}"
+                                                    Header="Address" />
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </ScrollViewer>
+                                </Border>
+                                <!--  Actions  -->
+                                <Grid
+                                    Grid.Row="2"
+                                    ColumnDefinitions="*, *, Auto, Auto"
+                                    ColumnSpacing="5">
+                                    <!-- Name bar  -->
+                                    <TextBox
+                                        Grid.Column="0"
+                                        Classes="TextInput"
+                                        Watermark="Name..." />
+                                    <!-- Address bar  -->
+                                    <TextBox
+                                        Grid.Column="1"
+                                        Classes="TextInput"
+                                        Watermark="Address..." />
+                                    <!--  Search button  -->
+                                    <Button Grid.Column="2" Classes="IconBtn">
+                                        <TextBlock Text="Save" />
+                                    </Button>
+                                    <!-- Add -->
+                                    <Button Grid.Column="3" Classes="IconBtn">
+                                        <TextBlock Text="Add" />
+                                    </Button>
                                 </Grid>
-                            </ScrollViewer>
+                            </Grid>
                         </Border>
                     </TabItem>
-                    <!--  Screenshots -->
+                    <!--  Screenshots  -->
                     <TabItem Classes="ModalVerticalTabItem" Header="Screenshots">
                         <Border Classes="ModalScrollableWrapper">
-                            <ScrollViewer>
-                                <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
-                                   
-                                </Grid>
-                            </ScrollViewer>
+                            <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, *">
+                                <!--  Title  -->
+                                <TextBlock Classes="ModalGridTitle" Text="Screenshots" />
+                                <!--  Content  -->
+                                <Border Grid.Row="1">
+                                    <ScrollViewer Classes="TableScrollViewer">
+                                        <DataGrid
+                                            Classes="InstanceMultiTable"
+                                            ItemsSource="{Binding Screenshots}"
+                                            LoadingRow="ScreenshotDataGrid_OnLoading">
+                                            <DataGrid.Columns>
+                                                <!-- Icon & Name -->
+                                                <DataGridTemplateColumn
+                                                    Width="Auto"
+                                                    Header="Name">
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <StackPanel Spacing="5" Orientation="Horizontal">
+                                                                <Image
+                                                                    Source="{Binding Image}"
+                                                                    Margin="5"
+                                                                    MaxWidth="48"
+                                                                    Height="48"
+                                                                    Stretch="UniformToFill" />
+                                                                <TextBlock Margin="0, 0, 25 0" TextAlignment="Center" VerticalAlignment="Center" Text="{Binding Name}" />
+                                                            </StackPanel>
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                                <!-- Size -->
+                                                <DataGridTextColumn
+                                                    Width="Auto"
+                                                    Binding="{Binding Size}"
+                                                    Header="Size" />
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </ScrollViewer>
+                                </Border>
+                            </Grid>
                         </Border>
                     </TabItem>
-                    <!--  Settings -->
+                    <!--  Settings  -->
                     <TabItem Classes="ModalVerticalTabItem" Header="Settings">
                         <Border Classes="ModalScrollableWrapper">
-                            <ScrollViewer>
-                                <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
-                                   
-                                </Grid>
-                            </ScrollViewer>
+                            <!-- TODO -->
                         </Border>
                     </TabItem>
                 </TabControl>

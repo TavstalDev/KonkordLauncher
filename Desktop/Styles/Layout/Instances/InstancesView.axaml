@@ -1,8 +1,10 @@
 <Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Window Style -->
     <Style Selector="Border.InstanceView">
         <Setter Property="Padding" Value="30" />
     </Style>
     
+    <!-- Title Style -->
     <Style Selector="TextBlock.InstanceTitle">
         <Setter Property="FontSize" Value="24" />
         <Setter Property="FontWeight" Value="600" />
@@ -12,6 +14,7 @@
         <Setter Property="TextAlignment" Value="Center" />
     </Style>
     
+    <!-- Category Style -->
     <Style Selector="TextBlock.InstanceCategory">
         <Setter Property="FontSize" Value="16" />
         <Setter Property="FontWeight" Value="SemiBold" />
@@ -19,6 +22,7 @@
         <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
     
+    <!-- Instance Wrapper Border -->
     <Style Selector="Border.InstanceWrapper">
         <Setter Property="Background" Value="{StaticResource base-100}" />
         <Setter Property="BorderBrush" Value="{StaticResource border-two}" />
@@ -27,25 +31,28 @@
         <Setter Property="Margin" Value="0,-2,0,0" />
     </Style>
     
+    <!-- Instance Wrapper Grid -->
     <Style Selector="Grid.InstanceWrapper">
         <Setter Property="ColumnSpacing" Value="15" />
         <Setter Property="RowSpacing" Value="15" />
         <Setter Property="Margin" Value="25,20,50,25" />
     </Style>
     
+    <!-- Instance Modpack Wrapper -->
     <Style Selector="Grid.InstanceModpackWrapper">
         <Setter Property="ColumnSpacing" Value="15" />
         <Setter Property="RowSpacing" Value="15" />
         <Setter Property="Margin" Value="25,20,25,25" />
     </Style>
     
+    <!-- Instance Icon -->
     <Style Selector="Image.InstanceIcon">
         <Setter Property="Height" Value="60" />
         <Setter Property="Width" Value="60" />
     </Style>
     
+    <!-- Single Select Table -->
     <Style Selector="DataGrid.InstanceTable">
-        <Setter Property="MaxHeight" Value="200" />
         <Setter Property="SelectionMode" Value="Single" />
         <Setter Property="CanUserReorderColumns" Value="True" />
         <Setter Property="CanUserResizeColumns" Value="True" />
@@ -58,33 +65,30 @@
         <Setter Property="CornerRadius" Value="8" />
     </Style>
     
+    <!-- Multi Select Table -->
+    <Style Selector="DataGrid.InstanceMultiTable">
+        <Setter Property="SelectionMode" Value="Extended" />
+        <Setter Property="CanUserReorderColumns" Value="True" />
+        <Setter Property="CanUserResizeColumns" Value="True" />
+        <Setter Property="CanUserSortColumns" Value="True" />
+        <Setter Property="AutoGenerateColumns" Value="False" />
+        <Setter Property="IsReadOnly" Value="True" />
+        <Setter Property="Background" Value="{StaticResource base-200}" />
+        <Setter Property="BorderBrush" Value="{StaticResource border-one}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="8" />
+    </Style>
+    
+    <!-- DataGrid Column Header -->
     <Style Selector="DataGridColumnHeader">
         <Setter Property="Background" Value="{StaticResource base-300}" />
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="HorizontalContentAlignment" Value="Left" />
         <Setter Property="CornerRadius" Value="0" />
-        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BorderThickness" Value="0" />
     </Style>
     
-    <Style Selector="TextBox.InstanceSearch">
-        <Setter Property="Width" Value="175" />
-        <Setter Property="MaxWidth" Value="175" />
-        <Setter Property="Margin" Value="0,5,0,0" />
-    </Style>
-    
-    <Style Selector="StackPanel.InstanceButtonWrapper">
-        <Setter Property="Orientation" Value="Horizontal" />
-        <Setter Property="HorizontalAlignment" Value="Right" />
-        <Setter Property="Spacing" Value="10" />
-    </Style>
-    
-    <Style Selector="TextBlock.InstanceButtonText">
-        <Setter Property="FontSize" Value="15" />
-        <Setter Property="FontWeight" Value="600" />
-        <Setter Property="Foreground" Value="{StaticResource primary-content}" />
-        <Setter Property="Padding" Value="5" />
-    </Style>
-    
+    <!-- Grid Splitter -->
     <Style Selector="GridSplitter.InstanceSplitter">
         <Setter Property="Background" Value="{StaticResource border-two}" />
         <Setter Property="CornerRadius" Value="8" />
@@ -102,6 +106,7 @@
         </Setter>
     </Style>
     
+    <!-- Grid Splitter Border -->
     <Style Selector="Border.InstanceSplitter">
         <Setter Property="Background" Value="{StaticResource primary}" />
         <Setter Property="CornerRadius" Value="8" />
@@ -110,12 +115,36 @@
         <Setter Property="MaxWidth" Value="4" />
     </Style>
     
+    <!-- Instance Search TextBox -->
+    <Style Selector="TextBox.InstanceSearch">
+        <Setter Property="Width" Value="175" />
+        <Setter Property="MaxWidth" Value="175" />
+        <Setter Property="Margin" Value="0,5,0,0" />
+    </Style>
+    
+    <!-- Instance Button Wrapper -->
+    <Style Selector="StackPanel.InstanceButtonWrapper">
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="Spacing" Value="10" />
+    </Style>
+    
+    <!-- Instance Button TextBlock -->
+    <Style Selector="TextBlock.InstanceButtonText">
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="FontWeight" Value="600" />
+        <Setter Property="Foreground" Value="{StaticResource primary-content}" />
+        <Setter Property="Padding" Value="5" />
+    </Style>
+    
+    <!-- Mod Card -->
     <Style Selector="Border.InstanceModCard">
         <Setter Property="Background" Value="{StaticResource base-200}" />
         <Setter Property="CornerRadius" Value="8" />
         <Setter Property="Padding" Value="10" />
     </Style>
 
+    <!-- Mod Card Title -->
     <Style Selector="TextBlock.InstanceModTitle">
         <Setter Property="FontSize" Value="15" />
         <Setter Property="FontWeight" Value="500" />
@@ -125,6 +154,7 @@
         <Setter Property="Margin" Value="0, 0, 10, 0" />
     </Style>
 
+    <!-- Mod Card Description -->
     <Style Selector="TextBlock.InstanceModDescription">
         <Setter Property="Foreground" Value="{StaticResource primary-content}" />
         <Setter Property="TextWrapping" Value="NoWrap" />

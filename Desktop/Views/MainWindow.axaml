@@ -201,7 +201,8 @@
                             <Button
                                 Classes="IconBtn InfoBtn"
                                 Grid.Column="1"
-                                Name="AddInstanceBtn">
+                                Name="AddInstanceBtn"
+                                Click="AddInstance_OnClick">
                                 <TextBlock Classes="FontAwesome" Text="&#x2b;" />
                             </Button>
                         </Grid>

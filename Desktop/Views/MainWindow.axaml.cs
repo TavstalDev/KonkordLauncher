@@ -131,6 +131,16 @@ public partial class MainWindow : Window
     }
     #endregion
 
+    #region Instance Button Click Handlers
+
+    private void AddInstance_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var dialog = new CreateInstanceWindow();
+        dialog.ShowDialog(this);
+    }
+
+    #endregion
+    
     #region Account Button Click Handlers
 
     private void AddAccount_OnClick(object? sender, RoutedEventArgs e)
@@ -147,6 +157,4 @@ public partial class MainWindow : Window
         var dialog = new EditInstanceWindow();
         dialog.ShowDialog(this);
     }
-
-   
 }

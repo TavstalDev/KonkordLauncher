@@ -69,15 +69,15 @@
                                         Classes="TextInput"
                                         Watermark="Search..." />
                                     <!--  Search button  -->
-                                    <Button Grid.Column="1" Classes="IconBtn InfoBtn">
+                                    <Button Grid.Column="1" Classes="IconBtn">
                                         <TextBlock Text="Search" />
                                     </Button>
                                     <!--  To bottom button  -->
-                                    <Button Grid.Column="2" Classes="IconBtn InfoBtn">
+                                    <Button Grid.Column="2" Classes="IconBtn">
                                         <TextBlock Text="Bottom" />
                                     </Button>
                                     <!--  Copy button  -->
-                                    <Button Grid.Column="3" Classes="IconBtn WarningBtn">
+                                    <Button Grid.Column="3" Classes="IconBtn">
                                         <TextBlock Text="Copy" />
                                     </Button>
                                     <!--  Clear button  -->
@@ -86,12 +86,6 @@
                                     </Button>
                                 </Grid>
                             </Grid>
-                        </Border>
-                    </TabItem>
-                    <!--  Version  -->
-                    <TabItem Classes="ModalVerticalTabItem" Header="Version">
-                        <Border Classes="ModalScrollableWrapper">
-                            <!-- TODO -->
                         </Border>
                     </TabItem>
                     <!--  Mods  -->

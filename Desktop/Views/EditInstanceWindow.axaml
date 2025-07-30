@@ -19,12 +19,12 @@
     ShowInTaskbar="False"
     mc:Ignorable="d">
 
-    <!-- Design DataContext -->
+    <!--  Design DataContext  -->
     <Design.DataContext>
         <vm:EditInstanceViewModel />
     </Design.DataContext>
 
-    <!-- Content -->
+    <!--  Content  -->
     <Border Classes="InstanceView">
         <Grid RowDefinitions="Auto,*">
             <!--  Title  -->
@@ -103,22 +103,19 @@
                                             LoadingRow="ModsDataGrid_OnLoading">
                                             <DataGrid.Columns>
                                                 <!--  Enabled  -->
-                                                <DataGridCheckBoxColumn 
+                                                <DataGridCheckBoxColumn
                                                     Width="Auto"
-                                                    IsReadOnly="False"
                                                     Binding="{Binding IsEnabled}"
                                                     Header="Enabled"
-                                                />
+                                                    IsReadOnly="False" />
                                                 <!--  Image  -->
-                                                <DataGridTemplateColumn
-                                                    Width="Auto"
-                                                    Header="Image">
+                                                <DataGridTemplateColumn Width="Auto" Header="Image">
                                                     <DataGridTemplateColumn.CellTemplate>
                                                         <DataTemplate>
                                                             <Image
-                                                                Source="{Binding Icon}"
                                                                 Width="32"
                                                                 Height="32"
+                                                                Source="{Binding Icon}"
                                                                 Stretch="UniformToFill" />
                                                         </DataTemplate>
                                                     </DataGridTemplateColumn.CellTemplate>
@@ -192,48 +189,45 @@
                                             ItemsSource="{Binding ResourcePacks}"
                                             LoadingRow="ResourcePacksDataGrid_OnLoading">
                                             <DataGrid.Columns>
-                                                <!-- Enabled -->
-                                                <DataGridCheckBoxColumn 
+                                                <!--  Enabled  -->
+                                                <DataGridCheckBoxColumn
                                                     Width="Auto"
-                                                    IsReadOnly="False"
                                                     Binding="{Binding IsEnabled}"
                                                     Header="Enabled"
-                                                    />
-                                                <!-- Image -->
-                                                <DataGridTemplateColumn
-                                                    Width="Auto"
-                                                    Header="Image">
+                                                    IsReadOnly="False" />
+                                                <!--  Image  -->
+                                                <DataGridTemplateColumn Width="Auto" Header="Image">
                                                     <DataGridTemplateColumn.CellTemplate>
                                                         <DataTemplate>
                                                             <Image
-                                                                Source="{Binding Icon}"
                                                                 Width="32"
                                                                 Height="32"
+                                                                Source="{Binding Icon}"
                                                                 Stretch="UniformToFill" />
                                                         </DataTemplate>
                                                     </DataGridTemplateColumn.CellTemplate>
                                                 </DataGridTemplateColumn>
-                                                <!-- Name -->
+                                                <!--  Name  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding Name}"
                                                     Header="Name" />
-                                                <!-- Version -->
+                                                <!--  Version  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding Version}"
                                                     Header="Version" />
-                                                <!-- Last Modified -->
+                                                <!--  Last Modified  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding LastModified}"
                                                     Header="Last Modified" />
-                                                <!-- Provider -->
+                                                <!--  Provider  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding Provider}"
                                                     Header="Provider" />
-                                                <!-- Size -->
+                                                <!--  Size  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding Size}"
@@ -282,48 +276,45 @@
                                             ItemsSource="{Binding ShaderPacks}"
                                             LoadingRow="ShaderDataGrid_OnLoading">
                                             <DataGrid.Columns>
-                                                <!-- Enabled -->
-                                                <DataGridCheckBoxColumn 
+                                                <!--  Enabled  -->
+                                                <DataGridCheckBoxColumn
                                                     Width="Auto"
-                                                    IsReadOnly="False"
                                                     Binding="{Binding IsEnabled}"
                                                     Header="Enabled"
-                                                />
-                                                <!-- Image -->
-                                                <DataGridTemplateColumn
-                                                    Width="Auto"
-                                                    Header="Image">
+                                                    IsReadOnly="False" />
+                                                <!--  Image  -->
+                                                <DataGridTemplateColumn Width="Auto" Header="Image">
                                                     <DataGridTemplateColumn.CellTemplate>
                                                         <DataTemplate>
                                                             <Image
-                                                                Source="{Binding Icon}"
                                                                 Width="32"
                                                                 Height="32"
+                                                                Source="{Binding Icon}"
                                                                 Stretch="UniformToFill" />
                                                         </DataTemplate>
                                                     </DataGridTemplateColumn.CellTemplate>
                                                 </DataGridTemplateColumn>
-                                                <!-- Name -->
+                                                <!--  Name  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding Name}"
                                                     Header="Name" />
-                                                <!-- Version -->
+                                                <!--  Version  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding Version}"
                                                     Header="Version" />
-                                                <!-- Last Modified -->
+                                                <!--  Last Modified  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding LastModified}"
                                                     Header="Last Modified" />
-                                                <!-- Provider -->
+                                                <!--  Provider  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding Provider}"
                                                     Header="Provider" />
-                                                <!-- Size -->
+                                                <!--  Size  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding Size}"
@@ -372,35 +363,37 @@
                                             ItemsSource="{Binding Worlds}"
                                             LoadingRow="WorldDataGrid_OnLoading">
                                             <DataGrid.Columns>
-                                                <!-- Icon & Name -->
-                                                <DataGridTemplateColumn
-                                                    Width="Auto"
-                                                    Header="Name">
+                                                <!--  Icon & Name  -->
+                                                <DataGridTemplateColumn Width="Auto" Header="Name">
                                                     <DataGridTemplateColumn.CellTemplate>
                                                         <DataTemplate>
-                                                            <StackPanel Spacing="5" Orientation="Horizontal">
+                                                            <StackPanel Orientation="Horizontal" Spacing="5">
                                                                 <Image
-                                                                    Source="{Binding Icon}"
-                                                                    Margin="5"
-                                                                    MaxWidth="48"
                                                                     Height="48"
+                                                                    MaxWidth="48"
+                                                                    Margin="5"
+                                                                    Source="{Binding Icon}"
                                                                     Stretch="UniformToFill" />
-                                                                <TextBlock Margin="0, 0, 25 0" TextAlignment="Center" VerticalAlignment="Center" Text="{Binding Name}" />
+                                                                <TextBlock
+                                                                    Margin="0,0,25,0"
+                                                                    VerticalAlignment="Center"
+                                                                    Text="{Binding Name}"
+                                                                    TextAlignment="Center" />
                                                             </StackPanel>
                                                         </DataTemplate>
                                                     </DataGridTemplateColumn.CellTemplate>
                                                 </DataGridTemplateColumn>
-                                                <!-- GameMode -->
+                                                <!--  GameMode  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding Gamemode}"
                                                     Header="GameMode" />
-                                                <!-- Last Played -->
+                                                <!--  Last Played  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding LastPlayed}"
                                                     Header="Last Played" />
-                                                <!-- Size -->
+                                                <!--  Size  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding Size}"
@@ -445,25 +438,27 @@
                                             ItemsSource="{Binding Servers}"
                                             LoadingRow="ServerDataGrid_OnLoading">
                                             <DataGrid.Columns>
-                                                <!-- Icon & Name -->
-                                                <DataGridTemplateColumn
-                                                    Width="Auto"
-                                                    Header="Name">
+                                                <!--  Icon & Name  -->
+                                                <DataGridTemplateColumn Width="Auto" Header="Name">
                                                     <DataGridTemplateColumn.CellTemplate>
                                                         <DataTemplate>
-                                                            <StackPanel Spacing="5" Orientation="Horizontal">
+                                                            <StackPanel Orientation="Horizontal" Spacing="5">
                                                                 <Image
-                                                                    Source="{Binding Icon}"
-                                                                    Margin="5"
-                                                                    MaxWidth="48"
                                                                     Height="48"
+                                                                    MaxWidth="48"
+                                                                    Margin="5"
+                                                                    Source="{Binding Icon}"
                                                                     Stretch="UniformToFill" />
-                                                                <TextBlock Margin="0, 0, 25 0" TextAlignment="Center" VerticalAlignment="Center" Text="{Binding Name}" />
+                                                                <TextBlock
+                                                                    Margin="0,0,25,0"
+                                                                    VerticalAlignment="Center"
+                                                                    Text="{Binding Name}"
+                                                                    TextAlignment="Center" />
                                                             </StackPanel>
                                                         </DataTemplate>
                                                     </DataGridTemplateColumn.CellTemplate>
                                                 </DataGridTemplateColumn>
-                                                <!-- Address -->
+                                                <!--  Address  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding Address}"
@@ -477,12 +472,12 @@
                                     Grid.Row="2"
                                     ColumnDefinitions="*, *, Auto, Auto"
                                     ColumnSpacing="5">
-                                    <!-- Name bar  -->
+                                    <!--  Name bar  -->
                                     <TextBox
                                         Grid.Column="0"
                                         Classes="TextInput"
                                         Watermark="Name..." />
-                                    <!-- Address bar  -->
+                                    <!--  Address bar  -->
                                     <TextBox
                                         Grid.Column="1"
                                         Classes="TextInput"
@@ -491,7 +486,7 @@
                                     <Button Grid.Column="2" Classes="IconBtn">
                                         <TextBlock Text="Save" />
                                     </Button>
-                                    <!-- Add -->
+                                    <!--  Add  -->
                                     <Button Grid.Column="3" Classes="IconBtn">
                                         <TextBlock Text="Add" />
                                     </Button>
@@ -513,25 +508,27 @@
                                             ItemsSource="{Binding Screenshots}"
                                             LoadingRow="ScreenshotDataGrid_OnLoading">
                                             <DataGrid.Columns>
-                                                <!-- Icon & Name -->
-                                                <DataGridTemplateColumn
-                                                    Width="Auto"
-                                                    Header="Name">
+                                                <!--  Icon & Name  -->
+                                                <DataGridTemplateColumn Width="Auto" Header="Name">
                                                     <DataGridTemplateColumn.CellTemplate>
                                                         <DataTemplate>
-                                                            <StackPanel Spacing="5" Orientation="Horizontal">
+                                                            <StackPanel Orientation="Horizontal" Spacing="5">
                                                                 <Image
-                                                                    Source="{Binding Image}"
-                                                                    Margin="5"
-                                                                    MaxWidth="48"
                                                                     Height="48"
+                                                                    MaxWidth="48"
+                                                                    Margin="5"
+                                                                    Source="{Binding Image}"
                                                                     Stretch="UniformToFill" />
-                                                                <TextBlock Margin="0, 0, 25 0" TextAlignment="Center" VerticalAlignment="Center" Text="{Binding Name}" />
+                                                                <TextBlock
+                                                                    Margin="0,0,25,0"
+                                                                    VerticalAlignment="Center"
+                                                                    Text="{Binding Name}"
+                                                                    TextAlignment="Center" />
                                                             </StackPanel>
                                                         </DataTemplate>
                                                     </DataGridTemplateColumn.CellTemplate>
                                                 </DataGridTemplateColumn>
-                                                <!-- Size -->
+                                                <!--  Size  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding Size}"
@@ -545,8 +542,98 @@
                     </TabItem>
                     <!--  Settings  -->
                     <TabItem Classes="ModalVerticalTabItem" Header="Settings">
-                        <Border Classes="ModalScrollableWrapper">
-                            <!-- TODO -->
+                        <Border Classes="ModalScrollableWrapper" Padding="25">
+                            <TabControl Classes="ModalTab">
+                                <!-- Java Settings  -->
+                                <TabItem Classes="ModalTabItem" Header="Java">
+                                    <Border Classes="ModalScrollableWrapper" Background="{StaticResource base-200}" Padding="15, 15, 10, 15" Margin="0, -2, 0, 0">
+                                        <ScrollViewer Padding="0, 0, 15, 0">
+                                            <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto" RowSpacing="10">
+                                                 <!-- Minimum Memory -->
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <!-- Text -->
+                                                    <TextBlock Name="StMinMemoryTb" Classes="NumericInput">Minimum memory</TextBlock>
+                                                    <!-- Input -->
+                                                    <NumericUpDown
+                                                        Grid.Column="1"
+                                                        Name="StMinMemoryInput"
+                                                        FormatString="0\ MB"
+                                                        Classes="NumericInput"
+                                                        Increment="1"
+                                                        Minimum="512"
+                                                        Maximum="131072"
+                                                        Value="512" />
+                                                </Grid>
+                                                <!-- Maximum Memory -->
+                                                <Grid Grid.Row="1">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <!-- Text -->
+                                                    <TextBlock Name="StMaxMemoryTb" Classes="NumericInput">Maximum memory</TextBlock>
+                                                    <!-- Input -->
+                                                    <NumericUpDown
+                                                        Grid.Column="1"
+                                                        Name="StMaxMemoryInput"
+                                                        FormatString="0\ MB"
+                                                        Classes="NumericInput"
+                                                        Increment="1"
+                                                        Minimum="512"
+                                                        Maximum="131072"
+                                                        Value="2048" />
+                                                </Grid>
+                                                <!-- PermGen -->
+                                                <Grid Grid.Row="2">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <!-- Text -->
+                                                    <TextBlock Name="StPermaGenTb" Classes="NumericInput">PermGen</TextBlock>
+                                                    <!-- Input -->
+                                                    <NumericUpDown
+                                                        Grid.Column="1"
+                                                        Name="StPermaGenInput"
+                                                        FormatString="0\ MB"
+                                                        Classes="NumericInput"
+                                                        Increment="1"
+                                                        Minimum="8"
+                                                        Maximum="1024"
+                                                        Value="128" />
+                                                </Grid>
+                                                <!-- Java Path -->
+                                                <Grid Grid.Row="3" ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto">
+                                                    <!-- Text -->
+                                                    <TextBlock Name="StJavaPathTb" Classes="TextInput">Java path</TextBlock>
+                                                    <!-- Input -->
+                                                    <TextBox
+                                                        Grid.Column="1"
+                                                        Name="StJavaPathInput"
+                                                        Classes="TextInput"
+                                                        Watermark="Select a directory..." />
+                                                    <Button Grid.Column="2" Classes="IconBtn">
+                                                        <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                                    </Button>
+                                                </Grid>
+                                                <!-- JVM Arguments -->
+                                                <TextBlock Grid.Row="4" Name="StJvmArgsTb" Classes="SettingsCategory">
+                                                    JVM Arguments
+                                                </TextBlock>
+                                                <TextBox Grid.Row="5"
+                                                         Name="StJvmArgsInput"
+                                                         MaxLines="512"
+                                                         MinHeight="128"
+                                                         TextWrapping="Wrap" />
+                                            </Grid>
+                                        </ScrollViewer>
+                                    </Border>
+                                </TabItem>
+                            </TabControl>
                         </Border>
                     </TabItem>
                 </TabControl>

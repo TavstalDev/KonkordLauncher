@@ -546,8 +546,8 @@
                             <TabControl Classes="ModalTab">
                                 <!-- Java Settings  -->
                                 <TabItem Classes="ModalTabItem" Header="Java">
-                                    <Border Classes="ModalScrollableWrapper" Background="{StaticResource base-200}" Padding="15, 15, 10, 15" Margin="0, -2, 0, 0">
-                                        <ScrollViewer Padding="0, 0, 15, 0">
+                                    <Border Classes="ModalInnerScrollableWrapper">
+                                        <ScrollViewer Classes="ModalScrollViewer">
                                             <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto" RowSpacing="10">
                                                  <!-- Minimum Memory -->
                                                 <Grid>
@@ -610,6 +610,188 @@
                                                          MaxLines="512"
                                                          MinHeight="128"
                                                          TextWrapping="Wrap" />
+                                            </Grid>
+                                        </ScrollViewer>
+                                    </Border>
+                                </TabItem>
+                                <!-- Game Settings  -->
+                                <TabItem Classes="ModalTabItem" Header="Game">
+                                    <Border Classes="ModalInnerScrollableWrapper">
+                                        <ScrollViewer Classes="ModalScrollViewer">
+                                            <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto" RowSpacing="10">
+                                                <!-- Window Settings  -->
+                                                <TextBlock Name="StWindowSubtitleTb" Classes="SettingsCategory">
+                                                    Window
+                                                </TextBlock>
+                                                <!--  Minecraft Maximized  -->
+                                                <CheckBox Grid.Row="1" Name="StMinecraftMaximizedCb">
+                                                    <TextBlock Name="StMinecraftMaximizedTb" Text="Start Minecraft maximized" />
+                                                </CheckBox>
+                                                <!--  Window Width  -->
+                                                <Grid Grid.Row="2">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <!--  Text  -->
+                                                    <TextBlock Name="StWindowWidthTb" Classes="NumericInput">Window width</TextBlock>
+                                                    <!--  Input  -->
+                                                    <NumericUpDown
+                                                        Name="StWindowWidthInput"
+                                                        Grid.Column="1"
+                                                        Classes="NumericInput"
+                                                        FormatString="0"
+                                                        Increment="1"
+                                                        Maximum="1920"
+                                                        Minimum="100"
+                                                        Value="1920" />
+                                                </Grid>
+                                                <!--  Window Height  -->
+                                                <Grid Grid.Row="3">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <!--  Text  -->
+                                                    <TextBlock Name="StWindowHeightTb" Classes="NumericInput">Window height</TextBlock>
+                                                    <!--  Input  -->
+                                                    <NumericUpDown
+                                                        Name="StWindowHeightInput"
+                                                        Grid.Column="1"
+                                                        Classes="NumericInput"
+                                                        FormatString="0"
+                                                        Increment="1"
+                                                        Maximum="1080"
+                                                        Minimum="100"
+                                                        Value="1080" />
+                                                </Grid>
+                                                <!-- Console Settings  -->
+                                                <TextBlock Grid.Row="4" Name="StConsoleSubtitleTb" Classes="SettingsCategory">
+                                                    Console
+                                                </TextBlock>
+                                                <!--  Show console  -->
+                                                <CheckBox Grid.Row="5" Name="StShowConsoleCb">
+                                                    <TextBlock Name="StShowConsoleTb" Text="Show console while minecraft is running" />
+                                                </CheckBox>
+                                                <!--  Auto close console  -->
+                                                <CheckBox Grid.Row="6" Name="StCloseConsoleOnQuitCb">
+                                                    <TextBlock Name="StCloseConsoleOnQuitTb" Text="Close console when minecraft quits" />
+                                                </CheckBox>
+                                                <!-- Show console on crash  -->
+                                                <CheckBox Grid.Row="7" Name="StShowConsoleOnCrashCb">
+                                                    <TextBlock Name="StShowConsoleOnCrashTb" Text="Show console when minecraft crashes" />
+                                                </CheckBox>
+                                                <!-- Performance Settings  -->
+                                                <TextBlock Grid.Row="8" Name="StPerformanceSubtitleTb" Classes="SettingsCategory">
+                                                    Performance
+                                                </TextBlock>
+                                                <!--  Enable Feral GameMode  -->
+                                                <CheckBox Grid.Row="9" Name="StFeralGameModeCb">
+                                                    <TextBlock Name="StFeralGameModeTb" Text="Enable Feral GameMode" />
+                                                </CheckBox>
+                                                <!--  Enable MangoHud  -->
+                                                <CheckBox Grid.Row="10" Name="StEnableMangoHudCb">
+                                                    <TextBlock Name="StEnableMangoHudTb" Text="Enable MangoHud" />
+                                                </CheckBox>
+                                                <!--  Use dedicated GPU  -->
+                                                <CheckBox Grid.Row="11" Name="StUseDedicatedGpuCb">
+                                                    <TextBlock Name="StUseDedicatedGpuTb" Text="Use dedicated GPU" />
+                                                </CheckBox>
+                                            </Grid>
+                                        </ScrollViewer>
+                                    </Border>
+                                </TabItem>
+                                <!-- Custom Commands Settings  -->
+                                <TabItem Classes="ModalTabItem" Header="Custom Commands">
+                                    <Border Classes="ModalInnerScrollableWrapper">
+                                        <ScrollViewer Classes="ModalScrollViewer">
+                                            <Grid RowDefinitions="Auto, Auto, Auto" RowSpacing="10">
+                                                <!--  Pre-launch Command  -->
+                                                <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto">
+                                                    <!--  Text  -->
+                                                    <TextBlock Name="StPreLaunchTb" Classes="TextInput">Pre-launch</TextBlock>
+                                                    <!--  Input  -->
+                                                    <TextBox
+                                                        Name="StPreLaunchInput"
+                                                        Grid.Column="1"
+                                                        Classes="TextInput"
+                                                        Text="" />
+                                                </Grid>
+                                                <!--  Wrapper Command  -->
+                                                <Grid Grid.Row="1" ColumnDefinitions="Auto, *" RowDefinitions="Auto">
+                                                    <!--  Text  -->
+                                                    <TextBlock Name="StWrapperTb" Classes="TextInput">Wrapper</TextBlock>
+                                                    <!--  Input  -->
+                                                    <TextBox
+                                                        Name="StWrapperInput"
+                                                        Grid.Column="1"
+                                                        Classes="TextInput"
+                                                        Text="" />
+                                                </Grid>
+                                                <!--  Post-exit Command  -->
+                                                <Grid Grid.Row="2" ColumnDefinitions="Auto, *" RowDefinitions="Auto">
+                                                    <!--  Text  -->
+                                                    <TextBlock Name="StPostExitTb" Classes="TextInput">Post-exit</TextBlock>
+                                                    <!--  Input  -->
+                                                    <TextBox
+                                                        Name="StPostExitInput"
+                                                        Grid.Column="1"
+                                                        Classes="TextInput"
+                                                        Text="" />
+                                                </Grid>
+                                            </Grid>
+                                        </ScrollViewer>
+                                    </Border>
+                                </TabItem>
+                                <!-- Environment Settings  -->
+                                <TabItem Classes="ModalTabItem" Header="Environment">
+                                    <Border Classes="ModalInnerScrollableWrapper">
+                                        <ScrollViewer Classes="ModalScrollViewer">
+                                            <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto" RowSpacing="10">
+                                                
+                                            </Grid>
+                                        </ScrollViewer>
+                                    </Border>
+                                </TabItem>
+                                <!-- Misc Settings  -->
+                                <TabItem Classes="ModalTabItem" Header="Misc">
+                                    <Border Classes="ModalInnerScrollableWrapper">
+                                        <ScrollViewer Classes="ModalScrollViewer">
+                                            <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto" RowSpacing="10">
+                                                <!--  Subtitle  -->
+                                                <TextBlock Name="StNativeLibrariesTb" Classes="SettingsCategory">
+                                                    Native libraries
+                                                </TextBlock>
+                                                <!--  Use custom GLFW  -->
+                                                <CheckBox Grid.Row="1" Name="StUseCustomGlfwCb">
+                                                    <TextBlock Name="StUseCustomGlfwTb" Text="Use custom GLFW" />
+                                                </CheckBox>
+                                                <!--  GLFW library path  -->
+                                                <Grid Grid.Row="2" ColumnDefinitions="Auto, *" RowDefinitions="Auto">
+                                                    <!--  Text  -->
+                                                    <TextBlock Name="StGlfwPathTb" Classes="TextInput">GLFW library path</TextBlock>
+                                                    <!--  Input  -->
+                                                    <TextBox
+                                                        Name="StGlfwPathInput"
+                                                        Grid.Column="1"
+                                                        Classes="TextInput"
+                                                        Text="" />
+                                                </Grid>
+                                                <!--  Use custom OpenAL  -->
+                                                <CheckBox Grid.Row="3" Name="StUseCustomOpenAlCb">
+                                                    <TextBlock Name="StUseCustomOpenAlTb" Text="Use custom OpenAL" />
+                                                </CheckBox>
+                                                <!--  OpenAL library path  -->
+                                                <Grid Grid.Row="4" ColumnDefinitions="Auto, *" RowDefinitions="Auto">
+                                                    <!--  Text  -->
+                                                    <TextBlock Name="StOpenAlPathTb" Classes="TextInput">OpenAL library path</TextBlock>
+                                                    <!--  Input  -->
+                                                    <TextBox
+                                                        Name="StOpenAlPathInput"
+                                                        Grid.Column="1"
+                                                        Classes="TextInput"
+                                                        Text="" />
+                                                </Grid>
                                             </Grid>
                                         </ScrollViewer>
                                     </Border>

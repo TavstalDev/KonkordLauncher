@@ -128,6 +128,21 @@
         <Setter Property="RowSpacing" Value="15" />
     </Style>
     
+    <!-- ScrollViewer for Modals -->
+    <Style Selector="ScrollViewer.ModalScrollViewer">
+        <Setter Property="Padding" Value="0,0,15,0" />
+    </Style>
+    
+    <!-- Scrollable Inner Wrapper Border for Modals -->
+    <Style Selector="Border.ModalInnerScrollableWrapper">
+        <Setter Property="Background" Value="{StaticResource base-200}" />
+        <Setter Property="BorderBrush" Value="{StaticResource border-two}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="0, 8, 8, 0" />
+        <Setter Property="Padding" Value="15,15,10,15" />
+        <Setter Property="Margin" Value="0, -2, 0, 0" />
+    </Style>
+    
     <!-- ScrollViewer for Tables -->
     <Style Selector="ScrollViewer.TableScrollViewer">
         <Setter Property="HorizontalScrollBarVisibility" Value="Auto" />

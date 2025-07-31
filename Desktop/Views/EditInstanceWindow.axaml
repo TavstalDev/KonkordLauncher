@@ -748,7 +748,13 @@
                                     <Border Classes="ModalInnerScrollableWrapper">
                                         <ScrollViewer Classes="ModalScrollViewer">
                                             <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto" RowSpacing="10">
-                                                
+                                                <!--  Enable Env vars -->
+                                                <CheckBox Grid.Row="1" Name="StUseEnvVarsCb">
+                                                    <TextBlock Name="StUseEnvVarsTb" Text="Enable Environment Variables" />
+                                                </CheckBox>
+                                                <!-- Table -->
+                                                <!-- TODO -->
+                                                <!-- Buttons -->
                                             </Grid>
                                         </ScrollViewer>
                                     </Border>
@@ -757,7 +763,7 @@
                                 <TabItem Classes="ModalTabItem" Header="Misc">
                                     <Border Classes="ModalInnerScrollableWrapper">
                                         <ScrollViewer Classes="ModalScrollViewer">
-                                            <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto" RowSpacing="10">
+                                            <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto" RowSpacing="10">
                                                 <!--  Subtitle  -->
                                                 <TextBlock Name="StNativeLibrariesTb" Classes="SettingsCategory">
                                                     Native libraries
@@ -788,6 +794,43 @@
                                                     <!--  Input  -->
                                                     <TextBox
                                                         Name="StOpenAlPathInput"
+                                                        Grid.Column="1"
+                                                        Classes="TextInput"
+                                                        Text="" />
+                                                </Grid>
+                                                <!-- Preference Settings  -->
+                                                <TextBlock Grid.Row="5" Name="StPreferenceSubtitleTb" Classes="SettingsCategory">
+                                                    Preferences
+                                                </TextBlock>
+                                                <!--  Override Account  -->
+                                                <CheckBox Grid.Row="6" Name="StOverrideAccountCb">
+                                                    <TextBlock Name="StOverrideAccountTb" Text="Override default account" />
+                                                </CheckBox>
+                                                <!--  Account  -->
+                                                <Grid Grid.Row="7" ColumnDefinitions="Auto, *">
+                                                    <!--  Text  -->
+                                                    <TextBlock Name="StOverridenAccountTb" Classes="TextDropdown">Account</TextBlock>
+                                                    <!--  Input  -->
+                                                    <ComboBox
+                                                        Name="StOverridenAccountInput"
+                                                        Grid.Column="1"
+                                                        Classes="TextDropdown"
+                                                        SelectedIndex="0">
+                                                        <ComboBoxItem Content="PlayerOne" />
+                                                        <ComboBoxItem Content="PlayerTwo" />
+                                                    </ComboBox>
+                                                </Grid>
+                                                <!--  Set target server  -->
+                                                <CheckBox Grid.Row="8" Name="StTargetServerCb">
+                                                    <TextBlock Name="StTargetServerTb" Text="Set server address to join on launch" />
+                                                </CheckBox>
+                                                <!--  Server address  -->
+                                                <Grid Grid.Row="9" ColumnDefinitions="Auto, *">
+                                                    <!--  Text  -->
+                                                    <TextBlock Name="StServerAddressTb" Classes="TextDropdown">Server address</TextBlock>
+                                                    <!--  Input  -->
+                                                    <TextBox
+                                                        Name="StServerAddressInput"
                                                         Grid.Column="1"
                                                         Classes="TextInput"
                                                         Text="" />

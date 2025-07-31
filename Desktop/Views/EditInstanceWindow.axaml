@@ -587,25 +587,6 @@
                                                         Maximum="131072"
                                                         Value="2048" />
                                                 </Grid>
-                                                <!-- PermGen -->
-                                                <Grid Grid.Row="2">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="Auto" />
-                                                        <ColumnDefinition Width="*" />
-                                                    </Grid.ColumnDefinitions>
-                                                    <!-- Text -->
-                                                    <TextBlock Name="StPermaGenTb" Classes="NumericInput">PermGen</TextBlock>
-                                                    <!-- Input -->
-                                                    <NumericUpDown
-                                                        Grid.Column="1"
-                                                        Name="StPermaGenInput"
-                                                        FormatString="0\ MB"
-                                                        Classes="NumericInput"
-                                                        Increment="1"
-                                                        Minimum="8"
-                                                        Maximum="1024"
-                                                        Value="128" />
-                                                </Grid>
                                                 <!-- Java Path -->
                                                 <Grid Grid.Row="3" ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto">
                                                     <!-- Text -->

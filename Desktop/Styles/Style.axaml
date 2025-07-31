@@ -36,6 +36,11 @@
     <Style Selector="StackPanel.MainContentArea">
         <Setter Property="Margin" Value="20" />
     </Style>
+    
+    <!--  MainContentArea Grid  -->
+    <Style Selector="Grid.MainContentArea">
+        <Setter Property="Margin" Value="20" />
+    </Style>
 
     <!--  MainContentTitle  -->
     <Style Selector="TextBlock.MainContentTitle">

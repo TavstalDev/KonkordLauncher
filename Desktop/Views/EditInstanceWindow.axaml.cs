@@ -404,4 +404,9 @@ public partial class EditInstanceWindow : Window
         // Assign the ContextMenu to the row
         row.ContextMenu = contextMenu;
     }
+
+    private void EnvironmentTable_OnCellEditEnded(object? sender, DataGridCellEditEndedEventArgs e)
+    {
+        // TODO
+    }
 }

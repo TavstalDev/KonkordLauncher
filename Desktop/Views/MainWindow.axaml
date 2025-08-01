@@ -158,11 +158,6 @@
                     Classes="SidebarBtn SecondaryBtn"
                     Click="OnSettingsSideButtonClick"
                     Content="Settings" />
-                <Button
-                    Name="TestBtn"
-                    Classes="SidebarBtn WarningBtn"
-                    Click="OnTestButtonClick"
-                    Content="Test" />
             </StackPanel>
 
             <!--  Footer with Version and Copyright  -->

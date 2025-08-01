@@ -151,10 +151,4 @@ public partial class MainWindow : Window
 
     #endregion
     #endregion
-
-    private void OnTestButtonClick(object? sender, RoutedEventArgs e)
-    {
-        var dialog = new EditInstanceWindow();
-        dialog.ShowDialog(this);
-    }
 }

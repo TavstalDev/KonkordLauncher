@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using Tavstal.KonkordLauncher.Desktop.Models;
+using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 
 namespace Tavstal.KonkordLauncher.Desktop.ViewModels;
 
@@ -16,6 +17,8 @@ public class EditInstanceViewModel : ViewModelBase
     public ObservableCollection<ServerModel> Servers { get; set; }
     
     public ObservableCollection<ScreenshotModel> Screenshots { get; set; }
+
+    public ObservableDictionary<string, string> EnvironmentVariables { get; set; } = new();
     
     public EditInstanceViewModel()
     {
@@ -70,6 +73,10 @@ public class EditInstanceViewModel : ViewModelBase
                 Name = "Server 1",
                 Address = "server1.example.com"
             }
+        ];
+        EnvironmentVariables =
+        [
+            new ("JAVA_HOME", "C:\\Program Files\\Java\\jdk-17"),
         ];
     }
 }

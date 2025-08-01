@@ -1,4 +1,4 @@
-namespace Tavstal.KonkordLauncher.Desktop.Enums;
+namespace Tavstal.KonkordLauncher.Desktop.Models.Enums;
 
 /// <summary>
 /// Represents the different types of alerts that can be displayed in the application.

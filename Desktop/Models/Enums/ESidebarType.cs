@@ -1,4 +1,4 @@
-namespace Tavstal.KonkordLauncher.Desktop.Enums;
+namespace Tavstal.KonkordLauncher.Desktop.Models.Enums;
 
 /// <summary>
 /// Represents the different types of sidebar options available in the application.

@@ -1,9 +1,19 @@
 namespace Tavstal.KonkordLauncher.Core.Helpers;
 
-public class PathHelper
+public static class PathHelper
 {
-    public static readonly string ApplicationDir = Directory.GetCurrentDirectory();
-    
+    public static string ApplicationDir
+    {
+        get
+        {
+#if DEBUG
+            return Path.Combine(Directory.GetCurrentDirectory(), "LauncherDebug");
+#else
+             return Directory.GetCurrentDirectory();
+#endif
+        }
+    }
+
     public static readonly string InstancesDir = Path.Combine(ApplicationDir, "instances");
     
     public static readonly string TranslationsDir = Path.Combine(ApplicationDir, "translations");

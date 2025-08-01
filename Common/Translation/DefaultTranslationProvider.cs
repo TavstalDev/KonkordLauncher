@@ -14,13 +14,24 @@ public static class DefaultTranslationProvider
         
         {"startup.title", "Konkord Launcher"},
         {"startup.subtitle", "A modern Minecraft launcher"},
+        
+        {"startup.progress.initializing", "Initializing..."},
+        {"startup.validation.dataFolder", "Validating data folder..."},
+        {"startup.validation.dataFolderFailed", "Failed to validate data folder."},
+        {"startup.validation.settings", "Validating settings..."},
+        {"startup.validation.settingsFailed", "Failed to validate settings."},
+        {"startup.validation.translations", "Validating translations..."},
+        {"startup.validation.translationsFailed", "Failed to validate translations."},
+        {"startup.validation.accounts", "Validating accounts..."},
+        {"startup.validation.accountsFailed", "Failed to validate accounts."},
+        {"startup.validation.manifests", "Validating manifests..."},
+        {"startup.validation.manifestsFailed", "Failed to validate manifests."},
+        {"startup.validation.java", "Validating Java installations..."},
+        {"startup.validation.javaFailed", "Java is not installed. Please install Java 8 or minecraft will not run."},
+        
         {"startup.progress.checking", "Checking for updates..."},
         {"startup.progress.updating", "Updating..."},
-        {"startup.progress.initializing", "Initializing..."},
-        {"startup.progress.loading", "Loading..."},
-        {"startup.progress.loadingAssets", "Loading assets..."},
-        {"startup.progress.loadingLibraries", "Loading libraries..."},
-        {"startup.progress.loadingInstances", "Loading instances..."},
+        {"startup.progress.restarting", "Restarting..."},
         
         #endregion
     };

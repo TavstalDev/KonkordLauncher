@@ -169,7 +169,7 @@ public static class TranslationManager
     /// <returns>The translated string.</returns>
     public static string Translate(string key, params object[]? args)
     {
-        if (_translations == null)
+        if (_translations == null || _currentLanguage == null)
             return FallbackTranslate(key, args);
 
         if (!_translations.ContainsKey(key))

@@ -1,57 +1,33 @@
-using System.Diagnostics;
 using System.Text.Json;
-using Tavstal.KonkordLauncher.Common.Managers;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints;
-using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
 
 namespace Tavstal.KonkordLauncher.Common.Helpers;
 
+/// <summary>
+/// Provides helper methods for validating various launcher components, such as data folders, settings, accounts, and manifests.
+/// </summary>
 public static class ValidationHelper
 {
+    /// <summary>
+    /// Logger instance for the ValidationHelper module.
+    /// </summary>
     private static readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(ValidationHelper));
-    
-    // TODO: Probably should be moved to Desktop
-    
-    public static async Task<bool> ValidateJava()
-    {
-        try
-        {
-            await Task.Delay(1); // Disable warning, made async because it might be changed in the future
-            ProcessStartInfo psi = new ProcessStartInfo();
-            psi.FileName = "java";
-            psi.Arguments = " --version";
-            psi.RedirectStandardError = true;
-            psi.UseShellExecute = false;
 
-            Process? pr = Process.Start(psi);
-            if (pr == null)
-            {
-                _logger.Error("Failed to start Java process. Is Java installed?");
-                return false;
-            }
-
-            /*string javaVersion = pr.StandardError.ReadLine().Split(' ')[2].Replace("\"", "");
-            string majorVersion = javaVersion.Split(".")[0];
-            int majorV = int.Parse(majorVersion);*/
-            return true;
-        }
-        catch (Exception ex)
-        {
-            _logger.Exc("Failed to validate Java:");
-            _logger.Error(ex.ToString());
-            return false;
-        }
-
-    }
-    
+    /// <summary>
+    /// Validates the existence of required data folders and creates them if they do not exist.
+    /// </summary>
+    /// <returns>True if all required folders are validated or created successfully, otherwise false.</returns>
     public static bool ValidateDataFolder()
     {
         try
         {
+            if (!Directory.Exists(PathHelper.ApplicationDir))
+                Directory.CreateDirectory(PathHelper.ApplicationDir);
+            
             if (!Directory.Exists(PathHelper.InstancesDir))
                 Directory.CreateDirectory(PathHelper.InstancesDir);
 
@@ -73,7 +49,7 @@ public static class ValidationHelper
             string indexes = Path.Combine(PathHelper.AssetsDir, "indexes");
             if (!Directory.Exists(indexes))
                 Directory.CreateDirectory(indexes);
-            
+
             if (!Directory.Exists(PathHelper.ManifestDir))
                 Directory.CreateDirectory(PathHelper.ManifestDir);
 
@@ -86,7 +62,11 @@ public static class ValidationHelper
             return false;
         }
     }
-    
+
+    /// <summary>
+    /// Validates the launcher settings file and creates a default one if it does not exist.
+    /// </summary>
+    /// <returns>True if the settings file is validated or created successfully, otherwise false.</returns>
     public static async Task<bool> ValidateSettings()
     {
         try
@@ -100,7 +80,6 @@ public static class ValidationHelper
                     IgnoreReadOnlyFields = true,
                     IgnoreReadOnlyProperties = true,
                     WriteIndented = true
-
                 });
                 stream.Position = 0;
                 var reader = new StreamReader(stream);
@@ -117,7 +96,11 @@ public static class ValidationHelper
             return false;
         }
     }
-    
+
+    /// <summary>
+    /// Validates the launcher accounts file and ensures it contains valid account data.
+    /// </summary>
+    /// <returns>True if the accounts file is validated successfully, otherwise false.</returns>
     public static async Task<bool> ValidateAccounts()
     {
         try
@@ -127,7 +110,7 @@ public static class ValidationHelper
                 AccountData accountData = new AccountData()
                 {
                     SelectedAccountId = "",
-                    Accounts = new Dictionary<string, Account> { }
+                    Accounts = new Dictionary<string, Account>()
                 };
 
                 await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData);
@@ -166,125 +149,41 @@ public static class ValidationHelper
         }
     }
 
-    public static async Task<bool> ValidateTranslations()
-    {
-        try
-        {
-            LauncherSettings? settings = LauncherHelper.GetLauncherSettings();
-
-            string defaultTranslationFile = Path.Combine(PathHelper.TranslationsDir, "eng.json");
-            if (!File.Exists(defaultTranslationFile))
-            {
-                await TranslationManager.SaveTranslationAsync(defaultTranslationFile,
-                    TranslationManager.DefaultTranslations);
-            }
-            else
-            {
-                string localRawTrans = await File.ReadAllTextAsync(defaultTranslationFile);
-                var defaultTranslationsLocal = Newtonsoft.Json.JsonConvert
-                    .DeserializeObject<Dictionary<string, string>>(localRawTrans);
-
-                if (defaultTranslationsLocal == null ||
-                    defaultTranslationsLocal.Count != TranslationManager.DefaultTranslations.Count)
-                {
-                    await TranslationManager.SaveTranslationAsync(defaultTranslationFile,
-                        TranslationManager.DefaultTranslations);
-                }
-            }
-
-            if (settings != null)
-            {
-                string localePath = Path.Combine(PathHelper.TranslationsDir, $"{settings.Language}.json");
-                if (File.Exists(localePath))
-                {
-                    var localLocale = await TranslationManager.ReadTranslationAsync(localePath);
-                    if (localLocale is { Count: > 0 })
-                    {
-                        if (TranslationManager.DefaultTranslations.Count != localLocale.Count)
-                        {
-                            var mixedLocalization =
-                                new Dictionary<string, string>(TranslationManager.DefaultTranslations);
-                            foreach (var entry in localLocale)
-                            {
-                                mixedLocalization[entry.Key] = entry.Value;
-                            }
-
-                            await TranslationManager.SaveTranslationAsync(localePath, mixedLocalization);
-                            TranslationManager.SetTranslations(mixedLocalization);
-                        }
-                        else
-                        {
-                            TranslationManager.SetTranslations(localLocale);
-                        }
-                    }
-                    else if (localLocale?.Count == 0 && settings.Language == "en")
-                    {
-                        await TranslationManager.SaveTranslationAsync(localePath,
-                            TranslationManager.DefaultTranslations);
-                        TranslationManager.SetTranslations(TranslationManager.DefaultTranslations);
-                    }
-                    else
-                    {
-                        _logger.Error("Failed to read translations from the file, using default translations.");
-                        TranslationManager.SetTranslations(TranslationManager.DefaultTranslations);
-                    }
-                }
-                else if (TranslationManager.LanguagePacks.Any(x => x.TwoLetterCode == settings.Language))
-                {
-                    var lang = TranslationManager.LanguagePacks.Find(x => x.TwoLetterCode == settings.Language);
-                    if (lang != null)
-                    {
-                        string? resultJson = await HttpHelper.GetStringAsync(lang.Url);
-                        var translation = JsonSerializer.Deserialize<Dictionary<string, string>>(resultJson)
-                                          ?? TranslationManager.DefaultTranslations;
-
-                        await TranslationManager.SaveTranslationAsync(localePath, translation);
-                        TranslationManager.SetTranslations(translation);
-                    }
-                }
-            }
-
-            return true;
-        }
-        catch (Exception ex)
-        {
-            _logger.Error("Failed to validate translations:");
-            _logger.Error(ex.ToString());
-            return false;
-        }
-    }
-
+    /// <summary>
+    /// Validates the existence of required manifest files and downloads them if they do not exist.
+    /// </summary>
+    /// <returns>True if all required manifest files are validated or downloaded successfully, otherwise false.</returns>
     public static async Task<bool> ValidateManifests()
     {
         try
         {
             using var httpClient = new HttpClient();
-            
+
             // Vanilla
             if (!File.Exists(PathHelper.VanillaManifestPath))
             {
-                string? json = await httpClient.GetStringAsync(MicrosoftEndpoints.MinecraftManifestUrl);
+                string json = await httpClient.GetStringAsync(MicrosoftEndpoints.MinecraftManifestUrl);
                 await File.WriteAllTextAsync(PathHelper.VanillaManifestPath, json);
             }
-            
+
             // Fabric
             if (!File.Exists(PathHelper.FabricManifestPath))
             {
-                string? json = await httpClient.GetStringAsync(FabricEndpoints.VersionManifestUrl);
+                string json = await httpClient.GetStringAsync(FabricEndpoints.VersionManifestUrl);
                 await File.WriteAllTextAsync(PathHelper.FabricManifestPath, json);
             }
-            
+
             // Forge
             if (!File.Exists(PathHelper.ForgeManifestPath))
             {
-                string? json = await httpClient.GetStringAsync(ForgeEndpoints.VersionManifest);
+                string json = await httpClient.GetStringAsync(ForgeEndpoints.VersionManifest);
                 await File.WriteAllTextAsync(PathHelper.ForgeManifestPath, json);
             }
-            
+
             // Quilt
             if (!File.Exists(PathHelper.QuiltManifestPath))
             {
-                string? json = await httpClient.GetStringAsync(QuiltEndpoints.VersionManifestUrl);
+                string json = await httpClient.GetStringAsync(QuiltEndpoints.VersionManifestUrl);
                 await File.WriteAllTextAsync(PathHelper.QuiltManifestPath, json);
             }
 

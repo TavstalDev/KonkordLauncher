@@ -747,14 +747,52 @@
                                 <TabItem Classes="ModalTabItem" Header="Environment">
                                     <Border Classes="ModalInnerScrollableWrapper">
                                         <ScrollViewer Classes="ModalScrollViewer">
-                                            <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto" RowSpacing="10">
+                                            <Grid RowDefinitions="Auto, *, Auto" RowSpacing="10">
                                                 <!--  Enable Env vars -->
-                                                <CheckBox Grid.Row="1" Name="StUseEnvVarsCb">
+                                                <CheckBox Name="StUseEnvVarsCb">
                                                     <TextBlock Name="StUseEnvVarsTb" Text="Enable Environment Variables" />
                                                 </CheckBox>
-                                                <!-- Table -->
-                                                <!-- TODO -->
-                                                <!-- Buttons -->
+                                                <!--  Content  -->
+                                                <Border Grid.Row="1">
+                                                    <ScrollViewer Classes="TableScrollViewer">
+                                                        <DataGrid
+                                                            Classes="InstanceMultiTable"
+                                                            IsReadOnly="False"
+                                                            ItemsSource="{Binding EnvironmentVariables}" 
+                                                            CellEditEnded="EnvironmentTable_OnCellEditEnded">
+                                                            <DataGrid.Columns>
+                                                                <!-- Name  -->
+                                                                <DataGridTextColumn
+                                                                    Width="Auto"
+                                                                    Binding="{Binding Key}"
+                                                                    Header="Name" />
+                                                                <!-- Value -->
+                                                                <DataGridTextColumn
+                                                                    Width="Auto"
+                                                                    Binding="{Binding Value}"
+                                                                    Header="Value" />
+                                                            </DataGrid.Columns>
+                                                        </DataGrid>
+                                                    </ScrollViewer>
+                                                </Border>
+                                                <!--  Actions  -->
+                                                <Grid
+                                                    Grid.Row="2"
+                                                    ColumnDefinitions="Auto, Auto, Auto"
+                                                    ColumnSpacing="5">
+                                                    <!--  Add button  -->
+                                                    <Button Classes="IconBtn">
+                                                        <TextBlock Text="Add" />
+                                                    </Button>
+                                                    <!--  Remove button  -->
+                                                    <Button Grid.Column="1" Classes="IconBtn">
+                                                        <TextBlock Text="Remove" />
+                                                    </Button>
+                                                    <!--  Clear button  -->
+                                                    <Button Grid.Column="2" Classes="IconBtn">
+                                                        <TextBlock Text="Clear" />
+                                                    </Button>
+                                                </Grid>
                                             </Grid>
                                         </ScrollViewer>
                                     </Border>

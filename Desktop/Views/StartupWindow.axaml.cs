@@ -1,22 +1,45 @@
+using System;
+using System.Reflection;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
+using Newtonsoft.Json.Linq;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Translation;
+using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.ViewModels;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views;
 
+/// <summary>
+/// Represents the startup window of the application, responsible for initializing and validating
+/// various components before launching the main application window.
+/// </summary>
 public partial class StartupWindow : Window, IProgressReporter
 {
+    /// <summary>
+    /// The application lifetime instance for managing the desktop-style application lifecycle.
+    /// </summary>
     private readonly IClassicDesktopStyleApplicationLifetime _desktopLifetime;
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(StartupWindow));
-    private readonly int _stepDelay = 100; // Delay in milliseconds for each validation step
 
+    /// <summary>
+    /// Logger instance for the StartupWindow class.
+    /// </summary>
+    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(StartupWindow));
+
+    /// <summary>
+    /// Delay in milliseconds for each validation step.
+    /// </summary>
+    private readonly int _stepDelay = 100;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="StartupWindow"/> class.
+    /// </summary>
+    /// <param name="desktopLifetime">The application lifetime instance.</param>
     public StartupWindow(IClassicDesktopStyleApplicationLifetime desktopLifetime)
     {
         InitializeComponent();
@@ -30,16 +53,22 @@ public partial class StartupWindow : Window, IProgressReporter
         this.DataContext = new StartupViewModel();
     }
 
+    /// <summary>
+    /// Event handler for the window's loaded event. Starts the validation process asynchronously.
+    /// </summary>
     private void Window_OnLoaded(object? sender, RoutedEventArgs e)
     {
         Task.Run(ValidateAsync);
     }
 
+    /// <summary>
+    /// Performs a series of validation steps asynchronously to ensure the application is ready to run.
+    /// </summary>
     private async Task ValidateAsync()
     {
         // 0. Set initial status
         SetStatusTranslated("startup.progress.initializing");
-        
+
         // 1. Validate Directory Structure
         SetStatusTranslated("startup.validation.dataFolder");
         await Task.Delay(_stepDelay);
@@ -48,7 +77,7 @@ public partial class StartupWindow : Window, IProgressReporter
             SetStatusTranslated("startup.validation.dataFolderFailed");
             return;
         }
-        
+
         // 2. Validate Settings
         SetStatusTranslated("startup.validation.settings");
         await Task.Delay(_stepDelay);
@@ -57,12 +86,12 @@ public partial class StartupWindow : Window, IProgressReporter
             SetStatusTranslated("startup.validation.settingsFailed");
             return;
         }
-        
+
         // 3. Validate Translations
         SetStatusTranslated("startup.validation.translations");
         await Task.Delay(_stepDelay);
         await TranslationManager.InitializeTranslations();
-        
+
         // 5. Validate Accounts
         SetStatusTranslated("startup.validation.accounts");
         await Task.Delay(_stepDelay);
@@ -71,7 +100,7 @@ public partial class StartupWindow : Window, IProgressReporter
             SetStatusTranslated("startup.validation.accountsFailed");
             return;
         }
-        
+
         // 7. Validate Manifests
         SetStatusTranslated("startup.validation.manifests");
         await Task.Delay(_stepDelay);
@@ -80,7 +109,7 @@ public partial class StartupWindow : Window, IProgressReporter
             SetStatusTranslated("startup.validation.manifestsFailed");
             return;
         }
-        
+
         // 8. Validate Java
         SetStatusTranslated("startup.validation.java");
         await Task.Delay(_stepDelay);
@@ -90,15 +119,11 @@ public partial class StartupWindow : Window, IProgressReporter
             return;
         }
 
-        
         // 9. Check for Updates
         SetStatusTranslated("startup.progress.checking");
         await Task.Delay(_stepDelay);
-        // TODO:
-        // Check if the launcher is up to date.
-        // If not, download the update
-        // then start the console app to replace the current executable.
-        // After that, restart the launcher
+        if (await CheckUpdateAsync())
+            return;
 
         Dispatcher.UIThread.Post(() =>
         {
@@ -108,6 +133,78 @@ public partial class StartupWindow : Window, IProgressReporter
         });
     }
 
+    /// <summary>
+    /// Checks for updates by comparing the current version with the latest release version.
+    /// </summary>
+    /// <returns>True if an update is required, otherwise false.</returns>
+    private async Task<bool> CheckUpdateAsync()
+    {
+        try
+        {
+            // 0. Handle cached update
+            // TODO: Implement caching mechanism for update checks
+
+            // 1. Fetch the latest release information from GitHub
+            var result = await HttpHelper.GetAsync("https://github.com/TavstalDev/KonkordLauncher/releases/latest");
+            if (result == null)
+            {
+                _logger.Error("Failed to get latest release");
+                return false;
+            }
+
+            if (!result.IsSuccessStatusCode)
+            {
+                _logger.Error("Failed to get latest release, status code: " + result.StatusCode);
+                return false;
+            }
+
+            string json = await result.Content.ReadAsStringAsync();
+            JObject jsonObject = JObject.Parse(json);
+            string? latestVersion = jsonObject["tag_name"]?.ToString();
+
+            // 2. Compare the current version with the latest version
+            var version = Assembly.GetExecutingAssembly().GetName().Version;
+
+            if (latestVersion == null || version == null)
+            {
+                _logger.Error("Failed to parse latest version or current version");
+                return false;
+            }
+
+            if (version.ToString() == latestVersion)
+                return false;
+
+            await UpdateLauncherAsync();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.Exc("Error while checking for updates");
+            _logger.Error(ex);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Updates the launcher to the latest version.
+    /// </summary>
+    private async Task UpdateLauncherAsync()
+    {
+        try
+        {
+            // TODO: Implement the logic to update the launcher
+        }
+        catch (Exception ex)
+        {
+            _logger.Exc("Error while updating the launcher");
+            _logger.Error(ex);
+        }
+    }
+
+    /// <summary>
+    /// Sets the progress value for the startup process.
+    /// </summary>
+    /// <param name="progress">The progress value, typically between 0.0 and 1.0.</param>
     public void SetProgress(double progress)
     {
         Dispatcher.UIThread.Post(() =>
@@ -119,6 +216,10 @@ public partial class StartupWindow : Window, IProgressReporter
         });
     }
 
+    /// <summary>
+    /// Sets the status message for the startup process.
+    /// </summary>
+    /// <param name="status">The status message to display.</param>
     public void SetStatus(string status)
     {
         Dispatcher.UIThread.Post(() =>
@@ -130,6 +231,11 @@ public partial class StartupWindow : Window, IProgressReporter
         });
     }
 
+    /// <summary>
+    /// Sets the status message using a translation key and optional arguments.
+    /// </summary>
+    /// <param name="statusKey">The translation key for the status message.</param>
+    /// <param name="args">Optional arguments for formatting the status message.</param>
     public void SetStatusTranslated(string statusKey, params object[]? args)
     {
         Dispatcher.UIThread.Post(() =>

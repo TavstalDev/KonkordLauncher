@@ -79,13 +79,13 @@ public partial class StartupWindow : Window, IProgressReporter
         }
 
         // 2. Validate Settings
-        SetStatusTranslated("startup.validation.settings");
+        /*SetStatusTranslated("startup.validation.settings");
         await Task.Delay(_stepDelay);
         if (!await ValidationHelper.ValidateSettings())
         {
             SetStatusTranslated("startup.validation.settingsFailed");
             return;
-        }
+        }*/
 
         // 3. Validate Translations
         SetStatusTranslated("startup.validation.translations");

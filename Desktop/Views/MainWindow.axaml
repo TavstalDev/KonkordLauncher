@@ -286,7 +286,7 @@
                                 <ScrollViewer Margin="0, 0, 10, 0">
                                     <WrapPanel Classes="SettingsWrapper">
                                         <!--  Enable Launcher Updates  -->
-                                        <CheckBox Name="StEnableUpdatesCb">
+                                        <CheckBox Name="StEnableUpdatesCb" IsChecked="{Binding CoreConfig.Launcher.EnableAutomaticUpdates, Mode=TwoWay}">
                                             <TextBlock Name="StEnableUpdatesTb" Text="Enable automatic updates" />
                                         </CheckBox>
                                         <!--  Update Interval  -->
@@ -302,7 +302,7 @@
                                                 Increment="1"
                                                 Maximum="8760"
                                                 Minimum="1"
-                                                Value="24" />
+                                                Value="{Binding CoreConfig.Launcher.UpdateInterval, Mode=TwoWay}" />
                                         </Grid>
                                         <!--  Language  -->
                                         <Grid ColumnDefinitions="Auto, *">
@@ -329,7 +329,7 @@
                                                 Name="StThemeInput"
                                                 Grid.Column="1"
                                                 Classes="TextDropdown"
-                                                SelectedIndex="0">
+                                                SelectedIndex="{Binding CoreConfig.Launcher.Theme, Mode=TwoWay}">
                                                 <ComboBoxItem Content="Automatic" />
                                                 <ComboBoxItem Content="Light" />
                                                 <ComboBoxItem Content="Dark" />

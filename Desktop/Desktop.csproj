@@ -21,6 +21,7 @@
             <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
             <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
         </PackageReference>
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
         <PackageReference Include="Markdown.Avalonia" Version="11.0.2" />
         <PackageReference Include="ReverseMarkdown" Version="4.7.0" />
     </ItemGroup>
@@ -59,5 +60,9 @@
         <DependentUpon>EditInstanceWindow.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Folder Include="Models\Config\Instance\" />
     </ItemGroup>
 </Project>

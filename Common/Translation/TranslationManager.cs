@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Common.Helpers;
-using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
 
@@ -49,13 +48,11 @@ public static class TranslationManager
         {
             progressReporter?.SetStatus("Initializing translations...");
             _initialized = true;
-            LauncherSettings? settings = LauncherHelper.GetLauncherSettings();
-            if (settings == null)
-                return;
+            var settings = await LauncherHelper.GetLauncherSettingsAsync();
 
             progressReporter?.SetStatus("Reading current translations...");
-            string locale = settings.Language;
-            string localePath = Path.Combine(PathHelper.TranslationsDir, $"{locale}.json");
+            string locale = settings.Launcher.Language;
+            string localePath = Path.Combine(settings.Launcher.TranslationsDirectoryPath, $"{locale}.json");
             if (File.Exists(localePath))
             {
                 var localTranslations = await ReadTranslationAsync(localePath);

@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
@@ -28,70 +27,42 @@ public static class ValidationHelper
             if (!Directory.Exists(PathHelper.ApplicationDir))
                 Directory.CreateDirectory(PathHelper.ApplicationDir);
             
-            if (!Directory.Exists(PathHelper.InstancesDir))
-                Directory.CreateDirectory(PathHelper.InstancesDir);
+            // Note: Also creates the config file if it does not exist
+            var settings = LauncherHelper.GetLauncherSettings();
+            
+            if (!Directory.Exists(settings.Launcher.InstancesDirectoryPath))
+                Directory.CreateDirectory(settings.Launcher.InstancesDirectoryPath);
 
-            if (!Directory.Exists(PathHelper.TranslationsDir))
-                Directory.CreateDirectory(PathHelper.TranslationsDir);
+            if (!Directory.Exists(settings.Launcher.IconsDirectoryPath))
+                Directory.CreateDirectory(settings.Launcher.IconsDirectoryPath);
+            
+            if (!Directory.Exists(settings.Launcher.TranslationsDirectoryPath))
+                Directory.CreateDirectory(settings.Launcher.TranslationsDirectoryPath);
 
-            if (!Directory.Exists(PathHelper.VersionsDir))
-                Directory.CreateDirectory(PathHelper.VersionsDir);
+            if (!Directory.Exists(settings.Launcher.VersionsDirectoryPath))
+                Directory.CreateDirectory(settings.Launcher.VersionsDirectoryPath);
 
-            if (!Directory.Exists(PathHelper.CacheDir))
-                Directory.CreateDirectory(PathHelper.CacheDir);
+            if (!Directory.Exists(settings.Launcher.CacheDirectoryPath))
+                Directory.CreateDirectory(settings.Launcher.CacheDirectoryPath);
 
-            if (!Directory.Exists(PathHelper.LibrariesDir))
-                Directory.CreateDirectory(PathHelper.LibrariesDir);
+            if (!Directory.Exists(settings.Launcher.LibrariesDirectoryPath))
+                Directory.CreateDirectory(settings.Launcher.LibrariesDirectoryPath);
 
-            if (!Directory.Exists(PathHelper.AssetsDir))
-                Directory.CreateDirectory(PathHelper.AssetsDir);
+            if (!Directory.Exists(settings.Launcher.AssetsDirectoryPath))
+                Directory.CreateDirectory(settings.Launcher.AssetsDirectoryPath);
 
-            string indexes = Path.Combine(PathHelper.AssetsDir, "indexes");
+            string indexes = Path.Combine(settings.Launcher.AssetsDirectoryPath, "indexes");
             if (!Directory.Exists(indexes))
                 Directory.CreateDirectory(indexes);
 
-            if (!Directory.Exists(PathHelper.ManifestDir))
-                Directory.CreateDirectory(PathHelper.ManifestDir);
+            if (!Directory.Exists(settings.Launcher.ManifestsDirectoryPath))
+                Directory.CreateDirectory(settings.Launcher.ManifestsDirectoryPath);
 
             return true;
         }
         catch (Exception ex)
         {
             _logger.Error("Failed to validate data folder:");
-            _logger.Error(ex.ToString());
-            return false;
-        }
-    }
-
-    /// <summary>
-    /// Validates the launcher settings file and creates a default one if it does not exist.
-    /// </summary>
-    /// <returns>True if the settings file is validated or created successfully, otherwise false.</returns>
-    public static async Task<bool> ValidateSettings()
-    {
-        try
-        {
-            if (!File.Exists(PathHelper.LauncherConfigPath))
-            {
-                var settings = new LauncherSettings();
-                using var stream = new MemoryStream();
-                await JsonSerializer.SerializeAsync(stream, settings, options: new JsonSerializerOptions()
-                {
-                    IgnoreReadOnlyFields = true,
-                    IgnoreReadOnlyProperties = true,
-                    WriteIndented = true
-                });
-                stream.Position = 0;
-                var reader = new StreamReader(stream);
-                string content = await reader.ReadToEndAsync();
-                await File.WriteAllTextAsync(PathHelper.LauncherConfigPath, content);
-            }
-
-            return true;
-        }
-        catch (Exception ex)
-        {
-            _logger.Error("Failed to validate settings:");
             _logger.Error(ex.ToString());
             return false;
         }
@@ -158,33 +129,41 @@ public static class ValidationHelper
         try
         {
             using var httpClient = new HttpClient();
+            var settings = await LauncherHelper.GetLauncherSettingsAsync();
 
             // Vanilla
-            if (!File.Exists(PathHelper.VanillaManifestPath))
+            if (!File.Exists(settings.Launcher.GetVanillaManifestPath()))
             {
                 string json = await httpClient.GetStringAsync(MicrosoftEndpoints.MinecraftManifestUrl);
-                await File.WriteAllTextAsync(PathHelper.VanillaManifestPath, json);
+                await File.WriteAllTextAsync(settings.Launcher.GetVanillaManifestPath(), json);
             }
 
             // Fabric
-            if (!File.Exists(PathHelper.FabricManifestPath))
+            if (!File.Exists(settings.Launcher.GetFabricManifestPath()))
             {
                 string json = await httpClient.GetStringAsync(FabricEndpoints.VersionManifestUrl);
-                await File.WriteAllTextAsync(PathHelper.FabricManifestPath, json);
+                await File.WriteAllTextAsync(settings.Launcher.GetFabricManifestPath(), json);
             }
 
             // Forge
-            if (!File.Exists(PathHelper.ForgeManifestPath))
+            if (!File.Exists(settings.Launcher.GetForgeManifestPath()))
             {
                 string json = await httpClient.GetStringAsync(ForgeEndpoints.VersionManifest);
-                await File.WriteAllTextAsync(PathHelper.ForgeManifestPath, json);
+                await File.WriteAllTextAsync(settings.Launcher.GetForgeManifestPath(), json);
+            }
+            
+            // NeoForge
+            if (!File.Exists(settings.Launcher.GetNeoForgeManifestPath()))
+            {
+                string json = await httpClient.GetStringAsync(NeoForgeEndpoints.VersionManifest);
+                await File.WriteAllTextAsync(settings.Launcher.GetNeoForgeManifestPath(), json);
             }
 
             // Quilt
-            if (!File.Exists(PathHelper.QuiltManifestPath))
+            if (!File.Exists(settings.Launcher.GetQuiltManifestPath()))
             {
                 string json = await httpClient.GetStringAsync(QuiltEndpoints.VersionManifestUrl);
-                await File.WriteAllTextAsync(PathHelper.QuiltManifestPath, json);
+                await File.WriteAllTextAsync(settings.Launcher.GetQuiltManifestPath(), json);
             }
 
             return true;

@@ -1,7 +1,14 @@
 namespace Tavstal.KonkordLauncher.Core.Helpers;
 
+/// <summary>
+/// Provides helper methods and properties for managing application paths.
+/// </summary>
 public static class PathHelper
 {
+    /// <summary>
+    /// Gets the application directory path.
+    /// In debug mode, it appends "LauncherDebug" to the current directory.
+    /// </summary>
     public static string ApplicationDir
     {
         get
@@ -9,32 +16,23 @@ public static class PathHelper
 #if DEBUG
             return Path.Combine(Directory.GetCurrentDirectory(), "LauncherDebug");
 #else
-             return Directory.GetCurrentDirectory();
+            return Directory.GetCurrentDirectory();
 #endif
         }
     }
 
-    public static readonly string InstancesDir = Path.Combine(ApplicationDir, "instances");
-    
-    public static readonly string TranslationsDir = Path.Combine(ApplicationDir, "translations");
-    
-    public static readonly string VersionsDir = Path.Combine(ApplicationDir, "versions");
-    
-    public static readonly string ManifestDir = Path.Combine(ApplicationDir, "manifests");
-    
-    public static readonly string CacheDir = Path.Combine(ApplicationDir, "cache");
-    
-    public static readonly string LibrariesDir = Path.Combine(ApplicationDir, "libraries");
-    
-    public static readonly string AssetsDir = Path.Combine(ApplicationDir, "assets");
-    
-    
-    public static readonly string VanillaManifestPath = Path.Combine(ManifestDir, "vanillaManifest.json");
-    public static readonly string ForgeManifestPath = Path.Combine(ManifestDir, "forgeManifest.json");
-    public static readonly string FabricManifestPath = Path.Combine(ManifestDir, "fabricManifest.json");
-    public static readonly string QuiltManifestPath = Path.Combine(ManifestDir, "quiltManifest.json");
-    
-    
+    /// <summary>
+    /// Gets the path to the launcher configuration file.
+    /// </summary>
     public static readonly string LauncherConfigPath = Path.Combine(ApplicationDir, "config.json");
+
+    /// <summary>
+    /// Gets the path to the launcher accounts file.
+    /// </summary>
     public static readonly string LauncherAccountsPath = Path.Combine(ApplicationDir, "accounts.json");
+    
+    /// <summary>
+    /// Gets the path to the launcher instances file.
+    /// </summary>
+    public static readonly string LauncherInstancesPath = Path.Combine(ApplicationDir, "instances.json");
 }

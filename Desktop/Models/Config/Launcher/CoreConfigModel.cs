@@ -1,5 +1,8 @@
+using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Config;
+using Tavstal.KonkordLauncher.Common.Translation;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Config.Launcher;
 
@@ -13,6 +16,8 @@ public partial class CoreConfigModel : ObservableObject
 
     [ObservableProperty] private MiscConfigModel _misc;
 
+   public List<Language> AvailableLanguages => LanguagePackProvider.LanguagePacks;
+    
     public CoreConfigModel() {}
     
     public CoreConfigModel(LauncherConfigModel launcher, JavaConfigModel java, MinecraftConfigModel minecraft, MiscConfigModel misc)

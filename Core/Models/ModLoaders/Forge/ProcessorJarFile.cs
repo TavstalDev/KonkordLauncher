@@ -1,84 +1,83 @@
 ﻿using System.Text;
 using ICSharpCode.SharpZipLib.Zip;
 
-namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge
+namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
+
+// Source: https://github.com/CmlLib/CmlLib.Core.Installer.Forge
+public class ProcessorJarFile
 {
-    // Source: https://github.com/CmlLib/CmlLib.Core.Installer.Forge
-    public class ProcessorJarFile
+    public string Path { get; private set; }
+
+    public ProcessorJarFile(string path)
     {
-        public string Path { get; private set; }
+        Path = path;
+    }
 
-        public ProcessorJarFile(string path)
+    public Dictionary<string, string?>? GetManifest()
+    {
+        string text = null;
+        using (FileStream baseInputStream = File.OpenRead(Path))
         {
-            Path = path;
-        }
-
-        public Dictionary<string, string?>? GetManifest()
-        {
-            string text = null;
-            using (FileStream baseInputStream = File.OpenRead(Path))
+            using ZipInputStream zipInputStream = new ZipInputStream(baseInputStream);
+            while (zipInputStream.GetNextEntry() is { } nextEntry)
             {
-                using ZipInputStream zipInputStream = new ZipInputStream(baseInputStream);
-                while (zipInputStream.GetNextEntry() is { } nextEntry)
+                if (nextEntry.Name == "META-INF/MANIFEST.MF")
                 {
-                    if (nextEntry.Name == "META-INF/MANIFEST.MF")
-                    {
-                        text = readStreamString(zipInputStream);
-                        break;
-                    }
-                }
-            }
-
-            if (string.IsNullOrEmpty(text))
-            {
-                return null;
-            }
-
-            Dictionary<string, string> dictionary = new Dictionary<string, string>();
-            string[] array = text.Split('\n');
-            foreach (string text2 in array)
-            {
-                if (!string.IsNullOrWhiteSpace(text2))
-                {
-                    string[] array2 = text2.Split(':');
-                    string key = array2[0].Trim();
-                    if (array2.Length == 1)
-                    {
-                        dictionary.TryAdd(key, null);
-                        continue;
-                    }
-
-                    if (array2.Length == 2)
-                    {
-                        if (!dictionary.ContainsKey(key))
-                            dictionary.Add(key, array2[1].Trim());
-                        continue;
-                    }
-
-                    string value = string.Join(":", array2, 1, array2.Length - 1).Trim();
-                    dictionary.TryAdd(key, value);
-                }
-            }
-
-            return dictionary;
-        }
-
-        private static string readStreamString(Stream s)
-        {
-            StringBuilder stringBuilder = new StringBuilder();
-            byte[] array = new byte[1024];
-            while (true)
-            {
-                int num = s.Read(array, 0, array.Length);
-                if (num == 0)
-                {
+                    text = readStreamString(zipInputStream);
                     break;
                 }
+            }
+        }
 
-                stringBuilder.Append(Encoding.UTF8.GetString(array, 0, num));
+        if (string.IsNullOrEmpty(text))
+        {
+            return null;
+        }
+
+        Dictionary<string, string> dictionary = new Dictionary<string, string>();
+        string[] array = text.Split('\n');
+        foreach (string text2 in array)
+        {
+            if (!string.IsNullOrWhiteSpace(text2))
+            {
+                string[] array2 = text2.Split(':');
+                string key = array2[0].Trim();
+                if (array2.Length == 1)
+                {
+                    dictionary.TryAdd(key, null);
+                    continue;
+                }
+
+                if (array2.Length == 2)
+                {
+                    if (!dictionary.ContainsKey(key))
+                        dictionary.Add(key, array2[1].Trim());
+                    continue;
+                }
+
+                string value = string.Join(":", array2, 1, array2.Length - 1).Trim();
+                dictionary.TryAdd(key, value);
+            }
+        }
+
+        return dictionary;
+    }
+
+    private static string readStreamString(Stream s)
+    {
+        StringBuilder stringBuilder = new StringBuilder();
+        byte[] array = new byte[1024];
+        while (true)
+        {
+            int num = s.Read(array, 0, array.Length);
+            if (num == 0)
+            {
+                break;
             }
 
-            return stringBuilder.ToString();
+            stringBuilder.Append(Encoding.UTF8.GetString(array, 0, num));
         }
+
+        return stringBuilder.ToString();
     }
 }

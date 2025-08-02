@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Core.Encryption;
 using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Helpers;
 
 namespace Tavstal.KonkordLauncher.Core.Models;
 

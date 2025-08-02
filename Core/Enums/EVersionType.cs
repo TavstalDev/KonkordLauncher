@@ -1,9 +1,8 @@
-﻿namespace Tavstal.KonkordLauncher.Core.Enums
+﻿namespace Tavstal.KonkordLauncher.Core.Enums;
+
+public enum EVersionType
 {
-    public enum EVersionType
-    {
-        RELEASE = 0,
-        SNAPSHOT = 1,
-        BETA = 2
-    }
+    RELEASE = 0,
+    SNAPSHOT = 1,
+    BETA = 2
 }

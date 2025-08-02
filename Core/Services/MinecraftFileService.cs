@@ -81,21 +81,22 @@ public class MinecraftFileService
     }
     
     /// <summary>
-    /// Downloads the assets for a specific Minecraft version, including asset index and individual asset files.
+    /// Downloads the assets for a specific Minecraft version.
     /// </summary>
     /// <param name="versionMeta">The metadata of the Minecraft version, including asset index information.</param>
+    /// <param name="assetsDir">The directory where the assets will be stored.</param>
     /// <param name="progressReporter">
     /// Optional: An object to report progress and status updates during the asset download process.
     /// </param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    public static async Task DownloadAssetsAsync(VersionMeta versionMeta, IProgressReporter? progressReporter = null)
+    public static async Task DownloadAssetsAsync(VersionMeta versionMeta, string assetsDir, IProgressReporter? progressReporter = null)
     {
         // AssetIndex
         progressReporter?.SetProgress(0);
         progressReporter?.SetStatusTranslated("ui_checking_asset_index_json", versionMeta.Index.Id);
         
         string assetIndex = versionMeta.Index.Id;
-        string assetPath = Path.Combine(PathHelper.AssetsDir, $"indexes/{assetIndex}.json");
+        string assetPath = Path.Combine(assetsDir, $"indexes/{assetIndex}.json");
         JToken? assetJToken;
         if (!File.Exists(assetPath))
         {
@@ -127,7 +128,7 @@ public class MinecraftFileService
             throw new Exception("Asset JToken is null, something went wrong while reading the asset index JSON.");
 
         // Asset Dir
-        string assetObjectDir = Path.Combine(PathHelper.AssetsDir, "objects");
+        string assetObjectDir = Path.Combine(assetsDir, "objects");
         if (!Directory.Exists(assetObjectDir))
             Directory.CreateDirectory(assetObjectDir);
 
@@ -165,21 +166,22 @@ public class MinecraftFileService
             progressReporter?.SetStatusTranslated("ui_downloading_assets", percent.ToString("0.00"));
         }
     }
-
+    
     /// <summary>
-    /// Downloads the logging configuration file for a specific Minecraft version and updates its paths.
+    /// Downloads the logging configuration for a specific Minecraft version.
     /// </summary>
     /// <param name="versionMeta">The metadata of the Minecraft version, including logging information.</param>
-    /// <param name="versionDirectory">The directory where the version-specific files are stored.</param>
-    /// <param name="gameDir">The directory where the game files are located.</param>
+    /// <param name="versionDirectory">The directory where the version files are stored.</param>
+    /// <param name="gameDir">The directory where the game files are stored.</param>
+    /// <param name="assetsDir">The directory where the assets are stored.</param>
     /// <param name="progressReporter">
     /// Optional: An object to report progress and status updates during the logging configuration download process.
     /// </param>
     /// <returns>
-    /// A <see cref="LaunchArg"/> object containing the logging argument for launching the game,
-    /// or null if the logging configuration download fails.
+    /// A task that represents the asynchronous operation. The task result contains a <see cref="LaunchArg"/> object
+    /// with the logging argument, or null if the logging configuration is not available.
     /// </returns>
-    public static async Task<LaunchArg?> DownloadLoggingAsync(VersionMeta versionMeta, string versionDirectory, string gameDir, IProgressReporter? progressReporter = null)
+    public static async Task<LaunchArg?> DownloadLoggingAsync(VersionMeta versionMeta, string versionDirectory, string gameDir, string assetsDir, IProgressReporter? progressReporter = null)
     {
         if (versionMeta.LoggingMeta is not { Client: not null })
             return null;
@@ -187,7 +189,7 @@ public class MinecraftFileService
         progressReporter?.SetProgress(0);
         progressReporter?.SetStatusTranslated("ui_checking_logging");
         
-        string logDirPath = Path.Combine(PathHelper.AssetsDir, "log_configs");
+        string logDirPath = Path.Combine(assetsDir, "log_configs");
         if (!Directory.Exists(logDirPath))
             Directory.CreateDirectory(logDirPath);
         //string logReadmePath = Path.Combine(logDirPath, "readme.txt");
@@ -256,28 +258,31 @@ public class MinecraftFileService
             await File.WriteAllTextAsync(clientMappinsPath, r);
         }
     }
-
+    
     /// <summary>
-    /// Downloads the required libraries for a specific Minecraft version and updates the classpath.
+    /// Downloads the libraries required for a specific Minecraft version.
     /// </summary>
     /// <param name="kind">The type of Minecraft (e.g., Java, Bedrock).</param>
     /// <param name="VersionData">The details of the version, including paths and metadata.</param>
-    /// <param name="mcLibs">A list of library metadata objects to be downloaded.</param>
+    /// <param name="mcLibs">The list of libraries to be downloaded.</param>
     /// <param name="classPath">The classpath string to be updated with downloaded libraries.</param>
+    /// <param name="cacheDir">The directory where cached data is stored.</param>
+    /// <param name="libsDir">The directory where libraries will be stored.</param>
     /// <param name="progressReporter">
     /// Optional: An object to report progress and status updates during the library download process.
     /// </param>
     /// <returns>
-    /// A tuple containing the updated classpath string and a list of native libraries.
+    /// A task that represents the asynchronous operation. The task result contains a tuple with the updated classpath
+    /// and a list of native libraries.
     /// </returns>
-    public static async Task<(string, List<LibraryMeta>)> DownloadLibrariesAsync(EMinecraftKind kind, VersionDetails VersionData, List<LibraryMeta> mcLibs, string classPath, IProgressReporter? progressReporter = null)
+    public static async Task<(string, List<LibraryMeta>)> DownloadLibrariesAsync(EMinecraftKind kind, VersionDetails VersionData, List<LibraryMeta> mcLibs, string classPath, string cacheDir, string libsDir, IProgressReporter? progressReporter = null)
     {
         progressReporter?.SetProgress(0);
         progressReporter?.SetStatusTranslated("ui_checking_libraries");
         
         List<LibraryMeta> natives = [];
         double libraryOverallSize = 0;
-        string libraryCacheDir = Path.Combine(PathHelper.CacheDir, "libsizes");
+        string libraryCacheDir = Path.Combine(cacheDir, "libsizes");
         if (!Directory.Exists(libraryCacheDir))
             Directory.CreateDirectory(libraryCacheDir);
         string librarySizeCacheFilePath = Path.Combine(libraryCacheDir,
@@ -317,13 +322,13 @@ public class MinecraftFileService
             {
                 string localPath = lib.Downloads.Artifact.Path.Replace('/', '\\');
                 int libDirIndex = localPath.LastIndexOf('\\');
-                string libDirPath = Path.Combine(PathHelper.LibrariesDir,
+                string libDirPath = Path.Combine(libsDir,
                     localPath.Remove(libDirIndex, localPath.Length - libDirIndex));
 
                 if (!Directory.Exists(libDirPath))
                     Directory.CreateDirectory(libDirPath);
 
-                libFilePath = Path.Combine(PathHelper.LibrariesDir, localPath);
+                libFilePath = Path.Combine(libsDir, localPath);
                 if (!File.Exists(libFilePath))
                 {
                     try
@@ -358,13 +363,13 @@ public class MinecraftFileService
                     .Combine(rawUrl[0].Replace('.', '\\'), rawUrl[1], rawUrl[2], $"{rawUrl[1]}-{rawUrl[2]}.jar")
                     .Replace('/', '\\');
                 int libDirIndex = localPath.LastIndexOf('\\');
-                string libDirPath = Path.Combine(PathHelper.LibrariesDir,
+                string libDirPath = Path.Combine(libsDir,
                     localPath.Remove(libDirIndex, localPath.Length - libDirIndex));
 
                 if (!Directory.Exists(libDirPath))
                     Directory.CreateDirectory(libDirPath);
 
-                libFilePath = Path.Combine(PathHelper.LibrariesDir, localPath);
+                libFilePath = Path.Combine(libsDir, localPath);
             }
 
             if (!classPath.Contains(libFilePath))
@@ -382,17 +387,18 @@ public class MinecraftFileService
 
         return (classPath, natives);
     }
-
+    
     /// <summary>
     /// Downloads and extracts native libraries required for a specific Minecraft version.
     /// </summary>
-    /// <param name="nativeLibs">A list of native library metadata objects to be downloaded and extracted.</param>
+    /// <param name="nativeLibs">The list of native libraries to be downloaded and extracted.</param>
     /// <param name="nativeDir">The directory where the extracted native files will be stored.</param>
+    /// <param name="libsDir">The directory where the library files are stored.</param>
     /// <param name="progressReporter">
-    /// Optional: An object to report progress and status updates during the native library download and extraction process.
+    /// Optional: An object to report progress and status updates during the native library download process.
     /// </param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    public static async Task DownloadNatives(List<LibraryMeta> nativeLibs, string nativeDir, IProgressReporter? progressReporter = null)
+    public static async Task DownloadNatives(List<LibraryMeta> nativeLibs, string nativeDir, string libsDir, IProgressReporter? progressReporter = null)
     {
         progressReporter?.SetProgress(0);
         progressReporter?.SetStatusTranslated("ui_checking_natives");
@@ -436,7 +442,7 @@ public class MinecraftFileService
                 }
 
                 // Add dir
-                string localFilePath = Path.Combine(PathHelper.LibrariesDir, libJarFilePath);
+                string localFilePath = Path.Combine(libsDir, libJarFilePath);
 
                 if (!File.Exists(localFilePath))
                 {
@@ -462,7 +468,7 @@ public class MinecraftFileService
             else
                 continue;
 
-            string libFilePath = Path.Combine(PathHelper.LibrariesDir, libJarFilePath);
+            string libFilePath = Path.Combine(libsDir, libJarFilePath);
             List<string> dirBaseRaw = libJarFilePath.Split('.').ToList();
             dirBaseRaw.RemoveAt(dirBaseRaw.Count - 1);
 
@@ -479,6 +485,7 @@ public class MinecraftFileService
             ZipFile.ExtractToDirectory(libFilePath, tempZipDir, true);
 
             string[] files = Directory.GetFiles(tempZipDir, "*.dll", searchOption: SearchOption.AllDirectories);
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
             if (files != null)
             {
                 foreach (string file in files)

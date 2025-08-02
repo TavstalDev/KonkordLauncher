@@ -1,7 +1,13 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Platform.Storage;
+using Tavstal.KonkordLauncher.Common.Models;
+using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.ViewModels;
@@ -11,6 +17,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 // ReSharper disable once PartialTypeWithSinglePart
 public partial class MainWindow : Window
 {
+    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MainWindow));
     private PixelSize _screenSize;
     private Button _selectedButton;
     
@@ -105,6 +112,54 @@ public partial class MainWindow : Window
         bool hasNews = viewModel.News.Count > 0;
         NoNewsTextBlock.IsVisible = !hasNews;
     }
+    
+    /// <summary>
+    /// Opens a folder picker dialog to allow the user to select a folder.
+    /// </summary>
+    /// <returns>
+    /// A task that represents the asynchronous operation. The task result contains the path of the selected folder
+    /// as a string, or null if no folder was selected or if folder picking is not supported.
+    /// </returns>
+    private async Task<string?> OpenFolderPickerAsync()
+    {
+        // Ensure the VisualRoot is a TopLevel object
+        if (VisualRoot is not TopLevel topLevel)
+            return null;
+
+        var storageProvider = topLevel.StorageProvider;
+
+        // Check if folder picking is supported on the current platform
+        if (!storageProvider.CanPickFolder)
+        {
+            _logger.Error("Folder picking is not supported on this platform.");
+            return null;
+        }
+    
+        // Configure folder picker options
+        var options = new FolderPickerOpenOptions
+        {
+            Title = "Select a Folder",
+            AllowMultiple = false
+        };
+
+        // Open the folder picker dialog
+        IReadOnlyList<IStorageFolder> folders = await storageProvider.OpenFolderPickerAsync(options);
+
+        // Return null if no folders were selected
+        if (!folders.Any())
+            return null;
+    
+        // Get the first selected folder
+        IStorageFolder? selectedFolder = folders.FirstOrDefault();
+        if (selectedFolder == null)
+        {
+            _logger.Error("No folder was selected.");
+            return null;
+        }
+    
+        // Return the local path of the selected folder
+        return selectedFolder.Path.LocalPath;
+    }
     #endregion
 
     #region Event Handlers
@@ -149,6 +204,164 @@ public partial class MainWindow : Window
         dialog.ShowDialog(this);
     }
 
+    #endregion
+
+    #region Settings Handlers
+    
+    private void Language_OnSelected(object? sender, SelectionChangedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel)
+            return;
+        
+        if (sender is not ComboBox { SelectedItem: Language selectedLanguage })
+            return;
+        
+        viewModel.CoreConfig.Launcher.Language = selectedLanguage.TwoLetterCode;
+    }
+
+    private void AssetsDirSelect_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel)
+            return;
+        
+        var directoryResult = OpenFolderPickerAsync();
+        directoryResult.ContinueWith(task =>
+        {
+            if (!task.IsCompletedSuccessfully)
+                return;
+
+            if (task.Result is not { } resultPath)
+                return;
+            
+            viewModel.CoreConfig.Launcher.AssetsDirectoryPath = resultPath;
+        });
+    }
+
+    private void CacheDirSelect_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel)
+            return;
+        
+        var directoryResult = OpenFolderPickerAsync();
+        directoryResult.ContinueWith(task =>
+        {
+            if (!task.IsCompletedSuccessfully)
+                return;
+
+            if (task.Result is not { } resultPath)
+                return;
+            
+            viewModel.CoreConfig.Launcher.CacheDirectoryPath = resultPath;
+        });
+    }
+
+    private void InstancesDirSelect_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel)
+            return;
+        
+        var directoryResult = OpenFolderPickerAsync();
+        directoryResult.ContinueWith(task =>
+        {
+            if (!task.IsCompletedSuccessfully)
+                return;
+
+            if (task.Result is not { } resultPath)
+                return;
+            
+            viewModel.CoreConfig.Launcher.InstancesDirectoryPath = resultPath;
+        });
+    }
+
+    private void IconsDirSelect_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel)
+            return;
+        
+        var directoryResult = OpenFolderPickerAsync();
+        directoryResult.ContinueWith(task =>
+        {
+            if (!task.IsCompletedSuccessfully)
+                return;
+
+            if (task.Result is not { } resultPath)
+                return;
+            
+            viewModel.CoreConfig.Launcher.IconsDirectoryPath = resultPath;
+        });
+    }
+
+    private void LibrariesDirSelect_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel)
+            return;
+        
+        var directoryResult = OpenFolderPickerAsync();
+        directoryResult.ContinueWith(task =>
+        {
+            if (!task.IsCompletedSuccessfully)
+                return;
+
+            if (task.Result is not { } resultPath)
+                return;
+            
+            viewModel.CoreConfig.Launcher.LibrariesDirectoryPath = resultPath;
+        });
+    }
+
+    private void ManifestsDirSelect_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel)
+            return;
+        
+        var directoryResult = OpenFolderPickerAsync();
+        directoryResult.ContinueWith(task =>
+        {
+            if (!task.IsCompletedSuccessfully)
+                return;
+
+            if (task.Result is not { } resultPath)
+                return;
+            
+            viewModel.CoreConfig.Launcher.ManifestsDirectoryPath = resultPath;
+        });
+    }
+
+    private void TranslationsDirSelect_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel)
+            return;
+        
+        var directoryResult = OpenFolderPickerAsync();
+        directoryResult.ContinueWith(task =>
+        {
+            if (!task.IsCompletedSuccessfully)
+                return;
+
+            if (task.Result is not { } resultPath)
+                return;
+            
+            viewModel.CoreConfig.Launcher.TranslationsDirectoryPath = resultPath;
+        });
+    }
+
+    private void VersionsDirSelect_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel)
+            return;
+        
+        var directoryResult = OpenFolderPickerAsync();
+        directoryResult.ContinueWith(task =>
+        {
+            if (!task.IsCompletedSuccessfully)
+                return;
+
+            if (task.Result is not { } resultPath)
+                return;
+            
+            viewModel.CoreConfig.Launcher.VersionsDirectoryPath = resultPath;
+        });
+    }
     #endregion
     #endregion
 }

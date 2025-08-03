@@ -77,6 +77,7 @@
                     <!--  News Card Description  -->
                     <TextBlock Classes="NewsCardDescription" Text="{Binding Description}" />
                     <!--  Read More Button  -->
+                    <!-- TODO: Translate -->
                     <Button Classes="IconBtn InfoBtn" Content="Read More" />
                 </StackPanel>
             </Border>
@@ -163,7 +164,7 @@
             <!--  Footer with Version and Copyright  -->
             <StackPanel Grid.Row="2" VerticalAlignment="Bottom">
                 <Label
-                    Name="VersionTextBox"
+                    Name="VersionLabel"
                     Classes="SidebarLabel"
                     Content="Ready to launch. No update available." />
                 <Label Classes="SidebarLabel" Content="© 2025 Konkord Launcher" />
@@ -202,7 +203,7 @@
                             </Button>
                         </Grid>
                         <!--  No instances text  -->
-                        <TextBlock Name="NoPlayInstancesTextBlock" Text="You don't have instances yet." />
+                        <TextBlock Name="PlayPageInstancesEmptyTb" Text="You don't have instances yet." />
                         <!--  Instances on Play Page  -->
                         <Grid MaxHeight="440">
                             <ScrollViewer>
@@ -279,10 +280,10 @@
                     </StackPanel>
                     <!--  Settings Page  -->
                     <Grid Classes="MainContentArea" RowDefinitions="Auto, *">
-                        <TextBlock Grid.Row="0" Classes="MainContentTitle" Text="Settings" />
+                        <TextBlock Grid.Row="0" Name="SettingsPageTitleTb" Classes="MainContentTitle" Text="Settings" />
                         <TabControl Grid.Row="1" Classes="SettingsTab">
                             <!--  Launcher Settings  -->
-                            <TabItem Classes="SettingsTabItem" Header="Launcher">
+                            <TabItem Name="SettingsLauncherTab" Classes="SettingsTabItem" Header="Launcher">
                                 <ScrollViewer Margin="0, 0, 10, 0">
                                     <WrapPanel Classes="SettingsWrapper">
                                         <!--  Enable Launcher Updates  -->
@@ -509,7 +510,7 @@
                                 </ScrollViewer>
                             </TabItem>
                             <!--  Minecraft Settings  -->
-                            <TabItem Classes="SettingsTabItem" Header="Minecraft">
+                            <TabItem Name="SettingsMinecraftTab" Classes="SettingsTabItem" Header="Minecraft">
                                 <ScrollViewer Margin="0, 0, 10, 0">
                                     <WrapPanel Classes="SettingsWrapper">
                                         <!--  Minecraft Maximized  -->
@@ -568,7 +569,7 @@
                                 </ScrollViewer>
                             </TabItem>
                             <!--  Java Settings  -->
-                            <TabItem Classes="SettingsTabItem" Header="Java">
+                            <TabItem Name="SettingsJavaTab" Classes="SettingsTabItem" Header="Java">
                                 <ScrollViewer Margin="0, 0, 10, 0">
                                     <WrapPanel Classes="SettingsWrapper">
                                         <!--  Minimum Memory  -->
@@ -657,7 +658,7 @@
                                 </ScrollViewer>
                             </TabItem>
                             <!--  Misc Settings  -->
-                            <TabItem Classes="SettingsTabItem" Header="Misc">
+                            <TabItem Name="SettingsMiscTab" Classes="SettingsTabItem" Header="Misc">
                                 <ScrollViewer Margin="0, 0, 10, 0">
                                     <WrapPanel Classes="SettingsWrapper">
                                         <!--  Subtitle  -->

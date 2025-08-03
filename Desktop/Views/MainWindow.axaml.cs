@@ -6,7 +6,9 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
+using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
+using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
@@ -38,6 +40,10 @@ public partial class MainWindow : Window
         // Instantiate your ViewModel and assign it to the DataContext
         this.DataContext = new MainViewModel();
         _selectedButton = PlaySideBtn;
+
+        var settings = LauncherHelper.GetLauncherSettings();
+        HandleLanguageChange(settings.Launcher.Language);
+        App.OnLanguageChanged += HandleLanguageChange;
     }
     
     private void MainWindow_Loaded(object? sender, RoutedEventArgs e)
@@ -99,7 +105,7 @@ public partial class MainWindow : Window
         
         // After Updating:
         bool hasInstances = viewModel.Instances.Count > 0;
-        NoPlayInstancesTextBlock.IsVisible = !hasInstances;
+        PlayPageInstancesEmptyTb.IsVisible = !hasInstances;
     }
 
     private void UpdateNewsCards()
@@ -163,6 +169,59 @@ public partial class MainWindow : Window
     #endregion
 
     #region Event Handlers
+
+    #region App
+
+    private void HandleLanguageChange(string language)
+    {
+        #region Sidebar
+        WelcomeLabel.Content = TranslationManager.Translate("main.subtitle");
+        
+        // Side Buttons
+        PlaySideBtn.Content = TranslationManager.Translate("main.sidebar.play");
+        NewsSideBtn.Content = TranslationManager.Translate("main.sidebar.news");
+        AccountsSideBtn.Content = TranslationManager.Translate("main.sidebar.accounts");
+        SettingsSideBtn.Content = TranslationManager.Translate("main.sidebar.settings");
+        
+        VersionLabel.Content = TranslationManager.Translate("main.sidebar.version.update.none");
+        #endregion
+
+        #region Play Page
+
+        PlayPageTitleTextBlock.Text = TranslationManager.Translate("main.page.play.title");
+        PlayPageInstancesEmptyTb.Text = TranslationManager.Translate("main.page.play.empty");
+
+        #endregion
+
+        #region News Page
+
+        NewsPageTitleTextBlock.Text = TranslationManager.Translate("main.page.news.title");
+        NoNewsTextBlock.Text = TranslationManager.Translate("main.page.news.empty");
+
+        #endregion
+
+        #region Accounts Page
+
+        AccountsPageTitleTextBlock.Text = TranslationManager.Translate("main.page.accounts.title");
+        NoAccountsTextBlock.Text = TranslationManager.Translate("main.page.accounts.empty");
+
+        #endregion
+
+        #region Settings Page
+
+        SettingsPageTitleTb.Text = TranslationManager.Translate("main.page.settings.title");
+        
+        SettingsLauncherTab.Header = TranslationManager.Translate("settings.tab.launcher");
+        SettingsJavaTab.Header = TranslationManager.Translate("settings.tab.java");
+        SettingsMinecraftTab.Header = TranslationManager.Translate("settings.tab.minecraft");
+        SettingsMiscTab.Header = TranslationManager.Translate("settings.tab.misc");
+
+        // TODO: Finish settings translations
+        
+        #endregion
+    }
+
+    #endregion
 
     #region Sidebar Button Click Handlers
     public void OnPlaySideButtonClick(object? sender, RoutedEventArgs e)

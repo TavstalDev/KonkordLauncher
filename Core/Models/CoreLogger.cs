@@ -1,72 +1,48 @@
 namespace Tavstal.KonkordLauncher.Core.Models;
 
 /// <summary>
-/// A logger class for handling console and debug logging with support for module-specific logging.
+/// Provides logging functionality for different modules in the application.
 /// </summary>
 public class CoreLogger
 {
-    private readonly string _moduleName; // The name of the module associated with the logger.
-    private readonly bool _isDebug; // Indicates whether debug logging is enabled.
+    /// <summary>
+    /// The name of the module associated with the logger.
+    /// </summary>
+    private readonly string _moduleName;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CoreLogger"/> class with a module name and debug flag.
+    /// Initializes a new instance of the <see cref="CoreLogger"/> class with the specified module name.
     /// </summary>
-    /// <param name="moduleName">The name of the module.</param>
-    /// <param name="isDebug">Whether debug logging is enabled.</param>
-    public CoreLogger(string moduleName, bool isDebug)
+    /// <param name="moduleName">The name of the module to associate with the logger.</param>
+    public CoreLogger(string moduleName)
     {
         _moduleName = moduleName;
-        _isDebug = isDebug;
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CoreLogger"/> class using a module type and debug flag.
+    /// Initializes a new instance of the <see cref="CoreLogger"/> class with the specified module type.
     /// </summary>
-    /// <param name="moduleType">The type of the module.</param>
-    /// <param name="isDebug">Whether debug logging is enabled.</param>
-    public CoreLogger(Type moduleType, bool isDebug) : this(moduleType.Name, isDebug) { }
+    /// <param name="moduleType">The type of the module to associate with the logger.</param>
+    public CoreLogger(Type moduleType) : this(moduleType.Name) { }
 
     /// <summary>
-    /// Creates a new <see cref="CoreLogger"/> instance with a specified module name.
+    /// Creates a new <see cref="CoreLogger"/> instance with the specified module name.
     /// </summary>
-    /// <param name="moduleName">The name of the module.</param>
-    /// <param name="isDebug">Whether debug logging is enabled (default is false).</param>
-    /// <returns>A new <see cref="CoreLogger"/> instance.</returns>
-    // ReSharper disable once MethodOverloadWithOptionalParameter
-    public static CoreLogger WithModuleName(string moduleName, bool isDebug = false)
+    /// <param name="moduleName">The name of the module to associate with the logger.</param>
+    /// <returns>A new instance of <see cref="CoreLogger"/>.</returns>
+    public static CoreLogger WithModuleName(string moduleName)
     {
-        return new CoreLogger(moduleName, isDebug);
+        return new CoreLogger(moduleName);
     }
 
     /// <summary>
-    /// Creates a new <see cref="CoreLogger"/> instance with a specified module type.
+    /// Creates a new <see cref="CoreLogger"/> instance with the specified module type.
     /// </summary>
-    /// <param name="moduleType">The type of the module.</param>
-    /// <param name="isDebug">Whether debug logging is enabled (default is false).</param>
-    /// <returns>A new <see cref="CoreLogger"/> instance.</returns>
-    public static CoreLogger WithModuleType(Type moduleType, bool isDebug = false)
+    /// <param name="moduleType">The type of the module to associate with the logger.</param>
+    /// <returns>A new instance of <see cref="CoreLogger"/>.</returns>
+    public static CoreLogger WithModuleType(Type moduleType)
     {
-        return new CoreLogger(moduleType.Name, isDebug);
-    }
-
-    /// <summary>
-    /// Creates a new <see cref="CoreLogger"/> instance with a new module name, retaining the current debug flag.
-    /// </summary>
-    /// <param name="moduleName">The new module name.</param>
-    /// <returns>A new <see cref="CoreLogger"/> instance.</returns>
-    public CoreLogger WithModuleName(string moduleName)
-    {
-        return new CoreLogger(moduleName, _isDebug);
-    }
-
-    /// <summary>
-    /// Creates a new <see cref="CoreLogger"/> instance with a new module type, retaining the current debug flag.
-    /// </summary>
-    /// <param name="moduleType">The new module type.</param>
-    /// <returns>A new <see cref="CoreLogger"/> instance.</returns>
-    public CoreLogger WithModuleeType(Type moduleType)
-    {
-        return new CoreLogger(moduleType.Name, _isDebug);
+        return new CoreLogger(moduleType.Name);
     }
 
     /// <summary>
@@ -158,8 +134,8 @@ public class CoreLogger
     /// <param name="color">The console color for the message (default is magenta).</param>
     public void Debug(object message, ConsoleColor color = ConsoleColor.Magenta)
     {
-        if (!_isDebug)
-            return;
+#if DEBUG
         Log(message, color, "[DEBUG] : ");
+#endif
     }
 }

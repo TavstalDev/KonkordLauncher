@@ -19,6 +19,7 @@ public static class HttpHelper
     private static HttpClient CreateHttpClient()
     {
         var client = new HttpClient();
+        client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
         client.DefaultRequestHeaders.UserAgent.ParseAdd("KonkordLauncher/2.0.0 (+https://tavstaldev.github.io)");
         return client;
     }

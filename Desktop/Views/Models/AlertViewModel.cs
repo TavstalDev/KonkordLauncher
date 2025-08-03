@@ -1,4 +1,5 @@
 using ReactiveUI;
+using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models;

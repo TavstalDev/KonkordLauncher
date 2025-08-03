@@ -2,7 +2,7 @@ using System.Collections.ObjectModel;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Desktop.Models;
 
-namespace Tavstal.KonkordLauncher.Desktop.ViewModels;
+namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 
 public class CreateInstanceViewModel : ViewModelBase
 {

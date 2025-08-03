@@ -1,7 +1,7 @@
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 
-namespace Tavstal.KonkordLauncher.Desktop.ViewModels;
+namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 
 /// <summary>
 /// ViewModel for managing alert dialogs in the application.

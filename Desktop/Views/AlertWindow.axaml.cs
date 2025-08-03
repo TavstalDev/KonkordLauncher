@@ -3,7 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
-using Tavstal.KonkordLauncher.Desktop.ViewModels;
+using Tavstal.KonkordLauncher.Desktop.Views.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views;
 

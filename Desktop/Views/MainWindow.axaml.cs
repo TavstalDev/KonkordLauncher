@@ -10,7 +10,7 @@ using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
-using Tavstal.KonkordLauncher.Desktop.ViewModels;
+using MainViewModel = Tavstal.KonkordLauncher.Desktop.Views.Models.MainViewModel;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views;
 
@@ -207,7 +207,11 @@ public partial class MainWindow : Window
     #endregion
 
     #region Settings Handlers
-    
+    /// <summary>
+    /// Handles the selection of a language from a ComboBox and updates the application's language setting.
+    /// </summary>
+    /// <param name="sender">The ComboBox that triggered the event.</param>
+    /// <param name="e">The event data associated with the selection change.</param>
     private void Language_OnSelected(object? sender, SelectionChangedEventArgs e)
     {
         if (DataContext is not MainViewModel viewModel)
@@ -219,6 +223,11 @@ public partial class MainWindow : Window
         viewModel.CoreConfig.Launcher.Language = selectedLanguage.TwoLetterCode;
     }
 
+    /// <summary>
+    /// Opens a folder picker dialog to select the assets directory and updates the configuration with the selected path.
+    /// </summary>
+    /// <param name="sender">The button that triggered the event.</param>
+    /// <param name="e">The event data associated with the button click.</param>
     private void AssetsDirSelect_OnClick(object? sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel viewModel)
@@ -237,6 +246,11 @@ public partial class MainWindow : Window
         });
     }
 
+    /// <summary>
+    /// Opens a folder picker dialog to select the cache directory and updates the configuration with the selected path.
+    /// </summary>
+    /// <param name="sender">The button that triggered the event.</param>
+    /// <param name="e">The event data associated with the button click.</param>
     private void CacheDirSelect_OnClick(object? sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel viewModel)
@@ -255,6 +269,11 @@ public partial class MainWindow : Window
         });
     }
 
+    /// <summary>
+    /// Opens a folder picker dialog to select the instances directory and updates the configuration with the selected path.
+    /// </summary>
+    /// <param name="sender">The button that triggered the event.</param>
+    /// <param name="e">The event data associated with the button click.</param>
     private void InstancesDirSelect_OnClick(object? sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel viewModel)
@@ -273,6 +292,11 @@ public partial class MainWindow : Window
         });
     }
 
+    /// <summary>
+    /// Opens a folder picker dialog to select the icons directory and updates the configuration with the selected path.
+    /// </summary>
+    /// <param name="sender">The button that triggered the event.</param>
+    /// <param name="e">The event data associated with the button click.</param>
     private void IconsDirSelect_OnClick(object? sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel viewModel)
@@ -291,6 +315,11 @@ public partial class MainWindow : Window
         });
     }
 
+    /// <summary>
+    /// Opens a folder picker dialog to select the libraries directory and updates the configuration with the selected path.
+    /// </summary>
+    /// <param name="sender">The button that triggered the event.</param>
+    /// <param name="e">The event data associated with the button click.</param>
     private void LibrariesDirSelect_OnClick(object? sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel viewModel)
@@ -309,6 +338,11 @@ public partial class MainWindow : Window
         });
     }
 
+    /// <summary>
+    /// Opens a folder picker dialog to select the manifests directory and updates the configuration with the selected path.
+    /// </summary>
+    /// <param name="sender">The button that triggered the event.</param>
+    /// <param name="e">The event data associated with the button click.</param>
     private void ManifestsDirSelect_OnClick(object? sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel viewModel)
@@ -327,6 +361,11 @@ public partial class MainWindow : Window
         });
     }
 
+    /// <summary>
+    /// Opens a folder picker dialog to select the translations directory and updates the configuration with the selected path.
+    /// </summary>
+    /// <param name="sender">The button that triggered the event.</param>
+    /// <param name="e">The event data associated with the button click.</param>
     private void TranslationsDirSelect_OnClick(object? sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel viewModel)
@@ -345,6 +384,11 @@ public partial class MainWindow : Window
         });
     }
 
+    /// <summary>
+    /// Opens a folder picker dialog to select the versions directory and updates the configuration with the selected path.
+    /// </summary>
+    /// <param name="sender">The button that triggered the event.</param>
+    /// <param name="e">The event data associated with the button click.</param>
     private void VersionsDirSelect_OnClick(object? sender, RoutedEventArgs e)
     {
         if (DataContext is not MainViewModel viewModel)
@@ -360,6 +404,29 @@ public partial class MainWindow : Window
                 return;
             
             viewModel.CoreConfig.Launcher.VersionsDirectoryPath = resultPath;
+        });
+    }
+    
+    /// <summary>
+    /// Opens a folder picker dialog to select the Java executable path and updates the configuration with the selected path.
+    /// </summary>
+    /// <param name="sender">The button that triggered the event.</param>
+    /// <param name="e">The event data associated with the button click.</param>
+    private void JavaPathSelect_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel)
+            return;
+        
+        var directoryResult = OpenFolderPickerAsync();
+        directoryResult.ContinueWith(task =>
+        {
+            if (!task.IsCompletedSuccessfully)
+                return;
+
+            if (task.Result is not { } resultPath)
+                return;
+            
+            viewModel.CoreConfig.Java.DefaultJavaPath = resultPath;
         });
     }
     #endregion

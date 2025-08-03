@@ -4,8 +4,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
     xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models"
-    xmlns:vm="using:Tavstal.KonkordLauncher.Desktop.ViewModels"
     Title="Konkord Launcher"
     Width="900"
     Height="550"
@@ -636,7 +636,7 @@
                                                 Classes="TextInput"
                                                 Text="{Binding CoreConfig.Java.DefaultJavaPath, Mode=TwoWay}"
                                                 Watermark="Select a directory..." />
-                                            <Button Grid.Column="2" Classes="IconBtn">
+                                            <Button Grid.Column="2" Classes="IconBtn" Click="JavaPathSelect_OnClick">
                                                 <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
                                             </Button>
                                         </Grid>

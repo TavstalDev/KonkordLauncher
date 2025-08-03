@@ -5,7 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:mdxaml="https://github.com/whistyun/Markdown.Avalonia.Tight"
-    xmlns:vm="using:Tavstal.KonkordLauncher.Desktop.ViewModels"
+    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
     Title="Edit Instance"
     Width="900"
     Height="500"

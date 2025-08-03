@@ -2,7 +2,7 @@ using System.Collections.ObjectModel;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 
-namespace Tavstal.KonkordLauncher.Desktop.ViewModels;
+namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 
 public class EditInstanceViewModel : ViewModelBase
 {

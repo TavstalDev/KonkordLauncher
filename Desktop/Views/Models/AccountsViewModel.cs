@@ -1,6 +1,6 @@
 using ReactiveUI;
 
-namespace Tavstal.KonkordLauncher.Desktop.ViewModels;
+namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 
 public class AccountsViewModel : ViewModelBase
 {

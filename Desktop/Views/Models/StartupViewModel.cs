@@ -1,6 +1,6 @@
 using ReactiveUI;
 
-namespace Tavstal.KonkordLauncher.Desktop.ViewModels;
+namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 
 /// <summary>
 /// Represents the ViewModel for the startup window, managing progress and status text.

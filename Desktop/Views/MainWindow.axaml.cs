@@ -216,8 +216,62 @@ public partial class MainWindow : Window
         SettingsMinecraftTab.Header = TranslationManager.Translate("settings.tab.minecraft");
         SettingsMiscTab.Header = TranslationManager.Translate("settings.tab.misc");
 
-        // TODO: Finish settings translations
+        #region Launcher Settings
+        StEnableUpdatesTb.Text = TranslationManager.Translate("settings.launcher.autoUpdate");
+        StUpdateIntervalTb.Text = TranslationManager.Translate("settings.launcher.updateInterval");
+        StLanguageTb.Text = TranslationManager.Translate("settings.launcher.language");
+        StThemeTb.Text = TranslationManager.Translate("settings.launcher.theme");
+        StDirectoriesSubTitle.Text = TranslationManager.Translate("settings.launcher.subtitle.directories");
         
+        StAssetsTb.Text = TranslationManager.Translate("settings.launcher.dir.assets");
+        StCacheTb.Text = TranslationManager.Translate("settings.launcher.dir.cache");
+        StInstancesTb.Text = TranslationManager.Translate("settings.launcher.dir.instances");
+        StIconsTb.Text = TranslationManager.Translate("settings.launcher.dir.icons");
+        StLibrariesTb.Text = TranslationManager.Translate("settings.launcher.dir.libraries");
+        StManifestsTb.Text = TranslationManager.Translate("settings.launcher.dir.manifests");
+        StTranslationsTb.Text = TranslationManager.Translate("settings.launcher.dir.translations");
+        StVersionsTb.Text = TranslationManager.Translate("settings.launcher.dir.versions");
+        #endregion
+        
+        #region Minecraft Settings
+
+        StMinecraftMaximizedTb.Text = TranslationManager.Translate("settings.minecraft.startMaximized");
+        StWindowWidthTb.Text = TranslationManager.Translate("settings.minecraft.windowWidth");
+        StWindowHeightTb.Text = TranslationManager.Translate("settings.minecraft.windowHeight");
+        StCloseAfterOpenTb.Text = TranslationManager.Translate("settings.minecraft.closeOpen");
+        StCloseAfterExitTb.Text = TranslationManager.Translate("settings.minecraft.closeExit");
+        
+        #endregion
+        
+        #region Java Settings
+        
+        StMinMemoryTb.Text = TranslationManager.Translate("settings.java.minMemory");
+        StMaxMemoryTb.Text = TranslationManager.Translate("settings.java.maxMemory");
+        StPermaGenTb.Text = TranslationManager.Translate("settings.java.permaGen");
+        StJavaPathTb.Text = TranslationManager.Translate("settings.java.path");
+        StJavaPathInput.Watermark = TranslationManager.Translate("common.select.directory");
+        StJvmArgsTb.Text = TranslationManager.Translate("settings.java.jvmArgs");
+        
+        #endregion
+
+        #region Misc Settings
+
+        StCustomCommandsTb.Text = TranslationManager.Translate("settings.misc.subtitle.customCommands");
+        StPreLaunchTb.Text = TranslationManager.Translate("settings.misc.prelaunchCommand");
+        StWrapperTb.Text = TranslationManager.Translate("settings.misc.wrapperCommand");
+        StPostExitTb.Text = TranslationManager.Translate("settings.misc.postExitCommand");
+        StNativeLibrariesTb.Text = TranslationManager.Translate("settings.misc.subtitle.nativeLibraries");
+        StUseCustomGlfwTb.Text = TranslationManager.Translate("settings.misc.customGLFW");
+        StGlfwPathTb.Text = TranslationManager.Translate("settings.misc.pathGLFW");
+        StUseCustomOpenAlTb.Text = TranslationManager.Translate("settings.misc.customOpenAL");
+        StOpenAlPathTb.Text = TranslationManager.Translate("settings.misc.pathOpenAL");
+        StPerformanceTb.Text = TranslationManager.Translate("settings.misc.subtitle.performance");
+        StEnableMangoHudTb.Text = TranslationManager.Translate("settings.misc.enableMangoHud");
+        StFeralGameModeTb.Text = TranslationManager.Translate("settings.misc.enableGameMode");
+        StUseDedicatedGpuTb.Text = TranslationManager.Translate("settings.misc.useDedicatedGpu");
+
+        #endregion
+
         #endregion
     }
 

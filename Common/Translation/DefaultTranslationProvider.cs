@@ -61,6 +61,12 @@ public static class DefaultTranslationProvider
         
         #endregion
 
+        #region Common
+
+        {"common.select.directory", "Select a directory..."},
+
+        #endregion
+        
         #region Settings
         
         {"settings.tab.java", "Java"},
@@ -68,9 +74,50 @@ public static class DefaultTranslationProvider
         {"settings.tab.launcher", "Launcher"},
         {"settings.tab.misc", "Misc"},
         
+        {"settings.launcher.autoUpdate", "Enable automatic updates"},
+        {"settings.launcher.updateInterval", "Update interval (hours)"},
+        {"settings.launcher.language", "Language"},
+        {"settings.launcher.theme", "Theme"},
+        {"settings.launcher.subtitle.directories", "Directories"},
         
+        {"settings.launcher.dir.assets", "Assets"},
+        {"settings.launcher.dir.cache", "Cache"},
+        {"settings.launcher.dir.instances", "Instances"},
+        {"settings.launcher.dir.icons", "Icons"},
+        {"settings.launcher.dir.libraries", "Libraries"},
+        {"settings.launcher.dir.manifests", "Manifests"},
+        {"settings.launcher.dir.translations", "Translations"},
+        {"settings.launcher.dir.versions", "Versions"},
 
+        {"settings.minecraft.startMaximized", "Start Minecraft maximized"},
+        {"settings.minecraft.windowWidth", "Window width"},
+        {"settings.minecraft.windowHeight", "Window height"},
+        {"settings.minecraft.closeOpen", "Close launcher after game opens"},
+        {"settings.minecraft.closeExit", "Close launcher after game closes"},
+
+        {"settings.java.minMemory", "Minimum memory"},
+        {"settings.java.maxMemory", "Maximum memory"},
+        {"settings.java.permaGen", "PermaGen"},
+        {"settings.java.path", "Java path"},
+        {"settings.java.jvmArgs", "JVM Arguments"},
+
+        {"settings.misc.subtitle.customCommands", "Custom Commands"},
+        {"settings.misc.prelaunchCommand", "Pre-launch"},
+        {"settings.misc.wrapperCommand", "Wrapper"},
+        {"settings.misc.postExitCommand", "Post-exit"},
+        {"settings.misc.subtitle.nativeLibraries", "Native Libraries"},
+        {"settings.misc.customGLFW", "Use custom GLFW library"},
+        {"settings.misc.pathGLFW", "GLFW library path"},
+        {"settings.misc.customOpenAL", "Use custom OpenAL library"},
+        {"settings.misc.pathOpenAL", "OpenAL library path"},
+        {"settings.misc.subtitle.performance", "Performance"},
+        {"settings.misc.enableMangoHud", "Enable MangoHUD"},
+        {"settings.misc.enableGameMode", "Enable Feral GameMode"},
+        {"settings.misc.useDedicatedGpu", "Use dedicated GPU"},
+        
         #endregion
+        
+        {"", ""},
     };
 
     /// <summary>

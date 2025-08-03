@@ -6,6 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
     xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models"
+    xmlns:local="clr-namespace:Tavstal.KonkordLauncher.Desktop"
     Title="Konkord Launcher"
     Width="900"
     Height="550"
@@ -532,7 +533,7 @@
                                                 Classes="NumericInput"
                                                 FormatString="0"
                                                 Increment="10"
-                                                Maximum="1920"
+                                                Maximum="{x:Static local:App.ScreenWidth}"
                                                 Minimum="100"
                                                 Value="{Binding CoreConfig.Minecraft.WindowWidth, Mode=TwoWay}"
                                                 IsEnabled="{Binding !CoreConfig.Minecraft.StartMaximized}"/>
@@ -552,7 +553,7 @@
                                                 Classes="NumericInput"
                                                 FormatString="0"
                                                 Increment="10"
-                                                Maximum="1080"
+                                                Maximum="{x:Static local:App.ScreenHeight}"
                                                 Minimum="100"
                                                 Value="{Binding CoreConfig.Minecraft.WindowHeight, Mode=TwoWay}"
                                                 IsEnabled="{Binding !CoreConfig.Minecraft.StartMaximized}"/>

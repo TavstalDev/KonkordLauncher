@@ -35,6 +35,7 @@ public partial class MainWindow : Window
         if (screen == null)
             throw new InvalidOperationException("No primary screen found."); // Ensure there is a primary screen
         _screenSize = screen.Bounds.Size;
+        App.SetScreenSize(_screenSize);
        
         
         // Instantiate your ViewModel and assign it to the DataContext

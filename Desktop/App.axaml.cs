@@ -10,6 +10,16 @@ namespace Tavstal.KonkordLauncher.Desktop;
 /// </summary>
 public partial class App : Application
 {
+    private static PixelSize _screenSize = new PixelSize(1920, 1080);
+    public static PixelSize ScreenSize => _screenSize;
+    public static decimal ScreenWidth => _screenSize.Width;
+    public static decimal ScreenHeight => _screenSize.Height;
+    public static void SetScreenSize(PixelSize screenSize)
+    {
+        _screenSize = screenSize;
+    }
+    
+    
     /// <summary>
     /// Initializes the application by loading XAML resources.
     /// </summary>

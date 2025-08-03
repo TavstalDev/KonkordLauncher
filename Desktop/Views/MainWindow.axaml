@@ -302,7 +302,8 @@
                                                 Increment="1"
                                                 Maximum="8760"
                                                 Minimum="1"
-                                                Value="{Binding CoreConfig.Launcher.UpdateInterval, Mode=TwoWay}" />
+                                                Value="{Binding CoreConfig.Launcher.UpdateInterval, Mode=TwoWay}"
+                                                IsEnabled="{Binding CoreConfig.Launcher.EnableAutomaticUpdates}"/>
                                         </Grid>
                                         <!--  Language  -->
                                         <Grid ColumnDefinitions="Auto, *">
@@ -532,7 +533,8 @@
                                                 Increment="10"
                                                 Maximum="1920"
                                                 Minimum="100"
-                                                Value="{Binding CoreConfig.Minecraft.WindowWidth, Mode=TwoWay}" />
+                                                Value="{Binding CoreConfig.Minecraft.WindowWidth, Mode=TwoWay}"
+                                                IsEnabled="{Binding !CoreConfig.Minecraft.StartMaximized}"/>
                                         </Grid>
                                         <!--  Window Height  -->
                                         <Grid>
@@ -551,7 +553,8 @@
                                                 Increment="10"
                                                 Maximum="1080"
                                                 Minimum="100"
-                                                Value="{Binding CoreConfig.Minecraft.WindowHeight, Mode=TwoWay}" />
+                                                Value="{Binding CoreConfig.Minecraft.WindowHeight, Mode=TwoWay}"
+                                                IsEnabled="{Binding !CoreConfig.Minecraft.StartMaximized}"/>
                                         </Grid>
                                         <!--  Close Launcher after game opens  -->
                                         <CheckBox Name="StCloseAfterOpenCb" IsChecked="{Binding CoreConfig.Minecraft.CloseLauncherOnGameStart, Mode=TwoWay}">
@@ -583,7 +586,7 @@
                                                 Classes="NumericInput"
                                                 FormatString="0\ MB"
                                                 Increment="128"
-                                                Maximum="131072"
+                                                Maximum="{Binding CoreConfig.Java.MaxMemory}"
                                                 Minimum="512"
                                                 Value="{Binding CoreConfig.Java.MinMemory, Mode=TwoWay}" />
                                         </Grid>
@@ -711,7 +714,8 @@
                                                 Name="StGlfwPathInput"
                                                 Grid.Column="1"
                                                 Classes="TextInput"
-                                                Text="{Binding CoreConfig.Misc.CustomGlfwPath, Mode=TwoWay}" />
+                                                Text="{Binding CoreConfig.Misc.CustomGlfwPath, Mode=TwoWay}"
+                                                IsEnabled="{Binding CoreConfig.Misc.UseCustomGlfw}"/>
                                         </Grid>
                                         <!--  Use custom OpenAL  -->
                                         <CheckBox Name="StUseCustomOpenAlCb" IsChecked="{Binding CoreConfig.Misc.UseCustomOpenAl, Mode=TwoWay}">
@@ -726,7 +730,8 @@
                                                 Name="StOpenAlPathInput"
                                                 Grid.Column="1"
                                                 Classes="TextInput"
-                                                Text="{Binding CoreConfig.Misc.CustomOpenAlPath, Mode=TwoWay}" />
+                                                Text="{Binding CoreConfig.Misc.CustomOpenAlPath, Mode=TwoWay}"
+                                                IsEnabled="{Binding CoreConfig.Misc.UseCustomOpenAl}" />
                                         </Grid>
                                         <!--  Subtitle  -->
                                         <TextBlock Name="StPerformanceTb" Classes="SettingsCategory">

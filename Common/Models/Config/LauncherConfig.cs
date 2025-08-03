@@ -12,8 +12,8 @@ public class LauncherConfig
     [JsonProperty("updateInterval"), JsonPropertyName("updateInterval")]
     public uint UpdateInterval { get; set; }
 
-    [JsonProperty("lastUpdateCheck"), JsonPropertyName("lastUpdateCheck")]
-    public DateTime LastUpdateCheck { get; set; }
+    [JsonProperty("nextUpdateCheck"), JsonPropertyName("nextUpdateCheck")]
+    public DateTime NextUpdateCheck { get; set; }
     
     [JsonProperty("language"), JsonPropertyName("language")]
     public string Language { get; set; }
@@ -49,7 +49,7 @@ public class LauncherConfig
     {
         EnableAutomaticUpdates = true;
         UpdateInterval = 24; // Default to 24 hours
-        LastUpdateCheck = DateTime.MinValue; // Default to never checked
+        NextUpdateCheck = DateTime.MinValue; // Default to never checked
         Language = "en"; // Default language
         Theme = EThemeType.Automatic; // Default theme type
         AssetsDirectoryPath = Path.Combine(PathHelper.ApplicationDir, "assets");
@@ -62,11 +62,11 @@ public class LauncherConfig
         VersionsDirectoryPath = Path.Combine(PathHelper.ApplicationDir, "versions");
     }
 
-    public LauncherConfig(bool enableAutomaticUpdates, uint updateInterval, DateTime lastUpdateCheck, string language, EThemeType theme, string assetsDirectoryPath, string cacheDirectoryPath, string iconsDirectoryPath, string instancesDirectoryPath, string librariesDirectoryPath, string manifestsDirectoryPath, string translationsDirectoryPath, string versionsDirectoryPath)
+    public LauncherConfig(bool enableAutomaticUpdates, uint updateInterval, DateTime nextUpdateCheck, string language, EThemeType theme, string assetsDirectoryPath, string cacheDirectoryPath, string iconsDirectoryPath, string instancesDirectoryPath, string librariesDirectoryPath, string manifestsDirectoryPath, string translationsDirectoryPath, string versionsDirectoryPath)
     {
         EnableAutomaticUpdates = enableAutomaticUpdates;
         UpdateInterval = updateInterval;
-        LastUpdateCheck = lastUpdateCheck;
+        NextUpdateCheck = nextUpdateCheck;
         Language = language;
         Theme = theme;
         AssetsDirectoryPath = assetsDirectoryPath;

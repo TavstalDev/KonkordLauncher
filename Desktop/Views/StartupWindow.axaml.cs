@@ -120,11 +120,21 @@ public partial class StartupWindow : Window, IProgressReporter
         }
 
         // 9. Check for Updates
-        SetStatusTranslated("startup.progress.checking");
-        await Task.Delay(_stepDelay);
-        if (await CheckUpdateAsync())
-            return;
-
+        var settings = await LauncherHelper.GetLauncherSettingsAsync();
+        if (settings.Launcher.EnableAutomaticUpdates && DateTime.Now > settings.Launcher.NextUpdateCheck)
+        {
+            SetStatusTranslated("startup.progress.checking");
+            await Task.Delay(_stepDelay);
+            
+            settings.Launcher.NextUpdateCheck = DateTime.Now.AddHours(settings.Launcher.UpdateInterval == 0 ? 1 : settings.Launcher.UpdateInterval);
+            await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherConfigPath, settings);
+            
+            if (await CheckUpdateAsync())
+                return;
+            
+            _logger.Debug("No updates found, starting application...");
+        }
+        
         Dispatcher.UIThread.Post(() =>
         {
             _desktopLifetime.MainWindow = new MainWindow();
@@ -163,17 +173,27 @@ public partial class StartupWindow : Window, IProgressReporter
             string? latestVersion = jsonObject["tag_name"]?.ToString();
 
             // 2. Compare the current version with the latest version
-            var version = Assembly.GetExecutingAssembly().GetName().Version;
+            Version? currentVersion;
+            object[] versionAttributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false);
+            if (versionAttributes.Length > 0)
+            {
+                AssemblyInformationalVersionAttribute informationalVersionAttribute = (AssemblyInformationalVersionAttribute)versionAttributes[0];
+                currentVersion = new Version(informationalVersionAttribute.InformationalVersion);
+            }
+            else
+                currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
 
-            if (latestVersion == null || version == null)
+            if (latestVersion == null || currentVersion == null)
             {
                 _logger.Error("Failed to parse latest version or current version");
                 return false;
             }
 
-            if (version.ToString() == latestVersion)
+            var latestVer = new Version(latestVersion);
+            _logger.Debug($"Comparing versions: current={currentVersion}, latest={latestVer}");
+            if (currentVersion >= latestVer)
                 return false;
-
+            
             await UpdateLauncherAsync();
             return true;
         }

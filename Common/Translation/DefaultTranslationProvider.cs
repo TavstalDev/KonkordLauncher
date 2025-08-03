@@ -34,6 +34,43 @@ public static class DefaultTranslationProvider
         {"startup.progress.restarting", "Restarting..."},
         
         #endregion
+
+        #region Main
+        {"main.title", "Konkord Launcher"},
+        {"main.subtitle", "Ready for Adventure?"},
+        
+        {"main.sidebar.play", "Play"},
+        {"main.sidebar.news", "News"},
+        {"main.sidebar.accounts", "Accounts"},
+        {"main.sidebar.settings", "Settings"},
+        
+        {"main.sidebar.version.update.none", "Ready to launch. No update available."},
+        {"main.sidebar.version.update.available", "Ready to launch. Update available."},
+
+        {"main.page.play.title", "Launch Game"},
+        {"main.page.play.empty", "No instances found. Create one to start playing."},
+        
+        {"main.page.news.title", "News"},
+        {"main.page.news.empty", "No news available."},
+        {"main.page.news.read", "Read More"},
+        
+        {"main.page.accounts.title", "Accounts"},
+        {"main.page.accounts.empty", "No accounts found. Add one to start playing."},
+        
+        {"main.page.settings.title", "Settings"},
+        
+        #endregion
+
+        #region Settings
+        
+        {"settings.tab.java", "Java"},
+        {"settings.tab.minecraft", "Minecraft"},
+        {"settings.tab.launcher", "Launcher"},
+        {"settings.tab.misc", "Misc"},
+        
+        
+
+        #endregion
     };
 
     /// <summary>

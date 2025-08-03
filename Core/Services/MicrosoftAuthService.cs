@@ -15,7 +15,7 @@ namespace Tavstal.KonkordLauncher.Core.Services;
 /// </summary>
 public static class MicrosoftAuthService
 {
-    private static readonly CoreLogger _logger = new(typeof(MicrosoftAuthService), false);
+    private static readonly CoreLogger _logger = new(typeof(MicrosoftAuthService));
     private static string _microsoftClientId = "496a0c42-aa74-41fe-b7bc-0ad155cdaa26"; // TODO: Remove hardcoded client ID and set it via SetClientId method.
     private static readonly string _redirectAuthenticateUrl = Path.Combine(AuthService.ListeningUrl, "microsoft/authcallback");
     //private static readonly string _redirectTokenUrl = Path.Combine(AuthService.ListeningUrl, "microsoft/tokencallback");

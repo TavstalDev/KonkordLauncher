@@ -12,7 +12,7 @@ public static class AuthService
     private static bool _isListening;
     private static HttpListener? _httpListener;
     public const string ListeningUrl = "http://localhost:43319/";
-    private static readonly CoreLogger _logger = new(typeof(AuthService), false);
+    private static readonly CoreLogger _logger = new(typeof(AuthService));
     
     /// <summary>
     /// Starts the HTTP listener to handle incoming authentication requests.

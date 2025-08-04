@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Desktop.Models;
+using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 

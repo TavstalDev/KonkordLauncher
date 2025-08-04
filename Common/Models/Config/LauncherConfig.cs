@@ -51,7 +51,7 @@ public class LauncherConfig
         UpdateInterval = 24; // Default to 24 hours
         NextUpdateCheck = DateTime.MinValue; // Default to never checked
         Language = "en"; // Default language
-        Theme = EThemeType.Automatic; // Default theme type
+        Theme = EThemeType.Dark; // Default theme type
         AssetsDirectoryPath = Path.Combine(PathHelper.ApplicationDir, "assets");
         CacheDirectoryPath = Path.Combine(PathHelper.ApplicationDir, "cache");
         IconsDirectoryPath = Path.Combine(PathHelper.ApplicationDir, "icons");

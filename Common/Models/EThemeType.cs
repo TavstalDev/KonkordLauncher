@@ -6,17 +6,12 @@ namespace Tavstal.KonkordLauncher.Common.Models;
 public enum EThemeType
 {
     /// <summary>
-    /// Automatically selects the theme based on system settings or preferences.
-    /// </summary>
-    Automatic = 0,
-
-    /// <summary>
     /// Represents the light theme.
     /// </summary>
-    Light = 1,
+    Light = 0,
 
     /// <summary>
     /// Represents the dark theme.
     /// </summary>
-    Dark = 2,
+    Dark = 1,
 }

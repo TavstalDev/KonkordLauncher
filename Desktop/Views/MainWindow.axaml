@@ -338,7 +338,6 @@
                                                 Grid.Column="1"
                                                 Classes="TextDropdown"
                                                 SelectedIndex="{Binding CoreConfig.Launcher.Theme, Mode=TwoWay}">
-                                                <ComboBoxItem Content="Automatic" />
                                                 <ComboBoxItem Content="Light" />
                                                 <ComboBoxItem Content="Dark" />
                                             </ComboBox>

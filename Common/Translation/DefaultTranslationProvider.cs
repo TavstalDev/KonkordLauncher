@@ -40,9 +40,10 @@ public static class DefaultTranslationProvider
         {"main.subtitle", "Ready for Adventure?"},
         
         {"main.sidebar.play", "Play"},
-        {"main.sidebar.news", "News"},
+        {"main.sidebar.patch", "Patch Notes"},
         {"main.sidebar.accounts", "Accounts"},
         {"main.sidebar.settings", "Settings"},
+        {"main.sidebar.about", "About"},
         
         {"main.sidebar.version.update.none", "Ready to launch. No update available."},
         {"main.sidebar.version.update.available", "Ready to launch. Update available."},
@@ -50,9 +51,9 @@ public static class DefaultTranslationProvider
         {"main.page.play.title", "Launch Game"},
         {"main.page.play.empty", "No instances found. Create one to start playing."},
         
-        {"main.page.news.title", "News"},
-        {"main.page.news.empty", "No news available."},
-        {"main.page.news.read", "Read More"},
+        {"main.page.patch.title", "Patch Notes"},
+        {"main.page.patch.empty", "No patches available."},
+        {"main.page.patch.read", "Read More"},
         
         {"main.page.accounts.title", "Accounts"},
         {"main.page.accounts.empty", "No accounts found. Add one to start playing."},

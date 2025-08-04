@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -26,6 +27,45 @@ public partial class App : Application
     public static void SetScreenSize(PixelSize screenSize)
     {
         _screenSize = screenSize;
+    }
+
+    private static string _version;
+    public static string Version
+    {
+        get
+        {
+            if (!string.IsNullOrEmpty(_version))
+                return _version;
+            
+            Version? currentVersion;
+            object[] versionAttributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false);
+            if (versionAttributes.Length > 0)
+            {
+                AssemblyInformationalVersionAttribute informationalVersionAttribute = (AssemblyInformationalVersionAttribute)versionAttributes[0];
+                currentVersion = new Version(informationalVersionAttribute.InformationalVersion);
+            }
+            else
+                currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
+            
+            _version = currentVersion?.ToString() ?? "2.0.0";
+            return _version;
+        }
+    }
+    public static string Branch => "stable";
+    public static string BuildDate
+    {
+        get // TODO: Use a more reliable method to get the build date
+        {
+            object[] buildDateAttributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyMetadataAttribute), false);
+            foreach (var attribute in buildDateAttributes)
+            {
+                if (attribute is AssemblyMetadataAttribute metadata && metadata.Key == "BuildDate")
+                {
+                    return metadata.Value ?? DateTime.UtcNow.ToString("yyyy-MM-dd");
+                }
+            }
+            return DateTime.UtcNow.ToString("yyyy-MM-dd");
+        }
     }
     
     /// <summary>

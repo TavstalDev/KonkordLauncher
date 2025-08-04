@@ -117,6 +117,55 @@ public static class TranslationManager
         _currentLanguage = language;
         _translations = translation ?? DefaultTranslationProvider.Translations;
     }
+    
+    /// <summary>
+    /// Ensures that the language file for the specified language exists locally.
+    /// If the file does not exist, it attempts to download and save it from a remote source.
+    /// </summary>
+    /// <param name="language">The language code for which the file should be ensured.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation. The task result contains a boolean value:
+    /// true if the language file exists or was successfully created, otherwise false.
+    /// </returns>
+    public static async Task<bool> EnsureLanguageFileExistsAsync(string language)
+    {
+        try
+        {
+            var settings = await LauncherHelper.GetLauncherSettingsAsync();
+            string localePath = Path.Combine(settings.Launcher.TranslationsDirectoryPath, $"{language}.json");
+            if (File.Exists(localePath))
+                return true;
+
+            var languagePack = LanguagePackProvider.LanguagePacks.Find(x => x.TwoLetterCode == language);
+            if (languagePack == null)
+            {
+                _logger.Warn("Language pack not found for the current locale.");
+                return false;
+            }
+
+            string? resultJson = await HttpHelper.GetStringAsync(languagePack.Url);
+            if (resultJson == null)
+            {
+                _logger.Warn("Failed to fetch translations from the URL.");
+                return false;
+            }
+
+            Dictionary<string, string>? translation = JsonConvert.DeserializeObject<Dictionary<string, string>>(resultJson);
+            if (translation == null)
+            {
+                _logger.Error("Failed to deserialize translations from the URL.");
+                return false;
+            }
+            
+            return await SaveTranslationAsync(localePath, translation);
+        }
+        catch (Exception ex)
+        {
+            _logger.Exc("Failed to ensure language file exists.");
+            _logger.Error(ex);
+            return false;
+        }
+    }
 
     /// <summary>
     /// Reads a translation file asynchronously.

@@ -69,7 +69,7 @@
                 </Grid>
             </Border>
         </DataTemplate>
-        <!--  News Card  -->
+        <!--  Patch Card  -->
         <DataTemplate DataType="models:NewsCardModel">
             <Border Classes="NewsCard">
                 <StackPanel>
@@ -149,7 +149,7 @@
                     Name="NewsSideBtn"
                     Classes="SidebarBtn SecondaryBtn"
                     Click="OnNewsSideButtonClick"
-                    Content="News" />
+                    Content="Patch Notes" />
                 <Button
                     Name="AccountsSideBtn"
                     Classes="SidebarBtn SecondaryBtn"
@@ -160,6 +160,11 @@
                     Classes="SidebarBtn SecondaryBtn"
                     Click="OnSettingsSideButtonClick"
                     Content="Settings" />
+                <Button
+                    Name="AboutSideBtn"
+                    Classes="SidebarBtn SecondaryBtn"
+                    Click="OnAboutSideButtonClick"
+                    Content="About" />
             </StackPanel>
 
             <!--  Footer with Version and Copyright  -->
@@ -218,15 +223,15 @@
                             </ScrollViewer>
                         </Grid>
                     </StackPanel>
-                    <!--  News Page  -->
+                    <!--  Patch Page  -->
                     <StackPanel Classes="MainContentArea">
                         <!--  Title  -->
                         <TextBlock
                             Name="NewsPageTitleTextBlock"
                             Classes="MainContentTitle"
-                            Text="News" />
-                        <!--  No news text  -->
-                        <TextBlock Name="NoNewsTextBlock" Text="We do not have news." />
+                            Text="Patch Notes" />
+                        <!-- Empty text  -->
+                        <TextBlock Name="NoNewsTextBlock" Text="We do not have patches." />
                         <!--  News Grid  -->
                         <Grid MaxHeight="440">
                             <ScrollViewer>
@@ -755,6 +760,161 @@
                             </TabItem>
                         </TabControl>
                     </Grid>
+                    <!-- About Page  -->
+                    <TabControl Grid.Row="1" Classes="AboutTab">
+                        <!-- About  -->
+                        <TabItem Classes="AboutTabItem" Header="About">
+                            <ScrollViewer>
+                                <Grid Classes="AboutWrapper" RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto">
+                                    <!-- Logo -->
+                                    <Image Classes="AboutLogo" Source="../Assets/Images/logo.png" />
+                                    <!-- Description  -->
+                                    <TextBlock Grid.Row="1" Classes="CreditText">
+                                        Konkord Launcher is an open-source, lightweight, and highly customizable Minecraft launcher designed for power users and modding enthusiasts. It provides advanced control over game instances, resource management, and versioning. 
+                                    </TextBlock>
+                                    <!-- Github Link  -->
+                                    <HyperlinkButton Grid.Row="2" NavigateUri="https://github.com/TavstalDev/KonkordLauncher" HorizontalAlignment="Center">
+                                        <TextBlock Classes="LinkText">
+                                            https://github.com/TavstalDev/KonkordLauncher
+                                        </TextBlock>
+                                    </HyperlinkButton>
+                                    <!-- Website Link  -->
+                                    <HyperlinkButton Grid.Row="3" NavigateUri="https://tavstaldev.github.io/KonkordLauncher" HorizontalAlignment="Center">
+                                        <TextBlock Classes="LinkText">
+                                            https://tavstaldev.github.io/KonkordLauncher
+                                        </TextBlock>
+                                    </HyperlinkButton>
+                                    <!-- Line -->
+                                    <Border Grid.Row="4" Classes="BreakLine" />
+                                    <!-- Version  -->
+                                    <WrapPanel Grid.Row="5" Classes="AboutVersionWrapper">
+                                        <TextBlock Classes="CreditText">
+                                            Version:
+                                        </TextBlock>
+                                        <TextBlock Classes="CreditText" Text="{Binding Version}" />
+                                    </WrapPanel>
+                                    <!-- Build Date  -->
+                                    <WrapPanel Grid.Row="6" Classes="AboutVersionWrapper">
+                                        <TextBlock Classes="CreditText">
+                                            Build date:
+                                        </TextBlock>
+                                        <TextBlock Classes="CreditText" Text="{Binding BuildDate}" />
+                                    </WrapPanel>
+                                    <!-- Branch  -->
+                                    <WrapPanel Grid.Row="7" Classes="AboutVersionWrapper">
+                                        <TextBlock Classes="CreditText">
+                                            Branch:
+                                        </TextBlock>
+                                        <TextBlock Classes="CreditText" Text="{Binding Branch}" />
+                                    </WrapPanel>
+                                </Grid>
+                            </ScrollViewer>
+                        </TabItem>
+                        <!-- Credits  -->
+                        <TabItem Classes="AboutTabItem" Header="Credits">
+                            <ScrollViewer>
+                                <Grid Classes="AboutWrapper" RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto">
+                                    <!-- Project Maintainers -->
+                                    <WrapPanel Classes="CreditWrapper">
+                                        <!--  Subtitle  -->
+                                        <TextBlock Classes="AboutCategory">
+                                            Project Maintainers
+                                        </TextBlock>
+                                        <TextBlock Classes="CreditText">
+                                            Tavstal
+                                        </TextBlock>
+                                    </WrapPanel>
+                                    <!-- Line -->
+                                    <Border Grid.Row="1" Classes="BreakLine" />
+                                    <!-- Core Contributors -->
+                                    <WrapPanel Grid.Row="2" Classes="CreditWrapper">
+                                        <!--  Subtitle  -->
+                                        <TextBlock Classes="AboutCategory">
+                                            Core Contributors
+                                        </TextBlock>
+                                        <TextBlock Classes="CreditText">
+                                            -
+                                        </TextBlock>
+                                    </WrapPanel>
+                                    <!-- Line -->
+                                    <Border Grid.Row="3" Height="1" Classes="BreakLine" />
+                                    <!-- Special Thanks -->
+                                    <WrapPanel Grid.Row="4" Classes="CreditWrapper">
+                                        <!--  Subtitle  -->
+                                        <TextBlock Classes="AboutCategory">
+                                            Special Thanks
+                                        </TextBlock>
+                                        <TextBlock Classes="CreditText">
+                                            -
+                                        </TextBlock>
+                                    </WrapPanel>
+                                    <!-- Line -->
+                                    <Border Grid.Row="5" Height="1" Classes="BreakLine" />
+                                    <!-- Third-Party -->
+                                    <WrapPanel Grid.Row="6" Classes="CreditWrapper">
+                                        <!--  Subtitle  -->
+                                        <TextBlock Classes="AboutCategory">
+                                            Third-Party
+                                        </TextBlock>
+                                        <!-- AvaloniaUI -->
+                                        <TextBlock Classes="CreditText">
+                                            AvaloniaUI: Cross-platform UI framework.
+                                        </TextBlock>
+                                        <!-- CommunityToolkit.Mvvm -->
+                                        <TextBlock Classes="CreditText">
+                                            CommunityToolkit.Mvvm: MVVM helper types.
+                                        </TextBlock>
+                                        <!-- Newtonsoft.Json -->
+                                        <TextBlock Classes="CreditText">
+                                            Newtonsoft.Json: JSON serialization.
+                                        </TextBlock>
+                                        <!-- Markdown.Avalonia & ReverseMarkdown -->
+                                        <TextBlock Classes="CreditText">
+                                            Markdown.Avalonia and ReverseMarkdown: Markdown handling.
+                                        </TextBlock>
+                                        <!-- SharpZipLib -->
+                                        <TextBlock Classes="CreditText">
+                                            SharpZipLib: File compression library.
+                                        </TextBlock>
+                                        <!-- CmlLib -->
+                                        <TextBlock Classes="CreditText">
+                                            CmlLib: Provided a reference for the Forge installation logic.
+                                        </TextBlock>
+                                        <!-- Modrinth & CurseForge -->
+                                        <TextBlock Classes="CreditText">
+                                            Modrinth and CurseForge: Used for mod, modpack, and resource pack downloads.
+                                        </TextBlock>
+                                        <!--  Mojang -->
+                                        <TextBlock Classes="CreditText">
+                                            Mojang: Makers of Minecraft.
+                                        </TextBlock>
+                                        <!-- FontAwesome -->
+                                        <TextBlock Classes="CreditText">
+                                            FontAwesome: Icon library.
+                                        </TextBlock>
+                                        <!-- TextStudio -->
+                                        <TextBlock Classes="CreditText">
+                                            TextStudio: Minecraft 3D text creator.
+                                        </TextBlock>
+                                        <!--  Minecraft Block Icons -->
+                                        <TextBlock Classes="CreditText">
+                                            Minecraft Block Icons: Sourced from Minecraft and its wiki.
+                                        </TextBlock>
+                                        <!-- -->
+                                        <TextBlock Classes="CreditText">
+                                            PrismLauncher: A major source of inspiration for the launcher's functionality.
+                                        </TextBlock>
+                                    </WrapPanel>
+                                </Grid>
+                            </ScrollViewer>
+                        </TabItem>
+                        <!-- License  -->
+                        <TabItem Classes="AboutTabItem" Header="License">
+                            <ScrollViewer Classes="LicenseScrollViewer">
+                                <TextBlock Classes="LicenseText" Text="{Binding License}" />
+                            </ScrollViewer>
+                        </TabItem>
+                    </TabControl>
                 </Carousel.Items>
             </Carousel>
         </Border>

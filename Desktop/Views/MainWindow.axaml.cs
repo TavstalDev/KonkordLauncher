@@ -75,7 +75,7 @@ public partial class MainWindow : Window
                 _selectedButton = PlaySideBtn;
                 break;
             }
-            case ESidebarType.News:
+            case ESidebarType.Patch:
             {
                 _selectedButton = NewsSideBtn;
                 break;
@@ -88,6 +88,11 @@ public partial class MainWindow : Window
             case ESidebarType.Settings:
             {
                 _selectedButton = SettingsSideBtn;
+                break;
+            }
+            case ESidebarType.About:
+            {
+                _selectedButton = AboutSideBtn;
                 break;
             }
         }
@@ -180,9 +185,10 @@ public partial class MainWindow : Window
         
         // Side Buttons
         PlaySideBtn.Content = TranslationManager.Translate("main.sidebar.play");
-        NewsSideBtn.Content = TranslationManager.Translate("main.sidebar.news");
+        NewsSideBtn.Content = TranslationManager.Translate("main.sidebar.patch");
         AccountsSideBtn.Content = TranslationManager.Translate("main.sidebar.accounts");
         SettingsSideBtn.Content = TranslationManager.Translate("main.sidebar.settings");
+        AboutSideBtn.Content = TranslationManager.Translate("main.sidebar.about");
         
         VersionLabel.Content = TranslationManager.Translate("main.sidebar.version.update.none");
         #endregion
@@ -196,8 +202,8 @@ public partial class MainWindow : Window
 
         #region News Page
 
-        NewsPageTitleTextBlock.Text = TranslationManager.Translate("main.page.news.title");
-        NoNewsTextBlock.Text = TranslationManager.Translate("main.page.news.empty");
+        NewsPageTitleTextBlock.Text = TranslationManager.Translate("main.page.patch.title");
+        NoNewsTextBlock.Text = TranslationManager.Translate("main.page.patch.empty");
 
         #endregion
 
@@ -286,7 +292,7 @@ public partial class MainWindow : Window
     
     public void OnNewsSideButtonClick(object? sender, RoutedEventArgs e)
     {
-        HandleSidebarChange(ESidebarType.News);
+        HandleSidebarChange(ESidebarType.Patch);
     }
     
     public void OnAccountsSideButtonClick(object? sender, RoutedEventArgs e)
@@ -297,6 +303,11 @@ public partial class MainWindow : Window
     public void OnSettingsSideButtonClick(object? sender, RoutedEventArgs e)
     {
         HandleSidebarChange(ESidebarType.Settings);
+    }
+    
+    private void OnAboutSideButtonClick(object? sender, RoutedEventArgs e)
+    {
+        HandleSidebarChange(ESidebarType.About);
     }
     #endregion
 

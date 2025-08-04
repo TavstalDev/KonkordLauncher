@@ -102,7 +102,8 @@ public partial class App : Application
 
         base.OnFrameworkInitializationCompleted();
     }
-    
+
+    #region Events
     /// <summary>
     /// Delegate for handling theme change events.
     /// </summary>
@@ -182,4 +183,23 @@ public partial class App : Application
         });
         OnLanguageChanged?.Invoke(newLanguage);
     }
+
+    /// <summary>
+    /// Delegate for handling accounts changed events.
+    /// </summary>
+    public delegate void AccountsChangedEventHandler();
+
+    /// <summary>
+    /// Event triggered when the accounts data is changed.
+    /// </summary>
+    public static event AccountsChangedEventHandler? OnAccountsChanged;
+
+    /// <summary>
+    /// Invokes the accounts changed event to notify subscribers of changes in the accounts data.
+    /// </summary>
+    public static void InvokeAccountsChanged()
+    {
+        OnAccountsChanged?.Invoke();
+    }
+    #endregion
 }

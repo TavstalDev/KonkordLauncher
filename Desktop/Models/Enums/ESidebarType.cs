@@ -11,9 +11,9 @@ public enum ESidebarType
     Play = 0,
 
     /// <summary>
-    /// The "News" sidebar option, displaying news and updates.
+    /// The "Patch" sidebar option, for managing game updates or patches.
     /// </summary>
-    News = 1,
+    Patch = 1,
 
     /// <summary>
     /// The "Accounts" sidebar option, for managing user accounts.
@@ -23,5 +23,10 @@ public enum ESidebarType
     /// <summary>
     /// The "Settings" sidebar option, for configuring application settings.
     /// </summary>
-    Settings = 3
+    Settings = 3,
+    
+    /// <summary>
+    /// The "About" sidebar option, providing information about the application.
+    /// </summary>
+    About = 4
 }

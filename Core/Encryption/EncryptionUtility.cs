@@ -25,12 +25,12 @@ public static class EncryptionUtility
     /// <summary>
     /// Encryption key for Linux systems.
     /// </summary>
-    private static readonly string linuxKey = "7CFD81CB-BD69-48DD-A84A-88A30A2574A9";
+    private static readonly string linuxKey = "898c3f038bfc090b62a32156aba62acda193e90e26baf0ab";
 
     /// <summary>
     /// Encryption key for macOS systems.
     /// </summary>
-    private static readonly string macKey = "4E664B51-116D-416B-BA5D-93B7BD220187";
+    private static readonly string macKey = "a83231f9eadeac1e8a3b875d86da77a43e911180d9e88968";
 
     /// <summary>
     /// Encrypts the given text based on the current operating system.
@@ -143,6 +143,9 @@ public static class EncryptionUtility
     {
         try
         {
+            if (string.IsNullOrEmpty(text))
+                return text;
+            
             // TODO: Replace with better Linux encryption method
             // Currently using a simple AES encryption with a static key
             // This is not secure and should be replaced with a proper implementation
@@ -168,6 +171,9 @@ public static class EncryptionUtility
     {
         try
         {
+            if (string.IsNullOrEmpty(text))
+                return text;
+            
             // TODO: Replace with better Linux decryption method
             // Currently using a simple AES decryption with a static key
             // This is not secure and should be replaced with a proper implementation
@@ -193,6 +199,9 @@ public static class EncryptionUtility
     {
         try
         {
+            if (string.IsNullOrEmpty(text))
+                return text;
+            
             // TODO: Replace with better macOS encryption method
             // Currently using a simple AES encryption with a static key
             // This is not secure and should be replaced with a proper implementation
@@ -218,6 +227,9 @@ public static class EncryptionUtility
     {
         try
         {
+            if (string.IsNullOrEmpty(text))
+                return text;
+            
             // TODO: Replace with better macOS decryption method
             // Currently using a simple AES decryption with a static key
             // This is not secure and should be replaced with a proper implementation
@@ -240,14 +252,14 @@ public static class EncryptionUtility
     /// <param name="key">The encryption key.</param>
     /// <param name="plainText">The text to encrypt.</param>
     /// <returns>The encrypted text.</returns>
-    public static string Encrypt(string key, string plainText)
+    private static string Encrypt(string key, string plainText)
     {
         byte[] iv = new byte[16];
         byte[] array;
 
         using (Aes aes = Aes.Create())
         {
-            aes.Key = Encoding.UTF8.GetBytes(key);
+            aes.Key = HexToBytes(key);
             aes.IV = iv;
 
             ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
@@ -271,13 +283,13 @@ public static class EncryptionUtility
     /// <param name="key">The decryption key.</param>
     /// <param name="cipherText">The text to decrypt.</param>
     /// <returns>The decrypted text.</returns>
-    public static string Decrypt(string key, string cipherText)
+    private static string Decrypt(string key, string cipherText)
     {
         byte[] iv = new byte[16];
         byte[] buffer = Convert.FromBase64String(cipherText);
 
         using Aes aes = Aes.Create();
-        aes.Key = Encoding.UTF8.GetBytes(key);
+        aes.Key = HexToBytes(key);
         aes.IV = iv;
         ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
 
@@ -285,5 +297,25 @@ public static class EncryptionUtility
         using CryptoStream cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read);
         using StreamReader streamReader = new StreamReader(cryptoStream);
         return streamReader.ReadToEnd();
+    }
+    
+    /// <summary>
+    /// Converts a hexadecimal string to a byte array.
+    /// </summary>
+    /// <param name="hex">The hexadecimal string.</param>
+    /// <returns>The byte array.</returns>
+    private static byte[] HexToBytes(string hex)
+    {
+        if (hex.Length % 2 != 0)
+        {
+            throw new ArgumentException("Hex string must have an even length.");
+        }
+
+        byte[] bytes = new byte[hex.Length / 2];
+        for (int i = 0; i < hex.Length; i += 2)
+        {
+            bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+        }
+        return bytes;
     }
 }

@@ -322,13 +322,69 @@ public partial class MainWindow : Window
     #endregion
     
     #region Account Button Click Handlers
-
+    /// <summary>
+    /// Handles the click event for adding a new account. Opens the AccountsWindow dialog.
+    /// </summary>
+    /// <param name="sender">The source of the event.</param>
+    /// <param name="e">The event data.</param>
     private void AddAccount_OnClick(object? sender, RoutedEventArgs e)
     {
         var dialog = new AccountsWindow();
         dialog.ShowDialog(this);
     }
 
+    /// <summary>
+    /// Handles the click event for selecting an account. Updates the selected account ID in the ViewModel.
+    /// </summary>
+    /// <param name="sender">The source of the event, expected to be a Button with an Account as its DataContext.</param>
+    /// <param name="e">The event data.</param>
+    private void SelectAccount_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel)
+            return;
+
+        if (sender is not Button { DataContext: Account account })
+            return;
+        
+        viewModel.AccountData.SelectedAccountId = account.Id;
+    }
+
+    /// <summary>
+    /// Handles the click event for refreshing an account. Currently not implemented.
+    /// </summary>
+    /// <param name="sender">The source of the event, expected to be a Button with an Account as its DataContext.</param>
+    /// <param name="e">The event data.</param>
+    private void RefreshAccount_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel)
+            return;
+
+        if (sender is not Button { DataContext: Account account })
+            return;
+        
+        // TODO
+    }
+
+    /// <summary>
+    /// Handles the click event for removing an account. Removes the account from the ViewModel and updates the selected account ID if necessary.
+    /// </summary>
+    /// <param name="sender">The source of the event, expected to be a Button with an Account as its DataContext.</param>
+    /// <param name="e">The event data.</param>
+    private void RemoveAccount_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel)
+            return;
+
+        if (sender is not Button { DataContext: Account account })
+            return;
+
+        viewModel.AccountData.Accounts.Remove(account);
+        if (account.Id != viewModel.AccountData.SelectedAccountId) 
+            return;
+        
+        viewModel.AccountData.SelectedAccountId = viewModel.AccountData.HasAccounts ? viewModel.AccountData.Accounts.FirstOrDefault()?.Id : null;
+    }
+    
     #endregion
 
     #region Settings Handlers

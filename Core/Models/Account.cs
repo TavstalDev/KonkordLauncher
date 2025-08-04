@@ -18,16 +18,10 @@ public class Account
     public string Id { get; set; }
     
     /// <summary>
-    /// Gets or sets the user ID associated with the account.
-    /// </summary>
-    [JsonPropertyName("userId"), JsonProperty("userId")]
-    public string UserId { get; set; }
-
-    /// <summary>
     /// Gets or sets the universally unique identifier (UUID) of the account.
     /// </summary>
     [JsonPropertyName("uuid"), JsonProperty("uuid")]
-    public string UUID { get; set; }
+    public string Uuid { get; set; }
 
     /// <summary>
     /// Gets or sets the display name of the account.
@@ -44,9 +38,11 @@ public class Account
     /// <summary>
     /// Stores the encrypted access token for the account.
     /// </summary>
+    [Obsolete("Use AccessToken property instead. This property should not be used directly.")]
     [JsonPropertyName("accessToken"), JsonProperty("accessToken")]
-    private string _encryptedAccessToken;
-
+    [System.Text.Json.Serialization.JsonIgnore(Condition = JsonIgnoreCondition.Never)]
+    public string EncryptedAccessToken { get; set; }
+    
     /// <summary>
     /// Gets or sets the decrypted access token for the account.
     /// The token is encrypted when set and decrypted when retrieved.
@@ -54,8 +50,10 @@ public class Account
     [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
     public string AccessToken
     {
-        get => EncryptionUtility.Decrypt(_encryptedAccessToken);
-        set => _encryptedAccessToken = EncryptionUtility.Encrypt(value);
+#pragma warning disable CS0618 // Type or member is obsolete
+        get => EncryptionUtility.Decrypt(EncryptedAccessToken);
+        set => EncryptedAccessToken = EncryptionUtility.Encrypt(value);
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 
     /// <summary>
@@ -65,31 +63,29 @@ public class Account
     public DateTime AccessTokenExpireDate { get; set; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Account"/> class.
+    /// Initializes a new instance of the <see cref="Account"/> class with default values.
     /// </summary>
-    public Account()
-    {
-    }
-
+    public Account() {}
+    
     /// <summary>
     /// Initializes a new instance of the <see cref="Account"/> class with the specified parameters.
     /// </summary>
     /// <param name="id">The ID of the account</param>
-    /// <param name="userId">The user ID associated with the account.</param>
-    /// <param name="uUID">The UUID of the account.</param>
+    /// <param name="uuid">The UUID of the account.</param>
     /// <param name="displayName">The display name of the account.</param>
     /// <param name="type">The type of the account.</param>
-    /// <param name="accessToken">The encrypted access token for the account.</param>
+    /// <param name="accessToken">The access token for the account.</param>
     /// <param name="accessTokenExpDate">The expiration date of the access token.</param>
-    public Account(string id, string userId, string uUID, string displayName, EAccountType type, string accessToken,
+    public Account(string id, string uuid, string displayName, EAccountType type, string accessToken,
         DateTime accessTokenExpDate)
     {
         Id = id;
-        UserId = userId;
-        UUID = uUID;
+        Uuid = uuid;
         DisplayName = displayName;
         Type = type;
-        _encryptedAccessToken = accessToken;
+        AccessToken = accessToken;
         AccessTokenExpireDate = accessTokenExpDate;
     }
+    
+    public bool CanExpire => Type != EAccountType.OFFLINE;
 }

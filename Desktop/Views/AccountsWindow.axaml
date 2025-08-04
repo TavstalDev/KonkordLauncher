@@ -67,7 +67,7 @@
                             <!-- Description text -->
                             <TextBlock Classes="AccountsModalDescription" Text="Play with an offline account." />
                             <!-- Username input -->
-                            <TextBox Classes="AccountsModalInput" MaxLength="16"  TextChanged="OfflineUsername_OnTextChanged" />
+                            <TextBox Name="OfflineUsernameInput" Classes="AccountsModalInput" MaxLength="16"  TextChanged="OfflineUsername_OnTextChanged" />
                             <!-- Offline login button -->
                             <Button Classes="IconBtn PrimaryBtn" HorizontalAlignment="Center" Click="OfflineLogin_OnClick">
                                 <TextBlock Classes="MicrosoftButtonText" Text="Login as Offline User" />

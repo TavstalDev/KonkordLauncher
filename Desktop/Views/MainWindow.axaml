@@ -7,6 +7,7 @@
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
     xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models"
     xmlns:local="clr-namespace:Tavstal.KonkordLauncher.Desktop"
+    xmlns:core="clr-namespace:Tavstal.KonkordLauncher.Core.Models;assembly=Core"
     Title="Konkord Launcher"
     Width="900"
     Height="550"
@@ -84,7 +85,7 @@
             </Border>
         </DataTemplate>
         <!--  Account Card  -->
-        <DataTemplate DataType="models:AccountCardModel">
+        <DataTemplate DataType="core:Account">
             <Border Classes="AccountsCard">
                 <Grid Width="450">
                     <Grid.ColumnDefinitions>
@@ -93,7 +94,7 @@
                     </Grid.ColumnDefinitions>
                     <!--  Name & Type  -->
                     <WrapPanel Orientation="Vertical">
-                        <TextBlock Classes="AccountsCardName" Text="{Binding Name}" />
+                        <TextBlock Classes="AccountsCardName" Text="{Binding DisplayName}" />
                         <TextBlock Text="{Binding Type}" TextWrapping="Wrap" />
                     </WrapPanel>
 
@@ -274,7 +275,7 @@
                         <!--  Accounts Grid  -->
                         <Grid MaxHeight="440">
                             <ScrollViewer>
-                                <ItemsControl ItemsSource="{Binding Accounts}">
+                                <ItemsControl ItemsSource="{Binding AccountData.Accounts}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <WrapPanel Classes="AccountsPageWrapper" />

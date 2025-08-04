@@ -1,7 +1,9 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Tavstal.KonkordLauncher.Common.Helpers;
+using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Config;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
@@ -22,7 +24,7 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private ESidebarType _currentPageIndex;
     public ObservableCollection<PlayCardModel> Instances { get; } = [];
     public ObservableCollection<NewsCardModel> News { get; } = [];
-    public ObservableCollection<AccountCardModel> Accounts { get; } = [];
+    [ObservableProperty] private AccountDataModel _accountData;
     [ObservableProperty] private CoreConfigModel _coreConfig;
 
     /// <summary>
@@ -32,35 +34,73 @@ public partial class MainViewModel : ObservableObject
     {
         _currentPageIndex = ESidebarType.Play;
         // TODO: Load instances
-        // Load Accounts
-        RefreshAccounts();
-        
         // TODO: Fetch patches
 
         _coreConfig = new CoreConfigModel(LauncherHelper.GetLauncherSettings());
+        _accountData = new AccountDataModel(LauncherHelper.GetAccountData());
         _isInitialized = true;
         
         SubscribeToCoreConfigChildren(_coreConfig);
+        SubscribeToAccountDataChildren(_accountData);
     }
 
-    /// <summary>
-    /// Refreshes the list of accounts by retrieving account data and populating the Accounts collection.
-    /// </summary>
-    private void RefreshAccounts()
+    #region Account Management
+
+    private void SubscribeToAccountDataChildren(AccountDataModel accountData)
     {
-        var accountData = LauncherHelper.GetAccountData();
-        foreach (var account in accountData.Accounts)
-        {
-            Accounts.Add(new AccountCardModel()
-            {
-                Id = account.Key,
-                Name = account.Value.DisplayName,
-                Type = account.Value.Type.ToString(),
-                IsSelected = accountData.SelectedAccountId == account.Key
-            });
-        }
+        accountData.PropertyChanged += OnChildAccountDataPropertyChanged;
+    }
+    
+    private void UnsubscribeFromAccountDataChildren(AccountDataModel accountData)
+    {
+        accountData.PropertyChanged -= OnChildAccountDataPropertyChanged;
     }
 
+
+    partial void OnAccountDataChanged(AccountDataModel? oldValue, AccountDataModel newValue)
+    {
+        _logger.Debug("AccountData changed with old and new value. Unsubscribing from old, subscribing to new.");
+
+        if (oldValue != null)
+            UnsubscribeFromAccountDataChildren(oldValue);
+
+        SubscribeToAccountDataChildren(newValue);
+        
+        if (!_isInitialized)
+            return;
+        SaveAccountDataToFile(newValue);
+    }
+    
+    private void OnChildAccountDataPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (!_isInitialized)
+            return;
+        _logger.Debug($"Inner property '{e.PropertyName}' changed on {sender?.GetType().Name}. Saving to file...");
+        SaveAccountDataToFile(AccountData);
+    }
+    
+    private void SaveAccountDataToFile(AccountDataModel newValue)
+    {
+        var accounts = new AccountData()
+        {
+            SelectedAccountId = newValue.SelectedAccountId ?? string.Empty,
+            Accounts = newValue.Accounts.Select(a => new Account
+            {
+                Id = a.Id,
+                UserId = a.UserId,
+                UUID = a.UUID,
+                DisplayName = a.DisplayName,
+                Type = a.Type,
+                AccessToken = a.AccessToken,
+                AccessTokenExpireDate = a.AccessTokenExpireDate
+            }).ToList()
+        };
+
+        JsonHelper.WriteJsonFile(PathHelper.LauncherAccountsPath, accounts);
+    }
+
+    #endregion
+    
     #region Config Management
     /// <summary>
     /// Subscribes to property change events for the child configuration objects.

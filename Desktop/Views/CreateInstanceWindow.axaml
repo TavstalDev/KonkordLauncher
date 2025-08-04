@@ -357,11 +357,7 @@
                                     <!--  Modpack Version & Buttons  -->
                                     <Grid ColumnDefinitions="*, *" Grid.Row="1">
                                         <!--  Modpack Version  -->
-                                        <Grid Grid.Column="0">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="*" />
-                                            </Grid.ColumnDefinitions>
+                                        <Grid Grid.Column="0" ColumnDefinitions="Auto, *">
                                             <!--  Text  -->
                                             <TextBlock Classes="TextDropdown" Name="ModpackVersionTb">Pack Version</TextBlock>
                                             <!--  Input  -->

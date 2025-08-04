@@ -550,11 +550,7 @@
                                         <ScrollViewer Classes="ModalScrollViewer">
                                             <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto" RowSpacing="10">
                                                  <!-- Minimum Memory -->
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="Auto" />
-                                                        <ColumnDefinition Width="*" />
-                                                    </Grid.ColumnDefinitions>
+                                                <Grid ColumnDefinitions="Auto, *">
                                                     <!-- Text -->
                                                     <TextBlock Name="StMinMemoryTb" Classes="NumericInput">Minimum memory</TextBlock>
                                                     <!-- Input -->
@@ -569,11 +565,7 @@
                                                         Value="512" />
                                                 </Grid>
                                                 <!-- Maximum Memory -->
-                                                <Grid Grid.Row="1">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="Auto" />
-                                                        <ColumnDefinition Width="*" />
-                                                    </Grid.ColumnDefinitions>
+                                                <Grid Grid.Row="1" ColumnDefinitions="Auto, *">
                                                     <!-- Text -->
                                                     <TextBlock Name="StMaxMemoryTb" Classes="NumericInput">Maximum memory</TextBlock>
                                                     <!-- Input -->
@@ -628,11 +620,7 @@
                                                     <TextBlock Name="StMinecraftMaximizedTb" Text="Start Minecraft maximized" />
                                                 </CheckBox>
                                                 <!--  Window Width  -->
-                                                <Grid Grid.Row="2">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="Auto" />
-                                                        <ColumnDefinition Width="*" />
-                                                    </Grid.ColumnDefinitions>
+                                                <Grid Grid.Row="2" ColumnDefinitions="Auto, *">
                                                     <!--  Text  -->
                                                     <TextBlock Name="StWindowWidthTb" Classes="NumericInput">Window width</TextBlock>
                                                     <!--  Input  -->
@@ -647,11 +635,7 @@
                                                         Value="1920" />
                                                 </Grid>
                                                 <!--  Window Height  -->
-                                                <Grid Grid.Row="3">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="Auto" />
-                                                        <ColumnDefinition Width="*" />
-                                                    </Grid.ColumnDefinitions>
+                                                <Grid Grid.Row="3" ColumnDefinitions="Auto, *">
                                                     <!--  Text  -->
                                                     <TextBlock Name="StWindowHeightTb" Classes="NumericInput">Window height</TextBlock>
                                                     <!--  Input  -->

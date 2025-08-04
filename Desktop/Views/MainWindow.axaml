@@ -26,13 +26,7 @@
         <!--  Play Card  -->
         <DataTemplate DataType="models:PlayCardModel">
             <Border Classes="PlayCard">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-
+                <Grid RowDefinitions="Auto, *, Auto">
                     <!--  Icon  -->
                     <Image
                         Grid.Row="0"
@@ -87,11 +81,7 @@
         <!--  Account Card  -->
         <DataTemplate DataType="core:Account">
             <Border Classes="AccountsCard">
-                <Grid Width="450">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
+                <Grid Width="450" ColumnDefinitions="*, Auto">
                     <!--  Name & Type  -->
                     <WrapPanel Orientation="Vertical">
                         <TextBlock Classes="AccountsCardName" Text="{Binding DisplayName}" />
@@ -100,13 +90,13 @@
 
                     <!--  Buttons  -->
                     <WrapPanel Grid.Column="1" Classes="AccountsCardWrapper">
-                        <Button Classes="IconBtn SuccessBtn">
+                        <Button Classes="IconBtn SuccessBtn" Click="SelectAccount_OnClick">
                             <TextBlock Classes="FontAwesome" Text="&#xf00c;" />
                         </Button>
-                        <Button Classes="IconBtn WarningBtn">
+                        <Button Classes="IconBtn WarningBtn" IsVisible="{Binding CanExpire}" Click="RefreshAccount_OnClick">
                             <TextBlock Classes="FontAwesome" Text="&#xf2f9;" />
                         </Button>
-                        <Button Classes="IconBtn ErrorBtn">
+                        <Button Classes="IconBtn ErrorBtn" Click="RemoveAccount_OnClick">
                             <TextBlock Classes="FontAwesome" Text="&#xf1f8;" />
                         </Button>
                     </WrapPanel>
@@ -115,21 +105,9 @@
         </DataTemplate>
     </Window.DataTemplates>
 
-    <Grid Margin="25">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="300" />
-            <ColumnDefinition Width="25" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-
+    <Grid Margin="25" ColumnDefinitions="300, 25, *">
         <!--  Sidebar Content  -->
-        <Grid Grid.Column="0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-
+        <Grid Grid.Column="0" RowDefinitions="Auto, *, Auto">
             <!--  Logo and Welcome Text  -->
             <StackPanel Grid.Row="0" Margin="0,0,0,30">
                 <Image Source="../Assets/Images/logo2.png" />
@@ -189,12 +167,7 @@
                 <Carousel.Items>
                     <!--  Play Page  -->
                     <StackPanel Classes="MainContentArea">
-                        <Grid Width="480">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-
+                        <Grid Width="480" ColumnDefinitions="*, Auto">
                             <!--  Title  -->
                             <TextBlock
                                 Name="PlayPageTitleTextBlock"
@@ -248,11 +221,7 @@
                     </StackPanel>
                     <!--  Accounts Page  -->
                     <StackPanel Classes="MainContentArea">
-                        <Grid Width="480">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
+                        <Grid Width="480" ColumnDefinitions="*, Auto">
                             <!--  Title  -->
                             <TextBlock
                                 Name="AccountsPageTitleTextBlock"
@@ -271,7 +240,7 @@
                             </Button>
                         </Grid>
                         <!--  No accounts text  -->
-                        <TextBlock Name="NoAccountsTextBlock" Text="You don't have accounts yet." />
+                        <TextBlock Name="NoAccountsTextBlock" Text="You don't have accounts yet." IsVisible="{Binding !AccountData.HasAccounts}" />
                         <!--  Accounts Grid  -->
                         <Grid MaxHeight="440">
                             <ScrollViewer>
@@ -524,11 +493,7 @@
                                             <TextBlock Name="StMinecraftMaximizedTb" Text="Start Minecraft maximized" />
                                         </CheckBox>
                                         <!--  Window Width  -->
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="*" />
-                                            </Grid.ColumnDefinitions>
+                                        <Grid ColumnDefinitions="Auto, *">
                                             <!--  Text  -->
                                             <TextBlock Name="StWindowWidthTb" Classes="NumericInput">Window width</TextBlock>
                                             <!--  Input  -->
@@ -544,11 +509,7 @@
                                                 IsEnabled="{Binding !CoreConfig.Minecraft.StartMaximized}"/>
                                         </Grid>
                                         <!--  Window Height  -->
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="*" />
-                                            </Grid.ColumnDefinitions>
+                                        <Grid ColumnDefinitions="Auto, *">
                                             <!--  Text  -->
                                             <TextBlock Name="StWindowHeightTb" Classes="NumericInput">Window height</TextBlock>
                                             <!--  Input  -->
@@ -579,11 +540,7 @@
                                 <ScrollViewer Margin="0, 0, 10, 0">
                                     <WrapPanel Classes="SettingsWrapper">
                                         <!--  Minimum Memory  -->
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="*" />
-                                            </Grid.ColumnDefinitions>
+                                        <Grid ColumnDefinitions="Auto, *">
                                             <!--  Text  -->
                                             <TextBlock Name="StMinMemoryTb" Classes="NumericInput">Minimum memory</TextBlock>
                                             <!--  Input  -->
@@ -598,11 +555,7 @@
                                                 Value="{Binding CoreConfig.Java.MinMemory, Mode=TwoWay}" />
                                         </Grid>
                                         <!--  Maximum Memory  -->
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="*" />
-                                            </Grid.ColumnDefinitions>
+                                        <Grid ColumnDefinitions="Auto, *">
                                             <!--  Text  -->
                                             <TextBlock Name="StMaxMemoryTb" Classes="NumericInput">Maximum memory</TextBlock>
                                             <!--  Input  -->
@@ -617,11 +570,7 @@
                                                 Value="{Binding CoreConfig.Java.MaxMemory, Mode=TwoWay}" />
                                         </Grid>
                                         <!--  PermGen  -->
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="*" />
-                                            </Grid.ColumnDefinitions>
+                                        <Grid ColumnDefinitions="Auto, *">
                                             <!--  Text  -->
                                             <TextBlock Name="StPermaGenTb" Classes="NumericInput">PermGen</TextBlock>
                                             <!--  Input  -->

@@ -6,6 +6,7 @@
         <Setter Property="FontWeight" Value="500" />
         <Setter Property="FontSize" Value="18" />
         <Setter Property="Margin" Value="0, 0, 0, 10" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
     
     <Style Selector="TextBlock.InstallStepText">
@@ -14,6 +15,7 @@
         <Setter Property="TextWrapping" Value="Wrap" />
         <Setter Property="FontSize" Value="14" />
         <Setter Property="Margin" Value="0, 0, 0, 5" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
     
     <Style Selector="TextBlock.InstallDetailText">
@@ -23,6 +25,7 @@
         <Setter Property="FontWeight" Value="300" />
         <Setter Property="FontSize" Value="12" />
         <Setter Property="Margin" Value="0, 0, 0, 20" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
     
     <Style Selector="ProgressBar.InstallProgress">

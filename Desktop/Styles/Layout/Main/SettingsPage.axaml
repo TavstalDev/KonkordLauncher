@@ -1,7 +1,7 @@
 <Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     
     <Style Selector="TabControl.SettingsTab">
-        <Setter Property="Background" Value="{StaticResource base-200}" />
+        <Setter Property="Background" Value="{DynamicResource base-200}" />
         <Setter Property="CornerRadius" Value="8" />
         <Setter Property="Margin" Value="0,0,0,10" />
         <Setter Property="Padding" Value="0" />
@@ -9,6 +9,7 @@
     
     <Style Selector="TabItem.SettingsTabItem">
         <Setter Property="FontSize" Value="18" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
     
     <Style Selector="WrapPanel.SettingsWrapper">
@@ -25,35 +26,42 @@
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="Margin" Value="0,10" />
         <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
     
     <Style Selector="TextBlock.NumericInput">
         <Setter Property="Margin" Value="0,0,10,0" />
         <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
     
     <Style Selector="NumericUpDown.NumericInput">
         <Setter Property="ParsingNumberStyle" Value="Integer" />
         <Setter Property="ShowButtonSpinner" Value="True" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
     
     <Style Selector="TextBlock.TextDropdown">
         <Setter Property="Margin" Value="0,0,10,0" />
         <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
     
     <Style Selector="ComboBox.TextDropdown">
         <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
     
     <Style Selector="TextBlock.TextInput">
         <Setter Property="Margin" Value="0,0,10,0" />
         <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
     
     <Style Selector="TextBox.TextInput">
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="Margin" Value="0,0,10,0" />
         <Setter Property="IsReadOnly" Value="False" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
 </Styles>

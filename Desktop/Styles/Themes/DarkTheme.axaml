@@ -1,42 +1,40 @@
-<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Styles.Resources>
-        <SolidColorBrush Color="#444" x:Key="base-100" />
-        <SolidColorBrush Color="#363636" x:Key="base-200" />
-        <SolidColorBrush Color="#1A1A1A" x:Key="base-300" />
-        <SolidColorBrush Color="#FFFFFF" x:Key="base-content" />
-        <SolidColorBrush Color="#B3000000" x:Key="base-overlay" />
-        <SolidColorBrush Color="#555" x:Key="border-one" />
-        <SolidColorBrush Color="#666666" x:Key="border-two" />
+<ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <SolidColorBrush x:Key="base-100" Color="#444" />
+    <SolidColorBrush x:Key="base-200" Color="#363636" />
+    <SolidColorBrush x:Key="base-300" Color="#1A1A1A" />
+    <SolidColorBrush x:Key="base-content" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="base-overlay" Color="#B3000000" />
+    <SolidColorBrush x:Key="border-one" Color="#555" />
+    <SolidColorBrush x:Key="border-two" Color="#666666" />
 
-        <SolidColorBrush Color="#5e5e5e" x:Key="default" />
-        <SolidColorBrush Color="#232323" x:Key="default-border" />
-        
-        <SolidColorBrush Color="#16a34a" x:Key="primary" />
-        <SolidColorBrush Color="#0f7133" x:Key="primary-border" />
-        <SolidColorBrush Color="#FFFFFF" x:Key="primary-content" />
-        <SolidColorBrush Color="#374151" x:Key="secondary" />
-        <SolidColorBrush Color="#262d38" x:Key="secondary-border" />
-        <SolidColorBrush Color="#FFFFFF" x:Key="secondary-content" />
+    <SolidColorBrush x:Key="default" Color="#5e5e5e" />
+    <SolidColorBrush x:Key="default-border" Color="#232323" />
 
-        <SolidColorBrush Color="#009689" x:Key="accent" />
-        <SolidColorBrush Color="#084d49" x:Key="accent-content" />
+    <SolidColorBrush x:Key="primary" Color="#16a34a" />
+    <SolidColorBrush x:Key="primary-border" Color="#0f7133" />
+    <SolidColorBrush x:Key="primary-content" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="secondary" Color="#374151" />
+    <SolidColorBrush x:Key="secondary-border" Color="#262d38" />
+    <SolidColorBrush x:Key="secondary-content" Color="#FFFFFF" />
 
-        <SolidColorBrush Color="#09090b" x:Key="neutral" />
-        <SolidColorBrush Color="#FFFFFF" x:Key="neutral-content" />
+    <SolidColorBrush x:Key="accent" Color="#009689" />
+    <SolidColorBrush x:Key="accent-content" Color="#084d49" />
 
-        <SolidColorBrush Color="#00a4f2" x:Key="info" />
-        <SolidColorBrush Color="#042e49" x:Key="info-content" />
+    <SolidColorBrush x:Key="neutral" Color="#09090b" />
+    <SolidColorBrush x:Key="neutral-content" Color="#FFFFFF" />
 
-        <SolidColorBrush Color="#009764" x:Key="success" />
-        <SolidColorBrush Color="#004c39" x:Key="success-content" />
+    <SolidColorBrush x:Key="info" Color="#00a4f2" />
+    <SolidColorBrush x:Key="info-content" Color="#042e49" />
 
-        <SolidColorBrush Color="#fcb700" x:Key="warning" />
-        <SolidColorBrush Color="#793205" x:Key="warning-content" />
+    <SolidColorBrush x:Key="success" Color="#009764" />
+    <SolidColorBrush x:Key="success-content" Color="#004c39" />
 
-        <SolidColorBrush Color="#ff6266" x:Key="error" />
-        <SolidColorBrush Color="#4d0218" x:Key="error-content" />
+    <SolidColorBrush x:Key="warning" Color="#fcb700" />
+    <SolidColorBrush x:Key="warning-content" Color="#793205" />
 
-        <SolidColorBrush Color="#9CA3AF" x:Key="text-faded" />
-        <SolidColorBrush Color="#626773" x:Key="text-muted" />
-    </Styles.Resources>
-</Styles>
+    <SolidColorBrush x:Key="error" Color="#ff6266" />
+    <SolidColorBrush x:Key="error-content" Color="#4d0218" />
+
+    <SolidColorBrush x:Key="text-faded" Color="#9CA3AF" />
+    <SolidColorBrush x:Key="text-muted" Color="#626773" />
+</ResourceDictionary>

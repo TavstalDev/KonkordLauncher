@@ -20,6 +20,7 @@
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="TextAlignment" Value="Center" />
         <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
     
     <Style Selector="ScrollViewer.AlertMessage">
@@ -31,6 +32,7 @@
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="TextAlignment" Value="Center" />
         <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
     
     <Style Selector="WrapPanel.AlertButtonWrapper">

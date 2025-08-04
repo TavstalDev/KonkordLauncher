@@ -6,7 +6,7 @@
     </Style>
 
     <Style Selector="Border.NewsCard">
-        <Setter Property="Background" Value="{StaticResource base-200}" />
+        <Setter Property="Background" Value="{DynamicResource base-200}" />
         <Setter Property="CornerRadius" Value="8" />
         <Setter Property="Padding" Value="15" />
     </Style>
@@ -14,13 +14,13 @@
     <Style Selector="TextBlock.NewsCardTitle">
         <Setter Property="FontSize" Value="18" />
         <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="Foreground" Value="{StaticResource primary-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
         <Setter Property="Margin" Value="0, 0, 0, 8" />
         <Setter Property="TextWrapping" Value="Wrap" />
     </Style>
 
     <Style Selector="TextBlock.NewsCardDescription">
-        <Setter Property="Foreground" Value="{StaticResource primary-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
         <Setter Property="Margin" Value="0, 0, 0, 8" />
         <Setter Property="TextWrapping" Value="Wrap" />
     </Style>

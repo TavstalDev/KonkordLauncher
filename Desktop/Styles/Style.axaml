@@ -1,33 +1,30 @@
 <Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <!--  Window Style  -->
     <Style Selector="Window">
-        <Setter Property="Background" Value="{StaticResource base-200}" />
+        <Setter Property="Background" Value="{DynamicResource base-200}" />
     </Style>
 
     <!--  FontAwesome Icon Style  -->
     <Style Selector="TextBlock.FontAwesome">
-        <Setter Property="FontFamily" Value="{StaticResource FontAwesome}" />
+        <Setter Property="FontFamily" Value="{DynamicResource FontAwesome}" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="TextAlignment" Value="Center" />
         <Setter Property="Padding" Value="2" />
     </Style>
 
-
-
     <!--  Label  -->
     <Style Selector="Label.SidebarLabel">
         <Setter Property="FontSize" Value="14" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />
-        <Setter Property="Foreground" Value="{StaticResource text-muted}" />
+        <Setter Property="Foreground" Value="{DynamicResource text-muted}" />
     </Style>
-
-
+    
     <!--  MainContentArea Border  -->
     <Style Selector="Border.MainContentArea">
-        <Setter Property="Background" Value="{StaticResource base-100}" />
-        <Setter Property="BorderBrush" Value="{StaticResource border-two}" />
+        <Setter Property="Background" Value="{DynamicResource base-100}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource border-two}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="CornerRadius" Value="8" />
     </Style>
@@ -46,7 +43,7 @@
     <Style Selector="TextBlock.MainContentTitle">
         <Setter Property="FontSize" Value="24" />
         <Setter Property="FontWeight" Value="Medium" />
-        <Setter Property="Foreground" Value="{StaticResource base-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
         <Setter Property="Margin" Value="0, 0, 0, 10" />
 
     </Style>

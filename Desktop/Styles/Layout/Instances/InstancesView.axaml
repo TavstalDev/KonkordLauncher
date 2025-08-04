@@ -8,7 +8,7 @@
     <Style Selector="TextBlock.InstanceTitle">
         <Setter Property="FontSize" Value="24" />
         <Setter Property="FontWeight" Value="600" />
-        <Setter Property="Foreground" Value="{StaticResource primary-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
         <Setter Property="Margin" Value="0, 0, 0, 20" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="TextAlignment" Value="Center" />
@@ -24,8 +24,8 @@
     
     <!-- Instance Wrapper Border -->
     <Style Selector="Border.InstanceWrapper">
-        <Setter Property="Background" Value="{StaticResource base-100}" />
-        <Setter Property="BorderBrush" Value="{StaticResource border-two}" />
+        <Setter Property="Background" Value="{DynamicResource base-100}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource border-two}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="CornerRadius" Value="0, 8, 8, 8" />
         <Setter Property="Margin" Value="0,-2,0,0" />
@@ -59,8 +59,8 @@
         <Setter Property="CanUserSortColumns" Value="True" />
         <Setter Property="AutoGenerateColumns" Value="False" />
         <Setter Property="IsReadOnly" Value="True" />
-        <Setter Property="Background" Value="{StaticResource base-200}" />
-        <Setter Property="BorderBrush" Value="{StaticResource border-one}" />
+        <Setter Property="Background" Value="{DynamicResource base-200}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource border-one}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="CornerRadius" Value="8" />
     </Style>
@@ -73,15 +73,16 @@
         <Setter Property="CanUserSortColumns" Value="True" />
         <Setter Property="AutoGenerateColumns" Value="False" />
         <Setter Property="IsReadOnly" Value="True" />
-        <Setter Property="Background" Value="{StaticResource base-200}" />
-        <Setter Property="BorderBrush" Value="{StaticResource border-one}" />
+        <Setter Property="Background" Value="{DynamicResource base-200}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource border-one}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="CornerRadius" Value="8" />
     </Style>
     
     <!-- DataGrid Column Header -->
     <Style Selector="DataGridColumnHeader">
-        <Setter Property="Background" Value="{StaticResource base-300}" />
+        <Setter Property="Background" Value="{DynamicResource base-300}" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="HorizontalContentAlignment" Value="Left" />
         <Setter Property="CornerRadius" Value="0" />
@@ -90,7 +91,7 @@
     
     <!-- Grid Splitter -->
     <Style Selector="GridSplitter.InstanceSplitter">
-        <Setter Property="Background" Value="{StaticResource border-two}" />
+        <Setter Property="Background" Value="{DynamicResource border-two}" />
         <Setter Property="CornerRadius" Value="8" />
         <Setter Property="MinWidth" Value="4" />
         <Setter Property="Width" Value="4" />
@@ -108,7 +109,7 @@
     
     <!-- Grid Splitter Border -->
     <Style Selector="Border.InstanceSplitter">
-        <Setter Property="Background" Value="{StaticResource primary}" />
+        <Setter Property="Background" Value="{DynamicResource primary}" />
         <Setter Property="CornerRadius" Value="8" />
         <Setter Property="MinWidth" Value="4" />
         <Setter Property="Width" Value="4" />
@@ -120,6 +121,7 @@
         <Setter Property="Width" Value="175" />
         <Setter Property="MaxWidth" Value="175" />
         <Setter Property="Margin" Value="0,5,0,0" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
     
     <!-- Instance Button Wrapper -->
@@ -133,13 +135,13 @@
     <Style Selector="TextBlock.InstanceButtonText">
         <Setter Property="FontSize" Value="15" />
         <Setter Property="FontWeight" Value="600" />
-        <Setter Property="Foreground" Value="{StaticResource primary-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
         <Setter Property="Padding" Value="5" />
     </Style>
     
     <!-- Mod Card -->
     <Style Selector="Border.InstanceModCard">
-        <Setter Property="Background" Value="{StaticResource base-200}" />
+        <Setter Property="Background" Value="{DynamicResource base-200}" />
         <Setter Property="CornerRadius" Value="8" />
         <Setter Property="Padding" Value="10" />
     </Style>
@@ -148,7 +150,7 @@
     <Style Selector="TextBlock.InstanceModTitle">
         <Setter Property="FontSize" Value="15" />
         <Setter Property="FontWeight" Value="500" />
-        <Setter Property="Foreground" Value="{StaticResource primary-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
         <Setter Property="TextWrapping" Value="NoWrap" />
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
         <Setter Property="Margin" Value="0, 0, 10, 0" />
@@ -156,7 +158,7 @@
 
     <!-- Mod Card Description -->
     <Style Selector="TextBlock.InstanceModDescription">
-        <Setter Property="Foreground" Value="{StaticResource primary-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
         <Setter Property="TextWrapping" Value="NoWrap" />
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
         <Setter Property="Margin" Value="0, 0, 10, 0" />

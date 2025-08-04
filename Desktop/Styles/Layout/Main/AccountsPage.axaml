@@ -6,7 +6,7 @@
     </Style>
 
     <Style Selector="Border.AccountsCard">
-        <Setter Property="Background" Value="{StaticResource base-200}" />
+        <Setter Property="Background" Value="{DynamicResource base-200}" />
         <Setter Property="CornerRadius" Value="8" />
         <Setter Property="Padding" Value="15" />
     </Style>
@@ -14,7 +14,7 @@
     <Style Selector="TextBlock.AccountsCardName">
         <Setter Property="FontSize" Value="16" />
         <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="Foreground" Value="{StaticResource primary-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
         <Setter Property="Margin" Value="0" />
         <Setter Property="TextWrapping" Value="Wrap" />
     </Style>

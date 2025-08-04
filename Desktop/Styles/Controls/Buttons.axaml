@@ -51,153 +51,153 @@
     
     <!-- Default Button  -->
     <Style Selector="Button">
-        <Setter Property="Background" Value="{StaticResource default}" />
-        <Setter Property="BorderBrush" Value="{StaticResource default-border}" />
-        <Setter Property="Foreground" Value="{StaticResource primary-content}" />
+        <Setter Property="Background" Value="{DynamicResource default}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource default-border}" />
+        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
     </Style>
     <!-- Default Button Hover  -->
     <Style Selector="Button:pointerover /template/ ContentPresenter">
-        <Setter Property="Background" Value="{StaticResource default}" />
-        <Setter Property="BorderBrush" Value="{StaticResource default-border}" />
-        <Setter Property="Foreground" Value="{StaticResource primary-content}" />
+        <Setter Property="Background" Value="{DynamicResource default}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource default-border}" />
+        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
     </Style>
     <!-- Default Button Active  -->
     <Style Selector="Button:pressed /template/ ContentPresenter">
-        <Setter Property="Background" Value="{StaticResource default}" />
-        <Setter Property="BorderBrush" Value="{StaticResource default-border}" />
-        <Setter Property="Foreground" Value="{StaticResource primary-content}" />
+        <Setter Property="Background" Value="{DynamicResource default}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource default-border}" />
+        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
     </Style>
     
     <!--  Primary Button  -->
     <Style Selector="Button.PrimaryBtn">
-        <Setter Property="Background" Value="{StaticResource primary}" />
-        <Setter Property="BorderBrush" Value="{StaticResource primary-border}" />
-        <Setter Property="Foreground" Value="{StaticResource primary-content}" />
+        <Setter Property="Background" Value="{DynamicResource primary}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource primary-border}" />
+        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
     </Style>
     <!--  Primary Button Hover  -->
     <Style Selector="Button.PrimaryBtn:pointerover /template/ ContentPresenter">
-        <Setter Property="Background" Value="{StaticResource primary}" />
-        <Setter Property="BorderBrush" Value="{StaticResource primary-border}" />
-        <Setter Property="Foreground" Value="{StaticResource primary-content}" />
+        <Setter Property="Background" Value="{DynamicResource primary}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource primary-border}" />
+        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
     </Style>
     <!--  Primary Button Active  -->
     <Style Selector="Button.PrimaryBtn:pressed /template/ ContentPresenter">
-        <Setter Property="Background" Value="{StaticResource primary}" />
-        <Setter Property="BorderBrush" Value="{StaticResource primary-border}" />
-        <Setter Property="Foreground" Value="{StaticResource primary-content}" />
+        <Setter Property="Background" Value="{DynamicResource primary}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource primary-border}" />
+        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
     </Style>
     
     <!--  Secondary Button  -->
     <Style Selector="Button.SecondaryBtn">
-        <Setter Property="Background" Value="{StaticResource secondary}" />
-        <Setter Property="BorderBrush" Value="{StaticResource secondary-border}" />
-        <Setter Property="Foreground" Value="{StaticResource secondary-content}" />
+        <Setter Property="Background" Value="{DynamicResource secondary}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource secondary-border}" />
+        <Setter Property="Foreground" Value="{DynamicResource secondary-content}" />
     </Style>
     <!--  Secondary Button Hover  -->
     <Style Selector="Button.SecondaryBtn:pointerover /template/ ContentPresenter">
-        <Setter Property="Background" Value="{StaticResource secondary}" />
-        <Setter Property="BorderBrush" Value="{StaticResource secondary-border}" />
-        <Setter Property="Foreground" Value="{StaticResource secondary-content}" />
+        <Setter Property="Background" Value="{DynamicResource secondary}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource secondary-border}" />
+        <Setter Property="Foreground" Value="{DynamicResource secondary-content}" />
     </Style>
     <!--  Secondary Button Active  -->
     <Style Selector="Button.SecondaryBtn:pressed /template/ ContentPresenter">
-        <Setter Property="Background" Value="{StaticResource secondary}" />
-        <Setter Property="BorderBrush" Value="{StaticResource secondary-border}" />
-        <Setter Property="Foreground" Value="{StaticResource secondary-content}" />
+        <Setter Property="Background" Value="{DynamicResource secondary}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource secondary-border}" />
+        <Setter Property="Foreground" Value="{DynamicResource secondary-content}" />
     </Style>
     
     <!--  Info Button  -->
     <Style Selector="Button.InfoBtn">
-        <Setter Property="Background" Value="{StaticResource info}" />
-        <Setter Property="BorderBrush" Value="{StaticResource info-content}" />
-        <Setter Property="Foreground" Value="{StaticResource base-content}" />
+        <Setter Property="Background" Value="{DynamicResource info}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource info-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
     <!--  Info Button Hover  -->
     <Style Selector="Button.InfoBtn:pointerover /template/ ContentPresenter">
-        <Setter Property="Background" Value="{StaticResource info}" />
-        <Setter Property="BorderBrush" Value="{StaticResource info-content}" />
-        <Setter Property="Foreground" Value="{StaticResource base-content}" />
+        <Setter Property="Background" Value="{DynamicResource info}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource info-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
     <!--  Info Button Active  -->
     <Style Selector="Button.InfoBtn:pressed /template/ ContentPresenter">
-        <Setter Property="Background" Value="{StaticResource info}" />
-        <Setter Property="BorderBrush" Value="{StaticResource info-content}" />
-        <Setter Property="Foreground" Value="{StaticResource base-content}" />
+        <Setter Property="Background" Value="{DynamicResource info}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource info-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
     
     <!--  Success Button  -->
     <Style Selector="Button.SuccessBtn">
-        <Setter Property="Background" Value="{StaticResource success}" />
-        <Setter Property="BorderBrush" Value="{StaticResource success-content}" />
-        <Setter Property="Foreground" Value="{StaticResource base-content}" />
+        <Setter Property="Background" Value="{DynamicResource success}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource success-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
     <!--  Success Button Hover  -->
     <Style Selector="Button.SuccessBtn:pointerover /template/ ContentPresenter">
-        <Setter Property="Background" Value="{StaticResource success}" />
-        <Setter Property="BorderBrush" Value="{StaticResource success-content}" />
-        <Setter Property="Foreground" Value="{StaticResource base-content}" />
+        <Setter Property="Background" Value="{DynamicResource success}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource success-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
     <!--  Success Button Active  -->
     <Style Selector="Button.SuccessBtn:pressed /template/ ContentPresenter">
-        <Setter Property="Background" Value="{StaticResource success}" />
-        <Setter Property="BorderBrush" Value="{StaticResource success-content}" />
-        <Setter Property="Foreground" Value="{StaticResource base-content}" />
+        <Setter Property="Background" Value="{DynamicResource success}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource success-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
     
     <!--  Warning Button  -->
     <Style Selector="Button.WarningBtn">
-        <Setter Property="Background" Value="{StaticResource warning}" />
-        <Setter Property="BorderBrush" Value="{StaticResource warning-content}" />
-        <Setter Property="Foreground" Value="{StaticResource base-content}" />
+        <Setter Property="Background" Value="{DynamicResource warning}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource warning-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
     <!--  Warning Button Hover  -->
     <Style Selector="Button.WarningBtn:pointerover /template/ ContentPresenter">
-        <Setter Property="Background" Value="{StaticResource warning}" />
-        <Setter Property="BorderBrush" Value="{StaticResource warning-content}" />
-        <Setter Property="Foreground" Value="{StaticResource base-content}" />
+        <Setter Property="Background" Value="{DynamicResource warning}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource warning-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
     <!--  Warning Button Active  -->
     <Style Selector="Button.WarningBtn:pressed /template/ ContentPresenter">
-        <Setter Property="Background" Value="{StaticResource warning}" />
-        <Setter Property="BorderBrush" Value="{StaticResource warning-content}" />
-        <Setter Property="Foreground" Value="{StaticResource base-content}" />
+        <Setter Property="Background" Value="{DynamicResource warning}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource warning-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
     
     <!--  Error Button  -->
     <Style Selector="Button.ErrorBtn">
-        <Setter Property="Background" Value="{StaticResource error}" />
-        <Setter Property="BorderBrush" Value="{StaticResource error-content}" />
-        <Setter Property="Foreground" Value="{StaticResource base-content}" />
+        <Setter Property="Background" Value="{DynamicResource error}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource error-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
     <!--  Error Button Hover  -->
     <Style Selector="Button.ErrorBtn:pointerover /template/ ContentPresenter">
-        <Setter Property="Background" Value="{StaticResource error}" />
-        <Setter Property="BorderBrush" Value="{StaticResource error-content}" />
-        <Setter Property="Foreground" Value="{StaticResource base-content}" />
+        <Setter Property="Background" Value="{DynamicResource error}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource error-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
     <!--  Error Button Active  -->
     <Style Selector="Button.ErrorBtn:pressed /template/ ContentPresenter">
-        <Setter Property="Background" Value="{StaticResource error}" />
-        <Setter Property="BorderBrush" Value="{StaticResource error-content}" />
-        <Setter Property="Foreground" Value="{StaticResource base-content}" />
+        <Setter Property="Background" Value="{DynamicResource error}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource error-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
     
     <!--  Accent Button  -->
     <Style Selector="Button.AccentBtn">
-        <Setter Property="Background" Value="{StaticResource accent}" />
-        <Setter Property="BorderBrush" Value="{StaticResource accent-content}" />
-        <Setter Property="Foreground" Value="{StaticResource base-content}" />
+        <Setter Property="Background" Value="{DynamicResource accent}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource accent-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
     <!--  Accent Button Hover  -->
     <Style Selector="Button.AccentBtn:pointerover /template/ ContentPresenter">
-        <Setter Property="Background" Value="{StaticResource accent}" />
-        <Setter Property="BorderBrush" Value="{StaticResource accent-content}" />
-        <Setter Property="Foreground" Value="{StaticResource base-content}" />
+        <Setter Property="Background" Value="{DynamicResource accent}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource accent-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
     <!--  Accent Button Active  -->
     <Style Selector="Button.AccentBtn:pressed /template/ ContentPresenter">
-        <Setter Property="Background" Value="{StaticResource accent}" />
-        <Setter Property="BorderBrush" Value="{StaticResource accent-content}" />
-        <Setter Property="Foreground" Value="{StaticResource base-content}" />
+        <Setter Property="Background" Value="{DynamicResource accent}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource accent-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
 </Styles>

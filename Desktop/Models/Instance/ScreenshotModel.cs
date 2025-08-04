@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 
-namespace Tavstal.KonkordLauncher.Desktop.Models;
+namespace Tavstal.KonkordLauncher.Desktop.Models.Instance;
 
 public class ScreenshotModel
 {

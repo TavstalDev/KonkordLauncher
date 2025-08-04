@@ -1,9 +1,9 @@
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 
-namespace Tavstal.KonkordLauncher.Desktop.Models;
+namespace Tavstal.KonkordLauncher.Desktop.Models.Instance;
 
-public class ModModel
+public class ShaderPackModel
 {
     public bool IsEnabled { get; set; }
     public string Name { get; set; }

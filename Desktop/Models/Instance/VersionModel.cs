@@ -1,4 +1,4 @@
-namespace Tavstal.KonkordLauncher.Desktop.Models;
+namespace Tavstal.KonkordLauncher.Desktop.Models.Instance;
 
 public class VersionModel
 {

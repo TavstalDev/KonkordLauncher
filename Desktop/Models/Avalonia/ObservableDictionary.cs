@@ -76,7 +76,9 @@ public class ObservableDictionary<TKey, TValue> :
                 OnCollectionChanged(new NotifyCollectionChangedEventArgs(
                     NotifyCollectionChangedAction.Replace,
                     new KeyValuePair<TKey, TValue>(key, value),    // New item
+#pragma warning disable CS8604 // Possible null reference argument.
                     new KeyValuePair<TKey, TValue>(key, oldValue)  // Old item
+#pragma warning restore CS8604 // Possible null reference argument.
                 ));
             }
             else

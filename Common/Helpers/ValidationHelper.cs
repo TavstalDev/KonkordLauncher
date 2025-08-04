@@ -78,11 +78,7 @@ public static class ValidationHelper
         {
             if (!File.Exists(PathHelper.LauncherAccountsPath))
             {
-                AccountData accountData = new AccountData()
-                {
-                    SelectedAccountId = "",
-                    Accounts = new Dictionary<string, Account>()
-                };
+                AccountData accountData = new();
 
                 await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData);
                 return true; // No account was found to check
@@ -95,18 +91,15 @@ public static class ValidationHelper
                 return false;
             }
 
-            if (data.Accounts.TryGetValue(data.SelectedAccountId, out Account? account))
+            var account = data.Accounts.FirstOrDefault(a => a.Id == data.SelectedAccountId);
+            if (account == null)
+                return true;
+
+            switch (account.Type)
             {
-                switch (account.Type)
+                case EAccountType.MICROSOFT:
                 {
-                    case EAccountType.OFFLINE:
-                    {
-                        return true;
-                    }
-                    case EAccountType.MICROSOFT:
-                    {
-                        return !string.IsNullOrEmpty(account.AccessToken);
-                    }
+                    return !string.IsNullOrEmpty(account.AccessToken);
                 }
             }
 

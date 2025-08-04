@@ -12,6 +12,12 @@ namespace Tavstal.KonkordLauncher.Core.Models;
 public class Account
 {
     /// <summary>
+    /// Gets or sets the unique identifier of the account.
+    /// </summary>
+    [JsonPropertyName("id"), JsonProperty("id")]
+    public string Id { get; set; }
+    
+    /// <summary>
     /// Gets or sets the user ID associated with the account.
     /// </summary>
     [JsonPropertyName("userId"), JsonProperty("userId")]
@@ -68,15 +74,17 @@ public class Account
     /// <summary>
     /// Initializes a new instance of the <see cref="Account"/> class with the specified parameters.
     /// </summary>
+    /// <param name="id">The ID of the account</param>
     /// <param name="userId">The user ID associated with the account.</param>
     /// <param name="uUID">The UUID of the account.</param>
     /// <param name="displayName">The display name of the account.</param>
     /// <param name="type">The type of the account.</param>
     /// <param name="accessToken">The encrypted access token for the account.</param>
     /// <param name="accessTokenExpDate">The expiration date of the access token.</param>
-    public Account(string userId, string uUID, string displayName, EAccountType type, string accessToken,
+    public Account(string id, string userId, string uUID, string displayName, EAccountType type, string accessToken,
         DateTime accessTokenExpDate)
     {
+        Id = id;
         UserId = userId;
         UUID = uUID;
         DisplayName = displayName;

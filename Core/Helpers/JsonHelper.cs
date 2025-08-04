@@ -23,7 +23,7 @@ public static class JsonHelper
         try
         {
             using var stream = new MemoryStream();
-            JsonSerializer.Serialize(stream, obj, options: new JsonSerializerOptions()
+            JsonSerializer.Serialize(stream, obj, options: new()
             {
                 IgnoreReadOnlyFields = true,
                 IgnoreReadOnlyProperties = true,
@@ -55,7 +55,7 @@ public static class JsonHelper
         try
         {
             using var stream = new MemoryStream();
-            await JsonSerializer.SerializeAsync(stream, obj, options: new JsonSerializerOptions()
+            await JsonSerializer.SerializeAsync(stream, obj, options: new()
             {
                 IgnoreReadOnlyFields = true,
                 IgnoreReadOnlyProperties = true,

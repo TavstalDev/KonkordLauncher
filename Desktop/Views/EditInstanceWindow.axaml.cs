@@ -1,6 +1,5 @@
 using Avalonia;
 using Avalonia.Controls;
-using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
 

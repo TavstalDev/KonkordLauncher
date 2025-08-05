@@ -137,7 +137,9 @@ public partial class StartupWindow : Window, IProgressReporter
         
         Dispatcher.UIThread.Post(() =>
         {
-            _desktopLifetime.MainWindow = new MainWindow();
+            _desktopLifetime.MainWindow = new MainWindow {
+                WindowStartupLocation = WindowStartupLocation.CenterScreen
+            };
             _desktopLifetime.MainWindow.Show();
             this.Close();
         });

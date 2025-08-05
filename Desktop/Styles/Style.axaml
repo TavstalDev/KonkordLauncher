@@ -31,6 +31,7 @@
 
     <!--  MainContentArea StackPanel  -->
     <Style Selector="StackPanel.MainContentArea">
+        <Setter Property="Spacing" Value="10" />
         <Setter Property="Margin" Value="20" />
     </Style>
     

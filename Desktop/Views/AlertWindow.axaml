@@ -3,7 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
-        mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="210"
+        mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="240"
         x:Class="Tavstal.KonkordLauncher.Desktop.Views.AlertWindow"
         x:DataType="vm:AlertViewModel"
         Title="Alert"
@@ -11,9 +11,9 @@
         CanResize="False"
         ShowInTaskbar="False"
         Icon="../Assets/Images/logo.png"
-        MinHeight="210"
+        MinHeight="240"
         MinWidth="300"
-        Height="210"
+        Height="240"
         Width="300">
     
     <Border Classes="AlertView">

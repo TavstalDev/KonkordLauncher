@@ -42,6 +42,8 @@ public partial class AlertWindow : Window
 
         // TODO: Add accept & deny texts
         
+        this.Title.Text = title;
+        
         // Sets the DataContext to an instance of AlertViewModel with the provided parameters.
         this.DataContext = new AlertViewModel
         {

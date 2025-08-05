@@ -13,12 +13,15 @@ public static class AuthService
     private static HttpListener? _httpListener;
     public const string ListeningUrl = "http://localhost:43319/";
     private static readonly CoreLogger _logger = new(typeof(AuthService));
+    private static IProgressReporter? _progressReporter;
     
     /// <summary>
     /// Starts the HTTP listener to handle incoming authentication requests.
     /// </summary>
-    public static async Task StartListening()
+    public static async Task StartListening(IProgressReporter? progressReporter = null)
     {
+        _progressReporter = progressReporter;
+        
         if (_httpListener == null)
         {
             _httpListener = new HttpListener();
@@ -30,11 +33,13 @@ public static class AuthService
 
         try
         {
+            progressReporter?.SetStatusTranslated("auth.listener.starting");
             _httpListener.Start();
             _isListening = true;
         }
         catch (HttpListenerException ex)
         {
+            progressReporter?.SetStatusTranslated("auth.listener.failed");
             _logger.Exc("Failed to start HTTP listener:");
             _logger.Error(ex.ToString());
             _isListening = false;
@@ -51,7 +56,7 @@ public static class AuthService
     /// <summary>
     /// Stops the HTTP listener if it is currently active.
     /// </summary>
-    public static void StopListening()
+    public static void StopListening(bool cancelled = true)
     {
         if (_httpListener == null)
         {
@@ -65,6 +70,8 @@ public static class AuthService
             return;
         }
 
+        if (cancelled)
+            _progressReporter?.SetStatusTranslated("auth.listener.cancelled");
         _isListening = false;
         _httpListener.Stop();
     }
@@ -90,7 +97,8 @@ public static class AuthService
         if (context.Request.RawUrl.StartsWith("/microsoft/authcallback"))
         {
             await CloseBrowserAsync(context);
-            await MicrosoftAuthService.HandleHttpRequestAsync(context.Request);
+            _progressReporter?.SetStatusTranslated("auth.listener.callback");
+            await MicrosoftAuthService.HandleHttpRequestAsync(context.Request, _progressReporter);
             return;
         }
 

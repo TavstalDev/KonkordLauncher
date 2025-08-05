@@ -72,6 +72,9 @@ public static class LauncherHelper
         {
             AccountData result = new AccountData();
             JsonHelper.WriteJsonFile(PathHelper.LauncherAccountsPath, result);
+
+            foreach (var account in result.Accounts)
+                account.IsSelected = result.SelectedAccountId == account.Id;
             return result;
         }
 
@@ -80,9 +83,12 @@ public static class LauncherHelper
         {
             AccountData result = new AccountData();
             JsonHelper.WriteJsonFile(PathHelper.LauncherAccountsPath, result);
+            foreach (var account in result.Accounts)
+                account.IsSelected = result.SelectedAccountId == account.Id;
             return result;
         }
-
+        foreach (var account in readResult.Accounts)
+            account.IsSelected = readResult.SelectedAccountId == account.Id;
         return readResult;
     }
 
@@ -97,6 +103,8 @@ public static class LauncherHelper
         {
             AccountData result = new AccountData();
             await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, result);
+            foreach (var account in result.Accounts)
+                account.IsSelected = result.SelectedAccountId == account.Id;
             return result;
         }
 
@@ -106,8 +114,13 @@ public static class LauncherHelper
             AccountData result = new AccountData();
             File.Move(PathHelper.LauncherAccountsPath, PathHelper.LauncherAccountsPath + ".bak", true);
             await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, result);
+            foreach (var account in result.Accounts)
+                account.IsSelected = result.SelectedAccountId == account.Id;
             return result;
         }
+        
+        foreach (var account in readResult.Accounts)
+            account.IsSelected = readResult.SelectedAccountId == account.Id;
 
         return readResult;
     }

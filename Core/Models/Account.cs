@@ -34,14 +34,28 @@ public class Account
     /// </summary>
     [JsonPropertyName("type"), JsonProperty("type")]
     public EAccountType Type { get; set; }
-
+    
     /// <summary>
     /// Stores the encrypted access token for the account.
     /// </summary>
+    /// <remarks>
+    /// This property is marked as obsolete. Use the <see cref="AccessToken"/> property instead.
+    /// </remarks>
     [Obsolete("Use AccessToken property instead. This property should not be used directly.")]
     [JsonPropertyName("accessToken"), JsonProperty("accessToken")]
     [System.Text.Json.Serialization.JsonIgnore(Condition = JsonIgnoreCondition.Never)]
     public string EncryptedAccessToken { get; set; }
+    
+    /// <summary>
+    /// Stores the encrypted refresh token for the account.
+    /// </summary>
+    /// <remarks>
+    /// This property is marked as obsolete. Use the <see cref="RefreshToken"/> property instead.
+    /// </remarks>
+    [Obsolete("Use RefreshToken property instead. This property should not be used directly.")]
+    [JsonPropertyName("refreshToken"), JsonProperty("refreshToken")]
+    [System.Text.Json.Serialization.JsonIgnore(Condition = JsonIgnoreCondition.Never)]
+    public string EncryptedRefreshToken { get; set; }
     
     /// <summary>
     /// Gets or sets the decrypted access token for the account.
@@ -53,6 +67,19 @@ public class Account
 #pragma warning disable CS0618 // Type or member is obsolete
         get => EncryptionUtility.Decrypt(EncryptedAccessToken);
         set => EncryptedAccessToken = EncryptionUtility.Encrypt(value);
+#pragma warning restore CS0618 // Type or member is obsolete
+    }
+    
+    /// <summary>
+    /// Gets or sets the decrypted refresh token for the account.
+    /// The token is encrypted when set and decrypted when retrieved.
+    /// </summary>
+    [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
+    public string RefreshToken
+    {
+#pragma warning disable CS0618 // Type or member is obsolete
+        get => EncryptionUtility.Decrypt(EncryptedRefreshToken);
+        set => EncryptedRefreshToken = EncryptionUtility.Encrypt(value);
 #pragma warning restore CS0618 // Type or member is obsolete
     }
 
@@ -67,16 +94,18 @@ public class Account
     /// </summary>
     public Account() {}
     
+
     /// <summary>
-    /// Initializes a new instance of the <see cref="Account"/> class with the specified parameters.
+    /// Initializes a new instance of the <see cref="Account"/> class with the specified details.
     /// </summary>
-    /// <param name="id">The ID of the account</param>
-    /// <param name="uuid">The UUID of the account.</param>
+    /// <param name="id">The unique identifier of the account.</param>
+    /// <param name="uuid">The universally unique identifier (UUID) of the account.</param>
     /// <param name="displayName">The display name of the account.</param>
-    /// <param name="type">The type of the account.</param>
-    /// <param name="accessToken">The access token for the account.</param>
+    /// <param name="type">The type of the account (e.g., Mojang, Microsoft).</param>
+    /// <param name="accessToken">The decrypted access token for the account.</param>
+    /// <param name="refreshToken">The decrypted refresh token for the account.</param>
     /// <param name="accessTokenExpDate">The expiration date of the access token.</param>
-    public Account(string id, string uuid, string displayName, EAccountType type, string accessToken,
+    public Account(string id, string uuid, string displayName, EAccountType type, string accessToken, string refreshToken,
         DateTime accessTokenExpDate)
     {
         Id = id;
@@ -84,8 +113,19 @@ public class Account
         DisplayName = displayName;
         Type = type;
         AccessToken = accessToken;
+        RefreshToken = refreshToken;
         AccessTokenExpireDate = accessTokenExpDate;
     }
     
+    /// <summary>
+    /// Gets a value indicating whether the account's access token can expire.
+    /// Returns true if the account type is not OFFLINE; otherwise, false.
+    /// </summary>
     public bool CanExpire => Type != EAccountType.OFFLINE;
+    
+    /// <summary>
+    /// Gets or sets a value indicating whether the account is currently selected.
+    /// </summary>
+    [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
+    public bool IsSelected { get; set; }
 }

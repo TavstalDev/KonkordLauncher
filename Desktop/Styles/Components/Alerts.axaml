@@ -24,7 +24,7 @@
     </Style>
     
     <Style Selector="ScrollViewer.AlertMessage">
-        <Setter Property="MaxHeight" Value="50" />
+        <Setter Property="MaxHeight" Value="80" />
     </Style>
     
     <Style Selector="TextBlock.AlertMessage">
@@ -36,8 +36,9 @@
     </Style>
     
     <Style Selector="WrapPanel.AlertButtonWrapper">
-        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="VerticalAlignment" Value="Bottom" />
+        <Setter Property="ItemsAlignment" Value="Center" />
         <Setter Property="Orientation" Value="Horizontal" />
         <Setter Property="ItemSpacing" Value="10" />
         <Setter Property="LineSpacing" Value="10" />

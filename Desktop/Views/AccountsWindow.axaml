@@ -17,30 +17,30 @@
     
     <Border Classes="ModalView">
         <StackPanel>
-            <TextBlock Classes="ModalTitle" Text="Add New Account" />
+            <TextBlock Name="AddNewAccountTb" Classes="ModalTitle" Text="Add New Account" />
             <TabControl Classes="ModalTab">
                 <!-- Microsoft account login tab -->
-                <TabItem Classes="ModalTabItem" Header="Microsoft">
+                <TabItem Name="MicrosoftTab" Classes="ModalTabItem" Header="Microsoft">
                     <Border Classes="ModalWrapper">
-                        <WrapPanel>
+                        <Grid>
                             <!-- Start with Microsoft account login -->
                             <WrapPanel Classes="ModalWrapper" IsVisible="{Binding !IsLoggingInMicrosoftAccount}">
                                 <!-- Description text -->
-                                <TextBlock Classes="AccountsModalDescription" Text="Sign in with your Microsoft Account to access official Minecraft servers and features. " />
+                                <TextBlock Name="MicrosoftDescriptionTb" Classes="AccountsModalDescription" Text="Sign in with your Microsoft Account to access official Minecraft servers and features." />
                                 <!-- Microsoft logo -->
                                 <Image Classes="AccountsModalImage" Source="../Assets/Images/Brands/microsoft.png" />
                                 <!-- Start login button -->
                                 <Button Classes="IconBtn PrimaryBtn" HorizontalAlignment="Center" Click="MicrosoftLogin_OnClick">
-                                    <TextBlock Classes="MicrosoftButtonText" Text="Sign in with Microsoft" />
+                                    <TextBlock Name="MicrosoftLoginTb" Classes="MicrosoftButtonText" Text="Sign in with Microsoft" />
                                 </Button>
                                 <!-- Note text -->
-                                <TextBlock Classes="AccountsNote" Text="This will open a browser window for authentication. " />
+                                <TextBlock Name="MicrosoftNoteTb" Classes="AccountsNote" Text="This will open a browser window for authentication." />
                             </WrapPanel>
                             <!-- Show progress while waiting for browser confirmation -->
                             <WrapPanel Classes="ModalWrapper" IsVisible="{Binding IsLoggingInMicrosoftAccount}">
                                 <ProgressBar Classes="AccountsModalProgress" />
                                 <!-- Progress text -->
-                                <TextBlock Name="ProgressText" Classes="AccountsModalProgressText" Text="Waiting for confirmation..." />
+                                <TextBlock Name="ProgressText" Classes="AccountsModalProgressText" Text="{Binding ProgressText}" />
                                 <!-- Buttons -->
                                 <WrapPanel Classes="AccountsModalProgressWrapper">
                                     <!-- Open link button -->
@@ -57,23 +57,23 @@
                                     </Button>
                                 </WrapPanel>
                             </WrapPanel>
-                        </WrapPanel>
+                        </Grid>
                     </Border>
                 </TabItem>
                 <!-- Offline account login tab -->
-                <TabItem Classes="ModalTabItem" Header="Offline">
+                <TabItem Name="OfflineTab" Classes="ModalTabItem" Header="Offline">
                     <Border Classes="ModalWrapper">
                         <WrapPanel Classes="ModalWrapper">
                             <!-- Description text -->
-                            <TextBlock Classes="AccountsModalDescription" Text="Play with an offline account." />
+                            <TextBlock Name="OfflineDescriptionTb" Classes="AccountsModalDescription" Text="Play with an offline account." />
                             <!-- Username input -->
-                            <TextBox Name="OfflineUsernameInput" Classes="AccountsModalInput" MaxLength="16"  TextChanged="OfflineUsername_OnTextChanged" />
+                            <TextBox Name="OfflineUsernameInput" Classes="AccountsModalInput" MaxLength="16" Watermark="steve" TextChanged="OfflineUsername_OnTextChanged" />
                             <!-- Offline login button -->
                             <Button Classes="IconBtn PrimaryBtn" HorizontalAlignment="Center" Click="OfflineLogin_OnClick">
-                                <TextBlock Classes="MicrosoftButtonText" Text="Login as Offline User" />
+                                <TextBlock Name="OfflineLoginTb" Classes="MicrosoftButtonText" Text="Login as Offline User" />
                             </Button>
                             <!-- Note text -->
-                            <TextBlock Classes="AccountsNote" Text="Offline accounts can only connect to offline servers; online multiplayer is unavailable." />
+                            <TextBlock Name="OfflineNoteTb" Classes="AccountsNote" Text="Offline accounts can only connect to offline servers; online multiplayer is unavailable." />
                         </WrapPanel>
                     </Border>
                 </TabItem>

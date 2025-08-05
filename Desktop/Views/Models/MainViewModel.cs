@@ -115,7 +115,7 @@ public partial class MainViewModel : ObservableObject
         var accounts = new AccountData
         {
             SelectedAccountId = newValue.SelectedAccountId ?? string.Empty,
-            Accounts = newValue.Accounts.Select(a => new Account(a.Id, a.Uuid, a.DisplayName, a.Type, a.AccessToken, a.AccessTokenExpireDate)).ToList()
+            Accounts = newValue.Accounts.Select(a => new Account(a.Id, a.Uuid, a.DisplayName, a.Type, a.AccessToken, a.RefreshToken, a.AccessTokenExpireDate)).ToList()
         };
 
         JsonHelper.WriteJsonFile(PathHelper.LauncherAccountsPath, accounts);

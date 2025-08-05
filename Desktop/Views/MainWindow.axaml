@@ -80,7 +80,7 @@
         </DataTemplate>
         <!--  Account Card  -->
         <DataTemplate DataType="core:Account">
-            <Border Classes="AccountsCard">
+            <Border Classes="AccountsCard" Classes.selected="{Binding IsSelected}">
                 <Grid Width="450" ColumnDefinitions="*, Auto">
                     <!--  Name & Type  -->
                     <WrapPanel Orientation="Vertical">
@@ -90,7 +90,7 @@
 
                     <!--  Buttons  -->
                     <WrapPanel Grid.Column="1" Classes="AccountsCardWrapper">
-                        <Button Classes="IconBtn SuccessBtn" Click="SelectAccount_OnClick">
+                        <Button Classes="IconBtn SuccessBtn" IsVisible="{Binding !IsSelected}" Click="SelectAccount_OnClick">
                             <TextBlock Classes="FontAwesome" Text="&#xf00c;" />
                         </Button>
                         <Button Classes="IconBtn WarningBtn" IsVisible="{Binding CanExpire}" Click="RefreshAccount_OnClick">

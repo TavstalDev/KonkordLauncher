@@ -9,7 +9,10 @@ using Avalonia.Platform.Storage;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Translation;
+using Tavstal.KonkordLauncher.Core.Enums;
+using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Core.Services;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using MainViewModel = Tavstal.KonkordLauncher.Desktop.Views.Models.MainViewModel;
@@ -313,6 +316,12 @@ public partial class MainWindow : Window
 
     #region Instance Button Click Handlers
 
+    /// <summary>
+    /// Handles the click event for adding a new instance. 
+    /// Opens the CreateInstanceWindow dialog to allow the user to create a new instance.
+    /// </summary>
+    /// <param name="sender">The source of the event, typically a button.</param>
+    /// <param name="e">The event data associated with the button click.</param>
     private void AddInstance_OnClick(object? sender, RoutedEventArgs e)
     {
         var dialog = new CreateInstanceWindow();
@@ -346,6 +355,9 @@ public partial class MainWindow : Window
         if (sender is not Button { DataContext: Account account })
             return;
         
+        if (viewModel.AccountData.SelectedAccountId == account.Id)
+            return;
+        
         viewModel.AccountData.SelectedAccountId = account.Id;
     }
 
@@ -361,8 +373,42 @@ public partial class MainWindow : Window
 
         if (sender is not Button { DataContext: Account account })
             return;
+
+        if (!account.CanExpire || string.IsNullOrEmpty(account.RefreshToken))
+            return;
+
+        if (MicrosoftAuthService.AuthStatus != EAuthStatus.NONE)
+            return;
         
-        // TODO
+        if (account.AccessTokenExpireDate > DateTime.Now)
+            return;
+            
+        Task.Run(async () =>
+        {
+            if (!await MicrosoftAuthService.RefreshLoginAsync(account.RefreshToken))
+            {
+                _logger.Error($"Failed to refresh account {account.DisplayName} ({account.Id}).");
+                return;
+            }
+
+            if (MicrosoftAuthService.Account == null)
+            {
+                _logger.Error($"Failed to refresh account {account.DisplayName} ({account.Id}) after successful api call.");
+                return;
+            }
+            
+            var updatedAccount = MicrosoftAuthService.Account;
+            updatedAccount.Id = account.Id; // Ensure the ID remains the same
+            _logger.Info($"Successfully refreshed account {account.DisplayName} ({account.Id}).");
+            
+            AccountData accountData = await LauncherHelper.GetAccountDataAsync();
+            var index = accountData.Accounts.FindIndex(x => x.Id == account.Id);
+            accountData.Accounts[index] = updatedAccount;
+            
+            await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData);
+            App.InvokeAccountsChanged();
+            MicrosoftAuthService.Reset();
+        });
     }
 
     /// <summary>

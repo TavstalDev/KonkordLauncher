@@ -24,8 +24,8 @@ public static class MicrosoftEndpoints
     /// <summary>
     /// The URL for obtaining Microsoft OAuth tokens.
     /// </summary>
-    public const string MicrosoftTokenUrl = $"https://login.microsoftonline.com/consumers/oauth2/v2.0/token";
-
+    public const string MicrosoftTokenUrl = $"https://login.live.com/oauth20_token.srf";
+    
     /// <summary>
     /// The URL for Xbox user authentication.
     /// </summary>

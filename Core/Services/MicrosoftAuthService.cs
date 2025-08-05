@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
@@ -18,6 +19,7 @@ public static class MicrosoftAuthService
     private static readonly CoreLogger _logger = new(typeof(MicrosoftAuthService));
     private static string _microsoftClientId = "496a0c42-aa74-41fe-b7bc-0ad155cdaa26"; // TODO: Remove hardcoded client ID and set it via SetClientId method.
     private static readonly string _redirectAuthenticateUrl = Path.Combine(AuthService.ListeningUrl, "microsoft/authcallback");
+    private static IProgressReporter? _progressReporter;
     //private static readonly string _redirectTokenUrl = Path.Combine(AuthService.ListeningUrl, "microsoft/tokencallback");
     
     private static EAuthStatus _authStatus = EAuthStatus.NONE;
@@ -47,18 +49,61 @@ public static class MicrosoftAuthService
     /// </summary>
     public static void Reset()
     {
+        _progressReporter = null;
         _account = null;
         _mojangProfile = null;
         _authStatus = EAuthStatus.NONE;
     }
     
     /// <summary>
-    /// Handles an HTTP request for Microsoft authentication.
+    /// Opens the Microsoft authentication URL in the default web browser.
     /// </summary>
-    /// <param name="request">The HTTP request to handle.</param>
-    public static async Task HandleHttpRequestAsync(HttpListenerRequest request)
+    public static void OpenAuthenticationUrl()
+    {
+        if (string.IsNullOrEmpty(_microsoftClientId))
+        {
+            _logger.Error("Microsoft client ID is not set.");
+            return;
+        }
+        
+        string authUrl = MicrosoftEndpoints.MakeMicrosoftAuthUrl(_microsoftClientId, _redirectAuthenticateUrl);
+        Process process = new();
+        process.StartInfo = new ProcessStartInfo
+        {
+            FileName = authUrl,
+            UseShellExecute = true
+        };
+        process.Start();
+    }
+    
+    /// <summary>
+    /// Generates the Microsoft authentication URL using the client ID and redirect URL.
+    /// </summary>
+    /// <returns>
+    /// A string containing the authentication URL if the client ID is set; 
+    /// otherwise, an empty string if the client ID is not set.
+    /// </returns>
+    public static string GetAuthenticationUrl()
+    {
+        if (string.IsNullOrEmpty(_microsoftClientId))
+        {
+            _logger.Error("Microsoft client ID is not set.");
+            return string.Empty;
+        }
+        
+        return MicrosoftEndpoints.MakeMicrosoftAuthUrl(_microsoftClientId, _redirectAuthenticateUrl);
+    }
+    
+    /// <summary>
+    /// Handles an HTTP request for Microsoft authentication.
+    /// Validates the request, extracts the authorization code, and initiates the token exchange process.
+    /// </summary>
+    /// <param name="request">The HTTP request containing the authentication data.</param>
+    /// <param name="progressReporter">An optional progress reporter for tracking the authentication process.</param>
+    public static async Task HandleHttpRequestAsync(HttpListenerRequest request, IProgressReporter? progressReporter = null)
     {
         _authStatus = EAuthStatus.PENDING;
+        _progressReporter = progressReporter;
         if (string.IsNullOrEmpty(_microsoftClientId))
         {
             _logger.Error("Microsoft client ID is not set.");
@@ -81,7 +126,8 @@ public static class MicrosoftAuthService
             return;
         }
 
-        string requestUrl = MicrosoftEndpoints.MakeMicrosoftAuthUrl(_microsoftClientId, _redirectAuthenticateUrl);
+        string requestUrl = MicrosoftEndpoints.MicrosoftTokenUrl;
+        _progressReporter?.SetStatusTranslated("auth.microsoft.authenticating");
         
         try
         {
@@ -109,13 +155,20 @@ public static class MicrosoftAuthService
             JObject obj = JObject.Parse(responseString);
             if (!obj.TryGetValue("access_token", out var value))
             {
-                _logger.Error("Access token not found in the response.");
+                _logger.Error("Access token not found in the Microsoft authentication response.\"");
+                _authStatus = EAuthStatus.FAILED;
+                return;
+            }
+            
+            if (!obj.TryGetValue("refresh_token", out var refreshToken))
+            {
+                _logger.Error("Refresh token not found in the Microsoft authentication response.");
                 _authStatus = EAuthStatus.FAILED;
                 return;
             }
            
             // Proceed with the token
-            await XboxTokenCallAsync(value.ToString());
+            await XboxTokenCallAsync(value.ToString(), refreshToken.ToString());
         }
         catch (Exception ex)
         {
@@ -126,13 +179,16 @@ public static class MicrosoftAuthService
     }
     
     /// <summary>
-    /// Makes a call to the Xbox authentication service with the provided token.
+    /// Makes an asynchronous call to the Xbox authentication endpoint to retrieve a token.
     /// </summary>
-    /// <param name="token">The token to use for authentication.</param>
-    private static async Task XboxTokenCallAsync(string token)
+    /// <param name="token">The Microsoft access token used for authentication.</param>
+    /// <param name="refreshToken">The refresh token to be used for subsequent authentication steps.</param>
+    private static async Task XboxTokenCallAsync(string token, string refreshToken)
     {
         try
         {
+            _progressReporter?.SetStatusTranslated("auth.xbox.authenticating");
+            
             object body = new
             {
                 Properties = new
@@ -162,7 +218,7 @@ public static class MicrosoftAuthService
                 return;
             }
             
-            await XboxXstsCallAsync(value.ToString());
+            await XboxXstsCallAsync(value.ToString(), refreshToken);
         }
         catch (Exception ex)
         {
@@ -173,13 +229,16 @@ public static class MicrosoftAuthService
     }
     
     /// <summary>
-    /// Makes a call to the Xbox XSTS service with the provided token.
+    /// Makes an asynchronous call to the Xbox XSTS endpoint to retrieve a user hash and token.
     /// </summary>
-    /// <param name="token">The token to use for the XSTS call.</param>
-    private static async Task XboxXstsCallAsync(string token)
+    /// <param name="token">The Xbox authentication token.</param>
+    /// <param name="refreshToken">The refresh token to be used for subsequent authentication steps.</param>
+    private static async Task XboxXstsCallAsync(string token, string refreshToken)
     {
         try
         {
+            _progressReporter?.SetStatusTranslated("auth.xbox.xsts");
+            
             object body = new
             {
                 Properties = new
@@ -200,7 +259,8 @@ public static class MicrosoftAuthService
             using HttpClient client = HttpHelper.GetHttpClient();
             var result = await client.PostAsync(MicrosoftEndpoints.XboxXstsUrl, reqContent).ConfigureAwait(false);
 
-            JObject resultObj = JObject.Parse(await result.Content.ReadAsStringAsync());
+            var rawJson = await result.Content.ReadAsStringAsync();
+            JObject resultObj = JObject.Parse(rawJson);
             if (!resultObj.TryGetValue("Token", out var value))
             {
                 _logger.Error("Token not found in the Xbox XSTS response.");
@@ -216,15 +276,15 @@ public static class MicrosoftAuthService
             }
 
             var xui = displayClaims["xui"];
-            if (xui is not { HasValues: true })
+            if (xui == null)
             {
                 _logger.Error("xui not found or empty in the Xbox XSTS response.");
                 _authStatus = EAuthStatus.FAILED;
                 return;
             }
 
-            var firstXui = xui[0];
-            if (firstXui is not { HasValues: true })
+            var firstXui = xui.First;
+            if (firstXui == null)
             {
                 _logger.Error("User hash (uhs) not found in the Xbox XSTS response.");
                 _authStatus = EAuthStatus.FAILED;
@@ -232,14 +292,14 @@ public static class MicrosoftAuthService
             }
             
             var userHash = firstXui["uhs"];
-            if (userHash is not { HasValues: true })
+            if (userHash == null)
             {
                 _logger.Error("User hash (uhs) is null in the Xbox XSTS response.");
                 _authStatus = EAuthStatus.FAILED;
                 return;
             }
             
-            await MinecraftAccessCallAsync(value.ToString(), userHash.ToString());
+            await MinecraftAccessCallAsync(value.ToString(), refreshToken, userHash.ToString());
         }
         catch (Exception ex)
         {
@@ -250,14 +310,17 @@ public static class MicrosoftAuthService
     }
     
     /// <summary>
-    /// Makes a call to the Minecraft authentication service with the provided token and user hash.
+    /// Makes an asynchronous call to the Minecraft authentication endpoint to retrieve an access token.
     /// </summary>
-    /// <param name="token">The token to use for authentication.</param>
-    /// <param name="userHash">The user hash associated with the token.</param>
-    private static async Task MinecraftAccessCallAsync(string token, string userHash)
+    /// <param name="token">The Xbox XSTS token.</param>
+    /// <param name="refreshToken">The refresh token to be used for subsequent authentication steps.</param>
+    /// <param name="userHash">The user hash retrieved from the Xbox XSTS response.</param>
+    private static async Task MinecraftAccessCallAsync(string token, string refreshToken, string userHash)
     {
         try
         {
+            _progressReporter?.SetStatusTranslated("auth.minecraft.authenticating");
+            
             object body = new
             {
                 identityToken = $"XBL3.0 x={userHash};{token}",
@@ -288,7 +351,7 @@ public static class MicrosoftAuthService
                 return;
             }
             
-            await CheckMinecraftOwnershipAsync(minecraftToken.ToString(), int.Parse(expiresIn.ToString()));
+            await CheckMinecraftOwnershipAsync(minecraftToken.ToString(), refreshToken, int.Parse(expiresIn.ToString()));
         }
         catch (Exception ex)
         {
@@ -299,14 +362,17 @@ public static class MicrosoftAuthService
     }
     
     /// <summary>
-    /// Checks if the user owns Minecraft using the provided token.
+    /// Checks if the user owns Minecraft by querying the ownership endpoint.
     /// </summary>
     /// <param name="mcToken">The Minecraft access token.</param>
-    /// <param name="expireSeconds">The expiration time of the token in seconds.</param>
-    private static async Task CheckMinecraftOwnershipAsync(string mcToken, int expireSeconds)
+    /// <param name="refreshToken">The refresh token to be used for subsequent authentication steps.</param>
+    /// <param name="expireSeconds">The expiration time of the access token in seconds.</param>
+    private static async Task CheckMinecraftOwnershipAsync(string mcToken, string refreshToken, int expireSeconds)
     {
         try
         {
+            _progressReporter?.SetStatusTranslated("auth.minecraft.ownership");
+            
             HttpClient client = HttpHelper.GetHttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", mcToken);
             var result = await client.GetAsync(MicrosoftEndpoints.MinecraftOwnershipUrl);
@@ -327,7 +393,7 @@ public static class MicrosoftAuthService
                 return;
             }
 
-            await GetMinecraftProfileAsync(mcToken, expireSeconds);
+            await GetMinecraftProfileAsync(mcToken, refreshToken, expireSeconds);
         }
         catch (Exception ex)
         {
@@ -338,14 +404,17 @@ public static class MicrosoftAuthService
     }
     
     /// <summary>
-    /// Retrieves the Minecraft profile of the user using the provided token.
+    /// Retrieves the user's Minecraft profile and updates the account information.
     /// </summary>
     /// <param name="mcToken">The Minecraft access token.</param>
-    /// <param name="expireSecs">The expiration time of the token in seconds.</param>
-    private static async Task GetMinecraftProfileAsync(string mcToken, int expireSecs)
+    /// <param name="refreshToken">The refresh token to be used for subsequent authentication steps.</param>
+    /// <param name="expireSecs">The expiration time of the access token in seconds.</param>
+    private static async Task GetMinecraftProfileAsync(string mcToken, string refreshToken, int expireSecs)
     {
         try
         {
+            _progressReporter?.SetStatusTranslated("auth.minecraft.profile");
+            
             HttpClient client = HttpHelper.GetHttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", mcToken);
             var result = await client.GetAsync(MicrosoftEndpoints.MinecraftProfileUrl);
@@ -360,10 +429,10 @@ public static class MicrosoftAuthService
                 return;
             }
 
-            _account = new Account(Guid.NewGuid().ToString(),_mojangProfile.Id, _mojangProfile.Name, EAccountType.MICROSOFT, mcToken, DateTime.Now.AddSeconds(expireSecs));
+            _account = new Account(Guid.NewGuid().ToString(),_mojangProfile.Id, _mojangProfile.Name, EAccountType.MICROSOFT, mcToken, refreshToken, DateTime.Now.AddSeconds(expireSecs));
             
             _authStatus = EAuthStatus.SUCCESS;
-            AuthService.StopListening();
+            AuthService.StopListening(false);
         }
         catch (Exception ex)
         {
@@ -373,75 +442,66 @@ public static class MicrosoftAuthService
         }
     }
     
-    /// <summary>
-    /// Attempts to log in to the Minecraft service using the provided access token.
-    /// </summary>
-    /// <param name="mcToken">The Minecraft access token to authenticate the user.</param>
-    /// <returns>
-    /// A <see cref="MojangProfile"/> object containing the user's profile information if the login is successful; 
-    /// otherwise, <c>null</c> if the login fails or an error occurs.
-    /// </returns>
-    public static async Task<MojangProfile?> AttemptLoginAsync(string mcToken)
+    public static async Task<bool> RefreshLoginAsync(string token)
     {
+        if (string.IsNullOrEmpty(_microsoftClientId))
+        {
+            _logger.Error("Microsoft client ID is not set.");
+            _authStatus = EAuthStatus.FAILED;
+            return false;
+        }
+
+        string requestUrl = MicrosoftEndpoints.MicrosoftTokenUrl;
+        
         try
         {
-            HttpClient client = HttpHelper.GetHttpClient();
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", mcToken);
-            
-            var result = await client.GetAsync(MicrosoftEndpoints.MinecraftProfileUrl);
+            var requestParams = new Dictionary<string, string>
+            {
+                { "client_id", _microsoftClientId },
+                { "grant_type", "refresh_token" },
+                { "refresh_token", token }
+            };
+            var requestContent = new FormUrlEncodedContent(requestParams);
 
-            if (!result.IsSuccessStatusCode)
-                return null;
+            using HttpClient client = HttpHelper.GetHttpClient();
+            var response = await client.PostAsync(requestUrl, requestContent).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.Error("Failed to get access token from Microsoft. Status code: " + response.StatusCode);
+                _authStatus = EAuthStatus.FAILED;
+                return false;
+            }
             
-            return JsonConvert.DeserializeObject<MojangProfile>(await result.Content.ReadAsStringAsync());
+            var responseString = await response.Content.ReadAsStringAsync();
+
+            JObject obj = JObject.Parse(responseString);
+            if (!obj.TryGetValue("access_token", out var value))
+            {
+                _logger.Error("Access token not found in the Microsoft authentication response.\"");
+                _authStatus = EAuthStatus.FAILED;
+                return false;
+            }
+            
+            if (!obj.TryGetValue("refresh_token", out var refreshToken))
+            {
+                _logger.Error("Refresh token not found in the Microsoft authentication response.");
+                _authStatus = EAuthStatus.FAILED;
+                return false;
+            }
+           
+            // Proceed with the token
+            await XboxTokenCallAsync(value.ToString(), refreshToken.ToString());
+            // Wait for the authentication process to complete
+            _logger.Debug("Refresh auth status: " + AuthStatus);
+            return true;
         }
         catch (Exception ex)
         {
-            _logger.Exc("Error while attempting to login:");
+            _logger.Exc("Error while handling HTTP request for Microsoft authentication:");
             _logger.Error(ex.ToString());
-            return null;
+            _authStatus = EAuthStatus.FAILED;
+            return false;
         }
     }
-    
-    /*
-     * OLD CODE TO REAUTHENTICATE MICROSOFT ACCOUNT
-     * if (account.Type == Enums.EAccountType.MICROSOFT)
-       {
-           if (account.AccessTokenExpireDate > DateTime.Now)
-               if (await AttemptLogin(account.AccessToken))
-                   return true;
-
-           // Start reauthenticate
-           StartListening();
-
-           var psi = new ProcessStartInfo
-           {
-               FileName = MicrosoftAuthUrl,
-               UseShellExecute = true
-           };
-           Process.Start(psi);
-
-           while (IsListening)
-           {
-               await Task.Delay(50);
-               if (GetMicrosoftAuthStatus())
-               {
-                   LWindow window = Activator.CreateInstance<LWindow>();
-                   window.Show();
-                   startWindow.Close();
-                   break;
-               }
-
-               if (_wasAuthCancelled)
-               {
-                   AWindow window = Activator.CreateInstance<AWindow>();
-                   window.Show();
-                   startWindow.Close();
-                   break;
-               }
-           }
-
-           return null;
-       }
-     */
 }

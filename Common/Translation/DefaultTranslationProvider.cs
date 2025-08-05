@@ -117,6 +117,35 @@ public static class DefaultTranslationProvider
         {"settings.misc.useDedicatedGpu", "Use dedicated GPU"},
         
         #endregion
+
+        #region Auth
+
+        {"auth.title", "Add New Account"},
+        {"auth.tab.microsoft", "Microsoft"},
+        {"auth.tab.offline", "Offline"},
+        {"auth.tab.custom", "Custom"},
+        
+        {"auth.microsoft.description", "Sign in with your Microsoft Account to access official Minecraft servers and features."},
+        {"auth.microsoft.login", "Sign in with Microsoft"},
+        {"auth.microsoft.note", "This will open a browser window for authentication."},
+        {"auth.offline.description", "Play with an offline account."},
+        {"auth.offline.login", "Login as Offline User"},
+        {"auth.offline.note", "Offline accounts can only connect to offline servers; online multiplayer is unavailable."},
+        
+        {"auth.listener.starting", "Waiting for authentication..."},
+        {"auth.listener.failed", "Failed to start authentication listener."},
+        {"auth.listener.success", "Authentication successful!"},
+        {"auth.listener.error", "An error occurred during authentication."},
+        {"auth.listener.cancelled", "Authentication was cancelled."},
+        {"auth.listener.callback", "Received authentication callback."},
+        {"auth.microsoft.authenticating", "Requesting Microsoft token..."},
+        {"auth.xbox.authenticating", "Requesting Xbox token..."},
+        {"auth.xbox.xsts", "Requesting XSTS token..."},
+        {"auth.minecraft.authenticating", "Requesting Minecraft token..."},
+        {"auth.minecraft.ownership", "Checking Minecraft ownership..."},
+        {"auth.minecraft.profile", "Requesting Minecraft profile..."},
+
+        #endregion
         
         {"", ""},
     };

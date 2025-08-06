@@ -1,4 +1,7 @@
 using System.Diagnostics;
+using Tavstal.KonkordLauncher.Common.Models;
+using Tavstal.KonkordLauncher.Core.Enums;
+using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
 
 namespace Tavstal.KonkordLauncher.Common.Helpers;
@@ -12,12 +15,31 @@ public static class JavaHelper
     /// Logger instance for the JavaHelper module.
     /// </summary>
     private static readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(JavaHelper));
+    private static List<JavaVersion> _cachedJavaVersions = [];
+    private static DateTime _cacheExpiration = DateTime.MinValue;
 
-    private const string _java8 = "1.8";
-    private const string _java11 = "11";
-    private const string _java17 = "17";
-    private const string _java21 = "21";
-    
+    private static readonly List<string> WindowsDirectories =
+    [
+        @"C:\Program Files\Java",
+        @"C:\Program Files (x86)\Java",
+        @"C:\ProgramData\Oracle\Java",
+        @"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Java"
+    ];
+
+    private static readonly List<string> LinuxDirectories =
+    [
+        "/usr/lib/jvm",
+        "/usr/java",
+        "/opt/java",
+        "/usr/local/java"
+    ];
+
+    private static readonly List<string> MacDirectories =
+    [
+        "/Library/Java/JavaVirtualMachines",
+        "/System/Library/Java/JavaVirtualMachines"
+    ];
+
     /// <summary>
     /// Checks if Java is installed on the system by attempting to execute the "java --version" command.
     /// </summary>
@@ -40,12 +62,7 @@ public static class JavaHelper
                 _logger.Error("Failed to start Java process. Is Java installed?");
                 return false;
             }
-
-            /*
-            string output = pr.StandardError.ReadToEnd();
-            string javaVersion = output.Split(' ')[2].Replace("\"", "");
-            string rawMajorVersion = javaVersion.Split(".")[0];
-            int major = int.Parse(rawMajorVersion);*/
+            
             return true;
         }
         catch (Exception ex)
@@ -57,21 +74,187 @@ public static class JavaHelper
     }
 
     /// <summary>
-    /// Validates if a specific Java version is installed.
+    /// Retrieves detailed information about a Java installation by executing the specified Java executable.
     /// </summary>
-    /// <param name="major">The major version of Java to validate.</param>
-    /// <returns>Throws a NotImplementedException as the method is not yet implemented.</returns>
-    public static bool ValidateJavaVersion(int major)
+    /// <param name="path">The file path to the Java executable.</param>
+    /// <returns>
+    /// A <see cref="JavaVersion"/> object containing the Java version details, or null if the details could not be retrieved.
+    /// </returns>
+    public static JavaVersion? GetJavaVersionDetails(string path)
     {
-        throw new NotImplementedException("Java version not implemented");
+        try
+        {
+            ProcessStartInfo psi = new ProcessStartInfo
+            {
+                FileName = path,
+                Arguments = "-XshowSettings:properties -version",
+                RedirectStandardError = true, // Output goes to stderr
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using Process? process = Process.Start(psi);
+            if (process == null)
+                return null;
+
+            string output = process.StandardError.ReadToEnd();
+            process.WaitForExit();
+
+            string? majorVersion = string.Empty;
+            string? javaVersion = string.Empty;
+            string? architecture = string.Empty;
+
+            foreach (var line in output.Split('\n'))
+            {
+                if (line.Contains("java.specification.version ="))
+                    majorVersion = line.Split('=')[1].Trim();
+                
+                if (line.Contains("java.version ="))
+                    javaVersion = line.Split('=')[1].Trim();
+                
+                if (line.Contains("os.arch ="))
+                    architecture = line.Split('=')[1].Trim();
+            }
+            
+            if (majorVersion == "1.8")
+                majorVersion = "8"; // Normalize Java 1.8 to 8
+            
+            
+            return new JavaVersion(int.Parse(majorVersion), javaVersion, architecture, path);
+        }
+        catch (Exception ex)
+        {
+            _logger.Exc("Failed to get Java version details:");
+            _logger.Error(ex.ToString());
+            return null;
+        }
     }
 
     /// <summary>
     /// Searches for Java installations in common paths.
     /// </summary>
     /// <returns>A dictionary where the key is the Java version and the value is a list of installation paths.</returns>
-    public static Dictionary<int, List<string>> LocateJavaInstallations()
+    public static List<JavaVersion> LocateJavaInstallations()
     {
-        throw new NotImplementedException("Java installations not implemented");
+        if (_cachedJavaVersions.Count > 0 && _cacheExpiration > DateTime.Now)
+            return _cachedJavaVersions;
+        
+        List<JavaVersion> javaVersions = [];
+        List<string> javaPaths = [];
+
+        switch (OSHelper.GetOperatingSystem())
+        {
+            case EOperatingSystem.Windows:
+            {
+                javaPaths = GetWindowsJavaPaths();
+                break;
+            }
+            case EOperatingSystem.MacOS:
+            {
+                javaPaths = GetMacJavaPaths();
+                break;
+            }
+            case EOperatingSystem.Linux:
+            case EOperatingSystem.Unknown:
+            {
+                javaPaths = GetLinuxJavaPaths();
+                break;
+            }
+        }
+
+        foreach (var path in javaPaths)
+        {
+            var versionDetails = GetJavaVersionDetails(path);
+            if (versionDetails == null)
+                continue;
+
+            javaVersions.Add(versionDetails);
+        }
+
+        _cachedJavaVersions = javaVersions;
+        _cacheExpiration = DateTime.Now.AddMinutes(10); // Cache for 10 minutes
+        
+        return javaVersions;
+    }
+
+    /// <summary>
+    /// Retrieves the paths to Java installations on Windows systems by searching common directories.
+    /// </summary>
+    /// <returns>A list of file paths to Java executables found on Windows.</returns>
+    private static List<string> GetWindowsJavaPaths()
+    {
+        List<string> paths = [];
+
+        foreach (var dirPath in WindowsDirectories)
+        {
+            if (!Directory.Exists(dirPath))
+                continue;
+
+            var subDirs = Directory.GetDirectories(dirPath);
+            foreach (var subDir in subDirs)
+            {
+                string javaPath = Path.Combine(subDir, "bin", "javaw.exe");
+                if (!File.Exists(javaPath))
+                    continue;
+
+                paths.Add(javaPath);
+            }
+        }
+
+        return paths;
+    }
+
+    /// <summary>
+    /// Retrieves the paths to Java installations on Linux systems by searching common directories.
+    /// </summary>
+    /// <returns>A list of file paths to Java executables found on Linux.</returns>
+    private static List<string> GetLinuxJavaPaths()
+    {
+        List<string> paths = [];
+
+        foreach (var dirPath in LinuxDirectories)
+        {
+            if (!Directory.Exists(dirPath))
+                continue;
+
+            var subDirs = Directory.GetDirectories(dirPath);
+            foreach (var subDir in subDirs)
+            {
+                string javaPath = Path.Combine(subDir, "bin", "java");
+                if (!File.Exists(javaPath))
+                    continue;
+
+                paths.Add(javaPath);
+            }
+        }
+
+        return paths;
+    }
+
+    /// <summary>
+    /// Retrieves the paths to Java installations on macOS systems by searching common directories.
+    /// </summary>
+    /// <returns>A list of file paths to Java executables found on macOS.</returns>
+    private static List<string> GetMacJavaPaths()
+    {
+        List<string> paths = [];
+
+        foreach (var dirPath in MacDirectories)
+        {
+            if (!Directory.Exists(dirPath))
+                continue;
+
+            var subDirs = Directory.GetDirectories(dirPath);
+            foreach (var subDir in subDirs)
+            {
+                string javaPath = Path.Combine(subDir, "bin", "java");
+                if (!File.Exists(javaPath))
+                    continue;
+
+                paths.Add(javaPath);
+            }
+        }
+
+        return paths;
     }
 }

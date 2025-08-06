@@ -19,9 +19,36 @@ public partial class CreateInstanceViewModel : ObservableObject
 
     #region Custom
     
-    [ObservableProperty] private string _instanceName = string.Empty;
-    [ObservableProperty] private string _instanceGroup = string.Empty;
-    [ObservableProperty] private Bitmap? _instanceIcon;
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))] private string _instanceName = string.Empty;
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))] private string _instanceGroup = string.Empty;
+    [ObservableProperty]  private string? _instanceIconPath;
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))] private Bitmap? _instanceIcon;
+
+    /// <summary>
+    /// Gets a value indicating whether a custom instance can be created.
+    /// Returns true if all required fields (instance name, icon, selected Minecraft version,
+    /// and, if applicable, selected mod loader) are set; otherwise, false.
+    /// </summary>
+    public bool CanCreateCustomInstance
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(InstanceName))
+                return false;
+            
+            if (InstanceIcon == null)
+                return false;
+            
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+            if (SelectedMinecraftVersion == null)
+                return false;
+            
+            if (ModLoaderType != EMinecraftKind.VANILLA && SelectedModLoader == null)
+                return false;
+            
+            return true;
+        }
+    }
     
     #region Vanilla
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(VersionResult))] private string _searchQuery = string.Empty;
@@ -35,7 +62,14 @@ public partial class CreateInstanceViewModel : ObservableObject
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(VersionResult))] private bool _showBetas;
 
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(VersionResult))] private bool _showExperiments;
+    
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))] private MinecraftVersion _selectedMinecraftVersion;
 
+    /// <summary>
+    /// Gets a filtered list of available Minecraft versions based on the current search query and selected version types.
+    /// Filters include release, snapshot, old alpha, old beta, and experiment versions,
+    /// depending on the corresponding boolean properties.
+    /// </summary>
     public List<MinecraftVersion> VersionResult => _vanillaManifest.Versions.FindAll(x =>
         (string.IsNullOrEmpty(SearchQuery) || x.Id.Contains(SearchQuery)) &&
         (x.Type != "release" || ShowReleases) &&
@@ -43,19 +77,25 @@ public partial class CreateInstanceViewModel : ObservableObject
         (x.Type != "old_alpha" || ShowAlphas) &&
         (x.Type != "old_beta" || ShowBetas) &&
         (x.Type != "experiment" || ShowExperiments));
-    
-    [ObservableProperty] private MinecraftVersion _selectedMinecraftVersion;
     #endregion
     #region  Mod Loader
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(ModVersionResult))] private string _modSearchQuery = string.Empty;
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(ModVersionResult))] private EMinecraftKind _modType = EMinecraftKind.VANILLA;
-
-    public List<IModManifest> ModVersionResult
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(ModLoaderVersionResult))] private string _modLoaderSearchQuery = string.Empty;
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(ModLoaderVersionResult))] [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))] private EMinecraftKind _modLoaderType = EMinecraftKind.VANILLA;
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))] private IModManifest? _selectedModLoader;
+    
+    /// <summary>
+    /// Gets a filtered list of available mod loader versions based on the selected mod loader type,
+    /// the currently selected Minecraft version, and the mod loader search query.
+    /// For each mod loader type (NeoForge, Forge, Fabric, Quilt), retrieves the corresponding manifest,
+    /// filters by the selected Minecraft version and search query, and returns the matching results.
+    /// Returns an empty list for Vanilla or if no matching versions are found.
+    /// </summary>
+    public List<IModManifest> ModLoaderVersionResult
     {
         get
         {
             List<IModManifest> result = [];
-            switch (ModType)
+            switch (ModLoaderType)
             {
                 case EMinecraftKind.VANILLA:
                     break;
@@ -69,7 +109,7 @@ public partial class CreateInstanceViewModel : ObservableObject
                         if (version.GameVersion != SelectedMinecraftVersion.Id)
                             continue;
                         
-                        if (!string.IsNullOrEmpty(ModSearchQuery) || !version.Version.Contains(ModSearchQuery))
+                        if (!string.IsNullOrEmpty(ModLoaderSearchQuery) || !version.Version.Contains(ModLoaderSearchQuery))
                             continue;
                         
                         result.Add(version);
@@ -86,7 +126,7 @@ public partial class CreateInstanceViewModel : ObservableObject
                         if (version.GameVersion != SelectedMinecraftVersion.Id)
                             continue;
                         
-                        if (!string.IsNullOrEmpty(ModSearchQuery) || !version.Version.Contains(ModSearchQuery))
+                        if (!string.IsNullOrEmpty(ModLoaderSearchQuery) || !version.Version.Contains(ModLoaderSearchQuery))
                             continue;
                         
                         result.Add(version);
@@ -99,8 +139,8 @@ public partial class CreateInstanceViewModel : ObservableObject
                     if (result == null)
                         return [];
                     
-                    if (!string.IsNullOrEmpty(ModSearchQuery))
-                        result = result.FindAll(x => x.Version.Contains(ModSearchQuery));
+                    if (!string.IsNullOrEmpty(ModLoaderSearchQuery))
+                        result = result.FindAll(x => x.Version.Contains(ModLoaderSearchQuery));
                     break;
                 }
                 case EMinecraftKind.QUILT:
@@ -109,8 +149,8 @@ public partial class CreateInstanceViewModel : ObservableObject
                     if (result == null)
                         return [];
                     
-                    if (!string.IsNullOrEmpty(ModSearchQuery))
-                        result = result.FindAll(x => x.Version.Contains(ModSearchQuery));
+                    if (!string.IsNullOrEmpty(ModLoaderSearchQuery))
+                        result = result.FindAll(x => x.Version.Contains(ModLoaderSearchQuery));
                     break;
                 }
             }

@@ -11,17 +11,22 @@ public enum EMinecraftKind
     VANILLA = 0,
 
     /// <summary>
+    /// Represents the NeoForge modded version of Minecraft.
+    /// </summary>
+    NEOFORGE = 1,
+    
+    /// <summary>
     /// Represents the Forge modded version of Minecraft.
     /// </summary>
-    FORGE = 1,
+    FORGE = 2,
 
     /// <summary>
     /// Represents the Fabric modded version of Minecraft.
     /// </summary>
-    FABRIC = 2,
+    FABRIC = 3,
 
     /// <summary>
     /// Represents the Quilt modded version of Minecraft.
     /// </summary>
-    QUILT = 3
+    QUILT = 4
 }

@@ -70,7 +70,7 @@ public class MinecraftInstaller
         Kind = kind;
         UserJvmArgs = jvmArgs;
 
-        VersionManifest? localManifest = JsonHelper.ReadJsonFile<VersionManifest>(ManifestPath);
+        VersionManifest? localManifest = ManifestHelper.GetMinecraftManifest();
         if (localManifest == null)
         {
             _logger.Error("Failed to read the local vanilla manifest. Please ensure that the file exists and is valid.");

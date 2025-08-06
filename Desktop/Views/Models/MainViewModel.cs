@@ -22,8 +22,8 @@ public partial class MainViewModel : ObservableObject
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MainViewModel));
 
     [ObservableProperty] private ESidebarType _currentPageIndex;
-    public ObservableCollection<Instance> Instances { get; } = [];
-    public ObservableCollection<NewsCardModel> News { get; } = [];
+    [ObservableProperty] private ObservableCollection<Instance> _instances = [];
+    [ObservableProperty] private ObservableCollection<NewsCardModel> _patches = [];
     [ObservableProperty] private AccountDataModel _accountData;
     [ObservableProperty] private CoreConfigModel _coreConfig;
 

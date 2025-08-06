@@ -210,7 +210,7 @@
                         <!--  News Grid  -->
                         <Grid MaxHeight="440">
                             <ScrollViewer>
-                                <ItemsControl ItemsSource="{Binding News}">
+                                <ItemsControl ItemsSource="{Binding Patches}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <WrapPanel Classes="NewsPageWrapper" />

@@ -22,7 +22,7 @@ public partial class MainViewModel : ObservableObject
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MainViewModel));
 
     [ObservableProperty] private ESidebarType _currentPageIndex;
-    [ObservableProperty] private ObservableCollection<Instance> _instances = [];
+    [ObservableProperty] private ObservableCollection<Instance> _instances;
     [ObservableProperty] private ObservableCollection<NewsCardModel> _patches = [];
     [ObservableProperty] private AccountDataModel _accountData;
     [ObservableProperty] private CoreConfigModel _coreConfig;
@@ -33,11 +33,11 @@ public partial class MainViewModel : ObservableObject
     public MainViewModel()
     {
         _currentPageIndex = ESidebarType.Play;
-        // TODO: Load instances
         // TODO: Fetch patches
 
         _coreConfig = new CoreConfigModel(LauncherHelper.GetLauncherSettings());
         _accountData = new AccountDataModel(LauncherHelper.GetAccountData());
+        _instances = new ObservableCollection<Instance>(LauncherHelper.GetInstances());
         _isInitialized = true;
 
         SubscribeToCoreConfigChildren(_coreConfig);

@@ -28,13 +28,38 @@ public static class JavaProcessLauncher
             Arguments = arguments,
             UseShellExecute = false,
             RedirectStandardError = true,
+            RedirectStandardOutput = true,
         };
-
+        
         // Log the process start details
+        _logger.Debug($"Java Path: {javaPath}");
         _logger.Debug("Starting Java process with arguments:");
         _logger.Debug(arguments.Replace(' ', '\n'));
 
+        var proce = Process.Start(psi);
+        proce.OutputDataReceived += (sender, e) =>
+        {
+            if (!string.IsNullOrEmpty(e.Data))
+            {
+                _logger.Debug($"Java Output: {e.Data}");
+            }
+        };
+        proce.ErrorDataReceived += (sender, e) =>
+        {
+            if (!string.IsNullOrEmpty(e.Data))
+            {
+                _logger.Error($"Java Output: {e.Data}");
+            }
+        };
+        proce.Exited += (sender, e) =>
+        {
+            _logger.Info($"Java process exited with code: {proce.ExitCode}");
+        };
+        
+        proce.BeginOutputReadLine();
+        proce.BeginErrorReadLine();
+        
         // Start the process and return the Process object
-        return Process.Start(psi);
+        return proce;
     }
 }

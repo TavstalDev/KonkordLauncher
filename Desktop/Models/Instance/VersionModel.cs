@@ -1,8 +1,37 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+
 namespace Tavstal.KonkordLauncher.Desktop.Models.Instance;
 
-public class VersionModel
+/// <summary>
+/// Represents a version model containing version details such as version number, release date, and type.
+/// </summary>
+public partial class VersionModel : ObservableObject
 {
-    public string Version { get; set; }
-    public string ReleaseDate { get; set; }
-    public string Type { get; set; }
+    /// <summary>
+    /// The version number of the instance.
+    /// </summary>
+    [ObservableProperty] private string _version;
+
+    /// <summary>
+    /// The release date of the version.
+    /// </summary>
+    [ObservableProperty] private string _releaseDate;
+
+    /// <summary>
+    /// The type of the version (e.g., stable, beta, etc.).
+    /// </summary>
+    [ObservableProperty] private string _type;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="VersionModel"/> class.
+    /// </summary>
+    /// <param name="version">The version number of the instance.</param>
+    /// <param name="releaseDate">The release date of the version.</param>
+    /// <param name="type">The type of the version.</param>
+    public VersionModel(string version, string releaseDate, string type)
+    {
+        Version = version;
+        ReleaseDate = releaseDate;
+        Type = type;
+    }
 }

@@ -1,12 +1,18 @@
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Config;
 using Tavstal.KonkordLauncher.Core.Helpers;
+using Tavstal.KonkordLauncher.Core.Installers;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Config.Launcher;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
@@ -22,11 +28,11 @@ public partial class MainViewModel : ObservableObject
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MainViewModel));
 
     [ObservableProperty] private ESidebarType _currentPageIndex;
-    [ObservableProperty] private ObservableCollection<Instance> _instances;
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(HasInstances))] private ObservableCollection<InstanceModel> _instances;
     [ObservableProperty] private ObservableCollection<NewsCardModel> _patches = [];
     [ObservableProperty] private AccountDataModel _accountData;
     [ObservableProperty] private CoreConfigModel _coreConfig;
-
+    
     /// <summary>
     /// Initializes a new instance of the <see cref="MainViewModel"/> class.
     /// </summary>
@@ -37,13 +43,84 @@ public partial class MainViewModel : ObservableObject
 
         _coreConfig = new CoreConfigModel(LauncherHelper.GetLauncherSettings());
         _accountData = new AccountDataModel(LauncherHelper.GetAccountData());
-        _instances = new ObservableCollection<Instance>(LauncherHelper.GetInstances());
+        _instances = new ObservableCollection<InstanceModel>(LauncherHelper.GetInstances().ConvertAll(x => new InstanceModel(x)));
         _isInitialized = true;
 
         SubscribeToCoreConfigChildren(_coreConfig);
         SubscribeToAccountDataChildren(_accountData);
         App.OnAccountsChanged += OnAccountUpdated;
+        App.OnInstancesChanged += HandleInstancesChanged;
     }
+
+    #region Instances Management
+
+    public bool HasInstances => Instances.Count > 0;
+    
+    /// <summary>
+    /// Handles the event when the instances data changes by updating the <see cref="Instances"/> collection
+    /// with the latest instances retrieved from the launcher helper.
+    /// </summary>
+    private void HandleInstancesChanged()
+    {
+        Instances = new ObservableCollection<InstanceModel>(LauncherHelper.GetInstances().ConvertAll(x => new InstanceModel(x)));
+    }
+
+    [RelayCommand]
+    private void LaunchInstance(InstanceModel instanceModel)
+    {
+        _logger.Debug($"Launching instance: {instanceModel.Name}");
+        var settings = LauncherHelper.GetLauncherSettings();
+        var versionDetails = GameHelper.GetVersionDetails(settings.Launcher.VersionsDirectoryPath,
+            instanceModel.MinecraftVersion, instanceModel.Kind, instanceModel.CustomVersion,
+            instanceModel.GameDirectory);
+        var accountData = LauncherHelper.GetAccountData();
+        var account = accountData.Accounts.FirstOrDefault(x => x.Id == accountData.SelectedAccountId);
+        if (account == null)
+        {
+            _logger.Error("No account selected for launching the instance.");
+            return;
+        }
+
+        try
+        {
+            MinecraftInstaller installer = new MinecraftInstaller(
+                string.IsNullOrEmpty(instanceModel.Config.Java.JavaPath) ? "java" : instanceModel.Config.Java.JavaPath,
+                instanceModel.MinecraftVersion,
+                //(int)instanceModel.Config.Java.MinMemory,
+                (int)instanceModel.Config.Java.MaxMemory,
+                new LauncherDetails("KonkordLauncher", "2.0.0"),
+                new ClientDetails(account.AccessToken, account.DisplayName, account.Uuid),
+                settings.Launcher.AssetsDirectoryPath,
+                settings.Launcher.CacheDirectoryPath,
+                settings.Launcher.LibrariesDirectoryPath,
+                settings.Launcher.ManifestsDirectoryPath,
+                settings.Launcher.VersionsDirectoryPath,
+                instanceModel.Kind,
+                instanceModel.GetGameDirectory(settings.Launcher.VersionsDirectoryPath),
+                new Resolution()
+                {
+                    IsFullScreen = instanceModel.Config.Game.StartMaximized,
+                    X = instanceModel.Config.Game.WindowWidth,
+                    Y = instanceModel.Config.Game.WindowHeight
+                },
+                instanceModel.Config.Java.JvmArguments,
+                instanceModel.CustomVersion
+            );
+
+            var process = installer.Install();
+            if (process == null)
+            {
+                _logger.Error("Failed to launch the instance. Process is null.");
+                return;
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.Error(e);
+        }
+    }
+    #endregion
+    
 
     #region Account Management
     /// <summary>

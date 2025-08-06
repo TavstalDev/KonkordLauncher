@@ -39,11 +39,11 @@
                                     <!--  Icon, Name & Group  -->
                                     <Grid ColumnDefinitions="100,*,*" RowDefinitions="Auto">
                                         <!--  Icon  -->
-                                        <Button Name="CustomIconBtn">
+                                        <Button Name="CustomIconBtn" Click="IconSelector_Click">
                                             <Image
                                                 Classes="InstanceIcon"
                                                 Name="CustomIconImg"
-                                                Source="../Assets/Icons/dirt.png" />
+                                                Source="{Binding InstanceIcon}"/>
                                         </Button>
                                         <!--  Name  -->
                                         <Grid
@@ -57,6 +57,7 @@
                                                 Classes="TextInput"
                                                 Grid.Row="1"
                                                 Name="CustomNameInput"
+                                                Text="{Binding InstanceName, UpdateSourceTrigger=PropertyChanged}"
                                                 Watermark="My Instance" />
                                         </Grid>
                                         <!--  Group  -->
@@ -93,14 +94,15 @@
                                             <DataGrid
                                                 Classes="InstanceTable"
                                                 Grid.Column="0"
-                                                ItemsSource="{Binding Versions}">
+                                                ItemsSource="{Binding VersionResult}"
+                                                SelectedItem="{Binding SelectedMinecraftVersion}">
                                                 <DataGrid.Columns>
                                                     <DataGridTextColumn
-                                                        Binding="{Binding Version}"
+                                                        Binding="{Binding Id}"
                                                         Header="Version"
                                                         Width="*" />
                                                     <DataGridTextColumn
-                                                        Binding="{Binding ReleaseDate}"
+                                                        Binding="{Binding ReleaseTime}"
                                                         Header="Released"
                                                         Width="*" />
                                                     <DataGridTextColumn
@@ -163,19 +165,11 @@
                                             <DataGrid
                                                 Classes="InstanceTable"
                                                 Grid.Column="0"
-                                                ItemsSource="{Binding Versions}">
+                                                ItemsSource="{Binding ModVersionResult}">
                                                 <DataGrid.Columns>
                                                     <DataGridTextColumn
                                                         Binding="{Binding Version}"
                                                         Header="Version"
-                                                        Width="*" />
-                                                    <DataGridTextColumn
-                                                        Binding="{Binding ReleaseDate}"
-                                                        Header="Released"
-                                                        Width="*" />
-                                                    <DataGridTextColumn
-                                                        Binding="{Binding Type}"
-                                                        Header="Type"
                                                         Width="*" />
                                                 </DataGrid.Columns>
                                             </DataGrid>
@@ -185,21 +179,22 @@
                                                 <RadioButton
                                                     Content="None"
                                                     IsChecked="True"
-                                                    Name="CustomNoModLoaderRb" />
+                                                    Name="CustomNoModLoaderRb"
+                                                    Click="CustomNoModLoader_Click"/>
                                                 <!--  NeoForge  -->
-                                                <RadioButton Content="NeoForge" Name="CustomNeoForgeRb" />
+                                                <RadioButton Content="NeoForge" Name="CustomNeoForgeRb" Click="CustomNeoForge_Click"/>
                                                 <!--  Forge  -->
-                                                <RadioButton Content="Forge" Name="CustomForgeRb" />
+                                                <RadioButton Content="Forge" Name="CustomForgeRb" Click="CustomForge_Click"/>
                                                 <!--  Fabric  -->
-                                                <RadioButton Content="Fabric" Name="CustomFabricRb" />
+                                                <RadioButton Content="Fabric" Name="CustomFabricRb" Click="CustomFabric_Click" />
                                                 <!--  Quilt  -->
-                                                <RadioButton Content="Quilt" Name="CustomQuiltRb" />
+                                                <RadioButton Content="Quilt" Name="CustomQuiltRb" Click="CustomQuilt_Click" />
 
                                                 <!--  Search Box  -->
                                                 <TextBox
                                                     Classes="InstanceSearch"
                                                     Name="CustomModVersionSearch"
-                                                    Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                                                    Text="{Binding ModSearchQuery, UpdateSourceTrigger=PropertyChanged}"
                                                     Watermark="Search" />
                                             </StackPanel>
                                         </Grid>

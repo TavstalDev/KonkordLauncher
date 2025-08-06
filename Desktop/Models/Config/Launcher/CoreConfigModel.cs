@@ -48,7 +48,7 @@ public partial class CoreConfigModel : ObservableObject
             MinMemory = config.Java.MinMemory,
             MaxMemory = config.Java.MaxMemory,
             PermaGen = config.Java.PermaGen,
-            DefaultJavaPath = config.Java.DefaultJavaPath,
+            DefaultJavaPath = config.Java.JavaPath,
             JvmArguments = config.Java.JvmArguments,
             JavaPaths = []
         };

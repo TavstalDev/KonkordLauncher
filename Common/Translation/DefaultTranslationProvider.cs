@@ -65,7 +65,16 @@ public static class DefaultTranslationProvider
         #region Common
 
         {"common.select.directory", "Select a directory..."},
-
+        {"common.ok", "OK"},
+        {"common.cancel", "Cancel"},
+        {"common.close", "Close"},
+        {"common.save", "Save"},
+        {"common.delete", "Delete"},
+        {"common.edit", "Edit"},
+        {"common.add", "Add"},
+        {"common.remove", "Remove"},
+        {"common.select", "Select"},
+        {"common.search", "Search..."},
         #endregion
         
         #region Settings
@@ -146,7 +155,17 @@ public static class DefaultTranslationProvider
         {"auth.minecraft.profile", "Requesting Minecraft profile..."},
 
         #endregion
-        
+
+        #region Java
+
+        {"java.title", "Java Selector"},
+        {"java.select", "Select Java Version"},
+        {"java.table.major", "Major"},
+        {"java.table.version", "Version"},
+        {"java.table.architecture", "Architecture"},
+        {"java.table.path", "Path"},
+
+        #endregion
         {"", ""},
     };
 

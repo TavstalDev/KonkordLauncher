@@ -2,7 +2,6 @@
     CanResize="True"
     Height="500"
     Icon="../Assets/Images/logo.png"
-    Loaded="Control_OnLoaded"
     MinHeight="500"
     MinWidth="900"
     ShowInTaskbar="False"
@@ -165,7 +164,8 @@
                                             <DataGrid
                                                 Classes="InstanceTable"
                                                 Grid.Column="0"
-                                                ItemsSource="{Binding ModVersionResult}">
+                                                ItemsSource="{Binding ModLoaderVersionResult}"
+                                                SelectedItem="{Binding SelectedModLoader}">
                                                 <DataGrid.Columns>
                                                     <DataGridTextColumn
                                                         Binding="{Binding Version}"
@@ -194,20 +194,24 @@
                                                 <TextBox
                                                     Classes="InstanceSearch"
                                                     Name="CustomModVersionSearch"
-                                                    Text="{Binding ModSearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                                                    Text="{Binding ModLoaderSearchQuery, UpdateSourceTrigger=PropertyChanged}"
                                                     Watermark="Search" />
                                             </StackPanel>
                                         </Grid>
                                     </Grid>
                                     <!--  Buttons  -->
                                     <StackPanel Classes="InstanceButtonWrapper" Grid.Row="3">
-                                        <Button Classes="IconBtn SuccessBtn" Name="CustomCreateInstanceBtn">
+                                        <!-- Create Instance Button  -->
+                                        <Button Classes="IconBtn SuccessBtn" Name="CustomCreateInstanceBtn"
+                                                Click="CreateInstance_OnClick"
+                                                IsEnabled="{Binding CanCreateCustomInstance}">
                                             <TextBlock
                                                 Classes="InstanceButtonText"
                                                 Name="CustomCreateInstanceTb"
-                                                Text="Create Instance" />
+                                                Text="Create Instance"/>
                                         </Button>
-                                        <Button Classes="IconBtn ErrorBtn" Name="CustomCancelBtn">
+                                        <!--  Cancel Button  -->
+                                        <Button Classes="IconBtn ErrorBtn" Name="CustomCancelBtn" Click="CancelInstance_OnClick">
                                             <TextBlock
                                                 Classes="InstanceButtonText"
                                                 Name="CustomCancelTb"

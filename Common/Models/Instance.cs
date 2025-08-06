@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 using Newtonsoft.Json;
+using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
@@ -31,7 +32,10 @@ public class Instance
     public EMinecraftKind Kind { get; set; }
     
     [JsonProperty("gameDirectory"), JsonPropertyName("gameDirectory")]
-    public string GameDirectory { get; set; }
+    public string? GameDirectory { get; set; }
+    
+    [JsonProperty("settings"), JsonPropertyName("settings")]
+    public InstanceConfig.InstanceConfig Config { get; set; } 
     
     public Instance() { }
 

@@ -179,9 +179,6 @@ public partial class StartupWindow : Window, IProgressReporter
     {
         try
         {
-            // 0. Handle cached update
-            // TODO: Implement caching mechanism for update checks
-
             // 1. Fetch the latest release information from GitHub
             var result = await HttpHelper.GetAsync("https://github.com/TavstalDev/KonkordLauncher/releases/latest");
             if (result == null)

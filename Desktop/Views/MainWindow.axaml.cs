@@ -11,8 +11,11 @@ using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
+using Tavstal.KonkordLauncher.Core.Installers;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Services;
+using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using JavaVersionModel = Tavstal.KonkordLauncher.Desktop.Models.JavaVersionModel;
 using MainViewModel = Tavstal.KonkordLauncher.Desktop.Views.Models.MainViewModel;
@@ -322,7 +325,7 @@ private void OnAboutSideButtonClick(object? sender, RoutedEventArgs e)
 }
     #endregion
 
-    #region Instance Button Click Handlers
+    #region Instance Handlers
 
     /// <summary>
     /// Handles the click event for adding a new instance. 
@@ -335,7 +338,7 @@ private void OnAboutSideButtonClick(object? sender, RoutedEventArgs e)
         var dialog = new CreateInstanceWindow();
         dialog.ShowDialog(this);
     }
-
+    
     #endregion
     
     #region Account Button Click Handlers

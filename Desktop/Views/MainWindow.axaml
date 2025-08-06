@@ -1,5 +1,6 @@
 <Window
     x:Class="Tavstal.KonkordLauncher.Desktop.Views.MainWindow"
+    x:Name="root"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -8,7 +9,6 @@
     xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models"
     xmlns:local="clr-namespace:Tavstal.KonkordLauncher.Desktop"
     xmlns:core="clr-namespace:Tavstal.KonkordLauncher.Core.Models;assembly=Core"
-    xmlns:common="clr-namespace:Tavstal.KonkordLauncher.Common.Models;assembly=Common"
     Title="Konkord Launcher"
     Width="900"
     Height="550"
@@ -25,14 +25,14 @@
     <Window.DataTemplates>
         <!--  Play Card  -->
         <!-- TODO: Replace Icon -->
-        <DataTemplate DataType="common:Instance">
+        <DataTemplate DataType="models:InstanceModel">
             <Border Classes="PlayCard">
                 <Grid RowDefinitions="Auto, *, Auto">
                     <!--  Icon  -->
                     <Image
                         Grid.Row="0"
                         Classes="PlayCardImage"
-                        Source="{Binding IconPath}" />
+                        Source="{Binding Icon}" />
                     <!--  Name  -->
                     <TextBlock
                         Grid.Row="1"
@@ -41,7 +41,9 @@
                     <!--  Buttons  -->
                     <WrapPanel Grid.Row="2" Classes="PlayCardButtonWrapper">
                         <!--  Launch Button  -->
-                        <Button Classes="IconBtn PrimaryBtn">
+                        <Button Classes="IconBtn PrimaryBtn" 
+                                Command="{Binding #root.DataContext.LaunchInstanceCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"
+                                CommandParameter="{Binding .}">
                             <TextBlock
                                 Padding="4,0"
                                 Classes="FontAwesome"
@@ -129,7 +131,7 @@
                     Name="NewsSideBtn"
                     Classes="SidebarBtn SecondaryBtn"
                     Click="OnNewsSideButtonClick"
-                    Content="Patch Notes" />
+                    Content="Patch Notes"/>
                 <Button
                     Name="AccountsSideBtn"
                     Classes="SidebarBtn SecondaryBtn"
@@ -184,7 +186,7 @@
                             </Button>
                         </Grid>
                         <!--  No instances text  -->
-                        <TextBlock Name="PlayPageInstancesEmptyTb" Text="You don't have instances yet." />
+                        <TextBlock Name="PlayPageInstancesEmptyTb" Text="You don't have instances yet." IsVisible="{Binding !HasInstances}" />
                         <!--  Instances on Play Page  -->
                         <Grid MaxHeight="440">
                             <ScrollViewer>

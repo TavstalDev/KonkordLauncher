@@ -22,7 +22,7 @@ public partial class MainViewModel : ObservableObject
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MainViewModel));
 
     [ObservableProperty] private ESidebarType _currentPageIndex;
-    public ObservableCollection<PlayCardModel> Instances { get; } = [];
+    public ObservableCollection<Instance> Instances { get; } = [];
     public ObservableCollection<NewsCardModel> News { get; } = [];
     [ObservableProperty] private AccountDataModel _accountData;
     [ObservableProperty] private CoreConfigModel _coreConfig;
@@ -232,9 +232,8 @@ public partial class MainViewModel : ObservableObject
                 MinMemory = newValue.Java.MinMemory,
                 MaxMemory = newValue.Java.MaxMemory,
                 PermaGen = newValue.Java.PermaGen,
-                DefaultJavaPath = newValue.Java.DefaultJavaPath,
+                JavaPath = newValue.Java.DefaultJavaPath,
                 JvmArguments = newValue.Java.JvmArguments,
-                JavaPaths = oldSettings.Java.JavaPaths // Preserve
             },
             Minecraft = new MinecraftConfig()
             {

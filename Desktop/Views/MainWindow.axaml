@@ -8,6 +8,7 @@
     xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models"
     xmlns:local="clr-namespace:Tavstal.KonkordLauncher.Desktop"
     xmlns:core="clr-namespace:Tavstal.KonkordLauncher.Core.Models;assembly=Core"
+    xmlns:common="clr-namespace:Tavstal.KonkordLauncher.Common.Models;assembly=Common"
     Title="Konkord Launcher"
     Width="900"
     Height="550"
@@ -16,7 +17,6 @@
     x:DataType="vm:MainViewModel"
     CanResize="False"
     Icon="../Assets/Images/logo.png"
-    Loaded="MainWindow_Loaded"
     mc:Ignorable="d">
     <Design.DataContext>
         <vm:MainViewModel />
@@ -24,7 +24,8 @@
 
     <Window.DataTemplates>
         <!--  Play Card  -->
-        <DataTemplate DataType="models:PlayCardModel">
+        <!-- TODO: Replace Icon -->
+        <DataTemplate DataType="common:Instance">
             <Border Classes="PlayCard">
                 <Grid RowDefinitions="Auto, *, Auto">
                     <!--  Icon  -->
@@ -36,7 +37,7 @@
                     <TextBlock
                         Grid.Row="1"
                         Classes="PlayCardText"
-                        Text="{Binding Title}" />
+                        Text="{Binding Name}" />
                     <!--  Buttons  -->
                     <WrapPanel Grid.Row="2" Classes="PlayCardButtonWrapper">
                         <!--  Launch Button  -->
@@ -585,7 +586,7 @@
                                                 Value="{Binding CoreConfig.Java.PermaGen, Mode=TwoWay}" />
                                         </Grid>
                                         <!--  Java Path  -->
-                                        <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto">
+                                        <Grid ColumnDefinitions="Auto, *, Auto, Auto" RowDefinitions="Auto">
                                             <!--  Text  -->
                                             <TextBlock Name="StJavaPathTb" Classes="TextInput">Java path</TextBlock>
                                             <!--  Input  -->
@@ -597,6 +598,9 @@
                                                 Watermark="Select a directory..." />
                                             <Button Grid.Column="2" Classes="IconBtn" Click="JavaPathSelect_OnClick">
                                                 <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                            </Button>
+                                            <Button Grid.Column="3" Classes="IconBtn" Click="JavaOpenPathSelector_OnClick">
+                                                <TextBlock Classes="FontAwesome" Text="&#xf126;" />
                                             </Button>
                                         </Grid>
                                         <!--  JVM Arguments  -->

@@ -13,8 +13,8 @@ using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Services;
-using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
+using JavaVersionModel = Tavstal.KonkordLauncher.Desktop.Models.JavaVersionModel;
 using MainViewModel = Tavstal.KonkordLauncher.Desktop.Views.Models.MainViewModel;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views;
@@ -23,7 +23,6 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 public partial class MainWindow : Window
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MainWindow));
-    private PixelSize _screenSize;
     private Button _selectedButton;
     
     public MainWindow()
@@ -37,8 +36,8 @@ public partial class MainWindow : Window
         var screen = Screens.Primary;
         if (screen == null)
             throw new InvalidOperationException("No primary screen found."); // Ensure there is a primary screen
-        _screenSize = screen.Bounds.Size;
-        App.SetScreenSize(_screenSize);
+        var screenSize = screen.Bounds.Size;
+        App.SetScreenSize(screenSize);
        
         
         // Instantiate your ViewModel and assign it to the DataContext
@@ -48,12 +47,6 @@ public partial class MainWindow : Window
         var settings = LauncherHelper.GetLauncherSettings();
         HandleLanguageChange(settings.Launcher.Language);
         App.OnLanguageChanged += HandleLanguageChange;
-    }
-    
-    private void MainWindow_Loaded(object? sender, RoutedEventArgs e)
-    {
-        UpdateInstancesOnPlayPage();
-        UpdateNewsCards();
     }
 
     #region Methods
@@ -101,31 +94,6 @@ public partial class MainWindow : Window
         }
         _selectedButton.Classes.Remove("SecondaryBtn");
         _selectedButton.Classes.Add("PrimaryBtn");
-    }
-
-    private void UpdateInstancesOnPlayPage()
-    {
-        if (DataContext is not MainViewModel viewModel)
-            return;
-
-        // TODO: Here you would typically fetch or update the instances on the play page.
-        // For demonstration, let's assume we are adding a new instance.
-        viewModel.Instances.Add(new PlayCardModel { Title = "New Instance" });
-        
-        // After Updating:
-        bool hasInstances = viewModel.Instances.Count > 0;
-        PlayPageInstancesEmptyTb.IsVisible = !hasInstances;
-    }
-
-    private void UpdateNewsCards()
-    {
-        if (DataContext is not MainViewModel viewModel)
-            return;
-        
-        // TODO: Fetch or update the news cards.
-        
-        bool hasNews = viewModel.News.Count > 0;
-        NoNewsTextBlock.IsVisible = !hasNews;
     }
     
     /// <summary>
@@ -180,7 +148,11 @@ public partial class MainWindow : Window
     #region Event Handlers
 
     #region App
-
+    /// <summary>
+    /// Updates the UI elements with translations based on the specified language.
+    /// This method handles the translation of sidebar buttons, page titles, and various settings labels.
+    /// </summary>
+    /// <param name="language">The language code to apply for translations.</param>
     private void HandleLanguageChange(string language)
     {
         #region Sidebar
@@ -288,30 +260,60 @@ public partial class MainWindow : Window
     #endregion
 
     #region Sidebar Button Click Handlers
-    public void OnPlaySideButtonClick(object? sender, RoutedEventArgs e)
-    {
-        HandleSidebarChange(ESidebarType.Play);
-    }
-    
-    public void OnNewsSideButtonClick(object? sender, RoutedEventArgs e)
-    {
-        HandleSidebarChange(ESidebarType.Patch);
-    }
-    
-    public void OnAccountsSideButtonClick(object? sender, RoutedEventArgs e)
-    {
-        HandleSidebarChange(ESidebarType.Accounts);
-    }
-    
-    public void OnSettingsSideButtonClick(object? sender, RoutedEventArgs e)
-    {
-        HandleSidebarChange(ESidebarType.Settings);
-    }
-    
-    private void OnAboutSideButtonClick(object? sender, RoutedEventArgs e)
-    {
-        HandleSidebarChange(ESidebarType.About);
-    }
+    /// <summary>
+/// Handles the click event for the "Play" sidebar button.
+/// Switches the sidebar to the "Play" section.
+/// </summary>
+/// <param name="sender">The source of the event, typically a button.</param>
+/// <param name="e">The event data associated with the button click.</param>
+public void OnPlaySideButtonClick(object? sender, RoutedEventArgs e)
+{
+    HandleSidebarChange(ESidebarType.Play);
+}
+
+/// <summary>
+/// Handles the click event for the "News" sidebar button.
+/// Switches the sidebar to the "News" section.
+/// </summary>
+/// <param name="sender">The source of the event, typically a button.</param>
+/// <param name="e">The event data associated with the button click.</param>
+public void OnNewsSideButtonClick(object? sender, RoutedEventArgs e)
+{
+    HandleSidebarChange(ESidebarType.Patch);
+}
+
+/// <summary>
+/// Handles the click event for the "Accounts" sidebar button.
+/// Switches the sidebar to the "Accounts" section.
+/// </summary>
+/// <param name="sender">The source of the event, typically a button.</param>
+/// <param name="e">The event data associated with the button click.</param>
+public void OnAccountsSideButtonClick(object? sender, RoutedEventArgs e)
+{
+    HandleSidebarChange(ESidebarType.Accounts);
+}
+
+/// <summary>
+/// Handles the click event for the "Settings" sidebar button.
+/// Switches the sidebar to the "Settings" section.
+/// </summary>
+/// <param name="sender">The source of the event, typically a button.</param>
+/// <param name="e">The event data associated with the button click.</param>
+public void OnSettingsSideButtonClick(object? sender, RoutedEventArgs e)
+{
+    HandleSidebarChange(ESidebarType.Settings);
+}
+
+/// <summary>
+/// Handles the click event for the "About" sidebar button.
+/// Switches the sidebar to the "About" section.
+/// </summary>
+/// <param name="sender">The source of the event, typically a button.</param>
+/// <param name="e">The event data associated with the button click.</param>
+private void OnAboutSideButtonClick(object? sender, RoutedEventArgs e)
+{
+    HandleSidebarChange(ESidebarType.About);
+}
     #endregion
 
     #region Instance Button Click Handlers
@@ -655,6 +657,27 @@ public partial class MainWindow : Window
             
             viewModel.CoreConfig.Java.DefaultJavaPath = resultPath;
         });
+    }
+    
+    /// <summary>
+    /// Handles the click event for opening the Java path selector.
+    /// Opens a dialog to allow the user to select a Java version and updates the configuration with the selected path.
+    /// </summary>
+    /// <param name="sender">The source of the event, typically a button.</param>
+    /// <param name="e">The event data associated with the button click.</param>
+    private async void JavaOpenPathSelector_OnClick(object? sender, RoutedEventArgs e)
+    {
+        // TODO: Replace async void with async Task
+        var window = new JavaSelectorWindow();
+        var javaVersion = await window.ShowDialog<JavaVersionModel>(this);
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+        if (javaVersion == null)
+            return;
+        
+        if (DataContext is not MainViewModel viewModel)
+            return;
+
+        viewModel.CoreConfig.Java.DefaultJavaPath = javaVersion.Path;
     }
     #endregion
     #endregion

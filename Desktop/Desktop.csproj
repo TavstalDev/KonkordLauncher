@@ -62,6 +62,10 @@
         <DependentUpon>EditInstanceWindow.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
+      <Compile Update="Views\JavaSelectorWindow.axaml.cs">
+        <DependentUpon>JavaSelectorWindow.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
     
     <ItemGroup>

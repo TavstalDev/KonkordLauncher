@@ -43,7 +43,7 @@ public partial class AccountDataModel : ObservableObject
     /// </summary>
     public AccountDataModel()
     {
-        _accounts = new ObservableCollection<Account>();
+        _accounts = [];
         _selectedAccountId = null;
         _accounts.CollectionChanged += OnAccountsCollectionChanged;
     }

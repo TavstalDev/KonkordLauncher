@@ -132,7 +132,23 @@ public static class LauncherHelper
     /// <returns>A list of <see cref="Instance"/> objects.</returns>
     public static List<Instance> GetInstances()
     {
-        throw new NotImplementedException();
+        if (!File.Exists(PathHelper.LauncherInstancesPath))
+        {
+            List<Instance> result = [];
+            JsonHelper.WriteJsonFile(PathHelper.LauncherInstancesPath, result);
+            return result;
+        }
+
+        var readResult = JsonHelper.ReadJsonFile<List<Instance>>(PathHelper.LauncherInstancesPath);
+        if (readResult == null)
+        {
+            List<Instance> result = [];
+            File.Move(PathHelper.LauncherInstancesPath, PathHelper.LauncherInstancesPath + ".bak", true);
+           JsonHelper.WriteJsonFile(PathHelper.LauncherInstancesPath, result);
+            return result;
+        }
+        
+        return readResult;
     }
 
     /// <summary>
@@ -142,6 +158,22 @@ public static class LauncherHelper
     /// <returns>A task that represents the asynchronous operation. The task result contains a list of <see cref="Instance"/> objects.</returns>
     public static async Task<List<Instance>> GetInstancesAsync()
     {
-        throw new NotImplementedException();
+        if (!File.Exists(PathHelper.LauncherInstancesPath))
+        {
+            List<Instance> result = [];
+            await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, result);
+            return result;
+        }
+
+        var readResult = await JsonHelper.ReadJsonFileAsync<List<Instance>>(PathHelper.LauncherInstancesPath);
+        if (readResult == null)
+        {
+            List<Instance> result = [];
+            File.Move(PathHelper.LauncherInstancesPath, PathHelper.LauncherInstancesPath + ".bak", true);
+            await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, result);
+            return result;
+        }
+        
+        return readResult;
     }
 }

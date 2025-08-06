@@ -1,8 +1,10 @@
+using System.Xml.Linq;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints;
+using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
 
 namespace Tavstal.KonkordLauncher.Common.Helpers;
 
@@ -35,7 +37,7 @@ public static class ValidationHelper
 
             if (!Directory.Exists(settings.Launcher.IconsDirectoryPath))
                 Directory.CreateDirectory(settings.Launcher.IconsDirectoryPath);
-            
+
             if (!Directory.Exists(settings.Launcher.TranslationsDirectoryPath))
                 Directory.CreateDirectory(settings.Launcher.TranslationsDirectoryPath);
 
@@ -130,6 +132,8 @@ public static class ValidationHelper
                 string json = await httpClient.GetStringAsync(MicrosoftEndpoints.MinecraftManifestUrl);
                 await File.WriteAllTextAsync(settings.Launcher.GetVanillaManifestPath(), json);
             }
+            if (await ManifestHelper.GetMinecraftManifestAsync(settings.Launcher.GetVanillaManifestPath()) == null)
+                _logger.Error("Failed to load Minecraft manifest");
 
             // Fabric
             if (!File.Exists(settings.Launcher.GetFabricManifestPath()))
@@ -137,20 +141,81 @@ public static class ValidationHelper
                 string json = await httpClient.GetStringAsync(FabricEndpoints.VersionManifestUrl);
                 await File.WriteAllTextAsync(settings.Launcher.GetFabricManifestPath(), json);
             }
+            if (await ManifestHelper.GetFabricManifestAsync(settings.Launcher.GetFabricManifestPath()) == null)
+                _logger.Error("Failed to load Fabric manifest");
 
             // Forge
             if (!File.Exists(settings.Launcher.GetForgeManifestPath()))
             {
-                string json = await httpClient.GetStringAsync(ForgeEndpoints.VersionManifest);
-                await File.WriteAllTextAsync(settings.Launcher.GetForgeManifestPath(), json);
+                string raw = await httpClient.GetStringAsync(ForgeEndpoints.VersionManifest);
+                XDocument doc = XDocument.Parse(raw);
+                XElement? metadata = doc.Element("metadata");
+                if (metadata == null)
+                {
+                    _logger.Error("Forge manifest metadata not found in the XML.");
+                    return false;
+                }
+                
+                var versions = metadata
+                    .Element("versioning")
+                    ?.Element("versions")
+                    ?.Elements("version")
+                    .Select(v => v.Value);
+                if (versions == null)
+                {
+                    _logger.Error("Forge manifest versions not found in the XML.");
+                    return false;
+                }
+
+                List<ForgeManifest> manifest = [];
+                foreach (var version in versions)
+                {
+                    var splittedVersion = version.Split('-');
+                    manifest.Add(new ForgeManifest(splittedVersion[1], splittedVersion[0]));
+                }
+                
+                await JsonHelper.WriteJsonFileAsync(settings.Launcher.GetForgeManifestPath(), manifest);
             }
+            if (await ManifestHelper.GetForgeManifestAsync(settings.Launcher.GetForgeManifestPath()) == null)
+                _logger.Error("Failed to load Forge manifest");
+            
             
             // NeoForge
             if (!File.Exists(settings.Launcher.GetNeoForgeManifestPath()))
             {
-                string json = await httpClient.GetStringAsync(NeoForgeEndpoints.VersionManifest);
-                await File.WriteAllTextAsync(settings.Launcher.GetNeoForgeManifestPath(), json);
+                string raw = await httpClient.GetStringAsync(NeoForgeEndpoints.VersionManifest);
+                XDocument doc = XDocument.Parse(raw);
+                XElement? metadata = doc.Element("metadata");
+                if (metadata == null)
+                {
+                    _logger.Error("Forge manifest metadata not found in the XML.");
+                    return false;
+                }
+                
+                var versions = metadata
+                    .Element("versioning")
+                    ?.Element("versions")
+                    ?.Elements("version")
+                    .Select(v => v.Value);
+                if (versions == null)
+                {
+                    _logger.Error("Forge manifest versions not found in the XML.");
+                    return false;
+                }
+
+                List<ForgeManifest> manifest = [];
+                foreach (var version in versions)
+                {
+                    var parts = version.Split('.');
+                    string gameVersion = $"1.{parts[0]}.{parts[1]}";
+                    
+                    manifest.Add(new ForgeManifest(version, gameVersion));
+                }
+                
+                await JsonHelper.WriteJsonFileAsync(settings.Launcher.GetNeoForgeManifestPath(), manifest);
             }
+            if (await ManifestHelper.GetNeoForgeManifestAsync(settings.Launcher.GetNeoForgeManifestPath()) == null)
+                _logger.Error("Failed to load NeoForge manifest");
 
             // Quilt
             if (!File.Exists(settings.Launcher.GetQuiltManifestPath()))
@@ -158,6 +223,8 @@ public static class ValidationHelper
                 string json = await httpClient.GetStringAsync(QuiltEndpoints.VersionManifestUrl);
                 await File.WriteAllTextAsync(settings.Launcher.GetQuiltManifestPath(), json);
             }
+            if (await ManifestHelper.GetQuiltManifestAsync(settings.Launcher.GetQuiltManifestPath()) == null)
+                _logger.Error("Failed to load Quilt manifest");
 
             return true;
         }

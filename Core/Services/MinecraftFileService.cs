@@ -195,7 +195,7 @@ public class MinecraftFileService
         //string logReadmePath = Path.Combine(logDirPath, "readme.txt");
         /*if (!File.Exists(logReadmePath))
             await File.WriteAllTextAsync(logReadmePath,
-                $"The log config files has been moved to {PathHelper.VersionsDir}\\<your_version> so the logs can be made per instance.");*/
+                $"The log config files has been moved to {PathHelper.VersionsDir}/<your_version> so the logs can be made per instance.");*/
         string logFilePath = Path.Combine(versionDirectory, versionMeta.LoggingMeta.Client.File.Id);
         if (!File.Exists(logFilePath))
         {
@@ -213,8 +213,8 @@ public class MinecraftFileService
                 return null;
 
             // FIX LOG LOCATION
-            r = r.Replace("fileName=\"logs", $"fileName=\"{gameDir}\\logs")
-                .Replace("filePattern=\"logs", $"filePattern=\"{gameDir}\\logs");
+            r = r.Replace("fileName=\"logs", $"fileName=\"{gameDir}/logs")
+                .Replace("filePattern=\"logs", $"filePattern=\"{gameDir}/logs");
 
             await File.WriteAllTextAsync(logFilePath, r);
         }
@@ -320,8 +320,8 @@ public class MinecraftFileService
             // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
             if (lib.Downloads.Artifact != null)
             {
-                string localPath = lib.Downloads.Artifact.Path.Replace('/', '\\');
-                int libDirIndex = localPath.LastIndexOf('\\');
+                string localPath = lib.Downloads.Artifact.Path;
+                int libDirIndex = localPath.LastIndexOf('/');
                 string libDirPath = Path.Combine(libsDir,
                     localPath.Remove(libDirIndex, localPath.Length - libDirIndex));
 
@@ -360,9 +360,8 @@ public class MinecraftFileService
             {
                 string[] rawUrl = lib.Name.Split(':');
                 string localPath = Path
-                    .Combine(rawUrl[0].Replace('.', '\\'), rawUrl[1], rawUrl[2], $"{rawUrl[1]}-{rawUrl[2]}.jar")
-                    .Replace('/', '\\');
-                int libDirIndex = localPath.LastIndexOf('\\');
+                    .Combine(rawUrl[0].Replace('.', '/'), rawUrl[1], rawUrl[2], $"{rawUrl[1]}-{rawUrl[2]}.jar");
+                int libDirIndex = localPath.LastIndexOf('/');
                 string libDirPath = Path.Combine(libsDir,
                     localPath.Remove(libDirIndex, localPath.Length - libDirIndex));
 
@@ -495,7 +494,7 @@ public class MinecraftFileService
                     if (!Environment.Is64BitOperatingSystem && !file.Contains("32"))
                         continue;
 
-                    string fileName = file.Remove(0, file.LastIndexOf('\\') + 1);
+                    string fileName = file.Remove(0, file.LastIndexOf('/') + 1);
                     string filePath = Path.Combine(nativeDir, fileName);
                     if (!File.Exists(filePath))
                         File.Move(file, filePath);

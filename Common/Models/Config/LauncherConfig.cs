@@ -4,47 +4,93 @@ using Tavstal.KonkordLauncher.Core.Helpers;
 
 namespace Tavstal.KonkordLauncher.Common.Models.Config;
 
+/// <summary>
+/// Represents the configuration settings for the launcher, including update settings, 
+/// language, theme, and directory paths.
+/// </summary>
 public class LauncherConfig
 {
+    /// <summary>
+    /// Gets or sets a value indicating whether automatic updates are enabled.
+    /// </summary>
     [JsonProperty("enableAutomaticUpdates"), JsonPropertyName("enableAutomaticUpdates")]
     public bool EnableAutomaticUpdates { get; set; }
     
+    /// <summary>
+    /// Gets or sets the update interval in hours.
+    /// </summary>
     [JsonProperty("updateInterval"), JsonPropertyName("updateInterval")]
     public uint UpdateInterval { get; set; }
 
+    /// <summary>
+    /// Gets or sets the date and time for the next update check.
+    /// </summary>
     [JsonProperty("nextUpdateCheck"), JsonPropertyName("nextUpdateCheck")]
     public DateTime NextUpdateCheck { get; set; }
     
+    /// <summary>
+    /// Gets or sets the language of the launcher.
+    /// </summary>
     [JsonProperty("language"), JsonPropertyName("language")]
     public string Language { get; set; }
     
+    /// <summary>
+    /// Gets or sets the theme of the launcher.
+    /// </summary>
     [JsonProperty("theme"), JsonPropertyName("theme")]
     public EThemeType Theme { get; set; }
     
+    /// <summary>
+    /// Gets or sets the file system path to the assets directory.
+    /// </summary>
     [JsonProperty("assetsDirectoryPath"), JsonPropertyName("assetsDirectoryPath")]
     public string AssetsDirectoryPath { get; set; }
     
+    /// <summary>
+    /// Gets or sets the file system path to the cache directory.
+    /// </summary>
     [JsonProperty("cacheDirectoryPath"), JsonPropertyName("cacheDirectoryPath")]
     public string CacheDirectoryPath { get; set; }
     
+    /// <summary>
+    /// Gets or sets the file system path to the icons directory.
+    /// </summary>
     [JsonProperty("iconsDirectoryPath"), JsonPropertyName("iconsDirectoryPath")]
     public string IconsDirectoryPath { get; set; }
     
+    /// <summary>
+    /// Gets or sets the file system path to the instances directory.
+    /// </summary>
     [JsonProperty("instancesDirectoryPath"), JsonPropertyName("instancesDirectoryPath")]
     public string InstancesDirectoryPath { get; set; }
     
+    /// <summary>
+    /// Gets or sets the file system path to the libraries directory.
+    /// </summary>
     [JsonProperty("librariesDirectoryPath"), JsonPropertyName("librariesDirectoryPath")]
     public string LibrariesDirectoryPath { get; set; }
     
+    /// <summary>
+    /// Gets or sets the file system path to the manifests directory.
+    /// </summary>
     [JsonProperty("manifestsDirectoryPath"), JsonPropertyName("manifestsDirectoryPath")]
     public string ManifestsDirectoryPath { get; set; }
     
+    /// <summary>
+    /// Gets or sets the file system path to the translations directory.
+    /// </summary>
     [JsonProperty("translationsDirectoryPath"), JsonPropertyName("translationsDirectoryPath")]
     public string TranslationsDirectoryPath { get; set; }
     
+    /// <summary>
+    /// Gets or sets the file system path to the versions directory.
+    /// </summary>
     [JsonProperty("versionsDirectoryPath"), JsonPropertyName("versionsDirectoryPath")]
     public string VersionsDirectoryPath { get; set; }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="LauncherConfig"/> class with default values.
+    /// </summary>
     public LauncherConfig()
     {
         EnableAutomaticUpdates = true;
@@ -62,6 +108,22 @@ public class LauncherConfig
         VersionsDirectoryPath = Path.Combine(PathHelper.ApplicationDir, "versions");
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="LauncherConfig"/> class with specified values.
+    /// </summary>
+    /// <param name="enableAutomaticUpdates">Whether automatic updates are enabled.</param>
+    /// <param name="updateInterval">The update interval in hours.</param>
+    /// <param name="nextUpdateCheck">The date and time for the next update check.</param>
+    /// <param name="language">The language of the launcher.</param>
+    /// <param name="theme">The theme of the launcher.</param>
+    /// <param name="assetsDirectoryPath">The file system path to the assets directory.</param>
+    /// <param name="cacheDirectoryPath">The file system path to the cache directory.</param>
+    /// <param name="iconsDirectoryPath">The file system path to the icons directory.</param>
+    /// <param name="instancesDirectoryPath">The file system path to the instances directory.</param>
+    /// <param name="librariesDirectoryPath">The file system path to the libraries directory.</param>
+    /// <param name="manifestsDirectoryPath">The file system path to the manifests directory.</param>
+    /// <param name="translationsDirectoryPath">The file system path to the translations directory.</param>
+    /// <param name="versionsDirectoryPath">The file system path to the versions directory.</param>
     public LauncherConfig(bool enableAutomaticUpdates, uint updateInterval, DateTime nextUpdateCheck, string language, EThemeType theme, string assetsDirectoryPath, string cacheDirectoryPath, string iconsDirectoryPath, string instancesDirectoryPath, string librariesDirectoryPath, string manifestsDirectoryPath, string translationsDirectoryPath, string versionsDirectoryPath)
     {
         EnableAutomaticUpdates = enableAutomaticUpdates;
@@ -79,26 +141,46 @@ public class LauncherConfig
         VersionsDirectoryPath = versionsDirectoryPath;
     }
     
+    /// <summary>
+    /// Gets the file system path to the vanilla manifest file.
+    /// </summary>
+    /// <returns>The path to the vanilla manifest file.</returns>
     public string GetVanillaManifestPath()
     {
         return Path.Combine(ManifestsDirectoryPath, "vanillaManifest.json");
     }
     
+    /// <summary>
+    /// Gets the file system path to the Forge manifest file.
+    /// </summary>
+    /// <returns>The path to the Forge manifest file.</returns>
     public string GetForgeManifestPath()
     {
         return Path.Combine(ManifestsDirectoryPath, "forgeManifest.json");
     }
     
+    /// <summary>
+    /// Gets the file system path to the NeoForge manifest file.
+    /// </summary>
+    /// <returns>The path to the NeoForge manifest file.</returns>
     public string GetNeoForgeManifestPath()
     {
         return Path.Combine(ManifestsDirectoryPath, "neoForgeManifest.json");
     }
     
+    /// <summary>
+    /// Gets the file system path to the Fabric manifest file.
+    /// </summary>
+    /// <returns>The path to the Fabric manifest file.</returns>
     public string GetFabricManifestPath()
     {
         return Path.Combine(ManifestsDirectoryPath, "fabricManifest.json");
     }
     
+    /// <summary>
+    /// Gets the file system path to the Quilt manifest file.
+    /// </summary>
+    /// <returns>The path to the Quilt manifest file.</returns>
     public string GetQuiltManifestPath()
     {
         return Path.Combine(ManifestsDirectoryPath, "quiltManifest.json");

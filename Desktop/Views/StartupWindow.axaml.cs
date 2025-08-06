@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 using Avalonia;
@@ -66,16 +67,42 @@ public partial class StartupWindow : Window, IProgressReporter
     /// </summary>
     private async Task ValidateAsync()
     {
+        var settings = await LauncherHelper.GetLauncherSettingsAsync();
+        
         // 0. Set initial status
         SetStatusTranslated("startup.progress.initializing");
 
         // 1. Validate Directory Structure
         SetStatusTranslated("startup.validation.dataFolder");
         await Task.Delay(_stepDelay);
+        bool shouldGenerateIcons = !Directory.Exists(settings.Launcher.IconsDirectoryPath);
         if (!ValidationHelper.ValidateDataFolder())
         {
             SetStatusTranslated("startup.validation.dataFolderFailed");
             return;
+        }
+
+        if (shouldGenerateIcons)
+        {
+            string[] resourceNames = Assembly.GetExecutingAssembly().GetManifestResourceNames();
+            _logger.Debug(resourceNames.Length);
+            foreach (string path in resourceNames)
+            {
+                var fileName = path.Replace("Tavstal.KonkordLauncher.Desktop.Assets.Icons.", "");
+                if (!fileName.EndsWith(".png"))
+                    continue;
+                _logger.Debug($"Extracting icon: {fileName}");
+                var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path);
+                if (stream == null)
+                {
+                    _logger.Error($"Failed to get resource stream for {fileName}");
+                    continue;
+                }
+                
+                var destPath = Path.Combine(settings.Launcher.IconsDirectoryPath, fileName);
+                await using FileStream outFile = new FileStream(destPath, FileMode.Create, FileAccess.Write);
+                await stream.CopyToAsync(outFile);
+            }
         }
 
         // 2. Validate Settings
@@ -120,7 +147,6 @@ public partial class StartupWindow : Window, IProgressReporter
         }
 
         // 9. Check for Updates
-        var settings = await LauncherHelper.GetLauncherSettingsAsync();
         if (settings.Launcher.EnableAutomaticUpdates && DateTime.Now > settings.Launcher.NextUpdateCheck)
         {
             SetStatusTranslated("startup.progress.checking");

@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using System.Security.Cryptography;
+using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Models;
 
 namespace Tavstal.KonkordLauncher.Core.Helpers;
@@ -69,6 +71,44 @@ public static class FileSystemHelper
 
         if (deleteSource)
             DeleteDirectory(sourceDir);
+    }
+    
+    /// <summary>
+    /// Opens a folder in the system's default file explorer.
+    /// </summary>
+    /// <param name="path">The path to the folder to open.</param>
+    public static void OpenFolderInFileExplorer(string path)
+    {
+        // Ensure the path exists
+        if (!Directory.Exists(path))
+        {
+            _logger.Error($"Error: Folder not found at '{path}'");
+            return;
+        }
+
+        switch (OSHelper.GetOperatingSystem())
+        {
+            case EOperatingSystem.Windows:
+            {
+                Process.Start("explorer.exe", path);
+                break;
+            }
+            case EOperatingSystem.MacOS:
+            {
+                Process.Start("open", path);
+                break;
+            }
+            case EOperatingSystem.Linux:
+            {
+                Process.Start("xdg-open", path);
+                break;
+            }
+            case EOperatingSystem.Unknown:
+            {
+                _logger.Error("Error: Unsupported operating system for opening folder in file explorer.");
+                break;
+            }
+        }
     }
 
     /// <summary>

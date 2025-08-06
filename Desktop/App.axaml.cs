@@ -201,5 +201,25 @@ public partial class App : Application
     {
         OnAccountsChanged?.Invoke();
     }
+    
+    
+    /// <summary>
+    /// Delegate for handling events when the instances data changes.
+    /// </summary>
+    public delegate void InstancesChangedEventHandler();
+
+    /// <summary>
+    /// Event triggered when the instances data is changed.
+    /// Subscribers can listen to this event to be notified of changes in instances.
+    /// </summary>
+    public static event InstancesChangedEventHandler? OnInstancesChanged;
+
+    /// <summary>
+    /// Invokes the <see cref="OnInstancesChanged"/> event to notify subscribers of changes in the instances data.
+    /// </summary>
+    public static void InvokeInstancesChanged()
+    {
+        OnInstancesChanged?.Invoke();
+    }
     #endregion
 }

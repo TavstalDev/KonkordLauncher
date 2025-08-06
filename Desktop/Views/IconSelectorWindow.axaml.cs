@@ -52,10 +52,10 @@ public partial class IconSelectorWindow : Window
     }
     
     /// <summary>
-    /// Opens a folder picker dialog to select image files and copies them to the icons directory.
+    /// Opens a file picker dialog to select image files and copies them to the icons directory.
     /// </summary>
     /// <returns>A list of tuples containing file names and their new paths, or null if no files were selected.</returns>
-    private async Task<List<(string, string)>?> OpenFolderPickerAsync()
+    private async Task<List<(string, string)>?> OpenFilePickerAsync()
     {
         // Ensure the VisualRoot is a TopLevel object
         if (VisualRoot is not TopLevel topLevel)
@@ -72,7 +72,7 @@ public partial class IconSelectorWindow : Window
         
         var options = new FilePickerOpenOptions
         {
-            Title = "Select an image",
+            Title = TranslationManager.Translate("common.select.file"),
             AllowMultiple = false,
             FileTypeFilter = new List<FilePickerFileType>
             {
@@ -145,7 +145,7 @@ public partial class IconSelectorWindow : Window
         if (this.DataContext is not IconSelectorViewModel vm)
             return;
     
-        var result = await OpenFolderPickerAsync();
+        var result = await OpenFilePickerAsync();
         if (result == null)
             return;
 

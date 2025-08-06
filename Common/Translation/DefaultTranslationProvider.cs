@@ -75,6 +75,10 @@ public static class DefaultTranslationProvider
         {"common.remove", "Remove"},
         {"common.select", "Select"},
         {"common.search", "Search..."},
+        
+        {"common.selector.directory", "Select a Directory"},
+        {"common.select.file", "Select a File"},
+        
         #endregion
         
         #region Settings

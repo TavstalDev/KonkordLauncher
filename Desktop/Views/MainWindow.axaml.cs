@@ -51,6 +51,12 @@ public partial class MainWindow : Window
 
     #region Methods
 
+    /// <summary>
+    /// Handles the logic for changing the active sidebar section in the main window.
+    /// Updates the ViewModel's current page index, manages the visual state of sidebar buttons,
+    /// and ensures the correct button is highlighted as active.
+    /// </summary>
+    /// <param name="sidebarType">The sidebar section to switch to.</param>
     private void HandleSidebarChange(ESidebarType sidebarType)
     {
         if (DataContext is not MainViewModel viewModel)
@@ -121,7 +127,7 @@ public partial class MainWindow : Window
         // Configure folder picker options
         var options = new FolderPickerOpenOptions
         {
-            Title = "Select a Folder",
+            Title = TranslationManager.Translate("common.select.directory"),
             AllowMultiple = false
         };
 

@@ -1,0 +1,71 @@
+<Window
+    x:Class="Tavstal.KonkordLauncher.Desktop.Views.JavaSelectorWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
+    Title="Select Java Version"
+    Width="500"
+    Height="410"
+    MinWidth="500"
+    MinHeight="410"
+    d:DesignHeight="410"
+    d:DesignWidth="500"
+    x:DataType="vm:JavaSelectorViewModel"
+    CanResize="False"
+    Icon="../Assets/Images/logo.png"
+    ShowInTaskbar="False"
+    mc:Ignorable="d">
+
+    <Border Classes="ModalView">
+        <Grid RowDefinitions="Auto, *, Auto">
+            <TextBlock
+                Name="SelectJavaTb"
+                Classes="ModalTitle"
+                Text="Select Java Version" />
+            <ScrollViewer Grid.Row="1" Classes="TableScrollViewer" Margin="0, 0, 0, 20">
+                <DataGrid Name="VersionTable" Classes="InstanceTable" ItemsSource="{Binding Versions}"
+                          SelectedItem="{Binding SelectedJavaVersion, Mode=TwoWay}">
+                    <DataGrid.Columns>
+                        <!-- Major -->
+                        <DataGridTextColumn
+                            Width="Auto"
+                            Binding="{Binding Major}"
+                            Header="{Binding TableMajorText}" />
+                        <!-- Version -->
+                        <DataGridTextColumn
+                            Width="Auto"
+                            Binding="{Binding Version}"
+                            Header="{Binding TableVersionText}" />
+                        <!-- Architecture -->
+                        <DataGridTextColumn
+                            Width="Auto"
+                            Binding="{Binding Architecture}"
+                            Header="{Binding TableArchitectureText}" />
+                        <!-- Path -->
+                        <DataGridTextColumn
+                            Width="Auto"
+                            Binding="{Binding Path}"
+                            Header="{Binding TablePathText}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </ScrollViewer>
+            <WrapPanel Grid.Row="2" ItemSpacing="5" HorizontalAlignment="Center">
+                <Button
+                    Classes="IconBtn"
+                    Width="70"
+                    Name="OkBtn"
+                    Content="Ok"
+                    Click="OkBtn_OnClick"
+                    IsEnabled="{Binding HasSelectedJavaVersion}"/>
+                <Button
+                    Classes="IconBtn"
+                    Width="70"
+                    Name="CancelBtn"
+                    Content="Cancel"
+                    Click="CancelBtn_OnClick"/>
+            </WrapPanel>
+        </Grid>
+    </Border>
+</Window>

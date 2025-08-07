@@ -1,35 +1,31 @@
 <Window
     CanResize="False"
-    Height="250"
+    Height="150"
     Icon="../Assets/Images/logo.png"
     ShowInTaskbar="False"
     Title="Starting..."
     Width="400"
-    d:DesignHeight="250"
+    d:DesignHeight="150"
     d:DesignWidth="400"
     mc:Ignorable="d"
     x:Class="Tavstal.KonkordLauncher.Desktop.Views.InstallWindow"
+    x:DataType="vm:InstallViewModel"
     xmlns="https://github.com/avaloniaui"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models">
 
     <Border Classes="ModalView">
         <StackPanel
             Classes="ModalWrapper"
-            Spacing="10">
+            Spacing="15">
             <!-- Title -->
             <TextBlock Classes="InstallTitleText" Text="Downloading Game Files..." />
             <!-- Step -->
-            <TextBlock Classes="InstallStepText" Text="Download Complete!" />
-            <!-- Detail -->
-            <TextBlock Classes="InstallDetailText" Text="Installation finished. You can close this window." />
+            <TextBlock Classes="InstallStepText" Text="{Binding ProgressText}" />
             <!-- Progress bar -->
-            <ProgressBar Classes="InstallProgress" />
-            <!-- Button -->
-            <Button Classes="IconBtn PrimaryBtn" HorizontalAlignment="Center">
-                <TextBlock Text="Close" Padding="5" />
-            </Button>
+            <ProgressBar Classes="InstallProgress" Value="{Binding ProgressValue}" />
         </StackPanel>
     </Border>
 </Window>

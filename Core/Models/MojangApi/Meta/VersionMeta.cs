@@ -79,22 +79,7 @@ public class VersionMeta
     /// </summary>
     [JsonPropertyName("type"), JsonProperty("type")]
     public string Type { get; set; }
-
-
-    /// <summary>
-    /// Retrieves the game arguments as a list of strings.
-    /// </summary>
-    /// <returns>A list of game arguments.</returns>
-    /// <exception cref="Exception">Thrown if no arguments are available.</exception>
-    public List<string> GetGameArguments()
-    {
-        if (ArgumentsNew != null)
-            return ArgumentsNew.GetGameArgs();
-        if (ArgumentsLegacy != null)
-            return ArgumentsLegacy.Split(' ').ToList();
-        throw new Exception("Failed to get the game arguments");
-    }
-
+    
     /// <summary>
     /// Retrieves the game arguments as a single string.
     /// </summary>
@@ -108,27 +93,7 @@ public class VersionMeta
             return ArgumentsLegacy;
         throw new Exception("Failed to get the game arguments");
     }
-
-    /// <summary>
-    /// Retrieves the JVM arguments as a list of strings.
-    /// </summary>
-    /// <returns>A list of JVM arguments.</returns>
-    /// <exception cref="Exception">Thrown if no arguments are available.</exception>
-    public List<string> GetJvmArguments()
-    {
-        if (ArgumentsNew != null)
-            return ArgumentsNew.GetJvmArgs();
-        if (ArgumentsLegacy != null)
-            return new List<string>()
-            {
-                "-Djava.library.path=${natives_directory}",
-                "-Dminecraft.launcher.brand=${launcher_name}",
-                "-Dminecraft.launcher.version=${launcher_version}",
-                "-cp ${classpath}"
-            }; // not provided, adding defaults
-        throw new Exception("Failed to get the game arguments");
-    }
-
+    
     /// <summary>
     /// Retrieves the JVM arguments as a single string.
     /// </summary>
@@ -140,7 +105,7 @@ public class VersionMeta
             return ArgumentsNew.GetJvmArgString();
         if (ArgumentsLegacy != null)
             return
-                "-Djava.library.path=${natives_directory} -Dminecraft.launcher.brand=${launcher_name} -Dminecraft.launcher.version=${launcher_version} -cp ${classpath}";
+                "-Djava.library.path=${natives_directory} -Dminecraft.launcher.brand=${launcher_name} -Dminecraft.launcher.version=${launcher_version}";
         throw new Exception("Failed to get the game arguments");
     }
 }

@@ -57,7 +57,6 @@ public static class GameHelper
         response.VersionDirectory = versionDir;
         response.VersionJsonPath = Path.Combine(versionDir, $"{versionName}.json");
         response.VersionJarPath = Path.Combine(versionDir, $"{versionName}.jar");
-        response.NativesDir = Path.Combine(versionDir, "natives");
 
         // Set the path to the vanilla JAR file
         response.VanillaJarPath = Path.Combine(versionsDir, minecraftVersion, $"{minecraftVersion}.jar");
@@ -66,6 +65,8 @@ public static class GameHelper
         response.GameDir = string.IsNullOrEmpty(customDirectory)
             ? Path.Combine(versionsDir, versionName)
             : customDirectory;
+        
+        response.NativesDir = Path.Combine(response.GameDir, "natives");
 
         // Return the constructed version details
         return response;

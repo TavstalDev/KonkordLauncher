@@ -42,7 +42,7 @@ public partial class AlertWindow : Window
 
         // TODO: Add accept & deny texts
         
-        this.Title.Text = title;
+        this.AlertTitle.Text = title;
         
         // Sets the DataContext to an instance of AlertViewModel with the provided parameters.
         this.DataContext = new AlertViewModel
@@ -66,7 +66,7 @@ public partial class AlertWindow : Window
         // Retrieves the color resource associated with the alert type and applies it to the icon.
         if (this.FindResource(vm.GetIconColor) is SolidColorBrush brush)
         {
-            Icon.Foreground = brush;
+            AlertIcon.Foreground = brush;
         }
 
         switch (vm.AlertType)

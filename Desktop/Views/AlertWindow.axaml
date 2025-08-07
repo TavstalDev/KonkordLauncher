@@ -18,8 +18,8 @@
     
     <Border Classes="AlertView">
         <Grid Classes="AlertView" RowDefinitions="*, Auto, Auto, *">
-            <TextBlock Name="Icon" Classes="FontAwesome AlertIcon" Text="{Binding GetIcon}"/>
-            <TextBlock Grid.Row="1" Name="Title" Classes="AlertTitle" Text="{Binding Title}" />
+            <TextBlock Name="AlertIcon" Classes="FontAwesome AlertIcon" Text="{Binding GetIcon}"/>
+            <TextBlock Grid.Row="1" Name="AlertTitle" Classes="AlertTitle" Text="{Binding Title}" />
             <ScrollViewer Grid.Row="2" Classes="AlertMessage">
                 <TextBlock Name="Message" Classes="AlertMessage" Text="{Binding Message}" />
             </ScrollViewer>

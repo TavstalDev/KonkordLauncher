@@ -82,7 +82,7 @@ public partial class App : Application
             ApplyTheme(settings.Launcher.Theme);
             //InvokeLanguageChanged(settings.Launcher.Language);
         }
-        catch (Exception _)
+        catch
         {
             // ignored
         }

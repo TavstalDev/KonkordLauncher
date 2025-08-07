@@ -57,6 +57,7 @@ public static class HttpHelper
     /// </summary>
     /// <param name="request">The URL to send the GET request to.</param>
     /// <returns>The byte array, or null if an error occurs.</returns>
+    [Obsolete]
     public static async Task<byte[]?> GetByteArrayAsync(string request)
     {
         try
@@ -70,14 +71,18 @@ public static class HttpHelper
             return null;
         }
     }
-
+    
     /// <summary>
-    /// Sends a GET request to retrieve a byte array from the specified URL, with progress reporting.
+    /// Downloads a file from the specified URL and saves it to the given file path, 
+    /// while reporting progress if a progress reporter is provided.
     /// </summary>
-    /// <param name="url">The URL to send the GET request to.</param>
-    /// <param name="progress">An optional progress reporter.</param>
-    /// <returns>The byte array, or null if an error occurs.</returns>
-    public static async Task<byte[]?> GetByteArrayAsync(string url, IProgress<double>? progress)
+    /// <param name="url">The URL of the file to download.</param>
+    /// <param name="filePath">The local file path where the downloaded file will be saved.</param>
+    /// <param name="progress">An optional progress reporter to track the download progress as a percentage.</param>
+    /// <returns>
+    /// The file path of the downloaded file if successful, or null if an error occurs.
+    /// </returns>
+    public static async Task<string?> DownloadFileAsync(string url, string filePath, IProgress<double>? progress)
     {
         try
         {
@@ -87,14 +92,15 @@ public static class HttpHelper
             long? contentLength = response.Content.Headers.ContentLength;
 
             await using Stream responseStream = await response.Content.ReadAsStreamAsync();
-            using var memoryStream = new MemoryStream();
-            byte[] buffer = new byte[4096];
+            await using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None);
+
+            byte[] buffer = new byte[8192]; // Use a larger buffer for better performance
             int bytesRead;
             long totalBytesRead = 0;
 
             while ((bytesRead = await responseStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
             {
-                await memoryStream.WriteAsync(buffer, 0, bytesRead);
+                await fileStream.WriteAsync(buffer, 0, bytesRead);
                 totalBytesRead += bytesRead;
 
                 if (progress != null && contentLength.HasValue)
@@ -104,11 +110,11 @@ public static class HttpHelper
                 }
             }
 
-            return memoryStream.ToArray();
+            return filePath; // Return the path to the downloaded file
         }
         catch (Exception ex)
         {
-            _logger.Exc("Error while making GET request for byte array with progress:");
+            _logger.Exc("Error while downloading file with progress:");
             _logger.Error(ex.ToString());
             return null;
         }

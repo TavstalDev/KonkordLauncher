@@ -1,18 +1,9 @@
-﻿using System.Diagnostics;
-using Newtonsoft.Json.Linq;
-using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Helpers;
-using Tavstal.KonkordLauncher.Core.Installers;
-using Tavstal.KonkordLauncher.Core.Installers.Forge;
-using Tavstal.KonkordLauncher.Core.Models.Installer;
-using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.New;
-
-namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
+﻿namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
 
 /// <summary>
 /// Represents the base class for Forge installers, providing common functionality for installing Forge mod loaders.
 /// </summary>
-public abstract class ForgeInstallerBase : MinecraftInstaller
+/*public abstract class ForgeInstallerBase : MinecraftInstaller
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(ForgeInstallerBase));
     private static readonly Dictionary<string, Type> _installers = new()
@@ -101,8 +92,8 @@ public abstract class ForgeInstallerBase : MinecraftInstaller
         string assetsDir, string cacheDir, string libsDir, string manifestPath, string versionsDir, string forgeManifestPath,
         EMinecraftKind kind = EMinecraftKind.VANILLA, string? gameDirectory = null, Resolution? resolution = null, 
         string? jvmArgs = "-XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M -Djava.net.preferIPv4Stack=true", 
-        string? customVersion = null, IProgressReporter? progressReporter = null, bool isDebug = false) 
-        : base(javaPath, minecraftVersion, memory, launcherDetails, clientDetails, assetsDir, cacheDir, libsDir, manifestPath, versionsDir, kind, gameDirectory, resolution, jvmArgs, customVersion, progressReporter, isDebug)
+        string? customVersion = null, IProgressReporter? progressReporter = null) 
+        : base(javaPath, minecraftVersion, memory, launcherDetails, clientDetails, assetsDir, cacheDir, libsDir, manifestPath, versionsDir, kind, gameDirectory, resolution, jvmArgs, customVersion, progressReporter)
     {
         ForgeManifestPath = forgeManifestPath;
     }
@@ -320,4 +311,4 @@ public abstract class ForgeInstallerBase : MinecraftInstaller
 #endif
     }
     #endregion
-}
+}*/

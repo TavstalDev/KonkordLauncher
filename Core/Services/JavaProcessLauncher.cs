@@ -24,7 +24,7 @@ public static class JavaProcessLauncher
         // Configure the process start information
         var psi = new ProcessStartInfo()
         {
-            FileName = javaPath,
+            FileName = string.IsNullOrEmpty(javaPath) ? "java" : javaPath,
             Arguments = arguments,
             UseShellExecute = false,
             RedirectStandardError = true,
@@ -36,30 +36,33 @@ public static class JavaProcessLauncher
         _logger.Debug("Starting Java process with arguments:");
         _logger.Debug(arguments.Replace(' ', '\n'));
 
-        var proce = Process.Start(psi);
-        proce.OutputDataReceived += (sender, e) =>
+        var process = Process.Start(psi);
+        if (process != null)
         {
-            if (!string.IsNullOrEmpty(e.Data))
+            process.EnableRaisingEvents = true;
+#if DEBUG
+            process.OutputDataReceived += (sender, e) =>
             {
-                _logger.Debug($"Java Output: {e.Data}");
-            }
-        };
-        proce.ErrorDataReceived += (sender, e) =>
-        {
-            if (!string.IsNullOrEmpty(e.Data))
+                if (!string.IsNullOrEmpty(e.Data))
+                {
+                    _logger.Debug($"Java Output: {e.Data}");
+                }
+            };
+            process.ErrorDataReceived += (sender, e) =>
             {
-                _logger.Error($"Java Output: {e.Data}");
-            }
-        };
-        proce.Exited += (sender, e) =>
-        {
-            _logger.Info($"Java process exited with code: {proce.ExitCode}");
-        };
-        
-        proce.BeginOutputReadLine();
-        proce.BeginErrorReadLine();
-        
+                if (!string.IsNullOrEmpty(e.Data))
+                {
+                    _logger.Error($"Java Output: {e.Data}");
+                }
+            };
+            process.Exited += (sender, e) => { _logger.Info($"Java process exited with code: {process.ExitCode}"); };
+
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
+#endif
+        }
+
         // Start the process and return the Process object
-        return proce;
+        return process;
     }
 }

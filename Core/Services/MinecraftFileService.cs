@@ -1,7 +1,5 @@
-using System.Diagnostics;
 using System.Globalization;
 using System.IO.Compression;
-using System.Runtime.InteropServices;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Tavstal.KonkordLauncher.Core.Enums;
@@ -14,494 +12,405 @@ using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 
 namespace Tavstal.KonkordLauncher.Core.Services;
 
-public class MinecraftFileService
+public static class MinecraftFileService
 {
     /// <summary>
-    /// Downloads the version metadata and JAR file for a specific Minecraft version.
+    /// Downloads a file from a URL, deserializes its content, and saves it locally if it doesn't already exist.
     /// </summary>
-    /// <param name="versionData">The details of the version to be downloaded, including paths.</param>
-    /// <param name="minecraftVersion">The Minecraft version information, including ID and URL.</param>
-    /// <param name="progressReporter">
-    /// Optional: An object to report progress and status updates during the download process.
-    /// </param>
-    /// <returns>
-    /// A <see cref="VersionMeta"/> object containing metadata about the downloaded version,
-    /// or null if the download fails.
-    /// </returns>
-    public static async Task<VersionMeta?> DownloadVersionAsync(VersionDetails versionData, MinecraftVersion minecraftVersion, IProgressReporter? progressReporter = null)
+    /// <typeparam name="T">The type to which the file content will be deserialized.</typeparam>
+    /// <param name="filePath">The local file path where the file will be saved.</param>
+    /// <param name="url">The URL from which the file will be downloaded.</param>
+    /// <param name="statusKey">A key used for progress reporting and status messages.</param>
+    /// <param name="progressReporter">An optional progress reporter for tracking download progress.</param>
+    /// <param name="deserialize">A function to deserialize the file content into the specified type.</param>
+    /// <returns>The deserialized object of type <typeparamref name="T"/> or null if the operation fails.</returns>
+    private static async Task<T?> DownloadAndSaveFileAsync<T>(string filePath, string url, string statusKey,
+        IProgressReporter? progressReporter, Func<string, T?> deserialize)
     {
-        VersionMeta? versionResult;
+        if (File.Exists(filePath))
+        {
+            progressReporter?.SetStatusTranslated($"instance.reading.{statusKey}", Path.GetFileName(filePath));
+            string jsonResult = await File.ReadAllTextAsync(filePath);
+            return deserialize(jsonResult);
+        }
+
+        progressReporter?.SetProgress(0);
+        Progress<double> progress = new Progress<double>();
+        progress.ProgressChanged += (_, e) =>
+        {
+            progressReporter?.SetProgress(e);
+            progressReporter?.SetStatusTranslated($"instance.downloading.{statusKey}", Path.GetFileName(filePath),
+                e.ToString("0.00"));
+        };
+
+        string? result = await HttpHelper.GetStringAsync(url, progress);
+        if (result == null)
+        {
+            return default;
+        }
+
+        T? deserializedResult = deserialize(result);
+        if (deserializedResult != null)
+        {
+            await File.WriteAllTextAsync(filePath, result);
+        }
+
+        return deserializedResult;
+    }
+
+    /// <summary>
+    /// Downloads a binary file from a URL and saves it locally if it doesn't already exist.
+    /// </summary>
+    /// <param name="filePath">The local file path where the file will be saved.</param>
+    /// <param name="url">The URL from which the file will be downloaded.</param>
+    /// <param name="statusKey">A key used for progress reporting and status messages.</param>
+    /// <param name="progressReporter">An optional progress reporter for tracking download progress.</param>
+    /// <returns>A byte array containing the file content or null if the operation fails.</returns>
+    private static async Task DownloadAndSaveBinaryFileAsync(string filePath, string url, string statusKey,
+        IProgressReporter? progressReporter)
+    {
+        if (File.Exists(filePath))
+        {
+            progressReporter?.SetStatusTranslated($"instance.reading.{statusKey}", Path.GetFileName(filePath));
+            return;
+        }
+
+        progressReporter?.SetProgress(0);
+        Progress<double> progress = new Progress<double>();
+        progress.ProgressChanged += (_, e) =>
+        {
+            progressReporter?.SetProgress(e);
+            progressReporter?.SetStatusTranslated($"instance.downloading.{statusKey}", Path.GetFileName(filePath),
+                e.ToString("0.00"));
+        };
+
+        await HttpHelper.DownloadFileAsync(url, filePath, progress);
+    }
+
+    /// <summary>
+    /// Downloads the version metadata and client JAR file for a specific Minecraft version.
+    /// </summary>
+    /// <param name="versionData">The details of the version to be downloaded.</param>
+    /// <param name="minecraftVersion">The Minecraft version metadata.</param>
+    /// <param name="progressReporter">An optional progress reporter for tracking download progress.</param>
+    /// <returns>The deserialized version metadata or null if the operation fails.</returns>
+    public static async Task<VersionMeta?> DownloadVersionAsync(VersionDetails versionData,
+        MinecraftVersion minecraftVersion, IProgressReporter? progressReporter = null)
+    {
         // JSON
-        if (!File.Exists(versionData.VersionJsonPath))
-        {
-            progressReporter?.SetProgress(0);
-            progressReporter?.SetStatusTranslated($"ui_downloading_version_json", minecraftVersion.Id, 0);
+        var versionResult = await DownloadAndSaveFileAsync(
+            versionData.VersionJsonPath,
+            minecraftVersion.Url,
+            "version_json",
+            progressReporter,
+            JsonConvert.DeserializeObject<VersionMeta>);
 
-            Progress<double> progress = new Progress<double>();
-            progress.ProgressChanged += (sender, e) =>
-            {
-                progressReporter?.SetStatusTranslated("ui_downloading_version_json", minecraftVersion.Id, e.ToString("0.00"));
-            };
-            string? jsonResult = await HttpHelper.GetStringAsync(minecraftVersion.Url, progress);
-            if (jsonResult == null)
-                return null;
-
-            versionResult = JsonConvert.DeserializeObject<VersionMeta>(jsonResult);
-            await File.WriteAllTextAsync(versionData.VersionJsonPath, jsonResult);
-        }
-        else
-        {
-            progressReporter?.SetStatusTranslated("ui_reading_version_json", minecraftVersion.Id);
-            string jsonResult = await File.ReadAllTextAsync(versionData.VersionJsonPath);
-            versionResult = JsonConvert.DeserializeObject<VersionMeta>(jsonResult);
-        }
-
-        if (versionResult == null)
-            return null;
+        if (versionResult == null) return null;
 
         // JAR
-        if (!File.Exists(versionData.VersionJarPath))
-        {
-            progressReporter?.SetStatusTranslated($"ui_downloading_version_jar", minecraftVersion.Id, 0);
-
-            Progress<double> progress = new Progress<double>();
-            progress.ProgressChanged += (_, e) =>
-            {
-                progressReporter?.SetProgress(e);
-                progressReporter?.SetStatusTranslated("ui_downloading_version_jar", minecraftVersion.Id, e.ToString("0.00"));
-            };
-
-            byte[]? bytes = await HttpHelper.GetByteArrayAsync(versionResult.Downloads.Client.Url, progress);
-            if (bytes == null)
-                return null;
-            await File.WriteAllBytesAsync(versionData.VersionJarPath, bytes);
-        }
+        await DownloadAndSaveBinaryFileAsync(
+            versionData.VersionJarPath,
+            versionResult.Downloads.Client.Url,
+            "version_jar",
+            progressReporter);
 
         return versionResult;
     }
     
-    /// <summary>
-    /// Downloads the assets for a specific Minecraft version.
-    /// </summary>
-    /// <param name="versionMeta">The metadata of the Minecraft version, including asset index information.</param>
-    /// <param name="assetsDir">The directory where the assets will be stored.</param>
-    /// <param name="progressReporter">
-    /// Optional: An object to report progress and status updates during the asset download process.
-    /// </param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    public static async Task DownloadAssetsAsync(VersionMeta versionMeta, string assetsDir, IProgressReporter? progressReporter = null)
+    public static async Task DownloadAssetsAsync(VersionMeta versionMeta, string assetsDir, string gameDir,
+        IProgressReporter? progressReporter = null)
     {
         // AssetIndex
-        progressReporter?.SetProgress(0);
-        progressReporter?.SetStatusTranslated("ui_checking_asset_index_json", versionMeta.Index.Id);
+        string assetIndexId = versionMeta.Index.Id;
+        string assetPath = Path.Combine(assetsDir, $"indexes/{assetIndexId}.json");
+
+        string? resultJson = await DownloadAndSaveFileAsync(
+            assetPath,
+            versionMeta.Index.Url,
+            "asset_index_json",
+            progressReporter,
+            (json) => json); // Deserialize to string, then parse JObject
+
+        if (resultJson == null) return;
+
+        bool isLegacy = resultJson.Contains("READ_ME_I_AM_VERY_IMPORTANT");
         
-        string assetIndex = versionMeta.Index.Id;
-        string assetPath = Path.Combine(assetsDir, $"indexes/{assetIndex}.json");
-        JToken? assetJToken;
-        if (!File.Exists(assetPath))
-        {
-            progressReporter?.SetStatusTranslated("ui_downloading_asset_index_json", assetIndex, 0);
-
-            Progress<double> progress = new Progress<double>();
-            progress.ProgressChanged += (_, e) =>
-            {
-                progressReporter?.SetProgress(e);
-                progressReporter?.SetStatusTranslated("ui_downloading_asset_index_json", assetIndex, e.ToString("0.00"));
-            };
-
-            string? resultJson = await HttpHelper.GetStringAsync(versionMeta.Index.Url, progress);
-            if (resultJson == null)
-                return;
-
-            assetJToken = JObject.Parse(resultJson)["objects"];
-            await File.WriteAllTextAsync(assetPath, resultJson);
-        }
-        else
-        {
-            progressReporter?.SetStatusTranslated("ui_reading_asset_index_json", assetIndex);
-            string resultJson = await File.ReadAllTextAsync(assetPath);
-            assetJToken = JObject.Parse(resultJson)["objects"];
-        }
-
-
+        var assetJToken = JObject.Parse(resultJson)["objects"];
         if (assetJToken == null)
             throw new Exception("Asset JToken is null, something went wrong while reading the asset index JSON.");
 
+        // Assets
+        int downloadedAssetSize = 0;
+        progressReporter?.SetStatusTranslated("instance.reading.assets");
+        
+        if (isLegacy)
+        {
+            string resourcesDir = Path.Combine(gameDir, "resources");
+            Directory.CreateDirectory(resourcesDir);
+            
+            foreach (JProperty token in assetJToken.Children<JProperty>().ToList())
+            {
+                var rawHash = token.First?["hash"];
+                if (rawHash == null) continue;
+
+                string rawFilePath = token.Name;
+                var hash = rawHash.ToString();
+
+                var fileName = Path.GetFileName(rawFilePath);
+                var fileDirectory = Path.GetDirectoryName(rawFilePath);
+                string? objectDir = null;
+                if (!string.IsNullOrEmpty(fileDirectory))
+                {
+                    objectDir = Path.Combine(resourcesDir, fileDirectory);
+                    Directory.CreateDirectory(objectDir);
+                }
+                var objectPath = Path.Combine(objectDir ?? resourcesDir, fileName);
+
+                if (!File.Exists(objectPath))
+                {
+                     await HttpHelper.DownloadFileAsync(
+                        $"{MicrosoftEndpoints.MinecraftResourcesUrl}/{hash.Substring(0, 2)}/{hash}", objectPath, null);
+                }
+                
+                var sizeToken = token.First?["size"];
+                downloadedAssetSize += sizeToken != null ? int.Parse(sizeToken.ToString()) : 0;
+                double percent = (double)downloadedAssetSize / (double)versionMeta.Index.TotalSize * 100d;
+                progressReporter?.SetStatusTranslated("instance.downloading.assets", percent.ToString("0.00"));
+            }
+            
+            return;
+        }
+        
         // Asset Dir
         string assetObjectDir = Path.Combine(assetsDir, "objects");
-        if (!Directory.Exists(assetObjectDir))
-            Directory.CreateDirectory(assetObjectDir);
-
-        // Assets
-
-        int downloadedAssetSize = 0;
-        progressReporter?.SetStatusTranslated("ui_checking_assets");
+        Directory.CreateDirectory(assetObjectDir);
+        
         foreach (JToken token in assetJToken.ToList())
         {
             var rawHash = token.First?["hash"];
-            if (rawHash == null)
-                continue;
-            
+            if (rawHash == null) continue;
+
             var hash = rawHash.ToString();
             var objectDir = Path.Combine(assetObjectDir, hash.Substring(0, 2));
             var objectPath = Path.Combine(objectDir, $"{hash}");
 
-            if (!Directory.Exists(objectDir))
-                Directory.CreateDirectory(objectDir);
+            Directory.CreateDirectory(objectDir);
 
             if (!File.Exists(objectPath))
             {
-                byte[]? array =
-                    await HttpHelper.GetByteArrayAsync(
-                        $"{MicrosoftEndpoints.MinecraftResourcesUrl}/{hash.Substring(0, 2)}/{hash}");
-                if (array == null)
-                    return;
-
-                await File.WriteAllBytesAsync(objectPath, array);
+                await HttpHelper.DownloadFileAsync(
+                    $"{MicrosoftEndpoints.MinecraftResourcesUrl}/{hash.Substring(0, 2)}/{hash}", objectPath, null);
             }
 
             var sizeToken = token.First?["size"];
             downloadedAssetSize += sizeToken != null ? int.Parse(sizeToken.ToString()) : 0;
             double percent = (double)downloadedAssetSize / (double)versionMeta.Index.TotalSize * 100d;
-            progressReporter?.SetStatusTranslated("ui_downloading_assets", percent.ToString("0.00"));
+            progressReporter?.SetStatusTranslated("instance.downloading.assets", percent.ToString("0.00"));
         }
     }
-    
+
     /// <summary>
-    /// Downloads the logging configuration for a specific Minecraft version.
+    /// Downloads and modifies the logging configuration for a specific Minecraft version.
     /// </summary>
-    /// <param name="versionMeta">The metadata of the Minecraft version, including logging information.</param>
+    /// <param name="versionMeta">The metadata of the Minecraft version.</param>
     /// <param name="versionDirectory">The directory where the version files are stored.</param>
     /// <param name="gameDir">The directory where the game files are stored.</param>
     /// <param name="assetsDir">The directory where the assets are stored.</param>
-    /// <param name="progressReporter">
-    /// Optional: An object to report progress and status updates during the logging configuration download process.
-    /// </param>
-    /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains a <see cref="LaunchArg"/> object
-    /// with the logging argument, or null if the logging configuration is not available.
-    /// </returns>
-    public static async Task<LaunchArg?> DownloadLoggingAsync(VersionMeta versionMeta, string versionDirectory, string gameDir, string assetsDir, IProgressReporter? progressReporter = null)
+    /// <param name="progressReporter">An optional progress reporter for tracking download progress.</param>
+    /// <returns>A launch argument for the logging configuration or null if the operation fails.</returns>
+    public static async Task<LaunchArg?> DownloadLoggingAsync(VersionMeta versionMeta, string versionDirectory,
+        string gameDir, string assetsDir, IProgressReporter? progressReporter = null)
     {
-        if (versionMeta.LoggingMeta is not { Client: not null })
-            return null;
-        
-        progressReporter?.SetProgress(0);
-        progressReporter?.SetStatusTranslated("ui_checking_logging");
-        
+        if (versionMeta.LoggingMeta is not { Client: not null }) return null;
+
         string logDirPath = Path.Combine(assetsDir, "log_configs");
-        if (!Directory.Exists(logDirPath))
-            Directory.CreateDirectory(logDirPath);
-        //string logReadmePath = Path.Combine(logDirPath, "readme.txt");
-        /*if (!File.Exists(logReadmePath))
-            await File.WriteAllTextAsync(logReadmePath,
-                $"The log config files has been moved to {PathHelper.VersionsDir}/<your_version> so the logs can be made per instance.");*/
+        Directory.CreateDirectory(logDirPath);
+
         string logFilePath = Path.Combine(versionDirectory, versionMeta.LoggingMeta.Client.File.Id);
-        if (!File.Exists(logFilePath))
-        {
-            progressReporter?.SetStatusTranslated("ui_downloading_logging", 0);
 
-            Progress<double> progress = new Progress<double>();
-            progress.ProgressChanged += (_, e) =>
-            {
-                progressReporter?.SetProgress(e);
-                progressReporter?.SetStatusTranslated("ui_downloading_logging", e.ToString("0.00"));
-            };
+        string? logContent = await DownloadAndSaveFileAsync(
+            logFilePath,
+            versionMeta.LoggingMeta.Client.File.Url,
+            "logging",
+            progressReporter,
+            (json) => json); // Deserialize to string
 
-            string? r = await HttpHelper.GetStringAsync(versionMeta.LoggingMeta.Client.File.Url, progress);
-            if (r == null)
-                return null;
+        if (logContent == null) return null;
 
-            // FIX LOG LOCATION
-            r = r.Replace("fileName=\"logs", $"fileName=\"{gameDir}/logs")
-                .Replace("filePattern=\"logs", $"filePattern=\"{gameDir}/logs");
+        // FIX LOG LOCATION
+        string modifiedContent = logContent
+            .Replace("fileName=\"logs", $"fileName=\"{gameDir}/logs")
+            .Replace("filePattern=\"logs", $"filePattern=\"{gameDir}/logs");
 
-            await File.WriteAllTextAsync(logFilePath, r);
-        }
+        await File.WriteAllTextAsync(logFilePath, modifiedContent);
 
         return new LaunchArg(versionMeta.LoggingMeta.Client.Argument.Replace("${path}", logFilePath), 0);
     }
 
     /// <summary>
-    /// Downloads the client mappings file for a specific Minecraft version if it does not already exist.
+    /// Downloads and saves the client mappings for a specific Minecraft version.
     /// </summary>
-    /// <param name="versionMeta">The metadata of the Minecraft version, including download information for client mappings.</param>
-    /// <param name="versionData">The details of the version, including the directory where files are stored.</param>
-    /// <param name="progressReporter">
-    /// Optional: An object to report progress and status updates during the download process.
-    /// </param>
+    /// <param name="versionMeta">The metadata of the Minecraft version.</param>
+    /// <param name="versionData">The details of the version to be downloaded.</param>
+    /// <param name="progressReporter">An optional progress reporter for tracking download progress.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    public static async Task DownloadMappingsAsync(VersionMeta versionMeta, VersionDetails versionData, IProgressReporter? progressReporter = null)
+    public static async Task DownloadMappingsAsync(VersionMeta versionMeta, VersionDetails versionData,
+        IProgressReporter? progressReporter = null)
     {
-        progressReporter?.SetProgress(0);
-        progressReporter?.SetStatusTranslated("ui_checking_client_mappings");
-        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-        if (versionMeta.Downloads.ClientMappings == null)
-            return;
+        if (versionMeta.Downloads.ClientMappings == null) return;
 
         string clientMappinsPath = Path.Combine(versionData.VersionDirectory, "client.txt");
-        if (!File.Exists(clientMappinsPath))
-        {
-            progressReporter?.SetStatusTranslated("ui_downloading_client_mappings", 0);
 
+        await DownloadAndSaveFileAsync(
+            clientMappinsPath,
+            versionMeta.Downloads.ClientMappings.Url,
+            "client_mappings",
+            progressReporter,
+            (json) => json); // Deserialize to string
+    }
+
+    /// <summary>
+    /// Downloads and processes the libraries required for a specific Minecraft version.
+    /// </summary>
+    /// <param name="kind">The type of Minecraft (e.g., Java, Bedrock).</param>
+    /// <param name="versionData">The details of the Minecraft version.</param>
+    /// <param name="mcLibs">The list of libraries to be downloaded.</param>
+    /// <param name="classPath">The classpath string to be updated with downloaded libraries.</param>
+    /// <param name="cacheDir">The directory where cached files are stored.</param>
+    /// <param name="libsDir">The directory where libraries will be downloaded.</param>
+    /// <param name="progressReporter">An optional progress reporter for tracking download progress.</param>
+    /// <returns>A tuple containing the updated classpath and a list of native libraries.</returns>
+    public static async Task<string> DownloadLibrariesAsync(
+        EMinecraftKind kind, VersionDetails versionData, List<LibraryMeta> mcLibs,
+        string classPath, string cacheDir, string libsDir, IProgressReporter? progressReporter = null)
+    {
+        progressReporter?.SetProgress(0);
+        progressReporter?.SetStatusTranslated("instance.reading.libraries");
+        
+        string libraryCacheDir = Path.Combine(cacheDir, "libsizes");
+        Directory.CreateDirectory(libraryCacheDir);
+
+        string librarySizeCacheFilePath = Path.Combine(libraryCacheDir,
+            $"{versionData.MinecraftVersion}-{kind}-{versionData.CustomVersion}.json");
+
+        // Calculate or read library size
+        if (!File.Exists(librarySizeCacheFilePath))
+        {
+            double libraryOverallSize = mcLibs
+                .Where(lib => lib.GetRulesResult() && lib.Downloads.Artifact != null)
+                .Sum(lib => lib.Downloads.Artifact?.Size ?? 0);
+
+            await File.WriteAllTextAsync(librarySizeCacheFilePath,
+                libraryOverallSize.ToString(CultureInfo.InvariantCulture));
+        }
+
+        // Download libraries
+        foreach (var lib in mcLibs.Where(lib => lib.GetRulesResult()))
+        {
+            if (lib.Downloads.Artifact != null)
+            {
+                var libFilePath = await DownloadLibraryArtifactAsync(lib, libsDir, progressReporter);
+                if (!string.IsNullOrEmpty(libFilePath) && !classPath.Contains(libFilePath))
+                    classPath += $"{libFilePath}${{classpath_separator}}";
+            }
+            
+            if (lib.Downloads.Classifiers != null)
+            {
+                var classifier = lib.Downloads.Classifiers.GetOsNative();
+                var libJarFilePath = Path.Combine(libsDir, classifier.Path);
+                await DownloadNativeFileAsync(classifier.Url, libJarFilePath, lib.Name, versionData.NativesDir, progressReporter);
+                if (!string.IsNullOrEmpty(libJarFilePath) && !classPath.Contains(libJarFilePath))
+                    classPath += $"{libJarFilePath}${{classpath_separator}}";
+            }
+        }
+
+        return classPath;
+    }
+
+    /// <summary>
+    /// Downloads a library artifact and saves it locally.
+    /// </summary>
+    /// <param name="lib">The metadata of the library to be downloaded.</param>
+    /// <param name="libsDir">The directory where the library will be saved.</param>
+    /// <param name="progressReporter">An optional progress reporter for tracking download progress.</param>
+    /// <returns>The file path of the downloaded library.</returns>
+    private static async Task<string> DownloadLibraryArtifactAsync(
+        LibraryMeta lib, string libsDir, IProgressReporter? progressReporter)
+    {
+        if (lib.Downloads.Artifact == null)
+            return string.Empty;
+        
+        string localPath = lib.Downloads.Artifact.Path;
+        string libDirPath = Path.Combine(libsDir, Path.GetDirectoryName(localPath)!);
+        Directory.CreateDirectory(libDirPath);
+
+        string libFilePath = Path.Combine(libsDir, localPath);
+        if (!File.Exists(libFilePath) && !string.IsNullOrEmpty(lib.Downloads.Artifact.Url))
+        {
             Progress<double> progress = new Progress<double>();
             progress.ProgressChanged += (_, e) =>
             {
                 progressReporter?.SetProgress(e);
-                progressReporter?.SetStatusTranslated("ui_downloading_client_mappings", e.ToString("0.00"));
+                progressReporter?.SetStatusTranslated("instance.downloading.libraries", lib.Name, e.ToString("0.00"));
             };
 
-            string? r = await HttpHelper.GetStringAsync(versionMeta.Downloads.ClientMappings.Url, progress);
-            if (r == null)
-                return;
-
-            await File.WriteAllTextAsync(clientMappinsPath, r);
+            await HttpHelper.DownloadFileAsync(lib.Downloads.Artifact.Url, libFilePath, progress);
         }
+
+        return libFilePath;
     }
     
     /// <summary>
-    /// Downloads the libraries required for a specific Minecraft version.
+    /// Downloads a native library file from the specified URL, saves it to the given file path, 
+    /// and extracts its contents to the specified native directory.
     /// </summary>
-    /// <param name="kind">The type of Minecraft (e.g., Java, Bedrock).</param>
-    /// <param name="VersionData">The details of the version, including paths and metadata.</param>
-    /// <param name="mcLibs">The list of libraries to be downloaded.</param>
-    /// <param name="classPath">The classpath string to be updated with downloaded libraries.</param>
-    /// <param name="cacheDir">The directory where cached data is stored.</param>
-    /// <param name="libsDir">The directory where libraries will be stored.</param>
-    /// <param name="progressReporter">
-    /// Optional: An object to report progress and status updates during the library download process.
-    /// </param>
-    /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains a tuple with the updated classpath
-    /// and a list of native libraries.
-    /// </returns>
-    public static async Task<(string, List<LibraryMeta>)> DownloadLibrariesAsync(EMinecraftKind kind, VersionDetails VersionData, List<LibraryMeta> mcLibs, string classPath, string cacheDir, string libsDir, IProgressReporter? progressReporter = null)
-    {
-        progressReporter?.SetProgress(0);
-        progressReporter?.SetStatusTranslated("ui_checking_libraries");
-        
-        List<LibraryMeta> natives = [];
-        double libraryOverallSize = 0;
-        string libraryCacheDir = Path.Combine(cacheDir, "libsizes");
-        if (!Directory.Exists(libraryCacheDir))
-            Directory.CreateDirectory(libraryCacheDir);
-        string librarySizeCacheFilePath = Path.Combine(libraryCacheDir,
-            $"{VersionData.MinecraftVersion}-{kind}-{VersionData.CustomVersion}.json");
-
-
-        // Calculate the overallSize or read it from cache
-        progressReporter?.SetStatusTranslated("ui_calculating_lib_size");
-        if (!File.Exists(librarySizeCacheFilePath))
-        {
-            foreach (var lib in mcLibs)
-            {
-                // Check the library rule
-                if (!lib.GetRulesResult())
-                    continue;
-
-                // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-                if (lib.Downloads.Artifact == null)
-                    continue;
-
-                libraryOverallSize += lib.Downloads.Artifact.Size;
-            }
-
-            await File.WriteAllTextAsync(librarySizeCacheFilePath, libraryOverallSize.ToString(CultureInfo.InvariantCulture));
-        }
-
-        // Download the actual libs
-        foreach (var lib in mcLibs)
-        {
-            // Check the library rule
-            if (!lib.GetRulesResult())
-                continue;
-
-            string libFilePath = string.Empty;
-            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-            if (lib.Downloads.Artifact != null)
-            {
-                string localPath = lib.Downloads.Artifact.Path;
-                int libDirIndex = localPath.LastIndexOf('/');
-                string libDirPath = Path.Combine(libsDir,
-                    localPath.Remove(libDirIndex, localPath.Length - libDirIndex));
-
-                if (!Directory.Exists(libDirPath))
-                    Directory.CreateDirectory(libDirPath);
-
-                libFilePath = Path.Combine(libsDir, localPath);
-                if (!File.Exists(libFilePath))
-                {
-                    try
-                    {
-                        if (!string.IsNullOrEmpty(lib.Downloads.Artifact.Url))
-                        {
-                            Progress<double> progress = new Progress<double>();
-                            progress.ProgressChanged += (_, e) =>
-                            {
-                                progressReporter?.SetProgress(e);
-                                progressReporter?.SetStatusTranslated("ui_library_download", lib.Name, e.ToString("0.00"));
-                            };
-
-                            byte[]? bytes = await HttpHelper.GetByteArrayAsync(lib.Downloads.Artifact.Url, progress);
-                            if (bytes == null)
-                                continue;
-
-                            await File.WriteAllBytesAsync(libFilePath, bytes);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.WriteLine($"Failed to get file: {lib.Downloads.Artifact.Url}");
-                        Debug.WriteLine($"Error: {e}");
-                    }
-                }
-            }
-            else if (lib.Downloads.Classifiers != null)
-            {
-                string[] rawUrl = lib.Name.Split(':');
-                string localPath = Path
-                    .Combine(rawUrl[0].Replace('.', '/'), rawUrl[1], rawUrl[2], $"{rawUrl[1]}-{rawUrl[2]}.jar");
-                int libDirIndex = localPath.LastIndexOf('/');
-                string libDirPath = Path.Combine(libsDir,
-                    localPath.Remove(libDirIndex, localPath.Length - libDirIndex));
-
-                if (!Directory.Exists(libDirPath))
-                    Directory.CreateDirectory(libDirPath);
-
-                libFilePath = Path.Combine(libsDir, localPath);
-            }
-
-            if (!classPath.Contains(libFilePath))
-            {
-                classPath += $"{libFilePath};";
-                if (lib.Name.StartsWith("org.lwjgl") || lib.Downloads.Classifiers != null)
-                    natives.Add(lib);
-            }
-            else
-            {
-                if (lib.Name.StartsWith("org.lwjgl") || lib.Downloads.Classifiers != null)
-                    natives.Add(lib);
-            }
-        }
-
-        return (classPath, natives);
-    }
-    
-    /// <summary>
-    /// Downloads and extracts native libraries required for a specific Minecraft version.
-    /// </summary>
-    /// <param name="nativeLibs">The list of native libraries to be downloaded and extracted.</param>
+    /// <param name="url">The URL of the native library file to download.</param>
+    /// <param name="filePath">The local file path where the downloaded file will be saved.</param>
+    /// <param name="libName">The name of the library being downloaded, used for progress reporting.</param>
     /// <param name="nativeDir">The directory where the extracted native files will be stored.</param>
-    /// <param name="libsDir">The directory where the library files are stored.</param>
-    /// <param name="progressReporter">
-    /// Optional: An object to report progress and status updates during the native library download process.
-    /// </param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    public static async Task DownloadNatives(List<LibraryMeta> nativeLibs, string nativeDir, string libsDir, IProgressReporter? progressReporter = null)
+    /// <param name="progressReporter">An optional progress reporter for tracking download progress.</param>
+    private static async Task DownloadNativeFileAsync(
+        string url, string filePath, string libName, string nativeDir, IProgressReporter? progressReporter)
     {
-        progressReporter?.SetProgress(0);
-        progressReporter?.SetStatusTranslated("ui_checking_natives");
-        
-        if (!Directory.Exists(nativeDir))
-            Directory.CreateDirectory(nativeDir);
+        string libDir = Path.GetDirectoryName(filePath)!;
+        Directory.CreateDirectory(libDir);
 
-        foreach (LibraryMeta lib in nativeLibs)
+        Progress<double> progress = new Progress<double>();
+        progress.ProgressChanged += (_, e) =>
         {
-            Debug.WriteLine("nativeLib: " + lib.Name);
-            string libJarFilePath;
-            if (lib.Downloads.Classifiers != null)
-            {
-                string localUrl;
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-                    if (lib.Downloads.Classifiers.WindowsNatives == null)
-                        continue;
+            progressReporter?.SetProgress(e);
+            progressReporter?.SetStatusTranslated("instance.downloading.natives", libName, e.ToString("0.00"));
+        };
 
-                    localUrl = lib.Downloads.Classifiers.WindowsNatives.Url;
-                    libJarFilePath = lib.Downloads.Classifiers.WindowsNatives.Path;
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                {
-                    // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-                    if (lib.Downloads.Classifiers.LinuxNatives == null)
-                        continue;
+        await HttpHelper.DownloadFileAsync(url, filePath, progress);
+        ExtractNativeFiles(filePath,nativeDir);
+    }
+    
+    /// <summary>
+    /// Extracts native library files from a compressed archive and moves them to the specified directory.
+    /// </summary>
+    /// <param name="libFilePath">The file path of the compressed native library archive.</param>
+    /// <param name="nativeDir">The directory where the extracted native files will be stored.</param>
+    private static void ExtractNativeFiles(string libFilePath, string nativeDir)
+    {
+        string tempDir = Path.Combine(nativeDir, Path.GetRandomFileName());
+        ZipFile.ExtractToDirectory(libFilePath, tempDir, true);
 
-                    localUrl = lib.Downloads.Classifiers.LinuxNatives.Url;
-                    libJarFilePath = lib.Downloads.Classifiers.LinuxNatives.Path;
-                }
-                else // OSX
-                {
-                    // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-                    if (lib.Downloads.Classifiers.OsxNatives == null)
-                        continue;
-
-                    localUrl = lib.Downloads.Classifiers.OsxNatives.Url;
-                    libJarFilePath = lib.Downloads.Classifiers.OsxNatives.Path;
-                }
-
-                // Add dir
-                string localFilePath = Path.Combine(libsDir, libJarFilePath);
-
-                if (!File.Exists(localFilePath))
-                {
-                    string libJarDir = localFilePath.Remove(localFilePath.LastIndexOf('/'),
-                        localFilePath.Length - localFilePath.LastIndexOf('/'));
-                    if (!Directory.Exists(libJarDir))
-                        Directory.CreateDirectory(libJarDir);
-
-                    Progress<double> progress = new Progress<double>();
-                    progress.ProgressChanged += (_, e) =>
-                    {
-                        progressReporter?.SetProgress(e);
-                        progressReporter?.SetStatusTranslated("ui_library_download", lib.Name, e.ToString("0.00"));
-                    };
-
-                    byte[]? bytes = await HttpHelper.GetByteArrayAsync(localUrl, progress);
-                    if (bytes == null)
-                        continue;
-
-                    await File.WriteAllBytesAsync(localFilePath, bytes);
-                }
-            }
-            else
+        string searchPattern = "*.so";
+        if (OSHelper.GetOperatingSystem() == EOperatingSystem.Windows)
+            searchPattern = "*.dll";
+        
+        foreach (var file in Directory.GetFiles(tempDir, searchPattern, SearchOption.AllDirectories))
+        {
+            if ((Environment.Is64BitOperatingSystem && file.Contains("32")) ||
+                (!Environment.Is64BitOperatingSystem && !file.Contains("32")))
                 continue;
 
-            string libFilePath = Path.Combine(libsDir, libJarFilePath);
-            List<string> dirBaseRaw = libJarFilePath.Split('.').ToList();
-            dirBaseRaw.RemoveAt(dirBaseRaw.Count - 1);
-
-            string dirRaw = string.Empty;
-            foreach (var ba in dirBaseRaw)
-            {
-                if (string.IsNullOrEmpty(dirRaw))
-                    dirRaw += ba;
-                else
-                    dirRaw += $".{ba}";
-            }
-            
-            string tempZipDir = Path.Combine(Path.GetTempPath(), dirRaw);
-            ZipFile.ExtractToDirectory(libFilePath, tempZipDir, true);
-
-            string[] files = Directory.GetFiles(tempZipDir, "*.dll", searchOption: SearchOption.AllDirectories);
-            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-            if (files != null)
-            {
-                foreach (string file in files)
-                {
-                    if (Environment.Is64BitOperatingSystem && file.Contains("32"))
-                        continue;
-                    if (!Environment.Is64BitOperatingSystem && !file.Contains("32"))
-                        continue;
-
-                    string fileName = file.Remove(0, file.LastIndexOf('/') + 1);
-                    string filePath = Path.Combine(nativeDir, fileName);
-                    if (!File.Exists(filePath))
-                        File.Move(file, filePath);
-                }
-            }
-
-            FileSystemHelper.DeleteDirectory(tempZipDir);
+            string destFile = Path.Combine(nativeDir, Path.GetFileName(file));
+            if (!File.Exists(destFile))
+                File.Move(file, destFile);
         }
+
+        Directory.Delete(tempDir, true);
     }
 }

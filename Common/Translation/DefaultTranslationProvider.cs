@@ -81,6 +81,30 @@ public static class DefaultTranslationProvider
         
         #endregion
         
+        #region Instance
+        
+        {"instance.duplicate.title", "Instance Already Exists"},
+        {"instance.duplicate.message", "An instance with this name already exists. Please choose a different name."},
+
+        {"instance.reading.version_json", "Reading version json..."},
+        {"instance.downloading.version_json", "Downloading version json {1}%..."},
+        {"instance.reading.version_jar", "Reading version jar..."},
+        {"instance.downloading.version_jar", "Downloading version jar {1}%..."},
+        {"instance.reading.asset_index_json", "Reading asset index json..."},
+        {"instance.downloading.asset_index_json", "Downloading asset index json {1}%..."},
+        {"instance.reading.client_mappings", "Reading client mappings..."},
+        {"instance.downloading.client_mappings", "Downloading client mappings {1}%..."},
+        {"instance.reading.logging", "Reading logging json..."},
+        {"instance.downloading.logging", "Downloading logging json {1}%..."},
+        {"instance.reading.assets", "Reading assets..."},
+        {"instance.downloading.assets", "Downloading assets {0}%..."},
+        {"instance.reading.libraries", "Reading libraries..."},
+        {"instance.downloading.libraries", "Downloading {0} library {1}%..."},
+        {"instance.reading.natives", "Reading natives..."},
+        {"instance.downloading.natives", "Downloading {0} native {1}%..."},
+
+        #endregion
+        
         #region Settings
         
         {"settings.tab.java", "Java"},

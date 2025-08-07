@@ -11,11 +11,8 @@ using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
-using Tavstal.KonkordLauncher.Core.Installers;
 using Tavstal.KonkordLauncher.Core.Models;
-using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Services;
-using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using JavaVersionModel = Tavstal.KonkordLauncher.Desktop.Models.JavaVersionModel;
 using MainViewModel = Tavstal.KonkordLauncher.Desktop.Views.Models.MainViewModel;
@@ -36,16 +33,18 @@ public partial class MainWindow : Window
         this.AttachDevTools(); // Attaches Avalonia Dev Tools for debugging
 #endif
         
+        // Instantiate your ViewModel and assign it to the DataContext
+        this.DataContext = new MainViewModel(this);
+        _selectedButton = PlaySideBtn;
+        
+        if (Design.IsDesignMode)
+            return;
+        
         var screen = Screens.Primary;
         if (screen == null)
             throw new InvalidOperationException("No primary screen found."); // Ensure there is a primary screen
         var screenSize = screen.Bounds.Size;
         App.SetScreenSize(screenSize);
-       
-        
-        // Instantiate your ViewModel and assign it to the DataContext
-        this.DataContext = new MainViewModel();
-        _selectedButton = PlaySideBtn;
 
         var settings = LauncherHelper.GetLauncherSettings();
         HandleLanguageChange(settings.Launcher.Language);

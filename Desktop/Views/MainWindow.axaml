@@ -24,7 +24,6 @@
 
     <Window.DataTemplates>
         <!--  Play Card  -->
-        <!-- TODO: Replace Icon -->
         <DataTemplate DataType="models:InstanceModel">
             <Border Classes="PlayCard">
                 <Grid RowDefinitions="Auto, *, Auto">
@@ -43,11 +42,22 @@
                         <!--  Launch Button  -->
                         <Button Classes="IconBtn PrimaryBtn" 
                                 Command="{Binding #root.DataContext.LaunchInstanceCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"
-                                CommandParameter="{Binding .}">
+                                CommandParameter="{Binding .}"
+                                IsVisible="{Binding !IsGameRunning}">
                             <TextBlock
                                 Padding="4,0"
                                 Classes="FontAwesome"
                                 Text="&#xf04b;" />
+                        </Button>
+                        <!--  Stop Button  -->
+                        <Button Classes="IconBtn ErrorBtn" 
+                                Command="{Binding #root.DataContext.StopInstanceCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"
+                                CommandParameter="{Binding .}"
+                                IsVisible="{Binding IsGameRunning}">
+                            <TextBlock
+                                Padding="4,0"
+                                Classes="FontAwesome"
+                                Text="&#xf04d;" />
                         </Button>
                         <!--  Edit Button  -->
                         <Button Classes="IconBtn InfoBtn">

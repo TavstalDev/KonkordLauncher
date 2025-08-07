@@ -9,6 +9,9 @@ namespace Tavstal.KonkordLauncher.Common.Models;
 [Serializable]
 public class Instance
 {
+    [JsonPropertyName("id"), JsonProperty("id")]
+    public string Id { get; set; }
+    
     [JsonPropertyName("name"), JsonProperty("name")]
     public string Name { get; set; }
     
@@ -34,9 +37,12 @@ public class Instance
     public string? GameDirectory { get; set; }
     
     [JsonProperty("settings"), JsonPropertyName("settings")]
-    public InstanceConfig.InstanceConfig Config { get; set; } 
-    
-    public Instance() { }
+    public InstanceConfig.InstanceConfig Config { get; set; }
+
+    public Instance()
+    {
+        Id = Guid.NewGuid().ToString();
+    }
 
     public string GetGameDirectory(string versionsDir)
     {

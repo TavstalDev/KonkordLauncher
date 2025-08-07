@@ -38,6 +38,11 @@ public partial class StartupWindow : Window, IProgressReporter
     private readonly int _stepDelay = 100;
 
     /// <summary>
+    /// Initializes a new instance of the <see cref="StartupWindow"/> class with default settings.
+    /// </summary>
+    public StartupWindow() {}
+    
+    /// <summary>
     /// Initializes a new instance of the <see cref="StartupWindow"/> class.
     /// </summary>
     /// <param name="desktopLifetime">The application lifetime instance.</param>
@@ -238,6 +243,7 @@ public partial class StartupWindow : Window, IProgressReporter
         try
         {
             // TODO: Implement the logic to update the launcher
+            await Task.Delay(1); // Temporal warning disable
         }
         catch (Exception ex)
         {

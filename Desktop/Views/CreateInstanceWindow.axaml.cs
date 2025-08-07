@@ -4,7 +4,9 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
+using Tavstal.KonkordLauncher.Common.Models.Config;
 using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
+using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models;
@@ -124,22 +126,30 @@ public partial class CreateInstanceWindow : Window
         vm.InstanceIconPath = result.Path;
     }
 
+    /// <summary>
+    /// Handles the click event for creating a new instance.
+    /// Validates the instance name for duplicates, adds the new instance to the list,
+    /// saves the updated list to a JSON file, and notifies the application of the change.
+    /// </summary>
+    /// <param name="sender">The source of the event.</param>
+    /// <param name="e">The event data.</param>
     private void CreateInstance_OnClick(object? sender, RoutedEventArgs e)
     {
         if (DataContext is not CreateInstanceViewModel vm)
             return;
-        
+
+        var settings = LauncherHelper.GetLauncherSettings();
         var instances = LauncherHelper.GetInstances();
         if (instances.Any(x => x.Name == vm.InstanceName))
         {
-            AlertWindow alertWindow = new("Instance already exists",
-                "An instance with this name already exists. Please choose a different name.",
+            AlertWindow alertWindow = new(TranslationManager.Translate("instance.duplicate.title"),
+                TranslationManager.Translate("instance.duplicate.message"),
                 EAlertType.Error);
             alertWindow.ShowDialog(this);
             return;
         }
         
-        instances.Add(new Instance()
+        instances.Add(new Instance
         {
             Name = vm.InstanceName,
             Kind = vm.ModLoaderType,
@@ -147,13 +157,46 @@ public partial class CreateInstanceWindow : Window
             MinecraftVersion = vm.SelectedMinecraftVersion.Id,
             CustomVersion = vm.SelectedModLoader?.Version ?? string.Empty,
             IconPath = vm.InstanceIconPath ?? string.Empty,
+            GameDirectory = System.IO.Path.Combine(settings.Launcher.InstancesDirectoryPath, vm.InstanceName),
             Config = new InstanceConfig()
+            {
+                Game = new InstanceGameConfig()
+                {
+                    StartMaximized = settings.Minecraft.StartMaximized,
+                    WindowHeight = (uint)(0.40 * App.ScreenSize.Height),
+                    WindowWidth = (uint)(0.40 * App.ScreenSize.Width),
+                    ShowConsoleWhenGameCrashes = true,
+                    ShowConsoleWhileGameRunning = false,
+                    CloseConsoleOnGameExit = false,
+                    EnableFeralGameMode = settings.Misc.EnableFeralGameMode,
+                    EnableMangoHud = settings.Misc.EnableMangoHud,
+                    UseDedicatedGpu = settings.Misc.UseDedicatedGpu 
+                },
+                Java = new JavaConfig()
+                {
+                    JvmArguments = settings.Java.JvmArguments,
+                    JavaPath = "LAUNCH_ME_FIRST",
+                    MinMemory = settings.Java.MinMemory,
+                    MaxMemory = settings.Java.MaxMemory,
+                    PermaGen = settings.Java.PermaGen,
+                },
+                Commands = new InstanceCommandsConfig(),
+                EnableEnvironment = false,
+                Environment = [],
+                Misc =new InstanceMiscConfig()
+            }
         });
         JsonHelper.WriteJsonFile(PathHelper.LauncherInstancesPath, instances);
         App.InvokeInstancesChanged();
         this.Close();
     }
 
+    /// <summary>
+    /// Handles the click event for canceling the instance creation process.
+    /// Closes the current window without making any changes.
+    /// </summary>
+    /// <param name="sender">The source of the event.</param>
+    /// <param name="e">The event data.</param>
     private void CancelInstance_OnClick(object? sender, RoutedEventArgs e)
     {
         this.Close();

@@ -12,7 +12,7 @@ public class LibraryDownloads
     /// Gets or sets the main artifact associated with the library.
     /// </summary>
     [JsonPropertyName("artifact"), JsonProperty("artifact")]
-    public Artifact Artifact { get; set; }
+    public Artifact? Artifact { get; set; }
 
     /// <summary>
     /// Gets or sets the classifiers for platform-specific artifacts, if available.

@@ -1,6 +1,7 @@
-﻿using System.Runtime.InteropServices;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using Newtonsoft.Json;
+using Tavstal.KonkordLauncher.Core.Enums;
+using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta.Library;
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
@@ -69,6 +70,7 @@ public class LibraryMeta
         if (Rules.Count == 0)
             return true;
 
+        var operatingSystem = OSHelper.GetOperatingSystem();
         foreach (Rule rule in Rules)
         {
             // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
@@ -78,19 +80,19 @@ public class LibraryMeta
                 continue;
             }
 
-            if (rule.Os.Name == "windows" && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (rule.Os.Name == "windows" && operatingSystem == EOperatingSystem.Windows)
             {
                 localResult = rule.Action == "allow";
                 continue;
             }
 
-            if (rule.Os.Name == "linux" && RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            if (rule.Os.Name == "linux" && operatingSystem == EOperatingSystem.Linux)
             {
                 localResult = rule.Action == "allow";
                 continue;
             }
 
-            if (rule.Os.Name == "osx" && RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            if (rule.Os.Name.StartsWith("osx") && operatingSystem == EOperatingSystem.MacOS)
                  localResult = rule.Action == "allow";
         }
 

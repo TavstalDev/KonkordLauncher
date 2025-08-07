@@ -1,16 +1,4 @@
-﻿using System.IO.Compression;
-using Newtonsoft.Json;
-using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Helpers;
-using Tavstal.KonkordLauncher.Core.Models;
-using Tavstal.KonkordLauncher.Core.Models.Endpoints;
-using Tavstal.KonkordLauncher.Core.Models.Installer;
-using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
-using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Legacy;
-using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
-using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta.Library;
-
-namespace Tavstal.KonkordLauncher.Core.Installers.Forge;
+﻿namespace Tavstal.KonkordLauncher.Core.Installers.Forge;
 
 /*
  * 1.13+ are new
@@ -25,6 +13,7 @@ namespace Tavstal.KonkordLauncher.Core.Installers.Forge;
  * 1.1 -
  * 1.0 -
  */
+/*
 public class ForgeInstOld : ForgeInstallerBase
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(ForgeInstOld));
@@ -221,4 +210,4 @@ public class ForgeInstOld : ForgeInstallerBase
         //_classPath += $"{forgeVersion.VersionJarPath};"; - not needed
         return moddedData;
     }
-}
+}*/

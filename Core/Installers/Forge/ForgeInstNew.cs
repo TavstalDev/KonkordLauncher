@@ -1,15 +1,4 @@
-﻿using System.IO.Compression;
-using Newtonsoft.Json;
-using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Helpers;
-using Tavstal.KonkordLauncher.Core.Models;
-using Tavstal.KonkordLauncher.Core.Models.Endpoints;
-using Tavstal.KonkordLauncher.Core.Models.Installer;
-using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
-using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.New;
-using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
-
-namespace Tavstal.KonkordLauncher.Core.Installers.Forge;
+﻿namespace Tavstal.KonkordLauncher.Core.Installers.Forge;
 
 /* 1.20 - ok
  * 1.19 - ok
@@ -21,6 +10,7 @@ namespace Tavstal.KonkordLauncher.Core.Installers.Forge;
  * 1.13 - ok #e
  * 1.12.2 and below - LEGACY
  */
+/*
 public class ForgeInstNew : ForgeInstallerBase
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(ForgeInstNew));
@@ -156,7 +146,7 @@ public class ForgeInstNew : ForgeInstallerBase
                 }
                 /*double percent = (double)downloadedSize / (double)toDownloadSize * 100d;
                 UpdateProgressbarTranslated(percent, $"ui_library_download", new object[] { lib.Name, percent.ToString("0.00") });*/
-            }
+            /*}
         }
 
         // Add launch arguments
@@ -210,4 +200,4 @@ public class ForgeInstNew : ForgeInstallerBase
         ModdedData moddedData = new ModdedData(forgeVersionMeta.MainClass, forgeVersion, localLibraries);
         return moddedData;
     }
-}
+}*/

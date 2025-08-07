@@ -1,15 +1,6 @@
-﻿using Newtonsoft.Json;
-using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Helpers;
-using Tavstal.KonkordLauncher.Core.Models;
-using Tavstal.KonkordLauncher.Core.Models.Endpoints;
-using Tavstal.KonkordLauncher.Core.Models.Installer;
-using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Fabric;
-using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
-using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta.Library;
+﻿namespace Tavstal.KonkordLauncher.Core.Installers;
 
-namespace Tavstal.KonkordLauncher.Core.Installers;
-
+/*
 public class QuiltInstaller : MinecraftInstaller
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(QuiltInstaller));
@@ -152,4 +143,4 @@ public class QuiltInstaller : MinecraftInstaller
         _jvmArguments.Add(new LaunchArg("-Dcom.sun.jndi.rmi.object.trustURLCodebase=false", 1));
         return moddedData;
     }
-}
+}*/

@@ -19,13 +19,13 @@ public class InstanceGameConfig
     /// Gets or sets the width of the game window in pixels.
     /// </summary>
     [JsonProperty("windowWidth"), JsonPropertyName("windowWidth")]
-    public int WindowWidth { get; set; }
+    public uint WindowWidth { get; set; }
 
     /// <summary>
     /// Gets or sets the height of the game window in pixels.
     /// </summary>
     [JsonProperty("windowHeight"), JsonPropertyName("windowHeight")]
-    public int WindowHeight { get; set; }
+    public uint WindowHeight { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the console should be shown while the game is running.
@@ -91,7 +91,7 @@ public class InstanceGameConfig
     /// <param name="enableMangoHud">Whether MangoHud should be enabled.</param>
     /// <param name="enableFeralGameMode">Whether Feral GameMode should be enabled.</param>
     /// <param name="useDedicatedGpu">Whether a dedicated GPU should be used for the game.</param>
-    public InstanceGameConfig(bool startMaximized, int windowWidth, int windowHeight, bool showConsoleWhileGameRunning, bool closeConsoleOnGameExit, bool showConsoleWhenGameCrashes, bool enableMangoHud, bool enableFeralGameMode, bool useDedicatedGpu)
+    public InstanceGameConfig(bool startMaximized, uint windowWidth, uint windowHeight, bool showConsoleWhileGameRunning, bool closeConsoleOnGameExit, bool showConsoleWhenGameCrashes, bool enableMangoHud, bool enableFeralGameMode, bool useDedicatedGpu)
     {
         StartMaximized = startMaximized;
         WindowWidth = windowWidth;

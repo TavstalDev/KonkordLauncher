@@ -155,7 +155,7 @@ public class MinecraftInstance
     {
         var loggingArg = await MinecraftFileService.DownloadLoggingAsync(MinecraftVersionMeta, versionDetails.VersionDirectory, versionDetails.GameDir, _progressReporter);
         if (loggingArg != null)
-            _jvmArguments.Add(loggingArg);
+            _jvmArgumentsBeforeClassPath.Add(loggingArg);
 
         var classPath = await MinecraftFileService.DownloadLibrariesAsync(GameDetails.Kind, VersionData, libraries, _classPath, PathDetails.CacheDir, PathDetails.LibrariesDir, _progressReporter);
         _classPath = classPath;
@@ -203,10 +203,32 @@ public class MinecraftInstance
             GameDetails.MinMemory > GameDetails.MaxMemory
                 ? $"-Xms{GameDetails.MaxMemory}M"
                 : $"-Xms{(GameDetails.MinMemory > 0 ? GameDetails.MinMemory : 256)}M",
-            $"-Xmx{(GameDetails.MaxMemory > 0 ? GameDetails.MaxMemory : 4096)}M"
+            $"-Xmx{(GameDetails.MaxMemory > 0 ? GameDetails.MaxMemory : 4096)}M",
+            $"-Dminecraft.applet.TargetDirectory=\"{gameDir}\""
         };
+
+        // 1.16 offline mode fix
+        if (VersionData.MinecraftVersion.StartsWith("1.16") && _client.IsOffline)
+        {
+            jvmArgs.Add("-Dminecraft.api.auth.host=https://nope.invalid ");
+            jvmArgs.Add("-Dminecraft.api.account.host=https://nope.invalid");
+            jvmArgs.Add("-Dminecraft.api.session.host=https://nope.invalid");
+            jvmArgs.Add("-Dminecraft.api.services.host=https://nope.invalid");
+        }
         
-        var argsToAdd = _jvmArgumentsBeforeClassPath.OrderByDescending(x => x.Priority).Select(a => a.Arg);
+        IEnumerable<string> argsToAdd = MinecraftVersionMeta.GetJvmArguments();
+        foreach (var arg in argsToAdd)
+        {
+            if (jvmArgs.Contains(arg))
+                continue;
+            
+            if (arg.Contains("-cp") || arg.Contains("${classpath}"))
+                continue;
+            
+            jvmArgs.Add(arg);
+        }
+        
+        argsToAdd = _jvmArgumentsBeforeClassPath.OrderByDescending(x => x.Priority).Select(a => a.Arg);
         foreach (var arg in argsToAdd)
         {
             if (jvmArgs.Contains(arg))
@@ -214,8 +236,6 @@ public class MinecraftInstance
             
             jvmArgs.Add(arg);
         }
-        
-        jvmArgs.Add(MinecraftVersionMeta.GetJvmArgumentString());
 
         argsToAdd = _jvmArguments.OrderByDescending(x => x.Priority).Select(a => a.Arg);
         foreach (var arg in argsToAdd)
@@ -228,17 +248,6 @@ public class MinecraftInstance
 
         if (!string.IsNullOrEmpty(GameDetails.JvmArgs))
             jvmArgs.Add(GameDetails.JvmArgs);
-        
-        jvmArgs.Add($"-Dminecraft.applet.TargetDirectory=\"{gameDir}\"");
-        
-        // 1.16 offline mode fix
-        if (VersionData.MinecraftVersion.StartsWith("1.16") && _client.IsOffline)
-        {
-            jvmArgs.Add("-Dminecraft.api.auth.host=https://nope.invalid ");
-            jvmArgs.Add("-Dminecraft.api.account.host=https://nope.invalid");
-            jvmArgs.Add("-Dminecraft.api.session.host=https://nope.invalid");
-            jvmArgs.Add("-Dminecraft.api.services.host=https://nope.invalid");
-        }
         
         // Classpath fallback
         if (!jvmArgs.Any(x => x.Contains("-cp")))

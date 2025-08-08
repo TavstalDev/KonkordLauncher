@@ -1,11 +1,11 @@
 <Window
     CanResize="False"
-    Height="150"
+    Height="175"
     Icon="../Assets/Images/logo.png"
     ShowInTaskbar="False"
     Title="Starting..."
     Width="400"
-    d:DesignHeight="150"
+    d:DesignHeight="175"
     d:DesignWidth="400"
     mc:Ignorable="d"
     x:Class="Tavstal.KonkordLauncher.Desktop.Views.InstallWindow"

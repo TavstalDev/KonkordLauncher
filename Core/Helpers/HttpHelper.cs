@@ -115,6 +115,8 @@ public static class HttpHelper
         catch (Exception ex)
         {
             _logger.Exc("Error while downloading file with progress:");
+            _logger.Exc($"Url: {url}");
+            _logger.Exc($"File path: {filePath}");
             _logger.Error(ex.ToString());
             return null;
         }
@@ -177,6 +179,7 @@ public static class HttpHelper
         catch (Exception ex)
         {
             _logger.Exc("Error while making GET request for string with progress:");
+            _logger.Exc($"Url: {url}");
             _logger.Error(ex.ToString());
             return null;
         }

@@ -86,6 +86,10 @@ public static class DefaultTranslationProvider
         {"instance.duplicate.title", "Instance Already Exists"},
         {"instance.duplicate.message", "An instance with this name already exists. Please choose a different name."},
 
+        {"instance.account.none.title", "No Account Selected"},
+        {"instance.account.none.message", "Please select or create an account to use"},
+        
+        
         {"instance.reading.version_json", "Reading version json..."},
         {"instance.downloading.version_json", "Downloading version json {1}%..."},
         {"instance.reading.version_jar", "Reading version jar..."},
@@ -102,6 +106,14 @@ public static class DefaultTranslationProvider
         {"instance.downloading.libraries", "Downloading {0} library {1}%..."},
         {"instance.reading.natives", "Reading natives..."},
         {"instance.downloading.natives", "Downloading {0} native {1}%..."},
+        {"instance.reading.manifest", "Reading manifest..."},
+        {"instance.downloading.loader", "Downloading {0} loader {1}%..."},
+        {"instance.building", "Building {0} {1}%..."},
+        {"instance.building.arguments", "Building arguments..."},
+        {"instance.downloading.installer", "Downloading {0} installer {1}%..."},
+        {"instance.extracting.installer", "Extracting {0} installer..."},
+        {"instance.reading.universal", "Reading {0} universal..."},
+        {"instance.downloading.universal", "Downloading {0} universal {1}%..."},
 
         #endregion
         

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -9,11 +10,13 @@ using CommunityToolkit.Mvvm.Input;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Config;
+using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Installers;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
+using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Config.Launcher;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
@@ -75,107 +78,181 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
         Instances = new ObservableCollection<InstanceModel>(LauncherHelper.GetInstances().ConvertAll(x => new InstanceModel(x)));
     }
 
+    #region Commands
+    /// <summary>
+    /// Launches the specified Minecraft instance asynchronously.
+    /// </summary>
+    /// <param name="instance">The instance model representing the Minecraft instance to launch.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [RelayCommand]
     private async Task LaunchInstance(InstanceModel instance)
     {
         _logger.Debug($"Launching instance: {instance.Name}");
-        var settings = await LauncherHelper.GetLauncherSettingsAsync();
         var accountData = await LauncherHelper.GetAccountDataAsync();
         var account = accountData.Accounts.FirstOrDefault(x => x.Id == accountData.SelectedAccountId);
         if (account == null)
         {
             _logger.Error("No account selected for launching the instance.");
+            AlertWindow alertWindow = new AlertWindow(TranslationManager.Translate("instance.account.none.title"), TranslationManager.Translate("instance.account.none.message"), EAlertType.Warning);
+            await alertWindow.ShowDialog(_mainWindow);
             return;
         }
 
         try
         {
-            MinecraftInstaller installer = new MinecraftInstaller(
-                new GameDetails(
-                    instance.Config.Java.JavaPath,
-                    instance.Config.Java.MinMemory,
-                    instance.Config.Java.MaxMemory,
-                    instance.Config.Java.JvmArguments,
-                    instance.MinecraftVersion,
-                    instance.Kind,
-                    instance.CustomVersion,
-                    instance.GameDirectory
-                    ),
-                new PathDetails(
-                    settings.Launcher.AssetsDirectoryPath,
-                    settings.Launcher.CacheDirectoryPath,
-                    settings.Launcher.LibrariesDirectoryPath,
-                    settings.Launcher.VersionsDirectoryPath,
-                    settings.Launcher.GetVanillaManifestPath(),
-                    null
-                    ),
-                new LauncherDetails("KonkordLauncher", App.Version),
-                new ClientDetails(
-                    account.AccessToken,
-                    account.DisplayName,
-                    account.Uuid,
-                    account.Type != EAccountType.MICROSOFT // Might support custom login services in the future, that's why I do not use EAccountType.OFFLINE
-                    ),
-                new Resolution(
-                    instance.Config.Game.StartMaximized ? (uint)App.ScreenSize.Width : instance.Config.Game.WindowWidth,
-                    instance.Config.Game.StartMaximized ? (uint)App.ScreenSize.Height : instance.Config.Game.WindowHeight
-                    ),
-                this
+            MinecraftInstance? gameInstance = null;
+            var settings = await LauncherHelper.GetLauncherSettingsAsync();
+            var gameDetails = new GameDetails(
+                instance.Config.Java.JavaPath,
+                instance.Config.Java.MinMemory,
+                instance.Config.Java.MaxMemory,
+                instance.Config.Java.JvmArguments,
+                instance.MinecraftVersion,
+                instance.Kind,
+                instance.CustomVersion,
+                instance.GameDirectory
             );
-            installer.OnSetupDefaultJava += meta =>
+            var launcherDetails = new LauncherDetails("KonkordLauncher", App.Version);
+            var clientDetails = new ClientDetails(
+                account.AccessToken,
+                account.DisplayName,
+                account.Uuid,
+                account.Type !=
+                EAccountType
+                    .MICROSOFT // Might support custom login services in the future, that's why I do not use EAccountType.OFFLINE
+            );
+            var resolution = new Resolution(
+                instance.Config.Game.StartMaximized ? (uint)App.ScreenSize.Width : instance.Config.Game.WindowWidth,
+                instance.Config.Game.StartMaximized
+                    ? (uint)App.ScreenSize.Height
+                    : instance.Config.Game.WindowHeight
+            );
+            switch (instance.Kind)
             {
-                string defaultJavaPath = settings.Java.JavaPath;
-                var instances = LauncherHelper.GetInstances();
-                var instanceIndex = instances.FindIndex(x => x.Id == instance.Id);
-                if (meta == null)
+                case EMinecraftKind.VANILLA:
                 {
-                    installer.UpdateJavaPath(defaultJavaPath);
-                    
-                    if (instanceIndex < 0)
-                        return;
-                
-                    instances[instanceIndex].Config.Java.JavaPath = defaultJavaPath;
-                    JsonHelper.WriteJsonFile(PathHelper.LauncherInstancesPath, instances);
-                    return;
+                    gameInstance = new MinecraftInstance(
+                        gameDetails,
+                        new PathDetails(
+                            settings.Launcher.AssetsDirectoryPath,
+                            settings.Launcher.CacheDirectoryPath,
+                            settings.Launcher.LibrariesDirectoryPath,
+                            settings.Launcher.VersionsDirectoryPath,
+                            settings.Launcher.GetVanillaManifestPath(),
+                            null
+                        ),
+                        launcherDetails,
+                        clientDetails,
+                        resolution,
+                        this
+                    );
+                    break;
                 }
-                
-                foreach (var javaInstallation in JavaHelper.LocateJavaInstallations())
+                case EMinecraftKind.NEOFORGE:
                 {
-                    if (meta.JavaVersionMeta == null)
-                        break;
-                    
-                    if (javaInstallation.Major == meta.JavaVersionMeta.MajorVersion)
-                    {
-                        defaultJavaPath = javaInstallation.Path;
-                        break;
-                    }
+                    gameInstance = new NeoForgeInstance(
+                        gameDetails,
+                        new PathDetails(
+                            settings.Launcher.AssetsDirectoryPath,
+                            settings.Launcher.CacheDirectoryPath,
+                            settings.Launcher.LibrariesDirectoryPath,
+                            settings.Launcher.VersionsDirectoryPath,
+                            settings.Launcher.GetVanillaManifestPath(),
+                            settings.Launcher.GetNeoForgeManifestPath()
+                        ),
+                        launcherDetails,
+                        clientDetails,
+                        resolution,
+                        this
+                    );
+                    break;
                 }
-                
-                installer.UpdateJavaPath(defaultJavaPath);
-                if (instanceIndex < 0)
-                    return;
-                
-                instances[instanceIndex].Config.Java.JavaPath = defaultJavaPath;
-                JsonHelper.WriteJsonFile(PathHelper.LauncherInstancesPath, instances);
-            };
+                case EMinecraftKind.FORGE:
+                {
+                    gameInstance = ForgeInstance.GetForgeInstance(
+                        gameDetails,
+                        new PathDetails(
+                            settings.Launcher.AssetsDirectoryPath,
+                            settings.Launcher.CacheDirectoryPath,
+                            settings.Launcher.LibrariesDirectoryPath,
+                            settings.Launcher.VersionsDirectoryPath,
+                            settings.Launcher.GetVanillaManifestPath(),
+                            settings.Launcher.GetForgeManifestPath()
+                        ),
+                        launcherDetails,
+                        clientDetails,
+                        resolution,
+                        this
+                    );
+                    break;
+                }
+                case EMinecraftKind.FABRIC:
+                {
+                    gameInstance = new FabricInstance(
+                        gameDetails,
+                        new PathDetails(
+                            settings.Launcher.AssetsDirectoryPath,
+                            settings.Launcher.CacheDirectoryPath,
+                            settings.Launcher.LibrariesDirectoryPath,
+                            settings.Launcher.VersionsDirectoryPath,
+                            settings.Launcher.GetVanillaManifestPath(),
+                            settings.Launcher.GetFabricManifestPath()
+                        ),
+                        launcherDetails,
+                        clientDetails,
+                        resolution,
+                        this
+                    );
+                    break;
+                }
+                case EMinecraftKind.QUILT:
+                {
+                    gameInstance = new QuiltInstance(
+                        gameDetails,
+                        new PathDetails(
+                            settings.Launcher.AssetsDirectoryPath,
+                            settings.Launcher.CacheDirectoryPath,
+                            settings.Launcher.LibrariesDirectoryPath,
+                            settings.Launcher.VersionsDirectoryPath,
+                            settings.Launcher.GetVanillaManifestPath(),
+                            settings.Launcher.GetQuiltManifestPath()
+                        ),
+                        launcherDetails,
+                        clientDetails,
+                        resolution,
+                        this
+                    );
+                    break;
+                }
+            }
 
-            var process = await installer.Start();
+            if (gameInstance == null)
+                return;
+
+            gameInstance.OnSetupDefaultJava += meta => SetupDefaultJavaPath(gameInstance, meta, settings, instance);
+
+            var process = await gameInstance.Start();
             if (process == null)
             {
                 _logger.Error("Failed to launch the instance. Process is null.");
                 return;
             }
+
             instance.GameProcess = process;
             instance.IsGameRunning = true;
             instance.AttachProcessEvent();
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            _logger.Exc("Failed to launch the instance.");
-            _logger.Error(e);
+            _logger.Exc($"Failed to launch the {instance.Name} instance.");
+            _logger.Error(ex);
         }
     }
-
+    
+    /// <summary>
+    /// Stops the specified Minecraft instance if it is currently running.
+    /// </summary>
+    /// <param name="instance">The instance model representing the Minecraft instance to stop.</param>
     [RelayCommand]
     private void StopInstance(InstanceModel instance)
     {
@@ -187,6 +264,58 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
         
         instance.GameProcess.Kill();
     }
+    #endregion
+
+    #region Instance Event Handlers
+    /// <summary>
+    /// Sets up the default Java path for a given Minecraft instance.
+    /// </summary>
+    /// <param name="gameInstance">The Minecraft instance for which the Java path is being set.</param>
+    /// <param name="meta">Optional metadata containing Java version information.</param>
+    /// <param name="settings">The core configuration settings.</param>
+    /// <param name="instance">The instance model representing the Minecraft instance.</param>
+    private void SetupDefaultJavaPath(MinecraftInstance gameInstance, VersionMeta? meta, CoreConfig settings, InstanceModel instance)
+    {
+        string defaultJavaPath = settings.Java.JavaPath;
+        var instances = LauncherHelper.GetInstances();
+        var instanceIndex = instances.FindIndex(x => x.Id == instance.Id);
+
+        if (meta == null)
+        {
+            UpdateJavaPath(gameInstance, defaultJavaPath, instances, instanceIndex);
+            return;
+        }
+
+        foreach (var javaInstallation in JavaHelper.LocateJavaInstallations())
+        {
+            if (meta.JavaVersionMeta != null && javaInstallation.Major == meta.JavaVersionMeta.MajorVersion)
+            {
+                defaultJavaPath = javaInstallation.Path;
+                break;
+            }
+        }
+
+        UpdateJavaPath(gameInstance, defaultJavaPath, instances, instanceIndex);
+    }
+
+    /// <summary>
+    /// Updates the Java path for a given Minecraft instance and saves the updated configuration.
+    /// </summary>
+    /// <param name="gameInstance">The Minecraft instance for which the Java path is being updated.</param>
+    /// <param name="javaPath">The new Java path to set.</param>
+    /// <param name="instances">The list of all instances.</param>
+    /// <param name="instanceIndex">The index of the current instance in the list.</param>
+    private void UpdateJavaPath(MinecraftInstance gameInstance, string javaPath, List<Instance> instances, int instanceIndex)
+    {
+        gameInstance.UpdateJavaPath(javaPath);
+
+        if (instanceIndex >= 0)
+        {
+            instances[instanceIndex].Config.Java.JavaPath = javaPath;
+            JsonHelper.WriteJsonFile(PathHelper.LauncherInstancesPath, instances);
+        }
+    }
+    #endregion
     #endregion
     
 

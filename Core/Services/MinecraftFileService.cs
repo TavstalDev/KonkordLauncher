@@ -117,6 +117,13 @@ public static class MinecraftFileService
         return versionResult;
     }
     
+    /// <summary>
+    /// Downloads and processes the assets for a specific Minecraft version.
+    /// </summary>
+    /// <param name="versionMeta">The metadata of the Minecraft version.</param>
+    /// <param name="assetsDir">The directory where the assets will be stored.</param>
+    /// <param name="gameDir">The directory where the game files are stored.</param>
+    /// <param name="progressReporter">An optional progress reporter for tracking download progress.</param>
     public static async Task DownloadAssetsAsync(VersionMeta versionMeta, string assetsDir, string gameDir,
         IProgressReporter? progressReporter = null)
     {
@@ -215,17 +222,13 @@ public static class MinecraftFileService
     /// <param name="versionMeta">The metadata of the Minecraft version.</param>
     /// <param name="versionDirectory">The directory where the version files are stored.</param>
     /// <param name="gameDir">The directory where the game files are stored.</param>
-    /// <param name="assetsDir">The directory where the assets are stored.</param>
     /// <param name="progressReporter">An optional progress reporter for tracking download progress.</param>
     /// <returns>A launch argument for the logging configuration or null if the operation fails.</returns>
     public static async Task<LaunchArg?> DownloadLoggingAsync(VersionMeta versionMeta, string versionDirectory,
-        string gameDir, string assetsDir, IProgressReporter? progressReporter = null)
+        string gameDir, IProgressReporter? progressReporter = null)
     {
         if (versionMeta.LoggingMeta is not { Client: not null }) return null;
-
-        string logDirPath = Path.Combine(assetsDir, "log_configs");
-        Directory.CreateDirectory(logDirPath);
-
+        
         string logFilePath = Path.Combine(versionDirectory, versionMeta.LoggingMeta.Client.File.Id);
 
         string? logContent = await DownloadAndSaveFileAsync(

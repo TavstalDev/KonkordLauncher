@@ -34,7 +34,7 @@ public static class JavaProcessLauncher
         // Log the process start details
         _logger.Debug($"Java Path: {javaPath}");
         _logger.Debug("Starting Java process with arguments:");
-        _logger.Debug(arguments.Replace(' ', '\n'));
+        _logger.Debug($"\n# START OF ARGUMENTS#\n{arguments}\n# END OF ARGUMENTS#");
 
         var process = Process.Start(psi);
         if (process != null)

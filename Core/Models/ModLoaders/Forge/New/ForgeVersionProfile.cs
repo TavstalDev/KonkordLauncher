@@ -20,7 +20,7 @@ public class ForgeVersionProfile
     [JsonPropertyName("serverJarPath"), JsonProperty("serverJarPath")]
     public string ServerJarPath { get; set; }
     [JsonPropertyName("data"), JsonProperty("data")]
-    public JObject Data { get; set; }
+    public JObject? Data { get; set; }
     [JsonPropertyName("processors"), JsonProperty("processors")]
     public JArray Processors { get; set; }
     [JsonPropertyName("libraries"), JsonProperty("libraries")]

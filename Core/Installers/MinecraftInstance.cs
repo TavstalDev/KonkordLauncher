@@ -10,12 +10,11 @@ using Tavstal.KonkordLauncher.Core.Services;
 namespace Tavstal.KonkordLauncher.Core.Installers;
 
 /// <summary>
-/// Handles the installation and launching of Minecraft, including downloading required files,
-/// setting up dependencies, and building launch arguments.
+/// Represents a Minecraft instance, handling installation, configuration, and launching of the game.
 /// </summary>
-public class MinecraftInstaller
+public class MinecraftInstance
 {
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MinecraftInstaller));
+    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MinecraftInstance));
     private readonly LauncherDetails _launcherDetails;
     private readonly ClientDetails _client;
 
@@ -34,7 +33,7 @@ public class MinecraftInstaller
     protected readonly List<LaunchArg> _jvmArgumentsBeforeClassPath = [];
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="MinecraftInstaller"/> class.
+    /// Initializes a new instance of the <see cref="MinecraftInstance"/> class.
     /// </summary>
     /// <param name="gameDetails">Details about the game being installed.</param>
     /// <param name="pathDetails">Details about the file paths used for installation.</param>
@@ -42,7 +41,7 @@ public class MinecraftInstaller
     /// <param name="clientDetails">Details about the client user.</param>
     /// <param name="resolution">Optional resolution settings for the game.</param>
     /// <param name="progressReporter">Optional progress reporter for tracking installation progress.</param>
-    public MinecraftInstaller(GameDetails gameDetails, PathDetails pathDetails, LauncherDetails launcherDetails,
+    public MinecraftInstance(GameDetails gameDetails, PathDetails pathDetails, LauncherDetails launcherDetails,
         ClientDetails clientDetails, Resolution? resolution = null, IProgressReporter? progressReporter = null)
     {
         _progressReporter = progressReporter;
@@ -61,19 +60,7 @@ public class MinecraftInstaller
                                $"The specified Minecraft version does not exist in the manifest: {GameDetails.MinecraftVersion}");
 
         VersionData = GameHelper.GetVersionDetails(PathDetails.VersionsDir, GameDetails.MinecraftVersion,
-            GameDetails.Kind, GameDetails.CustomVersion, GameDetails.CustomGameDirectory);
-    }
-
-    /// <summary>
-    /// Reports the progress of the installation process.
-    /// </summary>
-    /// <param name="percent">The percentage of progress completed.</param>
-    /// <param name="translationKey">The translation key for the status message.</param>
-    /// <param name="args">Optional arguments for formatting the status message.</param>
-    protected void ReportProgress(double percent, string translationKey, params object[]? args)
-    {
-        _progressReporter?.SetStatusTranslated(translationKey, args);
-        _progressReporter?.SetProgress(percent);
+            EMinecraftKind.VANILLA, null, GameDetails.CustomGameDirectory);
     }
 
     /// <summary>
@@ -90,7 +77,7 @@ public class MinecraftInstaller
         {
             await DownloadCoreFilesAsync();
 
-            var moddedData = await InstallModedAsync(tempDir);
+            var moddedData = await InstallModdedAsync(tempDir);
             var (versionDetails, mainClass, customVersion) = GetLaunchParameters(moddedData);
 
             if (!Directory.Exists(versionDetails.GameDir))
@@ -166,7 +153,7 @@ public class MinecraftInstaller
     /// <returns>A list of native libraries required for the installation.</returns>
     private async Task DownloadDependenciesAsync(VersionDetails versionDetails, List<LibraryMeta> libraries)
     {
-        var loggingArg = await MinecraftFileService.DownloadLoggingAsync(MinecraftVersionMeta, versionDetails.VersionDirectory, versionDetails.GameDir, PathDetails.AssetsDir, _progressReporter);
+        var loggingArg = await MinecraftFileService.DownloadLoggingAsync(MinecraftVersionMeta, versionDetails.VersionDirectory, versionDetails.GameDir, _progressReporter);
         if (loggingArg != null)
             _jvmArguments.Add(loggingArg);
 
@@ -179,7 +166,7 @@ public class MinecraftInstaller
     /// </summary>
     /// <param name="tempDir">The temporary directory used for installation.</param>
     /// <returns>A task representing the asynchronous operation, returning modded data if applicable.</returns>
-    protected virtual Task<ModdedData?> InstallModedAsync(string tempDir)
+    protected virtual Task<ModdedData?> InstallModdedAsync(string tempDir)
     {
         // Vanilla installer, do nothing
         return Task.FromResult<ModdedData?>(null);
@@ -211,16 +198,33 @@ public class MinecraftInstaller
     /// <returns>A collection of JVM arguments.</returns>
     private IEnumerable<string> BuildJvmArguments(string gameDir)
     {
-        var jvmArgs = new List<string>();
-
-        jvmArgs.AddRange(_jvmArgumentsBeforeClassPath.OrderByDescending(x => x.Priority).Select(a => a.Arg));
+        var jvmArgs = new List<string>
+        {
+            GameDetails.MinMemory > GameDetails.MaxMemory
+                ? $"-Xms{GameDetails.MaxMemory}M"
+                : $"-Xms{(GameDetails.MinMemory > 0 ? GameDetails.MinMemory : 256)}M",
+            $"-Xmx{(GameDetails.MaxMemory > 0 ? GameDetails.MaxMemory : 4096)}M"
+        };
+        
+        var argsToAdd = _jvmArgumentsBeforeClassPath.OrderByDescending(x => x.Priority).Select(a => a.Arg);
+        foreach (var arg in argsToAdd)
+        {
+            if (jvmArgs.Contains(arg))
+                continue;
+            
+            jvmArgs.Add(arg);
+        }
+        
         jvmArgs.Add(MinecraftVersionMeta.GetJvmArgumentString());
-        jvmArgs.AddRange(_jvmArguments.OrderByDescending(x => x.Priority).Select(a => a.Arg));
 
-        jvmArgs.Add(GameDetails.MinMemory > GameDetails.MaxMemory
-            ? $"-Xms{GameDetails.MaxMemory}M"
-            : $"-Xms{(GameDetails.MinMemory > 0 ? GameDetails.MinMemory : 256)}M");
-        jvmArgs.Add($"-Xmx{(GameDetails.MaxMemory > 0 ? GameDetails.MaxMemory : 4096)}M");
+        argsToAdd = _jvmArguments.OrderByDescending(x => x.Priority).Select(a => a.Arg);
+        foreach (var arg in argsToAdd)
+        {
+            if (jvmArgs.Contains(arg))
+                continue;
+            
+            jvmArgs.Add(arg);
+        }
 
         if (!string.IsNullOrEmpty(GameDetails.JvmArgs))
             jvmArgs.Add(GameDetails.JvmArgs);
@@ -236,7 +240,8 @@ public class MinecraftInstaller
             jvmArgs.Add("-Dminecraft.api.services.host=https://nope.invalid");
         }
         
-        if (!jvmArgs.Contains("-cp"))
+        // Classpath fallback
+        if (!jvmArgs.Any(x => x.Contains("-cp")))
             jvmArgs.Add("-cp ${classpath}");
         return jvmArgs;
     }
@@ -253,7 +258,14 @@ public class MinecraftInstaller
             mainClass,
             MinecraftVersionMeta.GetGameArgumentString()
         };
-        gameArgs.AddRange(_gameArguments.OrderByDescending(x => x.Priority).Select(a => a.Arg));
+        var gameArguments = _gameArguments.OrderByDescending(x => x.Priority).Select(a => a.Arg);
+        foreach (var arg in gameArguments)
+        {
+            if (gameArgs.Contains(arg))
+                continue;
+            
+            gameArgs.Add(arg);
+        }
 
         if (Resolution is { X: > 0 })
             gameArgs.Add($"--width {Resolution.X}");
@@ -296,13 +308,13 @@ public class MinecraftInstaller
 
         var replacements = new Dictionary<string, string?>
         {
-            { "${natives_directory}", nativesDir },
+            { "${natives_directory}", nativesDir.StartsWith('"') ? nativesDir : $"\"{nativesDir}\"" },
             { "${launcher_name}", _launcherDetails.LauncherName },
             { "${launcher_version}", _launcherDetails.LauncherVersion },
             { "${auth_player_name}", _client.DisplayName },
             { "${version_name}", GetVersionName(modVersion) },
-            { "${game_directory}", gameDir },
-            { "${assets_root}", PathDetails.AssetsDir },
+            { "${game_directory}", gameDir.StartsWith('"') ? gameDir : $"\"{gameDir}\"" },
+            { "${assets_root}", PathDetails.AssetsDir.StartsWith('"') ? PathDetails.AssetsDir : $"\"{PathDetails.AssetsDir}\"" },
             { "${assets_index_name}", MinecraftVersionMeta.Index.Id },
             { "${auth_uuid}", _client.UUID },
             { "${auth_access_token}", string.IsNullOrEmpty(_client.AccessToken) ? "none" : _client.AccessToken },
@@ -310,8 +322,8 @@ public class MinecraftInstaller
             { "${auth_xuid}", _client.Xuid },
             { "${user_type}", "msa" },
             { "${version_type}", "release" },
-            { "${classpath}", $"\"{_classPath}\"" },
-            { "${library_directory}", PathDetails.LibrariesDir },
+            { "${classpath}", _classPath.StartsWith('"') ? _classPath : $"\"{_classPath}\"" },
+            { "${library_directory}", PathDetails.LibrariesDir.StartsWith('"') ? PathDetails.LibrariesDir : $"\"{PathDetails.LibrariesDir}\"" },
             { "${classpath_separator}", classPathSeparator},
             { "${user_properties}", "{}" },
             { "${arch}", Environment.Is64BitOperatingSystem ? "64" : "32" }

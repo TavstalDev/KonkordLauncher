@@ -163,7 +163,7 @@ public partial class CreateInstanceWindow : Window
                 Game = new InstanceGameConfig()
                 {
                     StartMaximized = settings.Minecraft.StartMaximized,
-                    WindowHeight = (uint)(0.40 * App.ScreenSize.Height),
+                    WindowHeight = (uint)(0.42 * App.ScreenSize.Height),
                     WindowWidth = (uint)(0.40 * App.ScreenSize.Width),
                     ShowConsoleWhenGameCrashes = true,
                     ShowConsoleWhileGameRunning = false,

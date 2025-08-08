@@ -35,6 +35,11 @@ public static class GameHelper
         string versionName = $"{response.MinecraftVersion}";
         switch (kind)
         {
+            case EMinecraftKind.NEOFORGE:
+            {
+                versionName = $"{minecraftVersion}-neoforge-{customVersion}";
+                break;
+            }
             case EMinecraftKind.FORGE:
             {
                 versionName = $"{minecraftVersion}-forge-{customVersion}";

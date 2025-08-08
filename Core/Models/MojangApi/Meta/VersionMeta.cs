@@ -95,6 +95,25 @@ public class VersionMeta
     }
     
     /// <summary>
+    /// Retrieves the JVM arguments as a list of strings.
+    /// </summary>
+    /// <returns>A list of strings containing the JVM arguments.</returns>
+    /// <exception cref="Exception">Thrown if no arguments are available.</exception>
+    public List<string> GetJvmArguments()
+    {
+        if (ArgumentsNew != null)
+            return ArgumentsNew.GetJvmArgs();
+        if (ArgumentsLegacy != null)
+            return new List<string>
+            {
+                "-Djava.library.path=${natives_directory}",
+                "-Dminecraft.launcher.brand=${launcher_name}",
+                "-Dminecraft.launcher.version=${launcher_version}"
+            };
+        throw new Exception("Failed to get the game arguments");
+    }
+    
+    /// <summary>
     /// Retrieves the JVM arguments as a single string.
     /// </summary>
     /// <returns>A string containing the JVM arguments.</returns>

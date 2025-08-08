@@ -7,7 +7,7 @@ namespace Tavstal.KonkordLauncher.Core.Helpers;
 /// Provides methods for mapping and interpolation.
 /// Source: https://github.com/CmlLib/CmlLib.Core.Installer.Forge
 /// </summary>
-public static class Mapper
+public static class ForgeMapper
 {
     /// <summary>
     /// A regular expression used to match arguments enclosed in curly brackets.

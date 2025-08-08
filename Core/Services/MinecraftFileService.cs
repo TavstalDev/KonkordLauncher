@@ -247,7 +247,7 @@ public static class MinecraftFileService
 
         await File.WriteAllTextAsync(logFilePath, modifiedContent);
 
-        return new LaunchArg(versionMeta.LoggingMeta.Client.Argument.Replace("${path}", logFilePath), 0);
+        return new LaunchArg(versionMeta.LoggingMeta.Client.Argument.Replace("${path}", logFilePath), 2);
     }
 
     /// <summary>

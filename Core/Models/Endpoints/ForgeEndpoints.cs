@@ -18,6 +18,15 @@ public static class ForgeEndpoints
     /// Example: https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.20.4-49.0.38/forge-1.20.4-49.0.38-universal.jar
     /// </remarks>
     public const string LoaderUniversalJarUrl = "https://files.minecraftforge.net/maven/net/minecraftforge/forge/{0}/forge-{0}-universal.jar";
+    
+    /// <summary>
+    /// The URL template for downloading the Forge universal ZIP file for a specific version.
+    /// </summary>
+    /// <remarks>
+    /// Replace `{0}` with the Forge version (e.g., "1.20.4-49.0.38").
+    /// Example: https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.20.4-49.0.38/forge-1.20.4-49.0.38-universal.zip
+    /// </remarks>
+    public const string LoaderUniversalZipUrl = "https://files.minecraftforge.net/maven/net/minecraftforge/forge/{0}/forge-{0}-{1}.zip";
 
     /// <summary>
     /// The URL template for downloading the Forge installer JAR file for a specific version.

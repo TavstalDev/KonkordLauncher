@@ -33,7 +33,7 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MainViewModel));
 
     [ObservableProperty] private ESidebarType _currentPageIndex;
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(HasInstances))] private ObservableCollection<InstanceModel> _instances;
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(HasInstances))] private ObservableCollection<InstanceModel> _instances = [];
     [ObservableProperty] private ObservableCollection<NewsCardModel> _patches = [];
     [ObservableProperty] private AccountDataModel _accountData;
     [ObservableProperty] private CoreConfigModel _coreConfig;
@@ -54,7 +54,11 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
 
         _coreConfig = new CoreConfigModel(LauncherHelper.GetLauncherSettings());
         _accountData = new AccountDataModel(LauncherHelper.GetAccountData());
-        _instances = new ObservableCollection<InstanceModel>(LauncherHelper.GetInstances().ConvertAll(x => new InstanceModel(x)));
+        var localInstances = LauncherHelper.GetInstances().ConvertAll(x => new InstanceModel(x));
+        foreach (var instance in localInstances)
+        {
+            _instances.Add(instance);
+        }
         _isInitialized = true;
 
         SubscribeToCoreConfigChildren(_coreConfig);
@@ -285,6 +289,15 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
             UpdateJavaPath(gameInstance, defaultJavaPath, instances, instanceIndex);
             return;
         }
+        
+        // Check if the Java version specified in the metadata is available, if not attempt to download it
+        /*var javaInstallations = JavaHelper.LocateJavaInstallations();
+        if (javaInstallations.All(x => x.Major != meta.JavaVersionMeta.MajorVersion))
+        {
+            
+            
+            return;
+        }*/
 
         foreach (var javaInstallation in JavaHelper.LocateJavaInstallations())
         {
@@ -294,6 +307,7 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
                 break;
             }
         }
+        
 
         UpdateJavaPath(gameInstance, defaultJavaPath, instances, instanceIndex);
     }

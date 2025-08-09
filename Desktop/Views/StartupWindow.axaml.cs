@@ -90,9 +90,11 @@ public partial class StartupWindow : Window, IProgressReporter
         if (shouldGenerateIcons)
         {
             string[] resourceNames = Assembly.GetExecutingAssembly().GetManifestResourceNames();
-            _logger.Debug(resourceNames.Length);
             foreach (string path in resourceNames)
             {
+                if (!path.Contains("Desktop.Assets.Icons"))
+                    continue;
+                    
                 var fileName = path.Replace("Tavstal.KonkordLauncher.Desktop.Assets.Icons.", "");
                 if (!fileName.EndsWith(".png"))
                     continue;

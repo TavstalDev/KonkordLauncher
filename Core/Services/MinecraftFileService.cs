@@ -114,6 +114,14 @@ public static class MinecraftFileService
             "version_jar",
             progressReporter);
 
+        // Create default JavaVersionMeta if null
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+        if (versionResult.JavaVersionMeta == null)
+            versionResult.JavaVersionMeta = new JavaVersionMeta()
+            {
+                MajorVersion = 8
+            };
+
         return versionResult;
     }
     
@@ -140,7 +148,7 @@ public static class MinecraftFileService
 
         if (resultJson == null) return;
 
-        bool isLegacy = resultJson.Contains("READ_ME_I_AM_VERY_IMPORTANT");
+        string assetsType = versionMeta.Assets;
         
         var assetJToken = JObject.Parse(resultJson)["objects"];
         if (assetJToken == null)
@@ -149,70 +157,114 @@ public static class MinecraftFileService
         // Assets
         int downloadedAssetSize = 0;
         progressReporter?.SetStatusTranslated("instance.reading.assets");
-        
-        if (isLegacy)
+
+        switch (assetsType)
         {
-            string resourcesDir = Path.Combine(gameDir, "resources");
-            Directory.CreateDirectory(resourcesDir);
-            
-            foreach (JProperty token in assetJToken.Children<JProperty>().ToList())
+            // Olds Assets
+            case "pre-1.6":
             {
-                var rawHash = token.First?["hash"];
-                if (rawHash == null) continue;
-
-                string rawFilePath = token.Name;
-                var hash = rawHash.ToString();
-
-                var fileName = Path.GetFileName(rawFilePath);
-                var fileDirectory = Path.GetDirectoryName(rawFilePath);
-                string? objectDir = null;
-                if (!string.IsNullOrEmpty(fileDirectory))
+                string resourcesDir = Path.Combine(gameDir, "resources");
+                Directory.CreateDirectory(resourcesDir);
+            
+                foreach (JProperty token in assetJToken.Children<JProperty>().ToList())
                 {
-                    objectDir = Path.Combine(resourcesDir, fileDirectory);
-                    Directory.CreateDirectory(objectDir);
-                }
-                var objectPath = Path.Combine(objectDir ?? resourcesDir, fileName);
+                    var rawHash = token.First?["hash"];
+                    if (rawHash == null) continue;
 
-                if (!File.Exists(objectPath))
-                {
-                     await HttpHelper.DownloadFileAsync(
-                        $"{MicrosoftEndpoints.MinecraftResourcesUrl}/{hash.Substring(0, 2)}/{hash}", objectPath, null);
-                }
+                    string rawFilePath = token.Name;
+                    var hash = rawHash.ToString();
+
+                    var fileName = Path.GetFileName(rawFilePath);
+                    var fileDirectory = Path.GetDirectoryName(rawFilePath);
+                    string? objectDir = null;
+                    if (!string.IsNullOrEmpty(fileDirectory))
+                    {
+                        objectDir = Path.Combine(resourcesDir, fileDirectory);
+                        Directory.CreateDirectory(objectDir);
+                    }
+                    var objectPath = Path.Combine(objectDir ?? resourcesDir, fileName);
+
+                    if (!File.Exists(objectPath))
+                    {
+                        await HttpHelper.DownloadFileAsync(
+                            $"{MicrosoftEndpoints.MinecraftResourcesUrl}/{hash.Substring(0, 2)}/{hash}", objectPath, null);
+                    }
                 
-                var sizeToken = token.First?["size"];
-                downloadedAssetSize += sizeToken != null ? int.Parse(sizeToken.ToString()) : 0;
-                double percent = (double)downloadedAssetSize / (double)versionMeta.Index.TotalSize * 100d;
-                progressReporter?.SetStatusTranslated("instance.downloading.assets", percent.ToString("0.00"));
+                    var sizeToken = token.First?["size"];
+                    downloadedAssetSize += sizeToken != null ? int.Parse(sizeToken.ToString()) : 0;
+                    double percent = (double)downloadedAssetSize / (double)versionMeta.Index.TotalSize * 100d;
+                    progressReporter?.SetStatusTranslated("instance.downloading.assets", percent.ToString("0.00"));
+                }
+                break;
             }
-            
-            return;
-        }
-        
-        // Asset Dir
-        string assetObjectDir = Path.Combine(assetsDir, "objects");
-        Directory.CreateDirectory(assetObjectDir);
-        
-        foreach (JToken token in assetJToken.ToList())
-        {
-            var rawHash = token.First?["hash"];
-            if (rawHash == null) continue;
-
-            var hash = rawHash.ToString();
-            var objectDir = Path.Combine(assetObjectDir, hash.Substring(0, 2));
-            var objectPath = Path.Combine(objectDir, $"{hash}");
-
-            Directory.CreateDirectory(objectDir);
-
-            if (!File.Exists(objectPath))
+            // Legacy Assets
+            case "legacy":
             {
-                await HttpHelper.DownloadFileAsync(
-                    $"{MicrosoftEndpoints.MinecraftResourcesUrl}/{hash.Substring(0, 2)}/{hash}", objectPath, null);
-            }
+                string resourcesDir= Path.Combine(assetsDir, "virtual", "legacy");
+                Directory.CreateDirectory(resourcesDir);
+                
+                foreach (JProperty token in assetJToken.Children<JProperty>().ToList())
+                {
+                    var rawHash = token.First?["hash"];
+                    if (rawHash == null) continue;
 
-            var sizeToken = token.First?["size"];
-            downloadedAssetSize += sizeToken != null ? int.Parse(sizeToken.ToString()) : 0;
-            double percent = (double)downloadedAssetSize / (double)versionMeta.Index.TotalSize * 100d;
-            progressReporter?.SetStatusTranslated("instance.downloading.assets", percent.ToString("0.00"));
+                    string rawFilePath = token.Name;
+                    var hash = rawHash.ToString();
+
+                    var fileName = Path.GetFileName(rawFilePath);
+                    var fileDirectory = Path.GetDirectoryName(rawFilePath);
+                    string? objectDir = null;
+                    if (!string.IsNullOrEmpty(fileDirectory))
+                    {
+                        objectDir = Path.Combine(resourcesDir, fileDirectory);
+                        Directory.CreateDirectory(objectDir);
+                    }
+                    var objectPath = Path.Combine(objectDir ?? resourcesDir, fileName);
+
+                    if (!File.Exists(objectPath))
+                    {
+                        await HttpHelper.DownloadFileAsync(
+                            $"{MicrosoftEndpoints.MinecraftResourcesUrl}/{hash.Substring(0, 2)}/{hash}", objectPath, null);
+                    }
+                
+                    var sizeToken = token.First?["size"];
+                    downloadedAssetSize += sizeToken != null ? int.Parse(sizeToken.ToString()) : 0;
+                    double percent = (double)downloadedAssetSize / (double)versionMeta.Index.TotalSize * 100d;
+                    progressReporter?.SetStatusTranslated("instance.downloading.assets", percent.ToString("0.00"));
+                }
+                break;
+            }
+            // Modern Assets
+            default:
+            {
+                // Asset Dir
+                string assetObjectDir = Path.Combine(assetsDir, "objects");
+                Directory.CreateDirectory(assetObjectDir);
+        
+                foreach (JToken token in assetJToken.ToList())
+                {
+                    var rawHash = token.First?["hash"];
+                    if (rawHash == null) continue;
+
+                    var hash = rawHash.ToString();
+                    var objectDir = Path.Combine(assetObjectDir, hash.Substring(0, 2));
+                    var objectPath = Path.Combine(objectDir, $"{hash}");
+
+                    Directory.CreateDirectory(objectDir);
+
+                    if (!File.Exists(objectPath))
+                    {
+                        await HttpHelper.DownloadFileAsync(
+                            $"{MicrosoftEndpoints.MinecraftResourcesUrl}/{hash.Substring(0, 2)}/{hash}", objectPath, null);
+                    }
+
+                    var sizeToken = token.First?["size"];
+                    downloadedAssetSize += sizeToken != null ? int.Parse(sizeToken.ToString()) : 0;
+                    double percent = (double)downloadedAssetSize / (double)versionMeta.Index.TotalSize * 100d;
+                    progressReporter?.SetStatusTranslated("instance.downloading.assets", percent.ToString("0.00"));
+                }
+                break;
+            }
         }
     }
 

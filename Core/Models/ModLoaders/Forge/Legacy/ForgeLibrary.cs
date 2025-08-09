@@ -35,6 +35,6 @@ public class ForgeLibrary
     {
         string[] rawUrl = Name.Split(':');
 
-        return Path.Combine(rawUrl[0].Replace('.', '\\'), rawUrl[1], rawUrl[2], $"{rawUrl[1]}-{rawUrl[2]}.jar");
+        return Path.Combine(rawUrl[0].Replace('.', '/'), rawUrl[1], rawUrl[2], $"{rawUrl[1]}-{rawUrl[2]}.jar").Replace("\\", "/");
     }
 }

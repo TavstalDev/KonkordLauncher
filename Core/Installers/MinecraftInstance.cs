@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
+using Tavstal.KonkordLauncher.Core.Installers.Forge;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
@@ -86,7 +87,7 @@ public class MinecraftInstance
             var libraries = GetCombinedLibraries(moddedData);
             await DownloadDependenciesAsync(versionDetails, libraries);
             
-            if (moddedData != null /*&& this.GetType() != typeof(ForgeInstNew)*/)
+            if (moddedData != null)
                 _classPath += moddedData.VersionData.VersionJarPath;
             else
                 _classPath += VersionData.VersionJarPath;
@@ -198,6 +199,7 @@ public class MinecraftInstance
     /// <returns>A collection of JVM arguments.</returns>
     private IEnumerable<string> BuildJvmArguments(string gameDir)
     {
+        IEnumerable<string> argsToAdd;
         var jvmArgs = new List<string>
         {
             GameDetails.MinMemory > GameDetails.MaxMemory
@@ -206,6 +208,9 @@ public class MinecraftInstance
             $"-Xmx{(GameDetails.MaxMemory > 0 ? GameDetails.MaxMemory : 4096)}M",
             $"-Dminecraft.applet.TargetDirectory=\"{gameDir}\""
         };
+        
+        if (!string.IsNullOrEmpty(GameDetails.JvmArgs))
+            jvmArgs.Add(GameDetails.JvmArgs);
 
         // 1.16 offline mode fix
         if (VersionData.MinecraftVersion.StartsWith("1.16") && _client.IsOffline)
@@ -216,38 +221,33 @@ public class MinecraftInstance
             jvmArgs.Add("-Dminecraft.api.services.host=https://nope.invalid");
         }
         
-        IEnumerable<string> argsToAdd = MinecraftVersionMeta.GetJvmArguments();
+        argsToAdd = _jvmArgumentsBeforeClassPath.OrderByDescending(x => x.Priority).Select(a => a.Arg);
         foreach (var arg in argsToAdd)
         {
-            if (jvmArgs.Contains(arg))
-                continue;
-            
-            if (arg.Contains("-cp") || arg.Contains("${classpath}"))
-                continue;
+            /*if (jvmArgs.Contains(arg))
+                continue;*/
             
             jvmArgs.Add(arg);
         }
         
-        argsToAdd = _jvmArgumentsBeforeClassPath.OrderByDescending(x => x.Priority).Select(a => a.Arg);
+        argsToAdd = MinecraftVersionMeta.GetJvmArguments();
         foreach (var arg in argsToAdd)
         {
-            if (jvmArgs.Contains(arg))
-                continue;
+            /*if (jvmArgs.Contains(arg))
+                 continue;*/
             
             jvmArgs.Add(arg);
         }
+        
 
         argsToAdd = _jvmArguments.OrderByDescending(x => x.Priority).Select(a => a.Arg);
         foreach (var arg in argsToAdd)
         {
-            if (jvmArgs.Contains(arg))
-                continue;
+            /*if (jvmArgs.Contains(arg))
+                continue;*/
             
             jvmArgs.Add(arg);
         }
-
-        if (!string.IsNullOrEmpty(GameDetails.JvmArgs))
-            jvmArgs.Add(GameDetails.JvmArgs);
         
         // Classpath fallback
         if (!jvmArgs.Any(x => x.Contains("-cp")))
@@ -296,7 +296,8 @@ public class MinecraftInstance
             EMinecraftKind.VANILLA => VersionData.MinecraftVersion,
             EMinecraftKind.FABRIC => $"fabric-loader-{modVersion}-{VersionData.MinecraftVersion}",
             EMinecraftKind.QUILT => $"quilt-loader-{modVersion}-{VersionData.MinecraftVersion}",
-            EMinecraftKind.FORGE => $"forge-{modVersion}",
+            EMinecraftKind.FORGE => $"{VersionData.MinecraftVersion}-forge-{modVersion}",
+            EMinecraftKind.NEOFORGE => $"{VersionData.MinecraftVersion}-neoforge-{modVersion}",
             _ => VersionData.MinecraftVersion
         };
     }

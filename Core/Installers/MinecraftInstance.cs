@@ -70,7 +70,7 @@ public class MinecraftInstance
     /// <returns>A <see cref="Process"/> object representing the launched game, or null if the process fails.</returns>
     public async Task<Process?> Start()
     {
-        string tempDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+        string tempDir = Path.Combine(Path.GetTempPath(), "konkordlauncher_" + Path.GetRandomFileName());
         Directory.CreateDirectory(tempDir);
         Directory.CreateDirectory(VersionData.VersionDirectory);
 
@@ -99,7 +99,7 @@ public class MinecraftInstance
         }
         finally
         {
-            FileSystemHelper.DeleteDirectory(tempDir);
+            //FileSystemHelper.DeleteDirectory(tempDir);
         }
     }
 
@@ -110,6 +110,17 @@ public class MinecraftInstance
     {
         var localVersionMeta = await MinecraftFileService.DownloadVersionAsync(VersionData, MinecraftVersion, _progressReporter);
         MinecraftVersionMeta = localVersionMeta ?? throw new InvalidOperationException("Failed to download the version meta data. Please check your internet connection and try again.");
+
+        // Change the required Java version if necessary
+        if (GameDetails.Kind == EMinecraftKind.FORGE)
+        {
+            Version forgeMinecraftVersion = new Version(GameDetails.MinecraftVersion);
+            // Set the required Java version to 7 for Forge versions 1.7.2 and below
+            if (forgeMinecraftVersion.Major == 1 &&
+                (forgeMinecraftVersion.Minor < 7 || forgeMinecraftVersion is { Minor: 7, Build: < 10 }))
+                MinecraftVersionMeta.JavaVersionMeta.MajorVersion = 7;
+        }
+        
         if (GameDetails.JavaPath == "LAUNCH_ME_FIRST")
             OnSetupDefaultJava?.Invoke(MinecraftVersionMeta);
         
@@ -126,7 +137,7 @@ public class MinecraftInstance
     {
         if (moddedData != null)
         {
-            return (moddedData.VersionData, moddedData.MainClass, moddedData.VersionData.CustomVersion);
+            return (moddedData.VersionData, moddedData.MainClass ?? MinecraftVersionMeta.MainClass, moddedData.VersionData.CustomVersion);
         }
         return (VersionData, MinecraftVersionMeta.MainClass, null);
     }
@@ -316,6 +327,8 @@ public class MinecraftInstance
         if (OSHelper.GetOperatingSystem() != EOperatingSystem.Windows)
             classPathSeparator = ":";
 
+        string gameAssetsDir = Path.Combine(PathDetails.AssetsDir, "virtual", "legacy");
+        gameAssetsDir = gameAssetsDir.StartsWith('"') ? gameAssetsDir : $"\"{gameAssetsDir}\"";
         var replacements = new Dictionary<string, string?>
         {
             { "${natives_directory}", nativesDir.StartsWith('"') ? nativesDir : $"\"{nativesDir}\"" },
@@ -324,6 +337,7 @@ public class MinecraftInstance
             { "${auth_player_name}", _client.DisplayName },
             { "${version_name}", GetVersionName(modVersion) },
             { "${game_directory}", gameDir.StartsWith('"') ? gameDir : $"\"{gameDir}\"" },
+            { "${game_assets}", gameAssetsDir },
             { "${assets_root}", PathDetails.AssetsDir.StartsWith('"') ? PathDetails.AssetsDir : $"\"{PathDetails.AssetsDir}\"" },
             { "${assets_index_name}", MinecraftVersionMeta.Index.Id },
             { "${auth_uuid}", _client.UUID },

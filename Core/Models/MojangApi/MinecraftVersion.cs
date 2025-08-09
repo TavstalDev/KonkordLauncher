@@ -63,4 +63,19 @@ public class MinecraftVersion
         Time = time;
         ReleaseTime = releaseTime;
     }
+    
+    public override bool Equals(object? obj)
+    {
+        if (obj is MinecraftVersion other)
+        {
+            return Id == other.Id;
+        }
+        return false;
+    }
+
+    public override int GetHashCode()
+    {
+        // ReSharper disable once NonReadonlyMemberInGetHashCode
+        return Id.GetHashCode();
+    }
 }

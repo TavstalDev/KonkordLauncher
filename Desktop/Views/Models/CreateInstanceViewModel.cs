@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Tavstal.KonkordLauncher.Core.Enums;
@@ -63,20 +65,28 @@ public partial class CreateInstanceViewModel : ObservableObject
 
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(VersionResult))] private bool _showExperiments;
     
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))] private MinecraftVersion _selectedMinecraftVersion;
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))] [NotifyPropertyChangedFor(nameof(ModLoaderVersionResult))] private MinecraftVersion? _selectedMinecraftVersion;
 
     /// <summary>
     /// Gets a filtered list of available Minecraft versions based on the current search query and selected version types.
     /// Filters include release, snapshot, old alpha, old beta, and experiment versions,
     /// depending on the corresponding boolean properties.
     /// </summary>
-    public List<MinecraftVersion> VersionResult => _vanillaManifest.Versions.FindAll(x =>
-        (string.IsNullOrEmpty(SearchQuery) || x.Id.Contains(SearchQuery)) &&
-        (x.Type != "release" || ShowReleases) &&
-        (x.Type != "snapshot" || ShowSnapshots) &&
-        (x.Type != "old_alpha" || ShowAlphas) &&
-        (x.Type != "old_beta" || ShowBetas) &&
-        (x.Type != "experiment" || ShowExperiments));
+    public ObservableCollection<MinecraftVersion> VersionResult
+    {
+        get
+        {
+            var versions = _vanillaManifest.Versions.FindAll(x =>
+                (string.IsNullOrEmpty(SearchQuery) || x.Id.StartsWith(SearchQuery)) &&
+                (x.Type != "release" || ShowReleases) &&
+                (x.Type != "snapshot" || ShowSnapshots) &&
+                (x.Type != "old_alpha" || ShowAlphas) &&
+                (x.Type != "old_beta" || ShowBetas) &&
+                (x.Type != "experiment" || ShowExperiments));
+
+            return new ObservableCollection<MinecraftVersion>(versions.Count == 0 ? [] : versions);
+        }
+    }
     #endregion
     #region  Mod Loader
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(ModLoaderVersionResult))] private string _modLoaderSearchQuery = string.Empty;
@@ -94,6 +104,9 @@ public partial class CreateInstanceViewModel : ObservableObject
     {
         get
         {
+            if (SelectedMinecraftVersion == null)
+                return [];
+            
             List<IModManifest> result = [];
             switch (ModLoaderType)
             {
@@ -109,7 +122,7 @@ public partial class CreateInstanceViewModel : ObservableObject
                         if (version.GameVersion != SelectedMinecraftVersion.Id)
                             continue;
                         
-                        if (!string.IsNullOrEmpty(ModLoaderSearchQuery) || !version.Version.Contains(ModLoaderSearchQuery))
+                        if (!string.IsNullOrEmpty(ModLoaderSearchQuery) || !version.Version.StartsWith(ModLoaderSearchQuery))
                             continue;
                         
                         result.Add(version);
@@ -126,7 +139,7 @@ public partial class CreateInstanceViewModel : ObservableObject
                         if (version.GameVersion != SelectedMinecraftVersion.Id)
                             continue;
                         
-                        if (!string.IsNullOrEmpty(ModLoaderSearchQuery) || !version.Version.Contains(ModLoaderSearchQuery))
+                        if (!string.IsNullOrEmpty(ModLoaderSearchQuery) || !version.Version.StartsWith(ModLoaderSearchQuery))
                             continue;
                         
                         result.Add(version);
@@ -140,7 +153,7 @@ public partial class CreateInstanceViewModel : ObservableObject
                         return [];
                     
                     if (!string.IsNullOrEmpty(ModLoaderSearchQuery))
-                        result = result.FindAll(x => x.Version.Contains(ModLoaderSearchQuery));
+                        result = result.FindAll(x => x.Version.StartsWith(ModLoaderSearchQuery));
                     break;
                 }
                 case EMinecraftKind.QUILT:
@@ -150,7 +163,7 @@ public partial class CreateInstanceViewModel : ObservableObject
                         return [];
                     
                     if (!string.IsNullOrEmpty(ModLoaderSearchQuery))
-                        result = result.FindAll(x => x.Version.Contains(ModLoaderSearchQuery));
+                        result = result.FindAll(x => x.Version.StartsWith(ModLoaderSearchQuery));
                     break;
                 }
             }
@@ -177,8 +190,11 @@ public partial class CreateInstanceViewModel : ObservableObject
 
     public CreateInstanceViewModel()
     {
+        InstanceIcon = ImageHelper.Load("avares://Desktop/Assets/Icons/dirt.png").Result;
+        if (Design.IsDesignMode)
+            return;
+        
         _vanillaManifest = ManifestHelper.GetMinecraftManifest()!;
         _selectedMinecraftVersion = VersionResult.First();
-        InstanceIcon = ImageHelper.Load("avares://Desktop/Assets/Icons/dirt.png").Result;
     }
 }

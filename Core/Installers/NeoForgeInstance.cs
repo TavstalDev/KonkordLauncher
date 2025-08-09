@@ -30,22 +30,18 @@ public class NeoForgeInstance(
             return null;
         }
 
+        List<LibraryMeta> localLibraries = [];
         VersionDetails forgeVersion = GameHelper.GetVersionDetails(PathDetails.VersionsDir, this.MinecraftVersion.Id, EMinecraftKind.NEOFORGE, this.GameDetails.CustomVersion, this.GameDetails.CustomGameDirectory);
         
         // Create versionDir in the versions folder
         if (!Directory.Exists(forgeVersion.VersionDirectory))
             Directory.CreateDirectory(forgeVersion.VersionDirectory);
 
-        // Check libsizes dir
-        string librarySizeCacheDir = Path.Combine(PathDetails.CacheDir, "libsizes");
-        if (!Directory.Exists(librarySizeCacheDir))
-            Directory.CreateDirectory(librarySizeCacheDir);
-
-        // Download Installer
+        // Download & Extract Installer
         string installerJarPath = Path.Combine(tempDir, "installer.jar");
         string installerDir = Path.Combine(tempDir, "installer");
-
-        if (!File.Exists(installerJarPath))
+        string installerProfilePath = Path.Combine(forgeVersion.VersionDirectory, "install_profile.json");
+        if (!File.Exists(forgeVersion.VersionJsonPath))
         {
             Progress<double> progress = new Progress<double>();
             progress.ProgressChanged += (sender, e) =>
@@ -53,98 +49,120 @@ public class NeoForgeInstance(
                 _progressReporter?.SetStatusTranslated("instance.downloading.installer", "neoforge",
                     e.ToString("0.00"));
             };
-            
+       
             await HttpHelper.DownloadFileAsync(
                 string.Format(NeoForgeEndpoints.InstallerJarUrl, forgeVersion.CustomVersion), installerJarPath,
                 progress);
-        }
-
-        // Extract Installer
-        _progressReporter?.SetStatusTranslated("instance.extracting.installer", "neoforge");
-        ZipFile.ExtractToDirectory(installerJarPath, installerDir);
-
-        // Move version.json and profile.json 
-        string installProfileJson = Path.Combine(forgeVersion.VersionDirectory, "install_profile.json");
-        // INSTALL PROFILE
-        if (!File.Exists(installProfileJson))
-            File.Move(Path.Combine(installerDir, "install_profile.json"), installProfileJson);
-        // VERSION
-        if (!File.Exists(forgeVersion.VersionJsonPath))
-            File.Move(Path.Combine(installerDir, "version.json"), forgeVersion.VersionJsonPath);
-
-        // COPY MAVEN IF EXISTS
-        string mavenTempDir = Path.Combine(installerDir, "maven");
-        if (Directory.Exists(mavenTempDir))
-        {
-            string[] files = Directory.GetFiles(mavenTempDir, "*.jar", SearchOption.AllDirectories);
-            foreach (string file in files)
-            {
-                string newPath = file.Replace(mavenTempDir, PathDetails.LibrariesDir);
-                string newDir = Path.GetDirectoryName(newPath) ?? throw new NullReferenceException("fix me - newDir is null");
-
-                if (!Directory.Exists(newDir))
-                    Directory.CreateDirectory(newDir);
-
-                if (!File.Exists(newPath))
-                    File.Copy(file, newPath, false);
-            }
-        }
-
-        ForgeVersionMeta? forgeVersionMeta = JsonConvert.DeserializeObject<ForgeVersionMeta>(await File.ReadAllTextAsync(forgeVersion.VersionJsonPath));
-        if (forgeVersionMeta == null)
-            throw new FileNotFoundException("Failed to get the forge version meta.");
-
-        ForgeVersionProfile? installProfile = JsonConvert.DeserializeObject<ForgeVersionProfile>(await File.ReadAllTextAsync(installProfileJson));
-        if (installProfile == null)
-            throw new FileNotFoundException("Failed to get the forge install profile meta.");
-
-        _progressReporter?.SetStatusTranslated("instance.reading.libraries");
-        List<LibraryMeta> localLibraries = [];
-        localLibraries.AddRange(forgeVersionMeta.Libraries);
-
-        // Download installer libraries
-        /*string librarySizeCachePath = Path.Combine(librarySizeCacheDir, $"{forgeVersion.MinecraftVersion}-forge-installer-{forgeVersion.CustomVersion}.json");
-
-        int downloadedSize = 0;
-        int toDownloadSize = 0;
-        if (!File.Exists(librarySizeCachePath))
-        {
-            foreach (LibraryMeta lib in installProfile.Libraries)
-            {
-                if (lib.Downloads.Artifact == null)
-                    continue;
-                
-                toDownloadSize += lib.Downloads.Artifact.Size;
-            }
-            await File.WriteAllTextAsync(librarySizeCachePath, toDownloadSize.ToString());
-        }*/
-
-        foreach (LibraryMeta lib in installProfile.Libraries)
-        {
-            if (lib.Downloads.Artifact == null)
-                continue;
+       
+            // Extract Installer
+            _progressReporter?.SetStatusTranslated("instance.extracting.installer", "neoforge");
+            ZipFile.ExtractToDirectory(installerJarPath, installerDir);
             
-            string localPath = lib.Downloads.Artifact.Path;
-            string libDirPath = Path.Combine(PathDetails.LibrariesDir, localPath.Remove(localPath.LastIndexOf('/'), localPath.Length - localPath.LastIndexOf('/')));
+            // Move install_profile.json
+            var source = Path.Combine(installerDir, "install_profile.json");
+            if (File.Exists(source))
+                File.Move(source, installerProfilePath);
+            else
+                _logger.Error("Install profile JSON file not found in the neoforge installer directory.");
             
-            if (!Directory.Exists(libDirPath))
-                Directory.CreateDirectory(libDirPath);
+            // Move version.json
+            source = Path.Combine(installerDir, "version.json");
+            if (File.Exists(source))
+                File.Move(source, forgeVersion.VersionJsonPath);
+            else
+                _logger.Error("Install version JSON file not found in the neoforge installer directory.");
             
-            string libFilePath = Path.Combine(PathDetails.LibrariesDir, localPath);
-            if (!File.Exists(libFilePath))
+            // Extract Maven
+            source = Path.Combine(installerDir, "maven");
+            if (Directory.Exists(source))
             {
-                if (!string.IsNullOrEmpty(lib.Downloads.Artifact.Url))
+                string[] content = Directory.GetDirectories(source);
+                foreach (string dir in content)
                 {
-                    Progress<double> libProgress = new Progress<double>();
-                    libProgress.ProgressChanged += (_, e) =>
-                    {
-                        _progressReporter?.SetStatusTranslated("instance.downloading.libraries", lib.Name, e.ToString("0.00"));
-                    };
+                    string newDirPath = dir.Replace(source, PathDetails.LibrariesDir);
+                    if (!Directory.Exists(newDirPath))
+                        Directory.CreateDirectory(newDirPath);
+                }
 
-                    await HttpHelper.DownloadFileAsync(lib.Downloads.Artifact.Url, libFilePath, libProgress);
-                    //downloadedSize += lib.Downloads.Artifact.Size;
+                content = Directory.GetFiles(source);
+                foreach (string file in content)
+                {
+                    string newFilePath = file.Replace(source, PathDetails.LibrariesDir);
+                    if (!File.Exists(newFilePath))
+                        File.Copy(file, newFilePath, true);
                 }
             }
+            else
+                _logger.Warn("Maven directory not found in the neoforge installer directory.");
+        }
+        
+        // Read Forge Version Meta
+        var rawForgeVersionMeta = await File.ReadAllTextAsync(forgeVersion.VersionJsonPath);
+        var forgeVersionMeta = JsonConvert.DeserializeObject<ForgeVersionMeta>(rawForgeVersionMeta);
+        if (forgeVersionMeta == null)
+            throw new FileNotFoundException("Failed to get the neoforge version meta.");
+        rawForgeVersionMeta = null; // Clear the raw meta to free memory
+        
+        // Install libraries from Forge Version Meta
+        localLibraries.AddRange(forgeVersionMeta.Libraries);
+
+        // Read Forge Install Profile
+        var rawInstallProfile = await File.ReadAllTextAsync(installerProfilePath);
+        var installProfile = JsonConvert.DeserializeObject<ForgeVersionProfile>(rawInstallProfile);
+        if (installProfile == null)
+            throw new FileNotFoundException("Failed to get the neoforge install profile meta.");
+        rawInstallProfile = null; // Clear the raw data to free memory
+        
+        // Install Libraries From Install Profile
+        _progressReporter?.SetStatusTranslated("instance.reading.libraries");
+        foreach (var libMeta in installProfile.Libraries)
+        {
+            if (libMeta.Downloads.Artifact == null)
+            {
+                _logger.Warn($"Library {libMeta.Name} does not have an artifact to download.");
+                continue;
+            }
+
+            string localPath = libMeta.Downloads.Artifact.Path;
+            string libraryDir = Path.Combine(PathDetails.LibrariesDir,
+                localPath.Remove(localPath.LastIndexOf('/'), localPath.Length - localPath.LastIndexOf('/')));
+            
+            if (!Directory.Exists(libraryDir))
+                Directory.CreateDirectory(libraryDir);
+
+            string libraryPath = Path.Combine(PathDetails.LibrariesDir, localPath);
+            if (File.Exists(libraryPath))
+                continue;
+            
+            if (string.IsNullOrEmpty(libMeta.Downloads.Artifact.Url))
+            {
+                _logger.Warn($"Library {libMeta.Name} does not have a download URL.");
+                continue;
+            }
+            
+            Progress<double> libProgress = new Progress<double>();
+            libProgress.ProgressChanged += (_, e) =>
+            {
+                _progressReporter?.SetStatusTranslated("instance.downloading.libraries", libMeta.Name,
+                    e.ToString("0.00"));
+            };
+
+            await HttpHelper.DownloadFileAsync(libMeta.Downloads.Artifact.Url, libraryPath, libProgress);
+        }
+
+        // Map and start processors
+        _progressReporter?.SetStatusTranslated("instance.building", "neoforge", 0);
+        if (File.Exists(installerJarPath))
+            await MapAndStartProcessors(installProfile, installerDir);
+        
+        // Copy Version Files
+        string jarSourcePath = Path.Combine(installerDir, "maven", "net", "neoforged", "neoforge", $"{forgeVersion.MinecraftVersion}-{forgeVersion.CustomVersion}", 
+            $"neoforge-{forgeVersion.CustomVersion}-universal.jar");
+        _logger.Debug("Source jar path: " + jarSourcePath);
+        if (File.Exists(jarSourcePath))
+        {
+            string targetJarPath = Path.Combine(forgeVersion.VersionDirectory, $"neoforge-{forgeVersion.MinecraftVersion}-{forgeVersion.CustomVersion}.jar");
+            File.Copy(jarSourcePath, targetJarPath);
         }
 
         // Add launch arguments
@@ -156,7 +174,7 @@ public class NeoForgeInstance(
             if (forgeVersionMeta.Arguments.Game != null)
                 foreach (var arg in forgeVersionMeta.Arguments.GetGameArgs())
                     _gameArguments.Add(new LaunchArg(arg, 1));
-            
+
             bool handlingParg = false;
             // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
             if (forgeVersionMeta.Arguments.Jvm != null)
@@ -172,44 +190,14 @@ public class NeoForgeInstance(
                     if (handlingParg)
                     {
                         handlingParg = false;
-                        _jvmArguments.Add(new LaunchArg('"' + arg.Replace("${library_directory}", PathDetails.LibrariesDir) + '"', 1));
+                        _jvmArguments.Add(new LaunchArg(arg.Replace("${library_directory}", PathDetails.LibrariesDir), 1));
                         continue;
                     }
                     
                     _jvmArguments.Add(new LaunchArg(arg, 1));
                 }
         }
-
-        _jvmArgumentsBeforeClassPath.Add(new LaunchArg("-DMcEmu=net.minecraft.client.main.Main", 2));
-        _jvmArgumentsBeforeClassPath.Add(new LaunchArg("-Dlog4j2.formatMsgNoLookups=true", 2));
-        _jvmArgumentsBeforeClassPath.Add(new LaunchArg("-Djava.rmi.server.useCodebaseOnly=true", 2));
-        _jvmArgumentsBeforeClassPath.Add(new LaunchArg("-Dcom.sun.jndi.rmi.object.trustURLCodebase=false", 2));
-
-        _progressReporter?.SetStatusTranslated("instance.building", "neoforge", 0);
-        // Generate client libs
-        await MapAndStartProcessors(installProfile, installerDir);
-
-        #region GET minecraftforge client libs
-        string forgeUniversalUrl = string.Format(NeoForgeEndpoints.LoaderUniversalJarUrl, forgeVersion.CustomVersion);
-
-        string forgeUniversalDir = Path.Combine(PathDetails.LibrariesDir, "net", "neoforged", "neoforge", forgeVersion.CustomVersion);
-        string forgeUniversalPath = Path.Combine(forgeUniversalDir, $"neoforge-{forgeVersion.CustomVersion}-universal.jar");
-        if (!Directory.Exists(forgeUniversalDir))
-            Directory.CreateDirectory(forgeUniversalDir);
-
-        _progressReporter?.SetStatusTranslated("instance.reading.universal", "neoforge");
-        if (!File.Exists(forgeUniversalPath))
-        {
-            Progress<double> univProgress = new Progress<double>();
-            univProgress.ProgressChanged += (_, e) =>
-            {
-                _progressReporter?.SetStatusTranslated("instance.downloading.universal", "neoforge", e.ToString("0.00"));
-            };
-
-            await HttpHelper.DownloadFileAsync(forgeUniversalUrl, forgeUniversalPath, univProgress);
-        }
-        #endregion
-
+        
         ModdedData moddedData = new ModdedData(forgeVersionMeta.MainClass, forgeVersion, localLibraries);
         return moddedData;
     }

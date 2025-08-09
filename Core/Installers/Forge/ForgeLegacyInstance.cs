@@ -12,7 +12,7 @@ using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta.Library;
 
 namespace Tavstal.KonkordLauncher.Core.Installers.Forge;
 
-// 1.7.10-1.12.x
+// 1.7.10-1.12.1
 public class ForgeLegacyInstance(string forgeVersionName,
     GameDetails gameDetails,
     PathDetails pathDetails,

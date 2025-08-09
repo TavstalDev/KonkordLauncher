@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
-using Tavstal.KonkordLauncher.Core.Installers.Forge;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;

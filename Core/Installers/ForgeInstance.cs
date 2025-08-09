@@ -22,7 +22,6 @@ public static class ForgeInstance
         {
             // Early 1.1 - 1.2.5
             // Only 1.2.5 is supported
-            // TODO:
             (1, <= 2) => new ForgeEarlyInstance(GetLegacyName(mcVer, forgeVer), "client", gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
                 progressReporter),
             // Early 1.3.2 - 1.5.1

@@ -11,7 +11,22 @@ using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 
 namespace Tavstal.KonkordLauncher.Core.Installers.Forge;
 
-// 1.13+
+// 1.12.2+
+// TODO: Fix
+// 1.12.2,
+// 1.13.2
+// 1.14.2
+// 1.14.3,
+// 1.14.4
+// 1.15
+// 1.15.1,
+// 1.15.2
+// 1.16.1,
+// 1.16.2,
+// 1.16.3,
+// 1.16.4,
+// 1.16.5
+// Test more precisely 1.17.1+
 public class ForgeModernInstance(
    GameDetails gameDetails,
    PathDetails pathDetails,

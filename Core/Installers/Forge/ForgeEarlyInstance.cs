@@ -1,5 +1,4 @@
 using System.IO.Compression;
-using System.Reflection;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;

@@ -94,12 +94,12 @@ public abstract class ForgeInstanceBase(
 
             // Checks if the processor outputs are valid.
             JObject? outputs = item["outputs"] as JObject;
-            if (outputs == null || !checkProcessorOutputs(outputs, mapData))
+            if (outputs == null || !CheckProcessorOutputs(outputs, mapData))
             {
                 // Skips server-side processors.
                 JArray? sides = item["sides"] as JArray;
-                if (sides == null || sides.FirstOrDefault()?.ToString() == "client") //skip server side
-                    await startProcessor(item, mapData);
+                if (sides?.FirstOrDefault() == null || sides.FirstOrDefault()?.ToString() == "client") //skip server side
+                    await StartProcessor(item, mapData);
             }
             // Updates the progress reporter with the current progress.
             double percent = (double)i / (double)processors.Count * 100d;
@@ -113,7 +113,7 @@ public abstract class ForgeInstanceBase(
     /// <param name="outputs">The JSON object containing the processor outputs.</param>
     /// <param name="mapData">The mapped processor data.</param>
     /// <returns>True if all outputs are valid; otherwise, false.</returns>
-    private bool checkProcessorOutputs(JObject outputs, Dictionary<string, string?> mapData)
+    private bool CheckProcessorOutputs(JObject outputs, Dictionary<string, string?> mapData)
     {
         foreach (var item in outputs)
         {
@@ -137,7 +137,7 @@ public abstract class ForgeInstanceBase(
     /// </summary>
     /// <param name="processor">The JSON token representing the processor.</param>
     /// <param name="mapData">The mapped processor data.</param>
-    private async Task startProcessor(JToken processor, Dictionary<string, string?> mapData)
+    private async Task StartProcessor(JToken processor, Dictionary<string, string?> mapData)
     {
         string? name = processor["jar"]?.ToString();
         if (name == null)
@@ -156,11 +156,14 @@ public abstract class ForgeInstanceBase(
         classpath.Add(jarPath);
 
         // Constructs the arguments for the processor.
-        var args = (processor["args"] as JArray)?
-            .Select(arg => ForgeMapper.Interpolation(arg.ToString(), mapData, true))
-            .ToArray();
+        string[] args = [];
+        if (processor["args"] is JArray jarray)
+        {
+            var rawArgs = jarray.Select(arg => arg.ToString()).ToArray();
+            args = ForgeMapper.Map(rawArgs, mapData, PathDetails.LibrariesDir);
+        }
 
-        await startJava(classpath.ToArray(), mainClass, args);
+        await StartJava(classpath.ToArray(), mainClass, args);
     }
     
     /// <summary>
@@ -169,11 +172,14 @@ public abstract class ForgeInstanceBase(
     /// <param name="classpath">The array of classpath entries.</param>
     /// <param name="mainClass">The main class to execute.</param>
     /// <param name="args">The arguments to pass to the Java process.</param>
-    private async Task startJava(string[] classpath, string mainClass, string[]? args)
+    private async Task StartJava(string[] classpath, string mainClass, string[]? args)
     {
-        if (string.IsNullOrEmpty(GameDetails.JavaPath))
+        string defaultJava = string.IsNullOrEmpty(GameDetails.JavaPath) ? "java" : GameDetails.JavaPath;
+        if (string.IsNullOrEmpty(defaultJava))
             throw new InvalidOperationException("JavaPath was empty");
 
+        _logger.Debug($"Forge processor java: {defaultJava}");
+        
         // Constructs the combined classpath string.
         string combinedPath = string.Join(Path.PathSeparator.ToString(),
             classpath.Select(x =>
@@ -185,24 +191,32 @@ public abstract class ForgeInstanceBase(
             }));
 
         // Constructs the argument string for the Java process.
-        string arg =
-            $"-cp {combinedPath} " +
-            $"{mainClass}";
+        _logger.Debug("Combined classpath: " + combinedPath);
+        _logger.Debug("Main class: " + mainClass);
+        string arg = $"-cp {combinedPath} {mainClass}";
 
         if (args is { Length: > 0 })
+        {
             arg += " " + string.Join(" ", args);
-
+            _logger.Debug("Arguments: " + arg.Replace(combinedPath, "[classpath_placeholder]"));
+        }
+        
         Process process = new Process
         {
             StartInfo = new ProcessStartInfo
             {
-                FileName = GameDetails.JavaPath,
+                FileName = defaultJava,
                 Arguments = arg,
-                UseShellExecute = false,
                 RedirectStandardError = true
             }
         };
         process.Start();
         await process.WaitForExitAsync();
+        
+#if DEBUG
+        string o = await process.StandardError.ReadToEndAsync();
+        if (!string.IsNullOrEmpty(o))
+            _logger.Error("Forge processor error: " + o);
+#endif
     }
 }

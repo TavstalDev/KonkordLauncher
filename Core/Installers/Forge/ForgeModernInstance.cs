@@ -12,21 +12,6 @@ using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 namespace Tavstal.KonkordLauncher.Core.Installers.Forge;
 
 // 1.12.2+
-// TODO: Fix
-// 1.12.2,
-// 1.13.2
-// 1.14.2
-// 1.14.3,
-// 1.14.4
-// 1.15
-// 1.15.1,
-// 1.15.2
-// 1.16.1,
-// 1.16.2,
-// 1.16.3,
-// 1.16.4,
-// 1.16.5
-// Test more precisely 1.17.1+
 public class ForgeModernInstance(
    GameDetails gameDetails,
    PathDetails pathDetails,
@@ -91,25 +76,7 @@ public class ForgeModernInstance(
             // Extract Maven
             source = Path.Combine(installerDir, "maven");
             if (Directory.Exists(source))
-            {
-                string[] content = Directory.GetDirectories(source);
-                foreach (string dir in content)
-                {
-                    string newDirPath = dir.Replace(source, PathDetails.LibrariesDir);
-                    if (!Directory.Exists(newDirPath))
-                        Directory.CreateDirectory(newDirPath);
-                }
-
-                content = Directory.GetFiles(source);
-                foreach (string file in content)
-                {
-                    string newFilePath = file.Replace(source, PathDetails.LibrariesDir);
-                    if (!File.Exists(newFilePath))
-                        File.Copy(file, newFilePath, true);
-                }
-            }
-            else
-                _logger.Warn("Maven directory not found in the forge installer directory.");
+                FileSystemHelper.MoveDirectory(source, PathDetails.LibrariesDir, true, false);
         }
         
         // Read Forge Version Meta
@@ -171,15 +138,9 @@ public class ForgeModernInstance(
         if (File.Exists(installerJarPath))
             await MapAndStartProcessors(installProfile, installerDir);
         
-        // Copy Version Files
-        string jarSourcePath = Path.Combine(installerDir, "maven", "net", "minecraftforge", "forge", $"{forgeVersion.MinecraftVersion}-{forgeVersion.CustomVersion}", 
-            $"forge-{forgeVersion.MinecraftVersion}-{forgeVersion.CustomVersion}.jar");
-        _logger.Debug("Source jar path: " + jarSourcePath);
-        if (File.Exists(jarSourcePath))
-        {
-            string targetJarPath = Path.Combine(forgeVersion.VersionDirectory, $"forge-{forgeVersion.MinecraftVersion}-{forgeVersion.CustomVersion}.jar");
-            File.Copy(jarSourcePath, targetJarPath);
-        }
+        // Copy Vanilla Jar
+        if (!File.Exists(forgeVersion.VersionJarPath))
+            File.Copy(forgeVersion.VanillaJarPath, forgeVersion.VersionJarPath);
 
         // Add launch arguments
         _progressReporter?.SetStatusTranslated("instance.building.arguments");
@@ -190,7 +151,7 @@ public class ForgeModernInstance(
             if (forgeVersionMeta.Arguments.Game != null)
                 foreach (var arg in forgeVersionMeta.Arguments.GetGameArgs())
                     _gameArguments.Add(new LaunchArg(arg, 1));
-
+            
             bool handlingParg = false;
             // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
             if (forgeVersionMeta.Arguments.Jvm != null)
@@ -212,6 +173,14 @@ public class ForgeModernInstance(
                     
                     _jvmArguments.Add(new LaunchArg(arg, 1));
                 }
+        }
+
+        if (!string.IsNullOrEmpty(forgeVersionMeta.MinecraftArguments))
+        {
+            // Only 1.12.2 has this field, and
+            // it contains many duplicate vanilla arguments
+            // so this is the easiest way to handle it
+            _gameArguments.Add(new LaunchArg("--tweakClass net.minecraftforge.fml.common.launcher.FMLTweaker", 1));
         }
         
         ModdedData moddedData = new ModdedData(forgeVersionMeta.MainClass, forgeVersion, localLibraries);

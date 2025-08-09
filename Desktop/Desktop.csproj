@@ -78,5 +78,6 @@
 
     <ItemGroup>
         <EmbeddedResource Include="Assets\Icons\**\*" />
+        <EmbeddedResource Include="Assets\Fmllib\**\*" />
     </ItemGroup>
 </Project>

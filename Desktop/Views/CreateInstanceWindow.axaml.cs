@@ -174,7 +174,7 @@ public partial class CreateInstanceWindow : Window
                 },
                 Java = new JavaConfig()
                 {
-                    JvmArguments = settings.Java.JvmArguments,
+                    JvmArguments = string.IsNullOrEmpty(settings.Java.JvmArguments) ? Instance.GetDefaultJVMArgs() : settings.Java.JvmArguments,
                     JavaPath = "LAUNCH_ME_FIRST",
                     MinMemory = settings.Java.MinMemory,
                     MaxMemory = settings.Java.MaxMemory,

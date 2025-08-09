@@ -16,40 +16,127 @@ public static class ForgeInstance
     {
         Version minecraftVersion = new Version(gameDetails.MinecraftVersion);
 
+        string mcVer = gameDetails.MinecraftVersion;
+        string forgeVer = gameDetails.CustomVersion!;
         return (minecraftVersion.Major, minecraftVersion.Minor) switch
         {
-            // Early 1.1 - 1.5.1
-            (1, <= 4) => new ForgeEarlyInstance(gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
+            // Early 1.1 - 1.2.5
+            // Only 1.2.5 is supported
+            // TODO:
+            (1, <= 2) => new ForgeEarlyInstance(GetLegacyName(mcVer, forgeVer), "client", gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
                 progressReporter),
-            // Early 1.5 & 1.5.1
+            // Early 1.3.2 - 1.5.1
             // Classic 1.5.2
-            (1, 5) => gameDetails.MinecraftVersion switch
+            (1, <= 5) => mcVer switch
             {
-                "1.5.2" => new ForgeClassicInstance(gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
+                "1.5.2" => new ForgeClassicInstance(GetLegacyName(mcVer, forgeVer), "minecraftforge-universal-${version}.jar", gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
                     progressReporter),
                 
-                _ => new ForgeEarlyInstance(gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
+                _ => new ForgeEarlyInstance(GetLegacyName(mcVer, forgeVer), "universal", gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
                     progressReporter)
             },
             // Classic 1.6 - 1.7.2
             // Legacy 1.7.10-pre4 & 1.7.10
-            (1, <= 7) => gameDetails.MinecraftVersion switch
+            (1, <= 7) => mcVer switch
             {
-                "1.7.10" => new ForgeLegacyInstance(gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
+                "1.7.10" => new ForgeLegacyInstance($"1.7.10-{forgeVer}-1.7.10", gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
                     progressReporter),
                 
-                "1.7.10-pre4" => new ForgeLegacyInstance(gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
+                "1.7.10-pre4" => new ForgeLegacyInstance($"1.7.10_pre4-{forgeVer}-prerelease", gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
                     progressReporter),
                 
-                _ => new ForgeClassicInstance(gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
+                "1.7.2" => new ForgeClassicInstance($"1.7.2-{forgeVer}-mc172", "forge-${version}-universal.jar", gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
+                    progressReporter),
+                
+                _ => new ForgeClassicInstance(GetLegacyName(mcVer, forgeVer), "minecraftforge-universal-${version}.jar", gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
                     progressReporter),
             },
             // Legacy 1.8+ - 1.12.x
-            (1, <= 12) => new ForgeLegacyInstance(gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
-                progressReporter),
+            (1, <= 12) => (mcVer, forgeVer) switch
+            {
+                ("1.8", _) => new ForgeLegacyInstance(GetLegacyName(mcVer, forgeVer),gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
+                        progressReporter),
+                ("1.8.8", _) => new ForgeLegacyInstance(GetLegacyName(mcVer, forgeVer), gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
+                        progressReporter),
+                ("1.8.9", _) => new ForgeLegacyInstance(GetLegacyNameWithMc(mcVer, forgeVer), gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
+                    progressReporter),
+
+                ("1.9", "12.16.1.1938") => new ForgeLegacyInstance(GetLegacyNameWithZero(mcVer,  forgeVer), gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
+                    progressReporter),
+                
+                ("1.9", _) => new ForgeLegacyInstance(GetLegacyName(mcVer,  forgeVer), gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
+                        progressReporter),
+                
+                ("1.9.4", _) => new ForgeLegacyInstance(GetLegacyNameWithMc(mcVer,  forgeVer), gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
+                    progressReporter),
+
+                ("1.10", _) => new ForgeLegacyInstance(GetLegacyNameWithZero(mcVer,  forgeVer), gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
+                    progressReporter),
+                
+                ("1.10.2", _) or ("1.11", _) or ("1.11.2", _) or ("1.12", _) or
+                ("1.12.1", _) => new ForgeLegacyInstance(GetLegacyName(mcVer,  forgeVer), gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
+                            progressReporter),
+                ("1.12.2", _) => new ForgeModernInstance(gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
+                    progressReporter),
+
+                _ => new ForgeLegacyInstance(GetLegacyName(mcVer,  forgeVer),gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
+                    progressReporter)  
+            },
             // Modern 1.13+
             _ => new ForgeModernInstance(gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
                 progressReporter)
+        };
+    }
+    
+    // Contains old Forge libraries for version 1.5.2
+    // Fixes forge compatibility issues
+    public static List<string> GetLegacyLibraries(string minecraftVersion, string path = "Tavstal.KonkordLauncher.Desktop.Assets.Fmllib.")
+    {
+        Version mcVersion = new Version(minecraftVersion);
+        
+        return (mcVersion.Minor, mcVersion.Build) switch
+        {
+            (3, _) =>
+            [
+                $"{path}argo-2.25.jar",
+                $"{path}asm-all-4.0.jar",
+                $"{path}guava-12.0.1.jar"
+            ],
+            (4, _) =>
+            [
+                $"{path}argo-2.25.jar",
+                $"{path}asm-all-4.0.jar",
+                $"{path}guava-12.0.1.jar",
+                $"{path}bcprov-jdk15on-147.jar"
+            ],
+            (5, 1) =>
+            [
+                $"{path}argo-small-3.2.jar",
+                $"{path}asm-all-4.1.jar",
+                $"{path}bcprov-jdk15on-148.jar",
+                $"{path}deobfuscation_data_1.5.1.zip",
+                $"{path}guava-14.0-rc3.jar",
+                $"{path}scala-library.jar"
+            ],
+            (5, 2) =>
+            [
+                $"{path}argo-small-3.2.jar",
+                $"{path}asm-all-4.1.jar",
+                $"{path}bcprov-jdk15on-148.jar",
+                $"{path}deobfuscation_data_1.5.2.zip",
+                $"{path}guava-14.0-rc3.jar",
+                $"{path}scala-library.jar"
+            ],
+            (5, _) =>
+            [
+                $"{path}argo-small-3.2.jar",
+                $"{path}asm-all-4.1.jar",
+                $"{path}bcprov-jdk15on-148.jar",
+                $"{path}deobfuscation_data_1.5.zip",
+                $"{path}guava-14.0-rc3.jar",
+                $"{path}scala-library.jar"
+            ],
+            _ => []
         };
     }
     
@@ -58,9 +145,9 @@ public static class ForgeInstance
     /// Format: "mc_version-forgemc_version-forge_version"
     /// Example: "1.8-forge1.8-11.14.4.1563"
     /// </summary>
-    private static string GeLegacyName(string mcVersion, string forgeVersion)
+    private static string GetLegacyName(string mcVersion, string forgeVersion)
     {
-        return $"{mcVersion}-forge{mcVersion}-{forgeVersion}";
+        return $"{mcVersion}-{forgeVersion}";
     }
 
     /// <summary>
@@ -70,7 +157,7 @@ public static class ForgeInstance
     /// </summary>
     private static string GetLegacyNameWithMc(string mcVersion, string forgeVersion)
     {
-        return $"{mcVersion}-forge{mcVersion}-{forgeVersion}-{mcVersion}";
+        return $"{mcVersion}-{forgeVersion}-{mcVersion}";
     }
 
     /// <summary>
@@ -80,6 +167,6 @@ public static class ForgeInstance
     /// </summary>
     private static string GetLegacyNameWithZero(string mcVersion, string forgeVersion)
     {
-        return $"{mcVersion}-forge{mcVersion}-{forgeVersion}-{mcVersion}.0";
+        return $"{mcVersion}-{forgeVersion}-{mcVersion}.0";
     }
 }

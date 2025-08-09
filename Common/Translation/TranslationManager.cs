@@ -224,7 +224,16 @@ public static class TranslationManager
             return FallbackTranslate(key, args);
         }
 
-        return args == null ? _translations[key] : string.Format(_translations[key], args);
+        try
+        {
+            return args == null || args.Length == 0 ? _translations[key] : string.Format(_translations[key], args);
+        }
+        catch (Exception ex)
+        {
+            _logger.Exc($"Unknown error while formatting translation for the '{key}' key.");
+            _logger.Error(ex);
+            return string.Empty;
+        }
     }
 
     /// <summary>
@@ -241,6 +250,17 @@ public static class TranslationManager
             return string.Empty;
         }
 
-        return args == null ? _fallbackTranslations[key] : string.Format(_fallbackTranslations[key], args);
+        try
+        {
+            return args == null || args.Length == 0
+                ? _fallbackTranslations[key]
+                : string.Format(_fallbackTranslations[key], args);
+        }
+        catch (Exception ex)
+        {
+            _logger.Exc($"Unknown error while formatting fallback translation for the '{key}' key.");
+            _logger.Error(ex);
+            return string.Empty; 
+        }
     }
 }

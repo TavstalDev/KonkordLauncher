@@ -12,7 +12,7 @@ public static class ForgeMapper
     /// <summary>
     /// A regular expression used to match arguments enclosed in curly brackets.
     /// </summary>
-    private static readonly Regex argBracket = new("\\$?\\{(.*?)}");
+    private static readonly Regex ArgBracket = new(@"\$?\{(.*?)}");
 
     /// <summary>
     /// Maps an array of arguments by interpolating values from a dictionary and optionally converting paths to full paths.
@@ -45,16 +45,26 @@ public static class ForgeMapper
     /// <returns>The interpolated string.</returns>
     public static string Interpolation(string str, Dictionary<string, string?> dictionaries, bool handleEmpty)
     {
-        Dictionary<string, string?> dicts2 = dictionaries;
-        str = argBracket.Replace(str, delegate(Match match)
+        str = ArgBracket.Replace(str, (match =>
         {
             if (match.Groups.Count < 2)
                 return match.Value;
 
-            string value = match.Groups[1].Value;
-            return dicts2.TryGetValue(value, out var value2) ? value2 ?? "" : match.Value;
-        });
-        return handleEmpty ? HandleEmptyArg(str) : str;
+            var key = match.Groups[1].Value;
+            if (dictionaries.TryGetValue(key, out string? value))
+            {
+                if (value == null)
+                    value = "";
+
+                return value;
+            }
+
+            return match.Value;
+        }));
+
+        if (handleEmpty)
+            return HandleEmptyArg(str);
+        return str;
     }
 
     /// <summary>
@@ -92,13 +102,13 @@ public static class ForgeMapper
         if (input.Contains('='))
         {
             string[] array = input.Split('=');
-            if (array[1].Contains(' ') && !checkEmptyHandled(array[1]))
+            if (array[1].Contains(' ') && !CheckEmptyHandled(array[1]))
                 return array[0] + "=\"" + array[1] + "\"";
 
             return input;
         }
 
-        if (input.Contains(' ') && !checkEmptyHandled(input))
+        if (input.Contains(' ') && !CheckEmptyHandled(input))
             return "\"" + input + "\"";
 
         return input;
@@ -109,7 +119,7 @@ public static class ForgeMapper
     /// </summary>
     /// <param name="str">The string to check.</param>
     /// <returns>True if the string is enclosed in quotes, otherwise false.</returns>
-    private static bool checkEmptyHandled(string str)
+    private static bool CheckEmptyHandled(string str)
     {
         return str.StartsWith("\"") || str.EndsWith("\"");
     }

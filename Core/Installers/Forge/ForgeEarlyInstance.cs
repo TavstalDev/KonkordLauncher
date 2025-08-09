@@ -1,13 +1,16 @@
+using System.IO.Compression;
+using System.Reflection;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Core.Models.Endpoints;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
 
 namespace Tavstal.KonkordLauncher.Core.Installers.Forge;
 
 // 1.1 - 1.5.2
-public class ForgeEarlyInstance(
+public class ForgeEarlyInstance(string forgeVersionName, string universalName,
     GameDetails gameDetails,
     PathDetails pathDetails,
     LauncherDetails launcherDetails,
@@ -17,7 +20,7 @@ public class ForgeEarlyInstance(
     : ForgeInstanceBase(gameDetails, pathDetails, launcherDetails, clientDetails, resolution, progressReporter)
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(ForgeClassicInstance));
-
+    
     protected override async Task<ModdedData?> InstallModdedAsync(string tempDir)
     {
         if (!File.Exists(PathDetails.CustomManifestPath))
@@ -32,7 +35,74 @@ public class ForgeEarlyInstance(
         // Create versionDir in the versions folder
         if (!Directory.Exists(forgeVersion.VersionDirectory))
             Directory.CreateDirectory(forgeVersion.VersionDirectory);
+        
+        // Download Universal Zip
+        string universalZipPath = Path.Combine(tempDir, "universal.zip");
+        //string universalExtractDir = Path.Combine(tempDir, $"universal-{forgeVersionName}");
+        if (!File.Exists(forgeVersion.VersionJarPath))
+        {
+            Progress<double> progress = new Progress<double>();
+            progress.ProgressChanged += (sender, e) =>
+            {
+                _progressReporter?.SetStatusTranslated("instance.downloading.installer", "forge",
+                    e.ToString("0.00"));
+            };
+       
+            await HttpHelper.DownloadFileAsync(
+                string.Format(ForgeEndpoints.LoaderUniversalZipUrl, forgeVersionName, universalName), universalZipPath,
+                progress);
+            
+            // Create vanilla extract directory
+            string vanillaExtractDir = Path.Combine(tempDir, "vanilla_extract");
+            if (!Directory.Exists(vanillaExtractDir))
+                Directory.CreateDirectory(vanillaExtractDir);
+            
+            // Extract vanilla jar
+            ZipFile.ExtractToDirectory(forgeVersion.VanillaJarPath, vanillaExtractDir);
+            var vanillaMetaDir = Path.Combine(vanillaExtractDir, "META-INF");
+            if (Directory.Exists(vanillaMetaDir))
+                FileSystemHelper.DeleteDirectory(vanillaMetaDir);
+            else
+                _logger.Warn("META-INF directory not found in the vanilla jar. This may indicate an issue with the jar file.");
+            
+            // Extract universal jar
+            ZipFile.ExtractToDirectory(universalZipPath, vanillaExtractDir, true);
+            string patchedVanillaJarPath = Path.Combine(tempDir, "patched_vanilla.jar");
+            ZipFile.CreateFromDirectory(vanillaExtractDir, patchedVanillaJarPath);
+            
+            File.Copy(patchedVanillaJarPath, forgeVersion.VersionJarPath);
+        }
 
-        return null;
+        ModdedData moddedData = new ModdedData(null, forgeVersion, []);
+        var libraaries = ForgeInstance.GetLegacyLibraries(GameDetails.MinecraftVersion);
+        if (libraaries.Count == 0)
+            return moddedData;
+        
+        string forgeLibDir = Path.Combine(forgeVersion.GameDir, "lib");
+        if (!Directory.Exists(forgeLibDir))
+            Directory.CreateDirectory(forgeLibDir);
+        
+        // Copy legacy libraries to the forge lib directory
+        foreach (var library in libraaries)
+        {
+            string libraryFileName = library.Replace("Tavstal.KonkordLauncher.Desktop.Assets.Fmllib.", "");
+            string libraryTargetPath = Path.Combine(forgeLibDir, libraryFileName);
+            
+            if (File.Exists(libraryTargetPath))
+                continue;
+            
+            // TODO: Use a more robust way to get the resource stream
+            var stream = _progressReporter?.GetType().Assembly.GetManifestResourceStream(library);
+            if (stream == null)
+            {
+                _logger.Error($"Failed to get resource stream for {library}");
+                continue;
+            }
+
+            await using FileStream outFile = new FileStream(libraryTargetPath, FileMode.Create, FileAccess.Write);
+            await stream.CopyToAsync(outFile);
+        }
+       
+        return moddedData;
     }
 }

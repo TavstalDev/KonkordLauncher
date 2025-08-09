@@ -104,7 +104,7 @@ public class ForgeModernInstance(
             throw new FileNotFoundException("Failed to get the forge version meta.");
         rawForgeVersionMeta = null; // Clear the raw meta to free memory
         
-        // Add libraries from Forge Version Meta
+        // Install libraries from Forge Version Meta
         localLibraries.AddRange(forgeVersionMeta.Libraries);
 
         // Read Forge Install Profile
@@ -150,6 +150,26 @@ public class ForgeModernInstance(
 
             await HttpHelper.DownloadFileAsync(libMeta.Downloads.Artifact.Url, libraryPath, libProgress);
         }
+        
+        // Download forge universal
+        /*string forgeUniversal = string.Format(ForgeEndpoints.LoaderUniversalJarUrl, $"{forgeVersion.MinecraftVersion}-{forgeVersion.CustomVersion}");
+
+        string forgeUniversalDir = Path.Combine(PathDetails.LibrariesDir, "net", "minecraftforge", "forge", $"{forgeVersion.MinecraftVersion}-{forgeVersion.CustomVersion}");
+        string forgeUniversalPath = Path.Combine(forgeUniversalDir, $"forge-{forgeVersion.MinecraftVersion}-{forgeVersion.CustomVersion}-universal.jar");
+        if (!Directory.Exists(forgeUniversalDir))
+            Directory.CreateDirectory(forgeUniversalDir);
+        
+        _progressReporter?.SetStatusTranslated("instance.reading.universal", "forge");
+        if (!File.Exists(forgeUniversalPath))
+        {
+            Progress<double> univProgress = new Progress<double>();
+            univProgress.ProgressChanged += (_, e) =>
+            {
+                _progressReporter?.SetStatusTranslated("nstance.downloading.universal", "forge", e.ToString("0.00"));
+            };
+
+            await HttpHelper.DownloadFileAsync(forgeUniversal, forgeUniversalPath, univProgress);
+        }*/
 
         // Map and start processors
         _progressReporter?.SetStatusTranslated("instance.building", "forge", 0);
@@ -166,24 +186,6 @@ public class ForgeModernInstance(
             string targetJarPath = Path.Combine(forgeVersion.VersionDirectory, $"forge-{forgeVersion.MinecraftVersion}-{forgeVersion.CustomVersion}.jar");
             File.Copy(jarSourcePath, targetJarPath);
         }
-        /*string forgeUniversalUrl = string.Format(ForgeEndpoints.LoaderUniversalJarUrl, $"{forgeVersion.MinecraftVersion}-{forgeVersion.CustomVersion}");
-
-        string forgeUniversalDir = Path.Combine(PathDetails.LibrariesDir, "net", "minecraftforge", $"{forgeVersion.MinecraftVersion}-{forgeVersion.CustomVersion}");
-        string forgeUniversalPath = Path.Combine(forgeUniversalDir, $"forge-{forgeVersion.MinecraftVersion}-{forgeVersion.CustomVersion}-universal.jar");
-        if (!Directory.Exists(forgeUniversalDir))
-            Directory.CreateDirectory(forgeUniversalDir);
-
-        _progressReporter?.SetStatusTranslated("instance.reading.universal", "forge");
-        if (!File.Exists(forgeUniversalPath))
-        {
-            Progress<double> univProgress = new Progress<double>();
-            univProgress.ProgressChanged += (_, e) =>
-            {
-                _progressReporter?.SetStatusTranslated("instance.downloading.universal", "forge", e.ToString("0.00"));
-            };
-
-            await HttpHelper.DownloadFileAsync(forgeUniversalUrl, forgeUniversalPath, univProgress);
-        }*/
 
         // Add launch arguments
         _progressReporter?.SetStatusTranslated("instance.building.arguments");
@@ -195,6 +197,11 @@ public class ForgeModernInstance(
                 foreach (var arg in forgeVersionMeta.Arguments.GetGameArgs())
                     _gameArguments.Add(new LaunchArg(arg, 1));
             
+            /*
+            _jvmArgumentsBeforeClassPath.Add(new LaunchArg("-DMcEmu=net.minecraft.client.main.Main", 1));
+            _jvmArgumentsBeforeClassPath.Add(new LaunchArg("-Dlog4j2.formatMsgNoLookups=true", 1));
+            _jvmArgumentsBeforeClassPath.Add(new LaunchArg("-Djava.rmi.server.useCodebaseOnly=true", 1));
+            _jvmArgumentsBeforeClassPath.Add(new LaunchArg("-Dcom.sun.jndi.rmi.object.trustURLCodebase=false", 1));*/
 
             bool handlingParg = false;
             // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
@@ -204,18 +211,18 @@ public class ForgeModernInstance(
                     if (arg == "-p")
                     {
                         handlingParg = true;
-                        _jvmArgumentsBeforeClassPath.Add(new LaunchArg(arg, 1));
+                        _jvmArguments.Add(new LaunchArg(arg, 1));
                         continue;
                     }            
                     
                     if (handlingParg)
                     {
                         handlingParg = false;
-                        _jvmArgumentsBeforeClassPath.Add(new LaunchArg('"' + arg.Replace("${library_directory}", PathDetails.LibrariesDir) + '"', 1));
+                        _jvmArguments.Add(new LaunchArg(arg.Replace("${library_directory}", PathDetails.LibrariesDir), 1));
                         continue;
                     }
                     
-                    _jvmArgumentsBeforeClassPath.Add(new LaunchArg(arg, 1));
+                    _jvmArguments.Add(new LaunchArg(arg, 1));
                 }
         }
         

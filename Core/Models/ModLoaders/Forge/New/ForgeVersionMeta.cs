@@ -8,6 +8,8 @@ public class ForgeVersionMeta
 {
     [JsonPropertyName("arguments"), JsonProperty("arguments")]
     public ArgumentMeta Arguments { get; set; }
+    [JsonPropertyName("minecraftArguments"), JsonProperty("minecraftArguments")]
+    public string? MinecraftArguments { get; set; }
     [JsonPropertyName("id"), JsonProperty("id")]
     public string Id { get; set; }
     [JsonPropertyName("inheritsFrom"), JsonProperty("inheritsFrom")]

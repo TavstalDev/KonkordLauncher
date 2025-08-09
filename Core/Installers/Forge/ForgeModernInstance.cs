@@ -41,7 +41,7 @@ public class ForgeModernInstance(
         // Download & Extract Installer
         string installerJarPath = Path.Combine(tempDir, "installer.jar");
         string installerDir = Path.Combine(tempDir, "installer");
-        string installProfilePath = Path.Combine(forgeVersion.VersionDirectory, "install_profile.json");
+        string installerProfilePath = Path.Combine(forgeVersion.VersionDirectory, "install_profile.json");
         if (!File.Exists(forgeVersion.VersionJsonPath))
         {
             Progress<double> progress = new Progress<double>();
@@ -62,7 +62,7 @@ public class ForgeModernInstance(
             // Move install_profile.json
             var source = Path.Combine(installerDir, "install_profile.json");
             if (File.Exists(source))
-                File.Move(source, installProfilePath);
+                File.Move(source, installerProfilePath);
             else
                 _logger.Error("Install profile JSON file not found in the forge installer directory.");
             
@@ -90,7 +90,7 @@ public class ForgeModernInstance(
                 {
                     string newFilePath = file.Replace(source, PathDetails.LibrariesDir);
                     if (!File.Exists(newFilePath))
-                        File.Copy(file, newFilePath, false);
+                        File.Copy(file, newFilePath, true);
                 }
             }
             else
@@ -108,7 +108,7 @@ public class ForgeModernInstance(
         localLibraries.AddRange(forgeVersionMeta.Libraries);
 
         // Read Forge Install Profile
-        var rawInstallProfile = await File.ReadAllTextAsync(installProfilePath);
+        var rawInstallProfile = await File.ReadAllTextAsync(installerProfilePath);
         var installProfile = JsonConvert.DeserializeObject<ForgeVersionProfile>(rawInstallProfile);
         if (installProfile == null)
             throw new FileNotFoundException("Failed to get the forge install profile meta.");
@@ -150,26 +150,6 @@ public class ForgeModernInstance(
 
             await HttpHelper.DownloadFileAsync(libMeta.Downloads.Artifact.Url, libraryPath, libProgress);
         }
-        
-        // Download forge universal
-        /*string forgeUniversal = string.Format(ForgeEndpoints.LoaderUniversalJarUrl, $"{forgeVersion.MinecraftVersion}-{forgeVersion.CustomVersion}");
-
-        string forgeUniversalDir = Path.Combine(PathDetails.LibrariesDir, "net", "minecraftforge", "forge", $"{forgeVersion.MinecraftVersion}-{forgeVersion.CustomVersion}");
-        string forgeUniversalPath = Path.Combine(forgeUniversalDir, $"forge-{forgeVersion.MinecraftVersion}-{forgeVersion.CustomVersion}-universal.jar");
-        if (!Directory.Exists(forgeUniversalDir))
-            Directory.CreateDirectory(forgeUniversalDir);
-        
-        _progressReporter?.SetStatusTranslated("instance.reading.universal", "forge");
-        if (!File.Exists(forgeUniversalPath))
-        {
-            Progress<double> univProgress = new Progress<double>();
-            univProgress.ProgressChanged += (_, e) =>
-            {
-                _progressReporter?.SetStatusTranslated("nstance.downloading.universal", "forge", e.ToString("0.00"));
-            };
-
-            await HttpHelper.DownloadFileAsync(forgeUniversal, forgeUniversalPath, univProgress);
-        }*/
 
         // Map and start processors
         _progressReporter?.SetStatusTranslated("instance.building", "forge", 0);
@@ -179,7 +159,6 @@ public class ForgeModernInstance(
         // Copy Version Files
         string jarSourcePath = Path.Combine(installerDir, "maven", "net", "minecraftforge", "forge", $"{forgeVersion.MinecraftVersion}-{forgeVersion.CustomVersion}", 
             $"forge-{forgeVersion.MinecraftVersion}-{forgeVersion.CustomVersion}.jar");
-        
         _logger.Debug("Source jar path: " + jarSourcePath);
         if (File.Exists(jarSourcePath))
         {
@@ -196,12 +175,6 @@ public class ForgeModernInstance(
             if (forgeVersionMeta.Arguments.Game != null)
                 foreach (var arg in forgeVersionMeta.Arguments.GetGameArgs())
                     _gameArguments.Add(new LaunchArg(arg, 1));
-            
-            /*
-            _jvmArgumentsBeforeClassPath.Add(new LaunchArg("-DMcEmu=net.minecraft.client.main.Main", 1));
-            _jvmArgumentsBeforeClassPath.Add(new LaunchArg("-Dlog4j2.formatMsgNoLookups=true", 1));
-            _jvmArgumentsBeforeClassPath.Add(new LaunchArg("-Djava.rmi.server.useCodebaseOnly=true", 1));
-            _jvmArgumentsBeforeClassPath.Add(new LaunchArg("-Dcom.sun.jndi.rmi.object.trustURLCodebase=false", 1));*/
 
             bool handlingParg = false;
             // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract

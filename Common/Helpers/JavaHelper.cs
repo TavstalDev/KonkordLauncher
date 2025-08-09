@@ -15,6 +15,36 @@ public static class JavaHelper
     /// Logger instance for the JavaHelper module.
     /// </summary>
     private static readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(JavaHelper));
+    // TODO
+    private static readonly List<JavaMirror> _javaMirrors = [
+        // Windows
+        new (7, "", EOperatingSystem.Windows),
+        new (7, "", EOperatingSystem.Windows, true),
+        new (8, "https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u462-b08/OpenJDK8U-jdk_x64_windows_hotspot_8u462b08.zip", EOperatingSystem.Windows),
+        new (8, "", EOperatingSystem.Windows, true),
+        new (17, "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.9%2B9/OpenJDK17U-jdk_x86-32_windows_hotspot_17.0.9_9.zip", EOperatingSystem.Windows),
+        new (17, "", EOperatingSystem.Windows, true),
+        new (21, "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.8%2B9/OpenJDK21U-jdk_x64_windows_hotspot_21.0.8_9.zip", EOperatingSystem.Windows),
+        new (21, "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.8%2B9/OpenJDK21U-jdk_aarch64_windows_hotspot_21.0.8_9.zip", EOperatingSystem.Windows, true),
+        // Linux
+        new (7, "", EOperatingSystem.Linux),
+        new (7, "", EOperatingSystem.Linux, true),
+        new (8, "https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u462-b08/OpenJDK8U-jdk_x64_linux_hotspot_8u462b08.tar.gz", EOperatingSystem.Linux),
+        new (8, "https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u462-b08/OpenJDK8U-jdk_aarch64_linux_hotspot_8u462b08.tar.gz", EOperatingSystem.Linux, true),
+        new (17, "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.9%2B9/OpenJDK17U-jdk_x64_linux_hotspot_17.0.9_9.tar.gz", EOperatingSystem.Linux),
+        new (17, "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.9%2B9/OpenJDK17U-jdk_aarch64_linux_hotspot_17.0.9_9.tar.gz", EOperatingSystem.Linux, true),
+        new (21, "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.8%2B9/OpenJDK21U-jdk_x64_linux_hotspot_21.0.8_9.tar.gz", EOperatingSystem.Linux),
+        new (21, "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.8%2B9/OpenJDK21U-jdk_aarch64_linux_hotspot_21.0.8_9.tar.gz", EOperatingSystem.Linux, true),
+        // MacOS
+        new (7, "", EOperatingSystem.MacOS),
+        new (7, "", EOperatingSystem.MacOS, true),
+        new (8, "https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u462-b08/OpenJDK8U-jdk_x64_mac_hotspot_8u462b08.tar.gz", EOperatingSystem.MacOS),
+        new (8, "", EOperatingSystem.MacOS, true),
+        new (17, "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.9%2B9/OpenJDK17U-jdk_x64_mac_hotspot_17.0.9_9.tar.gz", EOperatingSystem.MacOS),
+        new (17, "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.9%2B9/OpenJDK17U-jdk_aarch64_mac_hotspot_17.0.9_9.tar.gz", EOperatingSystem.MacOS, true),
+        new (21, "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.8%2B9/OpenJDK21U-jdk_x64_mac_hotspot_21.0.8_9.tar.gz", EOperatingSystem.MacOS),
+        new (21, "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.8%2B9/OpenJDK21U-jdk_aarch64_mac_hotspot_21.0.8_9.tar.gz", EOperatingSystem.MacOS, true),
+    ];
     private static List<JavaVersion> _cachedJavaVersions = [];
     private static DateTime _cacheExpiration = DateTime.MinValue;
 

@@ -115,10 +115,20 @@ public static class JavaHelper
                 if (line.Contains("os.arch ="))
                     architecture = line.Split('=')[1].Trim();
             }
-            
-            if (majorVersion == "1.8")
-                majorVersion = "8"; // Normalize Java 1.8 to 8
-            
+
+            if (majorVersion.StartsWith("1."))
+            {
+                string[] parts = majorVersion.Split('.');
+                if (parts.Length > 1)
+                {
+                    majorVersion = parts[1];
+                }
+                else
+                {
+                    _logger.Warn($"Java version format '{majorVersion}' is unexpected, defaulting to 1.");
+                    majorVersion = "1"; // Default to 1 if no version is found
+                }
+            }
             
             return new JavaVersion(int.Parse(majorVersion), javaVersion, architecture, path);
         }
@@ -134,8 +144,11 @@ public static class JavaHelper
     /// Searches for Java installations in common paths.
     /// </summary>
     /// <returns>A dictionary where the key is the Java version and the value is a list of installation paths.</returns>
-    public static List<JavaVersion> LocateJavaInstallations()
+    public static List<JavaVersion> LocateJavaInstallations(bool forceRefresh = false)
     {
+        if (forceRefresh)
+            _cacheExpiration = DateTime.MinValue;
+        
         if (_cachedJavaVersions.Count > 0 && _cacheExpiration > DateTime.Now)
             return _cachedJavaVersions;
         

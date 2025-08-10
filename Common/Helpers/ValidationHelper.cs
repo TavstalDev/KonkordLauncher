@@ -37,6 +37,9 @@ public static class ValidationHelper
 
             if (!Directory.Exists(settings.Launcher.IconsDirectoryPath))
                 Directory.CreateDirectory(settings.Launcher.IconsDirectoryPath);
+            
+            if (!Directory.Exists(settings.Launcher.JavaDirectoryPath))
+                Directory.CreateDirectory(settings.Launcher.JavaDirectoryPath);
 
             if (!Directory.Exists(settings.Launcher.TranslationsDirectoryPath))
                 Directory.CreateDirectory(settings.Launcher.TranslationsDirectoryPath);
@@ -114,23 +117,24 @@ public static class ValidationHelper
             return false;
         }
     }
-
-    /// <summary>
-    /// Validates the existence of required manifest files and downloads them if they do not exist.
-    /// </summary>
-    /// <returns>True if all required manifest files are validated or downloaded successfully, otherwise false.</returns>
-    public static async Task<bool> ValidateManifests()
+    
+    public static async Task<bool> ValidateManifests(IProgressReporter? progressReporter = null)
     {
         try
         {
             using var httpClient = new HttpClient();
             var settings = await LauncherHelper.GetLauncherSettingsAsync();
+            
 
             // Vanilla
             if (!File.Exists(settings.Launcher.GetVanillaManifestPath()))
             {
-                string json = await httpClient.GetStringAsync(MicrosoftEndpoints.MinecraftManifestUrl);
-                await File.WriteAllTextAsync(settings.Launcher.GetVanillaManifestPath(), json);
+                Progress<double> progress = new Progress<double>();
+                progress.ProgressChanged += (sender, e) =>
+                {
+                    progressReporter?.SetStatusTranslated("startup.validation.manifests.download", "minecraft", e.ToString("0.00"));
+                };
+                await HttpHelper.DownloadFileAsync(MicrosoftEndpoints.MinecraftManifestUrl, settings.Launcher.GetVanillaManifestPath(), progress);
             }
             if (await ManifestHelper.GetMinecraftManifestAsync(settings.Launcher.GetVanillaManifestPath()) == null)
                 _logger.Error("Failed to load Minecraft manifest");
@@ -138,8 +142,12 @@ public static class ValidationHelper
             // Fabric
             if (!File.Exists(settings.Launcher.GetFabricManifestPath()))
             {
-                string json = await httpClient.GetStringAsync(FabricEndpoints.VersionManifestUrl);
-                await File.WriteAllTextAsync(settings.Launcher.GetFabricManifestPath(), json);
+                Progress<double> progress = new Progress<double>();
+                progress.ProgressChanged += (sender, e) =>
+                {
+                    progressReporter?.SetStatusTranslated("startup.validation.manifests.download", "fabric", e.ToString("0.00"));
+                };
+                await HttpHelper.DownloadFileAsync(FabricEndpoints.VersionManifestUrl, settings.Launcher.GetFabricManifestPath(), progress);
             }
             if (await ManifestHelper.GetFabricManifestAsync(settings.Launcher.GetFabricManifestPath()) == null)
                 _logger.Error("Failed to load Fabric manifest");
@@ -220,8 +228,12 @@ public static class ValidationHelper
             // Quilt
             if (!File.Exists(settings.Launcher.GetQuiltManifestPath()))
             {
-                string json = await httpClient.GetStringAsync(QuiltEndpoints.VersionManifestUrl);
-                await File.WriteAllTextAsync(settings.Launcher.GetQuiltManifestPath(), json);
+                Progress<double> progress = new Progress<double>();
+                progress.ProgressChanged += (sender, e) =>
+                {
+                    progressReporter?.SetStatusTranslated("startup.validation.manifests.download", "quilt", e.ToString("0.00"));
+                };
+                await HttpHelper.DownloadFileAsync(QuiltEndpoints.VersionManifestUrl, settings.Launcher.GetQuiltManifestPath(), progress);
             }
             if (await ManifestHelper.GetQuiltManifestAsync(settings.Launcher.GetQuiltManifestPath()) == null)
                 _logger.Error("Failed to load Quilt manifest");

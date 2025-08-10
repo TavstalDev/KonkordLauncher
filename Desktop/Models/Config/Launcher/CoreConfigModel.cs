@@ -16,7 +16,7 @@ public partial class CoreConfigModel : ObservableObject
 
     [ObservableProperty] private MiscConfigModel _misc;
 
-   public List<Language> AvailableLanguages => LanguagePackProvider.LanguagePacks;
+    public List<Language> AvailableLanguages => LanguagePackProvider.LanguagePacks;
     
     public CoreConfigModel() {}
     
@@ -39,6 +39,7 @@ public partial class CoreConfigModel : ObservableObject
             CacheDirectoryPath = config.Launcher.CacheDirectoryPath,
             IconsDirectoryPath = config.Launcher.IconsDirectoryPath,
             InstancesDirectoryPath = config.Launcher.InstancesDirectoryPath,
+            JavaDirectoryPath = config.Launcher.JavaDirectoryPath,
             LibrariesDirectoryPath = config.Launcher.LibrariesDirectoryPath,
             ManifestsDirectoryPath = config.Launcher.ManifestsDirectoryPath,
             TranslationsDirectoryPath = config.Launcher.TranslationsDirectoryPath,

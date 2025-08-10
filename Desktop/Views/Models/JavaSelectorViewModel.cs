@@ -24,15 +24,17 @@ public partial class JavaSelectorViewModel : ObservableObject
     
     /// <summary>
     /// Initializes a new instance of the <see cref="JavaSelectorViewModel"/> class.
-    /// Loads available Java versions and initializes properties.
     /// </summary>
-    public JavaSelectorViewModel()
+    /// <param name="customJavaDirectory">
+    /// An optional custom directory to search for Java installations. If null, the default directories are used.
+    /// </param>
+    public JavaSelectorViewModel(string? customJavaDirectory = null)
     {
         Versions = [];
         SelectedJavaVersion = null;
         
         // Load available Java versions
-        var versions = JavaHelper.LocateJavaInstallations();
+        var versions = JavaHelper.LocateJavaInstallations(customJavaDirectory);
         foreach (var version in versions)
             Versions.Add(new JavaVersionModel(version));
     }

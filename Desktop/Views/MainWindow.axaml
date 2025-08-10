@@ -374,6 +374,26 @@
                                                 <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
                                             </Button>
                                         </Grid>
+                                        <!-- Icons Directory  -->
+                                        <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto">
+                                            <!--  Text  -->
+                                            <TextBlock Name="StIconsTb" Classes="TextInput">Icons</TextBlock>
+                                            <!--  Input  -->
+                                            <TextBox
+                                                Name="StIconsInput"
+                                                Grid.Column="1"
+                                                Classes="TextInput"
+                                                Text="{Binding CoreConfig.Launcher.IconsDirectoryPath, Mode=TwoWay}"
+                                                Watermark="Select a directory..." />
+                                            <!--  Button  -->
+                                            <Button
+                                                Name="StIconsBtn"
+                                                Grid.Column="2"
+                                                Classes="IconBtn"
+                                                Click="IconsDirSelect_OnClick">
+                                                <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                            </Button>
+                                        </Grid>
                                         <!--  Instances Directory  -->
                                         <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto">
                                             <!--  Text  -->
@@ -394,23 +414,23 @@
                                                 <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
                                             </Button>
                                         </Grid>
-                                        <!-- Icons Directory  -->
+                                        <!-- Launcher Java Directory  -->
                                         <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto">
                                             <!--  Text  -->
-                                            <TextBlock Name="StIconsTb" Classes="TextInput">Icons</TextBlock>
+                                            <TextBlock Name="StJavaDirTb" Classes="TextInput">Java (local)</TextBlock>
                                             <!--  Input  -->
                                             <TextBox
-                                                Name="StIconsInput"
+                                                Name="StJavaDirInput"
                                                 Grid.Column="1"
                                                 Classes="TextInput"
-                                                Text="{Binding CoreConfig.Launcher.IconsDirectoryPath, Mode=TwoWay}"
+                                                Text="{Binding CoreConfig.Launcher.JavaDirectoryPath, Mode=TwoWay}"
                                                 Watermark="Select a directory..." />
                                             <!--  Button  -->
                                             <Button
-                                                Name="StIconsBtn"
+                                                Name="StJavaDirBtn"
                                                 Grid.Column="2"
                                                 Classes="IconBtn"
-                                                Click="IconsDirSelect_OnClick">
+                                                Click="JavaDirSelect_OnClick">
                                                 <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
                                             </Button>
                                         </Grid>

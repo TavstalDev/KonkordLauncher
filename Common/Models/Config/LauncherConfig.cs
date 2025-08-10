@@ -65,6 +65,12 @@ public class LauncherConfig
     public string InstancesDirectoryPath { get; set; }
     
     /// <summary>
+    /// Gets or sets the file system path to the Java directory.
+    /// </summary>
+    [JsonProperty("javaDirectoryPath"), JsonPropertyName("javaDirectoryPath")]
+    public string JavaDirectoryPath { get; set; }
+    
+    /// <summary>
     /// Gets or sets the file system path to the libraries directory.
     /// </summary>
     [JsonProperty("librariesDirectoryPath"), JsonPropertyName("librariesDirectoryPath")]
@@ -102,6 +108,7 @@ public class LauncherConfig
         CacheDirectoryPath = Path.Combine(PathHelper.ApplicationDir, "cache");
         IconsDirectoryPath = Path.Combine(PathHelper.ApplicationDir, "icons");
         InstancesDirectoryPath = Path.Combine(PathHelper.ApplicationDir, "instances");
+        JavaDirectoryPath = Path.Combine(PathHelper.ApplicationDir, "java");
         LibrariesDirectoryPath = Path.Combine(PathHelper.ApplicationDir, "libraries");
         ManifestsDirectoryPath = Path.Combine(PathHelper.ApplicationDir, "manifests");
         TranslationsDirectoryPath = Path.Combine(PathHelper.ApplicationDir, "translations");
@@ -111,7 +118,7 @@ public class LauncherConfig
     /// <summary>
     /// Initializes a new instance of the <see cref="LauncherConfig"/> class with specified values.
     /// </summary>
-    /// <param name="enableAutomaticUpdates">Whether automatic updates are enabled.</param>
+    /// <param name="enableAutomaticUpdates">Indicates whether automatic updates are enabled.</param>
     /// <param name="updateInterval">The update interval in hours.</param>
     /// <param name="nextUpdateCheck">The date and time for the next update check.</param>
     /// <param name="language">The language of the launcher.</param>
@@ -120,11 +127,12 @@ public class LauncherConfig
     /// <param name="cacheDirectoryPath">The file system path to the cache directory.</param>
     /// <param name="iconsDirectoryPath">The file system path to the icons directory.</param>
     /// <param name="instancesDirectoryPath">The file system path to the instances directory.</param>
+    /// <param name="javaDirectoryPath">The file system path to the Java directory.</param>
     /// <param name="librariesDirectoryPath">The file system path to the libraries directory.</param>
     /// <param name="manifestsDirectoryPath">The file system path to the manifests directory.</param>
     /// <param name="translationsDirectoryPath">The file system path to the translations directory.</param>
     /// <param name="versionsDirectoryPath">The file system path to the versions directory.</param>
-    public LauncherConfig(bool enableAutomaticUpdates, uint updateInterval, DateTime nextUpdateCheck, string language, EThemeType theme, string assetsDirectoryPath, string cacheDirectoryPath, string iconsDirectoryPath, string instancesDirectoryPath, string librariesDirectoryPath, string manifestsDirectoryPath, string translationsDirectoryPath, string versionsDirectoryPath)
+    public LauncherConfig(bool enableAutomaticUpdates, uint updateInterval, DateTime nextUpdateCheck, string language, EThemeType theme, string assetsDirectoryPath, string cacheDirectoryPath, string iconsDirectoryPath, string instancesDirectoryPath, string javaDirectoryPath, string librariesDirectoryPath, string manifestsDirectoryPath, string translationsDirectoryPath, string versionsDirectoryPath)
     {
         EnableAutomaticUpdates = enableAutomaticUpdates;
         UpdateInterval = updateInterval;
@@ -135,6 +143,7 @@ public class LauncherConfig
         CacheDirectoryPath = cacheDirectoryPath;
         IconsDirectoryPath = iconsDirectoryPath;
         InstancesDirectoryPath = instancesDirectoryPath;
+        JavaDirectoryPath = javaDirectoryPath;
         LibrariesDirectoryPath = librariesDirectoryPath;
         ManifestsDirectoryPath = manifestsDirectoryPath;
         TranslationsDirectoryPath = translationsDirectoryPath;

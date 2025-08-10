@@ -217,6 +217,7 @@ public partial class MainWindow : Window
         StCacheTb.Text = TranslationManager.Translate("settings.launcher.dir.cache");
         StInstancesTb.Text = TranslationManager.Translate("settings.launcher.dir.instances");
         StIconsTb.Text = TranslationManager.Translate("settings.launcher.dir.icons");
+        StJavaDirTb.Text = TranslationManager.Translate("settings.launcher.dir.java");
         StLibrariesTb.Text = TranslationManager.Translate("settings.launcher.dir.libraries");
         StManifestsTb.Text = TranslationManager.Translate("settings.launcher.dir.manifests");
         StTranslationsTb.Text = TranslationManager.Translate("settings.launcher.dir.translations");
@@ -549,6 +550,31 @@ private void OnAboutSideButtonClick(object? sender, RoutedEventArgs e)
                 return;
             
             viewModel.CoreConfig.Launcher.IconsDirectoryPath = resultPath;
+        });
+    }
+    
+    /// <summary>
+    /// Handles the click event for selecting the Java directory.
+    /// Opens a folder picker dialog to allow the user to select the Java directory
+    /// and updates the configuration with the selected path.
+    /// </summary>
+    /// <param name="sender">The source of the event, typically a button.</param>
+    /// <param name="e">The event data associated with the button click.</param>
+    private void JavaDirSelect_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not MainViewModel viewModel)
+            return;
+        
+        var directoryResult = OpenFolderPickerAsync();
+        directoryResult.ContinueWith(task =>
+        {
+            if (!task.IsCompletedSuccessfully)
+                return;
+
+            if (task.Result is not { } resultPath)
+                return;
+            
+            viewModel.CoreConfig.Launcher.JavaDirectoryPath = resultPath;
         });
     }
 

@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
@@ -30,7 +31,14 @@ public partial class JavaSelectorWindow : Window
         this.AttachDevTools();
 #endif
 
-        this.DataContext = new JavaSelectorViewModel();
+        if (Design.IsDesignMode)
+            this.DataContext = new JavaSelectorViewModel();
+        else
+        {
+            var settings = LauncherHelper.GetLauncherSettings();
+            this.DataContext = new JavaSelectorViewModel(settings.Launcher.JavaDirectoryPath);
+        }
+        
         App.OnLanguageChanged += HandleLanguageChange;
         HandleLanguageChange(string.Empty);
     }

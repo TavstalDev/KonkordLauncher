@@ -20,6 +20,8 @@ public partial class LauncherConfigModel : ObservableObject
     [ObservableProperty] private string _iconsDirectoryPath;
 
     [ObservableProperty] private string _instancesDirectoryPath;
+    
+    [ObservableProperty] private string _javaDirectoryPath;
 
     [ObservableProperty] private string _librariesDirectoryPath;
 
@@ -31,7 +33,7 @@ public partial class LauncherConfigModel : ObservableObject
 
     public LauncherConfigModel() {}
     
-    public LauncherConfigModel(bool enableAutomaticUpdates, uint updateInterval, string language, EThemeType theme, string assetsDirectoryPath, string cacheDirectoryPath, string iconsDirectoryPath, string instancesDirectoryPath, string librariesDirectoryPath, string manifestsDirectoryPath, string translationsDirectoryPath, string versionsDirectoryPath)
+    public LauncherConfigModel(bool enableAutomaticUpdates, uint updateInterval, string language, EThemeType theme, string assetsDirectoryPath, string cacheDirectoryPath, string iconsDirectoryPath, string instancesDirectoryPath, string javaDirectoryPath, string librariesDirectoryPath, string manifestsDirectoryPath, string translationsDirectoryPath, string versionsDirectoryPath)
     {
         _enableAutomaticUpdates = enableAutomaticUpdates;
         _updateInterval = updateInterval;
@@ -41,6 +43,7 @@ public partial class LauncherConfigModel : ObservableObject
         _cacheDirectoryPath = cacheDirectoryPath;
         _iconsDirectoryPath = iconsDirectoryPath;
         _instancesDirectoryPath = instancesDirectoryPath;
+        _javaDirectoryPath = javaDirectoryPath;
         _librariesDirectoryPath = librariesDirectoryPath;
         _manifestsDirectoryPath = manifestsDirectoryPath;
         _translationsDirectoryPath = translationsDirectoryPath;

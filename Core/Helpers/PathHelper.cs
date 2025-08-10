@@ -35,4 +35,9 @@ public static class PathHelper
     /// Gets the path to the launcher instances file.
     /// </summary>
     public static readonly string LauncherInstancesPath = Path.Combine(ApplicationDir, "instances.json");
+    
+    /// <summary>
+    /// Gets the path to the Java mirrors configuration file.
+    /// </summary>
+    public static readonly string JavaMirrorsPath = Path.Combine(ApplicationDir, "java-mirrors.json");
 }

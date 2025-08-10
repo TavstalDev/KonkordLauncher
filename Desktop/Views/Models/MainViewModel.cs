@@ -119,6 +119,12 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
             {
                 wrapperCommand = "mangohud " + wrapperCommand;
             }
+
+            var gpuInfo = OSHelper.GetDedicatedGpuType();
+            if (instance.ConfigModel.Game.UseDedicatedGpu && gpuInfo != null)
+            {
+                // TODO
+            }
             
             MinecraftInstance? gameInstance = null;
             var settings = await LauncherHelper.GetLauncherSettingsAsync();

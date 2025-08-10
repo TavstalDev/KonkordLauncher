@@ -154,7 +154,7 @@ public partial class CreateInstanceWindow : Window
             Name = vm.InstanceName,
             Kind = vm.ModLoaderType,
             Group = "none",
-            MinecraftVersion = vm.SelectedMinecraftVersion.Id,
+            MinecraftVersion = vm.SelectedMinecraftVersion?.Id,
             CustomVersion = vm.SelectedModLoader?.Version ?? string.Empty,
             IconPath = vm.InstanceIconPath ?? string.Empty,
             GameDirectory = System.IO.Path.Combine(settings.Launcher.InstancesDirectoryPath, vm.InstanceName),

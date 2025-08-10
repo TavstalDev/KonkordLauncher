@@ -104,12 +104,12 @@ public class VersionMeta
         if (ArgumentsNew != null)
             return ArgumentsNew.GetJvmArgs();
         if (ArgumentsLegacy != null)
-            return new List<string>
-            {
+            return
+            [
                 "-Djava.library.path=${natives_directory}",
                 "-Dminecraft.launcher.brand=${launcher_name}",
                 "-Dminecraft.launcher.version=${launcher_version}"
-            };
+            ];
         throw new Exception("Failed to get the game arguments");
     }
     

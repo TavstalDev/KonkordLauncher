@@ -79,6 +79,19 @@ public class LibraryMeta
                 localResult = rule.Action == "allow";
                 continue;
             }
+            
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+            if (rule.Os.Name == null)
+            {
+                localResult = rule.Action == "allow";
+                continue;
+            }
+            
+            if (rule.Os.Name == "x86" && !OSHelper.Is64BitOperatingSystem())
+            {
+                localResult = rule.Action == "allow";
+                continue;
+            }
 
             if (rule.Os.Name == "windows" && operatingSystem == EOperatingSystem.Windows)
             {

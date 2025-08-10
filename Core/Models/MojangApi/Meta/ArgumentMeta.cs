@@ -1,5 +1,9 @@
 ﻿using System.Text.Json.Serialization;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Tavstal.KonkordLauncher.Core.Enums;
+using Tavstal.KonkordLauncher.Core.Helpers;
+using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta.Library;
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 
@@ -44,16 +48,16 @@ public class ArgumentMeta
     {
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (Game == null)
-            return new List<string>();
+            return [];
 
-        List<string> local = new List<string>();
+        List<string> local = [];
         foreach (var item in Game)
         {
             if (item is string s)
                 local.Add(s);
         }
 
-        List<string> result = new List<string>();
+        List<string> result = [];
 
         for (int i = 0; i < local.Count; i += 2)
         {
@@ -73,7 +77,7 @@ public class ArgumentMeta
         if (Game == null)
             return string.Empty;
 
-        List<string> local = new List<string>();
+        List<string> local = [];
         foreach (var item in Game)
         {
             if (item is string s)
@@ -97,18 +101,24 @@ public class ArgumentMeta
     {
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (Jvm == null)
-            return new List<string>();
+            return [];
 
-        List<string> local = new List<string>();
+        List<string> local = [];
         foreach (var item in Jvm)
         {
             if (item is string s)
-            {
-                /*if (s.StartsWith("-cp"))
-                    continue;
-                if (s == "${classpath}")
-                    continue;*/
                 local.Add(s);
+            else
+            {
+                var raw = item.ToString();
+                if (raw == null)
+                    continue;
+               
+                var ruleResult = GetRuleResult(raw);
+                if (string.IsNullOrEmpty(ruleResult))
+                    continue;
+                
+                local.Add(ruleResult);
             }
         }
 
@@ -130,14 +140,86 @@ public class ArgumentMeta
         {
             if (item is string s)
             {
-                /*if (s.StartsWith("-cp"))
-                    continue;
-                if (s == "${classpath}")
-                    continue;*/
                 local += $"{s} ";
+            }
+            else
+            {
+                var raw = item.ToString();
+                if (raw == null)
+                    continue;
+               
+                var ruleResult = GetRuleResult(raw);
+                if (string.IsNullOrEmpty(ruleResult))
+                    continue;
+                
+                local += $"{ruleResult} ";
             }
         }
 
         return local;
+    }
+
+    /// <summary>
+    /// Evaluates a set of rules from a JSON string and determines whether the rules allow or deny access.
+    /// </summary>
+    /// <param name="json">The JSON string containing the rules and value to evaluate.</param>
+    /// <returns>
+    /// The value from the JSON if the rules allow access; otherwise, <c>null</c>.
+    /// </returns>
+    public string? GetRuleResult(string json)
+    {
+        JObject jobj = JObject.Parse(json);
+        string value = jobj["value"]?.ToString() ?? string.Empty;
+        if (string.IsNullOrEmpty(value))
+            return null;
+                
+        var rawRules = jobj["rules"]?.ToString() ?? string.Empty;
+        if (string.IsNullOrEmpty(rawRules))
+            return null;
+        List<Rule>? rules =  JsonConvert.DeserializeObject<List<Rule>>(rawRules);
+        if (rules == null || rules.Count == 0)
+            return null;
+                
+        bool localResult = false;
+        var operatingSystem = OSHelper.GetOperatingSystem();
+        foreach (Rule rule in rules)
+        {
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+            if (rule.Os == null)
+            {
+                localResult = rule.Action == "allow";
+                continue;
+            }
+            
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+            if (rule.Os.Name == null)
+            {
+                localResult = rule.Action == "allow";
+                continue;
+            }
+
+            if (rule.Os.Name == "x86" && !OSHelper.Is64BitOperatingSystem())
+            {
+                localResult = rule.Action == "allow";
+                continue;
+            }
+                
+            if (rule.Os.Name == "windows" && operatingSystem == EOperatingSystem.Windows)
+            {
+                localResult = rule.Action == "allow";
+                continue;
+            }
+
+            if (rule.Os.Name == "linux" && operatingSystem == EOperatingSystem.Linux)
+            {
+                localResult = rule.Action == "allow";
+                continue;
+            }
+
+            if (rule.Os.Name.StartsWith("osx") && operatingSystem == EOperatingSystem.MacOS)
+                localResult = rule.Action == "allow";
+        }
+        
+        return localResult ? value : null;
     }
 }

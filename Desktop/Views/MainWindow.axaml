@@ -60,7 +60,9 @@
                                 Text="&#xf04d;" />
                         </Button>
                         <!--  Edit Button  -->
-                        <Button Classes="IconBtn InfoBtn">
+                        <Button Classes="IconBtn InfoBtn"
+                                Command="{Binding #root.DataContext.EditInstanceCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"
+                                CommandParameter="{Binding .}">
                             <TextBlock
                                 Padding="4,0"
                                 Classes="FontAwesome"

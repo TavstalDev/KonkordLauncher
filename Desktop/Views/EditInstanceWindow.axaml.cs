@@ -1,5 +1,9 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Tavstal.KonkordLauncher.Common.Helpers;
+using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
+using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
 
@@ -7,7 +11,21 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 
 public partial class EditInstanceWindow : Window
 {
+    // This constructor is used by the Avalonia Designer.
     public EditInstanceWindow()
+    {
+        InitializeComponent();
+
+        // This check is a safeguard, but the parameterless constructor
+        // is only called in design mode anyway.
+        if (Design.IsDesignMode)
+        {
+            // Provide a mock data context for the designer to render.
+            this.DataContext = new EditInstanceViewModel(this, "mock-id",  new InstanceConfig());
+        }
+    }
+    
+    public EditInstanceWindow(InstanceModel instance)
     {
         InitializeComponent();
 
@@ -15,9 +33,31 @@ public partial class EditInstanceWindow : Window
         // Attaches Avalonia Dev Tools for debugging purposes.
         this.AttachDevTools();
 #endif
+
+        if (Design.IsDesignMode)
+        {
+            // Provide a mock data context for the designer
+            this.DataContext = new EditInstanceViewModel(this, "mock-id", new InstanceConfig());
+            return;
+        }
         
-        
+        this.DataContext = new EditInstanceViewModel(this, instance.Id, instance.ConfigModel);
+        var settings = LauncherHelper.GetLauncherSettings();
+        HandleLanguageChange(settings.Launcher.Language);
+        App.OnLanguageChanged += HandleLanguageChange;
     }
+    
+    /// <summary>
+    /// Updates the UI elements with translations based on the specified language.
+    /// This method handles the translation of sidebar buttons, page titles, and various settings labels.
+    /// </summary>
+    /// <param name="language">The language code to apply for translations.</param>
+    private void HandleLanguageChange(string language)
+    {
+
+    }
+
+    #region DataGrid Loading Events
 
     private void ModsDataGrid_OnLoading(object? sender, DataGridRowEventArgs e)
     {
@@ -405,7 +445,14 @@ public partial class EditInstanceWindow : Window
         row.ContextMenu = contextMenu;
     }
 
+    #endregion
+
     private void EnvironmentTable_OnCellEditEnded(object? sender, DataGridCellEditEndedEventArgs e)
+    {
+        // TODO
+    }
+
+    private void JavaOpenPathSelector_OnClick(object? sender, RoutedEventArgs e)
     {
         // TODO
     }

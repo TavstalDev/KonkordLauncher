@@ -98,7 +98,7 @@ public class MinecraftInstance
         }
         finally
         {
-            //FileSystemHelper.DeleteDirectory(tempDir);
+            FileSystemHelper.DeleteDirectory(tempDir);
         }
     }
 
@@ -290,6 +290,9 @@ public class MinecraftInstance
             gameArgs.Add($"--width {Resolution.X}");
         if (Resolution is { Y: > 0 })
             gameArgs.Add($"--height {Resolution.Y}");
+
+        
+        // TODO: Add --quickPlayMultiplayer
 
         return gameArgs;
     }

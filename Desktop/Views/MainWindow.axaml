@@ -732,11 +732,11 @@
                                             Performance
                                         </TextBlock>
                                         <!--  Enable Feral GameMode  -->
-                                        <CheckBox Name="StFeralGameModeCb" IsChecked="{Binding CoreConfig.Misc.EnableFeralGameMode, Mode=TwoWay}">
+                                        <CheckBox Name="StFeralGameModeCb" IsVisible="{Binding IsLinux}" IsChecked="{Binding CoreConfig.Misc.EnableFeralGameMode, Mode=TwoWay}">
                                             <TextBlock Name="StFeralGameModeTb" Text="Enable Feral GameMode" />
                                         </CheckBox>
                                         <!--  Enable MangoHud  -->
-                                        <CheckBox Name="StEnableMangoHudCb" IsChecked="{Binding CoreConfig.Misc.EnableMangoHud, Mode=TwoWay}">
+                                        <CheckBox Name="StEnableMangoHudCb" IsVisible="{Binding IsLinux}" IsChecked="{Binding CoreConfig.Misc.EnableMangoHud, Mode=TwoWay}">
                                             <TextBlock Name="StEnableMangoHudTb" Text="Enable MangoHud" />
                                         </CheckBox>
                                         <!--  Use dedicated GPU  -->

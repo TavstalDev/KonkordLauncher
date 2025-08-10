@@ -672,11 +672,11 @@
                                                     Performance
                                                 </TextBlock>
                                                 <!--  Enable Feral GameMode  -->
-                                                <CheckBox Grid.Row="9" Name="StFeralGameModeCb" IsChecked="{Binding InstanceConfig.Game.EnableFeralGameMode}">
+                                                <CheckBox Grid.Row="9" Name="StFeralGameModeCb" IsVisible="{Binding IsLinux}" IsChecked="{Binding InstanceConfig.Game.EnableFeralGameMode}">
                                                     <TextBlock Name="StFeralGameModeTb" Text="Enable Feral GameMode" />
                                                 </CheckBox>
                                                 <!--  Enable MangoHud  -->
-                                                <CheckBox Grid.Row="10" Name="StEnableMangoHudCb" IsChecked="{Binding InstanceConfig.Game.EnableMangoHud}">
+                                                <CheckBox Grid.Row="10" Name="StEnableMangoHudCb" IsVisible="{Binding IsLinux}" IsChecked="{Binding InstanceConfig.Game.EnableMangoHud}">
                                                     <TextBlock Name="StEnableMangoHudTb" Text="Enable MangoHud" />
                                                 </CheckBox>
                                                 <!--  Use dedicated GPU  -->

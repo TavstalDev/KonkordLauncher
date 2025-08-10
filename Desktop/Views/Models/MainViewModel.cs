@@ -37,6 +37,7 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
     [ObservableProperty] private ObservableCollection<NewsCardModel> _patches = [];
     [ObservableProperty] private AccountDataModel _accountData;
     [ObservableProperty] private CoreConfigModel _coreConfig;
+    public bool IsLinux => OSHelper.GetOperatingSystem() == EOperatingSystem.Linux;
     
     /// <summary>
     /// Initializes a new instance of the <see cref="MainViewModel"/> class with default settings.
@@ -108,6 +109,17 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
 
         try
         {
+            string wrapperCommand = instance.ConfigModel.Commands.WrapperCommand;
+            if (instance.ConfigModel.Game.EnableFeralGameMode && !wrapperCommand.Contains("gamemoderun"))
+            {
+                wrapperCommand = "gamemoderun " + wrapperCommand;
+            }
+
+            if (instance.ConfigModel.Game.EnableMangoHud && !wrapperCommand.Contains("mangohud"))
+            {
+                wrapperCommand = "mangohud " + wrapperCommand;
+            }
+            
             MinecraftInstance? gameInstance = null;
             var settings = await LauncherHelper.GetLauncherSettingsAsync();
             var gameDetails = new GameDetails(
@@ -118,7 +130,11 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
                 instance.MinecraftVersion,
                 instance.Kind,
                 instance.CustomVersion,
-                instance.GameDirectory
+                instance.GameDirectory,
+                instance.ConfigModel.Commands.PreLaunchCommand,
+                wrapperCommand,
+                instance.ConfigModel.Commands.PostExitCommand,
+                instance.ConfigModel.Misc.JoinServerOnLaunch ? instance.ConfigModel.Misc.ServerAddress : null
             );
             var launcherDetails = new LauncherDetails("KonkordLauncher", App.Version);
             var clientDetails = new ClientDetails(

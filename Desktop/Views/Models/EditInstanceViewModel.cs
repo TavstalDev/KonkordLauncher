@@ -7,6 +7,7 @@ using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Config;
 using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
+using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Config.Instance;
@@ -20,6 +21,7 @@ public partial class EditInstanceViewModel : ObservableObject
     private readonly Window _parentWindow;
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceViewModel));
     private readonly string _instanceId;
+    public bool IsLinux => OSHelper.GetOperatingSystem() == EOperatingSystem.Linux;
 
     public ObservableCollection<ModModel> Mods { get; set; } = [];
     

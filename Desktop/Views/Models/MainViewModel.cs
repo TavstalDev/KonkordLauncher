@@ -54,11 +54,8 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
 
         _coreConfig = new CoreConfigModel(LauncherHelper.GetLauncherSettings());
         _accountData = new AccountDataModel(LauncherHelper.GetAccountData());
-        var localInstances = LauncherHelper.GetInstances().ConvertAll(x => new InstanceModel(x));
-        foreach (var instance in localInstances)
-        {
-            _instances.Add(instance);
-        }
+        Instances.Clear();
+        Instances = new ObservableCollection<InstanceModel>(LauncherHelper.GetInstances().ConvertAll(x => new InstanceModel(x)));
         _isInitialized = true;
 
         SubscribeToCoreConfigChildren(_coreConfig);
@@ -79,6 +76,8 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
     /// </summary>
     private void HandleInstancesChanged()
     {
+        _logger.Debug("Instances data changed. Updating instances collection.");
+        Instances.Clear();
         Instances = new ObservableCollection<InstanceModel>(LauncherHelper.GetInstances().ConvertAll(x => new InstanceModel(x)));
     }
 
@@ -93,7 +92,12 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
     {
         _logger.Debug($"Launching instance: {instance.Name}");
         var accountData = await LauncherHelper.GetAccountDataAsync();
-        var account = accountData.Accounts.FirstOrDefault(x => x.Id == accountData.SelectedAccountId);
+        Account? account = null;
+        if (instance.ConfigModel.Misc.OverrideAccount)
+            account = accountData.Accounts.FirstOrDefault(x => x.Id == instance.ConfigModel.Misc.AccountId);
+        else 
+            account = accountData.Accounts.FirstOrDefault(x => x.Id == accountData.SelectedAccountId);
+        
         if (account == null)
         {
             _logger.Error("No account selected for launching the instance.");
@@ -107,10 +111,10 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
             MinecraftInstance? gameInstance = null;
             var settings = await LauncherHelper.GetLauncherSettingsAsync();
             var gameDetails = new GameDetails(
-                instance.Config.Java.JavaPath,
-                instance.Config.Java.MinMemory,
-                instance.Config.Java.MaxMemory,
-                instance.Config.Java.JvmArguments,
+                instance.ConfigModel.Java.JavaPath,
+                instance.ConfigModel.Java.MinMemory,
+                instance.ConfigModel.Java.MaxMemory,
+                instance.ConfigModel.Java.JvmArguments,
                 instance.MinecraftVersion,
                 instance.Kind,
                 instance.CustomVersion,
@@ -126,10 +130,10 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
                     .MICROSOFT // Might support custom login services in the future, that's why I do not use EAccountType.OFFLINE
             );
             var resolution = new Resolution(
-                instance.Config.Game.StartMaximized ? (uint)App.ScreenSize.Width : instance.Config.Game.WindowWidth,
-                instance.Config.Game.StartMaximized
+                instance.ConfigModel.Game.StartMaximized ? (uint)App.ScreenSize.Width : instance.ConfigModel.Game.WindowWidth,
+                instance.ConfigModel.Game.StartMaximized
                     ? (uint)App.ScreenSize.Height
-                    : instance.Config.Game.WindowHeight
+                    : instance.ConfigModel.Game.WindowHeight
             );
             switch (instance.Kind)
             {
@@ -268,6 +272,22 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
         
         instance.GameProcess.Kill();
     }
+
+    /// <summary>
+    /// Opens an edit window for the specified Minecraft instance and updates the instance in the collection if changes are made.
+    /// </summary>
+    /// <param name="instance">The instance model representing the Minecraft instance to edit.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    [RelayCommand]
+    private async Task EditInstance(InstanceModel instance)
+    {
+        // Create and display the edit instance window.
+        EditInstanceWindow editInstanceWindow = new EditInstanceWindow(instance);
+        var result = await editInstanceWindow.ShowDialog<bool>(_mainWindow);
+        if (!result)
+            return;
+        App.InvokeInstancesChanged();
+    }
     #endregion
 
     #region Instance Event Handlers
@@ -337,6 +357,7 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
             instances[instanceIndex].Config.Java.JavaPath = javaPath;
             JsonHelper.WriteJsonFile(PathHelper.LauncherInstancesPath, instances);
         }
+        App.InvokeInstancesChanged();
     }
     #endregion
     #endregion

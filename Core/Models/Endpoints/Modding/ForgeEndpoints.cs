@@ -1,4 +1,4 @@
-namespace Tavstal.KonkordLauncher.Core.Models.Endpoints;
+namespace Tavstal.KonkordLauncher.Core.Models.Endpoints.Modding;
 
 /// <summary>
 /// Provides constants for Forge-related endpoints used in the application.

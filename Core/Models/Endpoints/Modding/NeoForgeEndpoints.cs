@@ -1,4 +1,4 @@
-namespace Tavstal.KonkordLauncher.Core.Models.Endpoints;
+namespace Tavstal.KonkordLauncher.Core.Models.Endpoints.Modding;
 
 public static class NeoForgeEndpoints
 {

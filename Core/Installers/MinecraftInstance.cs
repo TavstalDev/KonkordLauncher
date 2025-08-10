@@ -94,7 +94,7 @@ public class MinecraftInstance
             string arguments = BuildArguments(versionDetails.GameDir, mainClass, versionDetails.NativesDir, customVersion);
             await Task.Delay(250); // Ensure the progress reporter has time to update before launching
             _progressReporter?.Hide();
-            return JavaProcessLauncher.StartJava(GameDetails.JavaPath, arguments);
+            return JavaProcessLauncher.StartJava(GameDetails.JavaPath, arguments, GameDetails.WrapperCommand);
         }
         finally
         {
@@ -291,8 +291,8 @@ public class MinecraftInstance
         if (Resolution is { Y: > 0 })
             gameArgs.Add($"--height {Resolution.Y}");
 
-        
-        // TODO: Add --quickPlayMultiplayer
+        if (!string.IsNullOrEmpty(GameDetails.ServerAddressToJoin))
+            gameArgs.Add($"--quickPlayMultiplayer {GameDetails.ServerAddressToJoin}");
 
         return gameArgs;
     }

@@ -32,6 +32,10 @@ public static class JsonHelper
             stream.Position = 0;
             var reader = new StreamReader(stream);
             string content = reader.ReadToEnd();
+            var dir = Path.GetDirectoryName(path);
+            if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+            
             File.WriteAllText(path, content, Encoding.UTF8);
             return true;
         }
@@ -64,6 +68,10 @@ public static class JsonHelper
             stream.Position = 0;
             var reader = new StreamReader(stream);
             string content = await reader.ReadToEndAsync();
+            var dir = Path.GetDirectoryName(path);
+            if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+            
             await File.WriteAllTextAsync(path, content, Encoding.UTF8);
             return true;
         }

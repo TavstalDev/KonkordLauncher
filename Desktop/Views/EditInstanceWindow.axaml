@@ -4,8 +4,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:mdxaml="https://github.com/whistyun/Markdown.Avalonia.Tight"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
+    xmlns:local="clr-namespace:Tavstal.KonkordLauncher.Desktop"
     Title="Edit Instance"
     Width="900"
     Height="500"
@@ -18,11 +18,6 @@
     Icon="../Assets/Images/logo.png"
     ShowInTaskbar="False"
     mc:Ignorable="d">
-
-    <!--  Design DataContext  -->
-    <Design.DataContext>
-        <vm:EditInstanceViewModel />
-    </Design.DataContext>
 
     <!--  Content  -->
     <Border Classes="InstanceView">
@@ -561,8 +556,8 @@
                                                         Classes="NumericInput"
                                                         Increment="1"
                                                         Minimum="512"
-                                                        Maximum="131072"
-                                                        Value="512" />
+                                                        Maximum="{Binding InstanceConfig.Java.MaxMemory}"
+                                                        Value="{Binding InstanceConfig.Java.MinMemory}" />
                                                 </Grid>
                                                 <!-- Maximum Memory -->
                                                 <Grid Grid.Row="1" ColumnDefinitions="Auto, *">
@@ -577,10 +572,10 @@
                                                         Increment="1"
                                                         Minimum="512"
                                                         Maximum="131072"
-                                                        Value="2048" />
+                                                        Value="{Binding InstanceConfig.Java.MaxMemory}" />
                                                 </Grid>
                                                 <!-- Java Path -->
-                                                <Grid Grid.Row="3" ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto">
+                                                <Grid Grid.Row="3" ColumnDefinitions="Auto, *, Auto, Auto" RowDefinitions="Auto">
                                                     <!-- Text -->
                                                     <TextBlock Name="StJavaPathTb" Classes="TextInput">Java path</TextBlock>
                                                     <!-- Input -->
@@ -588,9 +583,13 @@
                                                         Grid.Column="1"
                                                         Name="StJavaPathInput"
                                                         Classes="TextInput"
-                                                        Watermark="Select a directory..." />
+                                                        Watermark="Select a directory..."
+                                                        Text="{Binding InstanceConfig.Java.DefaultJavaPath}"/>
                                                     <Button Grid.Column="2" Classes="IconBtn">
                                                         <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                                    </Button>
+                                                    <Button Grid.Column="3" Classes="IconBtn" Click="JavaOpenPathSelector_OnClick">
+                                                        <TextBlock Classes="FontAwesome" Text="&#xf126;" />
                                                     </Button>
                                                 </Grid>
                                                 <!-- JVM Arguments -->
@@ -601,7 +600,8 @@
                                                          Name="StJvmArgsInput"
                                                          MaxLines="512"
                                                          MinHeight="128"
-                                                         TextWrapping="Wrap" />
+                                                         TextWrapping="Wrap"
+                                                         Text="{Binding InstanceConfig.Java.JvmArguments}"/>
                                             </Grid>
                                         </ScrollViewer>
                                     </Border>
@@ -616,7 +616,7 @@
                                                     Window
                                                 </TextBlock>
                                                 <!--  Minecraft Maximized  -->
-                                                <CheckBox Grid.Row="1" Name="StMinecraftMaximizedCb">
+                                                <CheckBox Grid.Row="1" Name="StMinecraftMaximizedCb" IsChecked="{Binding InstanceConfig.Game.StartMaximized}">
                                                     <TextBlock Name="StMinecraftMaximizedTb" Text="Start Minecraft maximized" />
                                                 </CheckBox>
                                                 <!--  Window Width  -->
@@ -630,9 +630,10 @@
                                                         Classes="NumericInput"
                                                         FormatString="0"
                                                         Increment="1"
-                                                        Maximum="1920"
+                                                        Maximum="{x:Static local:App.ScreenWidth}"
                                                         Minimum="100"
-                                                        Value="1920" />
+                                                        Value="{Binding InstanceConfig.Game.WindowWidth, Mode=TwoWay}"
+                                                        IsEnabled="{Binding !InstanceConfig.Game.StartMaximized}" />
                                                 </Grid>
                                                 <!--  Window Height  -->
                                                 <Grid Grid.Row="3" ColumnDefinitions="Auto, *">
@@ -645,24 +646,25 @@
                                                         Classes="NumericInput"
                                                         FormatString="0"
                                                         Increment="1"
-                                                        Maximum="1080"
+                                                        Maximum="{x:Static local:App.ScreenHeight}"
                                                         Minimum="100"
-                                                        Value="1080" />
+                                                        Value="{Binding InstanceConfig.Game.WindowHeight, Mode=TwoWay}"
+                                                        IsEnabled="{Binding !InstanceConfig.Game.StartMaximized}" />
                                                 </Grid>
                                                 <!-- Console Settings  -->
                                                 <TextBlock Grid.Row="4" Name="StConsoleSubtitleTb" Classes="SettingsCategory">
                                                     Console
                                                 </TextBlock>
                                                 <!--  Show console  -->
-                                                <CheckBox Grid.Row="5" Name="StShowConsoleCb">
+                                                <CheckBox Grid.Row="5" Name="StShowConsoleCb" IsChecked="{Binding InstanceConfig.Game.ShowConsoleWhileGameRunning}">
                                                     <TextBlock Name="StShowConsoleTb" Text="Show console while minecraft is running" />
                                                 </CheckBox>
                                                 <!--  Auto close console  -->
-                                                <CheckBox Grid.Row="6" Name="StCloseConsoleOnQuitCb">
+                                                <CheckBox Grid.Row="6" Name="StCloseConsoleOnQuitCb" IsChecked="{Binding InstanceConfig.Game.CloseConsoleOnGameExit}">
                                                     <TextBlock Name="StCloseConsoleOnQuitTb" Text="Close console when minecraft quits" />
                                                 </CheckBox>
                                                 <!-- Show console on crash  -->
-                                                <CheckBox Grid.Row="7" Name="StShowConsoleOnCrashCb">
+                                                <CheckBox Grid.Row="7" Name="StShowConsoleOnCrashCb" IsChecked="{Binding InstanceConfig.Game.ShowConsoleWhenGameCrashes}">
                                                     <TextBlock Name="StShowConsoleOnCrashTb" Text="Show console when minecraft crashes" />
                                                 </CheckBox>
                                                 <!-- Performance Settings  -->
@@ -670,15 +672,15 @@
                                                     Performance
                                                 </TextBlock>
                                                 <!--  Enable Feral GameMode  -->
-                                                <CheckBox Grid.Row="9" Name="StFeralGameModeCb">
+                                                <CheckBox Grid.Row="9" Name="StFeralGameModeCb" IsChecked="{Binding InstanceConfig.Game.EnableFeralGameMode}">
                                                     <TextBlock Name="StFeralGameModeTb" Text="Enable Feral GameMode" />
                                                 </CheckBox>
                                                 <!--  Enable MangoHud  -->
-                                                <CheckBox Grid.Row="10" Name="StEnableMangoHudCb">
+                                                <CheckBox Grid.Row="10" Name="StEnableMangoHudCb" IsChecked="{Binding InstanceConfig.Game.EnableMangoHud}">
                                                     <TextBlock Name="StEnableMangoHudTb" Text="Enable MangoHud" />
                                                 </CheckBox>
                                                 <!--  Use dedicated GPU  -->
-                                                <CheckBox Grid.Row="11" Name="StUseDedicatedGpuCb">
+                                                <CheckBox Grid.Row="11" Name="StUseDedicatedGpuCb" IsChecked="{Binding InstanceConfig.Game.UseDedicatedGpu}">
                                                     <TextBlock Name="StUseDedicatedGpuTb" Text="Use dedicated GPU" />
                                                 </CheckBox>
                                             </Grid>
@@ -699,7 +701,7 @@
                                                         Name="StPreLaunchInput"
                                                         Grid.Column="1"
                                                         Classes="TextInput"
-                                                        Text="" />
+                                                        Text="{Binding InstanceConfig.Commands.PreLaunchCommand}" />
                                                 </Grid>
                                                 <!--  Wrapper Command  -->
                                                 <Grid Grid.Row="1" ColumnDefinitions="Auto, *" RowDefinitions="Auto">
@@ -710,7 +712,7 @@
                                                         Name="StWrapperInput"
                                                         Grid.Column="1"
                                                         Classes="TextInput"
-                                                        Text="" />
+                                                        Text="{Binding InstanceConfig.Commands.WrapperCommand}" />
                                                 </Grid>
                                                 <!--  Post-exit Command  -->
                                                 <Grid Grid.Row="2" ColumnDefinitions="Auto, *" RowDefinitions="Auto">
@@ -721,7 +723,7 @@
                                                         Name="StPostExitInput"
                                                         Grid.Column="1"
                                                         Classes="TextInput"
-                                                        Text="" />
+                                                        Text="{Binding InstanceConfig.Commands.PostExitCommand}" />
                                                 </Grid>
                                             </Grid>
                                         </ScrollViewer>
@@ -733,17 +735,19 @@
                                         <ScrollViewer Classes="ModalScrollViewer">
                                             <Grid RowDefinitions="Auto, *, Auto" RowSpacing="10">
                                                 <!--  Enable Env vars -->
-                                                <CheckBox Name="StUseEnvVarsCb">
+                                                <CheckBox Name="StUseEnvVarsCb" IsChecked="{Binding InstanceConfig.EnableEnvironment}">
                                                     <TextBlock Name="StUseEnvVarsTb" Text="Enable Environment Variables" />
                                                 </CheckBox>
                                                 <!--  Content  -->
+                                                <!-- TODO -->
                                                 <Border Grid.Row="1">
                                                     <ScrollViewer Classes="TableScrollViewer">
                                                         <DataGrid
                                                             Classes="InstanceMultiTable"
                                                             IsReadOnly="False"
-                                                            ItemsSource="{Binding EnvironmentVariables}" 
-                                                            CellEditEnded="EnvironmentTable_OnCellEditEnded">
+                                                            ItemsSource="{Binding InstanceConfig.Environment}" 
+                                                            CellEditEnded="EnvironmentTable_OnCellEditEnded"
+                                                            IsEnabled="{Binding InstanceConfig.EnableEnvironment}">
                                                             <DataGrid.Columns>
                                                                 <!-- Name  -->
                                                                 <DataGridTextColumn
@@ -760,20 +764,21 @@
                                                     </ScrollViewer>
                                                 </Border>
                                                 <!--  Actions  -->
+                                                <!-- TODO -->
                                                 <Grid
                                                     Grid.Row="2"
                                                     ColumnDefinitions="Auto, Auto, Auto"
                                                     ColumnSpacing="5">
                                                     <!--  Add button  -->
-                                                    <Button Classes="IconBtn">
+                                                    <Button Classes="IconBtn" IsEnabled="{Binding InstanceConfig.EnableEnvironment}">
                                                         <TextBlock Text="Add" />
                                                     </Button>
                                                     <!--  Remove button  -->
-                                                    <Button Grid.Column="1" Classes="IconBtn">
+                                                    <Button Grid.Column="1" Classes="IconBtn" IsEnabled="{Binding InstanceConfig.EnableEnvironment}">
                                                         <TextBlock Text="Remove" />
                                                     </Button>
                                                     <!--  Clear button  -->
-                                                    <Button Grid.Column="2" Classes="IconBtn">
+                                                    <Button Grid.Column="2" Classes="IconBtn" IsEnabled="{Binding InstanceConfig.EnableEnvironment}">
                                                         <TextBlock Text="Clear" />
                                                     </Button>
                                                 </Grid>
@@ -791,7 +796,7 @@
                                                     Native libraries
                                                 </TextBlock>
                                                 <!--  Use custom GLFW  -->
-                                                <CheckBox Grid.Row="1" Name="StUseCustomGlfwCb">
+                                                <CheckBox Grid.Row="1" Name="StUseCustomGlfwCb" IsChecked="{Binding InstanceConfig.Misc.UseCustomGlfw}">
                                                     <TextBlock Name="StUseCustomGlfwTb" Text="Use custom GLFW" />
                                                 </CheckBox>
                                                 <!--  GLFW library path  -->
@@ -803,10 +808,11 @@
                                                         Name="StGlfwPathInput"
                                                         Grid.Column="1"
                                                         Classes="TextInput"
-                                                        Text="" />
+                                                        Text="{Binding InstanceConfig.Misc.CustomGlfwPath}"
+                                                        IsEnabled="{Binding InstanceConfig.Misc.UseCustomGlfw}"/>
                                                 </Grid>
                                                 <!--  Use custom OpenAL  -->
-                                                <CheckBox Grid.Row="3" Name="StUseCustomOpenAlCb">
+                                                <CheckBox Grid.Row="3" Name="StUseCustomOpenAlCb" IsChecked="{Binding InstanceConfig.Misc.UseCustomOpenAL}">
                                                     <TextBlock Name="StUseCustomOpenAlTb" Text="Use custom OpenAL" />
                                                 </CheckBox>
                                                 <!--  OpenAL library path  -->
@@ -818,14 +824,15 @@
                                                         Name="StOpenAlPathInput"
                                                         Grid.Column="1"
                                                         Classes="TextInput"
-                                                        Text="" />
+                                                        Text="{Binding InstanceConfig.Misc.CustomOpenALPath}"
+                                                        IsEnabled="{Binding InstanceConfig.Misc.UseCustomOpenAL}" />
                                                 </Grid>
                                                 <!-- Preference Settings  -->
                                                 <TextBlock Grid.Row="5" Name="StPreferenceSubtitleTb" Classes="SettingsCategory">
                                                     Preferences
                                                 </TextBlock>
                                                 <!--  Override Account  -->
-                                                <CheckBox Grid.Row="6" Name="StOverrideAccountCb">
+                                                <CheckBox Grid.Row="6" Name="StOverrideAccountCb" IsChecked="{Binding InstanceConfig.Misc.OverrideAccount}">
                                                     <TextBlock Name="StOverrideAccountTb" Text="Override default account" />
                                                 </CheckBox>
                                                 <!--  Account  -->
@@ -833,17 +840,19 @@
                                                     <!--  Text  -->
                                                     <TextBlock Name="StOverridenAccountTb" Classes="TextDropdown">Account</TextBlock>
                                                     <!--  Input  -->
+                                                    <!-- TODO -->
                                                     <ComboBox
                                                         Name="StOverridenAccountInput"
                                                         Grid.Column="1"
                                                         Classes="TextDropdown"
-                                                        SelectedIndex="0">
+                                                        SelectedIndex="0"
+                                                        IsEnabled="{Binding InstanceConfig.Misc.OverrideAccount}">
                                                         <ComboBoxItem Content="PlayerOne" />
                                                         <ComboBoxItem Content="PlayerTwo" />
                                                     </ComboBox>
                                                 </Grid>
                                                 <!--  Set target server  -->
-                                                <CheckBox Grid.Row="8" Name="StTargetServerCb">
+                                                <CheckBox Grid.Row="8" Name="StTargetServerCb" IsChecked="{Binding InstanceConfig.Misc.JoinServerOnLaunch}">
                                                     <TextBlock Name="StTargetServerTb" Text="Set server address to join on launch" />
                                                 </CheckBox>
                                                 <!--  Server address  -->
@@ -855,7 +864,8 @@
                                                         Name="StServerAddressInput"
                                                         Grid.Column="1"
                                                         Classes="TextInput"
-                                                        Text="" />
+                                                        Text="{Binding InstanceConfig.Misc.ServerAddress}"
+                                                        IsEnabled="{Binding InstanceConfig.Misc.JoinServerOnLaunch}"/>
                                                 </Grid>
                                             </Grid>
                                         </ScrollViewer>

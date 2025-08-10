@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using Hardware.Info;
 using Tavstal.KonkordLauncher.Core.Enums;
 
 namespace Tavstal.KonkordLauncher.Core.Helpers;
@@ -62,6 +63,42 @@ public static class OSHelper
     public static bool Is64BitOperatingSystem()
     {
         return Environment.Is64BitOperatingSystem;
+    }
+    
+    /// <summary>
+    /// Retrieves the type and description of the dedicated GPU available on the system.
+    /// </summary>
+    /// <returns>
+    /// A tuple containing:
+    /// - A string representing the GPU type ("nvidia", "amd", "intel", or "apple") if detected.
+    /// - A string representing the GPU description.
+    /// Returns <c>null</c> if no dedicated GPU is detected.
+    /// </returns>
+    public static (string, string)? GetDedicatedGpuType()
+    {
+        var hardwareInfo = new HardwareInfo();
+        hardwareInfo.RefreshVideoControllerList();
+        foreach (var gpu in hardwareInfo.VideoControllerList)
+        {
+            var lowerName = gpu.Description.ToLowerInvariant();
+            if (lowerName.Contains("nvidia") && (lowerName.Contains("geforce") || 
+                                                 lowerName.Contains("quadro") || 
+                                                 lowerName.Contains("gtx") || 
+                                                 lowerName.Contains("rtx") || 
+                                                 lowerName.Contains("mx")))
+                return ("nvidia", gpu.Description);
+            
+            if (lowerName.Contains("radeon rx") || lowerName.Contains("radeon r9") || lowerName.Contains("radeon r7") || lowerName.Contains("radeon r5"))
+                return ("amd", gpu.Description);
+            
+            if (lowerName.Contains("intel arc") || lowerName.Contains("intel battlemage"))
+                return ("intel", gpu.Description);
+            
+            if (lowerName.Contains("apple"))
+                return ("apple", gpu.Description);
+        }
+        
+        return null;
     }
     
     /// <summary>

@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using Tavstal.KonkordLauncher.Core.Enums;
 
 namespace Tavstal.KonkordLauncher.Core.Helpers;
@@ -38,6 +39,29 @@ public static class OSHelper
                 return EOperatingSystem.Unknown;
             }
         }
+    }
+
+    /// <summary>
+    /// Determines if the operating system is ARM-based.
+    /// </summary>
+    /// <returns>
+    /// A boolean value indicating whether the operating system architecture is ARM
+    /// </returns>
+    public static bool IsArmBased()
+    {
+        Architecture osArchitecture = RuntimeInformation.OSArchitecture;
+        return osArchitecture == Architecture.Arm || osArchitecture == Architecture.Arm64;
+    }
+
+    /// <summary>
+    /// Checks if the operating system is 64-bit.
+    /// </summary>
+    /// <returns>
+    /// A boolean value indicating whether the operating system is 64-bit.
+    /// </returns>
+    public static bool Is64BitOperatingSystem()
+    {
+        return Environment.Is64BitOperatingSystem;
     }
     
     /// <summary>

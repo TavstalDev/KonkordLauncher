@@ -141,4 +141,52 @@ public static class FileSystemHelper
             return false;
         }
     }
+
+    /// <summary>
+    /// Makes a file executable by modifying its permissions using the `chmod` command.
+    /// </summary>
+    /// <param name="path">The path of the file to make executable.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation. The task result contains a boolean value:
+    /// true if the operation succeeded, false otherwise.
+    /// </returns>
+    public static async Task<bool> MakeExecutableAsync(string path)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(path))
+                return false;
+            
+            var process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "chmod",
+                    Arguments = $"+x \"{path}\"",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true
+                }
+            };
+
+            process.Start();
+            await process.WaitForExitAsync();
+
+            if (process.ExitCode != 0)
+            {
+                string error = await process.StandardError.ReadToEndAsync();
+                _logger.Exc($"Error while making '{path}' executable:");
+                _logger.Error(error);
+                return false;
+            }
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.Exc($"Failed to make '{path}' executable:");
+            _logger.Error(ex.ToString());
+            return false;
+        }
+    }
 }

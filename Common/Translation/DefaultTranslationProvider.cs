@@ -26,8 +26,13 @@ public static class DefaultTranslationProvider
         {"startup.validation.accountsFailed", "Failed to validate accounts."},
         {"startup.validation.manifests", "Validating manifests..."},
         {"startup.validation.manifestsFailed", "Failed to validate manifests."},
+        {"startup.validation.manifests.download", "Downloading {0} manifest {1}%"},
         {"startup.validation.java", "Validating Java installations..."},
         {"startup.validation.javaFailed", "Java is not installed. Please install Java 8 or minecraft will not run."},
+        {"startup.validation.java.download", "Downloading Java {0} {1}%..."},
+        
+        {"startup.validation.java.exec.failedTitle", "Make Java Executable"},
+        {"startup.validation.java.exec.failedMessage", "Failed to make '{0}' executable. Please make it executable manually."},
         
         {"startup.progress.checking", "Checking for updates..."},
         {"startup.progress.updating", "Updating..."},
@@ -89,6 +94,8 @@ public static class DefaultTranslationProvider
         {"instance.account.none.title", "No Account Selected"},
         {"instance.account.none.message", "Please select or create an account to use"},
         
+        {"instance.java.notfound.title", "No Java {0} Version Found"},
+        {"instance.java.notfound.message", "The instance needs Java {0}. Please install it manually."},
         
         {"instance.reading.version_json", "Reading version json..."},
         {"instance.downloading.version_json", "Downloading version json {1}%..."},
@@ -134,6 +141,7 @@ public static class DefaultTranslationProvider
         {"settings.launcher.dir.cache", "Cache"},
         {"settings.launcher.dir.instances", "Instances"},
         {"settings.launcher.dir.icons", "Icons"},
+        {"settings.launcher.dir.java", "Java (local)"},
         {"settings.launcher.dir.libraries", "Libraries"},
         {"settings.launcher.dir.manifests", "Manifests"},
         {"settings.launcher.dir.translations", "Translations"},

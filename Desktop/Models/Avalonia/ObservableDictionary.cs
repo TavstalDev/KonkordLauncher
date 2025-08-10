@@ -28,6 +28,12 @@ public class ObservableDictionary<TKey, TValue> :
     {
         IsReadOnly = isReadOnly;
     }
+    
+    public ObservableDictionary(Dictionary<TKey, TValue> dictionary)
+    {
+        _dictionary = dictionary;
+        IsReadOnly = false;
+    }
 
     // Implement IDictionary<TKey, TValue> members
     // and raise CollectionChanged/PropertyChanged events accordingly.

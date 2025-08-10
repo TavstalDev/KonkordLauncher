@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Avalonia;
@@ -10,8 +11,10 @@ using Avalonia.Threading;
 using Newtonsoft.Json.Linq;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Translation;
+using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views;
@@ -87,6 +90,7 @@ public partial class StartupWindow : Window, IProgressReporter
             return;
         }
 
+        // Generate icons if the directory does not exist
         if (shouldGenerateIcons)
         {
             string[] resourceNames = Assembly.GetExecutingAssembly().GetManifestResourceNames();
@@ -112,21 +116,12 @@ public partial class StartupWindow : Window, IProgressReporter
             }
         }
 
-        // 2. Validate Settings
-        /*SetStatusTranslated("startup.validation.settings");
-        await Task.Delay(_stepDelay);
-        if (!await ValidationHelper.ValidateSettings())
-        {
-            SetStatusTranslated("startup.validation.settingsFailed");
-            return;
-        }*/
-
-        // 3. Validate Translations
+        // 2. Validate Translations
         SetStatusTranslated("startup.validation.translations");
         await Task.Delay(_stepDelay);
         await TranslationManager.InitializeTranslations();
 
-        // 5. Validate Accounts
+        // 3. Validate Accounts
         SetStatusTranslated("startup.validation.accounts");
         await Task.Delay(_stepDelay);
         if (!await ValidationHelper.ValidateAccounts())
@@ -135,25 +130,61 @@ public partial class StartupWindow : Window, IProgressReporter
             return;
         }
 
-        // 7. Validate Manifests
+        // 4. Validate Manifests
         SetStatusTranslated("startup.validation.manifests");
         await Task.Delay(_stepDelay);
-        if (!await ValidationHelper.ValidateManifests())
+        if (!await ValidationHelper.ValidateManifests(this))
         {
             SetStatusTranslated("startup.validation.manifestsFailed");
             return;
         }
 
-        // 8. Validate Java
+        // 5. Validate Java
         SetStatusTranslated("startup.validation.java");
         await Task.Delay(_stepDelay);
-        if (!JavaHelper.IsJavaInstalled())
+        var javaInstallations = JavaHelper.LocateJavaInstallations(settings.Launcher.JavaDirectoryPath);
+        bool wasJavaUpdated = false;
+        int[] javaVersionsToDownload = [8, 17, 21];
+        foreach (int javaVersion in javaVersionsToDownload)
         {
-            SetStatusTranslated("startup.validation.javaFailed");
-            return;
+            var jdkResult = javaInstallations.FirstOrDefault(x => x.Major == javaVersion);
+            if (jdkResult != null)
+                continue;
+                
+            Progress<double> progress = new Progress<double>();
+            progress.ProgressChanged += (sender, e) =>
+            {
+                SetStatusTranslated("startup.validation.java.download", javaVersion, e.ToString("0.00"));
+            };
+            await JavaHelper.DownloadJavaVersionAsync(javaVersion, settings.Launcher.JavaDirectoryPath, progress);
+            wasJavaUpdated = true;
         }
 
-        // 9. Check for Updates
+        if (wasJavaUpdated)
+        {
+            if (OSHelper.GetOperatingSystem() != EOperatingSystem.Windows)
+            {
+                string[] directories = Directory.GetDirectories(settings.Launcher.JavaDirectoryPath);
+                foreach (string directory in directories)
+                {
+                    string javaExecutablePath = Path.Combine(directory, "bin", "java");
+                    if (!File.Exists(javaExecutablePath))
+                        continue;
+                    if (!await FileSystemHelper.MakeExecutableAsync(javaExecutablePath))
+                    {
+                        AlertWindow window = new AlertWindow(
+                            TranslationManager.Translate("startup.validation.java.exec.failedTitle"),
+                            TranslationManager.Translate("startup.validation.java.exec.failedMessage", javaExecutablePath),
+                            EAlertType.Error
+                        );
+                        await window.ShowDialog(this);
+                    }
+                }
+            }
+            JavaHelper.LocateJavaInstallations(settings.Launcher.JavaDirectoryPath, true);
+        }
+
+        // 6. Check for Updates
         if (settings.Launcher.EnableAutomaticUpdates && DateTime.Now > settings.Launcher.NextUpdateCheck)
         {
             SetStatusTranslated("startup.progress.checking");

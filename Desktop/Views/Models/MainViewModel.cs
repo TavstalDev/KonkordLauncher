@@ -291,15 +291,26 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
         }
         
         // Check if the Java version specified in the metadata is available, if not attempt to download it
-        /*var javaInstallations = JavaHelper.LocateJavaInstallations();
-        if (javaInstallations.All(x => x.Major != meta.JavaVersionMeta.MajorVersion))
+        var javaInstallations = JavaHelper.LocateJavaInstallations(settings.Launcher.JavaDirectoryPath);
+        if (javaInstallations.All(x => x.Major != meta.JavaVersionMeta.MajorVersion) && string.IsNullOrEmpty(defaultJavaPath))
         {
-            
-            
-            return;
-        }*/
+            // Warning: No Java installation found for the specified version.
+            // Stop the game process if it is running.
+            AlertWindow window = new AlertWindow(
+                TranslationManager.Translate("instance.java.notfound.title", meta.JavaVersionMeta.MajorVersion),
+                TranslationManager.Translate("instance.java.notfound.message", meta.JavaVersionMeta.MajorVersion),
+                EAlertType.Warning
+            );
+            if (instance is { IsGameRunning: true, GameProcess: not null })
+            {
+                instance.GameProcess.Kill();
+            }
 
-        foreach (var javaInstallation in JavaHelper.LocateJavaInstallations())
+            window.ShowDialog(_mainWindow);
+            return;
+        }
+
+        foreach (var javaInstallation in javaInstallations)
         {
             if (meta.JavaVersionMeta != null && javaInstallation.Major == meta.JavaVersionMeta.MajorVersion)
             {
@@ -307,8 +318,6 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
                 break;
             }
         }
-        
-
         UpdateJavaPath(gameInstance, defaultJavaPath, instances, instanceIndex);
     }
 
@@ -332,7 +341,6 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
     #endregion
     #endregion
     
-
     #region Account Management
     /// <summary>
     /// Updates the account data by fetching the latest data from the launcher helper.

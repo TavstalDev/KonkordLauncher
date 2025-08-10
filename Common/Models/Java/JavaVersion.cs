@@ -1,4 +1,4 @@
-namespace Tavstal.KonkordLauncher.Common.Models;
+namespace Tavstal.KonkordLauncher.Common.Models.Java;
 
 /// <summary>
 /// Represents a Java version with its major version, full version string, architecture, and installation path.

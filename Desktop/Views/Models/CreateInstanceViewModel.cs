@@ -9,6 +9,7 @@ using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
+using Tavstal.KonkordLauncher.Core.Models.Platforms;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 
@@ -178,7 +179,17 @@ public partial class CreateInstanceViewModel : ObservableObject
 
     [ObservableProperty] private ObservableCollection<ModPackModel> _modpacks;
     
+    [ObservableProperty] private EPlatformType _selectedModpackPlatform = EPlatformType.Modrinth;
+    
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(ModpackPreview))] private ModPackModel? _selectedModpack;
+    
+    public List<EPlatformType> AvailableModpackPlatforms =>
+    [
+        EPlatformType.Modrinth,
+        EPlatformType.CurseForge,
+        EPlatformType.Technic,
+        EPlatformType.FTB
+    ];
     
     public string ModpackPreview => SelectedModpack == null ? _converter.Convert(@"<p>Select a modpack to see its preview.</p>") : _converter.Convert(SelectedModpack.RawPage);
 

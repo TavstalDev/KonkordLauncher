@@ -242,6 +242,7 @@
                                                 Watermark="Optimized" />
                                         </Grid>
                                         <!--  Platform  -->
+                                        <!-- TODO: Allow platform selection -->
                                         <Grid RowDefinitions="Auto, Auto" RowSpacing="8">
                                             <!--  Text  -->
                                             <TextBlock Classes="TextInput" Name="ModpackPlatformTb">Platform</TextBlock>
@@ -250,11 +251,9 @@
                                                 Classes="TextDropdown"
                                                 Grid.Row="1"
                                                 Name="ModpackPlatformInput"
-                                                SelectedIndex="0">
-                                                <ComboBoxItem Content="Modrinth" />
-                                                <ComboBoxItem Content="CurseForge" />
-                                                <ComboBoxItem Content="Technic" />
-                                                <ComboBoxItem Content="FTB" />
+                                                ItemsSource="{Binding AvailableModpackPlatforms}"
+                                                SelectedItem="{Binding SelectedModpackPlatform}"
+                                                IsEnabled="False">
                                             </ComboBox>
                                         </Grid>
                                         <!--  ModLoader  -->

@@ -1,4 +1,4 @@
-namespace Tavstal.KonkordLauncher.Core.Models.Platforms;
+namespace Tavstal.KonkordLauncher.Core.Enums;
 
 /// <summary>
 /// Represents the different platform types supported by the application.

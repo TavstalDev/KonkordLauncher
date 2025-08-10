@@ -9,7 +9,6 @@ using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
-using Tavstal.KonkordLauncher.Core.Models.Platforms;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 

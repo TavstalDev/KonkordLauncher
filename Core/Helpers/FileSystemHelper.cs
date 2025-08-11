@@ -189,4 +189,26 @@ public static class FileSystemHelper
             return false;
         }
     }
+    
+    /// <summary>
+    /// Converts a file size in bytes to a human-readable string format.
+    /// </summary>
+    /// <param name="size">The size of the file in bytes.</param>
+    /// <returns>
+    /// A string representing the file size in the most appropriate unit 
+    /// (B, KB, MB, GB, or TB) with two decimal places of precision.
+    /// </returns>
+    public static string GetFormatedSize(long size)
+    {
+        if (size < 1024)
+            return $"{size} B";
+        if (size < 1024 * 1024)
+            return $"{size / 1024.0:F2} KB";
+        if (size < 1024 * 1024 * 1024)
+            return $"{size / 1024.0 / 1024.0:F2} MB";
+        if (size < 1024L * 1024L * 1024L * 1024L)
+            return $"{size / 1024.0 / 1024.0 / 1024.0:F2} GB";
+        // Hopefully we won't reach this point, but just in case
+        return $"{size / 1024.0 / 1024.0 / 1024.0 / 1024.0:F2} TB";
+    }
 }

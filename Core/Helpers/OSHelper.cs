@@ -100,6 +100,20 @@ public static class OSHelper
         
         return null;
     }
+
+    /// <summary>
+    /// Retrieves the total amount of physical RAM available on the system in bytes.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="ulong"/> value representing the total physical memory in bytes.
+    /// </returns>
+    public static ulong GetRamInBytes()
+    {
+        HardwareInfo hardwareInfo = new HardwareInfo();
+        hardwareInfo.RefreshMemoryStatus();
+
+        return hardwareInfo.MemoryStatus.TotalPhysical;
+    }
     
     /// <summary>
     /// Retrieves the home directory path for the current user.

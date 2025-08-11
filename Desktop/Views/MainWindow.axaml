@@ -669,6 +669,7 @@
                                                 Classes="TextInput"
                                                 Text="{Binding CoreConfig.Misc.PreLaunchCommand, Mode=TwoWay}" />
                                         </Grid>
+                                        <TextBlock Name="StPreLaunchDescTb" Classes="Muted" Text="Runs before the instance starts. The instance will not begin until this command has completed." />
                                         <!--  Wrapper Command  -->
                                         <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto">
                                             <!--  Text  -->
@@ -680,6 +681,7 @@
                                                 Classes="TextInput"
                                                 Text="{Binding CoreConfig.Misc.WrapperCommand, Mode=TwoWay}" />
                                         </Grid>
+                                        <TextBlock Name="StWrapperDescTb" Classes="Muted" Text="Wraps the Java Virtual Machine. The %command% placeholder is replaced with the Java executable path and all the Minecraft arguments. %command% is optional." />
                                         <!--  Post-exit Command  -->
                                         <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto">
                                             <!--  Text  -->
@@ -691,6 +693,7 @@
                                                 Classes="TextInput"
                                                 Text="{Binding CoreConfig.Misc.PostExitCommand, Mode=TwoWay}" />
                                         </Grid>
+                                        <TextBlock Name="StPostExitDescTb" Classes="Muted" Text="Runs after the instance has stopped." />
                                         <!--  Subtitle  -->
                                         <TextBlock Name="StNativeLibrariesTb" Classes="SettingsCategory">
                                             Native libraries

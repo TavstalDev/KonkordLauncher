@@ -704,7 +704,7 @@
                                                         Watermark="echo Instance started"
                                                         Text="{Binding InstanceConfig.Commands.PreLaunchCommand}" />
                                                 </Grid>
-                                                <TextBlock Grid.Row="1" Opacity="0.8" FontWeight="300" TextWrapping="Wrap" Text="Runs before the instance starts. The instance will not begin until this command has completed." />
+                                                <TextBlock Grid.Row="1" Name="StPreLaunchDescTb" Classes="Muted" Text="Runs before the instance starts. The instance will not begin until this command has completed." />
                                                 <!--  Wrapper Command  -->
                                                 <Grid Grid.Row="2" ColumnDefinitions="Auto, *" RowDefinitions="Auto">
                                                     <!--  Text  -->
@@ -717,7 +717,7 @@
                                                         Watermark="gamemoderun %command%"
                                                         Text="{Binding InstanceConfig.Commands.WrapperCommand}" />
                                                 </Grid>
-                                                <TextBlock Grid.Row="3" Opacity="0.8" FontWeight="300" TextWrapping="Wrap" Text="Wraps the Java Virtual Machine. The %command% placeholder is replaced with the Java executable path and all the Minecraft arguments. %command% is optional." />
+                                                <TextBlock Name="StWrapperDescTb" Grid.Row="3" Classes="Muted" Text="Wraps the Java Virtual Machine. The %command% placeholder is replaced with the Java executable path and all the Minecraft arguments. %command% is optional." />
                                                 <!--  Post-exit Command  -->
                                                 <Grid Grid.Row="4" ColumnDefinitions="Auto, *" RowDefinitions="Auto">
                                                     <!--  Text  -->
@@ -730,7 +730,7 @@
                                                         Watermark="echo Instance stopped"
                                                         Text="{Binding InstanceConfig.Commands.PostExitCommand}" />
                                                 </Grid>
-                                                <TextBlock Grid.Row="5" Opacity="0.8" FontWeight="300" TextWrapping="Wrap" Text="Runs after the instance has stopped." />
+                                                <TextBlock Name="StPostExitDescTb" Grid.Row="5" Classes="Muted" Text="Runs after the instance has stopped." />
                                             </Grid>
                                         </ScrollViewer>
                                     </Border>

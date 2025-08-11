@@ -249,8 +249,11 @@ public partial class MainWindow : Window
 
         StCustomCommandsTb.Text = TranslationManager.Translate("settings.misc.subtitle.customCommands");
         StPreLaunchTb.Text = TranslationManager.Translate("settings.misc.prelaunchCommand");
+        StPreLaunchDescTb.Text = TranslationManager.Translate("settings.misc.prelaunchCommand.description");
         StWrapperTb.Text = TranslationManager.Translate("settings.misc.wrapperCommand");
+        StWrapperDescTb.Text = TranslationManager.Translate("settings.misc.wrapperCommand.description");
         StPostExitTb.Text = TranslationManager.Translate("settings.misc.postExitCommand");
+        StPostExitDescTb.Text = TranslationManager.Translate("settings.misc.postExitCommand.description");
         StNativeLibrariesTb.Text = TranslationManager.Translate("settings.misc.subtitle.nativeLibraries");
         StUseCustomGlfwTb.Text = TranslationManager.Translate("settings.misc.customGLFW");
         StGlfwPathTb.Text = TranslationManager.Translate("settings.misc.pathGLFW");

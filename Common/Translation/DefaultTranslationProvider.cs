@@ -161,8 +161,11 @@ public static class DefaultTranslationProvider
 
         {"settings.misc.subtitle.customCommands", "Custom Commands"},
         {"settings.misc.prelaunchCommand", "Pre-launch"},
+        {"settings.misc.prelaunchCommand.description", "Runs before the instance starts. The instance will not begin until this command has completed."},
         {"settings.misc.wrapperCommand", "Wrapper"},
+        {"settings.misc.wrapperCommand.description", "Wraps the Java Virtual Machine. The %command% placeholder is replaced with the Java executable path and all the Minecraft arguments. %command% is optional."},
         {"settings.misc.postExitCommand", "Post-exit"},
+        {"settings.misc.postExitCommand.description", "Runs after the instance has stopped."},
         {"settings.misc.subtitle.nativeLibraries", "Native Libraries"},
         {"settings.misc.customGLFW", "Use custom GLFW library"},
         {"settings.misc.pathGLFW", "GLFW library path"},

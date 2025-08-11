@@ -34,9 +34,14 @@ public class PathDetails
     /// Gets or sets the path to a custom manifest file, if any.
     /// </summary>
     public string? CustomManifestPath { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the list of custom native files.
+    /// </summary>
+    public List<string> CustomNativeFiles { get; set; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="PathDetails"/> class.
+    /// Initializes a new instance of the <see cref="PathDetails"/> class with the specified parameters.
     /// </summary>
     /// <param name="assetsDir">The directory path for assets.</param>
     /// <param name="cacheDir">The directory path for cached files.</param>
@@ -44,7 +49,8 @@ public class PathDetails
     /// <param name="versionsDir">The directory path for versions.</param>
     /// <param name="manifestPath">The path to the manifest file.</param>
     /// <param name="customManifestPath">The path to a custom manifest file, if any.</param>
-    public PathDetails(string assetsDir, string cacheDir, string librariesDir, string versionsDir, string manifestPath, string? customManifestPath)
+    /// <param name="customNativeFiles">The list of custom native files.</param>
+    public PathDetails(string assetsDir, string cacheDir, string librariesDir, string versionsDir, string manifestPath, string? customManifestPath, List<string> customNativeFiles)
     {
         AssetsDir = assetsDir;
         CacheDir = cacheDir;
@@ -52,5 +58,6 @@ public class PathDetails
         VersionsDir = versionsDir;
         ManifestPath = manifestPath;
         CustomManifestPath = customManifestPath;
+        CustomNativeFiles = customNativeFiles;
     }
 }

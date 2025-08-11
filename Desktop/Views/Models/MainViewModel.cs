@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -169,6 +170,13 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
             foreach (var env in environmentVariables)
                 envDic[env.Key] = env.Value;
             
+            // Add custom native libraries if configured
+            List<string> nativeLibraries = [];
+            if (CoreConfig.Misc.UseCustomGlfw && System.IO.File.Exists(CoreConfig.Misc.CustomGlfwPath))
+                nativeLibraries.Add(CoreConfig.Misc.CustomGlfwPath);
+            if (CoreConfig.Misc.UseCustomOpenAl && System.IO.File.Exists(CoreConfig.Misc.CustomOpenAlPath))
+                nativeLibraries.Add(CoreConfig.Misc.CustomOpenAlPath);
+            
             // Set up the game instance with the provided details
             MinecraftInstance? gameInstance = null;
             var settings = await LauncherHelper.GetLauncherSettingsAsync();
@@ -214,7 +222,8 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
                             settings.Launcher.LibrariesDirectoryPath,
                             settings.Launcher.VersionsDirectoryPath,
                             settings.Launcher.GetVanillaManifestPath(),
-                            null
+                            null,
+                            nativeLibraries
                         ),
                         launcherDetails,
                         clientDetails,
@@ -233,7 +242,8 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
                             settings.Launcher.LibrariesDirectoryPath,
                             settings.Launcher.VersionsDirectoryPath,
                             settings.Launcher.GetVanillaManifestPath(),
-                            settings.Launcher.GetNeoForgeManifestPath()
+                            settings.Launcher.GetNeoForgeManifestPath(),
+                            nativeLibraries
                         ),
                         launcherDetails,
                         clientDetails,
@@ -252,7 +262,8 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
                             settings.Launcher.LibrariesDirectoryPath,
                             settings.Launcher.VersionsDirectoryPath,
                             settings.Launcher.GetVanillaManifestPath(),
-                            settings.Launcher.GetForgeManifestPath()
+                            settings.Launcher.GetForgeManifestPath(),
+                            nativeLibraries
                         ),
                         launcherDetails,
                         clientDetails,
@@ -271,7 +282,8 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
                             settings.Launcher.LibrariesDirectoryPath,
                             settings.Launcher.VersionsDirectoryPath,
                             settings.Launcher.GetVanillaManifestPath(),
-                            settings.Launcher.GetFabricManifestPath()
+                            settings.Launcher.GetFabricManifestPath(),
+                            nativeLibraries
                         ),
                         launcherDetails,
                         clientDetails,
@@ -290,7 +302,8 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
                             settings.Launcher.LibrariesDirectoryPath,
                             settings.Launcher.VersionsDirectoryPath,
                             settings.Launcher.GetVanillaManifestPath(),
-                            settings.Launcher.GetQuiltManifestPath()
+                            settings.Launcher.GetQuiltManifestPath(),
+                            nativeLibraries
                         ),
                         launcherDetails,
                         clientDetails,

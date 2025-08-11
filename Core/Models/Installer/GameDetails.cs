@@ -64,12 +64,17 @@ public class GameDetails
     public string PostExitCommand { get; set; }
 
     /// <summary>
+    /// Gets or sets the environment variables to be used when launching the game.
+    /// </summary>
+    public Dictionary<string, string> EnvironmentVariables { get; set; }
+    
+    /// <summary>
     /// Gets or sets the server address to join automatically when launching the game, if specified.
     /// </summary>
     public string? ServerAddressToJoin { get; set; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="GameDetails"/> class with the specified parameters.
+    /// Initializes a new instance of the <see cref="GameDetails"/> class with specified values.
     /// </summary>
     /// <param name="javaPath">The path to the Java executable.</param>
     /// <param name="minMemory">The minimum memory allocation for the game in megabytes.</param>
@@ -82,8 +87,9 @@ public class GameDetails
     /// <param name="preLaunchCommand">The command to execute before launching the game.</param>
     /// <param name="wrapperCommand">The command wrapper to use when launching the game.</param>
     /// <param name="postExitCommand">The command to execute after the game exits.</param>
+    /// <param name="environmentVariables">The environment variables to be used when launching the game.</param>
     /// <param name="serverAddressToJoin">The server address to join automatically when launching the game, if specified.</param>
-    public GameDetails(string javaPath, uint minMemory, uint maxMemory, string jvmArgs, string minecraftVersion, EMinecraftKind kind, string? customVersion, string? customGameDirectory, string preLaunchCommand, string wrapperCommand, string postExitCommand, string? serverAddressToJoin)
+    public GameDetails(string javaPath, uint minMemory, uint maxMemory, string jvmArgs, string minecraftVersion, EMinecraftKind kind, string? customVersion, string? customGameDirectory, string preLaunchCommand, string wrapperCommand, string postExitCommand, Dictionary<string, string> environmentVariables, string? serverAddressToJoin)
     {
         JavaPath = javaPath;
         MinMemory = minMemory;
@@ -96,6 +102,7 @@ public class GameDetails
         PreLaunchCommand = preLaunchCommand;
         WrapperCommand = wrapperCommand;
         PostExitCommand = postExitCommand;
+        EnvironmentVariables = environmentVariables;
         ServerAddressToJoin = serverAddressToJoin;
     }
 }

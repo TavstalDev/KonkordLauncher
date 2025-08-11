@@ -585,7 +585,7 @@
                                                         Classes="TextInput"
                                                         Watermark="Select a directory..."
                                                         Text="{Binding InstanceConfig.Java.DefaultJavaPath}"/>
-                                                    <Button Grid.Column="2" Classes="IconBtn">
+                                                    <Button Grid.Column="2" Classes="IconBtn" Click="JavaPathSelect_OnClick">
                                                         <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
                                                     </Button>
                                                     <Button Grid.Column="3" Classes="IconBtn" Click="JavaOpenPathSelector_OnClick">
@@ -691,7 +691,7 @@
                                 <TabItem Classes="ModalTabItem" Header="Custom Commands">
                                     <Border Classes="ModalInnerScrollableWrapper">
                                         <ScrollViewer Classes="ModalScrollViewer">
-                                            <Grid RowDefinitions="Auto, Auto, Auto" RowSpacing="10">
+                                            <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto" RowSpacing="10">
                                                 <!--  Pre-launch Command  -->
                                                 <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto">
                                                     <!--  Text  -->
@@ -701,10 +701,12 @@
                                                         Name="StPreLaunchInput"
                                                         Grid.Column="1"
                                                         Classes="TextInput"
+                                                        Watermark="echo Instance started"
                                                         Text="{Binding InstanceConfig.Commands.PreLaunchCommand}" />
                                                 </Grid>
+                                                <TextBlock Grid.Row="1" Opacity="0.8" FontWeight="300" TextWrapping="Wrap" Text="Runs before the instance starts. The instance will not begin until this command has completed." />
                                                 <!--  Wrapper Command  -->
-                                                <Grid Grid.Row="1" ColumnDefinitions="Auto, *" RowDefinitions="Auto">
+                                                <Grid Grid.Row="2" ColumnDefinitions="Auto, *" RowDefinitions="Auto">
                                                     <!--  Text  -->
                                                     <TextBlock Name="StWrapperTb" Classes="TextInput">Wrapper</TextBlock>
                                                     <!--  Input  -->
@@ -712,10 +714,12 @@
                                                         Name="StWrapperInput"
                                                         Grid.Column="1"
                                                         Classes="TextInput"
+                                                        Watermark="gamemoderun %command%"
                                                         Text="{Binding InstanceConfig.Commands.WrapperCommand}" />
                                                 </Grid>
+                                                <TextBlock Grid.Row="3" Opacity="0.8" FontWeight="300" TextWrapping="Wrap" Text="Wraps the Java Virtual Machine. The %command% placeholder is replaced with the Java executable path and all the Minecraft arguments. %command% is optional." />
                                                 <!--  Post-exit Command  -->
-                                                <Grid Grid.Row="2" ColumnDefinitions="Auto, *" RowDefinitions="Auto">
+                                                <Grid Grid.Row="4" ColumnDefinitions="Auto, *" RowDefinitions="Auto">
                                                     <!--  Text  -->
                                                     <TextBlock Name="StPostExitTb" Classes="TextInput">Post-exit</TextBlock>
                                                     <!--  Input  -->
@@ -723,8 +727,10 @@
                                                         Name="StPostExitInput"
                                                         Grid.Column="1"
                                                         Classes="TextInput"
+                                                        Watermark="echo Instance stopped"
                                                         Text="{Binding InstanceConfig.Commands.PostExitCommand}" />
                                                 </Grid>
+                                                <TextBlock Grid.Row="5" Opacity="0.8" FontWeight="300" TextWrapping="Wrap" Text="Runs after the instance has stopped." />
                                             </Grid>
                                         </ScrollViewer>
                                     </Border>
@@ -739,14 +745,14 @@
                                                     <TextBlock Name="StUseEnvVarsTb" Text="Enable Environment Variables" />
                                                 </CheckBox>
                                                 <!--  Content  -->
-                                                <!-- TODO -->
                                                 <Border Grid.Row="1">
                                                     <ScrollViewer Classes="TableScrollViewer">
                                                         <DataGrid
                                                             Classes="InstanceMultiTable"
                                                             IsReadOnly="False"
-                                                            ItemsSource="{Binding InstanceConfig.Environment}" 
-                                                            CellEditEnded="EnvironmentTable_OnCellEditEnded"
+                                                            RowEditEnded="EnvironmentDataGrid_OnRowEditEnded"
+                                                            ItemsSource="{Binding InstanceConfig.Environment}"
+                                                            SelectedIndex="{Binding  SelectedEnvironmentVariableIndex}"
                                                             IsEnabled="{Binding InstanceConfig.EnableEnvironment}">
                                                             <DataGrid.Columns>
                                                                 <!-- Name  -->
@@ -764,21 +770,20 @@
                                                     </ScrollViewer>
                                                 </Border>
                                                 <!--  Actions  -->
-                                                <!-- TODO -->
                                                 <Grid
                                                     Grid.Row="2"
                                                     ColumnDefinitions="Auto, Auto, Auto"
                                                     ColumnSpacing="5">
                                                     <!--  Add button  -->
-                                                    <Button Classes="IconBtn" IsEnabled="{Binding InstanceConfig.EnableEnvironment}">
+                                                    <Button Classes="IconBtn" Click="AddEnvironmentRow_OnClick" IsEnabled="{Binding InstanceConfig.EnableEnvironment}">
                                                         <TextBlock Text="Add" />
                                                     </Button>
                                                     <!--  Remove button  -->
-                                                    <Button Grid.Column="1" Classes="IconBtn" IsEnabled="{Binding InstanceConfig.EnableEnvironment}">
+                                                    <Button Grid.Column="1" Classes="IconBtn" Click="RemoveEnvironmentRow_OnClick" IsEnabled="{Binding CanRemoveEnvironmentVariable}">
                                                         <TextBlock Text="Remove" />
                                                     </Button>
                                                     <!--  Clear button  -->
-                                                    <Button Grid.Column="2" Classes="IconBtn" IsEnabled="{Binding InstanceConfig.EnableEnvironment}">
+                                                    <Button Grid.Column="2" Classes="IconBtn" Click="ClearEnvironmentTable_OnClick" IsEnabled="{Binding InstanceConfig.EnableEnvironment}">
                                                         <TextBlock Text="Clear" />
                                                     </Button>
                                                 </Grid>
@@ -840,15 +845,14 @@
                                                     <!--  Text  -->
                                                     <TextBlock Name="StOverridenAccountTb" Classes="TextDropdown">Account</TextBlock>
                                                     <!--  Input  -->
-                                                    <!-- TODO -->
                                                     <ComboBox
                                                         Name="StOverridenAccountInput"
                                                         Grid.Column="1"
                                                         Classes="TextDropdown"
-                                                        SelectedIndex="0"
-                                                        IsEnabled="{Binding InstanceConfig.Misc.OverrideAccount}">
-                                                        <ComboBoxItem Content="PlayerOne" />
-                                                        <ComboBoxItem Content="PlayerTwo" />
+                                                        IsEnabled="{Binding InstanceConfig.Misc.OverrideAccount}"
+                                                        ItemsSource="{Binding Accounts}"
+                                                        SelectionChanged="OverridenAccount_SelectionChanged"
+                                                        DisplayMemberBinding="{Binding DisplayName}">
                                                     </ComboBox>
                                                 </Grid>
                                                 <!--  Set target server  -->

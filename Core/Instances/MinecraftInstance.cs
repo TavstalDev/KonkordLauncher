@@ -95,6 +95,15 @@ public class MinecraftInstance
             await Task.Delay(250); // Ensure the progress reporter has time to update before launching
             _progressReporter?.Hide();
             
+            // Copy custom natives if specified
+            foreach (string nativePath in PathDetails.CustomNativeFiles)
+            {
+                if (!File.Exists(nativePath))
+                    continue;
+                string destPath = Path.Combine(versionDetails.NativesDir, Path.GetFileName(nativePath));
+                File.Copy(nativePath, destPath, true);
+            }
+
             // Execute pre-launch command if specified
             if (!string.IsNullOrEmpty(GameDetails.PreLaunchCommand))
             {

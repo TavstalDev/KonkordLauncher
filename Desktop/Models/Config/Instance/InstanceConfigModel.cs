@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
-using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Config.Launcher;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Config.Instance;
@@ -34,7 +34,7 @@ public partial class InstanceConfigModel : ObservableObject
     /// <summary>
     /// Gets or sets the environment variables for the instance.
     /// </summary>
-    [ObservableProperty] private ObservableDictionary<string, string> _environment;
+    public ObservableCollection<EnvironmentVariable> Environment { get; set; }
 
     /// <summary>
     /// Gets or sets the miscellaneous configuration for the instance.
@@ -50,7 +50,7 @@ public partial class InstanceConfigModel : ObservableObject
         Game = new InstanceGameConfigModel();
         Commands = new InstanceCommandsConfigModel();
         EnableEnvironment = false;
-        Environment = new ObservableDictionary<string, string>();
+        Environment = [];
         Misc = new InstanceMiscConfigModel();
     }
 
@@ -63,13 +63,13 @@ public partial class InstanceConfigModel : ObservableObject
     /// <param name="enableEnvironment">Whether the environment variables are enabled.</param>
     /// <param name="environment">The environment variables for the instance.</param>
     /// <param name="misc">The miscellaneous configuration for the instance.</param>
-    public InstanceConfigModel(JavaConfigModel java, InstanceGameConfigModel game, InstanceCommandsConfigModel commands, bool enableEnvironment, Dictionary<string, string> environment, InstanceMiscConfigModel misc)
+    public InstanceConfigModel(JavaConfigModel java, InstanceGameConfigModel game, InstanceCommandsConfigModel commands, bool enableEnvironment, List<EnvironmentVariable> environment, InstanceMiscConfigModel misc)
     {
         Java = java;
         Game = game;
         Commands = commands;
         EnableEnvironment = enableEnvironment;
-        Environment = new ObservableDictionary<string, string>(environment);
+        Environment = new ObservableCollection<EnvironmentVariable>(environment);
         Misc = misc;
     }
 
@@ -87,7 +87,7 @@ public partial class InstanceConfigModel : ObservableObject
             DefaultJavaPath = config.Java.JavaPath,
             JvmArguments = config.Java.JvmArguments,
         };
-        _game = new InstanceGameConfigModel
+        Game = new InstanceGameConfigModel
         {
             StartMaximized = config.Game.StartMaximized,
             WindowHeight = config.Game.WindowHeight,
@@ -99,15 +99,15 @@ public partial class InstanceConfigModel : ObservableObject
             EnableMangoHud = config.Game.EnableMangoHud,
             UseDedicatedGpu = config.Game.UseDedicatedGpu,
         };
-        _commands = new InstanceCommandsConfigModel
+        Commands = new InstanceCommandsConfigModel
         {
             PreLaunchCommand = config.Commands.PreLaunchCommand,
             WrapperCommand = config.Commands.WrapperCommand,
             PostExitCommand = config.Commands.PostExitCommand,
         };
-        _enableEnvironment = config.EnableEnvironment;
-        _environment = new ObservableDictionary<string, string>(config.Environment);
-        _misc = new InstanceMiscConfigModel
+        EnableEnvironment = config.EnableEnvironment;
+        Environment = new ObservableCollection<EnvironmentVariable>(config.Environment);
+        Misc = new InstanceMiscConfigModel
         {
             UseCustomGlfw = config.Misc.UseCustomGlfw,
             CustomGlfwPath = config.Misc.CustomGlfwPath,

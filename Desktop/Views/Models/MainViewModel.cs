@@ -134,15 +134,16 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
                         {
                             case "amd":
                             {
-                                environmentVariables.Add(new ("AMD_POWERXPRESS_REQUEST_HIGH_PERFORMANCE", "1"));
+                                environmentVariables.Add(new("AMD_POWERXPRESS_REQUEST_HIGH_PERFORMANCE", "1"));
                                 break;
                             }
                             case "nvidia":
                             {
-                                environmentVariables.Add(new ("__NV_GPU_USE_DISCRETE_GPU", "1"));
+                                environmentVariables.Add(new("__NV_GPU_USE_DISCRETE_GPU", "1"));
                                 break;
                             }
                         }
+
                         break;
                     }
                     case EOperatingSystem.Linux:
@@ -152,31 +153,33 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
                             case "amd":
                             case "intel":
                             {
-                                environmentVariables.Add(new ("DRI_PRIME", "1"));
+                                environmentVariables.Add(new("DRI_PRIME", "1"));
                                 break;
                             }
                             case "nvidia":
                             {
-                                environmentVariables.Add(new ("__NV_PRIME_RENDER_OFFLOAD", "1"));
-                                environmentVariables.Add(new ("__GLX_VENDOR_LIBRARY_NAME", "nvidia"));
+                                environmentVariables.Add(new("__NV_PRIME_RENDER_OFFLOAD", "1"));
+                                environmentVariables.Add(new("__GLX_VENDOR_LIBRARY_NAME", "nvidia"));
                                 break;
                             }
                         }
+
                         break;
                     }
                 }
             }
+
             var envDic = new Dictionary<string, string>();
             foreach (var env in environmentVariables)
                 envDic[env.Key] = env.Value;
-            
+
             // Add custom native libraries if configured
             List<string> nativeLibraries = [];
             if (CoreConfig.Misc.UseCustomGlfw && System.IO.File.Exists(CoreConfig.Misc.CustomGlfwPath))
                 nativeLibraries.Add(CoreConfig.Misc.CustomGlfwPath);
             if (CoreConfig.Misc.UseCustomOpenAl && System.IO.File.Exists(CoreConfig.Misc.CustomOpenAlPath))
                 nativeLibraries.Add(CoreConfig.Misc.CustomOpenAlPath);
-            
+
             // Set up the game instance with the provided details
             MinecraftInstance? gameInstance = null;
             var settings = await LauncherHelper.GetLauncherSettingsAsync();
@@ -205,7 +208,9 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
                     .MICROSOFT // Might support custom login services in the future, that's why I do not use EAccountType.OFFLINE
             );
             var resolution = new Resolution(
-                instance.ConfigModel.Game.StartMaximized ? (uint)App.ScreenSize.Width : instance.ConfigModel.Game.WindowWidth,
+                instance.ConfigModel.Game.StartMaximized
+                    ? (uint)App.ScreenSize.Width
+                    : instance.ConfigModel.Game.WindowWidth,
                 instance.ConfigModel.Game.StartMaximized
                     ? (uint)App.ScreenSize.Height
                     : instance.ConfigModel.Game.WindowHeight
@@ -329,6 +334,20 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
             instance.GameProcess = process;
             instance.IsGameRunning = true;
             instance.AttachProcessEvent();
+
+            if (CoreConfig.Minecraft.CloseLauncherOnGameStart)
+            {
+                _mainWindow.Close();
+                return;
+            }
+
+            if (CoreConfig.Minecraft.CloseLauncherOnGameExit)
+            {
+                instance.GameProcess.Exited += (sender, args) =>
+                {
+                    _mainWindow.Close();
+                };
+            }
         }
         catch (Exception ex)
         {

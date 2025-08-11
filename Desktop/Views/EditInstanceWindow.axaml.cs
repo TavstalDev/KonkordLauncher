@@ -1,8 +1,14 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Platform.Storage;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
+using Tavstal.KonkordLauncher.Common.Translation;
+using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
@@ -11,6 +17,8 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 
 public partial class EditInstanceWindow : Window
 {
+    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceWindow));
+
     // This constructor is used by the Avalonia Designer.
     public EditInstanceWindow()
     {
@@ -21,10 +29,10 @@ public partial class EditInstanceWindow : Window
         if (Design.IsDesignMode)
         {
             // Provide a mock data context for the designer to render.
-            this.DataContext = new EditInstanceViewModel(this, "mock-id",  new InstanceConfig());
+            this.DataContext = new EditInstanceViewModel(this, "mock-id", new InstanceConfig());
         }
     }
-    
+
     public EditInstanceWindow(InstanceModel instance)
     {
         InitializeComponent();
@@ -40,13 +48,13 @@ public partial class EditInstanceWindow : Window
             this.DataContext = new EditInstanceViewModel(this, "mock-id", new InstanceConfig());
             return;
         }
-        
+
         this.DataContext = new EditInstanceViewModel(this, instance.Id, instance.ConfigModel);
         var settings = LauncherHelper.GetLauncherSettings();
         HandleLanguageChange(settings.Launcher.Language);
         App.OnLanguageChanged += HandleLanguageChange;
     }
-    
+
     /// <summary>
     /// Updates the UI elements with translations based on the specified language.
     /// This method handles the translation of sidebar buttons, page titles, and various settings labels.
@@ -55,6 +63,21 @@ public partial class EditInstanceWindow : Window
     private void HandleLanguageChange(string language)
     {
 
+    }
+    
+    /// <summary>
+    /// Handles the selection change event for the overridden account ComboBox.
+    /// Updates the account ID in the instance configuration based on the selected account.
+    /// </summary>
+    /// <param name="sender">The source of the event, expected to be a ComboBox.</param>
+    /// <param name="e">The event data containing information about the selection change.</param>
+    private void OverridenAccount_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (this.DataContext is not EditInstanceViewModel viewModel)
+            return;
+
+        if (sender is ComboBox { SelectedItem: Account selectedAccount })
+            viewModel.InstanceConfig.Misc.AccountId = selectedAccount.Id;
     }
 
     #region DataGrid Loading Events
@@ -66,9 +89,9 @@ public partial class EditInstanceWindow : Window
 
         if (row.DataContext is not ModModel modItem)
             return;
-        
+
         var contextMenu = new ContextMenu();
-        
+
         // Add Enable/Disable MenuItem
         string enableDisableHeader = modItem.IsEnabled ? "Disable" : "Enable";
         var editMenuItem = new MenuItem { Header = enableDisableHeader };
@@ -80,10 +103,10 @@ public partial class EditInstanceWindow : Window
             // TODO: Handle click event
         };
         contextMenu.Items.Add(editMenuItem);
-        
+
         // Separator
         contextMenu.Items.Add(new Separator());
-        
+
         // Add Check For Update MenuItem
         var checkUpdateMenuItem = new MenuItem { Header = "Check for Update" };
         checkUpdateMenuItem.Click += (s, args) =>
@@ -94,7 +117,7 @@ public partial class EditInstanceWindow : Window
             // TODO: Handle click event
         };
         contextMenu.Items.Add(checkUpdateMenuItem);
-        
+
         // Add Change Version MenuItem
         var changeVersionMenuItem = new MenuItem { Header = "Change Version" };
         changeVersionMenuItem.Click += (s, args) =>
@@ -105,10 +128,10 @@ public partial class EditInstanceWindow : Window
             // TODO: Handle click event
         };
         contextMenu.Items.Add(changeVersionMenuItem);
-        
+
         // Separator
         contextMenu.Items.Add(new Separator());
-        
+
         // Add Remove MenuItem
         var removeMenuItem = new MenuItem { Header = "Remove" };
         removeMenuItem.Click += (s, args) =>
@@ -119,10 +142,10 @@ public partial class EditInstanceWindow : Window
             // TODO: Handle click event
         };
         contextMenu.Items.Add(removeMenuItem);
-        
+
         // Separator
         contextMenu.Items.Add(new Separator());
-        
+
         // Add Download Mods MenuItem
         var downloadModsMenuItem = new MenuItem { Header = "Download Mods" };
         downloadModsMenuItem.Click += (s, args) =>
@@ -133,7 +156,7 @@ public partial class EditInstanceWindow : Window
             // TODO: Handle click event
         };
         contextMenu.Items.Add(downloadModsMenuItem);
-        
+
         // Add Open Folder MenuItem
         var openFolderMenuItem = new MenuItem { Header = "Open Folder" };
         openFolderMenuItem.Click += (s, args) =>
@@ -156,9 +179,9 @@ public partial class EditInstanceWindow : Window
 
         if (row.DataContext is not ResourcePackModel resourcePackItem)
             return;
-        
+
         var contextMenu = new ContextMenu();
-        
+
         // Add Enable/Disable MenuItem
         string enableDisableHeader = resourcePackItem.IsEnabled ? "Disable" : "Enable";
         var editMenuItem = new MenuItem { Header = enableDisableHeader };
@@ -170,10 +193,10 @@ public partial class EditInstanceWindow : Window
             // TODO: Handle click event
         };
         contextMenu.Items.Add(editMenuItem);
-        
+
         // Separator
         contextMenu.Items.Add(new Separator());
-        
+
         // Add Remove MenuItem
         var removeMenuItem = new MenuItem { Header = "Remove" };
         removeMenuItem.Click += (s, args) =>
@@ -184,10 +207,10 @@ public partial class EditInstanceWindow : Window
             // TODO: Handle click event
         };
         contextMenu.Items.Add(removeMenuItem);
-        
+
         // Separator
         contextMenu.Items.Add(new Separator());
-        
+
         // Add Download Packs MenuItem
         var downloadModsMenuItem = new MenuItem { Header = "Download Packs" };
         downloadModsMenuItem.Click += (s, args) =>
@@ -198,7 +221,7 @@ public partial class EditInstanceWindow : Window
             // TODO: Handle click event
         };
         contextMenu.Items.Add(downloadModsMenuItem);
-        
+
         // Add Open Folder MenuItem
         var openFolderMenuItem = new MenuItem { Header = "Open Folder" };
         openFolderMenuItem.Click += (s, args) =>
@@ -221,9 +244,9 @@ public partial class EditInstanceWindow : Window
 
         if (row.DataContext is not ShaderPackModel shaderPackItem)
             return;
-        
+
         var contextMenu = new ContextMenu();
-        
+
         // Add Enable/Disable MenuItem
         string enableDisableHeader = shaderPackItem.IsEnabled ? "Disable" : "Enable";
         var editMenuItem = new MenuItem { Header = enableDisableHeader };
@@ -235,10 +258,10 @@ public partial class EditInstanceWindow : Window
             // TODO: Handle click event
         };
         contextMenu.Items.Add(editMenuItem);
-        
+
         // Separator
         contextMenu.Items.Add(new Separator());
-        
+
         // Add Remove MenuItem
         var removeMenuItem = new MenuItem { Header = "Remove" };
         removeMenuItem.Click += (s, args) =>
@@ -249,10 +272,10 @@ public partial class EditInstanceWindow : Window
             // TODO: Handle click event
         };
         contextMenu.Items.Add(removeMenuItem);
-        
+
         // Separator
         contextMenu.Items.Add(new Separator());
-        
+
         // Add Download Packs MenuItem
         var downloadModsMenuItem = new MenuItem { Header = "Download Shaders" };
         downloadModsMenuItem.Click += (s, args) =>
@@ -263,7 +286,7 @@ public partial class EditInstanceWindow : Window
             // TODO: Handle click event
         };
         contextMenu.Items.Add(downloadModsMenuItem);
-        
+
         // Add Open Folder MenuItem
         var openFolderMenuItem = new MenuItem { Header = "Open Folder" };
         openFolderMenuItem.Click += (s, args) =>
@@ -286,7 +309,7 @@ public partial class EditInstanceWindow : Window
 
         if (row.DataContext is not WorldModel worldItem)
             return;
-        
+
         var contextMenu = new ContextMenu();
 
         // Add Duplicate MenuItem
@@ -299,7 +322,7 @@ public partial class EditInstanceWindow : Window
             // TODO: Handle click event
         };
         contextMenu.Items.Add(duplicateItem);
-        
+
         // Add Rename MenuItem
         var renameMenuItem = new MenuItem { Header = "Rename" };
         renameMenuItem.Click += (s, args) =>
@@ -310,7 +333,7 @@ public partial class EditInstanceWindow : Window
             // TODO: Handle click event
         };
         contextMenu.Items.Add(renameMenuItem);
-        
+
         // Add Delete MenuItem
         var deleteMenuItem = new MenuItem { Header = "Delete" };
         deleteMenuItem.Click += (s, args) =>
@@ -321,10 +344,10 @@ public partial class EditInstanceWindow : Window
             // TODO: Handle click event
         };
         contextMenu.Items.Add(deleteMenuItem);
-        
+
         // Separator
         contextMenu.Items.Add(new Separator());
-        
+
         // Add Copy Seed MenuItem
         var copySeedMenuItem = new MenuItem { Header = "Copy Seed" };
         copySeedMenuItem.Click += (s, args) =>
@@ -335,7 +358,7 @@ public partial class EditInstanceWindow : Window
             // TODO: Handle click event
         };
         contextMenu.Items.Add(copySeedMenuItem);
-        
+
         // Add Open Folder MenuItem
         var openFolderMenuItem = new MenuItem { Header = "Open Folder" };
         openFolderMenuItem.Click += (s, args) =>
@@ -358,7 +381,7 @@ public partial class EditInstanceWindow : Window
 
         if (row.DataContext is not ServerModel serverItem)
             return;
-        
+
         var contextMenu = new ContextMenu();
 
         // Add Join MenuItem
@@ -371,7 +394,7 @@ public partial class EditInstanceWindow : Window
             // TODO: Handle click event
         };
         contextMenu.Items.Add(joinMenuItem);
-        
+
         // Add Remove MenuItem
         var removeItem = new MenuItem { Header = "Remove" };
         removeItem.Click += (s, args) =>
@@ -394,7 +417,7 @@ public partial class EditInstanceWindow : Window
 
         if (row.DataContext is not ScreenshotModel screenshotItem)
             return;
-        
+
         var contextMenu = new ContextMenu();
 
         // Add Copy MenuItem
@@ -407,7 +430,7 @@ public partial class EditInstanceWindow : Window
             // TODO: Handle click event
         };
         contextMenu.Items.Add(copyMenuItem);
-        
+
         // Add Delete MenuItem
         var deleteItem = new MenuItem { Header = "Delete" };
         deleteItem.Click += (s, args) =>
@@ -418,7 +441,7 @@ public partial class EditInstanceWindow : Window
             // TODO: Handle click event
         };
         contextMenu.Items.Add(deleteItem);
-        
+
         // Add Rename MenuItem
         var renameItem = new MenuItem { Header = "Rename" };
         renameItem.Click += (s, args) =>
@@ -429,7 +452,7 @@ public partial class EditInstanceWindow : Window
             // TODO: Handle click event
         };
         contextMenu.Items.Add(renameItem);
-        
+
         // Add Open Folder MenuItem
         var openFolderItem = new MenuItem { Header = "Open Folder" };
         openFolderItem.Click += (s, args) =>
@@ -447,13 +470,170 @@ public partial class EditInstanceWindow : Window
 
     #endregion
 
-    private void EnvironmentTable_OnCellEditEnded(object? sender, DataGridCellEditEndedEventArgs e)
+    #region Java Path Selection
+
+    /// <summary>
+    /// Handles the click event for selecting the Java path.
+    /// Opens a folder picker dialog and updates the Java path in the InstanceConfig if a folder is selected.
+    /// </summary>
+    /// <param name="sender">The source of the event.</param>
+    /// <param name="e">The event data associated with the click event.</param>
+    private void JavaPathSelect_OnClick(object? sender, RoutedEventArgs e)
     {
-        // TODO
+        if (DataContext is not EditInstanceViewModel viewModel)
+            return;
+
+        var directoryResult = OpenFolderPickerAsync();
+        directoryResult.ContinueWith(task =>
+        {
+            if (!task.IsCompletedSuccessfully)
+                return;
+
+            if (task.Result is not { } resultPath)
+                return;
+
+            viewModel.InstanceConfig.Java.DefaultJavaPath = resultPath;
+        });
     }
 
-    private void JavaOpenPathSelector_OnClick(object? sender, RoutedEventArgs e)
+    /// <summary>
+    /// Handles the click event for opening the Java path selector.
+    /// Displays a dialog to select a Java version and updates the Java path in the InstanceConfig if a version is selected.
+    /// </summary>
+    /// <param name="sender">The source of the event.</param>
+    /// <param name="e">The event data associated with the click event.</param>
+    private async void JavaOpenPathSelector_OnClick(object? sender, RoutedEventArgs e)
     {
-        // TODO
+        // TODO: Replace async void with async Task
+        var window = new JavaSelectorWindow();
+        var javaVersion = await window.ShowDialog<JavaVersionModel>(this);
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+        if (javaVersion == null)
+            return;
+
+        if (DataContext is not EditInstanceViewModel viewModel)
+            return;
+
+        viewModel.InstanceConfig.Java.DefaultJavaPath = javaVersion.Path;
     }
+
+    /// <summary>
+    /// Opens a folder picker dialog to allow the user to select a folder.
+    /// </summary>
+    /// <returns>
+    /// A task that represents the asynchronous operation. The task result contains the path of the selected folder
+    /// as a string, or null if no folder was selected or if folder picking is not supported.
+    /// </returns>
+    private async Task<string?> OpenFolderPickerAsync()
+    {
+        // Ensure the VisualRoot is a TopLevel object
+        if (VisualRoot is not TopLevel topLevel)
+            return null;
+
+        var storageProvider = topLevel.StorageProvider;
+
+        // Check if folder picking is supported on the current platform
+        if (!storageProvider.CanPickFolder)
+        {
+            _logger.Error("Folder picking is not supported on this platform.");
+            return null;
+        }
+
+        // Configure folder picker options
+        var options = new FolderPickerOpenOptions
+        {
+            Title = TranslationManager.Translate("common.select.directory"),
+            AllowMultiple = false
+        };
+
+        // Open the folder picker dialog
+        IReadOnlyList<IStorageFolder> folders = await storageProvider.OpenFolderPickerAsync(options);
+
+        // Return null if no folders were selected
+        if (!folders.Any())
+            return null;
+
+        // Get the first selected folder
+        IStorageFolder? selectedFolder = folders.FirstOrDefault();
+        if (selectedFolder == null)
+        {
+            _logger.Error("No folder was selected.");
+            return null;
+        }
+
+        // Return the local path of the selected folder
+        return selectedFolder.Path.LocalPath;
+    }
+
+    #endregion
+
+    #region Environment Table Events
+
+    /// <summary>
+    /// Handles the event when a row edit operation in the Environment DataGrid is completed.
+    /// Updates the corresponding environment variable in the instance configuration.
+    /// </summary>
+    /// <param name="sender">The source of the event, typically the DataGrid.</param>
+    /// <param name="e">The event data containing information about the edited row.</param>
+    private void EnvironmentDataGrid_OnRowEditEnded(object? sender, DataGridRowEditEndedEventArgs e)
+    {
+        if (this.DataContext is not EditInstanceViewModel viewModel)
+            return;
+
+        if (e.Row.DataContext is not EnvironmentVariable environmentItem)
+            return;
+
+        viewModel.InstanceConfig.Environment[e.Row.Index] = environmentItem;
+    }
+
+    /// <summary>
+    /// Handles the click event for adding a new environment variable row to the Environment DataGrid.
+    /// Adds a default environment variable to the instance configuration.
+    /// </summary>
+    /// <param name="sender">The source of the event, typically a button.</param>
+    /// <param name="e">The event data associated with the click event.</param>
+    private void AddEnvironmentRow_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (this.DataContext is not EditInstanceViewModel viewModel)
+            return;
+
+        viewModel.InstanceConfig.Environment.Add(new("ENV_VAR", "env_value"));
+    }
+
+    /// <summary>
+    /// Handles the click event for removing the selected environment variable row from the Environment DataGrid.
+    /// Removes the environment variable at the selected index from the instance configuration.
+    /// </summary>
+    /// <param name="sender">The source of the event, typically a button.</param>
+    /// <param name="e">The event data associated with the click event.</param>
+    private void RemoveEnvironmentRow_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (this.DataContext is not EditInstanceViewModel viewModel)
+            return;
+
+        if (viewModel.SelectedEnvironmentVariableIndex is null or < 0)
+            return;
+
+        var index = viewModel.SelectedEnvironmentVariableIndex.Value;
+        if (index >= viewModel.InstanceConfig.Environment.Count)
+            return;
+
+        viewModel.InstanceConfig.Environment.RemoveAt(index);
+    }
+
+    /// <summary>
+    /// Handles the click event for clearing all rows in the Environment DataGrid.
+    /// Removes all environment variables from the instance configuration.
+    /// </summary>
+    /// <param name="sender">The source of the event, typically a button.</param>
+    /// <param name="e">The event data associated with the click event.</param>
+    private void ClearEnvironmentTable_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (this.DataContext is not EditInstanceViewModel viewModel)
+            return;
+
+        viewModel.InstanceConfig.Environment.Clear();
+    }
+
+    #endregion
 }

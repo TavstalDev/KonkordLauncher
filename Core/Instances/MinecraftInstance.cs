@@ -7,7 +7,7 @@ using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 using Tavstal.KonkordLauncher.Core.Services;
 
-namespace Tavstal.KonkordLauncher.Core.Installers;
+namespace Tavstal.KonkordLauncher.Core.Instances;
 
 /// <summary>
 /// Represents a Minecraft instance, handling installation, configuration, and launching of the game.
@@ -94,7 +94,29 @@ public class MinecraftInstance
             string arguments = BuildArguments(versionDetails.GameDir, mainClass, versionDetails.NativesDir, customVersion);
             await Task.Delay(250); // Ensure the progress reporter has time to update before launching
             _progressReporter?.Hide();
-            return JavaProcessLauncher.StartJava(GameDetails.JavaPath, arguments, GameDetails.WrapperCommand);
+            
+            // Execute pre-launch command if specified
+            if (!string.IsNullOrEmpty(GameDetails.PreLaunchCommand))
+            {
+               var preLaunchProc = JavaProcessLauncher.StartCommand(GameDetails.PreLaunchCommand);
+               if (preLaunchProc != null)
+               {
+                   await preLaunchProc.WaitForExitAsync();
+               }
+            }
+            // Launch the Minecraft game process with the constructed arguments
+            var process = JavaProcessLauncher.StartJava(GameDetails.JavaPath, arguments, GameDetails.WrapperCommand,
+                GameDetails.EnvironmentVariables);
+            
+            // Execute post-exit command if specified
+            if (!string.IsNullOrEmpty(GameDetails.PostExitCommand) && process != null)
+            {
+                process.Exited += (sender, args) =>
+                {
+                    JavaProcessLauncher.StartCommand(GameDetails.PostExitCommand);
+                };
+            }
+            return process;
         }
         finally
         {

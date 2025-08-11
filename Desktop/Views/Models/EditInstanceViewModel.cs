@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using Avalonia.Controls;
+using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
@@ -29,24 +30,16 @@ public partial class EditInstanceViewModel : ObservableObject
     public List<Account> Accounts => LauncherHelper.GetAccountData().Accounts;
 
     public ObservableCollection<ModModel> Mods { get; set; } = [];
-
     public ObservableCollection<ResourcePackModel> ResourcePacks { get; set; } = [];
-
     public ObservableCollection<ShaderPackModel> ShaderPacks { get; set; } = [];
-
     public ObservableCollection<WorldModel> Worlds { get; set; } = [];
-
     public ObservableCollection<ServerModel> Servers { get; set; } = [];
-
     public ObservableCollection<ScreenshotModel> Screenshots { get; set; } = [];
 
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanRemoveEnvironmentVariable))] private InstanceConfigModel _instanceConfig;
-
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanRemoveEnvironmentVariable))] private int? _selectedEnvironmentVariableIndex;
-    
     public bool CanRemoveEnvironmentVariable => SelectedEnvironmentVariableIndex.HasValue && SelectedEnvironmentVariableIndex.Value >= 0 && InstanceConfig.EnableEnvironment;
-
-
+    
     public EditInstanceViewModel(EditInstanceWindow parent, InstanceModel instance, InstanceConfig instanceConfig)
     {
         if (Design.IsDesignMode)
@@ -63,6 +56,35 @@ public partial class EditInstanceViewModel : ObservableObject
         if (!string.IsNullOrEmpty(_instanceConfig.Misc.AccountId))
             _parentWindow.StOverridenAccountInput.SelectedIndex =
                 Accounts.FindIndex(x => x.Id == _instanceConfig.Misc.AccountId);
+        
+        RefreshScreenshots();
+    }
+    
+    /// <summary>
+    /// Refreshes the list of screenshots by scanning the game directory for PNG files
+    /// and updating the Screenshots collection with their metadata and image data.
+    /// </summary>
+    private void RefreshScreenshots()
+    {
+        if (_instance.GameDirectory == null)
+            return;
+
+        string screenshotDir = System.IO.Path.Combine(_instance.GameDirectory, "screenshots");
+        if (!System.IO.Directory.Exists(screenshotDir))
+            return;
+        
+        Screenshots.Clear();
+        var screenshots = System.IO.Directory.GetFiles(screenshotDir, "*.png");
+        foreach (var screenshot in screenshots)
+        {
+            var bytes = System.IO.File.ReadAllBytes(screenshot);
+            Screenshots.Add(new ScreenshotModel()
+            {
+                Name = System.IO.Path.GetFileName(screenshot),
+                Image = new Bitmap(screenshot),
+                Size = bytes.LongLength
+            });
+        }
     }
 
     #region Settings

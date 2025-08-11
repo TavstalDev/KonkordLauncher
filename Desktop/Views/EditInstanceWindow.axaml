@@ -32,7 +32,7 @@
             <Grid Grid.Row="1">
                 <TabControl
                     Classes="ModalVerticalTab"
-                    SelectedIndex="7"
+                    SelectedIndex="0"
                     TabStripPlacement="Left">
                     <!--  Logs  -->
                     <TabItem Classes="ModalVerticalTabItem" Header="Logs">
@@ -497,14 +497,14 @@
                                 <TextBlock Classes="ModalGridTitle" Text="Screenshots" />
                                 <!--  Content  -->
                                 <Border Grid.Row="1">
-                                    <ScrollViewer Classes="TableScrollViewer">
+                                    <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
                                         <DataGrid
                                             Classes="InstanceMultiTable"
                                             ItemsSource="{Binding Screenshots}"
                                             LoadingRow="ScreenshotDataGrid_OnLoading">
                                             <DataGrid.Columns>
                                                 <!--  Icon & Name  -->
-                                                <DataGridTemplateColumn Width="Auto" Header="Name">
+                                                <DataGridTemplateColumn Width="*" Header="Name">
                                                     <DataGridTemplateColumn.CellTemplate>
                                                         <DataTemplate>
                                                             <StackPanel Orientation="Horizontal" Spacing="5">
@@ -526,7 +526,7 @@
                                                 <!--  Size  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
-                                                    Binding="{Binding Size}"
+                                                    Binding="{Binding FormatedSize}"
                                                     Header="Size" />
                                             </DataGrid.Columns>
                                         </DataGrid>

@@ -4,57 +4,54 @@ using Tavstal.KonkordLauncher.Core.Enums;
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi;
 
+/// <summary>
+/// Represents a Minecraft version with its associated metadata.
+/// </summary>
 public class MinecraftVersion
 {
+    /// <summary>
+    /// Gets or sets the unique identifier of the Minecraft version.
+    /// </summary>
     [JsonPropertyName("id"), JsonProperty("id")]
-    public string Id {  get; set; }
+    public string Id { get; set; }
+
+    /// <summary>
+    /// Gets or sets the type of the Minecraft version (e.g., "release", "snapshot").
+    /// </summary>
     [JsonPropertyName("type"), JsonProperty("type")]
     public string Type { get; set; }
+
+    /// <summary>
+    /// Gets or sets the URL for the version's metadata or resources.
+    /// </summary>
     [JsonPropertyName("url"), JsonProperty("url")]
-    public string Url {  get; set; }
+    public string Url { get; set; }
+
+    /// <summary>
+    /// Gets or sets the time the version was created or last updated.
+    /// </summary>
     [JsonPropertyName("time"), JsonProperty("time")]
     public DateTime Time { get; set; }
+
+    /// <summary>
+    /// Gets or sets the release time of the Minecraft version.
+    /// </summary>
     [JsonPropertyName("releaseTime"), JsonProperty("releaseTime")]
-    public DateTime ReleaseTime {  get; set; }
+    public DateTime ReleaseTime { get; set; }
 
-    public EVersionType GetVersionBaseType() {
-        switch (GetMCVersionType())
-        {
-            case EMCVersionType.RELEASE:
-                return EVersionType.RELEASE;
-            case EMCVersionType.SNAPSHOT:
-                return EVersionType.SNAPSHOT;
-            default:
-                return EVersionType.BETA;
-        }
-    }
-
-    public EMCVersionType GetMCVersionType()
-    {
-        switch (Type)
-        {
-            case "snapshot":
-            {
-                return EMCVersionType.SNAPSHOT;
-            }
-            case "old_alpha":
-            {
-                return EMCVersionType.OLD_ALPHA;
-            }
-            case "old_beta":
-            {
-                return EMCVersionType.OLD_BETA;
-            }
-            default:
-            case "release":
-            {
-                return EMCVersionType.RELEASE;
-            }
-        }
-    }
-
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MinecraftVersion"/> class.
+    /// </summary>
     public MinecraftVersion() { }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MinecraftVersion"/> class with the specified parameters.
+    /// </summary>
+    /// <param name="id">The unique identifier of the Minecraft version.</param>
+    /// <param name="type">The type of the Minecraft version.</param>
+    /// <param name="url">The URL for the version's metadata or resources.</param>
+    /// <param name="time">The time the version was created or last updated.</param>
+    /// <param name="releaseTime">The release time of the Minecraft version.</param>
     public MinecraftVersion(string id, string type, string url, DateTime time, DateTime releaseTime)
     {
         Id = id;
@@ -63,7 +60,12 @@ public class MinecraftVersion
         Time = time;
         ReleaseTime = releaseTime;
     }
-    
+
+    /// <summary>
+    /// Determines whether the specified object is equal to the current instance.
+    /// </summary>
+    /// <param name="obj">The object to compare with the current instance.</param>
+    /// <returns><c>true</c> if the specified object is equal to the current instance; otherwise, <c>false</c>.</returns>
     public override bool Equals(object? obj)
     {
         if (obj is MinecraftVersion other)
@@ -73,6 +75,10 @@ public class MinecraftVersion
         return false;
     }
 
+    /// <summary>
+    /// Serves as the default hash function.
+    /// </summary>
+    /// <returns>A hash code for the current object.</returns>
     public override int GetHashCode()
     {
         // ReSharper disable once NonReadonlyMemberInGetHashCode

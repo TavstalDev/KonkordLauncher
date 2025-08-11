@@ -13,7 +13,7 @@ using Tavstal.KonkordLauncher.Common.Models.Config;
 using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
-using Tavstal.KonkordLauncher.Core.Installers;
+using Tavstal.KonkordLauncher.Core.Instances;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
@@ -110,22 +110,66 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
         try
         {
             string wrapperCommand = instance.ConfigModel.Commands.WrapperCommand;
+            // Add gamemoderun if enabled
             if (instance.ConfigModel.Game.EnableFeralGameMode && !wrapperCommand.Contains("gamemoderun"))
-            {
                 wrapperCommand = "gamemoderun " + wrapperCommand;
-            }
 
+            // Add mangohud if enabled
             if (instance.ConfigModel.Game.EnableMangoHud && !wrapperCommand.Contains("mangohud"))
-            {
                 wrapperCommand = "mangohud " + wrapperCommand;
-            }
 
+            // Attempt to force the use of a dedicated GPU if configured
+            var environmentVariables = instance.ConfigModel.EnableEnvironment
+                ? instance.ConfigModel.Environment
+                : [];
             var gpuInfo = OSHelper.GetDedicatedGpuType();
             if (instance.ConfigModel.Game.UseDedicatedGpu && gpuInfo != null)
             {
-                // TODO
+                switch (OSHelper.GetOperatingSystem())
+                {
+                    case EOperatingSystem.Windows:
+                    {
+                        switch (gpuInfo.Value.Item1)
+                        {
+                            case "amd":
+                            {
+                                environmentVariables.Add(new ("AMD_POWERXPRESS_REQUEST_HIGH_PERFORMANCE", "1"));
+                                break;
+                            }
+                            case "nvidia":
+                            {
+                                environmentVariables.Add(new ("__NV_GPU_USE_DISCRETE_GPU", "1"));
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    case EOperatingSystem.Linux:
+                    {
+                        switch (gpuInfo.Value.Item1)
+                        {
+                            case "amd":
+                            case "intel":
+                            {
+                                environmentVariables.Add(new ("DRI_PRIME", "1"));
+                                break;
+                            }
+                            case "nvidia":
+                            {
+                                environmentVariables.Add(new ("__NV_PRIME_RENDER_OFFLOAD", "1"));
+                                environmentVariables.Add(new ("__GLX_VENDOR_LIBRARY_NAME", "nvidia"));
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
             }
+            var envDic = new Dictionary<string, string>();
+            foreach (var env in environmentVariables)
+                envDic[env.Key] = env.Value;
             
+            // Set up the game instance with the provided details
             MinecraftInstance? gameInstance = null;
             var settings = await LauncherHelper.GetLauncherSettingsAsync();
             var gameDetails = new GameDetails(
@@ -140,6 +184,7 @@ public partial class MainViewModel : ObservableObject, IProgressReporter
                 instance.ConfigModel.Commands.PreLaunchCommand,
                 wrapperCommand,
                 instance.ConfigModel.Commands.PostExitCommand,
+                envDic,
                 instance.ConfigModel.Misc.JoinServerOnLaunch ? instance.ConfigModel.Misc.ServerAddress : null
             );
             var launcherDetails = new LauncherDetails("KonkordLauncher", App.Version);

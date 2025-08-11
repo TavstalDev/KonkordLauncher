@@ -38,7 +38,7 @@ public class InstanceConfig
     /// Gets or sets the environment variables for the instance as a dictionary of key-value pairs.
     /// </summary>
     [JsonProperty("environment"), JsonPropertyName("environment")]
-    public Dictionary<string, string> Environment { get; set; }
+    public List<EnvironmentVariable> Environment { get; set; }
 
     /// <summary>
     /// Gets or sets the miscellaneous configuration for the instance.
@@ -55,20 +55,20 @@ public class InstanceConfig
         Game = new InstanceGameConfig();
         Commands = new InstanceCommandsConfig();
         EnableEnvironment = false;
-        Environment = new Dictionary<string, string>();
+        Environment = [];
         Misc = new InstanceMiscConfig();
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="InstanceConfig"/> class with specified values.
+    /// Initializes a new instance of the <see cref="InstanceConfig"/> class with the specified parameters.
     /// </summary>
     /// <param name="java">The Java configuration for the game instance.</param>
     /// <param name="game">The game-specific configuration for the instance.</param>
     /// <param name="commands">The custom commands configuration for the instance.</param>
-    /// <param name="enableEnvironment">Whether environment variables are enabled for the instance.</param>
-    /// <param name="environment">The environment variables for the instance as a dictionary of key-value pairs.</param>
+    /// <param name="enableEnvironment">A value indicating whether environment variables are enabled for the instance.</param>
+    /// <param name="environment">The list of environment variables for the instance as key-value pairs.</param>
     /// <param name="misc">The miscellaneous configuration for the instance.</param>
-    public InstanceConfig(JavaConfig java, InstanceGameConfig game, InstanceCommandsConfig commands, bool enableEnvironment, Dictionary<string, string> environment, InstanceMiscConfig misc)
+    public InstanceConfig(JavaConfig java, InstanceGameConfig game, InstanceCommandsConfig commands, bool enableEnvironment, List<EnvironmentVariable> environment, InstanceMiscConfig misc)
     {
         Java = java;
         Game = game;

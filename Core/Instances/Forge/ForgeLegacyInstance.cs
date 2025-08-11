@@ -10,7 +10,7 @@ using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Legacy;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta.Library;
 
-namespace Tavstal.KonkordLauncher.Core.Installers.Forge;
+namespace Tavstal.KonkordLauncher.Core.Instances.Forge;
 
 // 1.7.10-1.12.1
 public class ForgeLegacyInstance(string forgeVersionName,

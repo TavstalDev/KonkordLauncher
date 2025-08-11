@@ -6,7 +6,7 @@ using Tavstal.KonkordLauncher.Core.Models.Endpoints.Modding;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
 
-namespace Tavstal.KonkordLauncher.Core.Installers.Forge;
+namespace Tavstal.KonkordLauncher.Core.Instances.Forge;
 
 // 1.1 - 1.5.2
 public class ForgeEarlyInstance(string forgeVersionName, string universalName,

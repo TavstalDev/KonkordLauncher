@@ -9,7 +9,7 @@ using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.New;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 
-namespace Tavstal.KonkordLauncher.Core.Installers.Forge;
+namespace Tavstal.KonkordLauncher.Core.Instances.Forge;
 
 // 1.12.2+
 public class ForgeModernInstance(

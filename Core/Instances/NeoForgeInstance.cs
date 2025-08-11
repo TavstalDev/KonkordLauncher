@@ -9,7 +9,7 @@ using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.New;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 
-namespace Tavstal.KonkordLauncher.Core.Installers;
+namespace Tavstal.KonkordLauncher.Core.Instances;
 
 public class NeoForgeInstance(
     GameDetails gameDetails,

@@ -1,8 +1,8 @@
-using Tavstal.KonkordLauncher.Core.Installers.Forge;
+using Tavstal.KonkordLauncher.Core.Instances.Forge;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 
-namespace Tavstal.KonkordLauncher.Core.Installers;
+namespace Tavstal.KonkordLauncher.Core.Instances;
 
 public static class ForgeInstance
 {

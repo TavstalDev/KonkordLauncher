@@ -8,12 +8,12 @@ using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Fabric;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta.Library;
 
-namespace Tavstal.KonkordLauncher.Core.Installers;
+namespace Tavstal.KonkordLauncher.Core.Instances;
 
 /// <summary>
-/// Represents a Quilt instance, handling installation, configuration, and launching of Quilt-based Minecraft versions.
+/// Represents a Fabric instance, handling installation, configuration, and launching of Fabric-based Minecraft versions.
 /// </summary>
-public class QuiltInstance(
+public class FabricInstance(
     GameDetails gameDetails,
     PathDetails pathDetails,
     LauncherDetails launcherDetails,
@@ -22,10 +22,10 @@ public class QuiltInstance(
     IProgressReporter? progressReporter = null)
     : MinecraftInstance(gameDetails, pathDetails, launcherDetails, clientDetails, resolution, progressReporter)
 {
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(QuiltInstance));
+    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(FabricInstance));
 
     /// <summary>
-    /// Installs the Quilt modded environment asynchronously.
+    /// Installs the Fabric modded environment asynchronously.
     /// </summary>
     /// <param name="tempDir">The temporary directory used during installation.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the modded data if successful, or null if an error occurs.</returns>
@@ -34,56 +34,56 @@ public class QuiltInstance(
         _progressReporter?.SetStatusTranslated("instance.reading.manifest");
         if (!File.Exists(PathDetails.CustomManifestPath))
         {
-            _logger.Error("Quilt manifest file not found at path: " + PathDetails.CustomManifestPath);
+            _logger.Error("Fabric manifest file not found at path: " + PathDetails.CustomManifestPath);
             return null;
         }
 
-        VersionDetails quiltVersion = GameHelper.GetVersionDetails(PathDetails.VersionsDir, this.MinecraftVersion.Id, EMinecraftKind.QUILT, this.GameDetails.CustomVersion, this.GameDetails.CustomGameDirectory);
+        VersionDetails fabricVersion = GameHelper.GetVersionDetails(PathDetails.VersionsDir, this.MinecraftVersion.Id, EMinecraftKind.FABRIC, this.GameDetails.CustomVersion, this.GameDetails.CustomGameDirectory);
 
         // Create versionDir in the versions folder
-        if (!Directory.Exists(quiltVersion.VersionDirectory))
-            Directory.CreateDirectory(quiltVersion.VersionDirectory);
+        if (!Directory.Exists(fabricVersion.VersionDirectory))
+            Directory.CreateDirectory(fabricVersion.VersionDirectory);
 
         // Check libsizes dir
         string librarySizeCacheDir = Path.Combine(PathDetails.CacheDir, "libsizes");
         if (!Directory.Exists(librarySizeCacheDir))
             Directory.CreateDirectory(librarySizeCacheDir);
-        string librarySizeCachePath = Path.Combine(librarySizeCacheDir, $"{quiltVersion.MinecraftVersion}-quilt-{quiltVersion.CustomVersion}.json");
+        string librarySizeCachePath = Path.Combine(librarySizeCacheDir, $"{fabricVersion.MinecraftVersion}-fabric-{fabricVersion.CustomVersion}.json");
 
         // Download version json
-        FabricVersionMeta? quiltVersionMeta;
-        List<LibraryMeta> localLibraries = [];
+        FabricVersionMeta? fabricVersionMeta;
+        List<LibraryMeta> localLibraries = new List<LibraryMeta>();
 
-        if (!File.Exists(quiltVersion.VersionJsonPath))
+        if (!File.Exists(fabricVersion.VersionJsonPath))
         {
             Progress<double> progress = new Progress<double>();
             progress.ProgressChanged += (sender, e) =>
             {
                 //_progressReporter?.SetProgress(e);
-                _progressReporter?.SetStatusTranslated("instance.downloading.version_json", "quilt", e.ToString("0.00"));
+                _progressReporter?.SetStatusTranslated("instance.downloading.version_json", "fabric", e.ToString("0.00"));
             };
 
-            string quiltVersionJsonUrl = string.Format(QuiltEndpoints.LoaderJsonUrl, quiltVersion.MinecraftVersion,
-                quiltVersion.CustomVersion);
+            string fabricVersionJsonUrl = string.Format(FabricEndpoints.LoaderJsonUrl, fabricVersion.MinecraftVersion,
+                fabricVersion.CustomVersion);
 
-            var resultJson = await HttpHelper.GetStringAsync(quiltVersionJsonUrl, progress);
+            var resultJson = await HttpHelper.GetStringAsync(fabricVersionJsonUrl, progress);
             if (resultJson == null)
                 return null;
                 
-            await File.WriteAllTextAsync(quiltVersion.VersionJsonPath, resultJson);
+            await File.WriteAllTextAsync(fabricVersion.VersionJsonPath, resultJson);
 
             // Add the libraries
             _progressReporter?.SetStatusTranslated("instance.reading.version_json");
-            quiltVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(resultJson);
+            fabricVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(resultJson);
             int localLibrarySize = 0;
-            if (quiltVersionMeta == null)
+            if (fabricVersionMeta == null)
             {
-                File.Delete(quiltVersion.VersionJsonPath); // Delete it because this if part won't be executed again if it exists
-                _logger.Error("Quilt version meta is null after deserialization. Invalid JSON format.");
+                File.Delete(fabricVersion.VersionJsonPath); // Delete it because this if part won't be executed again if it exists
+                _logger.Error("Fabric version meta is null after deserialization. Invalid JSON format.");
                 return null;
             }
             
-            foreach (var lib in quiltVersionMeta.Libraries)
+            foreach (var lib in fabricVersionMeta.Libraries)
             {
                 localLibrarySize += lib.Size;
                 localLibraries.Add(new LibraryMeta(lib.Name, new LibraryDownloads(new Artifact(lib.GetPath(), lib.Sha1, lib.Size, lib.GetURL()), null), []));
@@ -94,14 +94,14 @@ public class QuiltInstance(
         else
         {
             _progressReporter?.SetStatusTranslated("instance.reading.version_json");
-            quiltVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(await File.ReadAllTextAsync(quiltVersion.VersionJsonPath));
-            if (quiltVersionMeta == null)
+            fabricVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(await File.ReadAllTextAsync(fabricVersion.VersionJsonPath));
+            if (fabricVersionMeta == null)
             {
-                _logger.Error("Quilt version meta is null after deserialization. Invalid JSON format.");
+                _logger.Error("Fabric version meta is null after deserialization. Invalid JSON format.");
                 return null;
             }
 
-            foreach (var lib in quiltVersionMeta.Libraries)
+            foreach (var lib in fabricVersionMeta.Libraries)
             {
                 localLibraries.Add(new LibraryMeta(lib.Name, new LibraryDownloads(new Artifact(lib.GetPath(), lib.Sha1, lib.Size, lib.GetURL()), null), []));
             }
@@ -109,8 +109,8 @@ public class QuiltInstance(
 
 
         // Download Loader
-        string loaderDirPath = Path.Combine(PathDetails.LibrariesDir, "net", "quiltmc", "quilt-loader", quiltVersion.CustomVersion);
-        string loaderJarPath = Path.Combine(loaderDirPath, $"quilt-loader-{quiltVersion.CustomVersion}.jar");
+        string loaderDirPath = Path.Combine(PathDetails.LibrariesDir, "net", "fabricmc", "fabric-loader", fabricVersion.CustomVersion);
+        string loaderJarPath = Path.Combine(loaderDirPath, $"fabric-loader-{fabricVersion.CustomVersion}.jar");
         if (!Directory.Exists(loaderDirPath))
             Directory.CreateDirectory(loaderDirPath);
 
@@ -120,30 +120,30 @@ public class QuiltInstance(
             progress.ProgressChanged += (_, e) =>
             {
                 //_progressReporter?.SetProgress(e);
-                _progressReporter?.SetStatusTranslated("instance.downloading.loader", "quilt", e.ToString("0.00"));
+                _progressReporter?.SetStatusTranslated("instance.downloading.loader", "fabric", e.ToString("0.00"));
             };
-            _logger.Debug("Downloading quilt loader jar...");
-            await HttpHelper.DownloadFileAsync(string.Format(QuiltEndpoints.LoaderJarUrl, quiltVersion.CustomVersion), loaderJarPath, progress);
+            _logger.Debug("Downloading fabric loader jar...");
+            await HttpHelper.DownloadFileAsync(string.Format(FabricEndpoints.LoaderJarUrl, fabricVersion.CustomVersion), loaderJarPath, progress);
         }
         
-        if (!File.Exists(quiltVersion.VersionJarPath))
-            File.Copy(quiltVersion.VanillaJarPath, quiltVersion.VersionJarPath);
+        if (!File.Exists(fabricVersion.VersionJarPath))
+            File.Copy(fabricVersion.VanillaJarPath, fabricVersion.VersionJarPath);
 
-        ModdedData moddedData = new ModdedData(quiltVersionMeta.MainClass, quiltVersion, localLibraries);
+        ModdedData moddedData = new ModdedData(fabricVersionMeta.MainClass, fabricVersion, localLibraries);
 
-        foreach (var arg in quiltVersionMeta.Arguments.GetGameArgs())
+        foreach (var arg in fabricVersionMeta.Arguments.GetGameArgs())
         {
             if (_gameArguments.Any(x => x.Arg == arg))
                 continue;
             _gameArguments.Add(new LaunchArg(arg, 1));
         }
         
-        foreach (var arg in quiltVersionMeta.Arguments.GetJvmArgs())
+        foreach (var arg in fabricVersionMeta.Arguments.GetJvmArgs())
         {
             if (_jvmArguments.Any(x => x.Arg == arg))
                 continue;
 
-            // Fixes -DFabricMcEmu arg, without this Quilt does not load and instead the vanilla client will launch
+            // Fixes -DFabricMcEmu arg, without this Fabric does not load and instead the vanilla client will launch
             if (arg.StartsWith("-DFabricMcEmu="))
             {
                 _jvmArguments.Add(new LaunchArg("-DFabricMcEmu=\"net.minecraft.client.main.Main\"", 1));

@@ -84,7 +84,7 @@
                         </Border>
                     </TabItem>
                     <!--  Mods  -->
-                    <TabItem Classes="ModalVerticalTabItem" Header="Mods">
+                    <TabItem Classes="ModalVerticalTabItem" Header="Mods" IsVisible="{Binding !IsVanilla}">
                         <Border Classes="ModalScrollableWrapper">
                             <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, *, Auto">
                                 <!--  Title  -->
@@ -258,7 +258,7 @@
                         </Border>
                     </TabItem>
                     <!--  Shader packs  -->
-                    <TabItem Classes="ModalVerticalTabItem" Header="Shader packs">
+                    <TabItem Classes="ModalVerticalTabItem" Header="Shader packs" IsVisible="{Binding !IsVanilla}">
                         <Border Classes="ModalScrollableWrapper">
                             <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, *, Auto">
                                 <!--  Title  -->

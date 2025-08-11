@@ -6,6 +6,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using Tavstal.KonkordLauncher.Common.Helpers;
+using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
 using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Models;
@@ -29,7 +30,7 @@ public partial class EditInstanceWindow : Window
         if (Design.IsDesignMode)
         {
             // Provide a mock data context for the designer to render.
-            this.DataContext = new EditInstanceViewModel(this, "mock-id", new InstanceConfig());
+            this.DataContext = new EditInstanceViewModel(this, new InstanceModel(), new InstanceConfig());
         }
     }
 
@@ -43,13 +44,9 @@ public partial class EditInstanceWindow : Window
 #endif
 
         if (Design.IsDesignMode)
-        {
-            // Provide a mock data context for the designer
-            this.DataContext = new EditInstanceViewModel(this, "mock-id", new InstanceConfig());
             return;
-        }
 
-        this.DataContext = new EditInstanceViewModel(this, instance.Id, instance.ConfigModel);
+        this.DataContext = new EditInstanceViewModel(this, instance, instance.ConfigModel);
         var settings = LauncherHelper.GetLauncherSettings();
         HandleLanguageChange(settings.Launcher.Language);
         App.OnLanguageChanged += HandleLanguageChange;

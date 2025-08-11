@@ -12,6 +12,7 @@ using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Config.Instance;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 
@@ -22,8 +23,9 @@ public partial class EditInstanceViewModel : ObservableObject
     private readonly bool _isInitialized;
     private readonly EditInstanceWindow _parentWindow;
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceViewModel));
-    private readonly string _instanceId;
+    private readonly InstanceModel _instance;
     public bool IsLinux => OSHelper.GetOperatingSystem() == EOperatingSystem.Linux;
+    public bool IsVanilla => _instance.Kind == EMinecraftKind.VANILLA;
     public List<Account> Accounts => LauncherHelper.GetAccountData().Accounts;
 
     public ObservableCollection<ModModel> Mods { get; set; } = [];
@@ -45,7 +47,7 @@ public partial class EditInstanceViewModel : ObservableObject
     public bool CanRemoveEnvironmentVariable => SelectedEnvironmentVariableIndex.HasValue && SelectedEnvironmentVariableIndex.Value >= 0 && InstanceConfig.EnableEnvironment;
 
 
-    public EditInstanceViewModel(EditInstanceWindow parent, string instanceId, InstanceConfig instanceConfig)
+    public EditInstanceViewModel(EditInstanceWindow parent, InstanceModel instance, InstanceConfig instanceConfig)
     {
         if (Design.IsDesignMode)
         {
@@ -54,7 +56,7 @@ public partial class EditInstanceViewModel : ObservableObject
         }
 
         _parentWindow = parent;
-        _instanceId = instanceId;
+        _instance = instance;
         _instanceConfig = new InstanceConfigModel(instanceConfig);
         _isInitialized = true;
         SubscribeToConfigChildren(_instanceConfig);
@@ -150,7 +152,7 @@ public partial class EditInstanceViewModel : ObservableObject
         Instance? instanceToSave = null;
         foreach (var instance in instances)
         {
-            if (instance.Id == _instanceId)
+            if (instance.Id == _instance.Id)
             {
                 instanceToSave = instance;
                 break;

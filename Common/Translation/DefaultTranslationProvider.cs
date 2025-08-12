@@ -84,6 +84,8 @@ public static class DefaultTranslationProvider
         {"common.selector.directory", "Select a Directory"},
         {"common.select.file", "Select a File"},
         
+        {"common.dialog.rename", "Rename Dialog"},
+        
         #endregion
         
         #region Instance

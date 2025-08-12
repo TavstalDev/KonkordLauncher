@@ -1,3 +1,5 @@
+using Tavstal.KonkordLauncher.Core.Helpers;
+
 namespace Tavstal.KonkordLauncher.Core.Models;
 
 /// <summary>
@@ -9,6 +11,7 @@ public class CoreLogger
     /// The name of the module associated with the logger.
     /// </summary>
     private readonly string _moduleName;
+    public static DateTime StartTime { get; } = DateTime.Now;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CoreLogger"/> class with the specified module name.
@@ -60,6 +63,14 @@ public class CoreLogger
         // TODO: Save to file
         try
         {
+            string logsFilePath = Path.Combine(PathHelper.LauncherLogsDir, string.Format(PathHelper.LogsFileFormat, StartTime));
+            if (File.Exists(logsFilePath))
+            {
+                using StreamWriter streamWriter = File.AppendText(logsFilePath);
+                streamWriter.WriteLine(string.Concat("[", DateTime.Now, "] ", text));
+                streamWriter.Close();
+            }
+
             Console.ForegroundColor = color;
             Console.WriteLine(text);
             Console.ResetColor();

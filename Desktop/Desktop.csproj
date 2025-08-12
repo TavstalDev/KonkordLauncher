@@ -75,10 +75,6 @@
         <DependentUpon>InstallWindow.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
-      <Compile Update="Views\Dialogs\Forms\TextInputWindow.axaml.cs">
-        <DependentUpon>JavaSelectorWindow.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
     </ItemGroup>
 
     <ItemGroup>

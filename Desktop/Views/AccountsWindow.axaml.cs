@@ -14,6 +14,7 @@ using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Services;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
+using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views;
@@ -235,10 +236,7 @@ public partial class AccountsWindow : Window, IProgressReporter
     
         var topLevel = GetTopLevel(this);
 
-        if (topLevel == null)
-            return;
-
-        if (topLevel.Clipboard == null)
+        if (topLevel?.Clipboard == null)
             return;
 
         Task.Run(async () => await topLevel.Clipboard.SetTextAsync(MicrosoftAuthService.GetAuthenticationUrl()));

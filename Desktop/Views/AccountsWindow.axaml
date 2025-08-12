@@ -9,7 +9,7 @@
         Title="Add New Account"
         CanResize="False"
         ShowInTaskbar="False"
-        Icon="../Assets/Images/logo.png"
+        Icon="avares://Desktop/Assets/Images/logo.png"
         MinHeight="410"
         MinWidth="500"
         Height="410"

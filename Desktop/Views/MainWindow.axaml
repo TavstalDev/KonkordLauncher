@@ -16,7 +16,7 @@
     d:DesignWidth="900"
     x:DataType="vm:MainViewModel"
     CanResize="False"
-    Icon="../Assets/Images/logo.png"
+    Icon="avares://Desktop/Assets/Images/logo.png"
     mc:Ignorable="d">
     <Design.DataContext>
         <vm:MainViewModel />

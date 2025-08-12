@@ -1,7 +1,7 @@
 <Window
     CanResize="False"
     Height="350"
-    Icon="../Assets/Images/logo.png"
+    Icon="avares://Desktop/Assets/Images/logo.png"
     ShowInTaskbar="False"
     Title="Starting..."
     Width="300"

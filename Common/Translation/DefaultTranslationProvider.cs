@@ -81,6 +81,13 @@ public static class DefaultTranslationProvider
         {"common.select", "Select"},
         {"common.search", "Search..."},
         
+        {"common.time.pass.minute", "{0} minutes ago"},
+        {"common.time.pass.hour", "{0} hours ago"},
+        {"common.time.pass.day", "{0} days ago"},
+        {"common.time.pass.month", "{0} months ago"},
+        {"common.time.pass.year", "{0} years ago"},
+        
+        
         {"common.selector.directory", "Select a Directory"},
         {"common.select.file", "Select a File"},
         

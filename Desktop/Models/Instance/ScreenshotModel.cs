@@ -1,30 +1,63 @@
 using Avalonia.Media.Imaging;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Tavstal.KonkordLauncher.Core.Helpers;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Instance;
 
 /// <summary>
-/// Represents a screenshot model containing metadata and image data.
+/// Represents a model for a screenshot, including its name, extension, path, image, and size.
 /// </summary>
-public class ScreenshotModel
+public partial class ScreenshotModel : ObservableObject
 {
     /// <summary>
-    /// Gets or sets the name of the screenshot.
+    /// The name of the screenshot file without its extension.
     /// </summary>
-    public string Name { get; set; }
+    [ObservableProperty] private string _name;
 
     /// <summary>
-    /// Gets or sets the image of the screenshot as a bitmap.
+    /// The file extension of the screenshot (e.g., .png, .jpg).
     /// </summary>
-    public Bitmap? Image { get; set; }
+    [ObservableProperty] private string _extension;
 
     /// <summary>
-    /// Gets or sets the size of the screenshot in bytes.
+    /// The full file path of the screenshot.
     /// </summary>
-    public long Size { get; set; }
+    [ObservableProperty] private string _path;
 
     /// <summary>
-    /// Gets the formatted size of the screenshot as a human-readable string.
+    /// The bitmap image representation of the screenshot.
+    /// </summary>
+    [ObservableProperty] private Bitmap? _image;
+
+    /// <summary>
+    /// The size of the screenshot file in bytes.
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(FormatedSize))]
+    private long _size;
+
+    /// <summary>
+    /// Gets the formatted size of the screenshot file as a human-readable string.
     /// </summary>
     public string FormatedSize => FileSystemHelper.GetFormatedSize(Size);
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ScreenshotModel"/> class.
+    /// </summary>
+    /// <param name="path">The full file path of the screenshot.</param>
+    /// <param name="image">The bitmap image representation of the screenshot.</param>
+    /// <param name="size">The size of the screenshot file in bytes.</param>
+    public ScreenshotModel(string path, Bitmap? image, long size)
+    {
+        var fileName = System.IO.Path.GetFileName(path);
+        string extension = System.IO.Path.GetExtension(fileName);
+        if (fileName.Contains(extension))
+            fileName = fileName.Replace(extension, string.Empty);
+
+        Name = fileName;
+        Extension = extension;
+        Path = path;
+        Image = image;
+        Size = size;
+    }
 }

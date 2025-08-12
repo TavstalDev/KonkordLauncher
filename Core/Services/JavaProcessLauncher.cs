@@ -49,7 +49,11 @@ public static class JavaProcessLauncher
         // Configure the process start information
         var psi = new ProcessStartInfo()
         {
+#if DEBUG
             UseShellExecute = false,
+#else
+            UseShellExecute = true,
+#endif
             RedirectStandardError = true,
             RedirectStandardOutput = true,
         };
@@ -95,17 +99,13 @@ public static class JavaProcessLauncher
 #if DEBUG
             process.OutputDataReceived += (sender, e) =>
             {
-                if (!string.IsNullOrEmpty(e.Data))
-                {
-                    _logger.Debug($">> {e.Data}");
-                }
+                if (e.Data != null)
+                    _logger.Debug($"{e.Data}");
             };
             process.ErrorDataReceived += (sender, e) =>
             {
-                if (!string.IsNullOrEmpty(e.Data))
-                {
-                    _logger.Error($"!! {e.Data}");
-                }
+                if (e.Data != null)
+                    _logger.Error($"{e.Data}");
             };
             process.Exited += (sender, e) => { _logger.Info($"Java process exited with code: {process.ExitCode}"); };
 

@@ -40,4 +40,14 @@ public static class PathHelper
     /// Gets the path to the Java mirrors configuration file.
     /// </summary>
     public static readonly string JavaMirrorsPath = Path.Combine(ApplicationDir, "java-mirrors.json");
+    
+    /// <summary>
+    /// Gets the path to the launcher logs directory.
+    /// </summary>
+    public static readonly string LauncherLogsDir = Path.Combine(ApplicationDir, "logs");
+    
+    /// <summary>
+    /// Specifies the format for log file names, where `{0}` is replaced with the log name.
+    /// </summary>
+    public static readonly string LogsFileFormat = "{0:yyyy-MM-dd_HH-mm-ss}.log";
 }

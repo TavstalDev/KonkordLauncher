@@ -1,22 +1,28 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
 using Tavstal.KonkordLauncher.Common.Translation;
+using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
+using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views;
 
 public partial class EditInstanceWindow : Window
 {
+    private readonly InstanceModel _instance;
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceWindow));
 
     // This constructor is used by the Avalonia Designer.
@@ -29,7 +35,8 @@ public partial class EditInstanceWindow : Window
         if (Design.IsDesignMode)
         {
             // Provide a mock data context for the designer to render.
-            this.DataContext = new EditInstanceViewModel(this, new InstanceModel(), new InstanceConfig());
+            _instance = new InstanceModel();
+            this.DataContext = new EditInstanceViewModel(this, _instance, new InstanceConfig());
         }
     }
 
@@ -45,6 +52,7 @@ public partial class EditInstanceWindow : Window
         if (Design.IsDesignMode)
             return;
 
+        _instance = instance;
         this.DataContext = new EditInstanceViewModel(this, instance, instance.ConfigModel);
         var settings = LauncherHelper.GetLauncherSettings();
         HandleLanguageChange(settings.Launcher.Language);
@@ -60,7 +68,7 @@ public partial class EditInstanceWindow : Window
     {
 
     }
-    
+
     /// <summary>
     /// Handles the selection change event for the overridden account ComboBox.
     /// Updates the account ID in the instance configuration based on the selected account.
@@ -78,6 +86,8 @@ public partial class EditInstanceWindow : Window
 
     #region DataGrid Loading Events
 
+    #region Mods
+    
     private void ModsDataGrid_OnLoading(object? sender, DataGridRowEventArgs e)
     {
         // Get the DataGridRow
@@ -168,6 +178,10 @@ public partial class EditInstanceWindow : Window
         row.ContextMenu = contextMenu;
     }
 
+    #endregion
+    
+    #region Resource Packs
+    
     private void ResourcePacksDataGrid_OnLoading(object? sender, DataGridRowEventArgs e)
     {
         // Get the DataGridRow
@@ -233,6 +247,10 @@ public partial class EditInstanceWindow : Window
         row.ContextMenu = contextMenu;
     }
 
+    #endregion
+
+    #region Shaders
+    
     private void ShaderDataGrid_OnLoading(object? sender, DataGridRowEventArgs e)
     {
         // Get the DataGridRow
@@ -298,6 +316,10 @@ public partial class EditInstanceWindow : Window
         row.ContextMenu = contextMenu;
     }
 
+    #endregion
+    
+    #region Worlds
+    
     private void WorldDataGrid_OnLoading(object? sender, DataGridRowEventArgs e)
     {
         // Get the DataGridRow
@@ -370,6 +392,53 @@ public partial class EditInstanceWindow : Window
         row.ContextMenu = contextMenu;
     }
 
+    #endregion
+    
+    #region Servers
+
+    /// <summary>
+    /// Handles the click event for adding a new server to the server list.
+    /// Validates the input fields for server name and address before adding a new server
+    /// to the `Servers` collection in the view model.
+    /// </summary>
+    /// <param name="sender">The source of the event, typically a button.</param>
+    /// <param name="e">The event data associated with the click event.</param>
+    private void AddServer_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (this.DataContext is not EditInstanceViewModel viewModel)
+            return;
+        
+        if (string.IsNullOrEmpty(ServerNameInput.Text) || string.IsNullOrEmpty(ServerAddressInput.Text))
+            return;
+        
+        viewModel.Servers.Add(new ServerModel(ServerNameInput.Text, ServerAddressInput.Text, 0, 0, null));
+    }
+    
+    /// <summary>
+    /// Handles the event when a row edit operation in the Servers DataGrid is completed.
+    /// Updates the server data and triggers saving the updated list of servers.
+    /// </summary>
+    /// <param name="sender">The source of the event, typically the DataGrid.</param>
+    /// <param name="e">The event data containing information about the edited row.</param>
+    private void ServersDataGrid_OnRowEditEnded(object? sender, DataGridRowEditEndedEventArgs e)
+    {
+        if (this.DataContext is not EditInstanceViewModel viewModel)
+            return;
+        
+        var row = e.Row;
+        if (row.DataContext is not ServerModel)
+            return;
+        
+        _logger.Debug("Server row updated. Saving servers...");
+        viewModel.SaveServers();
+    }
+
+    /// <summary>
+    /// Handles the loading event for the Server DataGrid rows.
+    /// Configures a context menu for each row with options to join a server or remove it from the list.
+    /// </summary>
+    /// <param name="sender">The source of the event, typically the DataGrid.</param>
+    /// <param name="e">The event data containing information about the row being loaded.</param>
     private void ServerDataGrid_OnLoading(object? sender, DataGridRowEventArgs e)
     {
         // Get the DataGridRow
@@ -382,12 +451,14 @@ public partial class EditInstanceWindow : Window
 
         // Add Join MenuItem
         var joinMenuItem = new MenuItem { Header = "Join" };
-        joinMenuItem.Click += (s, args) =>
+        joinMenuItem.Click += async (s, args) =>
         {
             if (this.DataContext is not EditInstanceViewModel viewModel)
                 return;
-
-            // TODO: Handle click event
+            
+            if (this is Window { Owner: MainWindow parentWindow })
+                await _instance.LaunchAsync(parentWindow, serverItem.Ip);
+            this.Close();
         };
         contextMenu.Items.Add(joinMenuItem);
 
@@ -398,20 +469,81 @@ public partial class EditInstanceWindow : Window
             if (this.DataContext is not EditInstanceViewModel viewModel)
                 return;
 
-            // TODO: Handle click event
+            viewModel.Servers.Remove(serverItem);
         };
         contextMenu.Items.Add(removeItem);
 
         // Assign the ContextMenu to the row
         row.ContextMenu = contextMenu;
     }
+    #endregion
+    
+    #region Screenshots
 
+    /// <summary>
+    /// Handles the event when editing of a screenshot cell is completed in the DataGrid.
+    /// Renames the screenshot file if the name has been changed and updates the model accordingly.
+    /// Logs warnings or errors if the operation fails.
+    /// </summary>
+    /// <param name="sender">The source of the event, typically the DataGrid.</param>
+    /// <param name="e">The event data containing information about the edited cell.</param>
+    private void ScreenshotCell_OnEditEnded(object? sender, DataGridCellEditEndedEventArgs e)
+    {
+        if (e.Row.DataContext is not ScreenshotModel screenshot)
+            return;
+        
+        string? dirPath = Path.GetDirectoryName(screenshot.Path);
+        if (string.IsNullOrEmpty(dirPath))
+            return;
+        
+        string oldPath = screenshot.Path;
+        string oldName = Path.GetFileNameWithoutExtension(oldPath);
+        
+        // Ensure the new name is not empty
+        if (string.IsNullOrEmpty(screenshot.Name))
+            return;
+        
+        // Skip renaming if the name has not changed
+        if (screenshot.Name == oldName)
+            return;
+        
+        // Construct the new path
+        string newPath = Path.Combine(dirPath, screenshot.Name + screenshot.Extension);
+    
+        // Check if a file with the new name already exists
+        if (File.Exists(newPath))
+        {
+            _logger.Warn($"Failed to rename screenshot. A file with the name '{screenshot.Name}' already exists.");
+            screenshot.Name = oldName;
+            return;
+        }
+    
+        // Perform the file rename operation
+        try
+        {
+            File.Move(oldPath, newPath);
+            screenshot.Path = newPath;
+            _logger.Debug($"Screenshot renamed from '{oldName}' to '{screenshot.Name}'.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Exc($"An error occurred while renaming the screenshot:");
+            _logger.Error(ex);
+        }
+    }
+
+    /// <summary>
+    /// Handles the loading event for the Screenshot DataGrid rows.
+    /// Configures a context menu for each row with options to copy, delete, rename, 
+    /// or open the folder containing the screenshot.
+    /// </summary>
+    /// <param name="sender">The source of the event, typically the DataGrid.</param>
+    /// <param name="e">The event data containing information about the row being loaded.</param>
     private void ScreenshotDataGrid_OnLoading(object? sender, DataGridRowEventArgs e)
     {
         // Get the DataGridRow
         var row = e.Row;
-
-        if (row.DataContext is not ScreenshotModel screenshotItem)
+        if (row.DataContext is not ScreenshotModel)
             return;
 
         var contextMenu = new ContextMenu();
@@ -423,7 +555,19 @@ public partial class EditInstanceWindow : Window
             if (this.DataContext is not EditInstanceViewModel viewModel)
                 return;
 
-            // TODO: Handle click event
+            if (viewModel.SelectedScreenshot?.Image == null)
+                return;
+
+            var topLevel = GetTopLevel(this);
+            if (topLevel?.Clipboard == null)
+                return;
+
+            using var ms = new MemoryStream();
+            viewModel.SelectedScreenshot.Image.Save(ms);
+            var dataObject = new DataObject();
+            dataObject.Set("image/png", ms.ToArray());
+
+            topLevel.Clipboard.SetDataObjectAsync(dataObject);
         };
         contextMenu.Items.Add(copyMenuItem);
 
@@ -434,18 +578,28 @@ public partial class EditInstanceWindow : Window
             if (this.DataContext is not EditInstanceViewModel viewModel)
                 return;
 
-            // TODO: Handle click event
+            if (viewModel.SelectedScreenshot == null)
+                return;
+
+            if (!File.Exists(viewModel.SelectedScreenshot.Path))
+                return;
+
+            File.Delete(viewModel.SelectedScreenshot.Path);
+            viewModel.RefreshScreenshots();
         };
         contextMenu.Items.Add(deleteItem);
 
         // Add Rename MenuItem
         var renameItem = new MenuItem { Header = "Rename" };
-        renameItem.Click += (s, args) =>
+        renameItem.Click += async (s, args) =>
         {
             if (this.DataContext is not EditInstanceViewModel viewModel)
                 return;
 
-            // TODO: Handle click event
+            if (viewModel.SelectedScreenshot == null || _instance.GameDirectory == null)
+                return;
+
+            ScreenshotsTable.BeginEdit();
         };
         contextMenu.Items.Add(renameItem);
 
@@ -456,13 +610,22 @@ public partial class EditInstanceWindow : Window
             if (this.DataContext is not EditInstanceViewModel viewModel)
                 return;
 
-            // TODO: Handle click event
+            if (viewModel.SelectedScreenshot == null || _instance.GameDirectory == null)
+                return;
+
+            string screenshotDir = Path.Combine(_instance.GameDirectory, "screenshots");
+            if (!Directory.Exists(screenshotDir))
+                return;
+
+            FileSystemHelper.OpenFolderInFileExplorer(screenshotDir);
         };
         contextMenu.Items.Add(openFolderItem);
 
         // Assign the ContextMenu to the row
         row.ContextMenu = contextMenu;
     }
+
+    #endregion
 
     #endregion
 

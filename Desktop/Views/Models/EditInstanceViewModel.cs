@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
@@ -17,6 +18,7 @@ using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
+using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Config.Instance;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
@@ -72,12 +74,96 @@ public partial class EditInstanceViewModel : ObservableObject
             _parentWindow.StOverridenAccountInput.SelectedIndex =
                 Accounts.FindIndex(x => x.Id == _instanceConfig.Misc.AccountId);
         
+        RefreshWorlds();
         RefreshServers();
         RefreshScreenshots();
     }
     
     #region Refresh Methods
 
+    #region Worlds
+
+    public void RefreshWorlds()
+    {
+        if (_instance.GameDirectory == null)
+            return;
+        
+        string worldsDir = Path.Combine(_instance.GameDirectory, "saves");
+        if (!Directory.Exists(worldsDir))
+            return;
+        
+        Worlds.Clear();
+        var worldDirs = Directory.GetDirectories(worldsDir);
+        foreach (var worldDir in worldDirs)
+        {
+            var worldName = "unknown";
+            string levelDatPath = Path.Combine(worldDir, "level.dat");
+            string gamemode = "unknown";
+            string lastPlayed = "unknown";
+            Bitmap? icon = null;
+
+            if (File.Exists(levelDatPath))
+            {
+                using var inputStream = File.OpenRead(levelDatPath);
+                using var gzip = new GZipStream(inputStream, CompressionMode.Decompress);
+                using var mem = new MemoryStream();
+                gzip.CopyTo(mem);
+                mem.Seek(0, SeekOrigin.Begin);
+                var data = NbtConvert.DeserializeObject<Level>(mem);
+
+                if (data != null)
+                {
+                    DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                    epoch = epoch.AddMilliseconds(data.Data.LastPlayed);
+                    // TODO: Use more human-readable format
+
+                    if (!string.IsNullOrEmpty(data.Data.LevelName))
+                        worldName = data.Data.LevelName;
+                    
+                    // GameMode (int) — try "GameType" first, then "GameMode"
+                    if (data.Data.GameMode != null)
+                        gamemode = (data.Data.GameMode) switch
+                        {
+                            0 => "Survival",
+                            1 => "Creative",
+                            2 => "Adventure",
+                            3 => "Spectator",
+                            _ => "Unknown"
+                        };
+                    else if (data.Data.GameType != null)
+                        gamemode = (data.Data.GameType) switch
+                        {
+                            0 => "Survival",
+                            1 => "Creative",
+                            2 => "Adventure",
+                            3 => "Spectator",
+                            _ => "Unknown"
+                        };
+                }
+            }
+            
+            var files = Directory.EnumerateFiles(worldDir, "*", SearchOption.AllDirectories);
+            long size = files.Sum(file => new FileInfo(file).Length);
+            if (File.Exists(Path.Combine(worldDir, "icon.png")))
+            {
+                try
+                {
+                    icon = new Bitmap(Path.Combine(worldDir, "icon.png"));
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error($"Failed to load world icon for {worldName}: {ex.Message}");
+                }
+            }
+            if (icon == null)
+                icon = ImageHelper.LoadFromResource(new Uri("avares://Desktop/Assets/Images/default_world.png"));
+            
+            Worlds.Add(new WorldModel(worldName, gamemode, lastPlayed, size, icon));
+        }
+    }
+
+    #endregion
+    
     #region  Servers
 
     /// <summary>

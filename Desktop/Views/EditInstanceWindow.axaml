@@ -404,7 +404,7 @@
                                                 <!--  Size  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
-                                                    Binding="{Binding Size}"
+                                                    Binding="{Binding FormattedSize}"
                                                     Header="Size" />
                                             </DataGrid.Columns>
                                         </DataGrid>

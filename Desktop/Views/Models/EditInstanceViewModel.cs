@@ -99,7 +99,7 @@ public partial class EditInstanceViewModel : ObservableObject
             var worldName = "unknown";
             string levelDatPath = Path.Combine(worldDir, "level.dat");
             string gamemode = "unknown";
-            string lastPlayed = "unknown";
+            long lastPlayed = 0;
             Bitmap? icon = null;
 
             if (File.Exists(levelDatPath))
@@ -113,9 +113,7 @@ public partial class EditInstanceViewModel : ObservableObject
 
                 if (data != null)
                 {
-                    DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-                    epoch = epoch.AddMilliseconds(data.Data.LastPlayed);
-                    // TODO: Use more human-readable format
+                    lastPlayed = data.Data.LastPlayed;
 
                     if (!string.IsNullOrEmpty(data.Data.LevelName))
                         worldName = data.Data.LevelName;
@@ -155,8 +153,7 @@ public partial class EditInstanceViewModel : ObservableObject
                     _logger.Error($"Failed to load world icon for {worldName}: {ex.Message}");
                 }
             }
-            if (icon == null)
-                icon = ImageHelper.LoadFromResource(new Uri("avares://Desktop/Assets/Images/default_world.png"));
+            icon ??= ImageHelper.LoadFromResource(new Uri("avares://Desktop/Assets/Images/default_world.png"));
             
             Worlds.Add(new WorldModel(worldName, gamemode, lastPlayed, size, icon));
         }

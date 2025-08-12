@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -10,17 +8,12 @@ using CommunityToolkit.Mvvm.Input;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Config;
-using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
-using Tavstal.KonkordLauncher.Core.Instances;
 using Tavstal.KonkordLauncher.Core.Models;
-using Tavstal.KonkordLauncher.Core.Models.Installer;
-using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Config.Launcher;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
-using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 

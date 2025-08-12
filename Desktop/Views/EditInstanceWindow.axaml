@@ -395,17 +395,20 @@
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding Gamemode}"
-                                                    Header="GameMode" />
+                                                    Header="GameMode"
+                                                    IsReadOnly="True"/>
                                                 <!--  Last Played  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
-                                                    Binding="{Binding LastPlayed}"
-                                                    Header="Last Played" />
+                                                    Binding="{Binding FormattedLastPlayed}"
+                                                    Header="Last Played"
+                                                    IsReadOnly="True"/>
                                                 <!--  Size  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding FormattedSize}"
-                                                    Header="Size" />
+                                                    Header="Size"
+                                                    IsReadOnly="True"/>
                                             </DataGrid.Columns>
                                         </DataGrid>
                                     </ScrollViewer>

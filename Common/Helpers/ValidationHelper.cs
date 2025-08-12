@@ -27,6 +27,13 @@ public static class ValidationHelper
     {
         try
         {
+            if (!Directory.Exists(PathHelper.LauncherLogsDir))
+                Directory.CreateDirectory(PathHelper.LauncherLogsDir);
+            
+            string logsFilePath = Path.Combine(PathHelper.LauncherLogsDir, string.Format(PathHelper.LogsFileFormat, CoreLogger.StartTime));
+            if (!File.Exists(logsFilePath))
+                File.Create(logsFilePath);
+            
             if (!Directory.Exists(PathHelper.ApplicationDir))
                 Directory.CreateDirectory(PathHelper.ApplicationDir);
             

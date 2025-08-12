@@ -15,7 +15,7 @@
     d:DesignWidth="900"
     x:DataType="vm:EditInstanceViewModel"
     CanResize="True"
-    Icon="../Assets/Images/logo.png"
+    Icon="avares://Desktop/Assets/Images/logo.png"
     ShowInTaskbar="False"
     mc:Ignorable="d">
 
@@ -91,10 +91,11 @@
                                 <TextBlock Classes="ModalGridTitle" Text="Mods" />
                                 <!--  Content  -->
                                 <Border Grid.Row="1">
-                                    <ScrollViewer Classes="TableScrollViewer">
+                                    <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
                                         <DataGrid
                                             Classes="InstanceMultiTable"
                                             ItemsSource="{Binding Mods}"
+                                            SelectedItem="{Binding SelectedMod}"
                                             LoadingRow="ModsDataGrid_OnLoading">
                                             <DataGrid.Columns>
                                                 <!--  Enabled  -->
@@ -178,10 +179,11 @@
                                 <TextBlock Classes="ModalGridTitle" Text="Resource Packs" />
                                 <!--  Content  -->
                                 <Border Grid.Row="1">
-                                    <ScrollViewer Classes="TableScrollViewer">
+                                    <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
                                         <DataGrid
                                             Classes="InstanceMultiTable"
                                             ItemsSource="{Binding ResourcePacks}"
+                                            SelectedItem="{Binding SelectedResourcePack}"
                                             LoadingRow="ResourcePacksDataGrid_OnLoading">
                                             <DataGrid.Columns>
                                                 <!--  Enabled  -->
@@ -265,10 +267,11 @@
                                 <TextBlock Classes="ModalGridTitle" Text="Shader Packs" />
                                 <!--  Content  -->
                                 <Border Grid.Row="1">
-                                    <ScrollViewer Classes="TableScrollViewer">
+                                    <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
                                         <DataGrid
                                             Classes="InstanceMultiTable"
                                             ItemsSource="{Binding ShaderPacks}"
+                                            SelectedItem="{Binding SelectedShaderPack}"
                                             LoadingRow="ShaderDataGrid_OnLoading">
                                             <DataGrid.Columns>
                                                 <!--  Enabled  -->
@@ -352,14 +355,16 @@
                                 <TextBlock Classes="ModalGridTitle" Text="Worlds" />
                                 <!--  Content  -->
                                 <Border Grid.Row="1">
-                                    <ScrollViewer Classes="TableScrollViewer">
+                                    <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
                                         <DataGrid
                                             Classes="InstanceMultiTable"
                                             ItemsSource="{Binding Worlds}"
-                                            LoadingRow="WorldDataGrid_OnLoading">
+                                            SelectedItem="{Binding SelectedWorld}"
+                                            LoadingRow="WorldDataGrid_OnLoading"
+                                            IsReadOnly="False">
                                             <DataGrid.Columns>
                                                 <!--  Icon & Name  -->
-                                                <DataGridTemplateColumn Width="Auto" Header="Name">
+                                                <DataGridTemplateColumn Width="*" Header="Name">
                                                     <DataGridTemplateColumn.CellTemplate>
                                                         <DataTemplate>
                                                             <StackPanel Orientation="Horizontal" Spacing="5">
@@ -377,6 +382,14 @@
                                                             </StackPanel>
                                                         </DataTemplate>
                                                     </DataGridTemplateColumn.CellTemplate>
+                                                    <DataGridTemplateColumn.CellEditingTemplate>
+                                                        <DataTemplate>
+                                                            <TextBox
+                                                                Margin="5,0,25,0"
+                                                                VerticalAlignment="Center"
+                                                                Text="{Binding Name, Mode=TwoWay}" />
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellEditingTemplate>
                                                 </DataGridTemplateColumn>
                                                 <!--  GameMode  -->
                                                 <DataGridTextColumn
@@ -427,81 +440,14 @@
                                 <TextBlock Classes="ModalGridTitle" Text="Servers" />
                                 <!--  Content  -->
                                 <Border Grid.Row="1">
-                                    <ScrollViewer Classes="TableScrollViewer">
-                                        <DataGrid
-                                            Classes="InstanceMultiTable"
-                                            ItemsSource="{Binding Servers}"
-                                            LoadingRow="ServerDataGrid_OnLoading">
-                                            <DataGrid.Columns>
-                                                <!--  Icon & Name  -->
-                                                <DataGridTemplateColumn Width="Auto" Header="Name">
-                                                    <DataGridTemplateColumn.CellTemplate>
-                                                        <DataTemplate>
-                                                            <StackPanel Orientation="Horizontal" Spacing="5">
-                                                                <Image
-                                                                    Height="48"
-                                                                    MaxWidth="48"
-                                                                    Margin="5"
-                                                                    Source="{Binding Icon}"
-                                                                    Stretch="UniformToFill" />
-                                                                <TextBlock
-                                                                    Margin="0,0,25,0"
-                                                                    VerticalAlignment="Center"
-                                                                    Text="{Binding Name}"
-                                                                    TextAlignment="Center" />
-                                                            </StackPanel>
-                                                        </DataTemplate>
-                                                    </DataGridTemplateColumn.CellTemplate>
-                                                </DataGridTemplateColumn>
-                                                <!--  Address  -->
-                                                <DataGridTextColumn
-                                                    Width="Auto"
-                                                    Binding="{Binding Address}"
-                                                    Header="Address" />
-                                            </DataGrid.Columns>
-                                        </DataGrid>
-                                    </ScrollViewer>
-                                </Border>
-                                <!--  Actions  -->
-                                <Grid
-                                    Grid.Row="2"
-                                    ColumnDefinitions="*, *, Auto, Auto"
-                                    ColumnSpacing="5">
-                                    <!--  Name bar  -->
-                                    <TextBox
-                                        Grid.Column="0"
-                                        Classes="TextInput"
-                                        Watermark="Name..." />
-                                    <!--  Address bar  -->
-                                    <TextBox
-                                        Grid.Column="1"
-                                        Classes="TextInput"
-                                        Watermark="Address..." />
-                                    <!--  Search button  -->
-                                    <Button Grid.Column="2" Classes="IconBtn">
-                                        <TextBlock Text="Save" />
-                                    </Button>
-                                    <!--  Add  -->
-                                    <Button Grid.Column="3" Classes="IconBtn">
-                                        <TextBlock Text="Add" />
-                                    </Button>
-                                </Grid>
-                            </Grid>
-                        </Border>
-                    </TabItem>
-                    <!--  Screenshots  -->
-                    <TabItem Classes="ModalVerticalTabItem" Header="Screenshots">
-                        <Border Classes="ModalScrollableWrapper">
-                            <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, *">
-                                <!--  Title  -->
-                                <TextBlock Classes="ModalGridTitle" Text="Screenshots" />
-                                <!--  Content  -->
-                                <Border Grid.Row="1">
                                     <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
                                         <DataGrid
                                             Classes="InstanceMultiTable"
-                                            ItemsSource="{Binding Screenshots}"
-                                            LoadingRow="ScreenshotDataGrid_OnLoading">
+                                            ItemsSource="{Binding Servers}"
+                                            SelectedItem="{Binding SelectedServer}"
+                                            LoadingRow="ServerDataGrid_OnLoading"
+                                            RowEditEnded="ServersDataGrid_OnRowEditEnded"
+                                            IsReadOnly="False">
                                             <DataGrid.Columns>
                                                 <!--  Icon & Name  -->
                                                 <DataGridTemplateColumn Width="*" Header="Name">
@@ -522,12 +468,106 @@
                                                             </StackPanel>
                                                         </DataTemplate>
                                                     </DataGridTemplateColumn.CellTemplate>
+                                                    <DataGridTemplateColumn.CellEditingTemplate>
+                                                        <DataTemplate>
+                                                            <TextBox
+                                                                Margin="5,0,25,0"
+                                                                VerticalAlignment="Center"
+                                                                Text="{Binding Name, Mode=TwoWay}" />
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellEditingTemplate>
+                                                </DataGridTemplateColumn>
+                                                <!--  Address  -->
+                                                <DataGridTextColumn
+                                                    Width="*"
+                                                    Binding="{Binding Ip}"
+                                                    Header="Address" />
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </ScrollViewer>
+                                </Border>
+                                <!--  Actions  -->
+                                <Grid
+                                    Grid.Row="2"
+                                    ColumnDefinitions="*, *, Auto"
+                                    ColumnSpacing="5">
+                                    <!--  Name bar  -->
+                                    <TextBox
+                                        Grid.Column="0"
+                                        Name="ServerNameInput"
+                                        Classes="TextInput"
+                                        Watermark="Name..." />
+                                    <!--  Address bar  -->
+                                    <TextBox
+                                        Grid.Column="1"
+                                        Name="ServerAddressInput"
+                                        Classes="TextInput"
+                                        Watermark="Address..." />
+                                    <!--  Add  -->
+                                    <Button Grid.Column="2" Classes="IconBtn" Click="AddServer_OnClick">
+                                        <TextBlock Text="Add" />
+                                    </Button>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </TabItem>
+                    <!--  Screenshots  -->
+                    <TabItem Classes="ModalVerticalTabItem" Header="Screenshots">
+                        <Border Classes="ModalScrollableWrapper">
+                            <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, *">
+                                <!--  Title  -->
+                                <TextBlock Classes="ModalGridTitle" Text="Screenshots" />
+                                <!--  Content  -->
+                                <Border Grid.Row="1">
+                                    <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
+                                        <DataGrid
+                                            Name="ScreenshotsTable"
+                                            Classes="InstanceMultiTable"
+                                            ItemsSource="{Binding Screenshots}"
+                                            SelectedItem="{Binding SelectedScreenshot}"
+                                            LoadingRow="ScreenshotDataGrid_OnLoading"
+                                            CellEditEnded="ScreenshotCell_OnEditEnded"
+                                            IsReadOnly="False">
+                                            <DataGrid.Columns>
+                                                <!--  Icon & Name  -->
+                                                <DataGridTemplateColumn Width="*" Header="Name" IsReadOnly="False">
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <Image
+                                                                    Height="48"
+                                                                    MaxWidth="48"
+                                                                    Margin="5"
+                                                                    Source="{Binding Image}"
+                                                                    Stretch="UniformToFill" />
+                                                                <TextBlock
+                                                                    Margin="5,0,0,0"
+                                                                    VerticalAlignment="Center"
+                                                                    Text="{Binding Name}"
+                                                                    TextAlignment="Center" />
+                                                                <TextBlock
+                                                                    Margin="0,0,25,0"
+                                                                    VerticalAlignment="Center"
+                                                                    Text="{Binding Extension}"
+                                                                    TextAlignment="Center" />
+                                                            </StackPanel>
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                    <DataGridTemplateColumn.CellEditingTemplate>
+                                                        <DataTemplate>
+                                                            <TextBox
+                                                                Margin="5,0,25,0"
+                                                                VerticalAlignment="Center"
+                                                                Text="{Binding Name, Mode=TwoWay}" />
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellEditingTemplate>
                                                 </DataGridTemplateColumn>
                                                 <!--  Size  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding FormatedSize}"
-                                                    Header="Size" />
+                                                    Header="Size"
+                                                    IsReadOnly="True"/>
                                             </DataGrid.Columns>
                                         </DataGrid>
                                     </ScrollViewer>

@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
+namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 /// <summary>
 /// Represents the view model for the installation process, providing properties

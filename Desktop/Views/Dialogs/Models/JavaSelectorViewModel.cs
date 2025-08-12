@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using JavaVersionModel = Tavstal.KonkordLauncher.Desktop.Models.JavaVersionModel;
 
-namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
+namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 /// <summary>
 /// ViewModel for selecting a Java version. Provides properties and methods to manage and display Java versions.

@@ -2,9 +2,9 @@ using Avalonia;
 using Avalonia.Controls;
 using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Models;
-using Tavstal.KonkordLauncher.Desktop.Views.Models;
+using InstallViewModel = Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models.InstallViewModel;
 
-namespace Tavstal.KonkordLauncher.Desktop.Views;
+namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 /// <summary>
 /// Represents the installation window in the application, which implements the <see cref="IProgressReporter"/> interface

@@ -2,14 +2,14 @@ using ReactiveUI;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 
-namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
+namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 /// <summary>
 /// ViewModel for managing alert dialogs in the application.
 /// </summary>
 public class AlertViewModel : ViewModelBase
 {
-    private string _title;
+    private string _title = "Loading...";
     private string _message = string.Empty;
     private EAlertType _alertType = EAlertType.Info;
     private string _acceptedButtonText = "OK";

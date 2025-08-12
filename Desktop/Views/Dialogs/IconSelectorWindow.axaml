@@ -1,10 +1,10 @@
 <Window
-    x:Class="Tavstal.KonkordLauncher.Desktop.Views.IconSelectorWindow"
+    x:Class="Tavstal.KonkordLauncher.Desktop.Views.Dialogs.IconSelectorWindow"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
+    xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
     Title="Select Icon"
     Width="500"
     Height="410"
@@ -12,9 +12,9 @@
     MinHeight="410"
     d:DesignHeight="410"
     d:DesignWidth="500"
-    x:DataType="vm:IconSelectorViewModel"
+    x:DataType="models:IconSelectorViewModel"
     CanResize="False"
-    Icon="../Assets/Images/logo.png"
+    Icon="avares://Desktop/Assets/Images/logo.png"
     ShowInTaskbar="False"
     mc:Ignorable="d">
     

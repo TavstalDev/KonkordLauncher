@@ -2,10 +2,11 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
-using Tavstal.KonkordLauncher.Desktop.Views.Models;
+using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
-namespace Tavstal.KonkordLauncher.Desktop.Views;
+namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 /// <summary>
 /// Represents a window for displaying alert dialogs with customizable title, message, and alert type.
@@ -19,11 +20,25 @@ public partial class AlertWindow : Window
     public delegate void ButtonClicked(bool accepted);
 
     /// <summary>
-    /// Event triggered when a button in the alert dialog is clicked.
+    /// Initializes a new instance of the <see cref="AlertWindow"/> class.
+    /// Sets up the DataContext for design mode or attaches Avalonia Dev Tools in debug mode.
     /// </summary>
-    public event ButtonClicked? OnButtonResponse;
+    public AlertWindow()
+    {
+        InitializeComponent();
 
-    public AlertWindow() {}
+        if (Design.IsDesignMode)
+        {
+            this.DataContext = new AlertViewModel
+            {
+                Title = "Design Time Title",
+                Message = "This is a design time message.",
+                AlertType = EAlertType.Info,
+                AcceptedButtonText = "OK",
+                CancelButtonText = "Cancel"
+            };
+        }
+    }
     
     /// <summary>
     /// Initializes a new instance of the <see cref="AlertWindow"/> class with the specified title, message, and alert type.
@@ -40,7 +55,18 @@ public partial class AlertWindow : Window
         this.AttachDevTools();
 #endif
 
-        // TODO: Add accept & deny texts
+        if (Design.IsDesignMode)
+        {
+            this.DataContext = new AlertViewModel
+            {
+                Title = "Design Time Title",
+                Message = "This is a design time message.",
+                AlertType = EAlertType.Info,
+                AcceptedButtonText = "OK",
+                CancelButtonText = "Cancel"
+            };
+            return;
+        }
         
         this.AlertTitle.Text = title;
         
@@ -51,6 +77,23 @@ public partial class AlertWindow : Window
             Message = message,
             AlertType = type
         };
+        
+        App.OnLanguageChanged += HandleLanguageChanged;
+        HandleLanguageChanged(string.Empty);
+    }
+
+    /// <summary>
+    /// Updates the text of the accept and cancel buttons in the alert dialog
+    /// based on the current language settings.
+    /// </summary>
+    /// <param name="language">The current language code (not used in this implementation).</param>
+    private void HandleLanguageChanged(string language)
+    {
+        if (this.DataContext is not AlertViewModel viewModel)
+            return;
+        
+        viewModel.AcceptedButtonText = TranslationManager.Translate("common.ok");
+        viewModel.CancelButtonText = TranslationManager.Translate("common.cancel");
     }
 
     /// <summary>
@@ -60,6 +103,9 @@ public partial class AlertWindow : Window
     /// <param name="e">The event data.</param>
     private void AlertWindow_Loaded(object? sender, RoutedEventArgs e)
     {
+        if (Design.IsDesignMode)
+            return;
+        
         if (DataContext is not AlertViewModel vm)
             return;
 
@@ -79,26 +125,20 @@ public partial class AlertWindow : Window
             }    
         }
     }
-
+    
     /// <summary>
-    /// Handles the click event of the accept button, triggering the response event and closing the window.
+    /// Handles the click event for the accept button in the alert dialog.
+    /// Closes the window and indicates that the accept button was clicked.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The event data.</param>
-    private void Accept_OnClick(object? sender, RoutedEventArgs e)
-    {
-        OnButtonResponse?.Invoke(true);
-        this.Close();
-    }
+    private void Accept_OnClick(object? sender, RoutedEventArgs e) => Close(true);
 
     /// <summary>
-    /// Handles the click event of the cancel button, triggering the response event and closing the window.
+    /// Handles the click event for the cancel button in the alert dialog.
+    /// Closes the window and indicates that the cancel button was clicked.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The event data.</param>
-    private void Cancel_OnClick(object? sender, RoutedEventArgs e)
-    {
-        OnButtonResponse?.Invoke(false);
-        this.Close();
-    }
+    private void Cancel_OnClick(object? sender, RoutedEventArgs e) => Close(false);
 }

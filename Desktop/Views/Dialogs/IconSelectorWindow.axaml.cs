@@ -12,9 +12,9 @@ using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models;
-using Tavstal.KonkordLauncher.Desktop.Views.Models;
+using IconSelectorViewModel = Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models.IconSelectorViewModel;
 
-namespace Tavstal.KonkordLauncher.Desktop.Views;
+namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 /// <summary>
 /// Represents a window for selecting and managing icons in the application.

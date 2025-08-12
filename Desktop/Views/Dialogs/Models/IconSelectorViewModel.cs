@@ -5,7 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models;
 
-namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
+namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 /// <summary>
 /// ViewModel for managing and selecting icons in the application.

@@ -4,9 +4,9 @@ using Avalonia.Interactivity;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Models;
-using Tavstal.KonkordLauncher.Desktop.Views.Models;
+using JavaSelectorViewModel = Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models.JavaSelectorViewModel;
 
-namespace Tavstal.KonkordLauncher.Desktop.Views;
+namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 /// <summary>
 /// Represents a window for selecting a Java version.

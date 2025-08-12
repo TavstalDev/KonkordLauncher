@@ -62,4 +62,38 @@ public static class ImageHelper
             return null;
         }
     }
+    
+    /// <summary>
+    /// Converts a Base64-encoded string to an Avalonia <see cref="Bitmap"/> object.
+    /// </summary>
+    /// <param name="base64Image">The Base64-encoded string representing the image.</param>
+    /// <returns>A <see cref="Bitmap"/> object created from the Base64 string.</returns>
+    public static Bitmap Base64ToBitmap(string base64Image)
+    {
+        // Remove the "data:image/png;base64," prefix if present
+        var base64Data = base64Image;
+        const string prefix = "data:image/png;base64,";
+        if (base64Data.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            base64Data = base64Data.Substring(prefix.Length);
+
+        // Decode Base64 to byte array
+        byte[] imageBytes = Convert.FromBase64String(base64Data);
+
+        // Load into Avalonia Bitmap
+        using var ms = new MemoryStream(imageBytes);
+        return new Bitmap(ms);
+    }
+
+    /// <summary>
+    /// Converts an Avalonia <see cref="Bitmap"/> object to a Base64-encoded string.
+    /// </summary>
+    /// <param name="bitmap">The <see cref="Bitmap"/> object to convert.</param>
+    /// <returns>A Base64-encoded string representing the image.</returns>
+    public static string BitmapToBase64(Bitmap bitmap)
+    {
+        using var ms = new MemoryStream();
+        bitmap.Save(ms);
+        byte[] imageBytes = ms.ToArray();
+        return Convert.ToBase64String(imageBytes);
+    }
 }

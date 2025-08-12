@@ -1,11 +1,14 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
+using NbtLib;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Config;
@@ -13,6 +16,7 @@ using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Config.Instance;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
@@ -30,15 +34,26 @@ public partial class EditInstanceViewModel : ObservableObject
     public List<Account> Accounts => LauncherHelper.GetAccountData().Accounts;
 
     public ObservableCollection<ModModel> Mods { get; set; } = [];
+    [ObservableProperty] private ModModel? _selectedMod;
+    
     public ObservableCollection<ResourcePackModel> ResourcePacks { get; set; } = [];
+    [ObservableProperty] private ResourcePackModel? _selectedResourcePack;
+    
     public ObservableCollection<ShaderPackModel> ShaderPacks { get; set; } = [];
+    [ObservableProperty] private ShaderPackModel? _selectedShaderPack;
+    
     public ObservableCollection<WorldModel> Worlds { get; set; } = [];
+    [ObservableProperty] private WorldModel? _selectedWorld;
+    
     public ObservableCollection<ServerModel> Servers { get; set; } = [];
+    [ObservableProperty] private ServerModel? _selectedServer;
+    
     public ObservableCollection<ScreenshotModel> Screenshots { get; set; } = [];
+    [ObservableProperty] private ScreenshotModel? _selectedScreenshot;
 
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanRemoveEnvironmentVariable))] private InstanceConfigModel _instanceConfig;
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanRemoveEnvironmentVariable))] private int? _selectedEnvironmentVariableIndex;
-    public bool CanRemoveEnvironmentVariable => SelectedEnvironmentVariableIndex.HasValue && SelectedEnvironmentVariableIndex.Value >= 0 && InstanceConfig.EnableEnvironment;
+    public bool CanRemoveEnvironmentVariable => SelectedEnvironmentVariableIndex is >= 0 && InstanceConfig.EnableEnvironment;
     
     public EditInstanceViewModel(EditInstanceWindow parent, InstanceModel instance, InstanceConfig instanceConfig)
     {
@@ -57,35 +72,129 @@ public partial class EditInstanceViewModel : ObservableObject
             _parentWindow.StOverridenAccountInput.SelectedIndex =
                 Accounts.FindIndex(x => x.Id == _instanceConfig.Misc.AccountId);
         
+        RefreshServers();
         RefreshScreenshots();
     }
+    
+    #region Refresh Methods
+
+    #region  Servers
+
+    /// <summary>
+    /// Saves the current list of Minecraft servers to the `servers.dat` file
+    /// in the game directory. The method serializes the server data into NBT format
+    /// and writes it to the file.
+    /// </summary>
+    public void SaveServers()
+    {
+        _logger.Debug("Saving servers to servers.dat file...");
+        if (_instance.GameDirectory == null)
+            return;
+        try
+        {
+            string filePath = Path.Combine(_instance.GameDirectory, "servers.dat");
+            
+            var root = new NbtCompoundTag();
+            var serversList = new NbtListTag(NbtTagType.Compound);
+
+            foreach (var s in Servers)
+            {
+                var serverTag = new NbtCompoundTag
+                {
+                    { "name", new NbtStringTag(s.Name) },
+                    { "ip", new NbtStringTag(s.Ip) },
+                    { "acceptTextures", new NbtIntTag(s.AcceptTextures) },
+                };
+                
+                if (s.HideAddress.HasValue)
+                    serverTag.Add("hideAddress", new NbtIntTag(s.HideAddress.Value));
+                
+                if (!string.IsNullOrEmpty(s.Icon))
+                    serverTag.Add("icon", new NbtStringTag(s.Icon));
+
+                serversList.Add(serverTag);
+            }
+
+            root.Add("servers", serversList);
+            
+            using var outputStream = new NbtWriter().CreateUncompressedNbtStream(root, "");
+            using var fileStream = File.Create(filePath);
+            outputStream.Seek(0, SeekOrigin.Begin);
+            outputStream.CopyTo(fileStream);
+        }
+        catch (Exception ex)
+        {
+            _logger.Exc("Failed to save servers to servers.dat file.");
+            _logger.Error(ex);
+        }
+    }
+
+    /// <summary>
+    /// Handles changes to the `Servers` collection by saving the updated list
+    /// of servers to the `servers.dat` file.
+    /// </summary>
+    /// <param name="sender">The source of the event, typically the `Servers` collection.</param>
+    /// <param name="e">The event data containing details about the collection change.</param>
+    private void ServersOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        SaveServers();
+    }
+    
+    /// <summary>
+    /// Refreshes the list of Minecraft servers by reading the `servers.dat` file
+    /// from the game directory and updating the Servers collection with the data.
+    /// </summary>
+    public void RefreshServers()
+    {
+        if (_instance.GameDirectory == null)
+            return;
+    
+        // Construct the file path for the servers.dat file
+        string filePath = Path.Combine(_instance.GameDirectory, "servers.dat");
+        if (!File.Exists(filePath))
+            return;
+
+        // Open the servers.dat file and deserialize its content
+        using var inputStream = System.IO.File.OpenRead(filePath);
+        var serversDat = NbtConvert.DeserializeObject<ServersDat>(inputStream);
+        if (serversDat == null)
+            return;
+    
+        Servers.CollectionChanged -= ServersOnCollectionChanged;
+        
+        // Clear the existing Servers collection and populate it with new data
+        Servers.Clear();
+        foreach (var server in serversDat.Servers)
+            Servers.Add(new ServerModel(server.Name, server.Ip, server.AcceptTextures, server.HideAddress, server.Icon));
+        
+        Servers.CollectionChanged += ServersOnCollectionChanged;
+    }
+
+    #endregion
     
     /// <summary>
     /// Refreshes the list of screenshots by scanning the game directory for PNG files
     /// and updating the Screenshots collection with their metadata and image data.
     /// </summary>
-    private void RefreshScreenshots()
+    public void RefreshScreenshots()
     {
         if (_instance.GameDirectory == null)
             return;
 
-        string screenshotDir = System.IO.Path.Combine(_instance.GameDirectory, "screenshots");
-        if (!System.IO.Directory.Exists(screenshotDir))
+        string screenshotDir = Path.Combine(_instance.GameDirectory, "screenshots");
+        if (!Directory.Exists(screenshotDir))
             return;
         
         Screenshots.Clear();
-        var screenshots = System.IO.Directory.GetFiles(screenshotDir, "*.png");
+        var screenshots = Directory.GetFiles(screenshotDir, "*.png");
         foreach (var screenshot in screenshots)
         {
-            var bytes = System.IO.File.ReadAllBytes(screenshot);
-            Screenshots.Add(new ScreenshotModel()
-            {
-                Name = System.IO.Path.GetFileName(screenshot),
-                Image = new Bitmap(screenshot),
-                Size = bytes.LongLength
-            });
+            var bytes = File.ReadAllBytes(screenshot);
+            var newScreenshot = new ScreenshotModel(screenshot, new Bitmap(screenshot), bytes.LongLength);
+            Screenshots.Add(newScreenshot);
         }
     }
+    #endregion
 
     #region Settings
 
@@ -151,6 +260,12 @@ public partial class EditInstanceViewModel : ObservableObject
         SaveCoreConfigToFile(InstanceConfig);
     }
     
+    /// <summary>
+    /// Handles changes to a collection within the instance configuration model.
+    /// Logs the change and saves the updated configuration to a file if the view model is initialized.
+    /// </summary>
+    /// <param name="sender">The source of the event, typically the collection that changed.</param>
+    /// <param name="e">The event data containing details about the collection change.</param>
     private void OnChildConfigCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         if (!_isInitialized)

@@ -24,6 +24,7 @@
         </PackageReference>
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
         <PackageReference Include="Markdown.Avalonia" Version="11.0.2" />
+        <PackageReference Include="NbtLib" Version="1.0.1" />
         <PackageReference Include="ReverseMarkdown" Version="4.7.0" />
     </ItemGroup>
 
@@ -54,20 +55,28 @@
         <DependentUpon>StartupWindow.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
-      <Compile Update="Views\InstallWindow.axaml.cs">
-        <DependentUpon>InstallWindow.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
       <Compile Update="Views\EditInstanceWindow.axaml.cs">
         <DependentUpon>EditInstanceWindow.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
-      <Compile Update="Views\JavaSelectorWindow.axaml.cs">
+      <Compile Update="Views\Modals\IconSelectorWindow.axaml.cs">
+        <DependentUpon>IconSelectorWindow.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Views\Modals\JavaSelectorWindow.axaml.cs">
         <DependentUpon>JavaSelectorWindow.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
-      <Compile Update="Views\IconSelectorWindow.axaml.cs">
-        <DependentUpon>IconSelectorWindow.axaml</DependentUpon>
+      <Compile Update="Views\Modals\AlertWindow.axaml.cs">
+        <DependentUpon>AlertWindow.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Views\Modals\InstallWindow.axaml.cs">
+        <DependentUpon>InstallWindow.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Views\Dialogs\Forms\TextInputWindow.axaml.cs">
+        <DependentUpon>JavaSelectorWindow.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
     </ItemGroup>

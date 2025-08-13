@@ -1,15 +1,60 @@
-using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
+using CommunityToolkit.Mvvm.ComponentModel;
+using Tavstal.KonkordLauncher.Core.Helpers;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Instance;
 
-public class ResourcePackModel
+/// <summary>
+/// Represents a resource pack model used in the application.
+/// This model contains information about the resource pack, such as its name, size, provider, and icon.
+/// </summary>
+public partial class ResourcePackModel : ObservableObject
 {
-    public bool IsEnabled { get; set; }
-    public string Name { get; set; }
-    public Task<Bitmap?> Icon { get; set; }
-    public string Version { get; set; }
-    public string LastModified { get; set; }
-    public string Provider { get; set; }
-    public long Size { get; set; }
+    /// <summary>
+    /// Indicates whether the resource pack is enabled.
+    /// </summary>
+    [ObservableProperty] private bool _isEnabled;
+
+    /// <summary>
+    /// The name of the resource pack.
+    /// </summary>
+    [ObservableProperty] private string _name;
+
+    /// <summary>
+    /// The file path of the resource pack.
+    /// </summary>
+    [ObservableProperty] private string _path;
+    
+    /// <summary>
+    /// The icon associated with the resource pack.
+    /// </summary>
+    [ObservableProperty] private Bitmap? _icon;
+
+    /// <summary>
+    /// The provider of the resource pack, if available.
+    /// </summary>
+    [ObservableProperty] private string? _provider;
+
+    /// <summary>
+    /// The size of the resource pack in bytes.
+    /// Updates the <see cref="FormattedSize"/> property when changed.
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(FormattedSize))]
+    private long _size;
+
+    /// <summary>
+    /// Gets the formatted size of the resource pack as a human-readable string.
+    /// </summary>
+    public string FormattedSize => FileSystemHelper.GetFormatedSize(Size);
+
+    public ResourcePackModel(bool isEnabled, string name, string path, Bitmap? icon, string? provider, long size)
+    {
+        _isEnabled = isEnabled;
+        _name = name;
+        _path = path;
+        _icon = icon;
+        _provider = provider;
+        _size = size;
+    }
 }

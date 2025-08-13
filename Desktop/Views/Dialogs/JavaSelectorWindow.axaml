@@ -60,7 +60,7 @@
                     Name="OkBtn"
                     Click="OkBtn_OnClick"
                     IsEnabled="{Binding HasSelectedJavaVersion}">
-                    <WrapPanel  ItemSpacing="2">
+                    <WrapPanel Classes="IconBtnWrapper">
                         <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf00c;" />
                         <TextBlock Name="OkTb" Text="{lang:Translate common.ok}" VerticalAlignment="Center" />
                     </WrapPanel>
@@ -72,7 +72,7 @@
                     Width="80"
                     Name="CancelBtn"
                     Click="CancelBtn_OnClick">
-                    <WrapPanel ItemSpacing="2">
+                    <WrapPanel Classes="IconBtnWrapper">
                         <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf00d;" />
                         <TextBlock Name="CancelTb" Text="{lang:Translate common.cancel}" VerticalAlignment="Center" />
                     </WrapPanel>

@@ -32,7 +32,10 @@
                                 <Image Classes="AccountsModalImage" Source="../Assets/Images/Brands/microsoft.png" />
                                 <!-- Start login button -->
                                 <Button Classes="IconBtn PrimaryBtn" HorizontalAlignment="Center" Click="MicrosoftLogin_OnClick">
-                                    <TextBlock Name="MicrosoftLoginTb" Classes="MicrosoftButtonText" Text="{lang:Translate auth.microsoft.login}" />
+                                    <WrapPanel Classes="IconBtnWrapper" Margin="15, 5">
+                                        <TextBlock Classes="FontAwesome MicrosoftButtonText" VerticalAlignment="Center" Text="&#xf4fc;" />
+                                        <TextBlock Classes="MicrosoftButtonText" Text="{lang:Translate auth.microsoft.login}" VerticalAlignment="Center" />
+                                    </WrapPanel>
                                 </Button>
                                 <!-- Note text -->
                                 <TextBlock Name="MicrosoftNoteTb" Classes="AccountsNote" Text="{lang:Translate auth.microsoft.note}" />
@@ -71,7 +74,10 @@
                             <TextBox Name="OfflineUsernameInput" Classes="AccountsModalInput" MaxLength="16" Watermark="steve" TextChanged="OfflineUsername_OnTextChanged" />
                             <!-- Offline login button -->
                             <Button Classes="IconBtn PrimaryBtn" HorizontalAlignment="Center" Click="OfflineLogin_OnClick">
-                                <TextBlock Name="OfflineLoginTb" Classes="MicrosoftButtonText" Text="{lang:Translate auth.offline.login}" />
+                                <WrapPanel Classes="IconBtnWrapper" Margin="15, 5">
+                                    <TextBlock Classes="FontAwesome MicrosoftButtonText" VerticalAlignment="Center" Text="&#xf4fc;" />
+                                    <TextBlock Classes="MicrosoftButtonText" Text="{lang:Translate auth.offline.login}" VerticalAlignment="Center" />
+                                </WrapPanel>
                             </Button>
                             <!-- Note text -->
                             <TextBlock Name="OfflineNoteTb" Classes="AccountsNote" Text="{lang:Translate auth.offline.note}" />

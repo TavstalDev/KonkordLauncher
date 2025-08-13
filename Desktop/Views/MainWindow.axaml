@@ -138,28 +138,48 @@
                 <Button
                     Name="PlaySideBtn"
                     Classes="SidebarBtn PrimaryBtn"
-                    Click="OnPlaySideButtonClick"
-                    Content="{lang:Translate main.sidebar.play}" />
+                    Click="OnPlaySideButtonClick">
+                    <WrapPanel Classes="IconBtnWrapper">
+                        <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf04b;" />
+                        <TextBlock Text="{lang:Translate main.sidebar.play}" VerticalAlignment="Center" />
+                    </WrapPanel>
+                </Button>
                 <Button
                     Name="NewsSideBtn"
                     Classes="SidebarBtn SecondaryBtn"
-                    Click="OnNewsSideButtonClick"
-                    Content="{lang:Translate main.sidebar.patch}"/>
+                    Click="OnNewsSideButtonClick">
+                    <WrapPanel Classes="IconBtnWrapper">
+                        <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf15c;" />
+                        <TextBlock Text="{lang:Translate main.sidebar.patch}" VerticalAlignment="Center" />
+                    </WrapPanel>
+                </Button>
                 <Button
                     Name="AccountsSideBtn"
                     Classes="SidebarBtn SecondaryBtn"
-                    Click="OnAccountsSideButtonClick"
-                    Content="{lang:Translate main.sidebar.accounts}" />
+                    Click="OnAccountsSideButtonClick">
+                    <WrapPanel Classes="IconBtnWrapper">
+                        <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf0c0;" />
+                        <TextBlock Text="{lang:Translate main.sidebar.accounts}" VerticalAlignment="Center" />
+                    </WrapPanel>
+                </Button>
                 <Button
                     Name="SettingsSideBtn"
                     Classes="SidebarBtn SecondaryBtn"
-                    Click="OnSettingsSideButtonClick"
-                    Content="{lang:Translate main.sidebar.settings}" />
+                    Click="OnSettingsSideButtonClick">
+                    <WrapPanel Classes="IconBtnWrapper">
+                        <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf013;" />
+                        <TextBlock Text="{lang:Translate main.sidebar.settings}" VerticalAlignment="Center" />
+                    </WrapPanel>
+                </Button>
                 <Button
                     Name="AboutSideBtn"
                     Classes="SidebarBtn SecondaryBtn"
-                    Click="OnAboutSideButtonClick"
-                    Content="{lang:Translate main.sidebar.about}" />
+                    Click="OnAboutSideButtonClick">
+                    <WrapPanel Classes="IconBtnWrapper">
+                        <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf02d;" />
+                        <TextBlock Text="{lang:Translate main.sidebar.about}" VerticalAlignment="Center" />
+                    </WrapPanel>
+                </Button>
             </StackPanel>
 
             <!--  Footer with Version and Copyright  -->

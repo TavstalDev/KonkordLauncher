@@ -48,6 +48,11 @@
         <Setter Property="BorderThickness" Value="0,0,1,1" />
         <Setter Property="Cursor" Value="Hand" />
     </Style>
+    <!--  Icon Button Wrapper  -->
+    <Style Selector="WrapPanel.IconBtnWrapper">
+        <Setter Property="Margin" Value="5, 0" />
+        <Setter Property="ItemSpacing" Value="2" />
+    </Style>
     
     <!-- Default Button  -->
     <Style Selector="Button">

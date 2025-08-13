@@ -6,6 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
     xmlns:local="clr-namespace:Tavstal.KonkordLauncher.Desktop"
+    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Translation"
     Title="Edit Instance"
     Width="900"
     Height="500"
@@ -182,7 +183,7 @@
                                     <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
                                         <DataGrid
                                             Classes="InstanceMultiTable"
-                                            ItemsSource="{Binding ResourcePacks}"
+                                            ItemsSource="{Binding FilteredResourcePacks}"
                                             SelectedItem="{Binding SelectedResourcePack}"
                                             LoadingRow="ResourcePacksDataGrid_OnLoading"
                                             CellEditEnded="ResourcePacksDataGrid_OnCellEditEnded"
@@ -240,7 +241,8 @@
                                         Watermark="Search..."
                                         Text="{Binding ResourcePackSearchQuery}"/>
                                     <!--  Download  -->
-                                    <Button Grid.Column="1" Classes="IconBtn" Click="DownloadResourcePacks_OnClick">
+                                    <!-- TODO -->
+                                    <Button Grid.Column="1" Classes="IconBtn" IsEnabled="False" Click="DownloadResourcePacks_OnClick">
                                         <TextBlock Text="Download Packs" />
                                     </Button>
                                     <!--  View Folder  -->
@@ -602,7 +604,7 @@
                                                         Grid.Column="1"
                                                         Name="StJavaPathInput"
                                                         Classes="TextInput"
-                                                        Watermark="Select a directory..."
+                                                        Watermark="{lang:Translate common.select.directory}"
                                                         Text="{Binding InstanceConfig.Java.DefaultJavaPath}"/>
                                                     <Button Grid.Column="2" Classes="IconBtn" Click="JavaPathSelect_OnClick">
                                                         <TextBlock Classes="FontAwesome" Text="&#xf07c;" />

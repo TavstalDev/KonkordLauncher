@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
@@ -249,17 +250,15 @@ public partial class EditInstanceWindow : Window
         var contextMenu = new ContextMenu();
 
         // Add Enable/Disable MenuItem
-        string enableDisableHeader = resourcePackItem.IsEnabled ? TranslationManager.Translate("common.disable") : TranslationManager.Translate("common.enable");
-        var editMenuItem = new MenuItem { Header = enableDisableHeader };
+        var editMenuItem = new MenuItem();
+        editMenuItem.Bind(MenuItem.HeaderProperty, 
+            new Binding("EnableDisableText"));
         editMenuItem.Click += (_, _) =>
         {
             if (this.DataContext is not EditInstanceViewModel viewModel)
                 return;
 
             resourcePackItem.IsEnabled = !resourcePackItem.IsEnabled;
-            editMenuItem.Header = resourcePackItem.IsEnabled
-                ? TranslationManager.Translate("common.disable")
-                : TranslationManager.Translate("common.enable");
             viewModel.SaveResourcePacks();
         };
         contextMenu.Items.Add(editMenuItem);

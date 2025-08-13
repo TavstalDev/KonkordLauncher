@@ -6,10 +6,13 @@ using System.ComponentModel;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Reactive.Linq;
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
+using DynamicData;
 using NbtLib;
+using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Config;
@@ -39,7 +42,8 @@ public partial class EditInstanceViewModel : ObservableObject
     public ObservableCollection<ModModel> Mods { get; set; } = [];
     [ObservableProperty] private ModModel? _selectedMod;
     
-    public ObservableCollection<ResourcePackModel> ResourcePacks { get; set; } = [];
+    private readonly SourceCache<ResourcePackModel, Guid> _resourcePackCache = new(x => x.Id);
+    public ReadOnlyObservableCollection<ResourcePackModel> FilteredResourcePacks { get; }
     [ObservableProperty] private ResourcePackModel? _selectedResourcePack;
     [ObservableProperty] private string? _resourcePackSearchQuery = string.Empty;
     
@@ -75,8 +79,30 @@ public partial class EditInstanceViewModel : ObservableObject
         if (!string.IsNullOrEmpty(_instanceConfig.Misc.AccountId))
             _parentWindow.StOverridenAccountInput.SelectedIndex =
                 Accounts.FindIndex(x => x.Id == _instanceConfig.Misc.AccountId);
-        
+
+        #region Resource Packs
+
+        // Set up a reactive filter for the ResourcePackSearchQuery property.
+        // The filter updates dynamically based on the search query, matching resource packs whose names contain the query string (case-insensitive).
+        var filter = this.WhenAnyValue(x => x.ResourcePackSearchQuery)
+            .Select(query =>
+            {
+                if (string.IsNullOrWhiteSpace(query))
+                    return (Func<ResourcePackModel, bool>)(_ => true); // No filter
+                return (Func<ResourcePackModel, bool>)(pack => pack.Name.Contains(query, StringComparison.OrdinalIgnoreCase));
+            });
+
+        // Connect the resource pack cache to the reactive filter.
+        // Apply the filter and bind the resulting filtered collection to the FilteredResourcePacks property.
+        // Subscribe to changes in the cache to keep the filtered collection up-to-date.
+        _resourcePackCache.Connect()
+            .Filter(filter)
+            .Bind(out var filteredCollection)
+            .Subscribe();
+            
+        FilteredResourcePacks = filteredCollection;
         RefreshResourcePacks();
+        #endregion
         RefreshWorlds();
         RefreshServers();
         RefreshScreenshots();
@@ -107,7 +133,7 @@ public partial class EditInstanceViewModel : ObservableObject
         if (!Directory.Exists(resourcePacksDir))
             return;
 
-        foreach (var resourcePack in ResourcePacks)
+        foreach (var resourcePack in _resourcePackCache.Items)
         {
             string? newPath = null;
             if (resourcePack.IsEnabled && resourcePack.Path.EndsWith(".zip.dis"))
@@ -153,35 +179,42 @@ public partial class EditInstanceViewModel : ObservableObject
         if (!Directory.Exists(resourcePacksDir))
             return;
 
-        ResourcePacks.CollectionChanged -= ResourcePacksOnCollectionChanged;
+        //ResourcePacks.CollectionChanged -= ResourcePacksOnCollectionChanged;
         
-        ResourcePacks.Clear();
-        var resources = Directory.GetFiles(resourcePacksDir, "*").Where(x => x.EndsWith(".zip") || x.EndsWith(".zip.dis"));
-        foreach (var resource in resources)
+        //ResourcePacks.Clear();
+        _resourcePackCache.Edit(innerCache =>
         {
-            // Make sure the name does not include the extension
-            var resourceName = Path.GetFileNameWithoutExtension(resource.Replace(".zip.dis", ".zip"));
-            var size = File.ReadAllBytes(resource).LongLength;
-            using var zipFile = ZipFile.OpenRead(resource);
-            Bitmap? icon = null;
-            
-            var iconEntry = zipFile.Entries.FirstOrDefault(x => x.FullName.EndsWith("pack.png", StringComparison.OrdinalIgnoreCase));
-            if (iconEntry != null)
+            innerCache.Clear();
+            var resources = Directory.GetFiles(resourcePacksDir, "*")
+                .Where(x => x.EndsWith(".zip") || x.EndsWith(".zip.dis"));
+            foreach (var resource in resources)
             {
-                using var iconStream = iconEntry.Open();
-                using var memoryStream = new MemoryStream();
-                iconStream.CopyTo(memoryStream);
-                iconStream.Close();
-                icon = ImageHelper.Base64ToBitmap(Convert.ToBase64String(memoryStream.ToArray()));
+                // Make sure the name does not include the extension
+                var resourceName = Path.GetFileNameWithoutExtension(resource.Replace(".zip.dis", ".zip"));
+                var size = File.ReadAllBytes(resource).LongLength;
+                using var zipFile = ZipFile.OpenRead(resource);
+                Bitmap? icon = null;
+
+                var iconEntry = zipFile.Entries.FirstOrDefault(x =>
+                    x.FullName.EndsWith("pack.png", StringComparison.OrdinalIgnoreCase));
+                if (iconEntry != null)
+                {
+                    using var iconStream = iconEntry.Open();
+                    using var memoryStream = new MemoryStream();
+                    iconStream.CopyTo(memoryStream);
+                    iconStream.Close();
+                    icon = ImageHelper.Base64ToBitmap(Convert.ToBase64String(memoryStream.ToArray()));
+                }
+
+                icon ??= ImageHelper.LoadFromResource(new Uri("avares://Desktop/Assets/Images/default_world.png"));
+
+                // TODO: Handle provider
+                var newResourcePack = new ResourcePackModel(resource.EndsWith(".zip"), resourceName, resource, icon,
+                    "unknown", size);
+                innerCache.AddOrUpdate(newResourcePack);
             }
-            icon ??= ImageHelper.LoadFromResource(new Uri("avares://Desktop/Assets/Images/default_world.png"));
-            
-            // TODO: Handle provider
-            var newResourcePack = new ResourcePackModel(resource.EndsWith(".zip"), resourceName, resource, icon, "unknown", size);
-            ResourcePacks.Add(newResourcePack);
-        }
-        
-        ResourcePacks.CollectionChanged += ResourcePacksOnCollectionChanged;
+        });
+        //ResourcePacks.CollectionChanged += ResourcePacksOnCollectionChanged;
     }
 
     #endregion

@@ -184,12 +184,14 @@
                                             Classes="InstanceMultiTable"
                                             ItemsSource="{Binding ResourcePacks}"
                                             SelectedItem="{Binding SelectedResourcePack}"
-                                            LoadingRow="ResourcePacksDataGrid_OnLoading">
+                                            LoadingRow="ResourcePacksDataGrid_OnLoading"
+                                            CellEditEnded="ResourcePacksDataGrid_OnCellEditEnded"
+                                            IsReadOnly="False">
                                             <DataGrid.Columns>
                                                 <!--  Enabled  -->
                                                 <DataGridCheckBoxColumn
                                                     Width="Auto"
-                                                    Binding="{Binding IsEnabled}"
+                                                    Binding="{Binding IsEnabled, Mode=TwoWay}"
                                                     Header="Enabled"
                                                     IsReadOnly="False" />
                                                 <!--  Image  -->
@@ -208,27 +210,20 @@
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding Name}"
-                                                    Header="Name" />
-                                                <!--  Version  -->
-                                                <DataGridTextColumn
-                                                    Width="Auto"
-                                                    Binding="{Binding Version}"
-                                                    Header="Version" />
-                                                <!--  Last Modified  -->
-                                                <DataGridTextColumn
-                                                    Width="Auto"
-                                                    Binding="{Binding LastModified}"
-                                                    Header="Last Modified" />
+                                                    Header="Name"
+                                                    IsReadOnly="True"/>
                                                 <!--  Provider  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding Provider}"
-                                                    Header="Provider" />
+                                                    Header="Provider"
+                                                    IsReadOnly="True"/>
                                                 <!--  Size  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
-                                                    Binding="{Binding Size}"
-                                                    Header="Size" />
+                                                    Binding="{Binding FormattedSize}"
+                                                    Header="Size"
+                                                    IsReadOnly="True"/>
                                             </DataGrid.Columns>
                                         </DataGrid>
                                     </ScrollViewer>
@@ -236,23 +231,20 @@
                                 <!--  Actions  -->
                                 <Grid
                                     Grid.Row="2"
-                                    ColumnDefinitions="*, Auto, Auto, Auto"
+                                    ColumnDefinitions="*, Auto, Auto"
                                     ColumnSpacing="5">
                                     <!--  Search bar  -->
                                     <TextBox
                                         Grid.Column="0"
                                         Classes="TextInput"
-                                        Watermark="Search..." />
-                                    <!--  Search button  -->
-                                    <Button Grid.Column="1" Classes="IconBtn">
-                                        <TextBlock Text="Search" />
-                                    </Button>
+                                        Watermark="Search..."
+                                        Text="{Binding ResourcePackSearchQuery}"/>
                                     <!--  Download  -->
-                                    <Button Grid.Column="2" Classes="IconBtn">
+                                    <Button Grid.Column="1" Classes="IconBtn" Click="DownloadResourcePacks_OnClick">
                                         <TextBlock Text="Download Packs" />
                                     </Button>
                                     <!--  View Folder  -->
-                                    <Button Grid.Column="3" Classes="IconBtn">
+                                    <Button Grid.Column="2" Classes="IconBtn" Click="ViewResourcePacksFolder_OnClick">
                                         <TextBlock Text="View Folder" />
                                     </Button>
                                 </Grid>
@@ -350,17 +342,20 @@
                     <!--  Worlds  -->
                     <TabItem Classes="ModalVerticalTabItem" Header="Worlds">
                         <Border Classes="ModalScrollableWrapper">
-                            <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, *, Auto">
+                            <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, *">
                                 <!--  Title  -->
                                 <TextBlock Classes="ModalGridTitle" Text="Worlds" />
                                 <!--  Content  -->
                                 <Border Grid.Row="1">
                                     <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
                                         <DataGrid
+                                            Name="WorldsTable"
                                             Classes="InstanceMultiTable"
                                             ItemsSource="{Binding Worlds}"
                                             SelectedItem="{Binding SelectedWorld}"
                                             LoadingRow="WorldDataGrid_OnLoading"
+                                            CellEditEnded="WorldDataGrid_OnCellEditEnded"
+                                            RowEditEnded="WorldDataGrid_OnRowEditEnded"
                                             IsReadOnly="False">
                                             <DataGrid.Columns>
                                                 <!--  Icon & Name  -->
@@ -413,25 +408,6 @@
                                         </DataGrid>
                                     </ScrollViewer>
                                 </Border>
-                                <!--  Actions  -->
-                                <Grid
-                                    Grid.Row="2"
-                                    ColumnDefinitions="*, Auto, Auto"
-                                    ColumnSpacing="5">
-                                    <!--  Search bar  -->
-                                    <TextBox
-                                        Grid.Column="0"
-                                        Classes="TextInput"
-                                        Watermark="Search..." />
-                                    <!--  Search button  -->
-                                    <Button Grid.Column="1" Classes="IconBtn">
-                                        <TextBlock Text="Search" />
-                                    </Button>
-                                    <!--  View Folder  -->
-                                    <Button Grid.Column="2" Classes="IconBtn">
-                                        <TextBlock Text="View Folder" />
-                                    </Button>
-                                </Grid>
                             </Grid>
                         </Border>
                     </TabItem>

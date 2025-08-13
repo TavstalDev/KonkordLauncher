@@ -17,10 +17,20 @@ public partial class WorldModel : ObservableObject
     [ObservableProperty] private string _name;
 
     /// <summary>
+    /// The file path of the world.
+    /// </summary>
+    [ObservableProperty] private string _path;
+    
+    /// <summary>
     /// The game mode of the world (e.g., Survival, Creative).
     /// </summary>
     [ObservableProperty] private string _gamemode;
 
+    /// <summary>
+    /// The seed value used to generate the world.
+    /// </summary>
+    [ObservableProperty] public long _seed;
+    
     /// <summary>
     /// The last played timestamp of the world in milliseconds since the Unix epoch.
     /// </summary>
@@ -73,17 +83,21 @@ public partial class WorldModel : ObservableObject
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="WorldModel"/> class.
+    /// Initializes a new instance of the <see cref="WorldModel"/> class with the specified properties.
     /// </summary>
     /// <param name="name">The name of the world.</param>
-    /// <param name="gamemode">The game mode of the world.</param>
-    /// <param name="lastPlayed">The last played timestamp of the world.</param>
+    /// <param name="path">The file path of the world.</param>
+    /// <param name="gamemode">The game mode of the world (e.g., Survival, Creative).</param>
+    /// <param name="seed">The seed value used to generate the world.</param>
+    /// <param name="lastPlayed">The last played timestamp of the world in milliseconds since the Unix epoch.</param>
     /// <param name="size">The size of the world in bytes.</param>
     /// <param name="icon">The icon representing the world.</param>
-    public WorldModel(string name, string gamemode, long lastPlayed, long size, Bitmap? icon)
+    public WorldModel(string name, string path, string gamemode, long seed, long lastPlayed, long size, Bitmap? icon)
     {
         _name = name;
+        _path = path;
         _gamemode = gamemode;
+        _seed = seed;
         _lastPlayed = lastPlayed;
         _size = size;
         _icon = icon;

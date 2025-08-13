@@ -194,7 +194,9 @@ public partial class CreateInstanceViewModel : ObservableObject
     #endregion
 
     #region Import
-
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsSourceFromFile))] private int _selectedImportSourceIndex = 0;
+    
+    public bool IsSourceFromFile => SelectedImportSourceIndex == 0;
     #endregion
 
     public CreateInstanceViewModel()

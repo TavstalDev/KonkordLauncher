@@ -21,7 +21,6 @@
         <Setter Property="FontSize" Value="15" />
         <Setter Property="FontWeight" Value="600" />
         <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
-        <Setter Property="Padding" Value="15, 5"></Setter>
         <Setter Property="TextAlignment" Value="Center" />
     </Style>
     

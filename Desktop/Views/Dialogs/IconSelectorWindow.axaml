@@ -5,7 +5,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
-    Title="Select Icon"
+    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Translation"
+    Title="{lang:Translate iconSelector.title}"
     Width="500"
     Height="410"
     MinWidth="500"
@@ -75,7 +76,7 @@
                         IsEnabled="{Binding HasSelectedIcon}">
                         <WrapPanel  ItemSpacing="2">
                             <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf00c;" />
-                            <TextBlock Name="OkTb" Text="Ok" VerticalAlignment="Center" />
+                            <TextBlock Name="OkTb" Text="{lang:Translate common.ok}" VerticalAlignment="Center" />
                         </WrapPanel>
                         
                     </Button>
@@ -87,7 +88,7 @@
                         Click="CancelBtn_OnClick">
                         <WrapPanel ItemSpacing="2">
                             <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf00d;" />
-                            <TextBlock Name="CancelTb" Text="Cancel" VerticalAlignment="Center" />
+                            <TextBlock Name="CancelTb" Text="{lang:Translate common.cancel}" VerticalAlignment="Center" />
                         </WrapPanel>
                     </Button>
                 </WrapPanel>

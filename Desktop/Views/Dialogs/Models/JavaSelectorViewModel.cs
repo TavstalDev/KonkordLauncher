@@ -12,10 +12,6 @@ public partial class JavaSelectorViewModel : ObservableObject
 {
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(HasSelectedJavaVersion))] private JavaVersionModel? _selectedJavaVersion;
     [ObservableProperty] private ObservableCollection<JavaVersionModel> _versions;
-    [ObservableProperty] private string _tableMajorText = "Major";
-    [ObservableProperty] private string _tableVersionText = "Version";
-    [ObservableProperty] private string _tableArchitectureText = "Architecture";
-    [ObservableProperty] private string _tablePathText = "Path";
     
     /// <summary>
     /// Indicates whether a Java version is currently selected.

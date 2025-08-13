@@ -38,30 +38,6 @@ public partial class JavaSelectorWindow : Window
             var settings = LauncherHelper.GetLauncherSettings();
             this.DataContext = new JavaSelectorViewModel(settings.Launcher.JavaDirectoryPath);
         }
-        
-        App.OnLanguageChanged += HandleLanguageChange;
-        HandleLanguageChange(string.Empty);
-    }
-
-    /// <summary>
-    /// Handles changes in the application's language by updating UI text.
-    /// </summary>
-    /// <param name="language">The new language code.</param>
-    private void HandleLanguageChange(string language)
-    {
-        this.Title = TranslationManager.Translate("java.title");
-        SelectJavaTb.Text = TranslationManager.Translate("java.select");
-
-        OkBtn.Content = TranslationManager.Translate("common.ok");
-        CancelBtn.Content = TranslationManager.Translate("common.cancel");
-
-        if (this.DataContext is not JavaSelectorViewModel vm)
-            return;
-
-        vm.TableMajorText = TranslationManager.Translate("java.table.major");
-        vm.TableVersionText = TranslationManager.Translate("java.table.version");
-        vm.TableArchitectureText = TranslationManager.Translate("java.table.architecture");
-        vm.TablePathText = TranslationManager.Translate("java.table.path");
     }
 
     /// <summary>

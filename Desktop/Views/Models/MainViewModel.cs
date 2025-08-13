@@ -14,6 +14,7 @@ using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Config.Launcher;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
+using Tavstal.KonkordLauncher.Desktop.Models.Translation;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 
@@ -266,6 +267,7 @@ public partial class MainViewModel : ObservableObject
         // Handle language change
         if (e.PropertyName == nameof(CoreConfig.Launcher.Language))
         {
+            TranslationBindingSource.Instance.RaiseLanguageChanged();
             App.InvokeLanguageChanged(CoreConfig.Launcher.Language);
             // ReSharper disable once RedundantJumpStatement, there might be additional logic in the future
             return;

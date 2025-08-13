@@ -5,7 +5,7 @@
     MinHeight="500"
     MinWidth="900"
     ShowInTaskbar="False"
-    Title="Create Instance"
+    Title="{lang:Translate instance.create.title}"
     Width="900"
     d:DesignHeight="500"
     d:DesignWidth="900"
@@ -17,7 +17,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:mdxaml="https://github.com/whistyun/Markdown.Avalonia.Tight"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models">
+    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
+    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Translation">
 
     <Border Classes="InstanceView">
         <Grid RowDefinitions="Auto,*">
@@ -25,13 +26,13 @@
             <TextBlock
                 Classes="InstanceTitle"
                 HorizontalAlignment="Left"
-                Text="Create Instance" />
+                Text="{lang:Translate instance.create.title}" />
 
             <!--  Content  -->
             <Grid Grid.Row="1">
                 <TabControl Classes="ModalTab">
                     <!--  Custom  -->
-                    <TabItem Classes="ModalTabItem" Header="Custom">
+                    <TabItem Classes="ModalTabItem" Header="{lang:Translate instance.create.tab.custom}">
                         <Border Classes="InstanceWrapper">
                             <ScrollViewer>
                                 <Grid Classes="InstanceWrapper" RowDefinitions="Auto, *, *, Auto">
@@ -224,7 +225,7 @@
                         </Border>
                     </TabItem>
                     <!--  Modpacks  -->
-                    <TabItem Classes="ModalTabItem" Header="Modpacks">
+                    <TabItem Classes="ModalTabItem" Header="{lang:Translate instance.create.tab.modpacks}">
                         <Border Classes="InstanceWrapper">
                             <Grid Classes="InstanceModpackWrapper" ColumnDefinitions="180, *">
                                 <!--  Filters  -->
@@ -393,7 +394,7 @@
                         </Border>
                     </TabItem>
                     <!--  Import  -->
-                    <TabItem Classes="ModalTabItem" Header="Import">
+                    <TabItem Classes="ModalTabItem" Header="{lang:Translate instance.create.tab.import}">
                         <Border Classes="InstanceWrapper">
                             <ScrollViewer>
                                 <Grid Classes="InstanceWrapper" RowDefinitions="Auto, Auto, Auto, Auto">

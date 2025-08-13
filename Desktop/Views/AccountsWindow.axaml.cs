@@ -41,8 +41,6 @@ public partial class AccountsWindow : Window, IProgressReporter
 #endif
 
         this.DataContext = new AccountsViewModel();
-        App.OnLanguageChanged += HandleLanguageChange;
-        HandleLanguageChange(string.Empty);
     }
 
     /// <summary>
@@ -109,29 +107,6 @@ public partial class AccountsWindow : Window, IProgressReporter
     #endregion
 
     #region Event Handlers
-
-    /// <summary>
-    /// Handles the language change event by updating the UI elements with translated text
-    /// based on the current language.
-    /// </summary>
-    /// <param name="language">The language code or identifier for the new language.</param>
-    private void HandleLanguageChange(string language)
-    {
-        this.Title = TranslationManager.Translate("auth.title");
-        AddNewAccountTb.Text = TranslationManager.Translate("auth.title");
-        
-        MicrosoftTab.Header = TranslationManager.Translate("auth.tab.microsoft");
-        OfflineTab.Header = TranslationManager.Translate("auth.tab.offline");
-        
-        MicrosoftDescriptionTb.Text = TranslationManager.Translate("auth.microsoft.description");
-        MicrosoftLoginTb.Text = TranslationManager.Translate("auth.microsoft.login");
-        MicrosoftNoteTb.Text = TranslationManager.Translate("auth.microsoft.note");
-        
-        OfflineDescriptionTb.Text = TranslationManager.Translate("auth.offline.description");
-        OfflineLoginTb.Text = TranslationManager.Translate("auth.offline.login");
-        OfflineNoteTb.Text = TranslationManager.Translate("auth.offline.note");
-    }
-
     /// <summary>
     /// Handles the click event for initiating the Microsoft login process.
     /// Opens the Microsoft authentication URL, starts listening for authentication status,

@@ -14,14 +14,15 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models">
+    xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
+    xmlns:translation="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Translation">
 
     <Border Classes="ModalView">
         <StackPanel
             Classes="ModalWrapper"
             Spacing="15">
             <!-- Title -->
-            <TextBlock Classes="InstallTitleText" Text="Downloading Game Files..." />
+            <TextBlock Classes="InstallTitleText" Text="{translation:Translate instance.install.title}" />
             <!-- Step -->
             <TextBlock Classes="InstallStepText" Text="{Binding ProgressText}" />
             <!-- Progress bar -->

@@ -159,9 +159,9 @@ public partial class CreateInstanceWindow : Window
             CustomVersion = vm.SelectedModLoader?.Version ?? string.Empty,
             IconPath = vm.InstanceIconPath ?? string.Empty,
             GameDirectory = System.IO.Path.Combine(settings.Launcher.InstancesDirectoryPath, vm.InstanceName),
-            Config = new InstanceConfig()
+            Config = new InstanceConfig
             {
-                Game = new InstanceGameConfig()
+                Game = new InstanceGameConfig
                 {
                     StartMaximized = settings.Minecraft.StartMaximized,
                     WindowHeight = (uint)(0.45 * App.ScreenSize.Height),
@@ -173,7 +173,7 @@ public partial class CreateInstanceWindow : Window
                     EnableMangoHud = settings.Misc.EnableMangoHud,
                     UseDedicatedGpu = settings.Misc.UseDedicatedGpu 
                 },
-                Java = new JavaConfig()
+                Java = new JavaConfig
                 {
                     JvmArguments = string.IsNullOrEmpty(settings.Java.JvmArguments) ? Instance.GetDefaultJVMArgs() : settings.Java.JvmArguments,
                     JavaPath = "LAUNCH_ME_FIRST",

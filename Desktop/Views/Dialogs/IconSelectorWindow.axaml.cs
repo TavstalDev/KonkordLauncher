@@ -37,18 +37,6 @@ public partial class IconSelectorWindow : Window
 #endif
 
         this.DataContext = new IconSelectorViewModel();
-        App.OnLanguageChanged += HandleLanguageChange;
-        HandleLanguageChange(string.Empty);
-    }
-    
-    /// <summary>
-    /// Handles language changes by updating the text of UI elements.
-    /// </summary>
-    /// <param name="language">The new language code.</param>
-    private void HandleLanguageChange(string language)
-    {
-        OkTb.Text = TranslationManager.Translate("common.ok");
-        CancelTb.Text = TranslationManager.Translate("common.cancel");
     }
     
     /// <summary>

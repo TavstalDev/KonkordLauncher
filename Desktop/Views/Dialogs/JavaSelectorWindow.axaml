@@ -5,7 +5,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
-    Title="Select Java Version"
+    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Translation"
+    Title="{lang:Translate java.title}"
     Width="500"
     Height="410"
     MinWidth="500"
@@ -23,7 +24,7 @@
             <TextBlock
                 Name="SelectJavaTb"
                 Classes="ModalTitle"
-                Text="Select Java Version" />
+                Text="{lang:Translate java.select}" />
             <ScrollViewer Grid.Row="1" Classes="TableScrollViewer" Margin="0, 0, 0, 20">
                 <DataGrid Name="VersionTable" Classes="InstanceTable" ItemsSource="{Binding Versions}"
                           SelectedItem="{Binding SelectedJavaVersion, Mode=TwoWay}">
@@ -32,39 +33,50 @@
                         <DataGridTextColumn
                             Width="Auto"
                             Binding="{Binding Major}"
-                            Header="{Binding TableMajorText}" />
+                            Header="{lang:Translate java.table.major}" />
                         <!-- Version -->
                         <DataGridTextColumn
                             Width="Auto"
                             Binding="{Binding Version}"
-                            Header="{Binding TableVersionText}" />
+                            Header="{lang:Translate java.table.version}" />
                         <!-- Architecture -->
                         <DataGridTextColumn
                             Width="Auto"
                             Binding="{Binding Architecture}"
-                            Header="{Binding TableArchitectureText}" />
+                            Header="{lang:Translate java.table.architecture}" />
                         <!-- Path -->
                         <DataGridTextColumn
                             Width="Auto"
                             Binding="{Binding Path}"
-                            Header="{Binding TablePathText}" />
+                            Header="{lang:Translate java.table.path}" />
                     </DataGrid.Columns>
                 </DataGrid>
             </ScrollViewer>
             <WrapPanel Grid.Row="2" ItemSpacing="5" HorizontalAlignment="Center">
+                <!-- Ok Button -->
                 <Button
                     Classes="IconBtn"
-                    Width="70"
+                    Width="80"
                     Name="OkBtn"
-                    Content="Ok"
                     Click="OkBtn_OnClick"
-                    IsEnabled="{Binding HasSelectedJavaVersion}"/>
+                    IsEnabled="{Binding HasSelectedJavaVersion}">
+                    <WrapPanel  ItemSpacing="2">
+                        <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf00c;" />
+                        <TextBlock Name="OkTb" Text="{lang:Translate common.ok}" VerticalAlignment="Center" />
+                    </WrapPanel>
+                        
+                </Button>
+                <!-- Cancel Button -->
                 <Button
                     Classes="IconBtn"
-                    Width="70"
+                    Width="80"
                     Name="CancelBtn"
-                    Content="Cancel"
-                    Click="CancelBtn_OnClick"/>
+                    Click="CancelBtn_OnClick">
+                    <WrapPanel ItemSpacing="2">
+                        <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf00d;" />
+                        <TextBlock Name="CancelTb" Text="{lang:Translate common.cancel}" VerticalAlignment="Center" />
+                    </WrapPanel>
+                </Button>
             </WrapPanel>
         </Grid>
     </Border>

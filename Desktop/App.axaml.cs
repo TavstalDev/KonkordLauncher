@@ -10,6 +10,7 @@ using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Desktop.Models.Translation;
 
 namespace Tavstal.KonkordLauncher.Desktop;
 

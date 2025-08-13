@@ -69,6 +69,36 @@ public partial class EditInstanceWindow : Window
 
     }
 
+    #region Action Handlers
+    
+    #region Resource Pack Buttons
+    private void DownloadResourcePacks_OnClick(object? sender, RoutedEventArgs e)
+    {
+        
+    }
+
+    /// <summary>
+    /// Handles the click event for viewing the Resource Packs folder.
+    /// Opens the folder containing the resource packs in the file explorer if it exists.
+    /// </summary>
+    /// <param name="sender">The source of the event, typically a button.</param>
+    /// <param name="e">The event data associated with the click event.</param>
+    private void ViewResourcePacksFolder_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (this.DataContext is not EditInstanceViewModel viewModel)
+            return;
+
+        if (viewModel.GameDirectory == null)
+            return;
+        
+        string? resourcePacksDir = Path.Combine(viewModel.GameDirectory, "resourcepacks");
+        if (!Directory.Exists(resourcePacksDir))
+            return;
+
+        FileSystemHelper.OpenFolderInFileExplorer(resourcePacksDir);
+    }
+    #endregion
+    
     /// <summary>
     /// Handles the selection change event for the overridden account ComboBox.
     /// Updates the account ID in the instance configuration based on the selected account.
@@ -83,7 +113,8 @@ public partial class EditInstanceWindow : Window
         if (sender is ComboBox { SelectedItem: Account selectedAccount })
             viewModel.InstanceConfig.Misc.AccountId = selectedAccount.Id;
     }
-
+    #endregion
+    
     #region DataGrid Loading Events
 
     #region Mods
@@ -101,7 +132,7 @@ public partial class EditInstanceWindow : Window
         // Add Enable/Disable MenuItem
         string enableDisableHeader = modItem.IsEnabled ? "Disable" : "Enable";
         var editMenuItem = new MenuItem { Header = enableDisableHeader };
-        editMenuItem.Click += (s, args) =>
+        editMenuItem.Click += (_, _) =>
         {
             if (this.DataContext is not EditInstanceViewModel viewModel)
                 return;
@@ -115,7 +146,7 @@ public partial class EditInstanceWindow : Window
 
         // Add Check For Update MenuItem
         var checkUpdateMenuItem = new MenuItem { Header = "Check for Update" };
-        checkUpdateMenuItem.Click += (s, args) =>
+        checkUpdateMenuItem.Click += (_, _) =>
         {
             if (this.DataContext is not EditInstanceViewModel viewModel)
                 return;
@@ -126,7 +157,7 @@ public partial class EditInstanceWindow : Window
 
         // Add Change Version MenuItem
         var changeVersionMenuItem = new MenuItem { Header = "Change Version" };
-        changeVersionMenuItem.Click += (s, args) =>
+        changeVersionMenuItem.Click += (_, _) =>
         {
             if (this.DataContext is not EditInstanceViewModel viewModel)
                 return;
@@ -140,7 +171,7 @@ public partial class EditInstanceWindow : Window
 
         // Add Remove MenuItem
         var removeMenuItem = new MenuItem { Header = "Remove" };
-        removeMenuItem.Click += (s, args) =>
+        removeMenuItem.Click += (_, _) =>
         {
             if (this.DataContext is not EditInstanceViewModel viewModel)
                 return;
@@ -154,7 +185,7 @@ public partial class EditInstanceWindow : Window
 
         // Add Download Mods MenuItem
         var downloadModsMenuItem = new MenuItem { Header = "Download Mods" };
-        downloadModsMenuItem.Click += (s, args) =>
+        downloadModsMenuItem.Click += (_, _) =>
         {
             if (this.DataContext is not EditInstanceViewModel viewModel)
                 return;
@@ -165,7 +196,7 @@ public partial class EditInstanceWindow : Window
 
         // Add Open Folder MenuItem
         var openFolderMenuItem = new MenuItem { Header = "Open Folder" };
-        openFolderMenuItem.Click += (s, args) =>
+        openFolderMenuItem.Click += (_, _) =>
         {
             if (this.DataContext is not EditInstanceViewModel viewModel)
                 return;
@@ -182,6 +213,31 @@ public partial class EditInstanceWindow : Window
     
     #region Resource Packs
     
+    /// <summary>
+    /// Handles the event when a cell edit operation in the Resource Packs DataGrid is completed.
+    /// Updates the resource pack data and triggers saving the updated list of resource packs.
+    /// </summary>
+    /// <param name="sender">The source of the event, typically the DataGrid.</param>
+    /// <param name="e">The event data containing information about the edited cell.</param>
+    private void ResourcePacksDataGrid_OnCellEditEnded(object? sender, DataGridCellEditEndedEventArgs e)
+    {
+        if (this.DataContext is not EditInstanceViewModel viewModel)
+            return;
+    
+        var row = e.Row;
+        if (row.DataContext is not ResourcePackModel)
+            return;
+    
+        _logger.Debug("ResourcePack row updated. Saving...");
+        viewModel.SaveResourcePacks();
+    }
+    
+    /// <summary>
+    /// Handles the loading event for the Resource Packs DataGrid rows.
+    /// Configures a context menu for each row with options to enable/disable, remove, download, or open the folder of the resource pack.
+    /// </summary>
+    /// <param name="sender">The source of the event, typically the DataGrid.</param>
+    /// <param name="e">The event data containing information about the row being loaded.</param>
     private void ResourcePacksDataGrid_OnLoading(object? sender, DataGridRowEventArgs e)
     {
         // Get the DataGridRow
@@ -193,14 +249,18 @@ public partial class EditInstanceWindow : Window
         var contextMenu = new ContextMenu();
 
         // Add Enable/Disable MenuItem
-        string enableDisableHeader = resourcePackItem.IsEnabled ? "Disable" : "Enable";
+        string enableDisableHeader = resourcePackItem.IsEnabled ? TranslationManager.Translate("common.disable") : TranslationManager.Translate("common.enable");
         var editMenuItem = new MenuItem { Header = enableDisableHeader };
-        editMenuItem.Click += (s, args) =>
+        editMenuItem.Click += (_, _) =>
         {
             if (this.DataContext is not EditInstanceViewModel viewModel)
                 return;
 
-            // TODO: Handle click event
+            resourcePackItem.IsEnabled = !resourcePackItem.IsEnabled;
+            editMenuItem.Header = resourcePackItem.IsEnabled
+                ? TranslationManager.Translate("common.disable")
+                : TranslationManager.Translate("common.enable");
+            viewModel.SaveResourcePacks();
         };
         contextMenu.Items.Add(editMenuItem);
 
@@ -209,12 +269,16 @@ public partial class EditInstanceWindow : Window
 
         // Add Remove MenuItem
         var removeMenuItem = new MenuItem { Header = "Remove" };
-        removeMenuItem.Click += (s, args) =>
+        removeMenuItem.Click += (_, _) =>
         {
             if (this.DataContext is not EditInstanceViewModel viewModel)
                 return;
 
-            // TODO: Handle click event
+            if (!File.Exists(resourcePackItem.Path))
+                return;
+            
+            File.Delete(resourcePackItem.Path);
+            viewModel.RefreshResourcePacks();
         };
         contextMenu.Items.Add(removeMenuItem);
 
@@ -223,7 +287,7 @@ public partial class EditInstanceWindow : Window
 
         // Add Download Packs MenuItem
         var downloadModsMenuItem = new MenuItem { Header = "Download Packs" };
-        downloadModsMenuItem.Click += (s, args) =>
+        downloadModsMenuItem.Click += (_, _) =>
         {
             if (this.DataContext is not EditInstanceViewModel viewModel)
                 return;
@@ -234,12 +298,16 @@ public partial class EditInstanceWindow : Window
 
         // Add Open Folder MenuItem
         var openFolderMenuItem = new MenuItem { Header = "Open Folder" };
-        openFolderMenuItem.Click += (s, args) =>
+        openFolderMenuItem.Click += (_, _) =>
         {
-            if (this.DataContext is not EditInstanceViewModel viewModel)
+            if (!File.Exists(resourcePackItem.Path))
                 return;
-
-            // TODO: Handle click event
+            
+            string? resourcePackDir = Path.GetDirectoryName(resourcePackItem.Path);
+            if (string.IsNullOrEmpty(resourcePackDir) || !Directory.Exists(resourcePackDir))
+                return;
+            
+            FileSystemHelper.OpenFolderInFileExplorer(resourcePackDir);
         };
         contextMenu.Items.Add(openFolderMenuItem);
 
@@ -264,7 +332,7 @@ public partial class EditInstanceWindow : Window
         // Add Enable/Disable MenuItem
         string enableDisableHeader = shaderPackItem.IsEnabled ? "Disable" : "Enable";
         var editMenuItem = new MenuItem { Header = enableDisableHeader };
-        editMenuItem.Click += (s, args) =>
+        editMenuItem.Click += (_, _) =>
         {
             if (this.DataContext is not EditInstanceViewModel viewModel)
                 return;
@@ -278,7 +346,7 @@ public partial class EditInstanceWindow : Window
 
         // Add Remove MenuItem
         var removeMenuItem = new MenuItem { Header = "Remove" };
-        removeMenuItem.Click += (s, args) =>
+        removeMenuItem.Click += (_, _) =>
         {
             if (this.DataContext is not EditInstanceViewModel viewModel)
                 return;
@@ -292,7 +360,7 @@ public partial class EditInstanceWindow : Window
 
         // Add Download Packs MenuItem
         var downloadModsMenuItem = new MenuItem { Header = "Download Shaders" };
-        downloadModsMenuItem.Click += (s, args) =>
+        downloadModsMenuItem.Click += (_, _) =>
         {
             if (this.DataContext is not EditInstanceViewModel viewModel)
                 return;
@@ -303,7 +371,7 @@ public partial class EditInstanceWindow : Window
 
         // Add Open Folder MenuItem
         var openFolderMenuItem = new MenuItem { Header = "Open Folder" };
-        openFolderMenuItem.Click += (s, args) =>
+        openFolderMenuItem.Click += (_, _) =>
         {
             if (this.DataContext is not EditInstanceViewModel viewModel)
                 return;
@@ -320,6 +388,50 @@ public partial class EditInstanceWindow : Window
     
     #region Worlds
     
+    /// <summary>
+    /// Handles the event when a cell edit operation in the World DataGrid is completed.
+    /// Updates the world data and triggers saving the updated list of worlds.
+    /// </summary>
+    /// <param name="sender">The source of the event, typically the DataGrid.</param>
+    /// <param name="e">The event data containing information about the edited cell.</param>
+    private void WorldDataGrid_OnCellEditEnded(object? sender, DataGridCellEditEndedEventArgs e)
+    {
+        if (this.DataContext is not EditInstanceViewModel viewModel)
+            return;
+        
+        var row = e.Row;
+        if (row.DataContext is not WorldModel)
+            return;
+        
+        _logger.Debug("World row updated. Saving...");
+        viewModel.SaveWorlds();
+    }
+    
+    /// <summary>
+    /// Handles the click event for selecting the Java path.
+    /// Opens a folder picker dialog and updates the Java path in the InstanceConfig if a folder is selected.
+    /// </summary>
+    /// <param name="sender">The source of the event.</param>
+    /// <param name="e">The event data associated with the click event.</param>
+    private void WorldDataGrid_OnRowEditEnded(object? sender, DataGridRowEditEndedEventArgs e)
+    {
+        if (this.DataContext is not EditInstanceViewModel viewModel)
+            return;
+        
+        var row = e.Row;
+        if (row.DataContext is not WorldModel)
+            return;
+        
+        _logger.Debug("World row updated. Saving...");
+        viewModel.SaveWorlds();
+    }
+    
+    /// <summary>
+    /// Handles the click event for opening the Java path selector.
+    /// Displays a dialog to select a Java version and updates the Java path in the InstanceConfig if a version is selected.
+    /// </summary>
+    /// <param name="sender">The source of the event.</param>
+    /// <param name="e">The event data associated with the click event.</param>
     private void WorldDataGrid_OnLoading(object? sender, DataGridRowEventArgs e)
     {
         // Get the DataGridRow
@@ -332,34 +444,33 @@ public partial class EditInstanceWindow : Window
 
         // Add Duplicate MenuItem
         var duplicateItem = new MenuItem { Header = "Duplicate" };
-        duplicateItem.Click += (s, args) =>
+        duplicateItem.Click += (_, _) =>
         {
             if (this.DataContext is not EditInstanceViewModel viewModel)
                 return;
-
-            // TODO: Handle click event
+            
+            viewModel.DuplicateWorld(worldItem);
+            viewModel.RefreshWorlds();
         };
         contextMenu.Items.Add(duplicateItem);
 
         // Add Rename MenuItem
         var renameMenuItem = new MenuItem { Header = "Rename" };
-        renameMenuItem.Click += (s, args) =>
+        renameMenuItem.Click += (_, _) =>
         {
-            if (this.DataContext is not EditInstanceViewModel viewModel)
-                return;
-
-            // TODO: Handle click event
+            WorldsTable.BeginEdit();
         };
         contextMenu.Items.Add(renameMenuItem);
 
         // Add Delete MenuItem
         var deleteMenuItem = new MenuItem { Header = "Delete" };
-        deleteMenuItem.Click += (s, args) =>
+        deleteMenuItem.Click += (_, _) =>
         {
             if (this.DataContext is not EditInstanceViewModel viewModel)
                 return;
 
-            // TODO: Handle click event
+            FileSystemHelper.DeleteDirectory(worldItem.Path);
+            viewModel.RefreshWorlds();
         };
         contextMenu.Items.Add(deleteMenuItem);
 
@@ -368,23 +479,24 @@ public partial class EditInstanceWindow : Window
 
         // Add Copy Seed MenuItem
         var copySeedMenuItem = new MenuItem { Header = "Copy Seed" };
-        copySeedMenuItem.Click += (s, args) =>
+        copySeedMenuItem.Click += (_, _) =>
         {
-            if (this.DataContext is not EditInstanceViewModel viewModel)
+            var topLevel = GetTopLevel(this);
+            if (topLevel?.Clipboard == null)
                 return;
 
-            // TODO: Handle click event
+            topLevel.Clipboard.SetTextAsync(worldItem.Seed.ToString());
         };
         contextMenu.Items.Add(copySeedMenuItem);
 
         // Add Open Folder MenuItem
         var openFolderMenuItem = new MenuItem { Header = "Open Folder" };
-        openFolderMenuItem.Click += (s, args) =>
+        openFolderMenuItem.Click += (_, _) =>
         {
-            if (this.DataContext is not EditInstanceViewModel viewModel)
+            if (!Directory.Exists(worldItem.Path))
                 return;
 
-            // TODO: Handle click event
+            FileSystemHelper.OpenFolderInFileExplorer(worldItem.Path);
         };
         contextMenu.Items.Add(openFolderMenuItem);
 
@@ -451,11 +563,8 @@ public partial class EditInstanceWindow : Window
 
         // Add Join MenuItem
         var joinMenuItem = new MenuItem { Header = "Join" };
-        joinMenuItem.Click += async (s, args) =>
+        joinMenuItem.Click += async (_, _) =>
         {
-            if (this.DataContext is not EditInstanceViewModel viewModel)
-                return;
-            
             if (this is Window { Owner: MainWindow parentWindow })
                 await _instance.LaunchAsync(parentWindow, serverItem.Ip);
             this.Close();
@@ -464,7 +573,7 @@ public partial class EditInstanceWindow : Window
 
         // Add Remove MenuItem
         var removeItem = new MenuItem { Header = "Remove" };
-        removeItem.Click += (s, args) =>
+        removeItem.Click += (_, _) =>
         {
             if (this.DataContext is not EditInstanceViewModel viewModel)
                 return;
@@ -543,19 +652,16 @@ public partial class EditInstanceWindow : Window
     {
         // Get the DataGridRow
         var row = e.Row;
-        if (row.DataContext is not ScreenshotModel)
+        if (row.DataContext is not ScreenshotModel screenshotItem)
             return;
 
         var contextMenu = new ContextMenu();
 
         // Add Copy MenuItem
         var copyMenuItem = new MenuItem { Header = "Copy" };
-        copyMenuItem.Click += (s, args) =>
+        copyMenuItem.Click += (_, _) =>
         {
-            if (this.DataContext is not EditInstanceViewModel viewModel)
-                return;
-
-            if (viewModel.SelectedScreenshot?.Image == null)
+            if (screenshotItem?.Image == null)
                 return;
 
             var topLevel = GetTopLevel(this);
@@ -563,7 +669,7 @@ public partial class EditInstanceWindow : Window
                 return;
 
             using var ms = new MemoryStream();
-            viewModel.SelectedScreenshot.Image.Save(ms);
+            screenshotItem.Image.Save(ms);
             var dataObject = new DataObject();
             dataObject.Set("image/png", ms.ToArray());
 
@@ -573,25 +679,22 @@ public partial class EditInstanceWindow : Window
 
         // Add Delete MenuItem
         var deleteItem = new MenuItem { Header = "Delete" };
-        deleteItem.Click += (s, args) =>
+        deleteItem.Click += (_, _) =>
         {
             if (this.DataContext is not EditInstanceViewModel viewModel)
                 return;
 
-            if (viewModel.SelectedScreenshot == null)
+            if (!File.Exists(screenshotItem.Path))
                 return;
 
-            if (!File.Exists(viewModel.SelectedScreenshot.Path))
-                return;
-
-            File.Delete(viewModel.SelectedScreenshot.Path);
+            File.Delete(screenshotItem.Path);
             viewModel.RefreshScreenshots();
         };
         contextMenu.Items.Add(deleteItem);
 
         // Add Rename MenuItem
         var renameItem = new MenuItem { Header = "Rename" };
-        renameItem.Click += async (s, args) =>
+        renameItem.Click += (_, _) =>
         {
             if (this.DataContext is not EditInstanceViewModel viewModel)
                 return;
@@ -605,7 +708,7 @@ public partial class EditInstanceWindow : Window
 
         // Add Open Folder MenuItem
         var openFolderItem = new MenuItem { Header = "Open Folder" };
-        openFolderItem.Click += (s, args) =>
+        openFolderItem.Click += (_, _) =>
         {
             if (this.DataContext is not EditInstanceViewModel viewModel)
                 return;

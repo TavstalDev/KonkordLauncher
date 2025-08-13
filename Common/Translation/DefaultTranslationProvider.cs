@@ -70,6 +70,7 @@ public static class DefaultTranslationProvider
         #region Common
 
         {"common.select.directory", "Select a directory..."},
+        {"common.select.file", "Select a file..."},
         {"common.ok", "OK"},
         {"common.cancel", "Cancel"},
         {"common.close", "Close"},
@@ -89,9 +90,8 @@ public static class DefaultTranslationProvider
         {"common.time.pass.month", "{0} months ago"},
         {"common.time.pass.year", "{0} years ago"},
         
-        
         {"common.selector.directory", "Select a Directory"},
-        {"common.select.file", "Select a File"},
+        {"common.selector.file", "Select a File"},
         
         {"common.dialog.rename", "Rename Dialog"},
         
@@ -107,6 +107,8 @@ public static class DefaultTranslationProvider
         
         {"instance.java.notfound.title", "No Java {0} Version Found"},
         {"instance.java.notfound.message", "The instance needs Java {0}. Please install it manually."},
+        
+        {"instance.install.title", "Downloading Game Files..."},
         
         {"instance.reading.version_json", "Reading version json..."},
         {"instance.downloading.version_json", "Downloading version json {1}%..."},
@@ -133,6 +135,33 @@ public static class DefaultTranslationProvider
         {"instance.reading.universal", "Reading {0} universal..."},
         {"instance.downloading.universal", "Downloading {0} universal {1}%..."},
 
+        #region Create
+
+        {"instance.create.title", "Create Instance"},
+        
+        {"instance.create.tab.custom", "Custom"},
+        {"instance.create.tab.modpacks", "Modpacks"},
+        {"instance.create.tab.import", "Import"},
+        
+        #endregion
+
+        #region Edit
+
+        {"instance.edit.title", "Edit Instance"},
+        {"instance.edit.name", "Instance Name"},
+        {"instance.edit.icon", "Instance Icon"},
+        {"instance.edit.minecraftVersion", "Minecraft Version"},
+        {"instance.edit.modLoader", "Mod Loader"},
+        {"instance.edit.customVersion", "Custom Version"},
+        {"instance.edit.gameDirectory", "Game Directory"},
+        {"instance.edit.account", "Account"},
+        {"instance.edit.javaVersion", "Java Version"},
+        {"instance.edit.javaPath", "Java Path"},
+        {"instance.edit.jvmArgs", "JVM Arguments"},
+        {"instance.edit.customCommands", "Custom Commands"},
+        
+        #endregion
+        
         #endregion
         
         #region Settings
@@ -189,6 +218,28 @@ public static class DefaultTranslationProvider
         
         #endregion
 
+        #region About
+
+        {"about.tab.about", "About"},
+        {"about.tab.license", "License"},
+        {"about.tab.credits", "Credits"},
+        
+        {"about.description", "Konkord Launcher is an open-source, lightweight, and highly customizable Minecraft launcher designed for power users and modding enthusiasts. It provides advanced control over game instances, resource management, and versioning."},
+        {"about.version", "Version:"},
+        {"about.buildDate", "Build date:"},
+        {"about.branch", "Branch:" },
+        
+        {"about.license.title", "License"},
+        
+        {"about.credits.projectMaintainers", "Project Maintainers"},
+        {"about.credits.contributors", "Contributors"},
+        {"about.credits.translators", "Translators"},
+        {"about.credits.testers", "Testers"},
+        {"about.credits.specialThanks", "Special Thanks"},
+        {"about.credits.thirdParty", "Third Party"},
+
+        #endregion
+        
         #region Auth
 
         {"auth.title", "Add New Account"},
@@ -228,7 +279,8 @@ public static class DefaultTranslationProvider
         {"java.table.path", "Path"},
 
         #endregion
-        {"", ""},
+        
+        {"iconSelector.title", "Select a Icon"}
     };
 
     /// <summary>

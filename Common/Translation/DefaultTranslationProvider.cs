@@ -80,6 +80,8 @@ public static class DefaultTranslationProvider
         {"common.remove", "Remove"},
         {"common.select", "Select"},
         {"common.search", "Search..."},
+        {"common.enable", "Enable"},
+        {"common.disable", "Disable"},
         
         {"common.time.pass.minute", "{0} minutes ago"},
         {"common.time.pass.hour", "{0} hours ago"},

@@ -1,5 +1,7 @@
+using System;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Helpers;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Instance;
@@ -10,10 +12,12 @@ namespace Tavstal.KonkordLauncher.Desktop.Models.Instance;
 /// </summary>
 public partial class ResourcePackModel : ObservableObject
 {
+    public Guid Id { get; } = Guid.NewGuid();
+    
     /// <summary>
     /// Indicates whether the resource pack is enabled.
     /// </summary>
-    [ObservableProperty] private bool _isEnabled;
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(EnableDisableText))] private bool _isEnabled;
 
     /// <summary>
     /// The name of the resource pack.
@@ -47,6 +51,14 @@ public partial class ResourcePackModel : ObservableObject
     /// Gets the formatted size of the resource pack as a human-readable string.
     /// </summary>
     public string FormattedSize => FileSystemHelper.GetFormatedSize(Size);
+    
+    /// <summary>
+    /// Gets the text to display for enabling or disabling the resource pack.
+    /// Returns a translated string based on the current enabled state of the resource pack.
+    /// </summary>
+    public string EnableDisableText => IsEnabled 
+        ? TranslationManager.Translate("common.disable") 
+        : TranslationManager.Translate("common.enable");
 
     public ResourcePackModel(bool isEnabled, string name, string path, Bitmap? icon, string? provider, long size)
     {

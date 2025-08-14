@@ -246,7 +246,7 @@ public static class TranslationManager
     {
         if (!_fallbackTranslations.ContainsKey(key))
         {
-            _logger.Error("Fallback translation key '{key}' not found.");
+            _logger.Error($"Fallback translation key '{key}' not found.");
             return string.Empty;
         }
 

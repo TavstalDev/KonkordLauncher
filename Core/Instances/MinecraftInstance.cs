@@ -109,21 +109,37 @@ public class MinecraftInstance
             {
                var preLaunchProc = JavaProcessLauncher.StartCommand(GameDetails.PreLaunchCommand);
                if (preLaunchProc != null)
-               {
                    await preLaunchProc.WaitForExitAsync();
-               }
             }
+            
+            // Below 1.7 there is no dedicated logs directory
+            // so this fixes this issue
+            // TODO: Remove sensitive data from logs
+            Version minecraftVersion = new Version(GameDetails.MinecraftVersion);
+            Version seven = new Version(1, 7);
+            string? logsFilePath = null;
+            if (minecraftVersion < seven)
+            {
+                string logsDir = Path.Combine(versionDetails.GameDir, "logs");
+                if (!Directory.Exists(logsDir))
+                    Directory.CreateDirectory(logsDir);
+                string latestLogFile = Path.Combine(logsDir, "latest.log");
+                if (File.Exists(latestLogFile))
+                {
+                    DateTime lastEditDate = System.IO.File.GetLastWriteTime(latestLogFile);
+                    File.Move(latestLogFile, Path.Combine(logsDir, $"{lastEditDate:yyyy-MM-dd_HH-mm-ss}.log"), true);
+                }
+                logsFilePath = latestLogFile;
+            }
+            
             // Launch the Minecraft game process with the constructed arguments
-            var process = JavaProcessLauncher.StartJava(GameDetails.JavaPath, arguments, GameDetails.WrapperCommand,
+            var process = JavaProcessLauncher.StartJava(GameDetails.JavaPath, arguments, logsFilePath, GameDetails.WrapperCommand,
                 GameDetails.EnvironmentVariables);
             
             // Execute post-exit command if specified
             if (!string.IsNullOrEmpty(GameDetails.PostExitCommand) && process != null)
             {
-                process.Exited += (sender, args) =>
-                {
-                    JavaProcessLauncher.StartCommand(GameDetails.PostExitCommand);
-                };
+                process.Exited += (sender, args) => JavaProcessLauncher.StartCommand(GameDetails.PostExitCommand);
             }
             return process;
         }
@@ -375,6 +391,7 @@ public class MinecraftInstance
             { "${assets_index_name}", MinecraftVersionMeta.Index.Id },
             { "${auth_uuid}", _client.UUID },
             { "${auth_access_token}", string.IsNullOrEmpty(_client.AccessToken) ? "none" : _client.AccessToken },
+            { "${auth_session}", string.IsNullOrEmpty(_client.AccessToken) ? "none" : _client.AccessToken},
             { "${clientid}", _client.ClientId },
             { "${auth_xuid}", _client.Xuid },
             { "${user_type}", "msa" },

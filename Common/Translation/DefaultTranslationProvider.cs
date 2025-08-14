@@ -8,6 +8,7 @@ public static class DefaultTranslationProvider
     /// <summary>
     /// A dictionary containing default translation key-value pairs.
     /// </summary>
+    // TODO: Before release, merge duplicate translations, remove unused keys and reoganize the structure.
     private static readonly Dictionary<string, string> _translations = new()
     {
         #region Startup
@@ -83,6 +84,10 @@ public static class DefaultTranslationProvider
         {"common.search", "Search..."},
         {"common.enable", "Enable"},
         {"common.disable", "Disable"},
+        {"common.toggle", "Toggle"},
+        {"common.duplicate", "Duplicate"},
+        {"common.rename", "Rename"},
+        {"common.copy", "Copy"},
         {"common.none", "None"},
         {"common.categories", "Categories"},
         
@@ -94,6 +99,8 @@ public static class DefaultTranslationProvider
         
         {"common.selector.directory", "Select a Directory"},
         {"common.selector.file", "Select a File"},
+        
+        {"common.open.directory", "Open Directory"},
         
         {"common.dialog.rename", "Rename Dialog"},
         
@@ -186,18 +193,12 @@ public static class DefaultTranslationProvider
 
         #region Edit
 
-        {"instance.edit.title", "Edit Instance"},
-        {"instance.edit.name", "Instance Name"},
-        {"instance.edit.icon", "Instance Icon"},
-        {"instance.edit.minecraftVersion", "Minecraft Version"},
-        {"instance.edit.modLoader", "Mod Loader"},
-        {"instance.edit.customVersion", "Custom Version"},
-        {"instance.edit.gameDirectory", "Game Directory"},
-        {"instance.edit.account", "Account"},
-        {"instance.edit.javaVersion", "Java Version"},
-        {"instance.edit.javaPath", "Java Path"},
-        {"instance.edit.jvmArgs", "JVM Arguments"},
-        {"instance.edit.customCommands", "Custom Commands"},
+        {"instance.edit.window", "Edit Instance"},
+        {"instance.edit.title", "Editing Instance:"},
+        
+        {"instance.edit.downloadPacks", "Download Packs"},
+        {"instance.edit.copySeed", "Copy Seed"},
+        {"instance.edit.joinServer", "Join"},
         
         #endregion
         

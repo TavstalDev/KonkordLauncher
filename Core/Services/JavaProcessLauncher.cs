@@ -14,12 +14,14 @@ public static class JavaProcessLauncher
     private static readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(JavaProcessLauncher));
     
     /// <summary>
-    /// Starts a Java process with the specified arguments and optional wrapper command and environment variables.
+    /// Starts a Java process with the specified parameters and logs its output.
     /// </summary>
-    /// <param name="javaPath">The path to the Java executable. If null or empty, "java" will be used as the default.</param>
+    /// <param name="javaPath">The path to the Java executable. If null or empty, "java" is used by default.</param>
     /// <param name="arguments">The arguments to pass to the Java process.</param>
+    /// <param name="logFilePath">The path to the log file where the process output will be redirected.</param>
     /// <param name="wrapperCommand">
-    /// An optional wrapper command to execute the Java process. If it contains "%command%", it will be replaced with the Java path.
+    /// An optional wrapper command to execute the Java process. If it contains "%command%", 
+    /// it will be replaced with the Java executable path and arguments.
     /// </param>
     /// <param name="environmentVariables">
     /// An optional dictionary of environment variables to set for the process.
@@ -27,7 +29,7 @@ public static class JavaProcessLauncher
     /// <returns>
     /// A <see cref="Process"/> object representing the started Java process, or null if the process could not be started.
     /// </returns>
-    public static Process? StartJava(string javaPath, string arguments, string? wrapperCommand = null, Dictionary<string, string>? environmentVariables = null)
+    public static Process? StartJava(string javaPath, string arguments, string? logFilePath = null, string? wrapperCommand = null, Dictionary<string, string>? environmentVariables = null)
     {
         string finalJavaPath = string.IsNullOrEmpty(javaPath) ? "java" : javaPath;
     
@@ -41,10 +43,7 @@ public static class JavaProcessLauncher
                 fullCommand = wrapperCommand + (wrapperCommand.EndsWith(" ") ? "" : " ") + finalJavaPath + " " + arguments;
         }
         else
-        {
             fullCommand = finalJavaPath + " " + arguments;
-        }
-
         
         // Configure the process start information
         var psi = new ProcessStartInfo()
@@ -63,26 +62,38 @@ public static class JavaProcessLauncher
             foreach (var kvp in environmentVariables)
                 psi.EnvironmentVariables[kvp.Key] = kvp.Value;
         }
-
+        
+        if (!string.IsNullOrEmpty(logFilePath) && File.Exists(logFilePath))
+            File.Delete(logFilePath);
+        
         switch (OSHelper.GetOperatingSystem())
         {
             case EOperatingSystem.Windows:
             {
                 psi.FileName = "cmd.exe";
-                psi.Arguments = $"/C \"{fullCommand}\"";
+                if (string.IsNullOrEmpty(logFilePath))
+                    psi.Arguments = $@"/C ""{fullCommand}""";
+                else
+                    psi.Arguments = $@"/C ""{fullCommand} >> ""{logFilePath}"" 2>&1""";
                 break;
             }
             case EOperatingSystem.MacOS:
             {
                 psi.FileName = "/bin/zsh";
-                psi.Arguments = $"-c \"{fullCommand}\"";
+                if (string.IsNullOrEmpty(logFilePath))
+                    psi.Arguments = $@"-c ""{fullCommand}""";
+                else
+                    psi.Arguments = $@"-c ""{fullCommand} >> ""{logFilePath}"" 2>&1""";
                 break;
             }
             case EOperatingSystem.Unknown:
             case EOperatingSystem.Linux:
             {
                 psi.FileName = "/bin/sh";
-                psi.Arguments = $"-c \"{fullCommand}\"";
+                if (string.IsNullOrEmpty(logFilePath))
+                    psi.Arguments = $@"-c ""{fullCommand}""";
+                else
+                    psi.Arguments = $@"-c ""{fullCommand} >> ""{logFilePath}"" 2>&1""";
                 break;
             }
         }

@@ -212,6 +212,14 @@ public static class DefaultTranslationProvider
         {"instance.edit.tab.screenshots", "Screenshots"},
         {"instance.edit.tab.settings", "Settings"},
         
+        {"instance.edit.subTitle.window", "Window"},
+        {"instance.edit.subTitle.console", "Console"},
+        {"instance.edit.subTitle.performance", "Performance"},
+        
+        {"instance.edit.settings.console.showStart", "Show console while minecraft is running"},
+        {"instance.edit.settings.console.closeExit", "Close console when minecraft quits"},
+        {"instance.edit.settings.console.showCrash", "Show console when minecraft crashes"},
+        
         #endregion
         
         #endregion
@@ -221,6 +229,9 @@ public static class DefaultTranslationProvider
         {"settings.tab.java", "Java"},
         {"settings.tab.minecraft", "Minecraft"},
         {"settings.tab.launcher", "Launcher"},
+        {"settings.tab.game", "Game"},
+        {"settings.tab.customCommands", "Custom Commands"},
+        {"settings.tab.environment", "Environment"},
         {"settings.tab.misc", "Misc"},
         
         {"settings.launcher.autoUpdate", "Enable automatic updates"},
@@ -267,6 +278,16 @@ public static class DefaultTranslationProvider
         {"settings.misc.enableMangoHud", "Enable MangoHUD"},
         {"settings.misc.enableGameMode", "Enable Feral GameMode"},
         {"settings.misc.useDedicatedGpu", "Use dedicated GPU"},
+        
+        {"settings.environment.enable", "Enable Environment Variables"},
+        {"settings.environment.name", "Name"},
+        {"settings.environment.value", "Value"},
+        
+        {"settings.misc.subtitle.preferences", "Preferences"},
+        {"settings.misc.overrideAccount", "Override default account"},
+        {"settings.misc.account", "Account"},
+        {"settings.misc.serverQuickPlay", "Set server address to join on launch"},
+        {"settings.misc.serverAddress", "Server address"},
         
         #endregion
 

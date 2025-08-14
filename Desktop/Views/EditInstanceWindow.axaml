@@ -24,7 +24,7 @@
     <Border Classes="InstanceView">
         <Grid RowDefinitions="Auto,*">
             <!--  Title  -->
-            <WrapPanel>
+            <WrapPanel ItemSpacing="10">
                 <TextBlock
                     HorizontalAlignment="Left"
                     Classes="InstanceTitle"
@@ -41,7 +41,7 @@
                     SelectedIndex="0"
                     TabStripPlacement="Left">
                     <!--  Logs  -->
-                    <TabItem Classes="ModalVerticalTabItem" Header="Logs">
+                    <TabItem Classes="ModalVerticalTabItem" Header="{lang:Translate instance.edit.tab.logs}">
                         <Border Classes="ModalScrollableWrapper">
                             <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, *, Auto">
                                 <!--  Title  -->
@@ -62,39 +62,44 @@
                                 <!--  Actions  -->
                                 <Grid
                                     Grid.Row="2"
-                                    ColumnDefinitions="*, Auto, Auto, Auto, Auto"
+                                    ColumnDefinitions="*, Auto, Auto, Auto"
                                     ColumnSpacing="5">
                                     <!--  Search bar  -->
                                     <TextBox
                                         Grid.Column="0"
                                         Classes="TextInput"
-                                        Watermark="Search..." />
-                                    <!--  Search button  -->
-                                    <Button Grid.Column="1" Classes="IconBtn">
-                                        <TextBlock Text="Search" />
-                                    </Button>
+                                        Watermark="{lang:Translate common.search}" />
                                     <!--  To bottom button  -->
-                                    <Button Grid.Column="2" Classes="IconBtn">
-                                        <TextBlock Text="Bottom" />
+                                    <Button Grid.Column="1" Classes="IconBtn">
+                                        <WrapPanel Classes="IconBtnWrapper">
+                                            <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xe4b8;" />
+                                            <TextBlock Text="{lang:Translate common.bottom}" VerticalAlignment="Center" />
+                                        </WrapPanel>
                                     </Button>
                                     <!--  Copy button  -->
-                                    <Button Grid.Column="3" Classes="IconBtn">
-                                        <TextBlock Text="Copy" />
+                                    <Button Grid.Column="2" Classes="IconBtn">
+                                        <WrapPanel Classes="IconBtnWrapper">
+                                            <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf0c5;" />
+                                            <TextBlock Text="{lang:Translate common.copy}" VerticalAlignment="Center" />
+                                        </WrapPanel>
                                     </Button>
                                     <!--  Clear button  -->
-                                    <Button Grid.Column="4" Classes="IconBtn ErrorBtn">
-                                        <TextBlock Text="Clear" />
+                                    <Button Grid.Column="3" Classes="IconBtn ErrorBtn">
+                                        <WrapPanel Classes="IconBtnWrapper">
+                                            <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf1b8;" />
+                                            <TextBlock Text="{lang:Translate common.clear}" VerticalAlignment="Center" />
+                                        </WrapPanel>
                                     </Button>
                                 </Grid>
                             </Grid>
                         </Border>
                     </TabItem>
                     <!--  Mods  -->
-                    <TabItem Classes="ModalVerticalTabItem" Header="Mods" IsVisible="{Binding !IsVanilla}">
+                    <TabItem Classes="ModalVerticalTabItem" Header="{lang:Translate instance.edit.tab.mods}" IsVisible="{Binding !IsVanilla}">
                         <Border Classes="ModalScrollableWrapper">
                             <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, *, Auto">
                                 <!--  Title  -->
-                                <TextBlock Classes="ModalGridTitle" Text="Mods" />
+                                <TextBlock Classes="ModalGridTitle" Text="{lang:Translate instance.edit.tab.mods}" />
                                 <!--  Content  -->
                                 <Border Grid.Row="1">
                                     <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
@@ -154,35 +159,38 @@
                                 <!--  Actions  -->
                                 <Grid
                                     Grid.Row="2"
-                                    ColumnDefinitions="*, Auto, Auto, Auto"
+                                    ColumnDefinitions="*, Auto, Auto"
                                     ColumnSpacing="5">
                                     <!--  Search bar  -->
                                     <TextBox
                                         Grid.Column="0"
                                         Classes="TextInput"
-                                        Watermark="Search..." />
-                                    <!--  Search button  -->
-                                    <Button Grid.Column="1" Classes="IconBtn">
-                                        <TextBlock Text="Search" />
-                                    </Button>
+                                        Watermark="{lang:Translate common.search}" />
                                     <!--  Download  -->
-                                    <Button Grid.Column="2" Classes="IconBtn">
-                                        <TextBlock Text="Download Mods" />
+                                    <!-- TODO -->
+                                    <Button Grid.Column="1" Classes="IconBtn" IsEnabled="False">
+                                        <WrapPanel Classes="IconBtnWrapper">
+                                            <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf0ed;" />
+                                            <TextBlock Text="{lang:Translate instance.edit.downloadMods}" VerticalAlignment="Center" />
+                                        </WrapPanel>
                                     </Button>
                                     <!--  View Folder  -->
-                                    <Button Grid.Column="3" Classes="IconBtn">
-                                        <TextBlock Text="View Folder" />
+                                    <Button Grid.Column="2" Classes="IconBtn">
+                                        <WrapPanel Classes="IconBtnWrapper">
+                                            <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf07c;" />
+                                            <TextBlock Text="{lang:Translate common.open.directory}" VerticalAlignment="Center" />
+                                        </WrapPanel>
                                     </Button>
                                 </Grid>
                             </Grid>
                         </Border>
                     </TabItem>
                     <!--  Resource packs  -->
-                    <TabItem Classes="ModalVerticalTabItem" Header="Resource packs">
+                    <TabItem Classes="ModalVerticalTabItem" Header="{lang:Translate instance.edit.tab.resourcePacks}">
                         <Border Classes="ModalScrollableWrapper">
                             <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, *, Auto">
                                 <!--  Title  -->
-                                <TextBlock Classes="ModalGridTitle" Text="Resource Packs" />
+                                <TextBlock Classes="ModalGridTitle" Text="{lang:Translate instance.edit.tab.resourcePacks}" />
                                 <!--  Content  -->
                                 <Border Grid.Row="1">
                                     <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
@@ -264,27 +272,33 @@
                                     <TextBox
                                         Grid.Column="0"
                                         Classes="TextInput"
-                                        Watermark="Search..."
+                                        Watermark="{lang:Translate common.search}"
                                         Text="{Binding ResourcePackSearchQuery}"/>
                                     <!--  Download  -->
                                     <!-- TODO -->
                                     <Button Grid.Column="1" Classes="IconBtn" IsEnabled="False" Click="DownloadResourcePacks_OnClick">
-                                        <TextBlock Text="Download Packs" />
+                                        <WrapPanel Classes="IconBtnWrapper">
+                                            <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf0ed;" />
+                                            <TextBlock Text="{lang:Translate instance.edit.downloadPacks}" VerticalAlignment="Center" />
+                                        </WrapPanel>
                                     </Button>
                                     <!--  View Folder  -->
                                     <Button Grid.Column="2" Classes="IconBtn" Click="ViewResourcePacksFolder_OnClick">
-                                        <TextBlock Text="View Folder" />
+                                        <WrapPanel Classes="IconBtnWrapper">
+                                            <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf07c;" />
+                                            <TextBlock Text="{lang:Translate common.open.directory}" VerticalAlignment="Center" />
+                                        </WrapPanel>
                                     </Button>
                                 </Grid>
                             </Grid>
                         </Border>
                     </TabItem>
                     <!--  Shader packs  -->
-                    <TabItem Classes="ModalVerticalTabItem" Header="Shader packs" IsVisible="{Binding !IsVanilla}">
+                    <TabItem Classes="ModalVerticalTabItem" Header="{lang:Translate instance.edit.tab.shaderPacks}" IsVisible="{Binding !IsVanilla}">
                         <Border Classes="ModalScrollableWrapper">
                             <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, *, Auto">
                                 <!--  Title  -->
-                                <TextBlock Classes="ModalGridTitle" Text="Shader Packs" />
+                                <TextBlock Classes="ModalGridTitle" Text="{lang:Translate instance.edit.tab.shaderPacks}" />
                                 <!--  Content  -->
                                 <Border Grid.Row="1">
                                     <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
@@ -344,35 +358,38 @@
                                 <!--  Actions  -->
                                 <Grid
                                     Grid.Row="2"
-                                    ColumnDefinitions="*, Auto, Auto, Auto"
+                                    ColumnDefinitions="*, Auto, Auto"
                                     ColumnSpacing="5">
                                     <!--  Search bar  -->
                                     <TextBox
                                         Grid.Column="0"
                                         Classes="TextInput"
-                                        Watermark="Search..." />
-                                    <!--  Search button  -->
-                                    <Button Grid.Column="1" Classes="IconBtn">
-                                        <TextBlock Text="Search" />
-                                    </Button>
+                                        Watermark="{lang:Translate common.search}" />
                                     <!--  Download  -->
-                                    <Button Grid.Column="2" Classes="IconBtn">
-                                        <TextBlock Text="Download Shaders" />
+                                    <!-- TODO -->
+                                    <Button Grid.Column="1" Classes="IconBtn" IsEnabled="False">
+                                        <WrapPanel Classes="IconBtnWrapper">
+                                            <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf0ed;" />
+                                            <TextBlock Text="{lang:Translate instance.edit.downloadPacks}" VerticalAlignment="Center" />
+                                        </WrapPanel>
                                     </Button>
                                     <!--  View Folder  -->
-                                    <Button Grid.Column="3" Classes="IconBtn">
-                                        <TextBlock Text="View Folder" />
+                                    <Button Grid.Column="2" Classes="IconBtn">
+                                        <WrapPanel Classes="IconBtnWrapper">
+                                            <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf07c;" />
+                                            <TextBlock Text="{lang:Translate common.open.directory}" VerticalAlignment="Center" />
+                                        </WrapPanel>
                                     </Button>
                                 </Grid>
                             </Grid>
                         </Border>
                     </TabItem>
                     <!--  Worlds  -->
-                    <TabItem Classes="ModalVerticalTabItem" Header="Worlds">
+                    <TabItem Classes="ModalVerticalTabItem" Header="{lang:Translate instance.edit.tab.worlds}">
                         <Border Classes="ModalScrollableWrapper">
                             <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, *">
                                 <!--  Title  -->
-                                <TextBlock Classes="ModalGridTitle" Text="Worlds" />
+                                <TextBlock Classes="ModalGridTitle" Text="{lang:Translate instance.edit.tab.worlds}" />
                                 <!--  Content  -->
                                 <Border Grid.Row="1">
                                     <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
@@ -464,11 +481,11 @@
                         </Border>
                     </TabItem>
                     <!--  Servers  -->
-                    <TabItem Classes="ModalVerticalTabItem" Header="Servers">
+                    <TabItem Classes="ModalVerticalTabItem" Header="{lang:Translate instance.edit.tab.servers}">
                         <Border Classes="ModalScrollableWrapper">
                             <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, *, Auto">
                                 <!--  Title  -->
-                                <TextBlock Classes="ModalGridTitle" Text="Servers" />
+                                <TextBlock Classes="ModalGridTitle" Text="{lang:Translate instance.edit.tab.servers}" />
                                 <!--  Content  -->
                                 <Border Grid.Row="1">
                                     <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
@@ -538,27 +555,30 @@
                                         Grid.Column="0"
                                         Name="ServerNameInput"
                                         Classes="TextInput"
-                                        Watermark="Name..." />
+                                        Watermark="Minecraft Server" />
                                     <!--  Address bar  -->
                                     <TextBox
                                         Grid.Column="1"
                                         Name="ServerAddressInput"
                                         Classes="TextInput"
-                                        Watermark="Address..." />
+                                        Watermark="192.168.1.0:25565" />
                                     <!--  Add  -->
                                     <Button Grid.Column="2" Classes="IconBtn" Click="AddServer_OnClick">
-                                        <TextBlock Text="Add" />
+                                        <WrapPanel Classes="IconBtnWrapper">
+                                            <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#x2b;" />
+                                            <TextBlock Text="{lang:Translate common.add}" VerticalAlignment="Center" />
+                                        </WrapPanel>
                                     </Button>
                                 </Grid>
                             </Grid>
                         </Border>
                     </TabItem>
                     <!--  Screenshots  -->
-                    <TabItem Classes="ModalVerticalTabItem" Header="Screenshots">
+                    <TabItem Classes="ModalVerticalTabItem" Header="{lang:Translate instance.edit.tab.screenshots}">
                         <Border Classes="ModalScrollableWrapper">
                             <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, *">
                                 <!--  Title  -->
-                                <TextBlock Classes="ModalGridTitle" Text="Screenshots" />
+                                <TextBlock Classes="ModalGridTitle" Text="{lang:Translate instance.edit.tab.screenshots}" />
                                 <!--  Content  -->
                                 <Border Grid.Row="1">
                                     <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
@@ -637,7 +657,7 @@
                         </Border>
                     </TabItem>
                     <!--  Settings  -->
-                    <TabItem Classes="ModalVerticalTabItem" Header="Settings">
+                    <TabItem Classes="ModalVerticalTabItem" Header="{lang:Translate instance.edit.tab.settings}">
                         <Border Classes="ModalScrollableWrapper" Padding="25">
                             <TabControl Classes="ModalTab">
                                 <!-- Java Settings  -->

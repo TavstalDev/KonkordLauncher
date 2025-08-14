@@ -88,8 +88,10 @@ public static class DefaultTranslationProvider
         {"common.duplicate", "Duplicate"},
         {"common.rename", "Rename"},
         {"common.copy", "Copy"},
+        {"common.clear", "Clear"},
         {"common.none", "None"},
         {"common.categories", "Categories"},
+        {"common.bottom", "Bottom"},
         
         {"common.time.pass.minute", "{0} minutes ago"},
         {"common.time.pass.hour", "{0} hours ago"},
@@ -197,8 +199,18 @@ public static class DefaultTranslationProvider
         {"instance.edit.title", "Editing Instance:"},
         
         {"instance.edit.downloadPacks", "Download Packs"},
+        {"instance.edit.downloadMods", "Download Mods"},
         {"instance.edit.copySeed", "Copy Seed"},
         {"instance.edit.joinServer", "Join"},
+        
+        {"instance.edit.tab.logs", "Logs"},
+        {"instance.edit.tab.mods", "Mods"},
+        {"instance.edit.tab.resourcePacks", "Resource Packs"},
+        {"instance.edit.tab.shaderPacks", "Shader Packs"},
+        {"instance.edit.tab.worlds", "Worlds"},
+        {"instance.edit.tab.servers", "Servers"},
+        {"instance.edit.tab.screenshots", "Screenshots"},
+        {"instance.edit.tab.settings", "Settings"},
         
         #endregion
         

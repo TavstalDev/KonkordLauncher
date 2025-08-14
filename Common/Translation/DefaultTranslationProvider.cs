@@ -112,9 +112,6 @@ public static class DefaultTranslationProvider
         
         {"instance.duplicate.title", "Instance Already Exists"},
         {"instance.duplicate.message", "An instance with this name already exists. Please choose a different name."},
-
-        {"instance.account.none.title", "No Account Selected"},
-        {"instance.account.none.message", "Please select or create an account to use"},
         
         {"instance.java.notfound.title", "No Java {0} Version Found"},
         {"instance.java.notfound.message", "The instance needs Java {0}. Please install it manually."},
@@ -212,6 +209,8 @@ public static class DefaultTranslationProvider
         {"instance.edit.tab.screenshots", "Screenshots"},
         {"instance.edit.tab.settings", "Settings"},
         
+        {"instance.edit.latestLog", "Latest Log"},
+        
         {"instance.edit.subTitle.window", "Window"},
         {"instance.edit.subTitle.console", "Console"},
         {"instance.edit.subTitle.performance", "Performance"},
@@ -219,6 +218,19 @@ public static class DefaultTranslationProvider
         {"instance.edit.settings.console.showStart", "Show console while minecraft is running"},
         {"instance.edit.settings.console.closeExit", "Close console when minecraft quits"},
         {"instance.edit.settings.console.showCrash", "Show console when minecraft crashes"},
+        
+        {"instance.edit.table.enabled", "Enabled"},
+        {"instance.edit.table.image", "Image"},
+        {"instance.edit.table.name", "Name"},
+        {"instance.edit.table.version", "Version"},
+        {"instance.edit.table.lastModified", "Last Modified"},
+        {"instance.edit.table.type", "Type"},
+        {"instance.edit.table.size", "Size"},
+        {"instance.edit.table.path", "Path"},
+        {"instance.edit.table.provider", "Provider"},
+        {"instance.edit.table.lastPlayed", "Last Played"},
+        {"instance.edit.table.gameMode", "GameMode"},
+        {"instance.edit.table.ipAddress", "IP Address"},
         
         #endregion
         
@@ -340,6 +352,18 @@ public static class DefaultTranslationProvider
         {"auth.minecraft.ownership", "Checking Minecraft ownership..."},
         {"auth.minecraft.profile", "Requesting Minecraft profile..."},
 
+        {"account.login.failed", "Login Failed"},
+        {"account.login.microsoft.failed", "Failed to login to Microsoft account. Please try again later."},
+        {"account.login.microsoft.null", "Failed to retrieve Microsoft account information. Please try again later."},
+        {"account.duplicate", "Account Already Exists"},
+        {"account.duplicate.microsoft", "You have already added this Microsoft account."},
+        {"account.duplicate.offline", "An account with this username already exists. Please choose a different username."},
+        {"account.empty.name", "Name Required"},
+        {"account.empty.name.desc", "Please enter a username for the account."},
+        
+        {"account.none.title", "No Account Selected"},
+        {"account.none.message", "Please select or create an account to use"},
+        
         #endregion
 
         #region Java

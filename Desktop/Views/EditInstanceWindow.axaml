@@ -7,7 +7,7 @@
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
     xmlns:local="clr-namespace:Tavstal.KonkordLauncher.Desktop"
     xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Translation"
-    Title="Edit Instance"
+    Title="{lang:Translate instance.edit.window}"
     Width="900"
     Height="500"
     MinWidth="900"
@@ -24,11 +24,16 @@
     <Border Classes="InstanceView">
         <Grid RowDefinitions="Auto,*">
             <!--  Title  -->
-            <TextBlock
-                HorizontalAlignment="Left"
-                Classes="InstanceTitle"
-                Text="Editing Instance: My Pack" />
-
+            <WrapPanel>
+                <TextBlock
+                    HorizontalAlignment="Left"
+                    Classes="InstanceTitle"
+                    Text="{lang:Translate instance.edit.title}" />
+                <TextBlock
+                    HorizontalAlignment="Left"
+                    Classes="InstanceTitle"
+                    Text="{Binding InstanceName}" />
+            </WrapPanel>
             <!--  Content  -->
             <Grid Grid.Row="1">
                 <TabControl
@@ -185,7 +190,6 @@
                                             Classes="InstanceMultiTable"
                                             ItemsSource="{Binding FilteredResourcePacks}"
                                             SelectedItem="{Binding SelectedResourcePack}"
-                                            LoadingRow="ResourcePacksDataGrid_OnLoading"
                                             CellEditEnded="ResourcePacksDataGrid_OnCellEditEnded"
                                             IsReadOnly="False">
                                             <DataGrid.Columns>
@@ -226,6 +230,28 @@
                                                     Header="Size"
                                                     IsReadOnly="True"/>
                                             </DataGrid.Columns>
+                                            <DataGrid.ContextMenu>
+                                                <ContextMenu>
+                                                    <!-- Toggle -->
+                                                    <MenuItem Header="{lang:Translate common.toggle}" 
+                                                              Command="{Binding ResourcePackToggleCommand}" 
+                                                              CommandParameter="{Binding SelectedResourcePack}" />
+                                                    <Separator />
+                                                    <!-- Remove  -->
+                                                    <MenuItem Header="{lang:Translate common.remove}" 
+                                                              Command="{Binding ResourcePackToggleCommand}" 
+                                                              CommandParameter="{Binding SelectedResourcePack}" />
+                                                    <Separator />
+                                                    <!-- Download Packs -->
+                                                    <MenuItem Header="{lang:Translate instance.edit.downloadPacks}" 
+                                                              Command="{Binding ResourcePackDownloadCommand}" 
+                                                              CommandParameter="{Binding SelectedResourcePack}" />
+                                                    <!-- Open Folder -->
+                                                    <MenuItem Header="{lang:Translate common.open.directory}" 
+                                                              Command="{Binding ResourcePackOpenDirectoryCommand}" 
+                                                              CommandParameter="{Binding SelectedResourcePack}" />
+                                                </ContextMenu>
+                                            </DataGrid.ContextMenu>
                                         </DataGrid>
                                     </ScrollViewer>
                                 </Border>
@@ -355,7 +381,6 @@
                                             Classes="InstanceMultiTable"
                                             ItemsSource="{Binding Worlds}"
                                             SelectedItem="{Binding SelectedWorld}"
-                                            LoadingRow="WorldDataGrid_OnLoading"
                                             CellEditEnded="WorldDataGrid_OnCellEditEnded"
                                             RowEditEnded="WorldDataGrid_OnRowEditEnded"
                                             IsReadOnly="False">
@@ -407,6 +432,31 @@
                                                     Header="Size"
                                                     IsReadOnly="True"/>
                                             </DataGrid.Columns>
+                                            <DataGrid.ContextMenu>
+                                                <ContextMenu>
+                                                    <!-- Duplicate -->
+                                                    <MenuItem Header="{lang:Translate common.duplicate}" 
+                                                              Command="{Binding WorldsDuplicateCommand}" 
+                                                              CommandParameter="{Binding SelectedWorld}" />
+                                                    <!-- Rename  -->
+                                                    <MenuItem Header="{lang:Translate common.rename}" 
+                                                              Command="{Binding WorldsRenameCommand}" 
+                                                              CommandParameter="{Binding SelectedWorld}" />
+                                                    <!-- Delete -->
+                                                    <MenuItem Header="{lang:Translate common.delete}" 
+                                                              Command="{Binding WorldsDeleteCommand}" 
+                                                              CommandParameter="{Binding SelectedWorld}" />
+                                                    <Separator />
+                                                    <!-- Copy Speed -->
+                                                    <MenuItem Header="{lang:Translate instance.edit.copySeed}" 
+                                                              Command="{Binding WorldsCopySeed}" 
+                                                              CommandParameter="{Binding SelectedWorld}" />
+                                                    <!-- Open Folder -->
+                                                    <MenuItem Header="{lang:Translate common.open.directory}" 
+                                                              Command="{Binding WorldsOpenDirectoryCommand}" 
+                                                              CommandParameter="{Binding SelectedWorld}" />
+                                                </ContextMenu>
+                                            </DataGrid.ContextMenu>
                                         </DataGrid>
                                     </ScrollViewer>
                                 </Border>
@@ -426,7 +476,6 @@
                                             Classes="InstanceMultiTable"
                                             ItemsSource="{Binding Servers}"
                                             SelectedItem="{Binding SelectedServer}"
-                                            LoadingRow="ServerDataGrid_OnLoading"
                                             RowEditEnded="ServersDataGrid_OnRowEditEnded"
                                             IsReadOnly="False">
                                             <DataGrid.Columns>
@@ -464,6 +513,18 @@
                                                     Binding="{Binding Ip}"
                                                     Header="Address" />
                                             </DataGrid.Columns>
+                                            <DataGrid.ContextMenu>
+                                                <ContextMenu>
+                                                    <!-- Join -->
+                                                    <MenuItem Header="{lang:Translate instance.edit.joinServer}" 
+                                                              Command="{Binding ServersJoinCommand}" 
+                                                              CommandParameter="{Binding SelectedServer}" />
+                                                    <!-- Remove  -->
+                                                    <MenuItem Header="{lang:Translate common.remove}" 
+                                                              Command="{Binding ServersRemoveCommand}" 
+                                                              CommandParameter="{Binding SelectedServer}" />
+                                                </ContextMenu>
+                                            </DataGrid.ContextMenu>
                                         </DataGrid>
                                     </ScrollViewer>
                                 </Border>
@@ -506,7 +567,6 @@
                                             Classes="InstanceMultiTable"
                                             ItemsSource="{Binding Screenshots}"
                                             SelectedItem="{Binding SelectedScreenshot}"
-                                            LoadingRow="ScreenshotDataGrid_OnLoading"
                                             CellEditEnded="ScreenshotCell_OnEditEnded"
                                             IsReadOnly="False">
                                             <DataGrid.Columns>
@@ -550,6 +610,26 @@
                                                     Header="Size"
                                                     IsReadOnly="True"/>
                                             </DataGrid.Columns>
+                                            <DataGrid.ContextMenu>
+                                                <ContextMenu>
+                                                    <!-- Copy -->
+                                                    <MenuItem Header="{lang:Translate common.copy}" 
+                                                              Command="{Binding ScreenshotsCopyCommand}" 
+                                                              CommandParameter="{Binding SelectedScreenshot}" />
+                                                    <!-- Delete  -->
+                                                    <MenuItem Header="{lang:Translate common.delete}" 
+                                                              Command="{Binding ScreenshotsDeleteCommand}" 
+                                                              CommandParameter="{Binding SelectedScreenshot}" />
+                                                    <!-- Rename  -->
+                                                    <MenuItem Header="{lang:Translate common.rename}" 
+                                                              Command="{Binding ScreenshotsRenameCommand}" 
+                                                              CommandParameter="{Binding SelectedScreenshot}" />
+                                                    <!-- Open Directory  -->
+                                                    <MenuItem Header="{lang:Translate common.open.directory}" 
+                                                              Command="{Binding ScreenshotsOpenDirectoryCommand}" 
+                                                              CommandParameter="{Binding SelectedScreenshot}" />
+                                                </ContextMenu>
+                                            </DataGrid.ContextMenu>
                                         </DataGrid>
                                     </ScrollViewer>
                                 </Border>

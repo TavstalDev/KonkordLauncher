@@ -7,9 +7,11 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using DynamicData;
 using NbtLib;
 using ReactiveUI;
@@ -34,6 +36,7 @@ public partial class EditInstanceViewModel : ObservableObject
     private readonly EditInstanceWindow _parentWindow;
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceViewModel));
     private readonly InstanceModel _instance;
+    public string InstanceName => _instance.Name;
     public string? GameDirectory => _instance.GameDirectory;
     public bool IsLinux => OSHelper.GetOperatingSystem() == EOperatingSystem.Linux;
     public bool IsVanilla => _instance.Kind == EMinecraftKind.VANILLA;
@@ -108,8 +111,6 @@ public partial class EditInstanceViewModel : ObservableObject
         RefreshScreenshots();
     }
     
-    #region Refresh Methods
-
     #region Mods
 
     
@@ -118,6 +119,58 @@ public partial class EditInstanceViewModel : ObservableObject
     
     #region Resource Packs
 
+    #region Commands
+    
+    /// <summary>
+    /// Toggles the enabled state of a resource pack and saves the updated state.
+    /// </summary>
+    /// <param name="resourcePack">The resource pack to toggle.</param>
+    [RelayCommand]
+    public void ResourcePackToggleCommand(ResourcePackModel resourcePack)
+    {
+        resourcePack.IsEnabled = !resourcePack.IsEnabled;
+        SaveResourcePacks();
+    }
+
+    /// <summary>
+    /// Removes a resource pack file from the file system and refreshes the resource pack list.
+    /// </summary>
+    /// <param name="resourcePack">The resource pack to remove.</param>
+    [RelayCommand]
+    public void ResourcePackRemoveCommand(ResourcePackModel resourcePack)
+    {
+        if (!File.Exists(resourcePack.Path))
+            return;
+        
+        File.Delete(resourcePack.Path);
+        RefreshResourcePacks();
+    }
+    
+    [RelayCommand]
+    public void ResourcePackDownloadCommand(ResourcePackModel resourcePack)
+    {
+        // TODO: Implement resource pack download logic
+    }
+
+    /// <summary>
+    /// Opens the directory containing the specified resource pack in the file explorer.
+    /// </summary>
+    /// <param name="resourcePack">The resource pack whose directory to open.</param>
+    [RelayCommand]
+    public void ResourcePackOpenDirectoryCommand(ResourcePackModel resourcePack)
+    {
+        if (!File.Exists(resourcePack.Path))
+            return;
+        
+        string? resourcePackDir = Path.GetDirectoryName(resourcePack.Path);
+        if (string.IsNullOrEmpty(resourcePackDir) || !Directory.Exists(resourcePackDir))
+            return;
+        
+        FileSystemHelper.OpenFolderInFileExplorer(resourcePackDir);
+    }
+    
+    #endregion
+    
     /// <summary>
     /// Saves the current state of resource packs by renaming their file extensions
     /// based on their enabled or disabled status. Enabled resource packs have the
@@ -156,17 +209,6 @@ public partial class EditInstanceViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Handles changes to the `ResourcePacks` collection by saving the updated state
-    /// of resource packs. This method is triggered whenever the collection is modified.
-    /// </summary>
-    /// <param name="sender">The source of the event, typically the `ResourcePacks` collection.</param>
-    /// <param name="e">The event data containing details about the collection change.</param>
-    public void ResourcePacksOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-    {
-        SaveResourcePacks();
-    }
-
-    /// <summary>
     /// Refreshes the list of resource packs by scanning the game directory for resource pack files.
     /// Updates the `ResourcePacks` collection with metadata such as name, size, and icon for each resource pack.
     /// </summary>
@@ -178,10 +220,7 @@ public partial class EditInstanceViewModel : ObservableObject
         string resourcePacksDir = Path.Combine(_instance.GameDirectory, "resourcepacks");
         if (!Directory.Exists(resourcePacksDir))
             return;
-
-        //ResourcePacks.CollectionChanged -= ResourcePacksOnCollectionChanged;
         
-        //ResourcePacks.Clear();
         _resourcePackCache.Edit(innerCache =>
         {
             innerCache.Clear();
@@ -214,7 +253,6 @@ public partial class EditInstanceViewModel : ObservableObject
                 innerCache.AddOrUpdate(newResourcePack);
             }
         });
-        //ResourcePacks.CollectionChanged += ResourcePacksOnCollectionChanged;
     }
 
     #endregion
@@ -227,6 +265,65 @@ public partial class EditInstanceViewModel : ObservableObject
     
     #region Worlds
 
+    #region Commands
+
+    /// <summary>
+    /// Duplicates the specified Minecraft world by creating a copy of its directory
+    /// and refreshing the list of worlds.
+    /// </summary>
+    /// <param name="world">The world to duplicate.</param>
+    [RelayCommand]
+    public void WorldsDuplicateCommand(WorldModel world)
+    {
+        DuplicateWorld(world);
+        RefreshWorlds();
+    }
+
+    /// <summary>
+    /// Initiates the renaming process for the specified Minecraft world by enabling
+    /// edit mode in the worlds table.
+    /// </summary>
+    /// <param name="world">The world to rename.</param>
+    [RelayCommand]
+    public void WorldsRenameCommand(WorldModel world)
+    {
+        _parentWindow.WorldsTable.BeginEdit();
+    }
+
+    /// <summary>
+    /// Deletes the specified Minecraft world by removing its directory from the file system
+    /// and refreshing the list of worlds.
+    /// </summary>
+    /// <param name="world">The world to delete.</param>
+    [RelayCommand]
+    public void WorldsDeleteCommand(WorldModel world)
+    {
+        FileSystemHelper.DeleteDirectory(world.Path);
+        RefreshWorlds();
+    }
+
+    /// <summary>
+    /// Copies the seed of the specified Minecraft world to the system clipboard.
+    /// </summary>
+    /// <param name="world">The world whose seed is to be copied.</param>
+    [RelayCommand]
+    public void WorldsCopySeed(WorldModel world) => _parentWindow.CopySeedToClipboard(world.Seed);
+
+    /// <summary>
+    /// Opens the directory of the specified Minecraft world in the file explorer.
+    /// </summary>
+    /// <param name="world">The world whose directory is to be opened.</param>
+    [RelayCommand]
+    public void WorldsOpenDirectoryCommand(WorldModel world)
+    {
+        if (!Directory.Exists(world.Path))
+            return;
+    
+        FileSystemHelper.OpenFolderInFileExplorer(world.Path);
+    }
+    
+    #endregion
+    
     /// <summary>
     /// Duplicates a Minecraft world by creating a copy of its directory and updating its metadata.
     /// Generates a unique name for the duplicated world and updates the "LevelName" tag in the `level.dat` file.
@@ -415,10 +512,7 @@ public partial class EditInstanceViewModel : ObservableObject
     /// </summary>
     /// <param name="sender">The source of the event, typically the `Worlds` collection.</param>
     /// <param name="e">The event data containing details about the collection change.</param>
-    public void WorldsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-    {
-        SaveWorlds();
-    }
+    public void WorldsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) => SaveWorlds();
     
     /// <summary>
     /// Refreshes the list of Minecraft worlds by scanning the game directory for saved worlds.
@@ -513,6 +607,33 @@ public partial class EditInstanceViewModel : ObservableObject
     
     #region  Servers
 
+    #region Commands
+
+    /// <summary>
+    /// Joins the specified Minecraft server by launching the instance with the server's IP address
+    /// and then closes the parent window.
+    /// </summary>
+    /// <param name="server">The server to join.</param>
+    [RelayCommand]
+    public async Task ServersJoinCommand(ServerModel server)
+    {
+        await _instance.LaunchAsync(_parentWindow, server.Ip);
+        _parentWindow.Close();
+    }
+
+    /// <summary>
+    /// Removes the specified server from the list of servers if it exists in the collection.
+    /// </summary>
+    /// <param name="server">The server to remove.</param>
+    [RelayCommand]
+    public void ServersRemoveCommand(ServerModel server)
+    {
+        if (Servers.Contains(server))
+            Servers.Remove(server);
+    }
+    
+    #endregion
+    
     /// <summary>
     /// Saves the current list of Minecraft servers to the `servers.dat` file
     /// in the game directory. The method serializes the server data into NBT format
@@ -568,10 +689,7 @@ public partial class EditInstanceViewModel : ObservableObject
     /// </summary>
     /// <param name="sender">The source of the event, typically the `Servers` collection.</param>
     /// <param name="e">The event data containing details about the collection change.</param>
-    private void ServersOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-    {
-        SaveServers();
-    }
+    private void ServersOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) => SaveServers();
     
     /// <summary>
     /// Refreshes the list of Minecraft servers by reading the `servers.dat` file
@@ -601,6 +719,57 @@ public partial class EditInstanceViewModel : ObservableObject
             Servers.Add(new ServerModel(server.Name, server.Ip, server.AcceptTextures, server.HideAddress, server.Icon));
         
         Servers.CollectionChanged += ServersOnCollectionChanged;
+    }
+
+    #endregion
+
+    #region Screenshots
+
+    #region Commands
+
+    /// <summary>
+    /// Copies the specified screenshot to the system clipboard.
+    /// </summary>
+    /// <param name="screenshot">The screenshot to copy to the clipboard.</param>
+    [RelayCommand]
+    public void ScreenshotsCopyCommand(ScreenshotModel screenshot) => _parentWindow.SetClipboardImage(screenshot);
+
+    /// <summary>
+    /// Deletes the specified screenshot file from the file system and refreshes the screenshot list.
+    /// </summary>
+    /// <param name="screenshot">The screenshot to delete.</param>
+    [RelayCommand]
+    public void ScreenshotsDeleteCommand(ScreenshotModel screenshot)
+    {
+        if (!File.Exists(screenshot.Path))
+            return;
+
+        File.Delete(screenshot.Path);
+        RefreshScreenshots();
+    }
+
+    /// <summary>
+    /// Initiates the renaming process for the specified screenshot by enabling edit mode in the screenshots table.
+    /// </summary>
+    /// <param name="screenshot">The screenshot to rename.</param>
+    [RelayCommand]
+    public void ScreenshotsRenameCommand(ScreenshotModel screenshot) => _parentWindow.ScreenshotsTable.BeginEdit();
+
+    /// <summary>
+    /// Opens the directory containing the screenshots in the file explorer.
+    /// </summary>
+    /// <param name="screenshot">The screenshot whose directory to open.</param>
+    [RelayCommand]
+    public void ScreenshotsOpenDirectoryCommand(ScreenshotModel screenshot)
+    {
+        if (string.IsNullOrEmpty(_instance.GameDirectory))
+            return;
+    
+        string screenshotDir = Path.Combine(_instance.GameDirectory, "screenshots");
+        if (!Directory.Exists(screenshotDir))
+            return;
+
+        FileSystemHelper.OpenFolderInFileExplorer(screenshotDir);
     }
 
     #endregion

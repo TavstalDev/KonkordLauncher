@@ -21,12 +21,18 @@ using Tavstal.KonkordLauncher.Desktop.Views.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views;
 
+/// <summary>
+/// Represents the EditInstanceWindow, a partial class inheriting from Avalonia's Window class.
+/// Provides functionality for editing an instance configuration.
+/// </summary>
 public partial class EditInstanceWindow : Window
 {
-    private readonly InstanceModel _instance;
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceWindow));
 
-    // This constructor is used by the Avalonia Designer.
+    /// <summary>
+    /// Default constructor used by the Avalonia Designer.
+    /// Initializes the window and sets up a mock data context for design mode.
+    /// </summary>
     public EditInstanceWindow()
     {
         InitializeComponent();
@@ -36,11 +42,16 @@ public partial class EditInstanceWindow : Window
         if (Design.IsDesignMode)
         {
             // Provide a mock data context for the designer to render.
-            _instance = new InstanceModel();
-            this.DataContext = new EditInstanceViewModel(this, _instance, new InstanceConfig());
+            var instance = new InstanceModel();
+            this.DataContext = new EditInstanceViewModel(this, instance, new InstanceConfig());
         }
     }
 
+    /// <summary>
+    /// Constructor that initializes the window with a specific instance model.
+    /// Sets up the data context and optionally attaches Avalonia Dev Tools in debug mode.
+    /// </summary>
+    /// <param name="instance">The instance model to associate with this window.</param>
     public EditInstanceWindow(InstanceModel instance)
     {
         InitializeComponent();
@@ -53,21 +64,8 @@ public partial class EditInstanceWindow : Window
         if (Design.IsDesignMode)
             return;
 
-        _instance = instance;
+        var instance1 = instance;
         this.DataContext = new EditInstanceViewModel(this, instance, instance.ConfigModel);
-        var settings = LauncherHelper.GetLauncherSettings();
-        HandleLanguageChange(settings.Launcher.Language);
-        App.OnLanguageChanged += HandleLanguageChange;
-    }
-
-    /// <summary>
-    /// Updates the UI elements with translations based on the specified language.
-    /// This method handles the translation of sidebar buttons, page titles, and various settings labels.
-    /// </summary>
-    /// <param name="language">The language code to apply for translations.</param>
-    private void HandleLanguageChange(string language)
-    {
-
     }
 
     #region Action Handlers
@@ -116,7 +114,7 @@ public partial class EditInstanceWindow : Window
     }
     #endregion
     
-    #region DataGrid Loading Events
+    #region DataGrid Events
 
     #region Mods
     
@@ -232,87 +230,6 @@ public partial class EditInstanceWindow : Window
         _logger.Debug("ResourcePack row updated. Saving...");
         viewModel.SaveResourcePacks();
     }
-    
-    /// <summary>
-    /// Handles the loading event for the Resource Packs DataGrid rows.
-    /// Configures a context menu for each row with options to enable/disable, remove, download, or open the folder of the resource pack.
-    /// </summary>
-    /// <param name="sender">The source of the event, typically the DataGrid.</param>
-    /// <param name="e">The event data containing information about the row being loaded.</param>
-    private void ResourcePacksDataGrid_OnLoading(object? sender, DataGridRowEventArgs e)
-    {
-        // Get the DataGridRow
-        var row = e.Row;
-
-        if (row.DataContext is not ResourcePackModel resourcePackItem)
-            return;
-
-        var contextMenu = new ContextMenu();
-
-        // Add Enable/Disable MenuItem
-        var editMenuItem = new MenuItem();
-        editMenuItem.Bind(MenuItem.HeaderProperty, 
-            new Binding("EnableDisableText"));
-        editMenuItem.Click += (_, _) =>
-        {
-            if (this.DataContext is not EditInstanceViewModel viewModel)
-                return;
-
-            resourcePackItem.IsEnabled = !resourcePackItem.IsEnabled;
-            viewModel.SaveResourcePacks();
-        };
-        contextMenu.Items.Add(editMenuItem);
-
-        // Separator
-        contextMenu.Items.Add(new Separator());
-
-        // Add Remove MenuItem
-        var removeMenuItem = new MenuItem { Header = "Remove" };
-        removeMenuItem.Click += (_, _) =>
-        {
-            if (this.DataContext is not EditInstanceViewModel viewModel)
-                return;
-
-            if (!File.Exists(resourcePackItem.Path))
-                return;
-            
-            File.Delete(resourcePackItem.Path);
-            viewModel.RefreshResourcePacks();
-        };
-        contextMenu.Items.Add(removeMenuItem);
-
-        // Separator
-        contextMenu.Items.Add(new Separator());
-
-        // Add Download Packs MenuItem
-        var downloadModsMenuItem = new MenuItem { Header = "Download Packs" };
-        downloadModsMenuItem.Click += (_, _) =>
-        {
-            if (this.DataContext is not EditInstanceViewModel viewModel)
-                return;
-
-            // TODO: Handle click event
-        };
-        contextMenu.Items.Add(downloadModsMenuItem);
-
-        // Add Open Folder MenuItem
-        var openFolderMenuItem = new MenuItem { Header = "Open Folder" };
-        openFolderMenuItem.Click += (_, _) =>
-        {
-            if (!File.Exists(resourcePackItem.Path))
-                return;
-            
-            string? resourcePackDir = Path.GetDirectoryName(resourcePackItem.Path);
-            if (string.IsNullOrEmpty(resourcePackDir) || !Directory.Exists(resourcePackDir))
-                return;
-            
-            FileSystemHelper.OpenFolderInFileExplorer(resourcePackDir);
-        };
-        contextMenu.Items.Add(openFolderMenuItem);
-
-        // Assign the ContextMenu to the row
-        row.ContextMenu = contextMenu;
-    }
 
     #endregion
 
@@ -386,6 +303,19 @@ public partial class EditInstanceWindow : Window
     #endregion
     
     #region Worlds
+
+    /// <summary>
+    /// Copies the provided seed value to the system clipboard as a string.
+    /// </summary>
+    /// <param name="seed">The seed value to copy to the clipboard.</param>
+    public void CopySeedToClipboard(long seed)
+    {
+        var topLevel = GetTopLevel(this);
+        if (topLevel?.Clipboard == null)
+            return;
+
+        topLevel.Clipboard.SetTextAsync(seed.ToString());
+    }
     
     /// <summary>
     /// Handles the event when a cell edit operation in the World DataGrid is completed.
@@ -423,84 +353,6 @@ public partial class EditInstanceWindow : Window
         
         _logger.Debug("World row updated. Saving...");
         viewModel.SaveWorlds();
-    }
-    
-    /// <summary>
-    /// Handles the click event for opening the Java path selector.
-    /// Displays a dialog to select a Java version and updates the Java path in the InstanceConfig if a version is selected.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The event data associated with the click event.</param>
-    private void WorldDataGrid_OnLoading(object? sender, DataGridRowEventArgs e)
-    {
-        // Get the DataGridRow
-        var row = e.Row;
-
-        if (row.DataContext is not WorldModel worldItem)
-            return;
-
-        var contextMenu = new ContextMenu();
-
-        // Add Duplicate MenuItem
-        var duplicateItem = new MenuItem { Header = "Duplicate" };
-        duplicateItem.Click += (_, _) =>
-        {
-            if (this.DataContext is not EditInstanceViewModel viewModel)
-                return;
-            
-            viewModel.DuplicateWorld(worldItem);
-            viewModel.RefreshWorlds();
-        };
-        contextMenu.Items.Add(duplicateItem);
-
-        // Add Rename MenuItem
-        var renameMenuItem = new MenuItem { Header = "Rename" };
-        renameMenuItem.Click += (_, _) =>
-        {
-            WorldsTable.BeginEdit();
-        };
-        contextMenu.Items.Add(renameMenuItem);
-
-        // Add Delete MenuItem
-        var deleteMenuItem = new MenuItem { Header = "Delete" };
-        deleteMenuItem.Click += (_, _) =>
-        {
-            if (this.DataContext is not EditInstanceViewModel viewModel)
-                return;
-
-            FileSystemHelper.DeleteDirectory(worldItem.Path);
-            viewModel.RefreshWorlds();
-        };
-        contextMenu.Items.Add(deleteMenuItem);
-
-        // Separator
-        contextMenu.Items.Add(new Separator());
-
-        // Add Copy Seed MenuItem
-        var copySeedMenuItem = new MenuItem { Header = "Copy Seed" };
-        copySeedMenuItem.Click += (_, _) =>
-        {
-            var topLevel = GetTopLevel(this);
-            if (topLevel?.Clipboard == null)
-                return;
-
-            topLevel.Clipboard.SetTextAsync(worldItem.Seed.ToString());
-        };
-        contextMenu.Items.Add(copySeedMenuItem);
-
-        // Add Open Folder MenuItem
-        var openFolderMenuItem = new MenuItem { Header = "Open Folder" };
-        openFolderMenuItem.Click += (_, _) =>
-        {
-            if (!Directory.Exists(worldItem.Path))
-                return;
-
-            FileSystemHelper.OpenFolderInFileExplorer(worldItem.Path);
-        };
-        contextMenu.Items.Add(openFolderMenuItem);
-
-        // Assign the ContextMenu to the row
-        row.ContextMenu = contextMenu;
     }
 
     #endregion
@@ -543,51 +395,28 @@ public partial class EditInstanceWindow : Window
         _logger.Debug("Server row updated. Saving servers...");
         viewModel.SaveServers();
     }
-
-    /// <summary>
-    /// Handles the loading event for the Server DataGrid rows.
-    /// Configures a context menu for each row with options to join a server or remove it from the list.
-    /// </summary>
-    /// <param name="sender">The source of the event, typically the DataGrid.</param>
-    /// <param name="e">The event data containing information about the row being loaded.</param>
-    private void ServerDataGrid_OnLoading(object? sender, DataGridRowEventArgs e)
-    {
-        // Get the DataGridRow
-        var row = e.Row;
-
-        if (row.DataContext is not ServerModel serverItem)
-            return;
-
-        var contextMenu = new ContextMenu();
-
-        // Add Join MenuItem
-        var joinMenuItem = new MenuItem { Header = "Join" };
-        joinMenuItem.Click += async (_, _) =>
-        {
-            if (this is Window { Owner: MainWindow parentWindow })
-                await _instance.LaunchAsync(parentWindow, serverItem.Ip);
-            this.Close();
-        };
-        contextMenu.Items.Add(joinMenuItem);
-
-        // Add Remove MenuItem
-        var removeItem = new MenuItem { Header = "Remove" };
-        removeItem.Click += (_, _) =>
-        {
-            if (this.DataContext is not EditInstanceViewModel viewModel)
-                return;
-
-            viewModel.Servers.Remove(serverItem);
-        };
-        contextMenu.Items.Add(removeItem);
-
-        // Assign the ContextMenu to the row
-        row.ContextMenu = contextMenu;
-    }
+    
     #endregion
     
     #region Screenshots
 
+    public void SetClipboardImage(ScreenshotModel screenshot)
+    {
+        if (screenshot?.Image == null)
+            return;
+
+        var topLevel = GetTopLevel(this);
+        if (topLevel?.Clipboard == null)
+            return;
+
+        using var ms = new MemoryStream();
+        screenshot.Image.Save(ms);
+        var dataObject = new DataObject();
+        dataObject.Set("image/png", ms.ToArray());
+
+        topLevel.Clipboard.SetDataObjectAsync(dataObject);
+    }
+    
     /// <summary>
     /// Handles the event when editing of a screenshot cell is completed in the DataGrid.
     /// Renames the screenshot file if the name has been changed and updates the model accordingly.
@@ -638,93 +467,6 @@ public partial class EditInstanceWindow : Window
             _logger.Exc($"An error occurred while renaming the screenshot:");
             _logger.Error(ex);
         }
-    }
-
-    /// <summary>
-    /// Handles the loading event for the Screenshot DataGrid rows.
-    /// Configures a context menu for each row with options to copy, delete, rename, 
-    /// or open the folder containing the screenshot.
-    /// </summary>
-    /// <param name="sender">The source of the event, typically the DataGrid.</param>
-    /// <param name="e">The event data containing information about the row being loaded.</param>
-    private void ScreenshotDataGrid_OnLoading(object? sender, DataGridRowEventArgs e)
-    {
-        // Get the DataGridRow
-        var row = e.Row;
-        if (row.DataContext is not ScreenshotModel screenshotItem)
-            return;
-
-        var contextMenu = new ContextMenu();
-
-        // Add Copy MenuItem
-        var copyMenuItem = new MenuItem { Header = "Copy" };
-        copyMenuItem.Click += (_, _) =>
-        {
-            if (screenshotItem?.Image == null)
-                return;
-
-            var topLevel = GetTopLevel(this);
-            if (topLevel?.Clipboard == null)
-                return;
-
-            using var ms = new MemoryStream();
-            screenshotItem.Image.Save(ms);
-            var dataObject = new DataObject();
-            dataObject.Set("image/png", ms.ToArray());
-
-            topLevel.Clipboard.SetDataObjectAsync(dataObject);
-        };
-        contextMenu.Items.Add(copyMenuItem);
-
-        // Add Delete MenuItem
-        var deleteItem = new MenuItem { Header = "Delete" };
-        deleteItem.Click += (_, _) =>
-        {
-            if (this.DataContext is not EditInstanceViewModel viewModel)
-                return;
-
-            if (!File.Exists(screenshotItem.Path))
-                return;
-
-            File.Delete(screenshotItem.Path);
-            viewModel.RefreshScreenshots();
-        };
-        contextMenu.Items.Add(deleteItem);
-
-        // Add Rename MenuItem
-        var renameItem = new MenuItem { Header = "Rename" };
-        renameItem.Click += (_, _) =>
-        {
-            if (this.DataContext is not EditInstanceViewModel viewModel)
-                return;
-
-            if (viewModel.SelectedScreenshot == null || _instance.GameDirectory == null)
-                return;
-
-            ScreenshotsTable.BeginEdit();
-        };
-        contextMenu.Items.Add(renameItem);
-
-        // Add Open Folder MenuItem
-        var openFolderItem = new MenuItem { Header = "Open Folder" };
-        openFolderItem.Click += (_, _) =>
-        {
-            if (this.DataContext is not EditInstanceViewModel viewModel)
-                return;
-
-            if (viewModel.SelectedScreenshot == null || _instance.GameDirectory == null)
-                return;
-
-            string screenshotDir = Path.Combine(_instance.GameDirectory, "screenshots");
-            if (!Directory.Exists(screenshotDir))
-                return;
-
-            FileSystemHelper.OpenFolderInFileExplorer(screenshotDir);
-        };
-        contextMenu.Items.Add(openFolderItem);
-
-        // Assign the ContextMenu to the row
-        row.ContextMenu = contextMenu;
     }
 
     #endregion

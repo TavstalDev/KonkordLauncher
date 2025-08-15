@@ -37,6 +37,7 @@ public partial class EditInstanceViewModel : ObservableObject
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceViewModel));
     private readonly InstanceModel _instance;
     public string InstanceName => _instance.Name;
+    public string Logs => _instance.Logs;
     public string? GameDirectory => _instance.GameDirectory;
     public bool IsLinux => OSHelper.GetOperatingSystem() == EOperatingSystem.Linux;
     public bool IsVanilla => _instance.Kind == EMinecraftKind.VANILLA;

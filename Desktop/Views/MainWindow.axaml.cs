@@ -272,6 +272,7 @@ private void OnAboutSideButtonClick(object? sender, RoutedEventArgs e)
             return;
         
         viewModel.AccountData.SelectedAccountId = account.Id;
+        App.InvokeAccountsChanged();
     }
 
     /// <summary>

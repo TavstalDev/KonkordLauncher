@@ -92,6 +92,7 @@ public static class DefaultTranslationProvider
         {"common.none", "None"},
         {"common.categories", "Categories"},
         {"common.bottom", "Bottom"},
+        {"common.readMore", "Read More"},
         
         {"common.time.pass.minute", "{0} minutes ago"},
         {"common.time.pass.hour", "{0} hours ago"},

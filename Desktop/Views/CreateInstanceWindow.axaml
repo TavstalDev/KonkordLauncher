@@ -18,7 +18,8 @@
     xmlns:mdxaml="https://github.com/whistyun/Markdown.Avalonia.Tight"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Translation">
+    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Translation"
+    xmlns:enums="clr-namespace:Tavstal.KonkordLauncher.Core.Enums;assembly=Core">
 
     <Border Classes="InstanceView">
         <Grid RowDefinitions="Auto,*">
@@ -39,10 +40,9 @@
                                     <!--  Icon, Name & Group  -->
                                     <Grid ColumnDefinitions="100,*,*" RowDefinitions="Auto">
                                         <!--  Icon  -->
-                                        <Button Name="CustomIconBtn" Click="IconSelector_Click">
+                                        <Button Command="{Binding CustomIconSelectorCommand}">
                                             <Image
                                                 Classes="InstanceIcon"
-                                                Name="CustomIconImg"
                                                 Source="{Binding InstanceIcon}"/>
                                         </Button>
                                         <!--  Name  -->
@@ -51,12 +51,11 @@
                                             RowDefinitions="Auto, Auto"
                                             RowSpacing="8">
                                             <!--  Text  -->
-                                            <TextBlock Classes="TextInput" Name="CustomNameTb" Text="{lang:Translate instance.create.name}" />
+                                            <TextBlock Classes="TextInput" Text="{lang:Translate instance.create.name}" />
                                             <!--  Input  -->
                                             <TextBox
                                                 Classes="TextInput"
                                                 Grid.Row="1"
-                                                Name="CustomNameInput"
                                                 Text="{Binding InstanceName, UpdateSourceTrigger=PropertyChanged}"
                                                 Watermark="My Instance" />
                                         </Grid>
@@ -66,12 +65,11 @@
                                             RowDefinitions="Auto, Auto"
                                             RowSpacing="8">
                                             <!--  Text  -->
-                                            <TextBlock Classes="TextInput" Name="CustomGroupTb" Text="{lang:Translate instance.create.group}" />
+                                            <TextBlock Classes="TextInput" Text="{lang:Translate instance.create.group}" />
                                             <!--  Input  -->
                                             <ComboBox
                                                 Classes="TextDropdown"
                                                 Grid.Row="1"
-                                                Name="CustomGroupInput"
                                                 SelectedIndex="0">
                                                 <ComboBoxItem Content="None" />
                                             </ComboBox>
@@ -83,13 +81,13 @@
                                         RowDefinitions="Auto, *"
                                         RowSpacing="8">
                                         <!--  Text  -->
-                                        <TextBlock Classes="InstanceCategory" Name="CustomMinecraftVersionTb" Text="{lang:Translate instance.create.minecraftVersion}" />
+                                        <TextBlock Classes="InstanceCategory" Text="{lang:Translate instance.create.minecraftVersion}" />
                                         <!--  Table  -->
                                         <Grid
                                             ColumnDefinitions="*, Auto"
                                             ColumnSpacing="15"
                                             Grid.Row="1"
-                                            Name="CustomMinecraftVersionTable" >
+                                             >
                                             <!--  Input  -->
                                             <DataGrid
                                                 Classes="InstanceTable"
@@ -118,32 +116,31 @@
                                                 <CheckBox
                                                     Content="{lang:Translate instance.create.releases}"
                                                     IsChecked="{Binding ShowReleases}"
-                                                    Name="CustomReleaseCb" />
+                                                     />
                                                 <!--  Snapshot  -->
                                                 <CheckBox
                                                     Content="{lang:Translate instance.create.snapshots}"
                                                     IsChecked="{Binding ShowSnapshots}"
-                                                    Name="CustomSnapshotCb" />
+                                                     />
                                                 <!--  Beta  -->
                                                 <CheckBox
                                                     Content="{lang:Translate instance.create.betas}"
                                                     IsChecked="{Binding ShowBetas}"
-                                                    Name="CustomBetaCb" />
+                                                     />
                                                 <!--  Alpha  -->
                                                 <CheckBox
                                                     Content="{lang:Translate instance.create.alphas}"
                                                     IsChecked="{Binding ShowAlphas}"
-                                                    Name="CustomAlphaCb" />
+                                                    />
                                                 <!--  Experiment  -->
                                                 <CheckBox
                                                     Content="{lang:Translate instance.create.experiments}"
                                                     IsChecked="{Binding ShowExperiments}"
-                                                    Name="CustomExperimentCb" />
+                                                     />
 
                                                 <!--  Search Box  -->
                                                 <TextBox
                                                     Classes="InstanceSearch"
-                                                    Name="CustomVersionSearch"
                                                     Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
                                                     Watermark="{lang:Translate common.search}" />
                                             </StackPanel>
@@ -155,13 +152,12 @@
                                         RowDefinitions="Auto, *"
                                         RowSpacing="8">
                                         <!--  Text  -->
-                                        <TextBlock Classes="InstanceCategory" Name="CustomModLoaderTb" Text="{lang:Translate instance.create.modloader}" />
+                                        <TextBlock Classes="InstanceCategory" Text="{lang:Translate instance.create.modloader}" />
                                         <!--  Table  -->
                                         <Grid
                                             ColumnDefinitions="*, Auto"
                                             ColumnSpacing="15"
-                                            Grid.Row="1"
-                                            Name="CustomModVersionTable">
+                                            Grid.Row="1">
                                             <!--  Input  -->
                                             <DataGrid
                                                 Classes="InstanceTable"
@@ -181,21 +177,28 @@
                                                 <RadioButton
                                                     Content="{lang:Translate common.none}"
                                                     IsChecked="True"
-                                                    Name="CustomNoModLoaderRb"
-                                                    Click="CustomNoModLoader_Click"/>
+                                                    Command="{Binding CustomModLoaderTypeCommand}"
+                                                    CommandParameter="{x:Static enums:EMinecraftKind.VANILLA}"/>
                                                 <!--  NeoForge  -->
-                                                <RadioButton Content="NeoForge" Name="CustomNeoForgeRb" Click="CustomNeoForge_Click"/>
+                                                <RadioButton Content="NeoForge"
+                                                             Command="{Binding CustomModLoaderTypeCommand}"
+                                                             CommandParameter="{x:Static enums:EMinecraftKind.NEOFORGE}"/>
                                                 <!--  Forge  -->
-                                                <RadioButton Content="Forge" Name="CustomForgeRb" Click="CustomForge_Click"/>
+                                                <RadioButton Content="Forge"
+                                                             Command="{Binding CustomModLoaderTypeCommand}"
+                                                             CommandParameter="{x:Static enums:EMinecraftKind.FORGE}"/>
                                                 <!--  Fabric  -->
-                                                <RadioButton Content="Fabric" Name="CustomFabricRb" Click="CustomFabric_Click" />
+                                                <RadioButton Content="Fabric"
+                                                             Command="{Binding CustomModLoaderTypeCommand}"
+                                                             CommandParameter="{x:Static enums:EMinecraftKind.FABRIC}"/>
                                                 <!--  Quilt  -->
-                                                <RadioButton Content="Quilt" Name="CustomQuiltRb" Click="CustomQuilt_Click" />
+                                                <RadioButton Content="Quilt"
+                                                             Command="{Binding CustomModLoaderTypeCommand}"
+                                                             CommandParameter="{x:Static enums:EMinecraftKind.QUILT}"/>
 
                                                 <!--  Search Box  -->
                                                 <TextBox
                                                     Classes="InstanceSearch"
-                                                    Name="CustomModVersionSearch"
                                                     Text="{Binding ModLoaderSearchQuery, UpdateSourceTrigger=PropertyChanged}"
                                                     Watermark="{lang:Translate common.search}" />
                                             </StackPanel>
@@ -204,8 +207,8 @@
                                     <!--  Buttons  -->
                                     <StackPanel Classes="InstanceButtonWrapper" Grid.Row="3">
                                         <!-- Create Instance Button  -->
-                                        <Button Classes="IconBtn SuccessBtn" Name="CustomCreateInstanceBtn"
-                                                Click="CreateInstance_OnClick"
+                                        <Button Classes="IconBtn SuccessBtn"
+                                                Command="{Binding CustomCreateCommand}"
                                                 IsEnabled="{Binding CanCreateCustomInstance}">
                                             <WrapPanel Classes="IconBtnWrapper">
                                                 <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf0c7;" />
@@ -213,7 +216,7 @@
                                             </WrapPanel>
                                         </Button>
                                         <!--  Cancel Button  -->
-                                        <Button Classes="IconBtn ErrorBtn" Name="CustomCancelBtn" Click="CancelInstance_OnClick">
+                                        <Button Classes="IconBtn ErrorBtn" Command="{Binding CustomCancelCreateCommand}">
                                             <WrapPanel Classes="IconBtnWrapper">
                                                 <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf00d;" />
                                                 <TextBlock Text="{lang:Translate common.cancel}" VerticalAlignment="Center" />

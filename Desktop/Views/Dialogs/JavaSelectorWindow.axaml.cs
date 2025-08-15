@@ -1,9 +1,8 @@
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Interactivity;
 using Tavstal.KonkordLauncher.Common.Helpers;
-using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Desktop.Models;
 using JavaSelectorViewModel = Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models.JavaSelectorViewModel;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
@@ -11,7 +10,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 /// <summary>
 /// Represents a window for selecting a Java version.
 /// </summary>
-public partial class JavaSelectorWindow : Window
+public partial class JavaSelectorWindow : KonkordWindow
 {
     /// <summary>
     /// Logger instance for the JavaSelectorWindow class.
@@ -32,36 +31,21 @@ public partial class JavaSelectorWindow : Window
 #endif
 
         if (Design.IsDesignMode)
-            this.DataContext = new JavaSelectorViewModel();
+            this.DataContext = new JavaSelectorViewModel(this);
         else
         {
             var settings = LauncherHelper.GetLauncherSettings();
-            this.DataContext = new JavaSelectorViewModel(settings.Launcher.JavaDirectoryPath);
+            this.DataContext = new JavaSelectorViewModel(this, settings.Launcher.JavaDirectoryPath);
+            settings = null;
         }
     }
-
+    
     /// <summary>
-    /// Handles the click event for the OK button.
-    /// Closes the window and returns the selected Java version.
+    /// Releases resources associated with the <see cref="JavaSelectorWindow"/>.
+    /// Logs a debug message indicating that memory is being freed.
     /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The event data.</param>
-    private void OkBtn_OnClick(object? sender, RoutedEventArgs e)
+    protected override void FreeMemory()
     {
-        if (this.DataContext is not JavaSelectorViewModel vm)
-            return;
-
-        this.Close(vm.SelectedJavaVersion);
-    }
-
-    /// <summary>
-    /// Handles the click event for the Cancel button.
-    /// Closes the window without returning a value.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The event data.</param>
-    private void CancelBtn_OnClick(object? sender, RoutedEventArgs e)
-    {
-        this.Close(null);
+        _logger.Debug("Freeing memory in JavaSelectorWindow.");
     }
 }

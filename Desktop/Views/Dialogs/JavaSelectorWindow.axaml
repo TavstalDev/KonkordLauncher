@@ -22,7 +22,6 @@
     <Border Classes="ModalView">
         <Grid RowDefinitions="Auto, *, Auto">
             <TextBlock
-                Name="SelectJavaTb"
                 Classes="ModalTitle"
                 Text="{lang:Translate java.select}" />
             <ScrollViewer Grid.Row="1" Classes="TableScrollViewer" Margin="0, 0, 0, 20">
@@ -56,25 +55,23 @@
                 <!-- Ok Button -->
                 <Button
                     Classes="IconBtn"
-                    Width="80"
-                    Name="OkBtn"
-                    Click="OkBtn_OnClick"
+                    MinWidth="90"
+                    Command="{Binding SelectedBtnCommand}"
                     IsEnabled="{Binding HasSelectedJavaVersion}">
                     <WrapPanel Classes="IconBtnWrapper">
                         <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf00c;" />
-                        <TextBlock Name="OkTb" Text="{lang:Translate common.ok}" VerticalAlignment="Center" />
+                        <TextBlock Text="{lang:Translate common.ok}" VerticalAlignment="Center" />
                     </WrapPanel>
                         
                 </Button>
                 <!-- Cancel Button -->
                 <Button
                     Classes="IconBtn"
-                    Width="80"
-                    Name="CancelBtn"
-                    Click="CancelBtn_OnClick">
+                    MinWidth="90"
+                    Command="{Binding CancelBtnCommand}">
                     <WrapPanel Classes="IconBtnWrapper">
                         <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf00d;" />
-                        <TextBlock Name="CancelTb" Text="{lang:Translate common.cancel}" VerticalAlignment="Center" />
+                        <TextBlock Text="{lang:Translate common.cancel}" VerticalAlignment="Center" />
                     </WrapPanel>
                 </Button>
             </WrapPanel>

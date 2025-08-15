@@ -51,7 +51,7 @@
                                     Text="{lang:Translate instance.edit.latestLog}" />
                                 <!--  Log content  -->
                                 <Border Grid.Row="1" Classes="GridInnerContent">
-                                    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                                    <ScrollViewer Name="LogsScrollViewer" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                                         <TextBlock
                                             FontFamily="Consolas"
                                             Opacity="0.8"

@@ -5,11 +5,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
-using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
 using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Helpers;
@@ -25,47 +23,31 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 /// Represents the EditInstanceWindow, a partial class inheriting from Avalonia's Window class.
 /// Provides functionality for editing an instance configuration.
 /// </summary>
-public partial class EditInstanceWindow : Window
+public partial class EditInstanceWindow : KonkordWindow
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceWindow));
-
-    /// <summary>
-    /// Default constructor used by the Avalonia Designer.
-    /// Initializes the window and sets up a mock data context for design mode.
-    /// </summary>
+    
     public EditInstanceWindow()
     {
         InitializeComponent();
-
-        // This check is a safeguard, but the parameterless constructor
-        // is only called in design mode anyway.
-        if (Design.IsDesignMode)
-        {
-            // Provide a mock data context for the designer to render.
-            var instance = new InstanceModel();
-            this.DataContext = new EditInstanceViewModel(this, instance, new InstanceConfig());
-        }
+        this.DataContext = new EditInstanceViewModel(this, string.Empty);
     }
-
-    /// <summary>
-    /// Constructor that initializes the window with a specific instance model.
-    /// Sets up the data context and optionally attaches Avalonia Dev Tools in debug mode.
-    /// </summary>
-    /// <param name="instance">The instance model to associate with this window.</param>
-    public EditInstanceWindow(InstanceModel instance)
+    
+    public EditInstanceWindow(string instanceId)
     {
         InitializeComponent();
-
+        
 #if DEBUG
         // Attaches Avalonia Dev Tools for debugging purposes.
         this.AttachDevTools();
 #endif
+        
+        this.DataContext = new EditInstanceViewModel(this, instanceId);
+    }
 
-        if (Design.IsDesignMode)
-            return;
-
-        var instance1 = instance;
-        this.DataContext = new EditInstanceViewModel(this, instance, instance.ConfigModel);
+    protected override void FreeMemory()
+    {
+        _logger.Debug("EditInstanceWindow memory cleared.");
     }
 
     #region Action Handlers

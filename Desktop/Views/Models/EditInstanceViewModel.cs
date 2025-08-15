@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -30,19 +31,22 @@ using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 
-public partial class EditInstanceViewModel : ObservableObject
+public partial class EditInstanceViewModel : KonkordObservableObject
 {
     private readonly bool _isInitialized;
     private readonly EditInstanceWindow _parentWindow;
+    private readonly string _instanceId;
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceViewModel));
-    private readonly InstanceModel _instance;
-    public string InstanceName => _instance.Name;
-    public string Logs => _instance.Logs;
-    public string? GameDirectory => _instance.GameDirectory;
+    private readonly CompositeDisposable _disposables = new();
+    private bool _isClosing = false;
     public bool IsLinux => OSHelper.GetOperatingSystem() == EOperatingSystem.Linux;
-    public bool IsVanilla => _instance.Kind == EMinecraftKind.VANILLA;
-    public List<Account> Accounts => LauncherHelper.GetAccountData().Accounts;
+    public List<Account> Accounts { get; set; }
 
+    [ObservableProperty] private string _instanceName;
+    [ObservableProperty] private string? _gameDirectory;
+    [ObservableProperty] private bool _isVanilla;
+    [ObservableProperty] private string _logs;
+    
     public ObservableCollection<ModModel> Mods { get; set; } = [];
     [ObservableProperty] private ModModel? _selectedMod;
     
@@ -67,23 +71,48 @@ public partial class EditInstanceViewModel : ObservableObject
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanRemoveEnvironmentVariable))] private int? _selectedEnvironmentVariableIndex;
     public bool CanRemoveEnvironmentVariable => SelectedEnvironmentVariableIndex is >= 0 && InstanceConfig.EnableEnvironment;
     
-    public EditInstanceViewModel(EditInstanceWindow parent, InstanceModel instance, InstanceConfig instanceConfig)
+    public EditInstanceViewModel(EditInstanceWindow parent, string instanceId)
     {
         if (Design.IsDesignMode)
         {
-            _instanceConfig = new InstanceConfigModel(instanceConfig);
+            _instanceConfig = new InstanceConfigModel();
             return;
         }
 
         _parentWindow = parent;
-        _instance = instance;
-        _instanceConfig = new InstanceConfigModel(instanceConfig);
+        _instanceId = instanceId;
+        var instances = LauncherHelper.GetInstances();
+        var currentInstance = instances.FirstOrDefault(x => x.Id == _instanceId);
+        if (currentInstance == null)
+        {
+            _logger.Error($"Instance with ID '{_instanceId}' not found.");
+            throw new KeyNotFoundException($"Instance with ID '{_instanceId}' not found.");
+        }
+        
+        _instanceName = currentInstance.Name;
+        _isVanilla = currentInstance.Kind == EMinecraftKind.VANILLA;
+        _gameDirectory = currentInstance.GameDirectory;
+        _instanceConfig = new InstanceConfigModel(currentInstance.Config);
         _isInitialized = true;
+        Accounts = LauncherHelper.GetAccountData().Accounts;
         SubscribeToConfigChildren(_instanceConfig);
         if (!string.IsNullOrEmpty(_instanceConfig.Misc.AccountId))
             _parentWindow.StOverridenAccountInput.SelectedIndex =
                 Accounts.FindIndex(x => x.Id == _instanceConfig.Misc.AccountId);
+        
+        // Free memory, just in case
+        instances = null;
+        currentInstance = null;
 
+        /*_instance.PropertyChanged += (_, args) =>
+        {
+            if (args.PropertyName == nameof(InstanceModel.Logs))
+            {
+                Logs = _instance.Logs;
+                _parentWindow.LogsScrollViewer.Offset =  new Vector(0, _parentWindow.LogsScrollViewer.Extent.Height);
+            }
+        };*/
+        
         #region Resource Packs
 
         // Set up a reactive filter for the ResourcePackSearchQuery property.
@@ -99,10 +128,12 @@ public partial class EditInstanceViewModel : ObservableObject
         // Connect the resource pack cache to the reactive filter.
         // Apply the filter and bind the resulting filtered collection to the FilteredResourcePacks property.
         // Subscribe to changes in the cache to keep the filtered collection up-to-date.
-        _resourcePackCache.Connect()
+        var bindingSubscription = _resourcePackCache.Connect()
             .Filter(filter)
             .Bind(out var filteredCollection)
             .Subscribe();
+        
+        _disposables.Add(bindingSubscription);
             
         FilteredResourcePacks = filteredCollection;
         RefreshResourcePacks();
@@ -110,6 +141,55 @@ public partial class EditInstanceViewModel : ObservableObject
         RefreshWorlds();
         RefreshServers();
         RefreshScreenshots();
+    }
+
+    public override void FreeMemory()
+    {
+        _logger.Debug("Freeing memory in EditInstanceViewModel...");
+        _isClosing = true;
+        
+        
+        Worlds.CollectionChanged -= WorldsOnCollectionChanged;
+        Servers.CollectionChanged -= ServersOnCollectionChanged;
+        
+        // Dispose of all image resources before clearing the collections
+        foreach (var resourcePack in _resourcePackCache.Items)
+            resourcePack.Icon?.Dispose();
+        foreach (var world in Worlds)
+            world.Icon?.Dispose();
+        foreach (var server in Servers)
+            server.Image?.Dispose();
+        foreach (var screenshot in Screenshots)
+            screenshot.Image?.Dispose();
+        
+        Accounts.Clear();
+        Mods.Clear();
+        _resourcePackCache.Clear();
+        _resourcePackCache.Dispose();
+        ShaderPacks.Clear();
+        Worlds.Clear();
+        Servers.Clear();
+        Screenshots.Clear();
+        UnsubscribeFromConfigChildren(InstanceConfig);
+        
+        InstanceConfig = new InstanceConfigModel();
+        InstanceName = string.Empty;
+        GameDirectory = null;
+        Logs = string.Empty;
+        _disposables.Dispose();
+        
+        
+        SelectedEnvironmentVariableIndex = null;
+        SelectedMod = null;
+        SelectedResourcePack = null;
+        SelectedResourcePack?.Icon?.Dispose();
+        SelectedShaderPack = null;
+        SelectedWorld = null;
+        SelectedWorld?.Icon?.Dispose();
+        SelectedServer = null;
+        SelectedServer?.Image?.Dispose();
+        SelectedScreenshot = null;
+        SelectedScreenshot?.Image?.Dispose();
     }
     
     #region Mods
@@ -180,10 +260,10 @@ public partial class EditInstanceViewModel : ObservableObject
     public void SaveResourcePacks()
     {
         _logger.Debug("Saving resource packs...");
-        if (_instance.GameDirectory == null)
+        if (GameDirectory == null)
             return;
 
-        string resourcePacksDir = Path.Combine(_instance.GameDirectory, "resourcepacks");
+        string resourcePacksDir = Path.Combine(GameDirectory, "resourcepacks");
         if (!Directory.Exists(resourcePacksDir))
             return;
 
@@ -215,15 +295,20 @@ public partial class EditInstanceViewModel : ObservableObject
     /// </summary>
     public void RefreshResourcePacks()
     {
-        if (_instance.GameDirectory == null)
+        if (GameDirectory == null)
             return;
 
-        string resourcePacksDir = Path.Combine(_instance.GameDirectory, "resourcepacks");
+        string resourcePacksDir = Path.Combine(GameDirectory, "resourcepacks");
         if (!Directory.Exists(resourcePacksDir))
             return;
         
         _resourcePackCache.Edit(innerCache =>
         {
+            foreach (var resourcePack in innerCache.Items)
+            {
+                // Dispose of the image to free memory
+                resourcePack.Icon?.Dispose();
+            }
             innerCache.Clear();
             var resources = Directory.GetFiles(resourcePacksDir, "*")
                 .Where(x => x.EndsWith(".zip") || x.EndsWith(".zip.dis"));
@@ -333,10 +418,10 @@ public partial class EditInstanceViewModel : ObservableObject
     public void DuplicateWorld(WorldModel world)
     {
         _logger.Debug("Saving worlds...");
-        if (_instance.GameDirectory == null)
+        if (GameDirectory == null)
             return;
         
-        string worldsDir = Path.Combine(_instance.GameDirectory, "saves");
+        string worldsDir = Path.Combine(GameDirectory, "saves");
         if (!Directory.Exists(worldsDir))
             return;
         
@@ -424,12 +509,12 @@ public partial class EditInstanceViewModel : ObservableObject
     public void SaveWorlds()
     {
         _logger.Debug("Saving worlds...");
-        if (_instance.GameDirectory == null)
+        if (GameDirectory == null)
             return;
         
         try
         {
-            string worldsDir = Path.Combine(_instance.GameDirectory, "saves");
+            string worldsDir = Path.Combine(GameDirectory, "saves");
             if (!Directory.Exists(worldsDir))
                 return;
             
@@ -522,15 +607,20 @@ public partial class EditInstanceViewModel : ObservableObject
     /// </summary>
     public void RefreshWorlds()
     {
-        if (_instance.GameDirectory == null)
+        if (GameDirectory == null)
             return;
         
-        string worldsDir = Path.Combine(_instance.GameDirectory, "saves");
+        string worldsDir = Path.Combine(GameDirectory, "saves");
         if (!Directory.Exists(worldsDir))
             return;
 
         Worlds.CollectionChanged -= WorldsOnCollectionChanged;
         
+        foreach (var world in Worlds)
+        {
+            // Dispose of the image to free memory
+            world.Icon?.Dispose();
+        }
         Worlds.Clear();
         var worldDirs = Directory.GetDirectories(worldsDir);
         foreach (var worldDir in worldDirs)
@@ -618,8 +708,9 @@ public partial class EditInstanceViewModel : ObservableObject
     [RelayCommand]
     public async Task ServersJoinCommand(ServerModel server)
     {
-        await _instance.LaunchAsync(_parentWindow, server.Ip);
-        _parentWindow.Close();
+        // TOOO: Implement server joining logic
+        //await _instance.LaunchAsync(_parentWindow, server.Ip);
+        _parentWindow.Hide();
     }
 
     /// <summary>
@@ -643,11 +734,11 @@ public partial class EditInstanceViewModel : ObservableObject
     public void SaveServers()
     {
         _logger.Debug("Saving servers to servers.dat file...");
-        if (_instance.GameDirectory == null)
+        if (GameDirectory == null)
             return;
         try
         {
-            string filePath = Path.Combine(_instance.GameDirectory, "servers.dat");
+            string filePath = Path.Combine(GameDirectory, "servers.dat");
             
             var root = new NbtCompoundTag();
             var serversList = new NbtListTag(NbtTagType.Compound);
@@ -698,11 +789,11 @@ public partial class EditInstanceViewModel : ObservableObject
     /// </summary>
     public void RefreshServers()
     {
-        if (_instance.GameDirectory == null)
+        if (GameDirectory == null)
             return;
     
         // Construct the file path for the servers.dat file
-        string filePath = Path.Combine(_instance.GameDirectory, "servers.dat");
+        string filePath = Path.Combine(GameDirectory, "servers.dat");
         if (!File.Exists(filePath))
             return;
 
@@ -715,6 +806,11 @@ public partial class EditInstanceViewModel : ObservableObject
         Servers.CollectionChanged -= ServersOnCollectionChanged;
         
         // Clear the existing Servers collection and populate it with new data
+        foreach (var server in Servers)
+        {
+            // Dispose of the image to free memory
+            server.Image?.Dispose();
+        }
         Servers.Clear();
         foreach (var server in serversDat.Servers)
             Servers.Add(new ServerModel(server.Name, server.Ip, server.AcceptTextures, server.HideAddress, server.Icon));
@@ -763,10 +859,10 @@ public partial class EditInstanceViewModel : ObservableObject
     [RelayCommand]
     public void ScreenshotsOpenDirectoryCommand(ScreenshotModel screenshot)
     {
-        if (string.IsNullOrEmpty(_instance.GameDirectory))
+        if (string.IsNullOrEmpty(GameDirectory))
             return;
     
-        string screenshotDir = Path.Combine(_instance.GameDirectory, "screenshots");
+        string screenshotDir = Path.Combine(GameDirectory, "screenshots");
         if (!Directory.Exists(screenshotDir))
             return;
 
@@ -781,13 +877,18 @@ public partial class EditInstanceViewModel : ObservableObject
     /// </summary>
     public void RefreshScreenshots()
     {
-        if (_instance.GameDirectory == null)
+        if (GameDirectory == null)
             return;
 
-        string screenshotDir = Path.Combine(_instance.GameDirectory, "screenshots");
+        string screenshotDir = Path.Combine(GameDirectory, "screenshots");
         if (!Directory.Exists(screenshotDir))
             return;
         
+        foreach (var screenshot in Screenshots)
+        {
+            // Dispose of the image to free memory
+            screenshot.Image?.Dispose();
+        }
         Screenshots.Clear();
         var screenshots = Directory.GetFiles(screenshotDir, "*.png");
         foreach (var screenshot in screenshots)
@@ -837,8 +938,11 @@ public partial class EditInstanceViewModel : ObservableObject
     /// <param name="newValue">The new instance configuration model.</param>
     partial void OnInstanceConfigChanged(InstanceConfigModel? oldValue, InstanceConfigModel newValue)
     {
+        if (_isClosing)
+            return;
+        
         _logger.Debug("InstanceConfig changed with old and new value. Unsubscribing from old, subscribing to new.");
-
+        
         if (oldValue != null)
             UnsubscribeFromConfigChildren(oldValue);
 
@@ -857,7 +961,7 @@ public partial class EditInstanceViewModel : ObservableObject
     /// <param name="e">The event data containing the name of the changed property.</param>
     private void OnChildConfigPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (!_isInitialized)
+        if (!_isInitialized || _isClosing)
             return;
         _logger.Debug($"Inner property '{e.PropertyName}' changed on {sender?.GetType().Name}. Saving to file...");
         SaveCoreConfigToFile(InstanceConfig);
@@ -871,7 +975,7 @@ public partial class EditInstanceViewModel : ObservableObject
     /// <param name="e">The event data containing details about the collection change.</param>
     private void OnChildConfigCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        if (!_isInitialized)
+        if (!_isInitialized || _isClosing)
             return;
         _logger.Debug($"Inner collection changed on {sender?.GetType().Name}. Saving to file...");
         SaveCoreConfigToFile(InstanceConfig);
@@ -884,6 +988,8 @@ public partial class EditInstanceViewModel : ObservableObject
     /// <param name="newValue">The updated instance configuration model to save.</param>
     private void SaveCoreConfigToFile(InstanceConfigModel newValue)
     {
+        if (_isClosing)
+            return;
         if (newValue.Java.MinMemory > newValue.Java.MaxMemory)
             newValue.Java.MinMemory = newValue.Java.MaxMemory;
 
@@ -892,7 +998,7 @@ public partial class EditInstanceViewModel : ObservableObject
         Instance? instanceToSave = null;
         foreach (var instance in instances)
         {
-            if (instance.Id == _instance.Id)
+            if (instance.Id == _instanceId)
             {
                 instanceToSave = instance;
                 break;

@@ -10,7 +10,11 @@ public class VersionManifest
     [JsonPropertyName("versions"), JsonProperty("versions")]
     public List<MinecraftVersion> Versions { get; set; }
 
-    public VersionManifest() { }
+    public VersionManifest()
+    {
+        Latest = new VersionManifestLatest();
+        Versions = [];
+    }
 
     public VersionManifest(VersionManifestLatest latest, List<MinecraftVersion> versions)
     {

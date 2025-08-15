@@ -10,7 +10,11 @@ public class VersionManifestLatest
     [JsonPropertyName("snapshot"), JsonProperty("snapshot")]
     public string Snapshot { get; set; }
 
-    public VersionManifestLatest() { }
+    public VersionManifestLatest()
+    {
+        Release = string.Empty;
+        Snapshot = string.Empty;
+    }
 
     public VersionManifestLatest(string release, string snapshot)
     {

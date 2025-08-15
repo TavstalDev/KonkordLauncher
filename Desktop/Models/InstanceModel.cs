@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models.Config;
@@ -30,7 +32,10 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(InstanceModel));
     private Window? _parentWindow;
-    
+    private long _lastReadPosition = 0;
+    private FileSystemWatcher? _watcher;
+
+    #region Observable Properties
     /// <summary>
     /// Gets or sets the unique identifier of the instance.
     /// </summary>
@@ -94,9 +99,6 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     /// Gets or sets a value indicating whether the game is currently running.
     /// </summary>
     [ObservableProperty] private bool _isGameRunning;
-
-    private long _lastReadPosition = 0;
-    private FileSystemWatcher _watcher;
     
     /// <summary>
     /// Gets or sets the logs associated with the instance.
@@ -109,7 +111,8 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     public Bitmap? Icon => string.IsNullOrEmpty(IconPath)
         ? ImageHelper.LoadFromResource(new Uri("avares://Desktop/Assets/Icons/dirt.png"))
         : new Bitmap(IconPath);
-
+    #endregion
+    
     /// <summary>
     /// Initializes a new instance of the <see cref="InstanceModel"/> class.
     /// </summary>
@@ -157,55 +160,29 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             return;
 
         string logsDir = Path.Combine(GameDirectory, "logs");
+
+        if (_watcher != null)
+        {
+            _watcher.Changed -= OnLogFileChanged;
+            _watcher.Created -= OnLogFileChanged;
+            _watcher.Renamed -= OnLogFileChanged;
+        }
         
         _watcher = new FileSystemWatcher
         {
-            Path =  logsDir,
-            Filter = "latest.log",
-            NotifyFilter = NotifyFilters.LastWrite
+            Path = logsDir,
+            NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite
         };
-        _watcher.Changed += OnLogFileChanged;
         _watcher.EnableRaisingEvents = true;
-        _watcher.Disposed += (_, _) =>
-        {
-            _logger.Warn("Watcher disposed, stopping log file monitoring.");
-        };
+        _watcher.Changed += OnLogFileChanged;
+        _watcher.Created += OnLogFileChanged;
+        _watcher.Renamed += OnLogFileChanged;
         _watcher.Error += (_, e) =>
         {
             _logger.Error("Watcher error: " + e.GetException().Message);
         };
     }
 
-    /// <summary>
-    /// Handles the event when the log file is changed. Reads the content of the updated log file.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The event data containing information about the changed file.</param>
-    private void OnLogFileChanged(object sender, FileSystemEventArgs e)
-    {
-        try
-        {
-            _logger.Info("### File changed, current position: " + _lastReadPosition);
-            using var fs = new FileStream(e.FullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            fs.Seek(_lastReadPosition, SeekOrigin.Begin);
-            using var sr = new StreamReader(fs);
-            if (_lastReadPosition == 0)
-                Logs = string.Empty;
-            while (sr.ReadLine() is { } newLine)
-            {
-                // Dispatch the UI update to the main thread
-               Logs += newLine + "\n";
-            }
-            _lastReadPosition = fs.Position;
-            _logger.Ok("### Log file read successfully, new position: " + _lastReadPosition);
-        }
-        catch (IOException ex)
-        {
-            _logger.Exc("Error while reading latest log file:");
-            _logger.Error(ex);
-        }
-    }
-    
     /// <summary>
     /// Launches the Minecraft instance asynchronously with the specified settings and configurations.
     /// Handles account selection, environment setup, and game instance initialization.
@@ -215,6 +192,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     public async Task LaunchAsync(Window parentWindow, string? serverAddress = null)
     {
         _parentWindow = parentWindow;
+        _lastReadPosition = 0;
         _logger.Debug($"Launching instance: {Name}");
         var accountData = await LauncherHelper.GetAccountDataAsync();
         var account = ConfigModel.Misc.OverrideAccount ? 
@@ -542,6 +520,48 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             JsonHelper.WriteJsonFile(PathHelper.LauncherInstancesPath, instances);
         }
         App.InvokeInstancesChanged();
+    }
+
+    /// <summary>
+    /// Handles the event when the log file is changed. Reads the content of the updated log file.
+    /// </summary>
+    /// <param name="sender">The source of the event.</param>
+    /// <param name="e">The event data containing information about the changed file.</param>
+    private void OnLogFileChanged(object sender, FileSystemEventArgs e)
+    {
+        try
+        {
+            if (e.Name != "latest.log")
+                return;
+            
+            if (e.ChangeType != WatcherChangeTypes.Changed)
+                return;
+            
+            _logger.Info("### File changed, current position: " + _lastReadPosition);
+            using var fs = new FileStream(e.FullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            fs.Seek(_lastReadPosition, SeekOrigin.Begin);
+            using var sr = new StreamReader(fs);
+            if (_lastReadPosition == 0)
+                Logs = string.Empty;
+            
+            var newLines = new StringBuilder();
+            while (sr.ReadLine() is { } newLine)
+            {
+                newLines.AppendLine(newLine);
+            }
+            
+            Dispatcher.UIThread.Post(() =>
+            {
+                Logs += newLines.ToString();
+            });
+            _lastReadPosition = fs.Position;
+            _logger.Ok("### Log file read successfully, new position: " + _lastReadPosition);
+        }
+        catch (IOException ex)
+        {
+            _logger.Exc("Error while reading latest log file:");
+            _logger.Error(ex);
+        }
     }
     
     #region Progress Reporter

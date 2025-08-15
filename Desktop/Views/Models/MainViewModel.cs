@@ -1,8 +1,8 @@
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Tavstal.KonkordLauncher.Common.Helpers;
@@ -11,20 +11,22 @@ using Tavstal.KonkordLauncher.Common.Models.Config;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Core.Services;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Config.Launcher;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Translation;
+using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 
 /// <summary>
 /// Represents the main view model for the application, managing the state and behavior of the UI.
 /// </summary>
-public partial class MainViewModel : ObservableObject
+public partial class MainViewModel : KonkordObservableObject
 {
     private readonly bool _isInitialized;
-    private readonly Window _mainWindow;
+    private readonly MainWindow? _mainWindow;
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MainViewModel));
 
     [ObservableProperty] private ESidebarType _currentPageIndex;
@@ -42,7 +44,7 @@ public partial class MainViewModel : ObservableObject
     /// <summary>
     /// Initializes a new instance of the <see cref="MainViewModel"/> class.
     /// </summary>
-    public MainViewModel(Window mainWindow)
+    public MainViewModel(MainWindow mainWindow)
     {
         _mainWindow = mainWindow;
         _currentPageIndex = ESidebarType.Play;
@@ -59,6 +61,22 @@ public partial class MainViewModel : ObservableObject
         App.OnAccountsChanged += OnAccountUpdated;
         App.OnInstancesChanged += HandleInstancesChanged;
     }
+    
+    public override void FreeMemory()
+    {
+        // TODO
+    }
+
+    #region Sidebar Management
+
+    /// <summary>
+    /// Handles the sidebar button click event by changing the current sidebar view.
+    /// </summary>
+    /// <param name="sidebarType">The type of sidebar to switch to.</param>
+    [RelayCommand]
+    public void HandleSidebarBtn(ESidebarType sidebarType) => _mainWindow?.HandleSidebarChange(sidebarType);
+    
+    #endregion
 
     #region Instances Management
     /// <summary>
@@ -78,6 +96,21 @@ public partial class MainViewModel : ObservableObject
     }
 
     #region Commands
+    
+    /// <summary>
+    /// Opens the "Create Instance" window to allow the user to add a new Minecraft instance asynchronously.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    [RelayCommand]
+    private async Task AddInstanceBtnAsync()
+    {
+        if (_mainWindow == null)
+            return;
+        
+        var dialog = new CreateInstanceWindow();
+        await dialog.ShowDialog(_mainWindow);
+    }
+    
     /// <summary>
     /// Launches the specified Minecraft instance asynchronously.
     /// </summary>
@@ -86,6 +119,8 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private async Task LaunchInstance(InstanceModel instance)
     {
+        if (_mainWindow == null)
+            return;
         await instance.LaunchAsync(_mainWindow);
     }
     
@@ -113,8 +148,10 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private async Task EditInstance(InstanceModel instance)
     {
+        if (_mainWindow == null)
+            return;
         // Create and display the edit instance window.
-        EditInstanceWindow editInstanceWindow = new EditInstanceWindow(instance);
+        EditInstanceWindow editInstanceWindow = new EditInstanceWindow(instance.Id);
         var result = await editInstanceWindow.ShowDialog<bool>(_mainWindow);
         if (!result)
             return;
@@ -124,6 +161,95 @@ public partial class MainViewModel : ObservableObject
     #endregion
     
     #region Account Management
+
+    #region Commands
+    /// <summary>
+    /// Opens the account management window to add a new account asynchronously.
+    /// </summary>
+    [RelayCommand]
+    private async Task AddAccountBtnAsync()
+    {
+        if (_mainWindow == null)
+            return;
+        
+        var dialog = new AccountsWindow();
+        await dialog.ShowDialog(_mainWindow);
+    }
+
+    /// <summary>
+    /// Selects the specified account by its ID and updates the selected account in the application.
+    /// </summary>
+    /// <param name="accountId">The ID of the account to select.</param>
+    [RelayCommand]
+    private void SelectAccountBtn(string accountId)
+    {
+        if (AccountData.SelectedAccountId == accountId)
+            return;
+        
+        AccountData.SelectedAccountId = accountId;
+        App.InvokeAccountsChanged();
+    }
+
+    /// <summary>
+    /// Refreshes the specified account's authentication token asynchronously if it has expired.
+    /// Logs errors if the refresh process fails.
+    /// </summary>
+    /// <param name="account">The account to refresh.</param>
+    [RelayCommand]
+    private async Task RefreshAccountBtnAsync(Account account)
+    {
+        if (!account.CanExpire || string.IsNullOrEmpty(account.RefreshToken))
+            return;
+
+        if (MicrosoftAuthService.AuthStatus != EAuthStatus.NONE)
+            return;
+
+        if (account.AccessTokenExpireDate > DateTime.Now)
+            return;
+
+        if (!await MicrosoftAuthService.RefreshLoginAsync(account.RefreshToken))
+        {
+            _logger.Error($"Failed to refresh account {account.DisplayName} ({account.Id}).");
+            return;
+        }
+
+        if (MicrosoftAuthService.Account == null)
+        {
+            _logger.Error($"Failed to refresh account {account.DisplayName} ({account.Id}) after successful api call.");
+            return;
+        }
+
+        var updatedAccount = MicrosoftAuthService.Account;
+        updatedAccount.Id = account.Id; // Ensure the ID remains the same
+        _logger.Info($"Successfully refreshed account {account.DisplayName} ({account.Id}).");
+
+        AccountData accountData = await LauncherHelper.GetAccountDataAsync();
+        var index = accountData.Accounts.FindIndex(x => x.Id == account.Id);
+        accountData.Accounts[index] = updatedAccount;
+
+        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData);
+        App.InvokeAccountsChanged();
+        MicrosoftAuthService.Reset();
+    }
+
+    /// <summary>
+    /// Removes the specified account from the account list.
+    /// If the removed account is the currently selected account, updates the selected account to the next available one.
+    /// </summary>
+    /// <param name="account">The account to remove.</param>
+    [RelayCommand]
+    private void RemoveAccountBtn(Account account)
+    {
+        AccountData.Accounts.Remove(account);
+        if (account.Id != AccountData.SelectedAccountId) 
+            return;
+        
+        AccountData.SelectedAccountId = AccountData.HasAccounts ? AccountData.Accounts.FirstOrDefault()?.Id : null;
+    }
+    #endregion
+
+    #region Account Operations
+    
     /// <summary>
     /// Updates the account data by fetching the latest data from the launcher helper.
     /// </summary>
@@ -199,9 +325,116 @@ public partial class MainViewModel : ObservableObject
         JsonHelper.WriteJsonFile(PathHelper.LauncherAccountsPath, accounts);
     }
     #endregion
+    #endregion
 
     #region Config Management
 
+    #region Commands
+
+    /// <summary>
+    /// Opens a folder picker dialog to select a directory and updates the corresponding configuration path
+    /// based on the provided index.
+    /// </summary>
+    /// <param name="index">
+    /// The index representing the configuration path to update:
+    /// 0 - AssetsDirectoryPath,
+    /// 1 - CacheDirectoryPath,
+    /// 2 - InstancesDirectoryPath,
+    /// 3 - IconsDirectoryPath,
+    /// 4 - JavaDirectoryPath,
+    /// 5 - LibrariesDirectoryPath,
+    /// 6 - ManifestsDirectoryPath,
+    /// 7 - TranslationsDirectoryPath,
+    /// 8 - VersionsDirectoryPath,
+    /// 9 - DefaultJavaPath.
+    /// </param>
+    [RelayCommand]
+    public async Task ConfigDirSelectAsync(int index)
+    {
+        if (_mainWindow == null)
+            return;
+        
+        var directoryResult = await _mainWindow.OpenFolderPickerAsync();
+        if (string.IsNullOrEmpty(directoryResult))
+            return;
+        switch (index)
+        {
+            case 0:
+            {
+                CoreConfig.Launcher.AssetsDirectoryPath = directoryResult;
+                break;
+            }
+            case 1:
+            {
+                CoreConfig.Launcher.CacheDirectoryPath = directoryResult;
+                break;
+            }
+            case 2:
+            {
+                CoreConfig.Launcher.InstancesDirectoryPath = directoryResult;
+                break;
+            }
+            case 3:
+            {
+                CoreConfig.Launcher.IconsDirectoryPath = directoryResult;
+                break;
+            }
+            case 4:
+            {
+                CoreConfig.Launcher.JavaDirectoryPath = directoryResult;
+                break;
+            }
+            case 5:
+            {
+                CoreConfig.Launcher.LibrariesDirectoryPath = directoryResult;
+                break;
+            }
+            case 6:
+            {
+                CoreConfig.Launcher.ManifestsDirectoryPath = directoryResult;
+                break;
+            }
+            case 7:
+            {
+                CoreConfig.Launcher.TranslationsDirectoryPath = directoryResult;
+                break;
+            }
+            case 8:
+            {
+                CoreConfig.Launcher.VersionsDirectoryPath = directoryResult;
+                break;
+            }
+            case 9:
+            {
+                CoreConfig.Java.DefaultJavaPath = directoryResult;
+                break;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Opens a Java selector window to choose a Java version and updates the default Java path
+    /// in the configuration with the selected version's path.
+    /// </summary>
+    [RelayCommand]
+    private async Task JavaPathSelectorAsync()
+    {
+        if (_mainWindow == null)
+            return;
+        
+        var window = new JavaSelectorWindow();
+        var javaVersion = await window.ShowDialog<JavaVersionModel>(_mainWindow);
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+        if (javaVersion == null)
+            return;
+        
+        CoreConfig.Java.DefaultJavaPath = javaVersion.Path;
+    }
+
+    #endregion
+
+    #region Config Operations
+    
     /// <summary>
     /// Subscribes to property change events for the child configuration objects.
     /// </summary>
@@ -339,7 +572,7 @@ public partial class MainViewModel : ObservableObject
 
         JsonHelper.WriteJsonFile(PathHelper.LauncherConfigPath, settings);
     }
-
+    #endregion
     #endregion
 
     #region About Us Properties

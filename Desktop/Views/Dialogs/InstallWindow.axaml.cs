@@ -1,7 +1,7 @@
 using Avalonia;
-using Avalonia.Controls;
 using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Desktop.Models;
 using InstallViewModel = Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models.InstallViewModel;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
@@ -10,7 +10,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 /// Represents the installation window in the application, which implements the <see cref="IProgressReporter"/> interface
 /// to report progress and status updates during installation.
 /// </summary>
-public partial class InstallWindow : Window, IProgressReporter
+public partial class InstallWindow : KonkordWindow, IProgressReporter
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="InstallWindow"/> class.
@@ -27,6 +27,12 @@ public partial class InstallWindow : Window, IProgressReporter
         // Sets the data context of the window to an instance of the InstallViewModel.
         this.DataContext = new InstallViewModel();
     }
+    
+    /// <summary>
+    /// Releases resources associated with the <see cref="InstallWindow"/>.
+    /// This method is intended to be overridden in derived classes to free unmanaged resources or perform cleanup tasks.
+    /// </summary>
+    protected override void FreeMemory() { }
 
     /// <summary>
     /// Updates the progress value in the associated view model.

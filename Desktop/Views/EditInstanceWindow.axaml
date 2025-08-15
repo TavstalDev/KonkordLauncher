@@ -48,14 +48,14 @@
                                 <TextBlock
                                     FontSize="20"
                                     FontWeight="500"
-                                    Text="Latest Log" />
+                                    Text="{lang:Translate instance.edit.latestLog}" />
                                 <!--  Log content  -->
                                 <Border Grid.Row="1" Classes="GridInnerContent">
-                                    <ScrollViewer>
+                                    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                                         <TextBlock
                                             FontFamily="Consolas"
                                             Opacity="0.8"
-                                            Text="Loading..."
+                                            Text="{Binding Logs}"
                                             TextWrapping="Wrap" />
                                     </ScrollViewer>
                                 </Border>
@@ -113,10 +113,10 @@
                                                 <DataGridCheckBoxColumn
                                                     Width="Auto"
                                                     Binding="{Binding IsEnabled}"
-                                                    Header="Enabled"
+                                                    Header="{lang:Translate instance.edit.table.enabled}"
                                                     IsReadOnly="False" />
                                                 <!--  Image  -->
-                                                <DataGridTemplateColumn Width="Auto" Header="Image">
+                                                <DataGridTemplateColumn Width="Auto" Header="{lang:Translate instance.edit.table.image}">
                                                     <DataGridTemplateColumn.CellTemplate>
                                                         <DataTemplate>
                                                             <Image
@@ -131,27 +131,27 @@
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding Name}"
-                                                    Header="Name" />
+                                                    Header="{lang:Translate instance.edit.table.name}" />
                                                 <!--  Version  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding Version}"
-                                                    Header="Version" />
+                                                    Header="{lang:Translate instance.edit.table.version}" />
                                                 <!--  Last Modified  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding LastModified}"
-                                                    Header="Last Modified" />
+                                                    Header="{lang:Translate instance.edit.table.lastModified}" />
                                                 <!--  Provider  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding Provider}"
-                                                    Header="Provider" />
+                                                    Header="{lang:Translate instance.edit.table.provider}" />
                                                 <!--  Size  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding Size}"
-                                                    Header="Size" />
+                                                    Header="{lang:Translate instance.edit.table.size}" />
                                             </DataGrid.Columns>
                                         </DataGrid>
                                     </ScrollViewer>
@@ -205,10 +205,10 @@
                                                 <DataGridCheckBoxColumn
                                                     Width="Auto"
                                                     Binding="{Binding IsEnabled, Mode=TwoWay}"
-                                                    Header="Enabled"
+                                                    Header="{lang:Translate instance.edit.table.enabled}"
                                                     IsReadOnly="False" />
                                                 <!--  Image  -->
-                                                <DataGridTemplateColumn Width="Auto" Header="Image">
+                                                <DataGridTemplateColumn Width="Auto" Header="{lang:Translate instance.edit.table.image}">
                                                     <DataGridTemplateColumn.CellTemplate>
                                                         <DataTemplate>
                                                             <Image
@@ -223,19 +223,19 @@
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding Name}"
-                                                    Header="Name"
+                                                    Header="{lang:Translate instance.edit.table.name}"
                                                     IsReadOnly="True"/>
                                                 <!--  Provider  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding Provider}"
-                                                    Header="Provider"
+                                                    Header="{lang:Translate instance.edit.table.provider}"
                                                     IsReadOnly="True"/>
                                                 <!--  Size  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding FormattedSize}"
-                                                    Header="Size"
+                                                    Header="{lang:Translate instance.edit.table.size}"
                                                     IsReadOnly="True"/>
                                             </DataGrid.Columns>
                                             <DataGrid.ContextMenu>
@@ -312,10 +312,10 @@
                                                 <DataGridCheckBoxColumn
                                                     Width="Auto"
                                                     Binding="{Binding IsEnabled}"
-                                                    Header="Enabled"
+                                                    Header="{lang:Translate instance.edit.table.enabled}"
                                                     IsReadOnly="False" />
                                                 <!--  Image  -->
-                                                <DataGridTemplateColumn Width="Auto" Header="Image">
+                                                <DataGridTemplateColumn Width="Auto" Header="{lang:Translate instance.edit.table.image}">
                                                     <DataGridTemplateColumn.CellTemplate>
                                                         <DataTemplate>
                                                             <Image
@@ -330,27 +330,27 @@
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding Name}"
-                                                    Header="Name" />
+                                                    Header="{lang:Translate instance.edit.table.name}" />
                                                 <!--  Version  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding Version}"
-                                                    Header="Version" />
+                                                    Header="{lang:Translate instance.edit.table.version}" />
                                                 <!--  Last Modified  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding LastModified}"
-                                                    Header="Last Modified" />
+                                                    Header="{lang:Translate instance.edit.table.lastModified}" />
                                                 <!--  Provider  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding Provider}"
-                                                    Header="Provider" />
+                                                    Header="{lang:Translate instance.edit.table.provider}" />
                                                 <!--  Size  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding Size}"
-                                                    Header="Size" />
+                                                    Header="{lang:Translate instance.edit.table.size}" />
                                             </DataGrid.Columns>
                                         </DataGrid>
                                     </ScrollViewer>
@@ -403,7 +403,7 @@
                                             IsReadOnly="False">
                                             <DataGrid.Columns>
                                                 <!--  Icon & Name  -->
-                                                <DataGridTemplateColumn Width="*" Header="Name">
+                                                <DataGridTemplateColumn Width="*" Header="{lang:Translate instance.edit.table.name}">
                                                     <DataGridTemplateColumn.CellTemplate>
                                                         <DataTemplate>
                                                             <StackPanel Orientation="Horizontal" Spacing="5">
@@ -434,19 +434,19 @@
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding Gamemode}"
-                                                    Header="GameMode"
+                                                    Header="{lang:Translate instance.edit.table.gameMode}"
                                                     IsReadOnly="True"/>
                                                 <!--  Last Played  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding FormattedLastPlayed}"
-                                                    Header="Last Played"
+                                                    Header="{lang:Translate instance.edit.table.lastPlayed}"
                                                     IsReadOnly="True"/>
                                                 <!--  Size  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding FormattedSize}"
-                                                    Header="Size"
+                                                    Header="{lang:Translate instance.edit.table.size}"
                                                     IsReadOnly="True"/>
                                             </DataGrid.Columns>
                                             <DataGrid.ContextMenu>
@@ -497,7 +497,7 @@
                                             IsReadOnly="False">
                                             <DataGrid.Columns>
                                                 <!--  Icon & Name  -->
-                                                <DataGridTemplateColumn Width="*" Header="Name">
+                                                <DataGridTemplateColumn Width="*" Header="{lang:Translate instance.edit.table.name}">
                                                     <DataGridTemplateColumn.CellTemplate>
                                                         <DataTemplate>
                                                             <StackPanel Orientation="Horizontal" Spacing="5">
@@ -528,7 +528,7 @@
                                                 <DataGridTextColumn
                                                     Width="*"
                                                     Binding="{Binding Ip}"
-                                                    Header="Address" />
+                                                    Header="{lang:Translate instance.edit.table.ipAddress}" />
                                             </DataGrid.Columns>
                                             <DataGrid.ContextMenu>
                                                 <ContextMenu>
@@ -591,7 +591,7 @@
                                             IsReadOnly="False">
                                             <DataGrid.Columns>
                                                 <!--  Icon & Name  -->
-                                                <DataGridTemplateColumn Width="*" Header="Name" IsReadOnly="False">
+                                                <DataGridTemplateColumn Width="*" Header="{lang:Translate instance.edit.table.name}" IsReadOnly="False">
                                                     <DataGridTemplateColumn.CellTemplate>
                                                         <DataTemplate>
                                                             <StackPanel Orientation="Horizontal">
@@ -627,7 +627,7 @@
                                                 <DataGridTextColumn
                                                     Width="Auto"
                                                     Binding="{Binding FormatedSize}"
-                                                    Header="Size"
+                                                    Header="{lang:Translate instance.edit.table.size}"
                                                     IsReadOnly="True"/>
                                             </DataGrid.Columns>
                                             <DataGrid.ContextMenu>

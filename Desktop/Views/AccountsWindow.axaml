@@ -29,9 +29,9 @@
                                 <!-- Description text -->
                                 <TextBlock Name="MicrosoftDescriptionTb" Classes="AccountsModalDescription" Text="{lang:Translate auth.microsoft.description}" />
                                 <!-- Microsoft logo -->
-                                <Image Classes="AccountsModalImage" Source="../Assets/Images/Brands/microsoft.png" />
+                                <Image Classes="AccountsModalImage" Source="avares://Desktop/Assets/Images/Brands/microsoft.png" />
                                 <!-- Start login button -->
-                                <Button Classes="IconBtn PrimaryBtn" HorizontalAlignment="Center" Click="MicrosoftLogin_OnClick">
+                                <Button Classes="IconBtn PrimaryBtn" HorizontalAlignment="Center" Command="{Binding LoginMicrosoftAccountCommand}">
                                     <WrapPanel Classes="IconBtnWrapper" Margin="15, 5">
                                         <TextBlock Classes="FontAwesome MicrosoftButtonText" VerticalAlignment="Center" Text="&#xf4fc;" />
                                         <TextBlock Classes="MicrosoftButtonText" Text="{lang:Translate auth.microsoft.login}" VerticalAlignment="Center" />
@@ -48,15 +48,15 @@
                                 <!-- Buttons -->
                                 <WrapPanel Classes="AccountsModalProgressWrapper">
                                     <!-- Open link button -->
-                                    <Button Classes="IconBtn PrimaryBtn" Click="OpenLink_OnClick">
+                                    <Button Classes="IconBtn PrimaryBtn" Command="{Binding MicrosoftOpenLoginLinkCommand}">
                                         <TextBlock Classes="FontAwesome" Text="&#xf0ac;" />
                                     </Button>
                                     <!-- Copy link button -->
-                                    <Button Classes="IconBtn" Click="CopyLink_OnClick">
+                                    <Button Classes="IconBtn" Command="{Binding MicrosoftCopyLoginLinkCommand}">
                                         <TextBlock Classes="FontAwesome" Text="&#xf0c1;" />
                                     </Button>
                                     <!-- Cancel button -->
-                                    <Button Classes="IconBtn ErrorBtn" Click="CancelLogin_OnClick" >
+                                    <Button Classes="IconBtn ErrorBtn" Command="{Binding MicrosoftCancelLoginCommand}" >
                                         <TextBlock Classes="FontAwesome" Text="&#xf00d;" />
                                     </Button>
                                 </WrapPanel>
@@ -71,9 +71,9 @@
                             <!-- Description text -->
                             <TextBlock Name="OfflineDescriptionTb" Classes="AccountsModalDescription" Text="{lang:Translate auth.offline.description}" />
                             <!-- Username input -->
-                            <TextBox Name="OfflineUsernameInput" Classes="AccountsModalInput" MaxLength="16" Watermark="steve" TextChanged="OfflineUsername_OnTextChanged" />
+                            <TextBox Name="OfflineUsernameInput" Classes="AccountsModalInput" MaxLength="16" Watermark="steve" Text="{Binding OfflineUsername}" />
                             <!-- Offline login button -->
-                            <Button Classes="IconBtn PrimaryBtn" HorizontalAlignment="Center" Click="OfflineLogin_OnClick">
+                            <Button Classes="IconBtn PrimaryBtn" HorizontalAlignment="Center" Command="{Binding OfflineLoginCommand}">
                                 <WrapPanel Classes="IconBtnWrapper" Margin="15, 5">
                                     <TextBlock Classes="FontAwesome MicrosoftButtonText" VerticalAlignment="Center" Text="&#xf4fc;" />
                                     <TextBlock Classes="MicrosoftButtonText" Text="{lang:Translate auth.offline.login}" VerticalAlignment="Center" />

@@ -1,20 +1,12 @@
 using System;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Interactivity;
 using Avalonia.Threading;
-using Tavstal.KonkordLauncher.Common.Helpers;
-using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Translation;
-using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
-using Tavstal.KonkordLauncher.Core.Services;
-using Tavstal.KonkordLauncher.Desktop.Models.Enums;
-using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
+using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views;
@@ -23,7 +15,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 /// Represents the AccountsWindow, a partial class that serves as the main window for managing accounts.
 /// Implements the IProgressReporter interface to handle progress updates.
 /// </summary>
-public partial class AccountsWindow : Window, IProgressReporter
+public partial class AccountsWindow : KonkordWindow, IProgressReporter
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(AccountsWindow));
     
@@ -40,22 +32,69 @@ public partial class AccountsWindow : Window, IProgressReporter
         this.AttachDevTools();
 #endif
 
-        this.DataContext = new AccountsViewModel();
+        this.DataContext = new AccountsViewModel(this);
+        OfflineUsernameInput.TextChanged += OfflineUsername_OnTextChanged;
     }
 
     /// <summary>
-    /// Stops the Microsoft authentication process by resetting the authentication service,
-    /// notifying the application of account changes, and updating the view model state.
+    /// Frees any resources or memory used by the AccountsWindow.
+    /// This method is intended to be overridden in derived classes to release resources.
     /// </summary>
-    private void StopMicrosoftAuth()
+    protected override void FreeMemory()
     {
-        if (this.DataContext is not AccountsViewModel vm)
+        OfflineUsernameInput.TextChanged -= OfflineUsername_OnTextChanged;
+        _logger.Debug("AccountsWindow memory freed.");
+    }
+    
+    /// <summary>
+    /// Asynchronously sets the specified text to the system clipboard.
+    /// Ensures that the clipboard is accessible and logs any errors encountered during the operation.
+    /// </summary>
+    /// <param name="text">The text to set to the clipboard. If null or empty, the method returns immediately.</param>
+    public async Task SetClipboardTextAsync(string text)
+    {
+        if (string.IsNullOrEmpty(text))
             return;
         
-        MicrosoftAuthService.Reset();
-        vm.IsLoggingInMicrosoftAccount = false;
-    }
+        var topLevel = GetTopLevel(this);
+        if (topLevel?.Clipboard == null)
+            return;
 
+        try
+        {
+            await topLevel.Clipboard.SetTextAsync(text);
+        }
+        catch (Exception ex)
+        {
+            _logger.Exc("Failed to set clipboard text");
+            _logger.Error(ex);
+        }
+    }
+    
+    /// <summary>
+    /// Handles the text changed event for the offline username input field. 
+    /// Ensures that the input contains only alphanumeric characters and underscores.
+    /// If invalid characters are detected, they are removed, and the caret position is adjusted accordingly.
+    /// </summary>
+    /// <param name="sender">The source of the event, expected to be a TextBox.</param>
+    /// <param name="e">The event data.</param>
+    private void OfflineUsername_OnTextChanged(object? sender, TextChangedEventArgs e)
+    {
+        if (sender is not TextBox textBox)
+            return;
+        
+        if (textBox.Text == null)
+            return;
+
+        string allowed = Regex.Replace(textBox.Text, @"[^A-Za-z0-9_]", "");
+        if (textBox.Text != allowed)
+        {
+            int caret = textBox.CaretIndex;
+            textBox.Text = allowed;
+            textBox.CaretIndex = Math.Min(caret - 1, allowed.Length);
+        }
+    }
+    
     #region Progress Reporter
 
     /// <summary>
@@ -104,199 +143,5 @@ public partial class AccountsWindow : Window, IProgressReporter
         });
     }
 
-    #endregion
-
-    #region Event Handlers
-    /// <summary>
-    /// Handles the click event for initiating the Microsoft login process.
-    /// Opens the Microsoft authentication URL, starts listening for authentication status,
-    /// and processes the result to add the account or display appropriate error messages.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The event data.</param>
-    private void MicrosoftLogin_OnClick(object? sender, RoutedEventArgs e)
-    {
-        if (this.DataContext is not AccountsViewModel vm)
-            return;
-        
-        vm.IsLoggingInMicrosoftAccount = true;
-        MicrosoftAuthService.OpenAuthenticationUrl();
-        
-        Task.Run(async () =>
-        {
-            await AuthService.StartListening(this);
-            _logger.Debug($"Status result: {MicrosoftAuthService.AuthStatus}");
-            if (MicrosoftAuthService.AuthStatus == EAuthStatus.FAILED)
-            {
-                vm.IsLoggingInMicrosoftAccount = false;
-                Dispatcher.UIThread.Post(() =>
-                {
-                    AlertWindow alert = new AlertWindow(
-                        TranslationManager.Translate("account.login.failed"),
-                        TranslationManager.Translate("account.login.microsoft.failed"),
-                        EAlertType.Error);
-                    alert.ShowDialog(this);
-                });
-                return;
-            }
-            
-            if (MicrosoftAuthService.AuthStatus != EAuthStatus.SUCCESS)
-                return;
-            
-            var microsoftAccount = MicrosoftAuthService.Account;
-            if (microsoftAccount == null)
-            {
-                Dispatcher.UIThread.Post(() =>
-                {
-                    AlertWindow window = new AlertWindow(
-                        TranslationManager.Translate("account.login.failed"),
-                        TranslationManager.Translate("account.login.microsoft.null"),
-                        EAlertType.Error
-                    );
-                    window.ShowDialog(this);
-                    StopMicrosoftAuth();
-                });
-                return;
-            }
-            
-            AccountData accountData = await LauncherHelper.GetAccountDataAsync();
-            var account = accountData.Accounts.FirstOrDefault(x => x.Uuid == microsoftAccount.Uuid);
-            if (account != null)
-            {
-                Dispatcher.UIThread.Post(() =>
-                {
-                    AlertWindow window = new AlertWindow(
-                        TranslationManager.Translate("account.duplicate"),
-                        TranslationManager.Translate("account.duplicate.microsoft"),
-                        EAlertType.Error
-                    );
-                    window.ShowDialog(this);
-                    StopMicrosoftAuth();
-                });
-                return;
-            }
-            
-            if (string.IsNullOrEmpty(accountData.SelectedAccountId))
-                accountData.SelectedAccountId = microsoftAccount.Id;
-            accountData.Accounts.Add(microsoftAccount);
-            await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData);
-            App.InvokeAccountsChanged();
-            MicrosoftAuthService.Reset();
-
-            Dispatcher.UIThread.Post(this.Close);
-        });
-    }
-
-    /// <summary>
-    /// Handles the click event to open the Microsoft authentication URL in the default web browser.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The event data.</param>
-    private void OpenLink_OnClick(object? sender, RoutedEventArgs e)
-    {
-        if (this.DataContext is not AccountsViewModel vm)
-            return;
-    
-        MicrosoftAuthService.OpenAuthenticationUrl();
-    }
-
-    /// <summary>
-    /// Handles the click event to copy the Microsoft authentication URL to the clipboard.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The event data.</param>
-    private void CopyLink_OnClick(object? sender, RoutedEventArgs e)
-    {
-        if (this.DataContext is not AccountsViewModel vm)
-            return;
-    
-        var topLevel = GetTopLevel(this);
-
-        if (topLevel?.Clipboard == null)
-            return;
-
-        Task.Run(async () => await topLevel.Clipboard.SetTextAsync(MicrosoftAuthService.GetAuthenticationUrl()));
-    }
-
-    /// <summary>
-    /// Handles the click event to cancel the Microsoft login process.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The event data.</param>
-    private void CancelLogin_OnClick(object? sender, RoutedEventArgs e)
-    {
-        AuthService.StopListening();
-        StopMicrosoftAuth();
-    }
-    
-    
-    /// <summary>
-    /// Handles the text changed event for the offline username input field. 
-    /// Ensures that the input contains only alphanumeric characters and underscores.
-    /// If invalid characters are detected, they are removed, and the caret position is adjusted accordingly.
-    /// </summary>
-    /// <param name="sender">The source of the event, expected to be a TextBox.</param>
-    /// <param name="e">The event data.</param>
-    private void OfflineUsername_OnTextChanged(object? sender, TextChangedEventArgs e)
-    {
-        if (sender is not TextBox textBox)
-            return;
-        
-        if (textBox.Text == null)
-            return;
-
-        string allowed = Regex.Replace(textBox.Text, @"[^A-Za-z0-9_]", "");
-        if (textBox.Text != allowed)
-        {
-            int caret = textBox.CaretIndex;
-            textBox.Text = allowed;
-            textBox.CaretIndex = Math.Min(caret - 1, allowed.Length);
-        }
-    }
-    
-    /// <summary>
-    /// Handles the click event for offline login. Validates the username, checks for duplicate accounts,
-    /// and creates a new offline account if valid. Displays appropriate alerts for errors or success.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The event data.</param>
-    private void OfflineLogin_OnClick(object? sender, RoutedEventArgs e)
-    {
-        if (string.IsNullOrEmpty(OfflineUsernameInput.Text))
-        {
-            AlertWindow window = new AlertWindow(
-                TranslationManager.Translate("account.empty.name"),
-                TranslationManager.Translate("account.empty.name.desc"),
-                EAlertType.Warning
-            );
-            window.ShowDialog(this);
-            return;
-        }
-
-        string uuid = GameHelper.GetOfflinePlayerUUID(OfflineUsernameInput.Text);
-        AccountData accountData = LauncherHelper.GetAccountData();
-        var account = accountData.Accounts.FirstOrDefault(x => x.Uuid == uuid);
-        if (account != null)
-        {
-            AlertWindow window = new AlertWindow(
-                TranslationManager.Translate("account.duplicate"),
-                TranslationManager.Translate("account.duplicate.offline"),
-                EAlertType.Error
-                );
-            window.ShowDialog(this);
-            return;
-        }
-        
-        var id = Guid.NewGuid().ToString();
-        if (string.IsNullOrEmpty(accountData.SelectedAccountId))
-            accountData.SelectedAccountId = id;
-
-        account = new Account(id, uuid, OfflineUsernameInput.Text, EAccountType.OFFLINE, "eyJhYiI6IkNkIiwidHlwIjoiSldUIn0.eyJoZWxsbyI6IndvcmxkIn0.F4k3-t0k3n_th1s-1s-n0t-v4l1d-51gn4tvr3", "no_refresh_token_needed",
-            DateTime.Now);
-        accountData.Accounts.Add(account);
-        JsonHelper.WriteJsonFile(PathHelper.LauncherAccountsPath, accountData);
-        App.InvokeAccountsChanged();
-        this.Close();
-    }
     #endregion
 }

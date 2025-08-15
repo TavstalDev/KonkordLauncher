@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -94,6 +95,14 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     /// </summary>
     [ObservableProperty] private bool _isGameRunning;
 
+    private long _lastReadPosition = 0;
+    private FileSystemWatcher _watcher;
+    
+    /// <summary>
+    /// Gets or sets the logs associated with the instance.
+    /// </summary>
+    [ObservableProperty] private string _logs = "The instance has not been launched yet. Launch the instance to see the logs.";
+
     /// <summary>
     /// Gets the icon of the instance as a bitmap. If the icon path is not set, a default icon is used.
     /// </summary>
@@ -143,6 +152,58 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             IsGameRunning = false;
             GameProcess = null;
         };
+
+        if (string.IsNullOrEmpty(GameDirectory))
+            return;
+
+        string logsDir = Path.Combine(GameDirectory, "logs");
+        
+        _watcher = new FileSystemWatcher
+        {
+            Path =  logsDir,
+            Filter = "latest.log",
+            NotifyFilter = NotifyFilters.LastWrite
+        };
+        _watcher.Changed += OnLogFileChanged;
+        _watcher.EnableRaisingEvents = true;
+        _watcher.Disposed += (_, _) =>
+        {
+            _logger.Warn("Watcher disposed, stopping log file monitoring.");
+        };
+        _watcher.Error += (_, e) =>
+        {
+            _logger.Error("Watcher error: " + e.GetException().Message);
+        };
+    }
+
+    /// <summary>
+    /// Handles the event when the log file is changed. Reads the content of the updated log file.
+    /// </summary>
+    /// <param name="sender">The source of the event.</param>
+    /// <param name="e">The event data containing information about the changed file.</param>
+    private void OnLogFileChanged(object sender, FileSystemEventArgs e)
+    {
+        try
+        {
+            _logger.Info("### File changed, current position: " + _lastReadPosition);
+            using var fs = new FileStream(e.FullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            fs.Seek(_lastReadPosition, SeekOrigin.Begin);
+            using var sr = new StreamReader(fs);
+            if (_lastReadPosition == 0)
+                Logs = string.Empty;
+            while (sr.ReadLine() is { } newLine)
+            {
+                // Dispatch the UI update to the main thread
+               Logs += newLine + "\n";
+            }
+            _lastReadPosition = fs.Position;
+            _logger.Ok("### Log file read successfully, new position: " + _lastReadPosition);
+        }
+        catch (IOException ex)
+        {
+            _logger.Exc("Error while reading latest log file:");
+            _logger.Error(ex);
+        }
     }
     
     /// <summary>

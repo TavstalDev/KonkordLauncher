@@ -1,11 +1,16 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DynamicData;
+using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Config;
@@ -26,8 +31,8 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 public partial class CreateInstanceViewModel : KonkordObservableObject
 {
     private CreateInstanceWindow? _parentWindow;
-    private VersionManifest? _vanillaManifest;
-    private readonly ReverseMarkdown.Converter _converter = new();
+    private ReverseMarkdown.Converter? _converter = new();
+    private readonly CompositeDisposable _disposables = new();
 
     #region Custom
     
@@ -63,43 +68,21 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
     }
     
     #region Vanilla
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(VersionResult))] private string _searchQuery = string.Empty;
+    private readonly SourceCache<MinecraftVersion, string> _minecraftVersionCache = new(x => x.Id);
+    public ReadOnlyObservableCollection<MinecraftVersion> MinecraftVersions { get; }
+    [ObservableProperty] private string _searchQuery = string.Empty;
 
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(VersionResult))] private bool _showReleases = true;
+    [ObservableProperty] private bool _showReleases = true;
 
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(VersionResult))] private bool _showSnapshots;
+    [ObservableProperty] private bool _showSnapshots;
 
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(VersionResult))] private bool _showAlphas;
+    [ObservableProperty] private bool _showAlphas;
 
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(VersionResult))] private bool _showBetas;
+    [ObservableProperty] private bool _showBetas;
 
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(VersionResult))] private bool _showExperiments;
+    [ObservableProperty] private bool _showExperiments;
     
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))] [NotifyPropertyChangedFor(nameof(ModLoaderVersionResult))] private MinecraftVersion? _selectedMinecraftVersion;
-
-    /// <summary>
-    /// Gets a filtered list of available Minecraft versions based on the current search query and selected version types.
-    /// Filters include release, snapshot, old alpha, old beta, and experiment versions,
-    /// depending on the corresponding boolean properties.
-    /// </summary>
-    public ObservableCollection<MinecraftVersion> VersionResult
-    {
-        get
-        {
-            if (_vanillaManifest == null)
-                return [];
-            
-            var versions = _vanillaManifest.Versions.FindAll(x =>
-                (string.IsNullOrEmpty(SearchQuery) || x.Id.StartsWith(SearchQuery)) &&
-                (x.Type != "release" || ShowReleases) &&
-                (x.Type != "snapshot" || ShowSnapshots) &&
-                (x.Type != "old_alpha" || ShowAlphas) &&
-                (x.Type != "old_beta" || ShowBetas) &&
-                (x.Type != "experiment" || ShowExperiments));
-
-            return new ObservableCollection<MinecraftVersion>(versions.Count == 0 ? [] : versions);
-        }
-    }
     #endregion
     #region  Mod Loader
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(ModLoaderVersionResult))] private string _modLoaderSearchQuery = string.Empty;
@@ -203,12 +186,12 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
         EPlatformType.FTB
     ];
     
-    public string ModpackPreview => SelectedModpack == null ? _converter.Convert(@"<p>Select a modpack to see its preview.</p>") : _converter.Convert(SelectedModpack.RawPage);
+    public string? ModpackPreview => SelectedModpack == null ? _converter?.Convert(@"<p>Select a modpack to see its preview.</p>") : _converter?.Convert(SelectedModpack.RawPage);
 
     #endregion
 
     #region Import
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsSourceFromFile))] private int _selectedImportSourceIndex = 0;
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsSourceFromFile))] private int _selectedImportSourceIndex;
     
     public bool IsSourceFromFile => SelectedImportSourceIndex == 0;
     #endregion
@@ -220,12 +203,44 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
         if (Design.IsDesignMode)
             return;
         
-        _vanillaManifest = ManifestHelper.GetMinecraftManifest()!;
-        _selectedMinecraftVersion = VersionResult.First();
+        var filter = this.WhenAnyValue(x => x.SearchQuery)
+            .Select(query =>
+            {
+                if (string.IsNullOrWhiteSpace(query) && !ShowReleases && !ShowSnapshots && !ShowAlphas && !ShowBetas &&
+                    !ShowExperiments)
+                    return (Func<MinecraftVersion, bool>)(_ => true); // No filter
+
+                return (Func<MinecraftVersion, bool>)(x =>
+                    (string.IsNullOrEmpty(SearchQuery) || x.Id.StartsWith(SearchQuery)) &&
+                    (x.Type != "release" || ShowReleases) &&
+                    (x.Type != "snapshot" || ShowSnapshots) &&
+                    (x.Type != "old_alpha" || ShowAlphas) &&
+                    (x.Type != "old_beta" || ShowBetas) &&
+                    (x.Type != "experiment" || ShowExperiments));
+            });
+
+        var bindingSubscription = _minecraftVersionCache.Connect()
+            .Filter(filter)
+            .Bind(out var filteredCollection)
+            .Subscribe();
+        _disposables.Add(bindingSubscription);
+        MinecraftVersions = filteredCollection;
+        _minecraftVersionCache.Edit(innerCache =>
+        {
+            var vanillaManifest = ManifestHelper.GetMinecraftManifest();
+            if (vanillaManifest == null)
+                throw new InvalidOperationException("Minecraft manifest is not available.");
+            foreach (var version in vanillaManifest.Versions)
+                innerCache.AddOrUpdate(version);
+            _selectedMinecraftVersion = innerCache.Items.FirstOrDefault();
+        });
     }
 
     public override void FreeMemory()
     {
+        _disposables.Dispose();
+        _minecraftVersionCache.Clear();
+        _minecraftVersionCache.Dispose();
         InstanceName = string.Empty;
         InstanceGroup = string.Empty;
         InstanceIcon?.Dispose();
@@ -233,11 +248,13 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
         InstanceIconPath = null;
         SearchQuery = string.Empty;
         SelectedMinecraftVersion = null;
-        _vanillaManifest = null;
         
         ModLoaderSearchQuery = string.Empty;
         SelectedModLoader = null;
         ModLoaderVersionResult.Clear();
+
+        _parentWindow = null;
+        _converter = null;
     }
     
     #region Commands

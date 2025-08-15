@@ -93,7 +93,7 @@
                                                 Classes="InstanceTable"
                                                 Grid.Column="0"
                                                 Name="CustomMinecraftVersionDataTable"
-                                                ItemsSource="{Binding VersionResult}"
+                                                ItemsSource="{Binding MinecraftVersions}"
                                                 SelectedItem="{Binding SelectedMinecraftVersion, Mode=TwoWay}">
                                                 <DataGrid.Columns>
                                                     <DataGridTextColumn

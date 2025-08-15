@@ -14,6 +14,7 @@ using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
@@ -24,7 +25,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 /// Represents the startup window of the application, responsible for initializing and validating
 /// various components before launching the main application window.
 /// </summary>
-public partial class StartupWindow : Window, IProgressReporter
+public partial class StartupWindow : KonkordWindow, IProgressReporter
 {
     /// <summary>
     /// The application lifetime instance for managing the desktop-style application lifecycle.
@@ -44,7 +45,11 @@ public partial class StartupWindow : Window, IProgressReporter
     /// <summary>
     /// Initializes a new instance of the <see cref="StartupWindow"/> class with default settings.
     /// </summary>
-    public StartupWindow() {}
+    public StartupWindow()
+    {
+        InitializeComponent();
+        this.DataContext = new StartupViewModel();
+    }
     
     /// <summary>
     /// Initializes a new instance of the <see cref="StartupWindow"/> class.
@@ -62,147 +67,157 @@ public partial class StartupWindow : Window, IProgressReporter
 
         this.DataContext = new StartupViewModel();
     }
+    
+    /// <summary>
+    /// Frees any resources or memory used by the StartupWindow.
+    /// Sets the DataContext to null to release bindings and associated resources.
+    /// </summary>
+    protected override void FreeMemory()
+    {
+        // Free any resources or memory used by the StartupWindow.
+    }
 
     /// <summary>
     /// Event handler for the window's loaded event. Starts the validation process asynchronously.
     /// </summary>
     private void Window_OnLoaded(object? sender, RoutedEventArgs e)
     {
-        Task.Run(ValidateAsync);
-    }
-
-    /// <summary>
-    /// Performs a series of validation steps asynchronously to ensure the application is ready to run.
-    /// </summary>
-    private async Task ValidateAsync()
-    {
-        var settings = await LauncherHelper.GetLauncherSettingsAsync();
-        
-        // 0. Set initial status
-        SetStatusTranslated("startup.progress.initializing");
-
-        // 1. Validate Directory Structure
-        SetStatusTranslated("startup.validation.dataFolder");
-        await Task.Delay(_stepDelay);
-        bool shouldGenerateIcons = !Directory.Exists(settings.Launcher.IconsDirectoryPath);
-        if (!ValidationHelper.ValidateDataFolder())
+        Dispatcher.UIThread.InvokeAsync(async () =>
         {
-            SetStatusTranslated("startup.validation.dataFolderFailed");
-            return;
-        }
+            var settings = await LauncherHelper.GetLauncherSettingsAsync();
 
-        // Generate icons if the directory does not exist
-        if (shouldGenerateIcons)
-        {
-            string[] resourceNames = Assembly.GetExecutingAssembly().GetManifestResourceNames();
-            foreach (string path in resourceNames)
+            // 0. Set initial status
+            SetStatusTranslated("startup.progress.initializing");
+
+            // 1. Validate Directory Structure
+            SetStatusTranslated("startup.validation.dataFolder");
+            await Task.Delay(_stepDelay);
+            bool shouldGenerateIcons = !Directory.Exists(settings.Launcher.IconsDirectoryPath);
+            if (!ValidationHelper.ValidateDataFolder())
             {
-                if (!path.Contains("Desktop.Assets.Icons"))
-                    continue;
-                    
-                var fileName = path.Replace("Tavstal.KonkordLauncher.Desktop.Assets.Icons.", "");
-                if (!fileName.EndsWith(".png"))
-                    continue;
-                _logger.Debug($"Extracting icon: {fileName}");
-                var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path);
-                if (stream == null)
-                {
-                    _logger.Error($"Failed to get resource stream for {fileName}");
-                    continue;
-                }
-                
-                var destPath = Path.Combine(settings.Launcher.IconsDirectoryPath, fileName);
-                await using FileStream outFile = new FileStream(destPath, FileMode.Create, FileAccess.Write);
-                await stream.CopyToAsync(outFile);
+                SetStatusTranslated("startup.validation.dataFolderFailed");
+                return;
             }
-        }
 
-        // 2. Validate Translations
-        SetStatusTranslated("startup.validation.translations");
-        await Task.Delay(_stepDelay);
-        await TranslationManager.InitializeTranslations();
-
-        // 3. Validate Accounts
-        SetStatusTranslated("startup.validation.accounts");
-        await Task.Delay(_stepDelay);
-        if (!await ValidationHelper.ValidateAccounts())
-        {
-            SetStatusTranslated("startup.validation.accountsFailed");
-            return;
-        }
-
-        // 4. Validate Manifests
-        SetStatusTranslated("startup.validation.manifests");
-        await Task.Delay(_stepDelay);
-        if (!await ValidationHelper.ValidateManifests(this))
-        {
-            SetStatusTranslated("startup.validation.manifestsFailed");
-            return;
-        }
-
-        // 5. Validate Java
-        SetStatusTranslated("startup.validation.java");
-        await Task.Delay(_stepDelay);
-        var javaInstallations = JavaHelper.LocateJavaInstallations(settings.Launcher.JavaDirectoryPath);
-        bool wasJavaUpdated = false;
-        int[] javaVersionsToDownload = [8, 17, 21];
-        foreach (int javaVersion in javaVersionsToDownload)
-        {
-            var jdkResult = javaInstallations.FirstOrDefault(x => x.Major == javaVersion);
-            if (jdkResult != null)
-                continue;
-                
-            Progress<double> progress = new Progress<double>();
-            progress.ProgressChanged += (sender, e) =>
+            // Generate icons if the directory does not exist
+            if (shouldGenerateIcons)
             {
-                SetStatusTranslated("startup.validation.java.download", javaVersion, e.ToString("0.00"));
-            };
-            await JavaHelper.DownloadJavaVersionAsync(javaVersion, settings.Launcher.JavaDirectoryPath, progress);
-            wasJavaUpdated = true;
-        }
-
-        if (wasJavaUpdated)
-        {
-            if (OSHelper.GetOperatingSystem() != EOperatingSystem.Windows)
-            {
-                string[] directories = Directory.GetDirectories(settings.Launcher.JavaDirectoryPath);
-                foreach (string directory in directories)
+                string[] resourceNames = Assembly.GetExecutingAssembly().GetManifestResourceNames();
+                foreach (string path in resourceNames)
                 {
-                    string javaExecutablePath = Path.Combine(directory, "bin", "java");
-                    if (!File.Exists(javaExecutablePath))
+                    if (!path.Contains("Desktop.Assets.Icons"))
                         continue;
-                    if (!await FileSystemHelper.MakeExecutableAsync(javaExecutablePath))
+
+                    var fileName = path.Replace("Tavstal.KonkordLauncher.Desktop.Assets.Icons.", "");
+                    if (!fileName.EndsWith(".png"))
+                        continue;
+                    _logger.Debug($"Extracting icon: {fileName}");
+                    var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path);
+                    if (stream == null)
                     {
-                        AlertWindow window = new AlertWindow(
-                            TranslationManager.Translate("startup.validation.java.exec.failedTitle"),
-                            TranslationManager.Translate("startup.validation.java.exec.failedMessage", javaExecutablePath),
-                            EAlertType.Error
-                        );
-                        await window.ShowDialog(this);
+                        _logger.Error($"Failed to get resource stream for {fileName}");
+                        continue;
+                    }
+
+                    var destPath = Path.Combine(settings.Launcher.IconsDirectoryPath, fileName);
+                    await using FileStream outFile = new FileStream(destPath, FileMode.Create, FileAccess.Write);
+                    await stream.CopyToAsync(outFile);
+                }
+                resourceNames = [];
+            }
+
+            // 2. Validate Translations
+            SetStatusTranslated("startup.validation.translations");
+            await Task.Delay(_stepDelay);
+            await TranslationManager.InitializeTranslations();
+
+            // 3. Validate Accounts
+            SetStatusTranslated("startup.validation.accounts");
+            await Task.Delay(_stepDelay);
+            if (!await ValidationHelper.ValidateAccounts())
+            {
+                SetStatusTranslated("startup.validation.accountsFailed");
+                return;
+            }
+
+            // 4. Validate Manifests
+            SetStatusTranslated("startup.validation.manifests");
+            await Task.Delay(_stepDelay);
+            if (!await ValidationHelper.ValidateManifests(this))
+            {
+                SetStatusTranslated("startup.validation.manifestsFailed");
+                return;
+            }
+
+            // 5. Validate Java
+            SetStatusTranslated("startup.validation.java");
+            await Task.Delay(_stepDelay);
+            var javaInstallations = JavaHelper.LocateJavaInstallations(settings.Launcher.JavaDirectoryPath);
+            bool wasJavaUpdated = false;
+            int[] javaVersionsToDownload = [8, 17, 21];
+            foreach (int javaVersion in javaVersionsToDownload)
+            {
+                var jdkResult = javaInstallations.FirstOrDefault(x => x.Major == javaVersion);
+                if (jdkResult != null)
+                    continue;
+
+                Progress<double> progress = new Progress<double>();
+                progress.ProgressChanged += (_, prog) =>
+                {
+                    SetStatusTranslated("startup.validation.java.download", javaVersion, prog.ToString("0.00"));
+                };
+                await JavaHelper.DownloadJavaVersionAsync(javaVersion, settings.Launcher.JavaDirectoryPath, progress);
+                wasJavaUpdated = true;
+            }
+
+            if (wasJavaUpdated)
+            {
+                if (OSHelper.GetOperatingSystem() != EOperatingSystem.Windows)
+                {
+                    string[] directories = Directory.GetDirectories(settings.Launcher.JavaDirectoryPath);
+                    foreach (string directory in directories)
+                    {
+                        string javaExecutablePath = Path.Combine(directory, "bin", "java");
+                        if (!File.Exists(javaExecutablePath))
+                            continue;
+                        if (!await FileSystemHelper.MakeExecutableAsync(javaExecutablePath))
+                        {
+                            AlertWindow window = new AlertWindow(
+                                TranslationManager.Translate("startup.validation.java.exec.failedTitle"),
+                                TranslationManager.Translate("startup.validation.java.exec.failedMessage",
+                                    javaExecutablePath),
+                                EAlertType.Error
+                            );
+                            await window.ShowDialog(this);
+                        }
                     }
                 }
-            }
-            JavaHelper.LocateJavaInstallations(settings.Launcher.JavaDirectoryPath, true);
-        }
 
-        // 6. Check for Updates
-        if (settings.Launcher.EnableAutomaticUpdates && DateTime.Now > settings.Launcher.NextUpdateCheck)
-        {
-            SetStatusTranslated("startup.progress.checking");
-            await Task.Delay(_stepDelay);
+                JavaHelper.LocateJavaInstallations(settings.Launcher.JavaDirectoryPath, true);
+            }
+
+            // 6. Check for Updates
+            if (settings.Launcher.EnableAutomaticUpdates && DateTime.Now > settings.Launcher.NextUpdateCheck)
+            {
+                SetStatusTranslated("startup.progress.checking");
+                await Task.Delay(_stepDelay);
+
+                settings.Launcher.NextUpdateCheck =
+                    DateTime.Now.AddHours(settings.Launcher.UpdateInterval == 0 ? 1 : settings.Launcher.UpdateInterval);
+                await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherConfigPath, settings);
+
+                if (await CheckUpdateAsync())
+                    return;
+
+                _logger.Debug("No updates found, starting application...");
+            }
+
+            settings = null;
+            javaInstallations = [];
+            javaVersionsToDownload = [];
             
-            settings.Launcher.NextUpdateCheck = DateTime.Now.AddHours(settings.Launcher.UpdateInterval == 0 ? 1 : settings.Launcher.UpdateInterval);
-            await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherConfigPath, settings);
-            
-            if (await CheckUpdateAsync())
-                return;
-            
-            _logger.Debug("No updates found, starting application...");
-        }
-        
-        Dispatcher.UIThread.Post(() =>
-        {
-            _desktopLifetime.MainWindow = new MainWindow {
+            _desktopLifetime.MainWindow = new MainWindow
+            {
                 WindowStartupLocation = WindowStartupLocation.CenterScreen
             };
             _desktopLifetime.MainWindow.Show();
@@ -229,12 +244,16 @@ public partial class StartupWindow : Window, IProgressReporter
             if (!result.IsSuccessStatusCode)
             {
                 _logger.Error("Failed to get latest release, status code: " + result.StatusCode);
+                result = null;
                 return false;
             }
 
             string json = await result.Content.ReadAsStringAsync();
             JObject jsonObject = JObject.Parse(json);
             string? latestVersion = jsonObject["tag_name"]?.ToString();
+            
+            // Result is not used from here, free memory
+            result = null;
 
             // 2. Compare the current version with the latest version
             Version? currentVersion;
@@ -246,6 +265,9 @@ public partial class StartupWindow : Window, IProgressReporter
             }
             else
                 currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
+            
+            // Version attributes are not used from here, free memory
+            versionAttributes = [];
 
             if (latestVersion == null || currentVersion == null)
             {
@@ -292,13 +314,10 @@ public partial class StartupWindow : Window, IProgressReporter
     /// <param name="progress">The progress value, typically between 0.0 and 1.0.</param>
     public void SetProgress(double progress)
     {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (this.DataContext is not StartupViewModel viewModel)
-                return;
+        if (this.DataContext is not StartupViewModel viewModel)
+            return;
 
-            viewModel.Progress = progress;
-        });
+        viewModel.Progress = progress;
     }
 
     /// <summary>
@@ -307,13 +326,10 @@ public partial class StartupWindow : Window, IProgressReporter
     /// <param name="status">The status message to display.</param>
     public void SetStatus(string status)
     {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (this.DataContext is not StartupViewModel viewModel)
-                return;
+        if (this.DataContext is not StartupViewModel viewModel)
+            return;
 
-            viewModel.ProgressText = status;
-        });
+        viewModel.ProgressText = status;
     }
 
     /// <summary>
@@ -323,12 +339,9 @@ public partial class StartupWindow : Window, IProgressReporter
     /// <param name="args">Optional arguments for formatting the status message.</param>
     public void SetStatusTranslated(string statusKey, params object[]? args)
     {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (this.DataContext is not StartupViewModel viewModel)
-                return;
+        if (this.DataContext is not StartupViewModel viewModel)
+            return;
 
-            viewModel.ProgressText = TranslationManager.Translate(statusKey, args);
-        });
+        viewModel.ProgressText = TranslationManager.Translate(statusKey, args);
     }
 }

@@ -27,7 +27,7 @@
             <!-- Logo -->
             <Image
                 Classes="StartupLogo"
-                Source="../Assets/Images/logo.png" />
+                Source="avares://Desktop/Assets/Images/logo.png" />
             <!-- Progress bar -->
             <ProgressBar
                 Grid.Row="1"

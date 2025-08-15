@@ -131,8 +131,9 @@ public partial class AccountsWindow : Window, IProgressReporter
                 vm.IsLoggingInMicrosoftAccount = false;
                 Dispatcher.UIThread.Post(() =>
                 {
-                    AlertWindow alert = new AlertWindow("Login Failed",
-                        "Failed to login to Microsoft account. Please try again later.",
+                    AlertWindow alert = new AlertWindow(
+                        TranslationManager.Translate("account.login.failed"),
+                        TranslationManager.Translate("account.login.microsoft.failed"),
                         EAlertType.Error);
                     alert.ShowDialog(this);
                 });
@@ -148,8 +149,8 @@ public partial class AccountsWindow : Window, IProgressReporter
                 Dispatcher.UIThread.Post(() =>
                 {
                     AlertWindow window = new AlertWindow(
-                        "Login Failed",
-                        "Failed to retrieve Microsoft account information. Please try again later.",
+                        TranslationManager.Translate("account.login.failed"),
+                        TranslationManager.Translate("account.login.microsoft.null"),
                         EAlertType.Error
                     );
                     window.ShowDialog(this);
@@ -165,8 +166,8 @@ public partial class AccountsWindow : Window, IProgressReporter
                 Dispatcher.UIThread.Post(() =>
                 {
                     AlertWindow window = new AlertWindow(
-                        "Account Already Exists",
-                        "An account with this username already exists. Please choose a different username.",
+                        TranslationManager.Translate("account.duplicate"),
+                        TranslationManager.Translate("account.duplicate.microsoft"),
                         EAlertType.Error
                     );
                     window.ShowDialog(this);
@@ -264,8 +265,8 @@ public partial class AccountsWindow : Window, IProgressReporter
         if (string.IsNullOrEmpty(OfflineUsernameInput.Text))
         {
             AlertWindow window = new AlertWindow(
-                "Name Required",
-                "Please enter a username for the account.",
+                TranslationManager.Translate("account.empty.name"),
+                TranslationManager.Translate("account.empty.name.desc"),
                 EAlertType.Warning
             );
             window.ShowDialog(this);
@@ -278,8 +279,8 @@ public partial class AccountsWindow : Window, IProgressReporter
         if (account != null)
         {
             AlertWindow window = new AlertWindow(
-                "Account Already Exists",
-                "An account with this username already exists. Please choose a different username.",
+                TranslationManager.Translate("account.duplicate"),
+                TranslationManager.Translate("account.duplicate.offline"),
                 EAlertType.Error
                 );
             window.ShowDialog(this);
@@ -290,7 +291,7 @@ public partial class AccountsWindow : Window, IProgressReporter
         if (string.IsNullOrEmpty(accountData.SelectedAccountId))
             accountData.SelectedAccountId = id;
 
-        account = new Account(id, uuid, OfflineUsernameInput.Text, EAccountType.OFFLINE, "no_access_token_needed", "no_refresh_token_needed",
+        account = new Account(id, uuid, OfflineUsernameInput.Text, EAccountType.OFFLINE, "eyJhYiI6IkNkIiwidHlwIjoiSldUIn0.eyJoZWxsbyI6IndvcmxkIn0.F4k3-t0k3n_th1s-1s-n0t-v4l1d-51gn4tvr3", "no_refresh_token_needed",
             DateTime.Now);
         accountData.Accounts.Add(account);
         JsonHelper.WriteJsonFile(PathHelper.LauncherAccountsPath, accountData);

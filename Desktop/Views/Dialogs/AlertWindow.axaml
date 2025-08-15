@@ -3,11 +3,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
+        xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Translation"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="240"
         x:Class="Tavstal.KonkordLauncher.Desktop.Views.Dialogs.AlertWindow"
         x:DataType="models:AlertViewModel"
-        Title="Alert"
-        Loaded="AlertWindow_Loaded"
+        Title="{Binding Title}"
         CanResize="False"
         ShowInTaskbar="False"
         Icon="avares://Desktop/Assets/Images/logo.png"
@@ -15,17 +16,30 @@
         MinWidth="300"
         Height="240"
         Width="300">
-    
+    <Window.Resources>
+        <sys:Boolean x:Key="True">True</sys:Boolean>
+        <sys:Boolean x:Key="False">False</sys:Boolean>
+    </Window.Resources>
     <Border Classes="AlertView">
         <Grid Classes="AlertView" RowDefinitions="*, Auto, Auto, *">
             <TextBlock Name="AlertIcon" Classes="FontAwesome AlertIcon" Text="{Binding GetIcon}"/>
-            <TextBlock Grid.Row="1" Name="AlertTitle" Classes="AlertTitle" Text="{Binding Title}" />
+            <TextBlock Grid.Row="1" Classes="AlertTitle" Text="{Binding Title}" />
             <ScrollViewer Grid.Row="2" Classes="AlertMessage">
-                <TextBlock Name="Message" Classes="AlertMessage" Text="{Binding Message}" />
+                <TextBlock Classes="AlertMessage" Text="{Binding Message}" />
             </ScrollViewer>
-            <WrapPanel Grid.Row="3" Name="ButtonWrapper" Classes="AlertButtonWrapper">
-                <Button Classes="IconBtn PrimaryBtn" Name="AcceptBtn" Click="Accept_OnClick" Padding="10, 5" Content="{Binding AcceptedButtonText}" />
-                <Button Classes="IconBtn" Padding="10, 5" Name="CancelBtn" Click="Cancel_OnClick" Content="{Binding CancelButtonText}" />
+            <WrapPanel Grid.Row="3" Classes="AlertButtonWrapper">
+                <Button Classes="IconBtn PrimaryBtn" Command="{Binding Close}" CommandParameter="{StaticResource True}" Padding="10, 5">
+                    <WrapPanel Classes="IconBtnWrapper">
+                        <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf00c;" />
+                        <TextBlock Text="{lang:Translate common.ok}" VerticalAlignment="Center" />
+                    </WrapPanel>
+                </Button>
+                <Button Classes="IconBtn" Padding="10, 5" Command="{Binding Close}" CommandParameter="{StaticResource False}" IsVisible="{Binding HasCancelButton}" >
+                    <WrapPanel Classes="IconBtnWrapper">
+                        <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf00d;" />
+                        <TextBlock Text="{lang:Translate common.cancel}" VerticalAlignment="Center" />
+                    </WrapPanel>
+                </Button>
             </WrapPanel>
         </Grid>
     </Border>

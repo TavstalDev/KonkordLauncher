@@ -2,7 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media;
-using Tavstal.KonkordLauncher.Common.Translation;
+using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
@@ -11,14 +11,8 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 /// <summary>
 /// Represents a window for displaying alert dialogs with customizable title, message, and alert type.
 /// </summary>
-public partial class AlertWindow : Window
+public partial class AlertWindow : KonkordWindow
 {
-    /// <summary>
-    /// Delegate for handling button click responses in the alert dialog.
-    /// </summary>
-    /// <param name="accepted">Indicates whether the accepted button was clicked (true) or the cancel button (false).</param>
-    public delegate void ButtonClicked(bool accepted);
-
     /// <summary>
     /// Initializes a new instance of the <see cref="AlertWindow"/> class.
     /// Sets up the DataContext for design mode or attaches Avalonia Dev Tools in debug mode.
@@ -28,18 +22,9 @@ public partial class AlertWindow : Window
         InitializeComponent();
 
         if (Design.IsDesignMode)
-        {
-            this.DataContext = new AlertViewModel
-            {
-                Title = "Design Time Title",
-                Message = "This is a design time message.",
-                AlertType = EAlertType.Info,
-                AcceptedButtonText = "OK",
-                CancelButtonText = "Cancel"
-            };
-        }
+            this.DataContext = new AlertViewModel(this, "Design Time Title","This is a design time message.", EAlertType.Info);
     }
-    
+
     /// <summary>
     /// Initializes a new instance of the <see cref="AlertWindow"/> class with the specified title, message, and alert type.
     /// </summary>
@@ -57,43 +42,22 @@ public partial class AlertWindow : Window
 
         if (Design.IsDesignMode)
         {
-            this.DataContext = new AlertViewModel
-            {
-                Title = "Design Time Title",
-                Message = "This is a design time message.",
-                AlertType = EAlertType.Info,
-                AcceptedButtonText = "OK",
-                CancelButtonText = "Cancel"
-            };
+            this.DataContext = new AlertViewModel(this, "Design Time Title","This is a design time message.", EAlertType.Info);
             return;
         }
         
-        this.AlertTitle.Text = title;
-        
+        this.Loaded += Window_Loaded;
         // Sets the DataContext to an instance of AlertViewModel with the provided parameters.
-        this.DataContext = new AlertViewModel
-        {
-            Title = title,
-            Message = message,
-            AlertType = type
-        };
-        
-        App.OnLanguageChanged += HandleLanguageChanged;
-        HandleLanguageChanged(string.Empty);
+        this.DataContext = new AlertViewModel(this, title, message, type);
     }
-
+    
     /// <summary>
-    /// Updates the text of the accept and cancel buttons in the alert dialog
-    /// based on the current language settings.
+    /// Releases resources associated with the alert window by detaching the Loaded event handler.
+    /// This helps prevent memory leaks by ensuring the event handler is no longer referenced.
     /// </summary>
-    /// <param name="language">The current language code (not used in this implementation).</param>
-    private void HandleLanguageChanged(string language)
+    protected override void FreeMemory()
     {
-        if (this.DataContext is not AlertViewModel viewModel)
-            return;
-        
-        viewModel.AcceptedButtonText = TranslationManager.Translate("common.ok");
-        viewModel.CancelButtonText = TranslationManager.Translate("common.cancel");
+        this.Loaded -= Window_Loaded;
     }
 
     /// <summary>
@@ -101,7 +65,7 @@ public partial class AlertWindow : Window
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The event data.</param>
-    private void AlertWindow_Loaded(object? sender, RoutedEventArgs e)
+    private void Window_Loaded(object? sender, RoutedEventArgs e)
     {
         if (Design.IsDesignMode)
             return;
@@ -111,34 +75,6 @@ public partial class AlertWindow : Window
 
         // Retrieves the color resource associated with the alert type and applies it to the icon.
         if (this.FindResource(vm.GetIconColor) is SolidColorBrush brush)
-        {
             AlertIcon.Foreground = brush;
-        }
-
-        switch (vm.AlertType)
-        {
-            case EAlertType.Info:
-            case EAlertType.Success:
-            {
-                CancelBtn.IsVisible = false;
-                break;
-            }    
-        }
     }
-    
-    /// <summary>
-    /// Handles the click event for the accept button in the alert dialog.
-    /// Closes the window and indicates that the accept button was clicked.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The event data.</param>
-    private void Accept_OnClick(object? sender, RoutedEventArgs e) => Close(true);
-
-    /// <summary>
-    /// Handles the click event for the cancel button in the alert dialog.
-    /// Closes the window and indicates that the cancel button was clicked.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The event data.</param>
-    private void Cancel_OnClick(object? sender, RoutedEventArgs e) => Close(false);
 }

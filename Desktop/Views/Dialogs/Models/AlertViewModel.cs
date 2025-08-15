@@ -1,110 +1,85 @@
-using ReactiveUI;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 /// <summary>
-/// ViewModel for managing alert dialogs in the application.
+/// Represents the ViewModel for an alert dialog, providing properties for title, message, 
+/// alert type, and icon details. Inherits from KonkordObservableObject.
 /// </summary>
-public class AlertViewModel : ViewModelBase
+public partial class AlertViewModel : KonkordObservableObject
 {
-    private string _title = "Loading...";
-    private string _message = string.Empty;
-    private EAlertType _alertType = EAlertType.Info;
-    private string _acceptedButtonText = "OK";
-    private string _cancelButtonText = "Cancel";
-
+    private AlertWindow? _parentWindow;
+    [ObservableProperty] private string _title;
+    [ObservableProperty] private string _message;
+    [ObservableProperty] private EAlertType _alertType;
+    
+    [ObservableProperty] private string _getIconColor;
+    [ObservableProperty] private string _getIcon;
+    [ObservableProperty] private bool _hasCancelButton = false;
+    
     /// <summary>
-    /// Gets or sets the title of the alert dialog.
+    /// Initializes a new instance of the <see cref="AlertViewModel"/> class with the specified parameters.
+    /// Configures the alert dialog properties such as title, message, alert type, icon, and icon color.
     /// </summary>
-    public string Title
+    /// <param name="parentWindow">The parent window associated with this alert dialog.</param>
+    /// <param name="title">The title of the alert dialog.</param>
+    /// <param name="message">The message displayed in the alert dialog.</param>
+    /// <param name="type">The type of alert, represented by the <see cref="EAlertType"/> enumeration.</param>
+    public AlertViewModel(AlertWindow parentWindow, string title, string message, EAlertType type)
     {
-        get => _title;
-        set => this.RaiseAndSetIfChanged(ref _title, value);
-    }
+        _parentWindow = parentWindow;
+        _title = title;
+        _message = message;
+        _alertType = type;
 
-    /// <summary>
-    /// Gets or sets the message content of the alert dialog.
-    /// </summary>
-    public string Message
-    {
-        get => _message;
-        set => this.RaiseAndSetIfChanged(ref _message, value);
-    }
-
-    /// <summary>
-    /// Gets or sets the type of the alert, which determines its appearance and behavior.
-    /// </summary>
-    public EAlertType AlertType
-    {
-        get => _alertType;
-        set => this.RaiseAndSetIfChanged(ref _alertType, value);
-    }
-
-    /// <summary>
-    /// Gets or sets the text for the accepted button in the alert dialog.
-    /// </summary>
-    public string AcceptedButtonText
-    {
-        get => _acceptedButtonText;
-        set => this.RaiseAndSetIfChanged(ref _acceptedButtonText, value);
-    }
-
-    /// <summary>
-    /// Gets or sets the text for the cancel button in the alert dialog.
-    /// </summary>
-    public string CancelButtonText
-    {
-        get => _cancelButtonText;
-        set => this.RaiseAndSetIfChanged(ref _cancelButtonText, value);
-    }
-
-    /// <summary>
-    /// Gets the color associated with the alert type for the icon.
-    /// </summary>
-    public string GetIconColor
-    {
-        get
+        switch (_alertType)
         {
-            switch (_alertType)
-            {
-                case EAlertType.Success:
-                    return "success";
-                case EAlertType.Warning:
-                    return "warning";
-                case EAlertType.Error:
-                    return "error";
-                case EAlertType.Confirm:
-                    return "confirm";
-                default:
-                case EAlertType.Info:
-                    return "info";
-            }
+            case EAlertType.Success:
+                _getIcon = "\uf058";
+                _getIconColor = "success";
+                break;
+            case EAlertType.Warning:
+                _getIcon = "\uf071";
+                _getIconColor = "warning";
+                _hasCancelButton = true;
+                break;
+            case EAlertType.Error:
+                _getIcon = "\uf06a";
+                _getIconColor = "error";
+                _hasCancelButton = true;
+                break;
+            case EAlertType.Confirm:
+                _getIcon = "\uf059";
+                _getIconColor = "confirm";
+                _hasCancelButton = true;
+                break;
+            default:
+            case EAlertType.Info:
+                _getIcon = "\uf05a";
+                _getIconColor = "info";
+                break;
         }
     }
 
     /// <summary>
-    /// Gets the icon associated with the alert type, represented as a FontAwesome Unicode string.
+    /// Frees memory resources by resetting the title, message, icon, and icon color properties.
     /// </summary>
-    public string GetIcon
+    public override void FreeMemory()
     {
-        get
-        {
-            switch (_alertType)
-            {
-                case EAlertType.Success:
-                    return "\uf058";
-                case EAlertType.Warning:
-                    return "\uf071";
-                case EAlertType.Error:
-                    return "\uf06a";
-                case EAlertType.Confirm:
-                    return "\uf059";
-                default:
-                case EAlertType.Info:
-                    return "\uf05a";
-            }
-        }
+        Title = string.Empty;
+        Message = string.Empty;
+        GetIcon = string.Empty;
+        GetIconColor = string.Empty;
+        _parentWindow = null;
     }
+    
+    /// <summary>
+    /// Closes the parent alert window with the specified result value.
+    /// </summary>
+    /// <param name="value">The result value indicating the outcome of the alert dialog.</param>
+    [RelayCommand]
+    public void Close(bool value) => _parentWindow?.Close(value);
 }

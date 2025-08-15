@@ -18,7 +18,6 @@
     Icon="avares://Desktop/Assets/Images/logo.png"
     ShowInTaskbar="False"
     mc:Ignorable="d">
-    
     <Border Classes="ModalView">
         <Grid RowDefinitions="Auto, *, Auto">
             <ScrollViewer Grid.Row="1"  Margin="0, 0, 0, 20">
@@ -44,7 +43,7 @@
                     <Button
                         Classes="IconBtn"
                         Width="35"
-                        Click="AddBtn_OnClick"
+                        Command="{Binding AddBtnCommand}"
                     >
                         <TextBlock Classes="FontAwesome" Text="&#x2b;" />
                     </Button>
@@ -52,7 +51,7 @@
                     <Button
                         Classes="IconBtn"
                         Width="35"
-                        Click="RemoveBtn_OnClick"
+                        Command="{Binding RemoveBtnCommand}"
                         IsEnabled="{Binding HasSelectedIcon}"
                     >
                         <TextBlock Classes="FontAwesome" Text="&#xf1f8;" />
@@ -61,7 +60,7 @@
                     <Button
                         Classes="IconBtn"
                         Width="35"
-                        Click="OpenFolderBtn_OnClick"
+                        Command="{Binding OpenDirectoryCommand}"
                     >
                         <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
                     </Button>
@@ -70,22 +69,20 @@
                     <!-- Ok Button -->
                     <Button
                         Classes="IconBtn"
-                        Name="OkBtn"
-                        Click="OkBtn_OnClick"
+                        Command="{Binding OkBtnCommand}"
                         IsEnabled="{Binding HasSelectedIcon}">
                         <WrapPanel Classes="IconBtnWrapper">
                             <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf00c;" />
-                            <TextBlock Name="OkTb" Text="{lang:Translate common.ok}" VerticalAlignment="Center" />
+                            <TextBlock Text="{lang:Translate common.ok}" VerticalAlignment="Center" />
                         </WrapPanel>
                     </Button>
                     <!-- Cancel Button -->
                     <Button
                         Classes="IconBtn"
-                        Name="CancelBtn"
-                        Click="CancelBtn_OnClick">
+                        Command="{Binding CancelBtnCommand}">
                         <WrapPanel Classes="IconBtnWrapper">
                             <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf00d;" />
-                            <TextBlock Name="CancelTb" Text="{lang:Translate common.cancel}" VerticalAlignment="Center" />
+                            <TextBlock Text="{lang:Translate common.cancel}" VerticalAlignment="Center" />
                         </WrapPanel>
                     </Button>
                 </WrapPanel>

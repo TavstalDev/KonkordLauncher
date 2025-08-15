@@ -4,12 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Interactivity;
-using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Translation;
-using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using IconSelectorViewModel = Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models.IconSelectorViewModel;
@@ -19,7 +16,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 /// <summary>
 /// Represents a window for selecting and managing icons in the application.
 /// </summary>
-public partial class IconSelectorWindow : Window
+public partial class IconSelectorWindow : KonkordWindow
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(IconSelectorWindow));
     
@@ -36,14 +33,23 @@ public partial class IconSelectorWindow : Window
         this.AttachDevTools();
 #endif
 
-        this.DataContext = new IconSelectorViewModel();
+        this.DataContext = new IconSelectorViewModel(this);
+    }
+    
+    /// <summary>
+    /// Releases resources associated with the <see cref="IconSelectorWindow"/>.
+    /// Logs a debug message indicating that memory is being freed.
+    /// </summary>
+    protected override void FreeMemory()
+    {
+        _logger.Debug("Freeing memory for IconSelectorWindow.");
     }
     
     /// <summary>
     /// Opens a file picker dialog to select image files and copies them to the icons directory.
     /// </summary>
     /// <returns>A list of tuples containing file names and their new paths, or null if no files were selected.</returns>
-    private async Task<List<(string, string)>?> OpenFilePickerAsync()
+    public async Task<List<(string, string)>?> OpenFilePickerAsync()
     {
         // Ensure the VisualRoot is a TopLevel object
         if (VisualRoot is not TopLevel topLevel)
@@ -94,84 +100,5 @@ public partial class IconSelectorWindow : Window
         }
         
         return result;
-    }
-    
-    /// <summary>
-    /// Handles the click event for the OK button.
-    /// Closes the window and returns the selected icon.
-    /// </summary>
-    /// <param name="sender">The event sender.</param>
-    /// <param name="e">The event arguments.</param>
-    private void OkBtn_OnClick(object? sender, RoutedEventArgs e)
-    {
-        if (this.DataContext is not IconSelectorViewModel vm)
-            return;
-
-        this.Close(vm.SelectedIcon);
-    }
-    
-    /// <summary>
-    /// Handles the click event for the Cancel button.
-    /// Closes the window without returning a selected icon.
-    /// </summary>
-    /// <param name="sender">The event sender.</param>
-    /// <param name="e">The event arguments.</param>
-    private void CancelBtn_OnClick(object? sender, RoutedEventArgs e)
-    {
-        this.Close(null);
-    }
-
-    /// <summary>
-    /// Handles the click event for the Add button.
-    /// Opens the folder picker, adds selected icons to the ViewModel, and updates the UI.
-    /// </summary>
-    /// <param name="sender">The event sender.</param>
-    /// <param name="e">The event arguments.</param>
-    private async void AddBtn_OnClick(object? sender, RoutedEventArgs e)
-    {
-        // TODO: Replace async void
-        if (this.DataContext is not IconSelectorViewModel vm)
-            return;
-    
-        var result = await OpenFilePickerAsync();
-        if (result == null)
-            return;
-
-        foreach (var elem in result)
-        {
-            var bitmap = new Bitmap(elem.Item2);
-            vm.Icons.Add(new IconDataModel(elem.Item1, elem.Item2, bitmap));
-        }
-    }
-
-    /// <summary>
-    /// Handles the click event for the Remove button.
-    /// Deletes the selected icon from the file system and removes it from the ViewModel.
-    /// </summary>
-    /// <param name="sender">The event sender.</param>
-    /// <param name="e">The event arguments.</param>
-    private void RemoveBtn_OnClick(object? sender, RoutedEventArgs e)
-    {
-        if (this.DataContext is not IconSelectorViewModel vm)
-            return;
-        
-        if (vm.SelectedIcon == null)
-            return;
-
-        System.IO.File.Delete(vm.SelectedIcon.Path);
-        vm.Icons.Remove(vm.SelectedIcon);
-        vm.SelectedIcon = null;
-    }
-
-    /// <summary>
-    /// Handles the click event for the Open Folder button.
-    /// Opens the icons directory in the file explorer.
-    /// </summary>
-    /// <param name="sender">The event sender.</param>
-    /// <param name="e">The event arguments.</param>
-    private void OpenFolderBtn_OnClick(object? sender, RoutedEventArgs e)
-    {
-        var settings = LauncherHelper.GetLauncherSettings();
-        FileSystemHelper.OpenFolderInFileExplorer(settings.Launcher.IconsDirectoryPath);
     }
 }

@@ -2,7 +2,7 @@ using System;
 using Avalonia.Controls;
 using Avalonia.ReactiveUI;
 
-namespace Tavstal.KonkordLauncher.Desktop.Models;
+namespace Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 
 public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> where TViewModel : class
 {

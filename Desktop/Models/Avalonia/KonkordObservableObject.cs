@@ -2,7 +2,7 @@ using System;
 using System.Reactive.Disposables;
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace Tavstal.KonkordLauncher.Desktop.Models;
+namespace Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 
 public abstract class KonkordObservableObject : ObservableObject, IDisposable
 {

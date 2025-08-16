@@ -10,6 +10,7 @@ using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Views;
 
 namespace Tavstal.KonkordLauncher.Desktop;
@@ -75,7 +76,7 @@ public partial class App : Application
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
-        OnThemeChanged += ApplyTheme;
+        GlobalEvents.OnThemeChanged += ApplyTheme;
 
         try
         {
@@ -102,33 +103,12 @@ public partial class App : Application
 
         base.OnFrameworkInitializationCompleted();
     }
-
-    #region Events
-    /// <summary>
-    /// Delegate for handling theme change events.
-    /// </summary>
-    /// <param name="newTheme">The new theme that has been applied.</param>
-    public delegate void ThemeChangedEventHandler(EThemeType newTheme);
-
-    /// <summary>
-    /// Event triggered when the application theme is changed.
-    /// </summary>
-    public static event ThemeChangedEventHandler? OnThemeChanged;
-
-    /// <summary>
-    /// Invokes the theme changed event with the specified new theme.
-    /// </summary>
-    /// <param name="newTheme">The new theme to apply.</param>
-    public static void InvokeThemeChanged(EThemeType newTheme)
-    {
-        OnThemeChanged?.Invoke(newTheme);
-    }
     
     /// <summary>
     /// Applies the specified theme to the application by setting the requested theme variant.
     /// </summary>
     /// <param name="theme">The theme to apply, either Light or Dark.</param>
-    public void ApplyTheme(EThemeType theme)
+    private void ApplyTheme(EThemeType theme)
     {
         try
         {
@@ -154,72 +134,4 @@ public partial class App : Application
             _logger.Error(ex);
         }
     }
-    
-    /// <summary>
-    /// Delegate for handling language change events.
-    /// </summary>
-    /// <param name="newLanguage">The new language that has been applied.</param>
-    public delegate void LanguageChangedEventHandler(string newLanguage);
-
-    /// <summary>
-    /// Event triggered when the application language is changed.
-    /// </summary>
-    public static event LanguageChangedEventHandler? OnLanguageChanged;
-
-    /// <summary>
-    /// Invokes the language changed event with the specified new language.
-    /// </summary>
-    /// <param name="newLanguage">The new language to apply.</param>
-    public static void InvokeLanguageChanged(string newLanguage)
-    {
-        Task.Run(async () =>
-        {
-            var settings = await LauncherHelper.GetLauncherSettingsAsync();
-            if (!await TranslationManager.EnsureLanguageFileExistsAsync(newLanguage))
-                return;
-            
-            var result = await TranslationManager.ReadTranslationAsync(Path.Combine(settings.Launcher.TranslationsDirectoryPath, $"{newLanguage}.json"));
-            TranslationManager.SetTranslations(newLanguage, result);
-        });
-        OnLanguageChanged?.Invoke(newLanguage);
-    }
-
-    /// <summary>
-    /// Delegate for handling accounts changed events.
-    /// </summary>
-    public delegate void AccountsChangedEventHandler();
-
-    /// <summary>
-    /// Event triggered when the accounts data is changed.
-    /// </summary>
-    public static event AccountsChangedEventHandler? OnAccountsChanged;
-
-    /// <summary>
-    /// Invokes the accounts changed event to notify subscribers of changes in the accounts data.
-    /// </summary>
-    public static void InvokeAccountsChanged()
-    {
-        OnAccountsChanged?.Invoke();
-    }
-    
-    
-    /// <summary>
-    /// Delegate for handling events when the instances data changes.
-    /// </summary>
-    public delegate void InstancesChangedEventHandler();
-
-    /// <summary>
-    /// Event triggered when the instances data is changed.
-    /// Subscribers can listen to this event to be notified of changes in instances.
-    /// </summary>
-    public static event InstancesChangedEventHandler? OnInstancesChanged;
-
-    /// <summary>
-    /// Invokes the <see cref="OnInstancesChanged"/> event to notify subscribers of changes in the instances data.
-    /// </summary>
-    public static void InvokeInstancesChanged()
-    {
-        OnInstancesChanged?.Invoke();
-    }
-    #endregion
 }

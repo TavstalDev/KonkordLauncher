@@ -1,16 +1,34 @@
+using System;
+using System.Reactive.Disposables;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models;
 
-/// <summary>
-/// Represents an abstract base class that extends the functionality of the ObservableObject
-/// from the CommunityToolkit.Mvvm library. Provides a method to free memory resources.
-/// </summary>
-public abstract class KonkordObservableObject : ObservableObject
+public abstract class KonkordObservableObject : ObservableObject, IDisposable
 {
-    /// <summary>
-    /// Abstract method to free memory resources associated with the object.
-    /// Must be implemented by derived classes.
-    /// </summary>
-    public abstract void FreeMemory();
+    private bool _isDisposed;
+
+    // A CompositeDisposable to store all IDisposable resources (e.g., event subscriptions).
+    protected CompositeDisposable Disposables { get; } = new CompositeDisposable();
+    
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+    
+    protected virtual void Dispose(bool disposing)
+    {
+        if (_isDisposed)
+            return;
+
+        if (disposing)
+        {
+            // Dispose of all managed resources (like subscriptions).
+            Disposables.Dispose();
+        }
+
+        _isDisposed = true;
+    }
+
 }

@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reactive;
 using System.Text;
 using System.Threading.Tasks;
-using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models.Config;
 using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
@@ -31,8 +32,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Models;
 public partial class InstanceModel : ObservableObject, IProgressReporter
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(InstanceModel));
-    private Window? _parentWindow;
-    private long _lastReadPosition = 0;
+    private long _lastReadPosition;
     private FileSystemWatcher? _watcher;
 
     #region Observable Properties
@@ -108,7 +108,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     /// <summary>
     /// Gets the icon of the instance as a bitmap. If the icon path is not set, a default icon is used.
     /// </summary>
-    public Bitmap? Icon => string.IsNullOrEmpty(IconPath)
+    public Bitmap Icon => string.IsNullOrEmpty(IconPath)
         ? ImageHelper.LoadFromResource(new Uri("avares://Desktop/Assets/Icons/dirt.png"))
         : new Bitmap(IconPath);
     #endregion
@@ -124,16 +124,16 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     /// <param name="instance">The common instance model to initialize from.</param>
     public InstanceModel(Common.Models.Instance instance)
     {
-        this.Id = instance.Id;
-        this.Name = instance.Name;
-        this.Group = instance.Group;
-        this.IconPath = instance.IconPath;
-        this.MinecraftVersion = instance.MinecraftVersion;
-        this.CustomVersion = instance.CustomVersion;
-        this.Type = instance.Type;
-        this.Kind = instance.Kind;
-        this.GameDirectory = instance.GameDirectory;
-        this.ConfigModel = instance.Config;
+        Id = instance.Id;
+        Name = instance.Name;
+        Group = instance.Group;
+        IconPath = instance.IconPath;
+        MinecraftVersion = instance.MinecraftVersion;
+        CustomVersion = instance.CustomVersion;
+        Type = instance.Type;
+        Kind = instance.Kind;
+        GameDirectory = instance.GameDirectory;
+        ConfigModel = instance.Config;
     }
 
     /// <summary>
@@ -183,15 +183,9 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         };
     }
 
-    /// <summary>
-    /// Launches the Minecraft instance asynchronously with the specified settings and configurations.
-    /// Handles account selection, environment setup, and game instance initialization.
-    /// </summary>
-    /// <param name="parentWindow">The parent window used for displaying dialogs or alerts.</param>
-    /// <param name="serverAddress">An optional server address to join upon launching the game.</param>
-    public async Task LaunchAsync(Window parentWindow, string? serverAddress = null)
+
+    public async Task LaunchAsync(Interaction<Alert, Unit> showAlertDialog, string? serverAddress = null)
     {
-        _parentWindow = parentWindow;
         _lastReadPosition = 0;
         _logger.Debug($"Launching instance: {Name}");
         var accountData = await LauncherHelper.GetAccountDataAsync();
@@ -202,8 +196,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         if (account == null)
         {
             _logger.Error("No account selected for launching the ");
-            AlertWindow alertWindow = new AlertWindow(TranslationManager.Translate("account.none.title"), TranslationManager.Translate("account.none.message"), EAlertType.Warning);
-            await alertWindow.ShowDialog(parentWindow);
+            showAlertDialog.Handle(new Alert(TranslationManager.Translate("account.none.title"), TranslationManager.Translate("account.none.message"), EAlertType.Warning));
             return;
         }
 
@@ -272,9 +265,9 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
 
             // Add custom native libraries if configured
             List<string> nativeLibraries = [];
-            if (ConfigModel.Misc.UseCustomGlfw && System.IO.File.Exists(ConfigModel.Misc.CustomGlfwPath))
+            if (ConfigModel.Misc.UseCustomGlfw && File.Exists(ConfigModel.Misc.CustomGlfwPath))
                 nativeLibraries.Add(ConfigModel.Misc.CustomGlfwPath);
-            if (ConfigModel.Misc.UseCustomOpenAL && System.IO.File.Exists(ConfigModel.Misc.CustomOpenALPath))
+            if (ConfigModel.Misc.UseCustomOpenAL && File.Exists(ConfigModel.Misc.CustomOpenALPath))
                 nativeLibraries.Add(ConfigModel.Misc.CustomOpenALPath);
 
             // Set up the game instance with the provided details
@@ -421,7 +414,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             if (gameInstance == null)
                 return;
 
-            gameInstance.OnSetupDefaultJava += meta => SetupDefaultJavaPath(gameInstance, meta, settings, parentWindow);
+            gameInstance.OnSetupDefaultJava += meta => SetupDefaultJavaPath(gameInstance, meta, settings, showAlertDialog);
 
             var process = await gameInstance.Start();
             if (process == null)
@@ -434,17 +427,18 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             IsGameRunning = true;
             AttachProcessEvent();
             
+            // TODO
             if (settings.Minecraft.CloseLauncherOnGameStart)
             {
-                parentWindow.Close();
+                //parentWindow.Close();
                 return;
             }
 
             if (settings.Minecraft.CloseLauncherOnGameExit)
             {
-                GameProcess.Exited += (sender, args) =>
+                GameProcess.Exited += (_, _) =>
                 {
-                    parentWindow.Close();
+                    //parentWindow.Close();
                 };
             }
         }
@@ -455,14 +449,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         }
     }
     
-    /// <summary>
-    /// Sets up the default Java path for the game instance based on the provided metadata and settings.
-    /// </summary>
-    /// <param name="gameInstance">The game instance to configure.</param>
-    /// <param name="meta">The version metadata for the game instance.</param>
-    /// <param name="settings">The launcher settings.</param>
-    /// <param name="parentWindow">The parent window used for displaying dialogs or alerts.</param>
-    private void SetupDefaultJavaPath(MinecraftInstance gameInstance, VersionMeta? meta, CoreConfig settings, Window parentWindow)
+    private void SetupDefaultJavaPath(MinecraftInstance gameInstance, VersionMeta? meta, CoreConfig settings, Interaction<Alert, Unit> showAlertDialog)
     {
         string defaultJavaPath = settings.Java.JavaPath;
         var instances = LauncherHelper.GetInstances();
@@ -478,17 +465,12 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         var javaInstallations = JavaHelper.LocateJavaInstallations(settings.Launcher.JavaDirectoryPath);
         if (javaInstallations.All(x => x.Major != meta.JavaVersionMeta.MajorVersion) && string.IsNullOrEmpty(defaultJavaPath))
         {
-            // Warning: No Java installation found for the specified version.
-            // Stop the game process if it is running.
-            AlertWindow window = new AlertWindow(
-                TranslationManager.Translate("instance.java.notfound.title", meta.JavaVersionMeta.MajorVersion),
-                TranslationManager.Translate("instance.java.notfound.message", meta.JavaVersionMeta.MajorVersion),
-                EAlertType.Warning
-            );
             if (IsGameRunning && GameProcess != null)
                 GameProcess.Kill();
 
-            window.ShowDialog(parentWindow);
+            showAlertDialog.Handle(new Alert(TranslationManager.Translate("instance.java.notfound.title", meta.JavaVersionMeta.MajorVersion),
+                TranslationManager.Translate("instance.java.notfound.message", meta.JavaVersionMeta.MajorVersion),
+                EAlertType.Warning));
             return;
         }
 
@@ -609,11 +591,11 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     /// </summary>
     public void Show()
     {
-        if (_instanceInstallWindow != null || _parentWindow == null)
+        if (_instanceInstallWindow != null)
             return;
     
         _instanceInstallWindow = new InstallWindow();
-        _instanceInstallWindow.ShowDialog(_parentWindow);
+        _instanceInstallWindow.Show();
     }
 
     /// <summary>

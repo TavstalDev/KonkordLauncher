@@ -138,7 +138,7 @@ public static class ValidationHelper
             if (!File.Exists(settings.Launcher.GetVanillaManifestPath()))
             {
                 Progress<double> progress = new Progress<double>();
-                progress.ProgressChanged += (sender, e) =>
+                progress.ProgressChanged += (_, e) =>
                 {
                     progressReporter?.SetStatusTranslated("startup.validation.manifests.download", "minecraft", e.ToString("0.00"));
                 };
@@ -151,7 +151,7 @@ public static class ValidationHelper
             if (!File.Exists(settings.Launcher.GetFabricManifestPath()))
             {
                 Progress<double> progress = new Progress<double>();
-                progress.ProgressChanged += (sender, e) =>
+                progress.ProgressChanged += (_, e) =>
                 {
                     progressReporter?.SetStatusTranslated("startup.validation.manifests.download", "fabric", e.ToString("0.00"));
                 };
@@ -237,7 +237,7 @@ public static class ValidationHelper
             if (!File.Exists(settings.Launcher.GetQuiltManifestPath()))
             {
                 Progress<double> progress = new Progress<double>();
-                progress.ProgressChanged += (sender, e) =>
+                progress.ProgressChanged += (_, e) =>
                 {
                     progressReporter?.SetStatusTranslated("startup.validation.manifests.download", "quilt", e.ToString("0.00"));
                 };

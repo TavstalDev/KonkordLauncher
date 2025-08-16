@@ -216,9 +216,9 @@ public static class JavaHelper
             string output = process.StandardError.ReadToEnd();
             process.WaitForExit();
 
-            string? majorVersion = string.Empty;
-            string? javaVersion = string.Empty;
-            string? architecture = string.Empty;
+            string majorVersion = string.Empty;
+            string javaVersion = string.Empty;
+            string architecture = string.Empty;
 
             foreach (var line in output.Split('\n'))
             {

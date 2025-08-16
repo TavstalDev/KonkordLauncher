@@ -5,6 +5,8 @@ namespace Tavstal.KonkordLauncher.Core.Helpers;
 /// </summary>
 public static class PathHelper
 {
+    private static string _workingDirectory;
+    
     /// <summary>
     /// Gets the application directory path.
     /// In debug mode, it appends "LauncherDebug" to the current directory.
@@ -13,10 +15,29 @@ public static class PathHelper
     {
         get
         {
+            if (!string.IsNullOrEmpty(_workingDirectory))
+                return _workingDirectory;
+            
 #if DEBUG
-            return Path.Combine(Directory.GetCurrentDirectory(), "LauncherDebug");
+            _workingDirectory = Path.Combine(Directory.GetCurrentDirectory(), "LauncherDebug");
+            return _workingDirectory;
 #else
-            return Directory.GetCurrentDirectory();
+            var dir = Directory.GetCurrentDirectory();
+            string? dirName = Path.GetDirectoryName(dir);
+            if (string.IsNullOrEmpty(dirName))
+            {
+                _workingDirectory = dir;
+                return _workingDirectory;
+            }
+            
+            if (dirName != "bin")
+            {
+                _workingDirectory = dir;
+                return _workingDirectory;
+            }
+
+            _workingDirectory = Directory.GetParent(dir)?.FullName ?? dir;
+            return _workingDirectory;
 #endif
         }
     }

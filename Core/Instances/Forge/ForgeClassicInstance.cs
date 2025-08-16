@@ -34,7 +34,7 @@ public class ForgeClassicInstance(string forgeVersionName,
         }
 
         List<LibraryMeta> localLibraries = [];
-        VersionDetails forgeVersion = GameHelper.GetVersionDetails(PathDetails.VersionsDir, this.MinecraftVersion.Id, EMinecraftKind.FORGE, this.GameDetails.CustomVersion, this.GameDetails.CustomGameDirectory);
+        VersionDetails forgeVersion = GameHelper.GetVersionDetails(PathDetails.VersionsDir, MinecraftVersion.Id, EMinecraftKind.FORGE, GameDetails.CustomVersion, GameDetails.CustomGameDirectory);
         
         // Create versionDir in the versions folder
         if (!Directory.Exists(forgeVersion.VersionDirectory))
@@ -53,7 +53,7 @@ public class ForgeClassicInstance(string forgeVersionName,
         if (!File.Exists(forgeVersion.VersionJarPath))
         {
             Progress<double> progress = new Progress<double>();
-            progress.ProgressChanged += (sender, e) =>
+            progress.ProgressChanged += (_, e) =>
             {
                 _progressReporter?.SetStatusTranslated("instance.downloading.installer", "forge",
                     e.ToString("0.00"));
@@ -110,7 +110,6 @@ public class ForgeClassicInstance(string forgeVersionName,
         var installProfile = JsonConvert.DeserializeObject<ForgeProfile>(rawInstallProfile);
         if (installProfile == null)
             throw new FileNotFoundException("Failed to get the forge install profile meta.");
-        rawInstallProfile = null; // Clear the raw data to free memory
 
         // Fix 1.6.1 Forge Version
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
@@ -125,7 +124,6 @@ public class ForgeClassicInstance(string forgeVersionName,
             var forgeVersionMeta = JsonConvert.DeserializeObject<ForgeVersionMeta>(rawForgeVersionMeta);
             if (forgeVersionMeta == null)
                 throw new FileNotFoundException("Failed to get the forge version meta.");
-            rawForgeVersionMeta = null; // Clear the raw meta to free memory
             mainClass = forgeVersionMeta.MainClass;
 
             // Install libraries from Forge Version Meta
@@ -162,8 +160,6 @@ public class ForgeClassicInstance(string forgeVersionName,
             {
                 MinecraftVersionMeta.ArgumentsLegacy = forgeVersionMeta.MinecraftArguments;
             }
-
-            forgeVersionMeta = null;
         }
 
         // Patch vanilla jar

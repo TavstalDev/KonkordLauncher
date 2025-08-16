@@ -33,7 +33,7 @@ public class ForgeLegacyInstance(string forgeVersionName,
         }
 
         List<LibraryMeta> localLibraries = [];
-        VersionDetails forgeVersion = GameHelper.GetVersionDetails(PathDetails.VersionsDir, this.MinecraftVersion.Id, EMinecraftKind.FORGE, this.GameDetails.CustomVersion, this.GameDetails.CustomGameDirectory);
+        VersionDetails forgeVersion = GameHelper.GetVersionDetails(PathDetails.VersionsDir, MinecraftVersion.Id, EMinecraftKind.FORGE, GameDetails.CustomVersion, GameDetails.CustomGameDirectory);
         
         // Create versionDir in the versions folder
         if (!Directory.Exists(forgeVersion.VersionDirectory))
@@ -50,7 +50,7 @@ public class ForgeLegacyInstance(string forgeVersionName,
         if (!File.Exists(forgeVersion.VersionJsonPath))
         {
             Progress<double> progress = new Progress<double>();
-            progress.ProgressChanged += (sender, e) =>
+            progress.ProgressChanged += (_, e) =>
             {
                 _progressReporter?.SetStatusTranslated("instance.downloading.installer", "forge",
                     e.ToString("0.00"));
@@ -107,7 +107,6 @@ public class ForgeLegacyInstance(string forgeVersionName,
         var forgeVersionMeta = JsonConvert.DeserializeObject<ForgeVersionMeta>(rawForgeVersionMeta);
         if (forgeVersionMeta == null)
             throw new FileNotFoundException("Failed to get the forge version meta.");
-        rawForgeVersionMeta = null; // Clear the raw meta to free memory
         
         // Install libraries from Forge Version Meta
         foreach (var lib in forgeVersionMeta.Libraries)
@@ -140,7 +139,6 @@ public class ForgeLegacyInstance(string forgeVersionName,
         var installProfile = JsonConvert.DeserializeObject<ForgeProfile>(rawInstallProfile);
         if (installProfile == null)
             throw new FileNotFoundException("Failed to get the forge install profile meta.");
-        rawInstallProfile = null; // Clear the raw data to free memory
         
         _progressReporter?.SetStatusTranslated("instance.reading.libraries");
         // Add launch arguments

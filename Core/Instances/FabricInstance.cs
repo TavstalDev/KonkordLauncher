@@ -38,7 +38,7 @@ public class FabricInstance(
             return null;
         }
 
-        VersionDetails fabricVersion = GameHelper.GetVersionDetails(PathDetails.VersionsDir, this.MinecraftVersion.Id, EMinecraftKind.FABRIC, this.GameDetails.CustomVersion, this.GameDetails.CustomGameDirectory);
+        VersionDetails fabricVersion = GameHelper.GetVersionDetails(PathDetails.VersionsDir, MinecraftVersion.Id, EMinecraftKind.FABRIC, GameDetails.CustomVersion, GameDetails.CustomGameDirectory);
 
         // Create versionDir in the versions folder
         if (!Directory.Exists(fabricVersion.VersionDirectory))
@@ -57,7 +57,7 @@ public class FabricInstance(
         if (!File.Exists(fabricVersion.VersionJsonPath))
         {
             Progress<double> progress = new Progress<double>();
-            progress.ProgressChanged += (sender, e) =>
+            progress.ProgressChanged += (_, e) =>
             {
                 //_progressReporter?.SetProgress(e);
                 _progressReporter?.SetStatusTranslated("instance.downloading.version_json", "fabric", e.ToString("0.00"));

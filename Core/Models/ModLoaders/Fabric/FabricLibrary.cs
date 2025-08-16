@@ -26,7 +26,7 @@ public class FabricLibrary
     public string GetURL()
     {
         string path;
-        string[] parts = this.Name.Split(":", 3);
+        string[] parts = Name.Split(":", 3);
         path = parts[0].Replace(".", "/") + "/" + parts[1] + "/" + parts[2] + "/" + parts[1] + "-" + parts[2] + ".jar";
 
         return Url + path;
@@ -34,7 +34,7 @@ public class FabricLibrary
 
     public string GetPath()
     {
-        string[] parts = this.Name.Split(":", 3);
+        string[] parts = Name.Split(":", 3);
         char separator = '/';
         string path = parts[0].Replace('.', separator) + separator + parts[1] + separator + parts[2] + separator + parts[1] + "-" + parts[2] + ".jar";
         return path.Replace(" ", "_");

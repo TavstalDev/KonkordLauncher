@@ -126,7 +126,7 @@ public class MinecraftInstance
                 string latestLogFile = Path.Combine(logsDir, "latest.log");
                 if (File.Exists(latestLogFile))
                 {
-                    DateTime lastEditDate = System.IO.File.GetLastWriteTime(latestLogFile);
+                    DateTime lastEditDate = File.GetLastWriteTime(latestLogFile);
                     File.Move(latestLogFile, Path.Combine(logsDir, $"{lastEditDate:yyyy-MM-dd_HH-mm-ss}.log"), true);
                 }
                 logsFilePath = latestLogFile;
@@ -139,7 +139,7 @@ public class MinecraftInstance
             // Execute post-exit command if specified
             if (!string.IsNullOrEmpty(GameDetails.PostExitCommand) && process != null)
             {
-                process.Exited += (sender, args) => JavaProcessLauncher.StartCommand(GameDetails.PostExitCommand);
+                process.Exited += (_, _) => JavaProcessLauncher.StartCommand(GameDetails.PostExitCommand);
             }
             return process;
         }
@@ -168,7 +168,7 @@ public class MinecraftInstance
         }
         
         if (GameDetails.JavaPath == "LAUNCH_ME_FIRST")
-            OnSetupDefaultJava?.Invoke(MinecraftVersionMeta);
+            OnSetupDefaultJava.Invoke(MinecraftVersionMeta);
         
         await MinecraftFileService.DownloadMappingsAsync(MinecraftVersionMeta, VersionData, _progressReporter);
         await MinecraftFileService.DownloadAssetsAsync(MinecraftVersionMeta, PathDetails.AssetsDir, VersionData.GameDir, _progressReporter);

@@ -312,6 +312,7 @@ public static class MinecraftFileService
     public static async Task DownloadMappingsAsync(VersionMeta versionMeta, VersionDetails versionData,
         IProgressReporter? progressReporter = null)
     {
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (versionMeta.Downloads.ClientMappings == null) return;
 
         string clientMappinsPath = Path.Combine(versionData.VersionDirectory, "client.txt");

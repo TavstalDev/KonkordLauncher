@@ -38,7 +38,7 @@ public class QuiltInstance(
             return null;
         }
 
-        VersionDetails quiltVersion = GameHelper.GetVersionDetails(PathDetails.VersionsDir, this.MinecraftVersion.Id, EMinecraftKind.QUILT, this.GameDetails.CustomVersion, this.GameDetails.CustomGameDirectory);
+        VersionDetails quiltVersion = GameHelper.GetVersionDetails(PathDetails.VersionsDir, MinecraftVersion.Id, EMinecraftKind.QUILT, GameDetails.CustomVersion, GameDetails.CustomGameDirectory);
 
         // Create versionDir in the versions folder
         if (!Directory.Exists(quiltVersion.VersionDirectory))
@@ -57,7 +57,7 @@ public class QuiltInstance(
         if (!File.Exists(quiltVersion.VersionJsonPath))
         {
             Progress<double> progress = new Progress<double>();
-            progress.ProgressChanged += (sender, e) =>
+            progress.ProgressChanged += (_, e) =>
             {
                 //_progressReporter?.SetProgress(e);
                 _progressReporter?.SetStatusTranslated("instance.downloading.version_json", "quilt", e.ToString("0.00"));

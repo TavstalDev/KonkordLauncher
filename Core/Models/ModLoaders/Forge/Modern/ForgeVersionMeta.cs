@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 
-namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.New;
+namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Modern;
 
 /// <summary>
 /// Represents metadata for a specific version of the Forge mod loader.

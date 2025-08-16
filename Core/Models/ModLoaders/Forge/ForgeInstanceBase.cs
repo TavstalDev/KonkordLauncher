@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Instances;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
-using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.New;
+using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Modern;
 
 namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
 

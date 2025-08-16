@@ -6,7 +6,7 @@ using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints.Modding;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
-using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.New;
+using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Modern;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 
 namespace Tavstal.KonkordLauncher.Core.Instances.Forge;
@@ -32,7 +32,7 @@ public class ForgeModernInstance(
         }
 
         List<LibraryMeta> localLibraries = [];
-        VersionDetails forgeVersion = GameHelper.GetVersionDetails(PathDetails.VersionsDir, this.MinecraftVersion.Id, EMinecraftKind.FORGE, this.GameDetails.CustomVersion, this.GameDetails.CustomGameDirectory);
+        VersionDetails forgeVersion = GameHelper.GetVersionDetails(PathDetails.VersionsDir, MinecraftVersion.Id, EMinecraftKind.FORGE, GameDetails.CustomVersion, GameDetails.CustomGameDirectory);
         
         // Create versionDir in the versions folder
         if (!Directory.Exists(forgeVersion.VersionDirectory))
@@ -45,7 +45,7 @@ public class ForgeModernInstance(
         if (!File.Exists(forgeVersion.VersionJsonPath))
         {
             Progress<double> progress = new Progress<double>();
-            progress.ProgressChanged += (sender, e) =>
+            progress.ProgressChanged += (_, e) =>
             {
                 _progressReporter?.SetStatusTranslated("instance.downloading.installer", "forge",
                     e.ToString("0.00"));
@@ -84,7 +84,6 @@ public class ForgeModernInstance(
         var forgeVersionMeta = JsonConvert.DeserializeObject<ForgeVersionMeta>(rawForgeVersionMeta);
         if (forgeVersionMeta == null)
             throw new FileNotFoundException("Failed to get the forge version meta.");
-        rawForgeVersionMeta = null; // Clear the raw meta to free memory
         
         // Install libraries from Forge Version Meta
         localLibraries.AddRange(forgeVersionMeta.Libraries);
@@ -94,7 +93,6 @@ public class ForgeModernInstance(
         var installProfile = JsonConvert.DeserializeObject<ForgeVersionProfile>(rawInstallProfile);
         if (installProfile == null)
             throw new FileNotFoundException("Failed to get the forge install profile meta.");
-        rawInstallProfile = null; // Clear the raw data to free memory
         
         // Install Libraries From Install Profile
         _progressReporter?.SetStatusTranslated("instance.reading.libraries");

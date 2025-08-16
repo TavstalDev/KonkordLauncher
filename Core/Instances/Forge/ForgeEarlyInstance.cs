@@ -28,8 +28,8 @@ public class ForgeEarlyInstance(string forgeVersionName, string universalName,
             return null;
         }
 
-        VersionDetails forgeVersion = GameHelper.GetVersionDetails(PathDetails.VersionsDir, this.MinecraftVersion.Id,
-            EMinecraftKind.FORGE, this.GameDetails.CustomVersion, this.GameDetails.CustomGameDirectory);
+        VersionDetails forgeVersion = GameHelper.GetVersionDetails(PathDetails.VersionsDir, MinecraftVersion.Id,
+            EMinecraftKind.FORGE, GameDetails.CustomVersion, GameDetails.CustomGameDirectory);
 
         // Create versionDir in the versions folder
         if (!Directory.Exists(forgeVersion.VersionDirectory))
@@ -41,7 +41,7 @@ public class ForgeEarlyInstance(string forgeVersionName, string universalName,
         if (!File.Exists(forgeVersion.VersionJarPath))
         {
             Progress<double> progress = new Progress<double>();
-            progress.ProgressChanged += (sender, e) =>
+            progress.ProgressChanged += (_, e) =>
             {
                 _progressReporter?.SetStatusTranslated("instance.downloading.installer", "forge",
                     e.ToString("0.00"));

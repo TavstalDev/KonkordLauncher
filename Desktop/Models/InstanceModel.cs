@@ -168,6 +168,12 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             _watcher.Renamed -= OnLogFileChanged;
         }
         
+        if (!Directory.Exists(logsDir))
+        {
+            _logger.Warn($"Logs directory does not exist: {logsDir}. Creating it.");
+            Directory.CreateDirectory(logsDir);
+        }
+        
         _watcher = new FileSystemWatcher
         {
             Path = logsDir,
@@ -183,8 +189,19 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         };
     }
 
-
-    public async Task LaunchAsync(Interaction<Alert, Unit> showAlertDialog, string? serverAddress = null)
+    /// <summary>
+    /// Launches the Minecraft instance asynchronously with the specified settings and configurations.
+    /// </summary>
+    /// <param name="closeWindow">
+    /// An interaction to close the launcher window if configured to do so.
+    /// </param>
+    /// <param name="showAlertDialog">
+    /// An interaction to display alert dialogs in case of errors or warnings.
+    /// </param>
+    /// <param name="serverAddress">
+    /// An optional server address to join upon launching the instance.
+    /// </param>
+    public async Task LaunchAsync(Interaction<Unit, Unit> closeWindow, Interaction<Alert, Unit> showAlertDialog, string? serverAddress = null)
     {
         _lastReadPosition = 0;
         _logger.Debug($"Launching instance: {Name}");
@@ -427,10 +444,9 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             IsGameRunning = true;
             AttachProcessEvent();
             
-            // TODO
             if (settings.Minecraft.CloseLauncherOnGameStart)
             {
-                //parentWindow.Close();
+                closeWindow.Handle(Unit.Default);
                 return;
             }
 
@@ -438,7 +454,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             {
                 GameProcess.Exited += (_, _) =>
                 {
-                    //parentWindow.Close();
+                    closeWindow.Handle(Unit.Default);
                 };
             }
         }
@@ -449,6 +465,16 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         }
     }
     
+    /// <summary>
+    /// Sets up the default Java path for the given Minecraft instance. If the required Java version
+    /// is not available, it attempts to handle the situation by either downloading it or notifying the user.
+    /// </summary>
+    /// <param name="gameInstance">The Minecraft instance for which the Java path is being set up.</param>
+    /// <param name="meta">The metadata containing the required Java version information.</param>
+    /// <param name="settings">The core configuration settings of the launcher.</param>
+    /// <param name="showAlertDialog">
+    /// An interaction to display an alert dialog in case the required Java version is not found.
+    /// </param>
     private void SetupDefaultJavaPath(MinecraftInstance gameInstance, VersionMeta? meta, CoreConfig settings, Interaction<Alert, Unit> showAlertDialog)
     {
         string defaultJavaPath = settings.Java.JavaPath;
@@ -501,7 +527,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             instances[instanceIndex].Config.Java.JavaPath = javaPath;
             JsonHelper.WriteJsonFile(PathHelper.LauncherInstancesPath, instances);
         }
-        App.InvokeInstancesChanged();
+        GlobalEvents.InvokeInstancesChanged();
     }
 
     /// <summary>
@@ -519,7 +545,6 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             if (e.ChangeType != WatcherChangeTypes.Changed)
                 return;
             
-            _logger.Info("### File changed, current position: " + _lastReadPosition);
             using var fs = new FileStream(e.FullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             fs.Seek(_lastReadPosition, SeekOrigin.Begin);
             using var sr = new StreamReader(fs);
@@ -535,9 +560,9 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             Dispatcher.UIThread.Post(() =>
             {
                 Logs += newLines.ToString();
+                GlobalEvents.InvokeInstanceLogged(Id, Logs);
             });
             _lastReadPosition = fs.Position;
-            _logger.Ok("### Log file read successfully, new position: " + _lastReadPosition);
         }
         catch (IOException ex)
         {

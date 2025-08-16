@@ -59,10 +59,13 @@ public class CoreLogger
         string text = $"{prefix}{message}";
         if (!string.IsNullOrEmpty(_moduleName))
             text = $"[{_moduleName}] {text}";
-
-        // TODO: Save to file
+        
         try
         {
+            Console.ForegroundColor = color;
+            Console.WriteLine(text);
+            Console.ResetColor();
+            
             string logsFilePath = Path.Combine(PathHelper.LauncherLogsDir, string.Format(PathHelper.LogsFileFormat, StartTime));
             if (File.Exists(logsFilePath))
             {
@@ -70,10 +73,6 @@ public class CoreLogger
                 streamWriter.WriteLine(string.Concat("[", DateTime.Now, "] ", text));
                 streamWriter.Close();
             }
-
-            Console.ForegroundColor = color;
-            Console.WriteLine(text);
-            Console.ResetColor();
         }
         catch (Exception ex)
         {

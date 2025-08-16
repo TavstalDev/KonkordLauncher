@@ -1,3 +1,4 @@
+using Avalonia;
 using Avalonia.Controls;
 using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Models;
@@ -25,6 +26,14 @@ public partial class InstallWindow : Window, IProgressReporter
 
         // Sets the data context of the window to an instance of the InstallViewModel.
         DataContext = new InstallViewModel();
+    }
+    
+    protected override void OnClosing(WindowClosingEventArgs e)
+    {
+        base.OnClosing(e);
+        // Ensure the progress bar is not indeterminate when closing
+        // it may use more resources than necessary otherwise
+        ProgressBar.IsIndeterminate = false;
     }
 
     /// <summary>

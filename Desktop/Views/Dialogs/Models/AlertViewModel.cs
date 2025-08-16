@@ -1,4 +1,6 @@
 using System.Reactive;
+using System.Reactive.Linq;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ReactiveUI;
@@ -58,5 +60,5 @@ public partial class AlertViewModel : ObservableObject
     /// </summary>
     /// <param name="value">The result value indicating the outcome of the alert dialog.</param>
     [RelayCommand]
-    public void Close(bool value) => CloseWindow.Handle(value);
+    public async Task Close(bool value) => await CloseWindow.Handle(value);
 }

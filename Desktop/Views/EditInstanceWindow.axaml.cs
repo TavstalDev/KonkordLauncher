@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -15,22 +16,35 @@ using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models;
+using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views;
 
+/// <summary>
+/// Represents the window for editing an instance in the Konkord Launcher.
+/// </summary>
 public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceWindow));
     
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EditInstanceWindow"/> class.
+    /// Sets up the data context with an empty instance ID and initializes components.
+    /// </summary>
     public EditInstanceWindow()
     {
         InitializeComponent();
         DataContext = new EditInstanceViewModel(string.Empty);
     }
     
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EditInstanceWindow"/> class with a specific instance ID.
+    /// Sets up the data context, initializes components, and registers reactive handlers.
+    /// </summary>
+    /// <param name="instanceId">The ID of the instance to be edited.</param>
     public EditInstanceWindow(string instanceId)
     {
         InitializeComponent();
@@ -45,7 +59,7 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
         {
             DataContext.CloseWindow.RegisterHandler(action =>
             {
-                Close();
+                this.Close();
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             }).DisposeWith(disposables);
@@ -77,6 +91,12 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             }).DisposeWith(disposables);
+            DataContext.LogsScrollToEnd.RegisterHandler(action =>
+            {
+                LogsScrollViewer.Offset =  new Vector(0, LogsScrollViewer.Extent.Height);
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            });
         });
     }
 

@@ -8,9 +8,11 @@ using System.IO.Compression;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DynamicData;
@@ -26,6 +28,7 @@ using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models;
+using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Config.Instance;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 
@@ -36,7 +39,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     private readonly bool _isInitialized;
     private readonly string _instanceId;
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceViewModel));
-    private bool _isClosing = false;
+    private bool _isClosing;
     
     public Interaction<Unit, Unit> CloseWindow { get; }  = new();
     public Interaction<Alert, Unit> ShowAlertDialog { get; } = new();
@@ -44,6 +47,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     public Interaction<ScreenshotModel, Unit> SetClipboardImage { get; } = new();
     public Interaction<Unit, Unit> BeginWorldRename { get; } = new();
     public Interaction<Unit, Unit> BeginScreenshotRename { get; } = new();
+    public Interaction<Unit, Unit> LogsScrollToEnd { get; } = new();
     public bool IsLinux => OSHelper.GetOperatingSystem() == EOperatingSystem.Linux;
     public List<Account> Accounts { get; set; }
 
@@ -105,16 +109,36 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         SubscribeToConfigChildren(_instanceConfig);
         if (!string.IsNullOrEmpty(_instanceConfig.Misc.AccountId))
             OverridenAccountIndex = Accounts.FindIndex(x => x.Id == _instanceConfig.Misc.AccountId);
-
-        /*_instance.PropertyChanged += (_, args) =>
-        {
-            if (args.PropertyName == nameof(InstanceModel.Logs))
-            {
-                Logs = _instance.Logs;
-                _parentWindow.LogsScrollViewer.Offset =  new Vector(0, _parentWindow.LogsScrollViewer.Extent.Height);
-            }
-        };*/
         
+        // Logging setup
+        GlobalEvents.OnInstanceLogged += OnInstanceLogged;
+        string logsDir = Path.Combine(_gameDirectory ?? string.Empty, "logs");
+        try
+        {
+            if (Directory.Exists(logsDir))
+            {
+                string logsFile = Path.Combine(logsDir, "latest.log");
+                if (File.Exists(logsFile))
+                {
+                    using var fs = new FileStream(logsFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                    fs.Seek(0, SeekOrigin.Begin);
+                    using var sr = new StreamReader(fs);
+
+                    var newLines = new StringBuilder();
+                    while (sr.ReadLine() is { } newLine)
+                    {
+                        newLines.AppendLine(newLine);
+                    }
+                    Logs = newLines.ToString();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.Exc("Failed to read logs from the instance.");
+            _logger.Error(ex);
+        }
+
         #region Resource Packs
 
         // Set up a reactive filter for the ResourcePackSearchQuery property.
@@ -145,15 +169,37 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         RefreshScreenshots();
     }
 
-    /*public override void FreeMemory()
+    /// <summary>
+    /// Handles log messages for a specific instance by updating the Logs property
+    /// and triggering the LogsScrollToEnd interaction to scroll to the end of the logs.
+    /// </summary>
+    /// <param name="instanceId">The ID of the instance that generated the log message.</param>
+    /// <param name="logMessage">The log message to be handled.</param>
+    private void OnInstanceLogged(string instanceId, string logMessage)
     {
+        if (instanceId != _instanceId)
+            return;
+        
+        Logs = logMessage;
+        Dispatcher.UIThread.Invoke(async () => await LogsScrollToEnd.Handle(Unit.Default));
+    }
+
+    /// <summary>
+    /// Releases the resources used by the EditInstanceViewModel and performs cleanup operations.
+    /// </summary>
+    /// <param name="disposing">
+    /// A boolean value indicating whether the method is being called directly or indirectly by a finalizer.
+    /// If true, the method has been called directly or indirectly by a user's code. Managed and unmanaged resources can be disposed.
+    /// If false, the method has been called by the runtime from inside the finalizer, and only unmanaged resources can be disposed.
+    /// </param>
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
         _logger.Debug("Freeing memory in EditInstanceViewModel...");
         _isClosing = true;
-        
-        
+        //GlobalEvents.OnInstanceLogged -= OnInstanceLogged;
         Worlds.CollectionChanged -= WorldsOnCollectionChanged;
         Servers.CollectionChanged -= ServersOnCollectionChanged;
-        
         // Dispose of all image resources before clearing the collections
         foreach (var resourcePack in _resourcePackCache.Items)
             resourcePack.Icon?.Dispose();
@@ -163,7 +209,6 @@ public partial class EditInstanceViewModel : KonkordObservableObject
             server.Image?.Dispose();
         foreach (var screenshot in Screenshots)
             screenshot.Image?.Dispose();
-        
         Accounts.Clear();
         Mods.Clear();
         _resourcePackCache.Clear();
@@ -178,21 +223,19 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         InstanceName = string.Empty;
         GameDirectory = null;
         Logs = string.Empty;
-        _disposables.Dispose();
-        
         
         SelectedEnvironmentVariableIndex = null;
         SelectedMod = null;
-        SelectedResourcePack = null;
         SelectedResourcePack?.Icon?.Dispose();
+        SelectedResourcePack = null;
         SelectedShaderPack = null;
-        SelectedWorld = null;
         SelectedWorld?.Icon?.Dispose();
-        SelectedServer = null;
+        SelectedWorld = null;
         SelectedServer?.Image?.Dispose();
-        SelectedScreenshot = null;
+        SelectedServer = null;
         SelectedScreenshot?.Image?.Dispose();
-    }*/
+        SelectedScreenshot = null;
+    }
     
     #region Mods
 
@@ -373,7 +416,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     /// </summary>
     /// <param name="world">The world to rename.</param>
     [RelayCommand]
-    public void WorldsRenameCommand(WorldModel world) => BeginWorldRename.Handle(Unit.Default);
+    public async Task WorldsRenameCommand(WorldModel world) => await BeginWorldRename.Handle(Unit.Default);
 
     /// <summary>
     /// Deletes the specified Minecraft world by removing its directory from the file system
@@ -849,7 +892,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     /// </summary>
     /// <param name="screenshot">The screenshot to rename.</param>
     [RelayCommand]
-    public void ScreenshotsRenameCommand(ScreenshotModel screenshot) => BeginScreenshotRename.Handle(Unit.Default);
+    public async Task ScreenshotsRenameCommand(ScreenshotModel screenshot) => await BeginScreenshotRename.Handle(Unit.Default);
 
     /// <summary>
     /// Opens the directory containing the screenshots in the file explorer.
@@ -1058,7 +1101,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         instances[index] = instanceToSave;
 
         JsonHelper.WriteJsonFile(PathHelper.LauncherInstancesPath, instances);
-        App.InvokeInstancesChanged();
+        GlobalEvents.InvokeInstancesChanged();
     }
 
     #endregion

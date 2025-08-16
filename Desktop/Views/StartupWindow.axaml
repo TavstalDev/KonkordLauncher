@@ -34,7 +34,6 @@
             <TextBlock
                 Grid.Row="2"
                 Classes="StartupProgressText"
-                Name="ProgressText"
                 Text="{Binding ProgressText}" />
         </Grid>
     </Border>

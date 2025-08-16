@@ -12,13 +12,14 @@ using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models;
+using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 /// <summary>
 /// ViewModel for managing and selecting icons in the application.
 /// </summary>
-public partial class IconSelectorViewModel : ObservableObject
+public partial class IconSelectorViewModel : KonkordObservableObject
 {
     /// <summary>
     /// The currently selected icon.
@@ -38,9 +39,13 @@ public partial class IconSelectorViewModel : ObservableObject
     /// </summary>
     public bool HasSelectedIcon => SelectedIcon != null;
     
-    public Interaction<IconDataModel?, Unit> CloseWindow { get; }  = new();
+    public Interaction<string?, Unit> CloseWindow { get; }  = new();
     public Interaction<Unit, List<(string, string)>?> ShowFilePicker { get; }  = new();
     
+    /// <summary>
+    /// Initializes a new instance of the <see cref="IconSelectorViewModel"/> class.
+    /// Loads the available icons from the configured directory and populates the icons collection.
+    /// </summary>
     public IconSelectorViewModel()
     {
         _icons = [];
@@ -56,15 +61,23 @@ public partial class IconSelectorViewModel : ObservableObject
         }
     }
     
-    /*public override void FreeMemory()
+    /// <summary>
+    /// Releases the resources used by the <see cref="IconSelectorViewModel"/> and performs cleanup operations.
+    /// </summary>
+    /// <param name="disposing">
+    /// A boolean value indicating whether the method is being called directly or indirectly by a finalizer.
+    /// If true, the method has been called directly or indirectly by a user's code. Managed and unmanaged resources can be disposed.
+    /// If false, the method has been called by the runtime from inside the finalizer, and only unmanaged resources can be disposed.
+    /// </param>
+    protected override void Dispose(bool disposing)
     {
+        base.Dispose(disposing);
         SelectedIcon?.Image.Dispose();
         foreach (var icon in Icons)
             icon.Image.Dispose();
         Icons = [];
         SelectedIcon = null;
-        _parentWindow = null;
-    }*/
+    }
     
     #region Commands
 
@@ -72,13 +85,13 @@ public partial class IconSelectorViewModel : ObservableObject
     /// Closes the parent window and returns the currently selected icon as the result.
     /// </summary>
     [RelayCommand]
-    public void OkBtn() => CloseWindow.Handle(SelectedIcon);
+    public async Task OkBtn() => await CloseWindow.Handle(SelectedIcon?.Path);
 
     /// <summary>
     /// Closes the parent window without returning any result.
     /// </summary>
     [RelayCommand]
-    public void CancelBtn() => CloseWindow.Handle(null);
+    public async Task CancelBtn() => await CloseWindow.Handle(null);
 
     /// <summary>
     /// Opens a file picker dialog to allow the user to add new icons.

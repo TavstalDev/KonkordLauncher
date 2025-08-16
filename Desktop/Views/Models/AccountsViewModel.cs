@@ -108,7 +108,7 @@ public partial class AccountsViewModel : ObservableObject
             accountData.SelectedAccountId = microsoftAccount.Id;
         accountData.Accounts.Add(microsoftAccount);
         await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData);
-        App.InvokeAccountsChanged();
+        GlobalEvents.InvokeAccountsChanged();
         MicrosoftAuthService.Reset();
         await CloseWindow.Handle(Unit.Default);
     }
@@ -172,7 +172,7 @@ public partial class AccountsViewModel : ObservableObject
             DateTime.Now);
         accountData.Accounts.Add(account);
         await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData);
-        App.InvokeAccountsChanged();
+        GlobalEvents.InvokeAccountsChanged();
         
         await CloseWindow.Handle(Unit.Default);
     }

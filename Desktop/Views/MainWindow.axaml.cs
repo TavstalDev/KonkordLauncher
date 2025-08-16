@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using ReactiveUI;
@@ -11,6 +12,7 @@ using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models;
+using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using MainViewModel = Tavstal.KonkordLauncher.Desktop.Views.Models.MainViewModel;
@@ -72,7 +74,7 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
                 action.SetOutput(Unit.Default);
                 if (!result)
                     return;
-                App.InvokeInstancesChanged();
+                GlobalEvents.InvokeInstancesChanged();
             }).DisposeWith(disposables);
             DataContext.ShowAccountsDialog.RegisterHandler(async action =>
             {

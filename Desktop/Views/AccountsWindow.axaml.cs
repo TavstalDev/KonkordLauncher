@@ -3,12 +3,14 @@ using System.Reactive;
 using System.Reactive.Disposables;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Threading;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models;
+using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
 
@@ -59,6 +61,20 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
         });
 
         OfflineUsernameInput.TextChanged += OfflineUsername_OnTextChanged;
+    }
+    
+    /// <summary>
+    /// Handles the window closing event.
+    /// Ensures that the progress bar is not set to an indeterminate state when the window is closing,
+    /// as this may consume unnecessary resources.
+    /// </summary>
+    /// <param name="e">The event data associated with the window closing event.</param>
+    protected override void OnClosing(WindowClosingEventArgs e)
+    {
+        base.OnClosing(e);
+        // Ensure the progress bar is not indeterminate when closing
+        // it may use more resources than necessary otherwise
+        ProgressBar.IsIndeterminate = false;
     }
     
     /// <summary>

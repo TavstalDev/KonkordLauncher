@@ -15,6 +15,7 @@ using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models;
+using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
@@ -52,6 +53,11 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
         DataContext = new StartupViewModel();
     }
     
+    /// <summary>
+    /// Handles the loading event of the startup window. This method initializes and validates
+    /// various components required for the application to function properly.
+    /// </summary>
+    /// <param name="e">The event data associated with the loaded event.</param>
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
@@ -199,6 +205,19 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
                     Close();
             }
         });
+    }
+
+    /// <summary>
+    /// Handles the window closing event. Ensures that the progress bar is not set to an indeterminate state
+    /// when the window is closing, as this may consume unnecessary resources.
+    /// </summary>
+    /// <param name="e">The event data associated with the window closing event.</param>
+    protected override void OnClosing(WindowClosingEventArgs e)
+    {
+        base.OnClosing(e);
+        // Ensure the progress bar is not indeterminate when closing
+        // it may use more resources than necessary otherwise
+        ProgressBar.IsIndeterminate = false;
     }
 
     /// <summary>

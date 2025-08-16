@@ -18,16 +18,16 @@
     
     <Border Classes="ModalView">
         <StackPanel>
-            <TextBlock Name="AddNewAccountTb" Classes="ModalTitle" Text="{lang:Translate auth.title}" />
+            <TextBlock Classes="ModalTitle" Text="{lang:Translate auth.title}" />
             <TabControl Classes="ModalTab">
                 <!-- Microsoft account login tab -->
-                <TabItem Name="MicrosoftTab" Classes="ModalTabItem" Header="{lang:Translate auth.tab.microsoft}">
+                <TabItem Classes="ModalTabItem" Header="{lang:Translate auth.tab.microsoft}">
                     <Border Classes="ModalWrapper">
                         <Grid>
                             <!-- Start with Microsoft account login -->
                             <WrapPanel Classes="ModalWrapper" IsVisible="{Binding !IsLoggingInMicrosoftAccount}">
                                 <!-- Description text -->
-                                <TextBlock Name="MicrosoftDescriptionTb" Classes="AccountsModalDescription" Text="{lang:Translate auth.microsoft.description}" />
+                                <TextBlock Classes="AccountsModalDescription" Text="{lang:Translate auth.microsoft.description}" />
                                 <!-- Microsoft logo -->
                                 <Image Classes="AccountsModalImage" Source="avares://Desktop/Assets/Images/Brands/microsoft.png" />
                                 <!-- Start login button -->
@@ -38,13 +38,13 @@
                                     </WrapPanel>
                                 </Button>
                                 <!-- Note text -->
-                                <TextBlock Name="MicrosoftNoteTb" Classes="AccountsNote" Text="{lang:Translate auth.microsoft.note}" />
+                                <TextBlock Classes="AccountsNote" Text="{lang:Translate auth.microsoft.note}" />
                             </WrapPanel>
                             <!-- Show progress while waiting for browser confirmation -->
                             <WrapPanel Classes="ModalWrapper" IsVisible="{Binding IsLoggingInMicrosoftAccount}">
-                                <ProgressBar Classes="AccountsModalProgress" />
+                                <ProgressBar Name="ProgressBar" Classes="AccountsModalProgress" />
                                 <!-- Progress text -->
-                                <TextBlock Name="ProgressText" Classes="AccountsModalProgressText" Text="{Binding ProgressText}" />
+                                <TextBlock Classes="AccountsModalProgressText" Text="{Binding ProgressText}" />
                                 <!-- Buttons -->
                                 <WrapPanel Classes="AccountsModalProgressWrapper">
                                     <!-- Open link button -->
@@ -65,11 +65,11 @@
                     </Border>
                 </TabItem>
                 <!-- Offline account login tab -->
-                <TabItem Name="OfflineTab" Classes="ModalTabItem" Header="{lang:Translate auth.tab.offline}">
+                <TabItem Classes="ModalTabItem" Header="{lang:Translate auth.tab.offline}">
                     <Border Classes="ModalWrapper">
                         <WrapPanel Classes="ModalWrapper">
                             <!-- Description text -->
-                            <TextBlock Name="OfflineDescriptionTb" Classes="AccountsModalDescription" Text="{lang:Translate auth.offline.description}" />
+                            <TextBlock Classes="AccountsModalDescription" Text="{lang:Translate auth.offline.description}" />
                             <!-- Username input -->
                             <TextBox Name="OfflineUsernameInput" Classes="AccountsModalInput" MaxLength="16" Watermark="steve" Text="{Binding OfflineUsername}" />
                             <!-- Offline login button -->
@@ -80,7 +80,7 @@
                                 </WrapPanel>
                             </Button>
                             <!-- Note text -->
-                            <TextBlock Name="OfflineNoteTb" Classes="AccountsNote" Text="{lang:Translate auth.offline.note}" />
+                            <TextBlock Classes="AccountsNote" Text="{lang:Translate auth.offline.note}" />
                         </WrapPanel>
                     </Border>
                 </TabItem>

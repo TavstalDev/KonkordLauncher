@@ -16,6 +16,7 @@ using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Services;
 using Tavstal.KonkordLauncher.Desktop.Models;
+using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Config.Launcher;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Translation;
@@ -60,8 +61,23 @@ public partial class MainViewModel : KonkordObservableObject
 
         SubscribeToCoreConfigChildren(_coreConfig);
         SubscribeToAccountDataChildren(_accountData);
-        App.OnAccountsChanged += OnAccountUpdated;
-        App.OnInstancesChanged += HandleInstancesChanged;
+        GlobalEvents.OnAccountsChanged += OnAccountUpdated;
+        GlobalEvents.OnInstancesChanged += HandleInstancesChanged;
+    }
+
+    /// <summary>
+    /// Releases the resources used by the MainViewModel and unsubscribes from global events.
+    /// </summary>
+    /// <param name="disposing">
+    /// A boolean value indicating whether the method is being called directly or indirectly by a finalizer.
+    /// If true, the method has been called directly or indirectly by a user's code. Managed and unmanaged resources can be disposed.
+    /// If false, the method has been called by the runtime from inside the finalizer, and only unmanaged resources can be disposed.
+    /// </param>
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+        GlobalEvents.OnAccountsChanged -= OnAccountUpdated;
+        GlobalEvents.OnInstancesChanged -= HandleInstancesChanged;
     }
 
     #region Sidebar Management
@@ -112,7 +128,7 @@ public partial class MainViewModel : KonkordObservableObject
     [RelayCommand]
     private async Task LaunchInstance(InstanceModel instance)
     {
-        await instance.LaunchAsync(ShowAlertDialog);
+        await instance.LaunchAsync(CloseWindow, ShowAlertDialog);
     }
     
     /// <summary>
@@ -167,7 +183,7 @@ public partial class MainViewModel : KonkordObservableObject
             return;
         
         AccountData.SelectedAccountId = accountId;
-        App.InvokeAccountsChanged();
+        GlobalEvents.InvokeAccountsChanged();
     }
 
     /// <summary>
@@ -208,7 +224,7 @@ public partial class MainViewModel : KonkordObservableObject
         accountData.Accounts[index] = updatedAccount;
 
         await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData);
-        App.InvokeAccountsChanged();
+        GlobalEvents.InvokeAccountsChanged();
         MicrosoftAuthService.Reset();
     }
 
@@ -465,7 +481,7 @@ public partial class MainViewModel : KonkordObservableObject
         // Handle theme change
         if (e.PropertyName == nameof(CoreConfig.Launcher.Theme))
         {
-            App.InvokeThemeChanged(CoreConfig.Launcher.Theme);
+            GlobalEvents.InvokeThemeChanged(CoreConfig.Launcher.Theme);
             return;
         }
 
@@ -473,7 +489,6 @@ public partial class MainViewModel : KonkordObservableObject
         if (e.PropertyName == nameof(CoreConfig.Launcher.Language))
         {
             TranslationBindingSource.Instance.RaiseLanguageChanged();
-            App.InvokeLanguageChanged(CoreConfig.Launcher.Language);
             // ReSharper disable once RedundantJumpStatement, there might be additional logic in the future
             return;
         }

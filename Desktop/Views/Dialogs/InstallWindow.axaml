@@ -26,7 +26,7 @@
             <!-- Step -->
             <TextBlock Classes="InstallStepText" Text="{Binding ProgressText}" />
             <!-- Progress bar -->
-            <ProgressBar Classes="InstallProgress" Value="{Binding ProgressValue}" />
+            <ProgressBar Name="ProgressBar" Classes="InstallProgress" Value="{Binding ProgressValue}" />
         </StackPanel>
     </Border>
 </Window>

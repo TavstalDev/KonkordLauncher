@@ -22,6 +22,7 @@ using Tavstal.KonkordLauncher.Core.Models.ModLoaders;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models;
+using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 
@@ -32,7 +33,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
     private ReverseMarkdown.Converter? _converter = new();
     public Interaction<Unit, Unit> CloseWindow { get; }  = new();
     public Interaction<Alert, Unit> ShowAlertDialog { get; } = new();
-    public Interaction<Unit, IconDataModel> ShowIconSelector { get; } = new();
+    public Interaction<Unit, string?> ShowIconSelector { get; } = new();
 
     #region Custom
     
@@ -235,6 +236,14 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
         });
     }
 
+    /// <summary>
+    /// Releases the resources used by the CreateInstanceViewModel and performs cleanup operations.
+    /// </summary>
+    /// <param name="disposing">
+    /// A boolean value indicating whether the method is being called directly or indirectly by a finalizer.
+    /// If true, the method has been called directly or indirectly by a user's code. Managed and unmanaged resources can be disposed.
+    /// If false, the method has been called by the runtime from inside the finalizer, and only unmanaged resources can be disposed.
+    /// </param>
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
@@ -247,6 +256,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
         InstanceIconPath = null;
         SearchQuery = string.Empty;
         SelectedMinecraftVersion = null;
+        _converter = null;
         
         ModLoaderSearchQuery = string.Empty;
         SelectedModLoader = null;
@@ -268,8 +278,15 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
         if (result == null)
             return;
         InstanceIcon?.Dispose();
-        InstanceIcon = result.Image;
-        InstanceIconPath = result.Path;
+        try
+        {
+            InstanceIcon = new Bitmap(result);
+        }
+        catch
+        {
+            InstanceIcon = ImageHelper.Load("avares://Desktop/Assets/Icons/dirt.png").Result;
+        }
+        InstanceIconPath = result;
     }
     
     /// <summary>
@@ -337,7 +354,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
             }
         });
         await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances);
-        App.InvokeInstancesChanged();
+        GlobalEvents.InvokeInstancesChanged();
         CloseWindow.Handle(Unit.Default);
     }
     
@@ -345,7 +362,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
     /// Cancels the custom instance creation process and closes the parent window.
     /// </summary>
     [RelayCommand]
-    public void CustomCancelCreate() => CloseWindow.Handle(Unit.Default);
+    public async Task CustomCancelCreate() => await CloseWindow.Handle(Unit.Default);
 
     #endregion
 

@@ -54,6 +54,7 @@
                                     <ScrollViewer Name="LogsScrollViewer" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                                         <TextBlock
                                             FontFamily="Consolas"
+                                            FontSize="11"
                                             Opacity="0.8"
                                             Text="{Binding Logs}"
                                             TextWrapping="Wrap" />

@@ -1,5 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Reactive;
+using System.Reactive.Linq;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ReactiveUI;
@@ -38,11 +40,11 @@ public partial class JavaSelectorViewModel : ObservableObject
     /// Handles the selection action by closing the parent window and passing the selected Java version.
     /// </summary>
     [RelayCommand]
-    public void SelectedBtn() => CloseWindow.Handle(SelectedJavaVersion);
+    public async Task SelectedBtn() => await CloseWindow.Handle(SelectedJavaVersion);
 
     /// <summary>
     /// Handles the cancel action by closing the parent window without passing a selected Java version.
     /// </summary>
     [RelayCommand]
-    public void CancelBtn() => CloseWindow.Handle(null);
+    public async Task CancelBtn() => await CloseWindow.Handle(null);
 }

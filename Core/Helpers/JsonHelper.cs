@@ -41,7 +41,7 @@ public static class JsonHelper
         }
         catch (Exception ex)
         {
-            _logger.Exc("Error in WriteJsonFile<T>:");
+            _logger.Exc($"Error in WriteJsonFile<T> {path}:");
             _logger.Error(ex.ToString());
             return false;
         }
@@ -77,7 +77,7 @@ public static class JsonHelper
         }
         catch (Exception ex)
         {
-            _logger.Exc("Error in WriteJsonFileAsync<T>:");
+            _logger.Exc($"Error in WriteJsonFileAsync<T> {path}:");
             _logger.Error(ex.ToString());
             return false;
         }
@@ -99,7 +99,7 @@ public static class JsonHelper
         }
         catch (Exception ex)
         {
-            _logger.Exc("Error in ReadJsonFile<T>:");
+            _logger.Exc($"Error in ReadJsonFile<T> {path}:");
             _logger.Error(ex.ToString());
             return default;
         }
@@ -121,7 +121,7 @@ public static class JsonHelper
         }
         catch (Exception ex)
         {
-            _logger.Exc("Error in ReadJsonFileAsync<T>:");
+            _logger.Exc($"Error in ReadJsonFileAsync<T> {path}:");
             _logger.Error(ex.ToString());
             return default;
         }

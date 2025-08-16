@@ -45,15 +45,11 @@ public static class MinecraftFileService
 
         string? result = await HttpHelper.GetStringAsync(url, progress);
         if (result == null)
-        {
             return default;
-        }
 
         T? deserializedResult = deserialize(result);
         if (deserializedResult != null)
-        {
             await File.WriteAllTextAsync(filePath, result);
-        }
 
         return deserializedResult;
     }
@@ -431,6 +427,12 @@ public static class MinecraftFileService
         string libDir = Path.GetDirectoryName(filePath)!;
         Directory.CreateDirectory(libDir);
 
+        if (File.Exists(filePath))
+        {
+            ExtractNativeFiles(filePath,nativeDir);
+            return;
+        }
+        
         Progress<double> progress = new Progress<double>();
         progress.ProgressChanged += (_, e) =>
         {

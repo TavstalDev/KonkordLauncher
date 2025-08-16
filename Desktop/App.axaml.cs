@@ -10,6 +10,7 @@ using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Desktop.Views;
 
 namespace Tavstal.KonkordLauncher.Desktop;
 
@@ -80,7 +81,6 @@ public partial class App : Application
         {
             var settings = LauncherHelper.GetLauncherSettings();
             ApplyTheme(settings.Launcher.Theme);
-            //InvokeLanguageChanged(settings.Launcher.Language);
         }
         catch
         {
@@ -97,7 +97,7 @@ public partial class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             // Sets the main window to the StartupWindow, passing the application lifetime.
-            desktop.MainWindow = new Views.StartupWindow(desktop);
+            desktop.MainWindow = new StartupWindow();
         }
 
         base.OnFrameworkInitializationCompleted();

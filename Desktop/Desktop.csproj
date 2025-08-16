@@ -10,6 +10,12 @@
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <PublishSingleFile>true</PublishSingleFile>
+        <SelfContained>true</SelfContained>
+        <EnableUnsafeUTF8Json>true</EnableUnsafeUTF8Json>
+    </PropertyGroup>
+    
     <ItemGroup>
         <PackageReference Include="Avalonia" Version="11.3.3" />
         <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.3.3" />

@@ -7,14 +7,14 @@
     <SolidColorBrush x:Key="border-one" Color="#555" />
     <SolidColorBrush x:Key="border-two" Color="#666666" />
 
-    <SolidColorBrush x:Key="default" Color="#5e5e5e" />
-    <SolidColorBrush x:Key="default-border" Color="#232323" />
+    <SolidColorBrush x:Key="default" Color="#191919" />
+    <SolidColorBrush x:Key="default-border" Color="#3F3F3F" />
 
     <SolidColorBrush x:Key="primary" Color="#16a34a" />
     <SolidColorBrush x:Key="primary-border" Color="#0f7133" />
     <SolidColorBrush x:Key="primary-content" Color="#FFFFFF" />
-    <SolidColorBrush x:Key="secondary" Color="#374151" />
-    <SolidColorBrush x:Key="secondary-border" Color="#262d38" />
+    <SolidColorBrush x:Key="secondary" Color="#6B7280" />
+    <SolidColorBrush x:Key="secondary-border" Color="#4B5563" />
     <SolidColorBrush x:Key="secondary-content" Color="#FFFFFF" />
 
     <SolidColorBrush x:Key="accent" Color="#009689" />

@@ -331,7 +331,7 @@ public partial class MainViewModel : KonkordObservableObject
     /// Opens a folder picker dialog to select a directory and updates the corresponding configuration path
     /// based on the provided index.
     /// </summary>
-    /// <param name="index">
+    /// <param name="rawIndex">
     /// The index representing the configuration path to update:
     /// 0 - AssetsDirectoryPath,
     /// 1 - CacheDirectoryPath,
@@ -345,8 +345,11 @@ public partial class MainViewModel : KonkordObservableObject
     /// 9 - DefaultJavaPath.
     /// </param>
     [RelayCommand]
-    public async Task ConfigDirSelectAsync(int index)
+    public async Task ConfigDirSelectAsync(string rawIndex)
     {
+        if (!int.TryParse(rawIndex, out var index))
+            return;
+        
         var directoryResult = await OpenFolderPicker.Handle(Unit.Default);
         if (string.IsNullOrEmpty(directoryResult))
             return;

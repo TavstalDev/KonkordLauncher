@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Disposables;
 using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
+using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Models;
@@ -16,7 +18,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 /// <summary>
 /// Represents a window for selecting and managing icons in the application.
 /// </summary>
-public partial class IconSelectorWindow : KonkordWindow
+public partial class IconSelectorWindow : KonkordWindow<IconSelectorViewModel>
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(IconSelectorWindow));
     
@@ -33,17 +35,23 @@ public partial class IconSelectorWindow : KonkordWindow
         this.AttachDevTools();
 #endif
 
-        this.DataContext = new IconSelectorViewModel(this);
+        DataContext = new IconSelectorViewModel();
+        this.WhenActivated(disposables =>
+        {
+            DataContext.CloseWindow.RegisterHandler(action =>
+            {
+                Close(action.Input);
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
+            DataContext.ShowFilePicker.RegisterHandler(async action =>
+            {
+                var result = await OpenFilePickerAsync();
+                action.SetOutput(result);
+            }).DisposeWith(disposables);
+        });
     }
     
-    /// <summary>
-    /// Releases resources associated with the <see cref="IconSelectorWindow"/>.
-    /// Logs a debug message indicating that memory is being freed.
-    /// </summary>
-    protected override void FreeMemory()
-    {
-        _logger.Debug("Freeing memory for IconSelectorWindow.");
-    }
     
     /// <summary>
     /// Opens a file picker dialog to select image files and copies them to the icons directory.

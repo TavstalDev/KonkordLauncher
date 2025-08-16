@@ -1,10 +1,14 @@
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models;
@@ -14,10 +18,8 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 /// <summary>
 /// ViewModel for managing and selecting icons in the application.
 /// </summary>
-public partial class IconSelectorViewModel : KonkordObservableObject
+public partial class IconSelectorViewModel : ObservableObject
 {
-    private IconSelectorWindow? _parentWindow;
-    
     /// <summary>
     /// The currently selected icon.
     /// </summary>
@@ -35,14 +37,12 @@ public partial class IconSelectorViewModel : KonkordObservableObject
     /// Indicates whether an icon is currently selected.
     /// </summary>
     public bool HasSelectedIcon => SelectedIcon != null;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="IconSelectorViewModel"/> class.
-    /// Loads available icons from the configured directory.
-    /// </summary>
-    public IconSelectorViewModel(IconSelectorWindow parentWindow)
+    
+    public Interaction<IconDataModel?, Unit> CloseWindow { get; }  = new();
+    public Interaction<Unit, List<(string, string)>?> ShowFilePicker { get; }  = new();
+    
+    public IconSelectorViewModel()
     {
-        _parentWindow = parentWindow;
         _icons = [];
         _selectedIcon = null;
 
@@ -54,17 +54,9 @@ public partial class IconSelectorViewModel : KonkordObservableObject
             var bitmap = new Bitmap(iconPath);
             _icons.Add(new IconDataModel(Path.GetFileName(iconPath), iconPath, bitmap));
         }
-
-        settings = null;
-        icons = null;
     }
-
-    /// <summary>
-    /// Releases resources associated with the <see cref="IconSelectorViewModel"/>.
-    /// Disposes of the selected icon's image and all icons in the collection, 
-    /// then clears the collection and resets the selected icon.
-    /// </summary>
-    public override void FreeMemory()
+    
+    /*public override void FreeMemory()
     {
         SelectedIcon?.Image.Dispose();
         foreach (var icon in Icons)
@@ -72,7 +64,7 @@ public partial class IconSelectorViewModel : KonkordObservableObject
         Icons = [];
         SelectedIcon = null;
         _parentWindow = null;
-    }
+    }*/
     
     #region Commands
 
@@ -80,13 +72,13 @@ public partial class IconSelectorViewModel : KonkordObservableObject
     /// Closes the parent window and returns the currently selected icon as the result.
     /// </summary>
     [RelayCommand]
-    public void OkBtn() => _parentWindow?.Close(SelectedIcon);
+    public void OkBtn() => CloseWindow.Handle(SelectedIcon);
 
     /// <summary>
     /// Closes the parent window without returning any result.
     /// </summary>
     [RelayCommand]
-    public void CancelBtn() => _parentWindow?.Close(null);
+    public void CancelBtn() => CloseWindow.Handle(null);
 
     /// <summary>
     /// Opens a file picker dialog to allow the user to add new icons.
@@ -95,10 +87,7 @@ public partial class IconSelectorViewModel : KonkordObservableObject
     [RelayCommand]
     public async Task AddBtnAsync()
     {
-        if (_parentWindow == null)
-            return;
-        
-        var result = await _parentWindow.OpenFilePickerAsync();
+        var result = await ShowFilePicker.Handle(Unit.Default);
         if (result == null)
             return;
 
@@ -137,7 +126,6 @@ public partial class IconSelectorViewModel : KonkordObservableObject
     {
         var settings = await LauncherHelper.GetLauncherSettingsAsync();
         FileSystemHelper.OpenFolderInFileExplorer(settings.Launcher.IconsDirectoryPath);
-        settings = null;
     }
     #endregion
 }

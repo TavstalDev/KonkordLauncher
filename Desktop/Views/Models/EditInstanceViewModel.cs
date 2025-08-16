@@ -6,7 +6,7 @@ using System.ComponentModel;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Reactive.Disposables;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -34,11 +34,16 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 public partial class EditInstanceViewModel : KonkordObservableObject
 {
     private readonly bool _isInitialized;
-    private readonly EditInstanceWindow _parentWindow;
     private readonly string _instanceId;
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceViewModel));
-    private readonly CompositeDisposable _disposables = new();
     private bool _isClosing = false;
+    
+    public Interaction<Unit, Unit> CloseWindow { get; }  = new();
+    public Interaction<Alert, Unit> ShowAlertDialog { get; } = new();
+    public Interaction<long, Unit> SetClipboardSeed { get; } = new();
+    public Interaction<ScreenshotModel, Unit> SetClipboardImage { get; } = new();
+    public Interaction<Unit, Unit> BeginWorldRename { get; } = new();
+    public Interaction<Unit, Unit> BeginScreenshotRename { get; } = new();
     public bool IsLinux => OSHelper.GetOperatingSystem() == EOperatingSystem.Linux;
     public List<Account> Accounts { get; set; }
 
@@ -46,6 +51,8 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     [ObservableProperty] private string? _gameDirectory;
     [ObservableProperty] private bool _isVanilla;
     [ObservableProperty] private string _logs;
+    [ObservableProperty] private string _serverName;
+    [ObservableProperty] private string _serverIp;
     
     public ObservableCollection<ModModel> Mods { get; set; } = [];
     [ObservableProperty] private ModModel? _selectedMod;
@@ -69,17 +76,17 @@ public partial class EditInstanceViewModel : KonkordObservableObject
 
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanRemoveEnvironmentVariable))] private InstanceConfigModel _instanceConfig;
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanRemoveEnvironmentVariable))] private int? _selectedEnvironmentVariableIndex;
+    [ObservableProperty] private int? _overridenAccountIndex = 0;
     public bool CanRemoveEnvironmentVariable => SelectedEnvironmentVariableIndex is >= 0 && InstanceConfig.EnableEnvironment;
     
-    public EditInstanceViewModel(EditInstanceWindow parent, string instanceId)
+    public EditInstanceViewModel(string instanceId)
     {
         if (Design.IsDesignMode)
         {
             _instanceConfig = new InstanceConfigModel();
             return;
         }
-
-        _parentWindow = parent;
+        
         _instanceId = instanceId;
         var instances = LauncherHelper.GetInstances();
         var currentInstance = instances.FirstOrDefault(x => x.Id == _instanceId);
@@ -97,12 +104,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         Accounts = LauncherHelper.GetAccountData().Accounts;
         SubscribeToConfigChildren(_instanceConfig);
         if (!string.IsNullOrEmpty(_instanceConfig.Misc.AccountId))
-            _parentWindow.StOverridenAccountInput.SelectedIndex =
-                Accounts.FindIndex(x => x.Id == _instanceConfig.Misc.AccountId);
-        
-        // Free memory, just in case
-        instances = null;
-        currentInstance = null;
+            OverridenAccountIndex = Accounts.FindIndex(x => x.Id == _instanceConfig.Misc.AccountId);
 
         /*_instance.PropertyChanged += (_, args) =>
         {
@@ -133,7 +135,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
             .Bind(out var filteredCollection)
             .Subscribe();
         
-        _disposables.Add(bindingSubscription);
+        Disposables.Add(bindingSubscription);
             
         FilteredResourcePacks = filteredCollection;
         RefreshResourcePacks();
@@ -143,7 +145,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         RefreshScreenshots();
     }
 
-    public override void FreeMemory()
+    /*public override void FreeMemory()
     {
         _logger.Debug("Freeing memory in EditInstanceViewModel...");
         _isClosing = true;
@@ -190,7 +192,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         SelectedServer?.Image?.Dispose();
         SelectedScreenshot = null;
         SelectedScreenshot?.Image?.Dispose();
-    }
+    }*/
     
     #region Mods
 
@@ -371,10 +373,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     /// </summary>
     /// <param name="world">The world to rename.</param>
     [RelayCommand]
-    public void WorldsRenameCommand(WorldModel world)
-    {
-        _parentWindow.WorldsTable.BeginEdit();
-    }
+    public void WorldsRenameCommand(WorldModel world) => BeginWorldRename.Handle(Unit.Default);
 
     /// <summary>
     /// Deletes the specified Minecraft world by removing its directory from the file system
@@ -393,7 +392,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     /// </summary>
     /// <param name="world">The world whose seed is to be copied.</param>
     [RelayCommand]
-    public void WorldsCopySeed(WorldModel world) => _parentWindow.CopySeedToClipboard(world.Seed);
+    public async Task WorldsCopySeed(WorldModel world) => await SetClipboardSeed.Handle(world.Seed);
 
     /// <summary>
     /// Opens the directory of the specified Minecraft world in the file explorer.
@@ -710,7 +709,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     {
         // TOOO: Implement server joining logic
         //await _instance.LaunchAsync(_parentWindow, server.Ip);
-        _parentWindow.Hide();
+        await CloseWindow.Handle(Unit.Default);
     }
 
     /// <summary>
@@ -798,7 +797,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
             return;
 
         // Open the servers.dat file and deserialize its content
-        using var inputStream = System.IO.File.OpenRead(filePath);
+        using var inputStream = File.OpenRead(filePath);
         var serversDat = NbtConvert.DeserializeObject<ServersDat>(inputStream);
         if (serversDat == null)
             return;
@@ -829,7 +828,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     /// </summary>
     /// <param name="screenshot">The screenshot to copy to the clipboard.</param>
     [RelayCommand]
-    public void ScreenshotsCopyCommand(ScreenshotModel screenshot) => _parentWindow.SetClipboardImage(screenshot);
+    public async Task ScreenshotsCopyCommand(ScreenshotModel screenshot) => await SetClipboardImage.Handle(screenshot);
 
     /// <summary>
     /// Deletes the specified screenshot file from the file system and refreshes the screenshot list.
@@ -850,7 +849,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     /// </summary>
     /// <param name="screenshot">The screenshot to rename.</param>
     [RelayCommand]
-    public void ScreenshotsRenameCommand(ScreenshotModel screenshot) => _parentWindow.ScreenshotsTable.BeginEdit();
+    public void ScreenshotsRenameCommand(ScreenshotModel screenshot) => BeginScreenshotRename.Handle(Unit.Default);
 
     /// <summary>
     /// Opens the directory containing the screenshots in the file explorer.

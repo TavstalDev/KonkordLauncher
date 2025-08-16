@@ -10,15 +10,11 @@
     mc:Ignorable="d"
     x:Class="Tavstal.KonkordLauncher.Desktop.Views.StartupWindow"
     x:DataType="vm:StartupViewModel"
-    Loaded="Window_OnLoaded"
     xmlns="https://github.com/avaloniaui"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models">
-    <Design.DataContext>
-        <vm:StartupViewModel />
-    </Design.DataContext>
     <Border Classes="ModalView">
         <Grid
             Classes="ModalWrapper"

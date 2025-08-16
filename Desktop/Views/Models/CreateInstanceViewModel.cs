@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reactive.Disposables;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -24,15 +24,15 @@ using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
-using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 
 public partial class CreateInstanceViewModel : KonkordObservableObject
 {
-    private CreateInstanceWindow? _parentWindow;
     private ReverseMarkdown.Converter? _converter = new();
-    private readonly CompositeDisposable _disposables = new();
+    public Interaction<Unit, Unit> CloseWindow { get; }  = new();
+    public Interaction<Alert, Unit> ShowAlertDialog { get; } = new();
+    public Interaction<Unit, IconDataModel> ShowIconSelector { get; } = new();
 
     #region Custom
     
@@ -196,9 +196,8 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
     public bool IsSourceFromFile => SelectedImportSourceIndex == 0;
     #endregion
 
-    public CreateInstanceViewModel(CreateInstanceWindow parentWindow)
+    public CreateInstanceViewModel()
     {
-        _parentWindow = parentWindow;
         _instanceIcon = ImageHelper.Load("avares://Desktop/Assets/Icons/dirt.png").Result;
         if (Design.IsDesignMode)
             return;
@@ -223,7 +222,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
             .Filter(filter)
             .Bind(out var filteredCollection)
             .Subscribe();
-        _disposables.Add(bindingSubscription);
+        Disposables.Add(bindingSubscription);
         MinecraftVersions = filteredCollection;
         _minecraftVersionCache.Edit(innerCache =>
         {
@@ -236,9 +235,9 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
         });
     }
 
-    public override void FreeMemory()
+    protected override void Dispose(bool disposing)
     {
-        _disposables.Dispose();
+        base.Dispose(disposing);
         _minecraftVersionCache.Clear();
         _minecraftVersionCache.Dispose();
         InstanceName = string.Empty;
@@ -252,9 +251,6 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
         ModLoaderSearchQuery = string.Empty;
         SelectedModLoader = null;
         ModLoaderVersionResult.Clear();
-
-        _parentWindow = null;
-        _converter = null;
     }
     
     #region Commands
@@ -267,11 +263,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
     [RelayCommand]
     public async Task CustomIconSelectorAsync()
     {
-        if (_parentWindow == null)
-            return;
-        
-        IconSelectorWindow window = new();
-        var result = await window.ShowDialog<IconDataModel>(_parentWindow);
+        var result = await ShowIconSelector.Handle(Unit.Default);
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (result == null)
             return;
@@ -297,17 +289,13 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
     [RelayCommand]
     public async Task CustomCreateAsync()
     {
-        if (_parentWindow == null)
-            return;
-        
         var settings = await LauncherHelper.GetLauncherSettingsAsync();
         var instances = await LauncherHelper.GetInstancesAsync();
         if (instances.Any(x => x.Name == InstanceName))
         {
-            AlertWindow alertWindow = new(TranslationManager.Translate("instance.duplicate.title"),
+            await ShowAlertDialog.Handle(new Alert(TranslationManager.Translate("instance.duplicate.title"),
                 TranslationManager.Translate("instance.duplicate.message"),
-                EAlertType.Error);
-            await alertWindow.ShowDialog(_parentWindow);
+                EAlertType.Error));
             return;
         }
         
@@ -350,14 +338,14 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
         });
         await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances);
         App.InvokeInstancesChanged();
-        _parentWindow?.Close();
+        CloseWindow.Handle(Unit.Default);
     }
     
     /// <summary>
     /// Cancels the custom instance creation process and closes the parent window.
     /// </summary>
     [RelayCommand]
-    public void CustomCancelCreate() => _parentWindow?.Close();
+    public void CustomCancelCreate() => CloseWindow.Handle(Unit.Default);
 
     #endregion
 

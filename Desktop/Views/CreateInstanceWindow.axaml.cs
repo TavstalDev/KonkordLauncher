@@ -1,20 +1,15 @@
-using Avalonia;
+using System.Reactive;
+using System.Reactive.Disposables;
+using System.Threading.Tasks;
+using ReactiveUI;
 using Tavstal.KonkordLauncher.Desktop.Models;
+using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views;
 
-/// <summary>
-/// Represents the window for creating a new instance in the application.
-/// Initializes the UI components, attaches Avalonia Dev Tools in debug mode,
-/// and sets the DataContext to a new <see cref="CreateInstanceViewModel"/>.
-/// </summary>
-public partial class CreateInstanceWindow : KonkordWindow
+public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewModel>
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="CreateInstanceWindow"/> class.
-    /// Sets up the UI components, attaches dev tools in debug mode, and assigns the DataContext.
-    /// </summary>
     public CreateInstanceWindow()
     {
         InitializeComponent();
@@ -24,11 +19,27 @@ public partial class CreateInstanceWindow : KonkordWindow
         this.AttachDevTools();
 #endif
 
-        this.DataContext = new CreateInstanceViewModel(this);
-    }
-
-    protected override void FreeMemory()
-    {
-
+        DataContext = new CreateInstanceViewModel();
+        this.WhenActivated(disposables =>
+        {
+            DataContext.CloseWindow.RegisterHandler(action =>
+            {
+                Close();
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
+            DataContext.ShowAlertDialog.RegisterHandler(async action =>
+            {
+                AlertWindow alertWindow = new(action.Input.Title, action.Input.Message, action.Input.Type);
+                await alertWindow.ShowDialog(this);
+                action.SetOutput(Unit.Default);
+            }).DisposeWith(disposables);
+            DataContext.ShowIconSelector.RegisterHandler(async action =>
+            {
+                IconSelectorWindow window = new();
+                var result = await window.ShowDialog<IconDataModel>(this);
+                action.SetOutput(result);
+            }).DisposeWith(disposables);
+        });
     }
 }

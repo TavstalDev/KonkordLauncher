@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Disposables;
 using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
+using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
 using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Helpers;
@@ -19,18 +21,14 @@ using Tavstal.KonkordLauncher.Desktop.Views.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views;
 
-/// <summary>
-/// Represents the EditInstanceWindow, a partial class inheriting from Avalonia's Window class.
-/// Provides functionality for editing an instance configuration.
-/// </summary>
-public partial class EditInstanceWindow : KonkordWindow
+public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceWindow));
     
     public EditInstanceWindow()
     {
         InitializeComponent();
-        this.DataContext = new EditInstanceViewModel(this, string.Empty);
+        DataContext = new EditInstanceViewModel(string.Empty);
     }
     
     public EditInstanceWindow(string instanceId)
@@ -42,12 +40,58 @@ public partial class EditInstanceWindow : KonkordWindow
         this.AttachDevTools();
 #endif
         
-        this.DataContext = new EditInstanceViewModel(this, instanceId);
+        DataContext = new EditInstanceViewModel(instanceId);
+        this.WhenActivated(disposables =>
+        {
+            DataContext.CloseWindow.RegisterHandler(action =>
+            {
+                Close();
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
+            DataContext.ShowAlertDialog.RegisterHandler(async action =>
+            {
+                AlertWindow alertWindow = new(action.Input.Title, action.Input.Message, action.Input.Type);
+                await alertWindow.ShowDialog(this);
+                action.SetOutput(Unit.Default);
+            }).DisposeWith(disposables);
+            DataContext.SetClipboardImage.RegisterHandler(async action =>
+            {
+                await SetClipboardImageAsync(action.Input);
+                action.SetOutput(Unit.Default);
+            }).DisposeWith(disposables);
+            DataContext.SetClipboardSeed.RegisterHandler(async action =>
+            {
+                await SetClipboardTextAsync(action.Input.ToString());
+                action.SetOutput(Unit.Default);
+            }).DisposeWith(disposables);
+            DataContext.BeginScreenshotRename.RegisterHandler(action =>
+            {
+                ScreenshotsTable.BeginEdit();
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
+            DataContext.BeginWorldRename.RegisterHandler(action =>
+            {
+                WorldsTable.BeginEdit();
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
+        });
     }
 
-    protected override void FreeMemory()
+    /// <summary>
+    /// Copies the provided text to the system clipboard.
+    /// </summary>
+    /// <param name="text">The text to copy to the clipboard.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    public async Task SetClipboardTextAsync(string text)
     {
-        _logger.Debug("EditInstanceWindow memory cleared.");
+        var topLevel = GetTopLevel(this);
+        if (topLevel?.Clipboard == null)
+            return;
+
+        await topLevel.Clipboard.SetTextAsync(text);
     }
 
     #region Action Handlers
@@ -66,13 +110,13 @@ public partial class EditInstanceWindow : KonkordWindow
     /// <param name="e">The event data associated with the click event.</param>
     private void ViewResourcePacksFolder_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (this.DataContext is not EditInstanceViewModel viewModel)
+        if (DataContext == null)
             return;
 
-        if (viewModel.GameDirectory == null)
+        if (DataContext.GameDirectory == null)
             return;
         
-        string? resourcePacksDir = Path.Combine(viewModel.GameDirectory, "resourcepacks");
+        string? resourcePacksDir = Path.Combine(DataContext.GameDirectory, "resourcepacks");
         if (!Directory.Exists(resourcePacksDir))
             return;
 
@@ -88,11 +132,11 @@ public partial class EditInstanceWindow : KonkordWindow
     /// <param name="e">The event data containing information about the selection change.</param>
     private void OverridenAccount_SelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
-        if (this.DataContext is not EditInstanceViewModel viewModel)
+        if (DataContext == null)
             return;
 
         if (sender is ComboBox { SelectedItem: Account selectedAccount })
-            viewModel.InstanceConfig.Misc.AccountId = selectedAccount.Id;
+            DataContext.InstanceConfig.Misc.AccountId = selectedAccount.Id;
     }
     #endregion
     
@@ -105,17 +149,17 @@ public partial class EditInstanceWindow : KonkordWindow
         // Get the DataGridRow
         var row = e.Row;
 
-        if (row.DataContext is not ModModel modItem)
+        if (row.DataContext is not ModModel)
             return;
 
-        var contextMenu = new ContextMenu();
+        /*var contextMenu = new ContextMenu();
 
         // Add Enable/Disable MenuItem
         string enableDisableHeader = modItem.IsEnabled ? "Disable" : "Enable";
         var editMenuItem = new MenuItem { Header = enableDisableHeader };
         editMenuItem.Click += (_, _) =>
         {
-            if (this.DataContext is not EditInstanceViewModel viewModel)
+            if (this.DataContext == null)
                 return;
 
             // TODO: Handle click event
@@ -129,7 +173,7 @@ public partial class EditInstanceWindow : KonkordWindow
         var checkUpdateMenuItem = new MenuItem { Header = "Check for Update" };
         checkUpdateMenuItem.Click += (_, _) =>
         {
-            if (this.DataContext is not EditInstanceViewModel viewModel)
+            if (this.DataContext == null)
                 return;
 
             // TODO: Handle click event
@@ -140,7 +184,7 @@ public partial class EditInstanceWindow : KonkordWindow
         var changeVersionMenuItem = new MenuItem { Header = "Change Version" };
         changeVersionMenuItem.Click += (_, _) =>
         {
-            if (this.DataContext is not EditInstanceViewModel viewModel)
+            if (this.DataContext == null)
                 return;
 
             // TODO: Handle click event
@@ -154,7 +198,7 @@ public partial class EditInstanceWindow : KonkordWindow
         var removeMenuItem = new MenuItem { Header = "Remove" };
         removeMenuItem.Click += (_, _) =>
         {
-            if (this.DataContext is not EditInstanceViewModel viewModel)
+            if (this.DataContext == null)
                 return;
 
             // TODO: Handle click event
@@ -168,7 +212,7 @@ public partial class EditInstanceWindow : KonkordWindow
         var downloadModsMenuItem = new MenuItem { Header = "Download Mods" };
         downloadModsMenuItem.Click += (_, _) =>
         {
-            if (this.DataContext is not EditInstanceViewModel viewModel)
+            if (this.DataContext == null)
                 return;
 
             // TODO: Handle click event
@@ -179,7 +223,7 @@ public partial class EditInstanceWindow : KonkordWindow
         var openFolderMenuItem = new MenuItem { Header = "Open Folder" };
         openFolderMenuItem.Click += (_, _) =>
         {
-            if (this.DataContext is not EditInstanceViewModel viewModel)
+            if (this.DataContext == null)
                 return;
 
             // TODO: Handle click event
@@ -187,7 +231,7 @@ public partial class EditInstanceWindow : KonkordWindow
         contextMenu.Items.Add(openFolderMenuItem);
 
         // Assign the ContextMenu to the row
-        row.ContextMenu = contextMenu;
+        row.ContextMenu = contextMenu;*/
     }
 
     #endregion
@@ -202,7 +246,7 @@ public partial class EditInstanceWindow : KonkordWindow
     /// <param name="e">The event data containing information about the edited cell.</param>
     private void ResourcePacksDataGrid_OnCellEditEnded(object? sender, DataGridCellEditEndedEventArgs e)
     {
-        if (this.DataContext is not EditInstanceViewModel viewModel)
+        if (DataContext == null)
             return;
     
         var row = e.Row;
@@ -210,7 +254,7 @@ public partial class EditInstanceWindow : KonkordWindow
             return;
     
         _logger.Debug("ResourcePack row updated. Saving...");
-        viewModel.SaveResourcePacks();
+        DataContext.SaveResourcePacks();
     }
 
     #endregion
@@ -225,14 +269,14 @@ public partial class EditInstanceWindow : KonkordWindow
         if (row.DataContext is not ShaderPackModel shaderPackItem)
             return;
 
-        var contextMenu = new ContextMenu();
+        /*var contextMenu = new ContextMenu();
 
         // Add Enable/Disable MenuItem
         string enableDisableHeader = shaderPackItem.IsEnabled ? "Disable" : "Enable";
         var editMenuItem = new MenuItem { Header = enableDisableHeader };
         editMenuItem.Click += (_, _) =>
         {
-            if (this.DataContext is not EditInstanceViewModel viewModel)
+            if (this.DataContext == null)
                 return;
 
             // TODO: Handle click event
@@ -246,7 +290,7 @@ public partial class EditInstanceWindow : KonkordWindow
         var removeMenuItem = new MenuItem { Header = "Remove" };
         removeMenuItem.Click += (_, _) =>
         {
-            if (this.DataContext is not EditInstanceViewModel viewModel)
+            if (this.DataContext == null)
                 return;
 
             // TODO: Handle click event
@@ -260,7 +304,7 @@ public partial class EditInstanceWindow : KonkordWindow
         var downloadModsMenuItem = new MenuItem { Header = "Download Shaders" };
         downloadModsMenuItem.Click += (_, _) =>
         {
-            if (this.DataContext is not EditInstanceViewModel viewModel)
+            if (this.DataContext == null)
                 return;
 
             // TODO: Handle click event
@@ -271,7 +315,7 @@ public partial class EditInstanceWindow : KonkordWindow
         var openFolderMenuItem = new MenuItem { Header = "Open Folder" };
         openFolderMenuItem.Click += (_, _) =>
         {
-            if (this.DataContext is not EditInstanceViewModel viewModel)
+            if (this.DataContext == null)
                 return;
 
             // TODO: Handle click event
@@ -279,25 +323,12 @@ public partial class EditInstanceWindow : KonkordWindow
         contextMenu.Items.Add(openFolderMenuItem);
 
         // Assign the ContextMenu to the row
-        row.ContextMenu = contextMenu;
+        row.ContextMenu = contextMenu;*/
     }
 
     #endregion
     
     #region Worlds
-
-    /// <summary>
-    /// Copies the provided seed value to the system clipboard as a string.
-    /// </summary>
-    /// <param name="seed">The seed value to copy to the clipboard.</param>
-    public void CopySeedToClipboard(long seed)
-    {
-        var topLevel = GetTopLevel(this);
-        if (topLevel?.Clipboard == null)
-            return;
-
-        topLevel.Clipboard.SetTextAsync(seed.ToString());
-    }
     
     /// <summary>
     /// Handles the event when a cell edit operation in the World DataGrid is completed.
@@ -307,7 +338,7 @@ public partial class EditInstanceWindow : KonkordWindow
     /// <param name="e">The event data containing information about the edited cell.</param>
     private void WorldDataGrid_OnCellEditEnded(object? sender, DataGridCellEditEndedEventArgs e)
     {
-        if (this.DataContext is not EditInstanceViewModel viewModel)
+        if (DataContext == null)
             return;
         
         var row = e.Row;
@@ -315,7 +346,7 @@ public partial class EditInstanceWindow : KonkordWindow
             return;
         
         _logger.Debug("World row updated. Saving...");
-        viewModel.SaveWorlds();
+        DataContext.SaveWorlds();
     }
     
     /// <summary>
@@ -326,7 +357,7 @@ public partial class EditInstanceWindow : KonkordWindow
     /// <param name="e">The event data associated with the click event.</param>
     private void WorldDataGrid_OnRowEditEnded(object? sender, DataGridRowEditEndedEventArgs e)
     {
-        if (this.DataContext is not EditInstanceViewModel viewModel)
+        if (DataContext == null)
             return;
         
         var row = e.Row;
@@ -334,7 +365,7 @@ public partial class EditInstanceWindow : KonkordWindow
             return;
         
         _logger.Debug("World row updated. Saving...");
-        viewModel.SaveWorlds();
+        DataContext.SaveWorlds();
     }
 
     #endregion
@@ -350,13 +381,13 @@ public partial class EditInstanceWindow : KonkordWindow
     /// <param name="e">The event data associated with the click event.</param>
     private void AddServer_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (this.DataContext is not EditInstanceViewModel viewModel)
+        if (DataContext == null)
             return;
         
-        if (string.IsNullOrEmpty(ServerNameInput.Text) || string.IsNullOrEmpty(ServerAddressInput.Text))
+        if (string.IsNullOrEmpty(DataContext.ServerName) || string.IsNullOrEmpty(DataContext.ServerIp))
             return;
         
-        viewModel.Servers.Add(new ServerModel(ServerNameInput.Text, ServerAddressInput.Text, 0, 0, null));
+        DataContext.Servers.Add(new ServerModel(DataContext.ServerName, DataContext.ServerIp, 0, 0, null));
     }
     
     /// <summary>
@@ -367,7 +398,7 @@ public partial class EditInstanceWindow : KonkordWindow
     /// <param name="e">The event data containing information about the edited row.</param>
     private void ServersDataGrid_OnRowEditEnded(object? sender, DataGridRowEditEndedEventArgs e)
     {
-        if (this.DataContext is not EditInstanceViewModel viewModel)
+        if (DataContext == null)
             return;
         
         var row = e.Row;
@@ -375,16 +406,22 @@ public partial class EditInstanceWindow : KonkordWindow
             return;
         
         _logger.Debug("Server row updated. Saving servers...");
-        viewModel.SaveServers();
+        DataContext.SaveServers();
     }
     
     #endregion
     
     #region Screenshots
-
-    public void SetClipboardImage(ScreenshotModel screenshot)
+    /// <summary>
+    /// Copies the provided screenshot image to the system clipboard as a PNG.
+    /// </summary>
+    /// <param name="screenshot">
+    /// The screenshot model containing the image to copy to the clipboard.
+    /// If the image is null, the operation is aborted.
+    /// </param>
+    public async Task SetClipboardImageAsync(ScreenshotModel screenshot)
     {
-        if (screenshot?.Image == null)
+        if (screenshot.Image == null)
             return;
 
         var topLevel = GetTopLevel(this);
@@ -396,7 +433,7 @@ public partial class EditInstanceWindow : KonkordWindow
         var dataObject = new DataObject();
         dataObject.Set("image/png", ms.ToArray());
 
-        topLevel.Clipboard.SetDataObjectAsync(dataObject);
+        await topLevel.Clipboard.SetDataObjectAsync(dataObject);
     }
     
     /// <summary>
@@ -465,7 +502,7 @@ public partial class EditInstanceWindow : KonkordWindow
     /// <param name="e">The event data associated with the click event.</param>
     private void JavaPathSelect_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (DataContext is not EditInstanceViewModel viewModel)
+        if (DataContext == null)
             return;
 
         var directoryResult = OpenFolderPickerAsync();
@@ -477,7 +514,7 @@ public partial class EditInstanceWindow : KonkordWindow
             if (task.Result is not { } resultPath)
                 return;
 
-            viewModel.InstanceConfig.Java.DefaultJavaPath = resultPath;
+            DataContext.InstanceConfig.Java.DefaultJavaPath = resultPath;
         });
     }
 
@@ -496,10 +533,10 @@ public partial class EditInstanceWindow : KonkordWindow
         if (javaVersion == null)
             return;
 
-        if (DataContext is not EditInstanceViewModel viewModel)
+        if (DataContext == null)
             return;
 
-        viewModel.InstanceConfig.Java.DefaultJavaPath = javaVersion.Path;
+        DataContext.InstanceConfig.Java.DefaultJavaPath = javaVersion.Path;
     }
 
     /// <summary>
@@ -562,13 +599,13 @@ public partial class EditInstanceWindow : KonkordWindow
     /// <param name="e">The event data containing information about the edited row.</param>
     private void EnvironmentDataGrid_OnRowEditEnded(object? sender, DataGridRowEditEndedEventArgs e)
     {
-        if (this.DataContext is not EditInstanceViewModel viewModel)
+        if (DataContext == null)
             return;
 
         if (e.Row.DataContext is not EnvironmentVariable environmentItem)
             return;
 
-        viewModel.InstanceConfig.Environment[e.Row.Index] = environmentItem;
+        DataContext.InstanceConfig.Environment[e.Row.Index] = environmentItem;
     }
 
     /// <summary>
@@ -579,10 +616,10 @@ public partial class EditInstanceWindow : KonkordWindow
     /// <param name="e">The event data associated with the click event.</param>
     private void AddEnvironmentRow_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (this.DataContext is not EditInstanceViewModel viewModel)
+        if (DataContext == null)
             return;
 
-        viewModel.InstanceConfig.Environment.Add(new("ENV_VAR", "env_value"));
+        DataContext.InstanceConfig.Environment.Add(new("ENV_VAR", "env_value"));
     }
 
     /// <summary>
@@ -593,17 +630,17 @@ public partial class EditInstanceWindow : KonkordWindow
     /// <param name="e">The event data associated with the click event.</param>
     private void RemoveEnvironmentRow_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (this.DataContext is not EditInstanceViewModel viewModel)
+        if (DataContext == null)
             return;
 
-        if (viewModel.SelectedEnvironmentVariableIndex is null or < 0)
+        if (DataContext.SelectedEnvironmentVariableIndex is null or < 0)
             return;
 
-        var index = viewModel.SelectedEnvironmentVariableIndex.Value;
-        if (index >= viewModel.InstanceConfig.Environment.Count)
+        var index = DataContext.SelectedEnvironmentVariableIndex.Value;
+        if (index >= DataContext.InstanceConfig.Environment.Count)
             return;
 
-        viewModel.InstanceConfig.Environment.RemoveAt(index);
+        DataContext.InstanceConfig.Environment.RemoveAt(index);
     }
 
     /// <summary>
@@ -614,10 +651,10 @@ public partial class EditInstanceWindow : KonkordWindow
     /// <param name="e">The event data associated with the click event.</param>
     private void ClearEnvironmentTable_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (this.DataContext is not EditInstanceViewModel viewModel)
+        if (DataContext == null)
             return;
 
-        viewModel.InstanceConfig.Environment.Clear();
+        DataContext.InstanceConfig.Environment.Clear();
     }
 
     #endregion

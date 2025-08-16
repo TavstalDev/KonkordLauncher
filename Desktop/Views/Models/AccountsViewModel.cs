@@ -1,8 +1,11 @@
 using System;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Translation;
@@ -12,7 +15,6 @@ using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Services;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
-using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 
@@ -21,32 +23,29 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 /// Provides functionality for logging in with Microsoft and offline accounts,
 /// and handles related operations such as memory cleanup and progress tracking.
 /// </summary>
-public partial class AccountsViewModel : KonkordObservableObject
+public partial class AccountsViewModel : ObservableObject
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(AccountsViewModel));
-    private readonly AccountsWindow _accountsWindow;
+    private readonly IProgressReporter _progressReporter;
+
+    public Interaction<Unit, Unit> CloseWindow { get; }  = new();
+    public Interaction<Alert, Unit> ShowAlertDialog { get; } = new();
+    public Interaction<string, Unit> SetClipboardText { get; } = new();
+    
     [ObservableProperty] private bool isLoggingInMicrosoftAccount;
-    [ObservableProperty] private double _progress = 0;
+    [ObservableProperty] private double _progress;
     [ObservableProperty] private string _progressText = "Loading...";
     [ObservableProperty] private string? _offlineUsername;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AccountsViewModel"/> class.
     /// </summary>
-    /// <param name="parentWindow">The parent window associated with this ViewModel.</param>
-    public AccountsViewModel(AccountsWindow parentWindow)
+    /// <param name="progressReporter">
+    /// An instance of <see cref="IProgressReporter"/> used to report progress during operations.
+    /// </param>
+    public AccountsViewModel(IProgressReporter progressReporter)
     {
-        _accountsWindow = parentWindow;
-    }
-    
-    /// <summary>
-    /// Frees memory resources by resetting progress text and offline username.
-    /// </summary>
-    public override void FreeMemory()
-    {
-        ProgressText = string.Empty;
-        OfflineUsername = null;
-        _logger.Debug("AccountsViewModel memory freed.");
+        _progressReporter = progressReporter;
     }
     
     /// <summary>
@@ -70,16 +69,14 @@ public partial class AccountsViewModel : KonkordObservableObject
         IsLoggingInMicrosoftAccount = true;
         MicrosoftAuthService.OpenAuthenticationUrl();
 
-        await AuthService.StartListening(_accountsWindow);
+        await AuthService.StartListening(_progressReporter);
         _logger.Debug($"Microsoft Status result: {MicrosoftAuthService.AuthStatus}");
         if (MicrosoftAuthService.AuthStatus == EAuthStatus.FAILED)
         {
             IsLoggingInMicrosoftAccount = false;
-            AlertWindow alert = new AlertWindow(
-                TranslationManager.Translate("account.login.failed"),
+            await ShowAlertDialog.Handle(new Alert(TranslationManager.Translate("account.login.failed"),
                 TranslationManager.Translate("account.login.microsoft.failed"),
-                EAlertType.Error);
-            await alert.ShowDialog(_accountsWindow);
+                EAlertType.Error));
             return;
         }
 
@@ -89,12 +86,9 @@ public partial class AccountsViewModel : KonkordObservableObject
         var microsoftAccount = MicrosoftAuthService.Account;
         if (microsoftAccount == null)
         {
-            AlertWindow window = new AlertWindow(
-                TranslationManager.Translate("account.login.failed"),
+            await ShowAlertDialog.Handle(new Alert(TranslationManager.Translate("account.login.failed"),
                 TranslationManager.Translate("account.login.microsoft.null"),
-                EAlertType.Error
-            );
-            await window.ShowDialog(_accountsWindow);
+                EAlertType.Error));
             StopMicrosoftAuth();
             return;
         }
@@ -103,12 +97,9 @@ public partial class AccountsViewModel : KonkordObservableObject
         var account = accountData.Accounts.FirstOrDefault(x => x.Uuid == microsoftAccount.Uuid);
         if (account != null)
         {
-            AlertWindow window = new AlertWindow(
-                TranslationManager.Translate("account.duplicate"),
+            await ShowAlertDialog.Handle(new Alert(TranslationManager.Translate("account.duplicate"),
                 TranslationManager.Translate("account.duplicate.microsoft"),
-                EAlertType.Error
-            );
-            await window.ShowDialog(_accountsWindow);
+                EAlertType.Error));
             StopMicrosoftAuth();
             return;
         }
@@ -119,7 +110,7 @@ public partial class AccountsViewModel : KonkordObservableObject
         await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData);
         App.InvokeAccountsChanged();
         MicrosoftAuthService.Reset();
-        _accountsWindow.Close();
+        await CloseWindow.Handle(Unit.Default);
     }
 
     /// <summary>
@@ -132,7 +123,7 @@ public partial class AccountsViewModel : KonkordObservableObject
     /// Copies the Microsoft login URL to the system clipboard asynchronously.
     /// </summary>
     [RelayCommand]
-    public async Task MicrosoftCopyLoginLinkAsync() => await _accountsWindow.SetClipboardTextAsync(MicrosoftAuthService.GetAuthenticationUrl());
+    public async Task MicrosoftCopyLoginLinkAsync() => await SetClipboardText.Handle(MicrosoftAuthService.GetAuthenticationUrl());
 
     /// <summary>
     /// Cancels the Microsoft login process and stops the authentication listener.
@@ -156,29 +147,20 @@ public partial class AccountsViewModel : KonkordObservableObject
     {
         if (string.IsNullOrEmpty(OfflineUsername))
         {
-            AlertWindow window = new AlertWindow(
-                TranslationManager.Translate("account.empty.name"),
+            await ShowAlertDialog.Handle(new Alert(TranslationManager.Translate("account.empty.name"),
                 TranslationManager.Translate("account.empty.name.desc"),
-                EAlertType.Warning
-            );
-            await window.ShowDialog(_accountsWindow);
+                EAlertType.Warning));
             return;
         }
 
         string uuid = GameHelper.GetOfflinePlayerUUID(OfflineUsername);
-        AccountData? accountData = await LauncherHelper.GetAccountDataAsync();
+        AccountData accountData = await LauncherHelper.GetAccountDataAsync();
         var account = accountData.Accounts.FirstOrDefault(x => x.Uuid == uuid);
         if (account != null)
         {
-            // Free memory
-            uuid = string.Empty;
-            accountData = null;
-            AlertWindow window = new AlertWindow(
-                TranslationManager.Translate("account.duplicate"),
+            await ShowAlertDialog.Handle(new Alert(TranslationManager.Translate("account.duplicate"),
                 TranslationManager.Translate("account.duplicate.offline"),
-                EAlertType.Error
-            );
-            await window.ShowDialog(_accountsWindow);
+                EAlertType.Error));
             return;
         }
         
@@ -192,12 +174,7 @@ public partial class AccountsViewModel : KonkordObservableObject
         await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData);
         App.InvokeAccountsChanged();
         
-        // Free memory and close the window
-        uuid = string.Empty;
-        accountData = null;
-        account = null;
-        id = string.Empty;
-        _accountsWindow.Close();
+        await CloseWindow.Handle(Unit.Default);
     }
 
     #endregion

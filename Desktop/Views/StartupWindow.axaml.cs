@@ -25,13 +25,8 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 /// Represents the startup window of the application, responsible for initializing and validating
 /// various components before launching the main application window.
 /// </summary>
-public partial class StartupWindow : KonkordWindow, IProgressReporter
+public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressReporter
 {
-    /// <summary>
-    /// The application lifetime instance for managing the desktop-style application lifecycle.
-    /// </summary>
-    private readonly IClassicDesktopStyleApplicationLifetime _desktopLifetime;
-
     /// <summary>
     /// Logger instance for the StartupWindow class.
     /// </summary>
@@ -48,40 +43,18 @@ public partial class StartupWindow : KonkordWindow, IProgressReporter
     public StartupWindow()
     {
         InitializeComponent();
-        this.DataContext = new StartupViewModel();
-    }
-    
-    /// <summary>
-    /// Initializes a new instance of the <see cref="StartupWindow"/> class.
-    /// </summary>
-    /// <param name="desktopLifetime">The application lifetime instance.</param>
-    public StartupWindow(IClassicDesktopStyleApplicationLifetime desktopLifetime)
-    {
-        InitializeComponent();
-        _desktopLifetime = desktopLifetime;
-
+        
 #if DEBUG
         // Attaches Avalonia Dev Tools for debugging purposes.
         this.AttachDevTools();
 #endif
-
-        this.DataContext = new StartupViewModel();
+        
+        DataContext = new StartupViewModel();
     }
     
-    /// <summary>
-    /// Frees any resources or memory used by the StartupWindow.
-    /// Sets the DataContext to null to release bindings and associated resources.
-    /// </summary>
-    protected override void FreeMemory()
+    protected override void OnLoaded(RoutedEventArgs e)
     {
-        // Free any resources or memory used by the StartupWindow.
-    }
-
-    /// <summary>
-    /// Event handler for the window's loaded event. Starts the validation process asynchronously.
-    /// </summary>
-    private void Window_OnLoaded(object? sender, RoutedEventArgs e)
-    {
+        base.OnLoaded(e);
         Dispatcher.UIThread.InvokeAsync(async () =>
         {
             var settings = await LauncherHelper.GetLauncherSettingsAsync();
@@ -123,7 +96,6 @@ public partial class StartupWindow : KonkordWindow, IProgressReporter
                     await using FileStream outFile = new FileStream(destPath, FileMode.Create, FileAccess.Write);
                     await stream.CopyToAsync(outFile);
                 }
-                resourceNames = [];
             }
 
             // 2. Validate Translations
@@ -212,16 +184,20 @@ public partial class StartupWindow : KonkordWindow, IProgressReporter
                 _logger.Debug("No updates found, starting application...");
             }
 
-            settings = null;
-            javaInstallations = [];
-            javaVersionsToDownload = [];
-            
-            _desktopLifetime.MainWindow = new MainWindow
+            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                WindowStartupLocation = WindowStartupLocation.CenterScreen
-            };
-            _desktopLifetime.MainWindow.Show();
-            this.Close();
+                var oldWindow = desktop.MainWindow;
+                var newWindow = new MainWindow
+                {
+                    WindowStartupLocation = WindowStartupLocation.CenterScreen
+                };
+                desktop.MainWindow = newWindow;
+                newWindow.Show();
+                if (oldWindow != null)
+                    oldWindow.Close();
+                else
+                    Close();
+            }
         });
     }
 
@@ -244,16 +220,12 @@ public partial class StartupWindow : KonkordWindow, IProgressReporter
             if (!result.IsSuccessStatusCode)
             {
                 _logger.Error("Failed to get latest release, status code: " + result.StatusCode);
-                result = null;
                 return false;
             }
 
             string json = await result.Content.ReadAsStringAsync();
             JObject jsonObject = JObject.Parse(json);
             string? latestVersion = jsonObject["tag_name"]?.ToString();
-            
-            // Result is not used from here, free memory
-            result = null;
 
             // 2. Compare the current version with the latest version
             Version? currentVersion;
@@ -265,9 +237,6 @@ public partial class StartupWindow : KonkordWindow, IProgressReporter
             }
             else
                 currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
-            
-            // Version attributes are not used from here, free memory
-            versionAttributes = [];
 
             if (latestVersion == null || currentVersion == null)
             {
@@ -314,10 +283,10 @@ public partial class StartupWindow : KonkordWindow, IProgressReporter
     /// <param name="progress">The progress value, typically between 0.0 and 1.0.</param>
     public void SetProgress(double progress)
     {
-        if (this.DataContext is not StartupViewModel viewModel)
+        if (DataContext == null)
             return;
 
-        viewModel.Progress = progress;
+        DataContext.Progress = progress;
     }
 
     /// <summary>
@@ -326,10 +295,10 @@ public partial class StartupWindow : KonkordWindow, IProgressReporter
     /// <param name="status">The status message to display.</param>
     public void SetStatus(string status)
     {
-        if (this.DataContext is not StartupViewModel viewModel)
+        if (DataContext == null)
             return;
 
-        viewModel.ProgressText = status;
+        DataContext.ProgressText = status;
     }
 
     /// <summary>
@@ -339,9 +308,9 @@ public partial class StartupWindow : KonkordWindow, IProgressReporter
     /// <param name="args">Optional arguments for formatting the status message.</param>
     public void SetStatusTranslated(string statusKey, params object[]? args)
     {
-        if (this.DataContext is not StartupViewModel viewModel)
+        if (DataContext == null)
             return;
 
-        viewModel.ProgressText = TranslationManager.Translate(statusKey, args);
+        DataContext.ProgressText = TranslationManager.Translate(statusKey, args);
     }
 }

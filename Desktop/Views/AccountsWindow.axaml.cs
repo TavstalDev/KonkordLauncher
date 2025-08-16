@@ -1,12 +1,15 @@
 using System;
+using System.Reactive;
+using System.Reactive.Disposables;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Threading;
+using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models;
+using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views;
@@ -15,7 +18,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 /// Represents the AccountsWindow, a partial class that serves as the main window for managing accounts.
 /// Implements the IProgressReporter interface to handle progress updates.
 /// </summary>
-public partial class AccountsWindow : KonkordWindow, IProgressReporter
+public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgressReporter
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(AccountsWindow));
     
@@ -32,18 +35,30 @@ public partial class AccountsWindow : KonkordWindow, IProgressReporter
         this.AttachDevTools();
 #endif
 
-        this.DataContext = new AccountsViewModel(this);
-        OfflineUsernameInput.TextChanged += OfflineUsername_OnTextChanged;
-    }
+        DataContext = new AccountsViewModel(this);
 
-    /// <summary>
-    /// Frees any resources or memory used by the AccountsWindow.
-    /// This method is intended to be overridden in derived classes to release resources.
-    /// </summary>
-    protected override void FreeMemory()
-    {
-        OfflineUsernameInput.TextChanged -= OfflineUsername_OnTextChanged;
-        _logger.Debug("AccountsWindow memory freed.");
+        this.WhenActivated(disposables =>
+        {
+            DataContext.CloseWindow.RegisterHandler(action =>
+            {
+                Close();
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
+            DataContext.ShowAlertDialog.RegisterHandler(async action =>
+            {
+                AlertWindow alertWindow = new(action.Input.Title, action.Input.Message, action.Input.Type);
+                await alertWindow.ShowDialog(this);
+                action.SetOutput(Unit.Default);
+            }).DisposeWith(disposables);
+            DataContext.SetClipboardText.RegisterHandler(async action =>
+            {
+                await SetClipboardTextAsync(action.Input);
+                action.SetOutput(Unit.Default);
+            }).DisposeWith(disposables);
+        });
+
+        OfflineUsernameInput.TextChanged += OfflineUsername_OnTextChanged;
     }
     
     /// <summary>
@@ -105,10 +120,10 @@ public partial class AccountsWindow : KonkordWindow, IProgressReporter
     {
         Dispatcher.UIThread.Post(() =>
         {
-            if (this.DataContext is not AccountsViewModel viewModel)
+            if (DataContext == null)
                 return;
 
-            viewModel.Progress = progress;
+            DataContext.Progress = progress;
         });
     }
 
@@ -120,10 +135,10 @@ public partial class AccountsWindow : KonkordWindow, IProgressReporter
     {
         Dispatcher.UIThread.Post(() =>
         {
-            if (this.DataContext is not AccountsViewModel viewModel)
+            if (DataContext == null)
                 return;
 
-            viewModel.ProgressText = status;
+            DataContext.ProgressText = status;
         });
     }
 
@@ -136,10 +151,10 @@ public partial class AccountsWindow : KonkordWindow, IProgressReporter
     {
         Dispatcher.UIThread.Post(() =>
         {
-            if (this.DataContext is not AccountsViewModel viewModel)
+            if (DataContext == null)
                 return;
 
-            viewModel.ProgressText = TranslationManager.Translate(statusKey, args);
+            DataContext.ProgressText = TranslationManager.Translate(statusKey, args);
         });
     }
 

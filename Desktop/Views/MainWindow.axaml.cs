@@ -1,21 +1,24 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Disposables;
 using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
+using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
+using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using MainViewModel = Tavstal.KonkordLauncher.Desktop.Views.Models.MainViewModel;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views;
 
 // ReSharper disable once PartialTypeWithSinglePart
-public partial class MainWindow : KonkordWindow
+public partial class MainWindow : KonkordWindow<MainViewModel>
 {
     // This window should not use KonkordWindow as long as it can only be opened once.
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MainWindow));
@@ -30,9 +33,61 @@ public partial class MainWindow : KonkordWindow
 #endif
         
         // Instantiate your ViewModel and assign it to the DataContext
-        this.DataContext = new MainViewModel(this);
         _selectedButton = PlaySideBtn;
-        
+        DataContext = new MainViewModel();
+        this.WhenActivated(disposables =>
+        {
+            DataContext.CloseWindow.RegisterHandler(action =>
+            {
+                Close();
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
+            DataContext.UpdateSidebarButton.RegisterHandler(action =>
+            {
+                HandleSidebarChange(action.Input);
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
+            DataContext.OpenFolderPicker.RegisterHandler(async action =>
+            {
+                var result = await OpenFolderPickerAsync();
+                action.SetOutput(result);
+            }).DisposeWith(disposables);
+            DataContext.ShowAlertDialog.RegisterHandler(async action =>
+            {
+                AlertWindow alertWindow = new(action.Input.Title, action.Input.Message, action.Input.Type);
+                await alertWindow.ShowDialog(this);
+                action.SetOutput(Unit.Default);
+            }).DisposeWith(disposables);
+            DataContext.ShowInstanceCreationDialog.RegisterHandler(async action =>
+            {
+                await new CreateInstanceWindow().ShowDialog(this);
+                action.SetOutput(Unit.Default);
+            }).DisposeWith(disposables);
+            DataContext.ShowInstanceEditDialog.RegisterHandler(async action =>
+            {
+                EditInstanceWindow editInstanceWindow = new EditInstanceWindow(action.Input);
+                var result = await editInstanceWindow.ShowDialog<bool>(this);
+                action.SetOutput(Unit.Default);
+                if (!result)
+                    return;
+                App.InvokeInstancesChanged();
+            }).DisposeWith(disposables);
+            DataContext.ShowAccountsDialog.RegisterHandler(async action =>
+            {
+                var dialog = new AccountsWindow();
+                await dialog.ShowDialog(this);
+                action.SetOutput(Unit.Default);
+            }).DisposeWith(disposables);
+            DataContext.ShowJavaSelectorDialog.RegisterHandler(async action =>
+            {
+                var window = new JavaSelectorWindow();
+                var javaVersion = await window.ShowDialog<JavaVersionModel>(this);
+                action.SetOutput(javaVersion);
+            }).DisposeWith(disposables);
+        });
+
         if (Design.IsDesignMode)
             return;
         
@@ -45,11 +100,6 @@ public partial class MainWindow : KonkordWindow
         // TODO: Implement an actual way to show if there is update available
         VersionLabel.Content = TranslationManager.Translate("main.sidebar.version.update.none");
     }
-    
-    protected override void FreeMemory()
-    {
-        
-    }
 
     /// <summary>
     /// Handles the logic for changing the active sidebar section in the main window.
@@ -59,7 +109,7 @@ public partial class MainWindow : KonkordWindow
     /// <param name="sidebarType">The sidebar section to switch to.</param>
     public void HandleSidebarChange(ESidebarType sidebarType)
     {
-        if (DataContext is not MainViewModel viewModel)
+        if (DataContext is not { } viewModel)
             return;
         
         if (viewModel.CurrentPageIndex == sidebarType)
@@ -159,7 +209,7 @@ public partial class MainWindow : KonkordWindow
     /// <param name="e">The event data associated with the selection change.</param>
     private void Language_OnSelected(object? sender, SelectionChangedEventArgs e)
     {
-        if (DataContext is not MainViewModel viewModel)
+        if (DataContext is not { } viewModel)
             return;
         
         if (sender is not ComboBox { SelectedItem: Language selectedLanguage })

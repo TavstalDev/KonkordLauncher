@@ -2,9 +2,12 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Config;
@@ -16,7 +19,6 @@ using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Config.Launcher;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Translation;
-using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 
@@ -26,8 +28,16 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 public partial class MainViewModel : KonkordObservableObject
 {
     private readonly bool _isInitialized;
-    private readonly MainWindow? _mainWindow;
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MainViewModel));
+    
+    public Interaction<Unit, Unit> CloseWindow { get; }  = new();
+    public Interaction<Alert, Unit> ShowAlertDialog { get; } = new();
+    public Interaction<ESidebarType, Unit> UpdateSidebarButton { get; }  = new();
+    public Interaction<Unit, string?>  OpenFolderPicker { get; } = new();
+    public Interaction<Unit, Unit> ShowInstanceCreationDialog { get; } = new();
+    public Interaction<string, Unit> ShowInstanceEditDialog { get; } = new();
+    public Interaction<Unit, Unit> ShowAccountsDialog { get; } = new();
+    public Interaction<Unit, JavaVersionModel> ShowJavaSelectorDialog { get; } = new();
 
     [ObservableProperty] private ESidebarType _currentPageIndex;
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(HasInstances))] private ObservableCollection<InstanceModel> _instances = [];
@@ -37,19 +47,11 @@ public partial class MainViewModel : KonkordObservableObject
     public bool IsLinux => OSHelper.GetOperatingSystem() == EOperatingSystem.Linux;
     
     /// <summary>
-    /// Initializes a new instance of the <see cref="MainViewModel"/> class with default settings.
-    /// </summary>
-    public MainViewModel() {}
-    
-    /// <summary>
     /// Initializes a new instance of the <see cref="MainViewModel"/> class.
     /// </summary>
-    public MainViewModel(MainWindow mainWindow)
+    public MainViewModel()
     {
-        _mainWindow = mainWindow;
         _currentPageIndex = ESidebarType.Play;
-        // TODO: Fetch patches
-
         _coreConfig = new CoreConfigModel(LauncherHelper.GetLauncherSettings());
         _accountData = new AccountDataModel(LauncherHelper.GetAccountData());
         Instances.Clear();
@@ -61,11 +63,6 @@ public partial class MainViewModel : KonkordObservableObject
         App.OnAccountsChanged += OnAccountUpdated;
         App.OnInstancesChanged += HandleInstancesChanged;
     }
-    
-    public override void FreeMemory()
-    {
-        // TODO
-    }
 
     #region Sidebar Management
 
@@ -74,7 +71,7 @@ public partial class MainViewModel : KonkordObservableObject
     /// </summary>
     /// <param name="sidebarType">The type of sidebar to switch to.</param>
     [RelayCommand]
-    public void HandleSidebarBtn(ESidebarType sidebarType) => _mainWindow?.HandleSidebarChange(sidebarType);
+    public async Task HandleSidebarBtn(ESidebarType sidebarType) => await UpdateSidebarButton.Handle(sidebarType);
     
     #endregion
 
@@ -104,11 +101,7 @@ public partial class MainViewModel : KonkordObservableObject
     [RelayCommand]
     private async Task AddInstanceBtnAsync()
     {
-        if (_mainWindow == null)
-            return;
-        
-        var dialog = new CreateInstanceWindow();
-        await dialog.ShowDialog(_mainWindow);
+        await ShowInstanceCreationDialog.Handle(Unit.Default);
     }
     
     /// <summary>
@@ -119,9 +112,7 @@ public partial class MainViewModel : KonkordObservableObject
     [RelayCommand]
     private async Task LaunchInstance(InstanceModel instance)
     {
-        if (_mainWindow == null)
-            return;
-        await instance.LaunchAsync(_mainWindow);
+        await instance.LaunchAsync(ShowAlertDialog);
     }
     
     /// <summary>
@@ -148,14 +139,7 @@ public partial class MainViewModel : KonkordObservableObject
     [RelayCommand]
     private async Task EditInstance(InstanceModel instance)
     {
-        if (_mainWindow == null)
-            return;
-        // Create and display the edit instance window.
-        EditInstanceWindow editInstanceWindow = new EditInstanceWindow(instance.Id);
-        var result = await editInstanceWindow.ShowDialog<bool>(_mainWindow);
-        if (!result)
-            return;
-        App.InvokeInstancesChanged();
+        await ShowInstanceEditDialog.Handle(instance.Id);
     }
     #endregion
     #endregion
@@ -169,11 +153,7 @@ public partial class MainViewModel : KonkordObservableObject
     [RelayCommand]
     private async Task AddAccountBtnAsync()
     {
-        if (_mainWindow == null)
-            return;
-        
-        var dialog = new AccountsWindow();
-        await dialog.ShowDialog(_mainWindow);
+        await ShowAccountsDialog.Handle(Unit.Default);
     }
 
     /// <summary>
@@ -351,10 +331,7 @@ public partial class MainViewModel : KonkordObservableObject
     [RelayCommand]
     public async Task ConfigDirSelectAsync(int index)
     {
-        if (_mainWindow == null)
-            return;
-        
-        var directoryResult = await _mainWindow.OpenFolderPickerAsync();
+        var directoryResult = await OpenFolderPicker.Handle(Unit.Default);
         if (string.IsNullOrEmpty(directoryResult))
             return;
         switch (index)
@@ -419,15 +396,10 @@ public partial class MainViewModel : KonkordObservableObject
     [RelayCommand]
     private async Task JavaPathSelectorAsync()
     {
-        if (_mainWindow == null)
-            return;
-        
-        var window = new JavaSelectorWindow();
-        var javaVersion = await window.ShowDialog<JavaVersionModel>(_mainWindow);
+        var javaVersion = await ShowJavaSelectorDialog.Handle(Unit.Default);
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (javaVersion == null)
             return;
-        
         CoreConfig.Java.DefaultJavaPath = javaVersion.Path;
     }
 

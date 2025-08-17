@@ -280,31 +280,16 @@ public class MinecraftInstance
         
         argsToAdd = _jvmArgumentsBeforeClassPath.OrderByDescending(x => x.Priority).Select(a => a.Arg);
         foreach (var arg in argsToAdd)
-        {
-            /*if (jvmArgs.Contains(arg))
-                continue;*/
-            
             jvmArgs.Add(arg);
-        }
         
         argsToAdd = MinecraftVersionMeta.GetJvmArguments();
         foreach (var arg in argsToAdd)
-        {
-            /*if (jvmArgs.Contains(arg))
-                 continue;*/
-            
             jvmArgs.Add(arg);
-        }
         
 
         argsToAdd = _jvmArguments.OrderByDescending(x => x.Priority).Select(a => a.Arg);
         foreach (var arg in argsToAdd)
-        {
-            /*if (jvmArgs.Contains(arg))
-                continue;*/
-            
             jvmArgs.Add(arg);
-        }
         
         // Classpath fallback
         if (!jvmArgs.Any(x => x.Contains("-cp")))
@@ -412,9 +397,22 @@ public class MinecraftInstance
 
     #region  Events
 
+    /// <summary>
+    /// Delegate for handling the setup of the default Java path based on the provided version metadata.
+    /// </summary>
+    /// <param name="versionMeta">The metadata of the Minecraft version used to determine the default Java path.</param>
     public delegate void SetupDefaultJavaEventHandler(VersionMeta versionMeta);
+
+    /// <summary>
+    /// Event triggered when the default Java path needs to be set up.
+    /// Subscribers can handle this event to configure the Java path based on the provided version metadata.
+    /// </summary>
     public event SetupDefaultJavaEventHandler OnSetupDefaultJava;
 
+    /// <summary>
+    /// Updates the Java path used by the game and logs the change.
+    /// </summary>
+    /// <param name="javaPath">The new Java path to be used by the game.</param>
     public void UpdateJavaPath(string javaPath)
     {
         GameDetails.JavaPath = javaPath;

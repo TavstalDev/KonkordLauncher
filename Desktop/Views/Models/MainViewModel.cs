@@ -7,6 +7,7 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DynamicData;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
@@ -41,7 +42,8 @@ public partial class MainViewModel : KonkordObservableObject
     public Interaction<Unit, JavaVersionModel> ShowJavaSelectorDialog { get; } = new();
 
     [ObservableProperty] private ESidebarType _currentPageIndex;
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(HasInstances))] private ObservableCollection<InstanceModel> _instances = [];
+    private readonly SourceCache<InstanceModel, string> _instanceCache = new(x => x.Id);
+    public ReadOnlyObservableCollection<InstanceModel> Instances { get; }
     [ObservableProperty] private ObservableCollection<NewsCardModel> _patches = [];
     [ObservableProperty] private AccountDataModel _accountData;
     [ObservableProperty] private CoreConfigModel _coreConfig;
@@ -55,8 +57,25 @@ public partial class MainViewModel : KonkordObservableObject
         _currentPageIndex = ESidebarType.Play;
         _coreConfig = new CoreConfigModel(LauncherHelper.GetLauncherSettings());
         _accountData = new AccountDataModel(LauncherHelper.GetAccountData());
-        Instances.Clear();
-        Instances = new ObservableCollection<InstanceModel>(LauncherHelper.GetInstances().ConvertAll(x => new InstanceModel(x)));
+
+        var instanceDisposer =  _instanceCache.Connect()
+            .Bind(out var instances)
+            .Subscribe();
+        Disposables.Add(instanceDisposer);
+        Instances = instances;
+        
+        var instanceCountDisposer = _instanceCache.CountChanged
+            .Select(count => count > 0)
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .BindTo(this, x => x.HasInstances);
+        Disposables.Add(instanceCountDisposer);
+        
+        var newInstances = LauncherHelper.GetInstances().ConvertAll(x => new InstanceModel(x));
+        _instanceCache.Edit(innerCache =>
+        {
+            innerCache.Clear();
+            innerCache.AddOrUpdate(newInstances);
+        });
         _isInitialized = true;
 
         SubscribeToCoreConfigChildren(_coreConfig);
@@ -95,17 +114,21 @@ public partial class MainViewModel : KonkordObservableObject
     /// <summary>
     /// Gets a value indicating whether there are any instances available.
     /// </summary>
-    public bool HasInstances => Instances.Count > 0;
+    public bool HasInstances => _instanceCache.Count > 0;
     
     /// <summary>
-    /// Handles the event when the instances data changes by updating the <see cref="Instances"/> collection
+    /// Handles the event when the instances data changes by updating the <see cref="_instances"/> collection
     /// with the latest instances retrieved from the launcher helper.
     /// </summary>
     private void HandleInstancesChanged()
     {
         _logger.Debug("Instances data changed. Updating instances collection.");
-        Instances.Clear();
-        Instances = new ObservableCollection<InstanceModel>(LauncherHelper.GetInstances().ConvertAll(x => new InstanceModel(x)));
+        var newInstances = LauncherHelper.GetInstances().ConvertAll(x => new InstanceModel(x));
+        _instanceCache.Edit(innerCache =>
+        {
+            innerCache.Clear();
+            innerCache.AddOrUpdate(newInstances);
+        });
     }
 
     #region Commands
@@ -126,8 +149,10 @@ public partial class MainViewModel : KonkordObservableObject
     /// <param name="instance">The instance model representing the Minecraft instance to launch.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
     [RelayCommand]
-    private async Task LaunchInstance(InstanceModel instance)
+    private async Task LaunchInstance(InstanceModel? instance)
     {
+        if (instance == null)
+            return;
         await instance.LaunchAsync(CloseWindow, ShowAlertDialog);
     }
     
@@ -136,8 +161,11 @@ public partial class MainViewModel : KonkordObservableObject
     /// </summary>
     /// <param name="instance">The instance model representing the Minecraft instance to stop.</param>
     [RelayCommand]
-    private void StopInstance(InstanceModel instance)
+    private void StopInstance(InstanceModel? instance)
     {
+        if (instance == null)
+            return;
+        
         if (!instance.IsGameRunning || instance.GameProcess == null)
         {
             _logger.Warn($"Instance {instance.Name} is not running or has no associated process.");
@@ -153,8 +181,10 @@ public partial class MainViewModel : KonkordObservableObject
     /// <param name="instance">The instance model representing the Minecraft instance to edit.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
     [RelayCommand]
-    private async Task EditInstance(InstanceModel instance)
+    private async Task EditInstance(InstanceModel? instance)
     {
+        if (instance == null)
+            return;
         await ShowInstanceEditDialog.Handle(instance.Id);
     }
     #endregion

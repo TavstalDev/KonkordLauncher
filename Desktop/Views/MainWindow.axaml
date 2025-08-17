@@ -10,7 +10,6 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
-    x:Name="root"
     Title="Konkord Launcher"
     Width="900"
     Height="550"
@@ -47,7 +46,7 @@
                             Width="32"
                             MaxWidth="32"
                             HorizontalContentAlignment="Center"
-                            Command="{Binding #root.DataContext.LaunchInstanceCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"
+                            Command="{Binding $parent[Window].DataContext.LaunchInstanceCommand}"
                             CommandParameter="{Binding .}"
                             IsVisible="{Binding !IsGameRunning}">
                             <TextBlock
@@ -61,7 +60,7 @@
                             Width="32"
                             MaxWidth="32"
                             HorizontalContentAlignment="Center"
-                            Command="{Binding #root.DataContext.StopInstanceCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"
+                            Command="{Binding $parent[Window].DataContext.StopInstanceCommand}"
                             CommandParameter="{Binding .}"
                             IsVisible="{Binding IsGameRunning}">
                             <TextBlock
@@ -74,7 +73,7 @@
                             Classes="IconBtn InfoBtn"
                             Width="34"
                             MaxWidth="34"
-                            Command="{Binding #root.DataContext.EditInstanceCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"
+                            Command="{Binding $parent[Window].DataContext.EditInstanceCommand}"
                             CommandParameter="{Binding .}">
                             <TextBlock
                                 Padding="4,0"
@@ -121,21 +120,21 @@
                     <WrapPanel Grid.Column="1" Classes="AccountsCardWrapper">
                         <Button
                             Classes="IconBtn SuccessBtn"
-                            Command="{Binding #root.DataContext.SelectAccountBtnCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"
+                            Command="{Binding $parent[Window].DataContext.SelectAccountBtnCommand}"
                             CommandParameter="{Binding Id}"
                             IsVisible="{Binding !IsSelected}">
                             <TextBlock Classes="FontAwesome" Text="&#xf00c;" />
                         </Button>
                         <Button
                             Classes="IconBtn WarningBtn"
-                            Command="{Binding #root.DataContext.RefreshAccountBtnCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"
+                            Command="{Binding $parent[Window].DataContext.RefreshAccountBtnCommand}"
                             CommandParameter="{Binding .}"
                             IsVisible="{Binding CanExpire}">
                             <TextBlock Classes="FontAwesome" Text="&#xf2f9;" />
                         </Button>
                         <Button
                             Classes="IconBtn ErrorBtn"
-                            Command="{Binding #root.DataContext.RemoveAccountBtnCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"
+                            Command="{Binding $parent[Window].DataContext.RemoveAccountBtnCommand}"
                             CommandParameter="{Binding .}">
                             <TextBlock Classes="FontAwesome" Text="&#xf1f8;" />
                         </Button>

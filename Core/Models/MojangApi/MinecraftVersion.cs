@@ -39,6 +39,13 @@ public class MinecraftVersion
     public DateTime ReleaseTime { get; set; }
 
     /// <summary>
+    /// Gets or sets the .NET version associated with the Minecraft version.
+    /// This property is ignored during JSON serialization and deserialization.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonIgnore, Newtonsoft.Json.JsonIgnore]
+    private Version? _version { get; set; }
+    
+    /// <summary>
     /// Initializes a new instance of the <see cref="MinecraftVersion"/> class.
     /// </summary>
     public MinecraftVersion() { }
@@ -54,10 +61,24 @@ public class MinecraftVersion
     public MinecraftVersion(string id, string type, string url, DateTime time, DateTime releaseTime)
     {
         Id = id;
+        _version = new Version(id);
         Type = type;
         Url = url;
         Time = time;
         ReleaseTime = releaseTime;
+    }
+    
+    /// <summary>
+    /// Retrieves the .NET version associated with the Minecraft version.
+    /// If the version is not already initialized, it creates a new instance
+    /// of the <see cref="Version"/> class using the <see cref="Id"/> property.
+    /// </summary>
+    /// <returns>The .NET version associated with the Minecraft version.</returns>
+    public Version GetVersion()
+    {
+        if (_version == null)
+            _version = new Version(Id);
+        return _version;
     }
 
     /// <summary>

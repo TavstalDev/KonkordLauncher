@@ -9,7 +9,6 @@ using Avalonia.Threading;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Models;
-using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;

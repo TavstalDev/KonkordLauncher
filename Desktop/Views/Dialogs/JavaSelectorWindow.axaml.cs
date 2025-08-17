@@ -5,7 +5,6 @@ using Avalonia;
 using Avalonia.Controls;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Helpers;
-using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using JavaSelectorViewModel = Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models.JavaSelectorViewModel;
 

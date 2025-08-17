@@ -378,6 +378,9 @@ public class MinecraftInstance
 
         string gameAssetsDir = Path.Combine(PathDetails.AssetsDir, "virtual", "legacy");
         gameAssetsDir = gameAssetsDir.StartsWith('"') ? gameAssetsDir : $"\"{gameAssetsDir}\"";
+        string userType = _client.IsOffline ? "offline" : "msa";
+        
+        
         var replacements = new Dictionary<string, string?>
         {
             { "${natives_directory}", nativesDir.StartsWith('"') ? nativesDir : $"\"{nativesDir}\"" },
@@ -394,7 +397,7 @@ public class MinecraftInstance
             { "${auth_session}", string.IsNullOrEmpty(_client.AccessToken) ? "none" : _client.AccessToken},
             { "${clientid}", _client.ClientId },
             { "${auth_xuid}", _client.Xuid },
-            { "${user_type}", "msa" },
+            { "${user_type}", userType },
             { "${version_type}", "release" },
             { "${classpath}", _classPath.StartsWith('"') ? _classPath : $"\"{_classPath}\"" },
             { "${library_directory}", PathDetails.LibrariesDir.StartsWith('"') ? PathDetails.LibrariesDir : $"\"{PathDetails.LibrariesDir}\"" },

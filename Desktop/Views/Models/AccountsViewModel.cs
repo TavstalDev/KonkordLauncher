@@ -168,7 +168,7 @@ public partial class AccountsViewModel : ObservableObject
         if (string.IsNullOrEmpty(accountData.SelectedAccountId))
             accountData.SelectedAccountId = id;
 
-        account = new Account(id, uuid, OfflineUsername, EAccountType.OFFLINE, "eyJhYiI6IkNkIiwidHlwIjoiSldUIn0.eyJoZWxsbyI6IndvcmxkIn0.F4k3-t0k3n_th1s-1s-n0t-v4l1d-51gn4tvr3", "no_refresh_token_needed",
+        account = new Account(id, uuid, OfflineUsername, EAccountType.OFFLINE, "0", "0",
             DateTime.Now);
         accountData.Accounts.Add(account);
         await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData);

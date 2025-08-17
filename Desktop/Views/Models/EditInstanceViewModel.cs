@@ -40,17 +40,20 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     private readonly string _instanceId;
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceViewModel));
     private bool _isClosing;
+
+    public bool IsLinux => OSHelper.GetOperatingSystem() == EOperatingSystem.Linux;
+    public List<Account> Accounts { get; set; }
     
+    #region Interactions
     public Interaction<Unit, Unit> CloseWindow { get; }  = new();
     public Interaction<Alert, Unit> ShowAlertDialog { get; } = new();
-    public Interaction<long, Unit> SetClipboardSeed { get; } = new();
+    public Interaction<string, Unit> SetClipboardText { get; } = new();
     public Interaction<ScreenshotModel, Unit> SetClipboardImage { get; } = new();
     public Interaction<Unit, Unit> BeginWorldRename { get; } = new();
     public Interaction<Unit, Unit> BeginScreenshotRename { get; } = new();
     public Interaction<Unit, Unit> LogsScrollToEnd { get; } = new();
-    public bool IsLinux => OSHelper.GetOperatingSystem() == EOperatingSystem.Linux;
-    public List<Account> Accounts { get; set; }
-
+    #endregion
+    #region Observable Properties
     [ObservableProperty] private string _instanceName;
     [ObservableProperty] private string? _gameDirectory;
     [ObservableProperty] private bool _isVanilla;
@@ -82,6 +85,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanRemoveEnvironmentVariable))] private int? _selectedEnvironmentVariableIndex;
     [ObservableProperty] private int? _overridenAccountIndex = 0;
     public bool CanRemoveEnvironmentVariable => SelectedEnvironmentVariableIndex is >= 0 && InstanceConfig.EnableEnvironment;
+    #endregion
     
     public EditInstanceViewModel(string instanceId)
     {
@@ -112,32 +116,9 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         
         // Logging setup
         GlobalEvents.OnInstanceLogged += OnInstanceLogged;
-        string logsDir = Path.Combine(_gameDirectory ?? string.Empty, "logs");
-        try
-        {
-            if (Directory.Exists(logsDir))
-            {
-                string logsFile = Path.Combine(logsDir, "latest.log");
-                if (File.Exists(logsFile))
-                {
-                    using var fs = new FileStream(logsFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                    fs.Seek(0, SeekOrigin.Begin);
-                    using var sr = new StreamReader(fs);
-
-                    var newLines = new StringBuilder();
-                    while (sr.ReadLine() is { } newLine)
-                    {
-                        newLines.AppendLine(newLine);
-                    }
-                    Logs = newLines.ToString();
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.Exc("Failed to read logs from the instance.");
-            _logger.Error(ex);
-        }
+        Logs = GlobalEvents.GetInstanceLogs(_instanceId);
+        if (!string.IsNullOrEmpty(Logs))
+            Dispatcher.UIThread.Invoke(async () => await LogsScrollToEnd.Handle(Unit.Default));
 
         #region Resource Packs
 
@@ -180,7 +161,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         if (instanceId != _instanceId)
             return;
         
-        Logs = logMessage;
+        Logs += logMessage;
         Dispatcher.UIThread.Invoke(async () => await LogsScrollToEnd.Handle(Unit.Default));
     }
 
@@ -236,6 +217,32 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         SelectedScreenshot?.Image?.Dispose();
         SelectedScreenshot = null;
     }
+
+    #region Logs
+
+    /// <summary>
+    /// Scrolls the logs to the end by triggering the LogsScrollToEnd interaction.
+    /// </summary>
+    [RelayCommand]
+    private async Task ScrollLogsToEnd() => await LogsScrollToEnd.Handle(Unit.Default);
+
+    /// <summary>
+    /// Copies the current logs to the system clipboard by triggering the SetClipboardText interaction.
+    /// </summary>
+    [RelayCommand]
+    private async Task CopyLogs() => await SetClipboardText.Handle(Logs);
+
+    /// <summary>
+    /// Clears the logs for the current instance and updates the global log storage.
+    /// </summary>
+    [RelayCommand]
+    private void ClearLogs()
+    {
+        Logs = string.Empty;
+        GlobalEvents.CleareInstanceLogs(_instanceId);
+    }
+    
+    #endregion
     
     #region Mods
 
@@ -435,7 +442,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     /// </summary>
     /// <param name="world">The world whose seed is to be copied.</param>
     [RelayCommand]
-    public async Task WorldsCopySeed(WorldModel world) => await SetClipboardSeed.Handle(world.Seed);
+    public async Task WorldsCopySeed(WorldModel world) => await SetClipboardText.Handle(world.Seed.ToString());
 
     /// <summary>
     /// Opens the directory of the specified Minecraft world in the file explorer.

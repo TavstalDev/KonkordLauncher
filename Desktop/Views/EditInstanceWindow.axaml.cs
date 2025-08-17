@@ -74,9 +74,9 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
                 await SetClipboardImageAsync(action.Input);
                 action.SetOutput(Unit.Default);
             }).DisposeWith(disposables);
-            DataContext.SetClipboardSeed.RegisterHandler(async action =>
+            DataContext.SetClipboardText.RegisterHandler(async action =>
             {
-                await SetClipboardTextAsync(action.Input.ToString());
+                await SetClipboardTextAsync(action.Input);
                 action.SetOutput(Unit.Default);
             }).DisposeWith(disposables);
             DataContext.BeginScreenshotRename.RegisterHandler(action =>

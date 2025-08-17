@@ -71,21 +71,21 @@
                                         Classes="TextInput"
                                         Watermark="{lang:Translate common.search}" />
                                     <!--  To bottom button  -->
-                                    <Button Grid.Column="1" Classes="IconBtn">
+                                    <Button Grid.Column="1" Classes="IconBtn" Command="{Binding ScrollLogsToEndCommand}">
                                         <WrapPanel Classes="IconBtnWrapper">
                                             <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xe4b8;" />
                                             <TextBlock Text="{lang:Translate common.bottom}" VerticalAlignment="Center" />
                                         </WrapPanel>
                                     </Button>
                                     <!--  Copy button  -->
-                                    <Button Grid.Column="2" Classes="IconBtn">
+                                    <Button Grid.Column="2" Classes="IconBtn" Command="{Binding CopyLogsCommand}">
                                         <WrapPanel Classes="IconBtnWrapper">
                                             <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf0c5;" />
                                             <TextBlock Text="{lang:Translate common.copy}" VerticalAlignment="Center" />
                                         </WrapPanel>
                                     </Button>
                                     <!--  Clear button  -->
-                                    <Button Grid.Column="3" Classes="IconBtn ErrorBtn">
+                                    <Button Grid.Column="3" Classes="IconBtn ErrorBtn" Command="{Binding ClearLogsCommand}">
                                         <WrapPanel Classes="IconBtnWrapper">
                                             <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf1b8;" />
                                             <TextBlock Text="{lang:Translate common.clear}" VerticalAlignment="Center" />

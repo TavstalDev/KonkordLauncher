@@ -355,7 +355,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
         });
         await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances);
         GlobalEvents.InvokeInstancesChanged();
-        CloseWindow.Handle(Unit.Default);
+        await CloseWindow.Handle(Unit.Default);
     }
     
     /// <summary>

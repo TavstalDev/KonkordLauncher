@@ -101,11 +101,6 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     [ObservableProperty] private bool _isGameRunning;
     
     /// <summary>
-    /// Gets or sets the logs associated with the instance.
-    /// </summary>
-    [ObservableProperty] private string _logs = "The instance has not been launched yet. Launch the instance to see the logs.";
-
-    /// <summary>
     /// Gets the icon of the instance as a bitmap. If the icon path is not set, a default icon is used.
     /// </summary>
     public Bitmap Icon => string.IsNullOrEmpty(IconPath)
@@ -549,18 +544,16 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             fs.Seek(_lastReadPosition, SeekOrigin.Begin);
             using var sr = new StreamReader(fs);
             if (_lastReadPosition == 0)
-                Logs = string.Empty;
+                GlobalEvents.CleareInstanceLogs(Id);
             
             var newLines = new StringBuilder();
             while (sr.ReadLine() is { } newLine)
-            {
                 newLines.AppendLine(newLine);
-            }
             
             Dispatcher.UIThread.Post(() =>
             {
-                Logs += newLines.ToString();
-                GlobalEvents.InvokeInstanceLogged(Id, Logs);
+                string logs = string.Join("\n", newLines);
+                GlobalEvents.InvokeInstanceLogged(Id, logs);
             });
             _lastReadPosition = fs.Position;
         }

@@ -10,6 +10,7 @@ using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DynamicData;
+using DynamicData.Binding;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
@@ -221,6 +222,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
 
         var bindingSubscription = _minecraftVersionCache.Connect()
             .Filter(filter)
+            .Sort(SortExpressionComparer<MinecraftVersion>.Descending(x => x.GetVersion()))
             .Bind(out var filteredCollection)
             .Subscribe();
         Disposables.Add(bindingSubscription);

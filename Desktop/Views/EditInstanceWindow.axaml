@@ -41,14 +41,15 @@
                     SelectedIndex="0"
                     TabStripPlacement="Left">
                     <!--  Logs  -->
-                    <TabItem Classes="ModalVerticalTabItem" Header="{lang:Translate instance.edit.tab.logs}">
+                    <TabItem Classes="ModalVerticalTabItem" Header="{lang:Translate instance.edit.tab.logs}" >
                         <Border Classes="ModalScrollableWrapper">
                             <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, *, Auto">
                                 <!--  Title  -->
                                 <TextBlock
                                     FontSize="20"
                                     FontWeight="500"
-                                    Text="{lang:Translate instance.edit.latestLog}" />
+                                    Text="{lang:Translate instance.edit.latestLog}"
+                                />
                                 <!--  Log content  -->
                                 <Border Grid.Row="1" Classes="GridInnerContent">
                                     <ScrollViewer Name="LogsScrollViewer" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
@@ -107,8 +108,7 @@
                                         <DataGrid
                                             Classes="InstanceMultiTable"
                                             ItemsSource="{Binding Mods}"
-                                            SelectedItem="{Binding SelectedMod}"
-                                            LoadingRow="ModsDataGrid_OnLoading">
+                                            SelectedItem="{Binding SelectedMod}">
                                             <DataGrid.Columns>
                                                 <!--  Enabled  -->
                                                 <DataGridCheckBoxColumn
@@ -154,6 +154,36 @@
                                                     Binding="{Binding Size}"
                                                     Header="{lang:Translate instance.edit.table.size}" />
                                             </DataGrid.Columns>
+                                            <DataGrid.ContextMenu>
+                                                <ContextMenu>
+                                                    <!-- Toggle -->
+                                                    <MenuItem Header="{lang:Translate common.toggle}" 
+                                                              Command="{Binding ModToggleCommand}" 
+                                                              CommandParameter="{Binding SelectedMod}" />
+                                                    <Separator />
+                                                    <!-- Check For Updates  -->
+                                                    <MenuItem Header="{lang:Translate common.checkUpdate}" 
+                                                              Command="{Binding ModCheckUpdateCommand}" 
+                                                              CommandParameter="{Binding SelectedMod}" />
+                                                    <Separator />
+                                                    <!-- Change Version -->
+                                                    <MenuItem Header="{lang:Translate instance.changeVersion}" 
+                                                              Command="{Binding ModChangeVersionCommand}" 
+                                                              CommandParameter="{Binding SelectedMod}" />
+                                                    <Separator />
+                                                    <!-- Remove -->
+                                                    <MenuItem Header="{lang:Translate common.remove}" 
+                                                              Command="{Binding ModRemoveCommand}" 
+                                                              CommandParameter="{Binding SelectedMod}" />
+                                                    <Separator />
+                                                    <!-- Download Mods -->
+                                                    <MenuItem Header="{lang:Translate common.download.mods}" 
+                                                              Command="{Binding ModDownloadCommand}" />
+                                                    <!-- Open Folder -->
+                                                    <MenuItem Header="{lang:Translate common.open.directory}" 
+                                                              Command="{Binding ModOpenDirectoryCommand}" />
+                                                </ContextMenu>
+                                            </DataGrid.ContextMenu>
                                         </DataGrid>
                                     </ScrollViewer>
                                 </Border>
@@ -248,7 +278,7 @@
                                                     <Separator />
                                                     <!-- Remove  -->
                                                     <MenuItem Header="{lang:Translate common.remove}" 
-                                                              Command="{Binding ResourcePackToggleCommand}" 
+                                                              Command="{Binding ResourcePackRemoveCommand}" 
                                                               CommandParameter="{Binding SelectedResourcePack}" />
                                                     <Separator />
                                                     <!-- Download Packs -->
@@ -306,8 +336,7 @@
                                         <DataGrid
                                             Classes="InstanceMultiTable"
                                             ItemsSource="{Binding ShaderPacks}"
-                                            SelectedItem="{Binding SelectedShaderPack}"
-                                            LoadingRow="ShaderDataGrid_OnLoading">
+                                            SelectedItem="{Binding SelectedShaderPack}">
                                             <DataGrid.Columns>
                                                 <!--  Enabled  -->
                                                 <DataGridCheckBoxColumn
@@ -353,6 +382,26 @@
                                                     Binding="{Binding Size}"
                                                     Header="{lang:Translate instance.edit.table.size}" />
                                             </DataGrid.Columns>
+                                            <DataGrid.ContextMenu>
+                                                <ContextMenu>
+                                                    <!-- Toggle -->
+                                                    <MenuItem Header="{lang:Translate common.toggle}" 
+                                                              Command="{Binding ShaderToggleCommand}" 
+                                                              CommandParameter="{Binding SelectedShaderPack}" />
+                                                    <Separator />
+                                                    <!-- Remove  -->
+                                                    <MenuItem Header="{lang:Translate common.remove}" 
+                                                              Command="{Binding ShaderRemoveCommand}" 
+                                                              CommandParameter="{Binding SelectedShaderPack}" />
+                                                    <Separator />
+                                                    <!-- Download Packs -->
+                                                    <MenuItem Header="{lang:Translate instance.edit.downloadPacks}" 
+                                                              Command="{Binding ShaderDownloadCommand}" />
+                                                    <!-- Open Folder -->
+                                                    <MenuItem Header="{lang:Translate common.open.directory}" 
+                                                              Command="{Binding ShaderOpenDirectoryCommand}" />
+                                                </ContextMenu>
+                                            </DataGrid.ContextMenu>
                                         </DataGrid>
                                     </ScrollViewer>
                                 </Border>

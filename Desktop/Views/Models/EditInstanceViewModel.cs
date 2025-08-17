@@ -43,50 +43,61 @@ public partial class EditInstanceViewModel : KonkordObservableObject
 
     public bool IsLinux => OSHelper.GetOperatingSystem() == EOperatingSystem.Linux;
     public List<Account> Accounts { get; set; }
-    
+
     #region Interactions
-    public Interaction<Unit, Unit> CloseWindow { get; }  = new();
+
+    public Interaction<Unit, Unit> CloseWindow { get; } = new();
     public Interaction<Alert, Unit> ShowAlertDialog { get; } = new();
     public Interaction<string, Unit> SetClipboardText { get; } = new();
     public Interaction<ScreenshotModel, Unit> SetClipboardImage { get; } = new();
     public Interaction<Unit, Unit> BeginWorldRename { get; } = new();
     public Interaction<Unit, Unit> BeginScreenshotRename { get; } = new();
     public Interaction<Unit, Unit> LogsScrollToEnd { get; } = new();
+
     #endregion
+
     #region Observable Properties
+
     [ObservableProperty] private string _instanceName;
     [ObservableProperty] private string? _gameDirectory;
     [ObservableProperty] private bool _isVanilla;
     [ObservableProperty] private string _logs;
     [ObservableProperty] private string _serverName;
     [ObservableProperty] private string _serverIp;
-    
+
     public ObservableCollection<ModModel> Mods { get; set; } = [];
     [ObservableProperty] private ModModel? _selectedMod;
-    
+
     private readonly SourceCache<ResourcePackModel, Guid> _resourcePackCache = new(x => x.Id);
     public ReadOnlyObservableCollection<ResourcePackModel> FilteredResourcePacks { get; }
     [ObservableProperty] private ResourcePackModel? _selectedResourcePack;
     [ObservableProperty] private string? _resourcePackSearchQuery = string.Empty;
-    
+
     public ObservableCollection<ShaderPackModel> ShaderPacks { get; set; } = [];
     [ObservableProperty] private ShaderPackModel? _selectedShaderPack;
 
     public ObservableCollection<WorldModel> Worlds { get; set; } = [];
     [ObservableProperty] private WorldModel? _selectedWorld;
-    
+
     public ObservableCollection<ServerModel> Servers { get; set; } = [];
     [ObservableProperty] private ServerModel? _selectedServer;
-    
+
     public ObservableCollection<ScreenshotModel> Screenshots { get; set; } = [];
     [ObservableProperty] private ScreenshotModel? _selectedScreenshot;
 
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanRemoveEnvironmentVariable))] private InstanceConfigModel _instanceConfig;
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanRemoveEnvironmentVariable))] private int? _selectedEnvironmentVariableIndex;
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanRemoveEnvironmentVariable))]
+    private InstanceConfigModel _instanceConfig;
+
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanRemoveEnvironmentVariable))]
+    private int? _selectedEnvironmentVariableIndex;
+
     [ObservableProperty] private int? _overridenAccountIndex = 0;
-    public bool CanRemoveEnvironmentVariable => SelectedEnvironmentVariableIndex is >= 0 && InstanceConfig.EnableEnvironment;
+
+    public bool CanRemoveEnvironmentVariable =>
+        SelectedEnvironmentVariableIndex is >= 0 && InstanceConfig.EnableEnvironment;
+
     #endregion
-    
+
     public EditInstanceViewModel(string instanceId)
     {
         if (Design.IsDesignMode)
@@ -94,7 +105,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
             _instanceConfig = new InstanceConfigModel();
             return;
         }
-        
+
         _instanceId = instanceId;
         var instances = LauncherHelper.GetInstances();
         var currentInstance = instances.FirstOrDefault(x => x.Id == _instanceId);
@@ -103,7 +114,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
             _logger.Error($"Instance with ID '{_instanceId}' not found.");
             throw new KeyNotFoundException($"Instance with ID '{_instanceId}' not found.");
         }
-        
+
         _instanceName = currentInstance.Name;
         _isVanilla = currentInstance.Kind == EMinecraftKind.VANILLA;
         _gameDirectory = currentInstance.GameDirectory;
@@ -113,7 +124,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         SubscribeToConfigChildren(_instanceConfig);
         if (!string.IsNullOrEmpty(_instanceConfig.Misc.AccountId))
             OverridenAccountIndex = Accounts.FindIndex(x => x.Id == _instanceConfig.Misc.AccountId);
-        
+
         // Logging setup
         GlobalEvents.OnInstanceLogged += OnInstanceLogged;
         Logs = GlobalEvents.GetInstanceLogs(_instanceId);
@@ -129,7 +140,8 @@ public partial class EditInstanceViewModel : KonkordObservableObject
             {
                 if (string.IsNullOrWhiteSpace(query))
                     return (Func<ResourcePackModel, bool>)(_ => true); // No filter
-                return (Func<ResourcePackModel, bool>)(pack => pack.Name.Contains(query, StringComparison.OrdinalIgnoreCase));
+                return (Func<ResourcePackModel, bool>)(pack =>
+                    pack.Name.Contains(query, StringComparison.OrdinalIgnoreCase));
             });
 
         // Connect the resource pack cache to the reactive filter.
@@ -139,12 +151,14 @@ public partial class EditInstanceViewModel : KonkordObservableObject
             .Filter(filter)
             .Bind(out var filteredCollection)
             .Subscribe();
-        
+
         Disposables.Add(bindingSubscription);
-            
+
         FilteredResourcePacks = filteredCollection;
         RefreshResourcePacks();
+
         #endregion
+
         RefreshWorlds();
         RefreshServers();
         RefreshScreenshots();
@@ -160,7 +174,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     {
         if (instanceId != _instanceId)
             return;
-        
+
         Logs += logMessage;
         Dispatcher.UIThread.Invoke(async () => await LogsScrollToEnd.Handle(Unit.Default));
     }
@@ -199,12 +213,12 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         Servers.Clear();
         Screenshots.Clear();
         UnsubscribeFromConfigChildren(InstanceConfig);
-        
+
         InstanceConfig = new InstanceConfigModel();
         InstanceName = string.Empty;
         GameDirectory = null;
         Logs = string.Empty;
-        
+
         SelectedEnvironmentVariableIndex = null;
         SelectedMod = null;
         SelectedResourcePack?.Icon?.Dispose();
@@ -241,19 +255,53 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         Logs = string.Empty;
         GlobalEvents.CleareInstanceLogs(_instanceId);
     }
-    
+
     #endregion
-    
+
     #region Mods
 
-    
+    [RelayCommand]
+    private void ModToggleCommand(ModModel mod)
+    {
+
+    }
+
+    [RelayCommand]
+    private void ModCheckUpdateCommand(ModModel mod)
+    {
+
+    }
+
+    [RelayCommand]
+    private void ModChangeVersionCommand(ModModel mod)
+    {
+
+    }
+
+    [RelayCommand]
+    private void ModRemoveCommand(ModModel mod)
+    {
+
+    }
+
+    [RelayCommand]
+    private void ModDownloadCommand()
+    {
+
+    }
+
+    [RelayCommand]
+    private void ModOpenDirectoryCommand()
+    {
+
+    }
 
     #endregion
-    
+
     #region Resource Packs
 
     #region Commands
-    
+
     /// <summary>
     /// Toggles the enabled state of a resource pack and saves the updated state.
     /// </summary>
@@ -274,11 +322,11 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     {
         if (!File.Exists(resourcePack.Path))
             return;
-        
+
         File.Delete(resourcePack.Path);
         RefreshResourcePacks();
     }
-    
+
     [RelayCommand]
     public void ResourcePackDownloadCommand(ResourcePackModel resourcePack)
     {
@@ -294,16 +342,16 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     {
         if (!File.Exists(resourcePack.Path))
             return;
-        
+
         string? resourcePackDir = Path.GetDirectoryName(resourcePack.Path);
         if (string.IsNullOrEmpty(resourcePackDir) || !Directory.Exists(resourcePackDir))
             return;
-        
+
         FileSystemHelper.OpenFolderInFileExplorer(resourcePackDir);
     }
-    
+
     #endregion
-    
+
     /// <summary>
     /// Saves the current state of resource packs by renaming their file extensions
     /// based on their enabled or disabled status. Enabled resource packs have the
@@ -326,7 +374,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
                 newPath = resourcePack.Path.Replace(".dis", "");
             else if (!resourcePack.IsEnabled && resourcePack.Path.EndsWith(".zip"))
                 newPath = resourcePack.Path.Replace(".zip", ".zip.dis");
-            
+
             if (newPath == null)
                 continue;
 
@@ -335,7 +383,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
                 _logger.Warn("Skipping save... Resource pack file already exists: " + newPath);
                 continue;
             }
-            
+
             File.Move(resourcePack.Path, newPath);
             resourcePack.Path = newPath;
         }
@@ -353,7 +401,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         string resourcePacksDir = Path.Combine(GameDirectory, "resourcepacks");
         if (!Directory.Exists(resourcePacksDir))
             return;
-        
+
         _resourcePackCache.Edit(innerCache =>
         {
             foreach (var resourcePack in innerCache.Items)
@@ -361,6 +409,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
                 // Dispose of the image to free memory
                 resourcePack.Icon?.Dispose();
             }
+
             innerCache.Clear();
             var resources = Directory.GetFiles(resourcePacksDir, "*")
                 .Where(x => x.EndsWith(".zip") || x.EndsWith(".zip.dis"));
@@ -394,10 +443,31 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     }
 
     #endregion
-    
+
     #region Shaders
 
+    [RelayCommand]
+    private void ShaderToggleCommand(ShaderPackModel shader)
+    {
+        
+    }
     
+    [RelayCommand]
+    private void ShaderRemoveCommand(ShaderPackModel shader)
+    {
+        
+    }
+
+    [RelayCommand]
+    private void ShaderDownloadCommand()
+    {
+    }
+
+    [RelayCommand]
+    private void ShaderOpenDirectoryCommand()
+    {
+        
+    }
 
     #endregion
     

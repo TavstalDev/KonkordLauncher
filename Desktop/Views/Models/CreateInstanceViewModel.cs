@@ -69,6 +69,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
         }
     }
     
+    
     #region Vanilla
     private readonly SourceCache<MinecraftVersion, string> _minecraftVersionCache = new(x => x.Id);
     public ReadOnlyObservableCollection<MinecraftVersion> MinecraftVersions { get; }
@@ -84,7 +85,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
 
     [ObservableProperty] private bool _showExperiments;
     
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))] [NotifyPropertyChangedFor(nameof(ModLoaderVersionResult))] private MinecraftVersion? _selectedMinecraftVersion;
+    [ObservableProperty]  [NotifyPropertyChangedFor(nameof(ModLoaderVersionResult))] [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))] private MinecraftVersion? _selectedMinecraftVersion;
     #endregion
     #region  Mod Loader
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(ModLoaderVersionResult))] private string _modLoaderSearchQuery = string.Empty;
@@ -273,7 +274,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
     /// If an icon is selected, it updates the instance's icon and its path.
     /// </summary>
     [RelayCommand]
-    public async Task CustomIconSelectorAsync()
+    private async Task CustomIconSelectorAsync()
     {
         var result = await ShowIconSelector.Handle(Unit.Default);
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
@@ -296,7 +297,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
     /// </summary>
     /// <param name="modLoaderType">The type of mod loader to set.</param>
     [RelayCommand]
-    public void CustomModLoaderType(EMinecraftKind modLoaderType)
+    private void CustomModLoaderType(EMinecraftKind modLoaderType)
     {
         ModLoaderType = modLoaderType;
     }
@@ -306,7 +307,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
     /// Displays an error message if an instance with the same name already exists.
     /// </summary>
     [RelayCommand]
-    public async Task CustomCreateAsync()
+    private async Task CustomCreateAsync()
     {
         var settings = await LauncherHelper.GetLauncherSettingsAsync();
         var instances = await LauncherHelper.GetInstancesAsync();
@@ -364,7 +365,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
     /// Cancels the custom instance creation process and closes the parent window.
     /// </summary>
     [RelayCommand]
-    public async Task CustomCancelCreate() => await CloseWindow.Handle(Unit.Default);
+    private async Task CustomCancelCreate() => await CloseWindow.Handle(Unit.Default);
 
     #endregion
 

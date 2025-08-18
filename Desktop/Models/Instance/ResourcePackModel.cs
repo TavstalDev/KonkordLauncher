@@ -51,6 +51,15 @@ public partial class ResourcePackModel : ObservableObject
     /// </summary>
     public string FormattedSize => FileSystemHelper.GetFormatedSize(Size);
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ResourcePackModel"/> class with the specified properties.
+    /// </summary>
+    /// <param name="isEnabled">Indicates whether the resource pack is enabled.</param>
+    /// <param name="name">The name of the resource pack.</param>
+    /// <param name="path">The file path of the resource pack.</param>
+    /// <param name="icon">The icon associated with the resource pack.</param>
+    /// <param name="provider">The provider of the resource pack, if available.</param>
+    /// <param name="size">The size of the resource pack in bytes.</param>
     public ResourcePackModel(bool isEnabled, string name, string path, Bitmap? icon, string? provider, long size)
     {
         _isEnabled = isEnabled;

@@ -143,6 +143,12 @@ public static class DefaultTranslationProvider
         {"instance.extracting.installer", "Extracting {0} installer..."},
         {"instance.reading.universal", "Reading {0} universal..."},
         {"instance.downloading.universal", "Downloading {0} universal {1}%..."},
+        
+        {"instance.version.change", "Change version"},
+        {"instance.update.check", "Check for updates"},
+        {"instance.download.shaders", "Download shaders"},
+        {"instance.download.resourcePacks", "Download resource packs"},
+        {"instance.download.mods", "Download mods"},
 
         #region Create
 

@@ -107,7 +107,7 @@
                                     <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
                                         <DataGrid
                                             Classes="InstanceMultiTable"
-                                            ItemsSource="{Binding Mods}"
+                                            ItemsSource="{Binding FilteredMods}"
                                             SelectedItem="{Binding SelectedMod}">
                                             <DataGrid.Columns>
                                                 <!--  Enabled  -->
@@ -130,7 +130,7 @@
                                                 </DataGridTemplateColumn>
                                                 <!--  Name  -->
                                                 <DataGridTextColumn
-                                                    Width="Auto"
+                                                    Width="*"
                                                     Binding="{Binding Name}"
                                                     Header="{lang:Translate instance.edit.table.name}" />
                                                 <!--  Version  -->
@@ -138,11 +138,6 @@
                                                     Width="Auto"
                                                     Binding="{Binding Version}"
                                                     Header="{lang:Translate instance.edit.table.version}" />
-                                                <!--  Last Modified  -->
-                                                <DataGridTextColumn
-                                                    Width="Auto"
-                                                    Binding="{Binding LastModified}"
-                                                    Header="{lang:Translate instance.edit.table.lastModified}" />
                                                 <!--  Provider  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
@@ -151,7 +146,7 @@
                                                 <!--  Size  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
-                                                    Binding="{Binding Size}"
+                                                    Binding="{Binding FormattedSize}"
                                                     Header="{lang:Translate instance.edit.table.size}" />
                                             </DataGrid.Columns>
                                             <DataGrid.ContextMenu>
@@ -162,12 +157,12 @@
                                                               CommandParameter="{Binding SelectedMod}" />
                                                     <Separator />
                                                     <!-- Check For Updates  -->
-                                                    <MenuItem Header="{lang:Translate common.checkUpdate}" 
+                                                    <MenuItem Header="{lang:Translate instance.update.check}" 
                                                               Command="{Binding ModCheckUpdateCommand}" 
                                                               CommandParameter="{Binding SelectedMod}" />
                                                     <Separator />
                                                     <!-- Change Version -->
-                                                    <MenuItem Header="{lang:Translate instance.changeVersion}" 
+                                                    <MenuItem Header="{lang:Translate instance.version.change}" 
                                                               Command="{Binding ModChangeVersionCommand}" 
                                                               CommandParameter="{Binding SelectedMod}" />
                                                     <Separator />
@@ -177,7 +172,7 @@
                                                               CommandParameter="{Binding SelectedMod}" />
                                                     <Separator />
                                                     <!-- Download Mods -->
-                                                    <MenuItem Header="{lang:Translate common.download.mods}" 
+                                                    <MenuItem Header="{lang:Translate instance.download.mods}" 
                                                               Command="{Binding ModDownloadCommand}" />
                                                     <!-- Open Folder -->
                                                     <MenuItem Header="{lang:Translate common.open.directory}" 
@@ -199,14 +194,14 @@
                                         Watermark="{lang:Translate common.search}" />
                                     <!--  Download  -->
                                     <!-- TODO -->
-                                    <Button Grid.Column="1" Classes="IconBtn" IsEnabled="False">
+                                    <Button Grid.Column="1" Classes="IconBtn" Command="{Binding ModDownloadCommand}" IsEnabled="False">
                                         <WrapPanel Classes="IconBtnWrapper">
                                             <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf0ed;" />
                                             <TextBlock Text="{lang:Translate instance.edit.downloadMods}" VerticalAlignment="Center" />
                                         </WrapPanel>
                                     </Button>
                                     <!--  View Folder  -->
-                                    <Button Grid.Column="2" Classes="IconBtn">
+                                    <Button Grid.Column="2" Classes="IconBtn" Command="{Binding ModOpenDirectoryCommand}">
                                         <WrapPanel Classes="IconBtnWrapper">
                                             <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf07c;" />
                                             <TextBlock Text="{lang:Translate common.open.directory}" VerticalAlignment="Center" />
@@ -282,13 +277,12 @@
                                                               CommandParameter="{Binding SelectedResourcePack}" />
                                                     <Separator />
                                                     <!-- Download Packs -->
-                                                    <MenuItem Header="{lang:Translate instance.edit.downloadPacks}" 
+                                                    <MenuItem Header="{lang:Translate instance.download.resourcePacks}" 
                                                               Command="{Binding ResourcePackDownloadCommand}" 
                                                               CommandParameter="{Binding SelectedResourcePack}" />
                                                     <!-- Open Folder -->
                                                     <MenuItem Header="{lang:Translate common.open.directory}" 
-                                                              Command="{Binding ResourcePackOpenDirectoryCommand}" 
-                                                              CommandParameter="{Binding SelectedResourcePack}" />
+                                                              Command="{Binding ResourcePackOpenDirectoryCommand}" />
                                                 </ContextMenu>
                                             </DataGrid.ContextMenu>
                                         </DataGrid>
@@ -307,14 +301,14 @@
                                         Text="{Binding ResourcePackSearchQuery}"/>
                                     <!--  Download  -->
                                     <!-- TODO -->
-                                    <Button Grid.Column="1" Classes="IconBtn" IsEnabled="False" Click="DownloadResourcePacks_OnClick">
+                                    <Button Grid.Column="1" Classes="IconBtn" Command="{Binding ResourcePackDownloadCommand}" IsEnabled="False">
                                         <WrapPanel Classes="IconBtnWrapper">
                                             <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf0ed;" />
                                             <TextBlock Text="{lang:Translate instance.edit.downloadPacks}" VerticalAlignment="Center" />
                                         </WrapPanel>
                                     </Button>
                                     <!--  View Folder  -->
-                                    <Button Grid.Column="2" Classes="IconBtn" Click="ViewResourcePacksFolder_OnClick">
+                                    <Button Grid.Column="2" Classes="IconBtn" Command="{Binding ResourcePackOpenDirectoryCommand}">
                                         <WrapPanel Classes="IconBtnWrapper">
                                             <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf07c;" />
                                             <TextBlock Text="{lang:Translate common.open.directory}" VerticalAlignment="Center" />
@@ -335,7 +329,7 @@
                                     <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
                                         <DataGrid
                                             Classes="InstanceMultiTable"
-                                            ItemsSource="{Binding ShaderPacks}"
+                                            ItemsSource="{Binding FilteredShaderPacks}"
                                             SelectedItem="{Binding SelectedShaderPack}">
                                             <DataGrid.Columns>
                                                 <!--  Enabled  -->
@@ -344,33 +338,11 @@
                                                     Binding="{Binding IsEnabled}"
                                                     Header="{lang:Translate instance.edit.table.enabled}"
                                                     IsReadOnly="False" />
-                                                <!--  Image  -->
-                                                <DataGridTemplateColumn Width="Auto" Header="{lang:Translate instance.edit.table.image}">
-                                                    <DataGridTemplateColumn.CellTemplate>
-                                                        <DataTemplate>
-                                                            <Image
-                                                                Width="32"
-                                                                Height="32"
-                                                                Source="{Binding Icon}"
-                                                                Stretch="UniformToFill" />
-                                                        </DataTemplate>
-                                                    </DataGridTemplateColumn.CellTemplate>
-                                                </DataGridTemplateColumn>
                                                 <!--  Name  -->
                                                 <DataGridTextColumn
-                                                    Width="Auto"
+                                                    Width="*"
                                                     Binding="{Binding Name}"
                                                     Header="{lang:Translate instance.edit.table.name}" />
-                                                <!--  Version  -->
-                                                <DataGridTextColumn
-                                                    Width="Auto"
-                                                    Binding="{Binding Version}"
-                                                    Header="{lang:Translate instance.edit.table.version}" />
-                                                <!--  Last Modified  -->
-                                                <DataGridTextColumn
-                                                    Width="Auto"
-                                                    Binding="{Binding LastModified}"
-                                                    Header="{lang:Translate instance.edit.table.lastModified}" />
                                                 <!--  Provider  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
@@ -379,7 +351,7 @@
                                                 <!--  Size  -->
                                                 <DataGridTextColumn
                                                     Width="Auto"
-                                                    Binding="{Binding Size}"
+                                                    Binding="{Binding FormattedSize}"
                                                     Header="{lang:Translate instance.edit.table.size}" />
                                             </DataGrid.Columns>
                                             <DataGrid.ContextMenu>
@@ -395,7 +367,7 @@
                                                               CommandParameter="{Binding SelectedShaderPack}" />
                                                     <Separator />
                                                     <!-- Download Packs -->
-                                                    <MenuItem Header="{lang:Translate instance.edit.downloadPacks}" 
+                                                    <MenuItem Header="{lang:Translate instance.download.shaders}" 
                                                               Command="{Binding ShaderDownloadCommand}" />
                                                     <!-- Open Folder -->
                                                     <MenuItem Header="{lang:Translate common.open.directory}" 
@@ -417,14 +389,14 @@
                                         Watermark="{lang:Translate common.search}" />
                                     <!--  Download  -->
                                     <!-- TODO -->
-                                    <Button Grid.Column="1" Classes="IconBtn" IsEnabled="False">
+                                    <Button Grid.Column="1" Classes="IconBtn" Command="{Binding ShaderDownloadCommand}" IsEnabled="False">
                                         <WrapPanel Classes="IconBtnWrapper">
                                             <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf0ed;" />
                                             <TextBlock Text="{lang:Translate instance.edit.downloadPacks}" VerticalAlignment="Center" />
                                         </WrapPanel>
                                     </Button>
                                     <!--  View Folder  -->
-                                    <Button Grid.Column="2" Classes="IconBtn">
+                                    <Button Grid.Column="2" Classes="IconBtn" Command="{Binding ShaderOpenDirectoryCommand}">
                                         <WrapPanel Classes="IconBtnWrapper">
                                             <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf07c;" />
                                             <TextBlock Text="{lang:Translate common.open.directory}" VerticalAlignment="Center" />
@@ -613,7 +585,7 @@
                                         Watermark="192.168.1.0:25565"
                                         Text="{Binding ServerIp}"/>
                                     <!--  Add  -->
-                                    <Button Grid.Column="2" Classes="IconBtn" Click="AddServer_OnClick">
+                                    <Button Grid.Column="2" Classes="IconBtn" Command="{Binding ServerAddCommand}">
                                         <WrapPanel Classes="IconBtnWrapper">
                                             <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#x2b;" />
                                             <TextBlock Text="{lang:Translate common.add}" VerticalAlignment="Center" />

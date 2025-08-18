@@ -116,34 +116,6 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
 
     #region Action Handlers
     
-    #region Resource Pack Buttons
-    private void DownloadResourcePacks_OnClick(object? sender, RoutedEventArgs e)
-    {
-        
-    }
-
-    /// <summary>
-    /// Handles the click event for viewing the Resource Packs folder.
-    /// Opens the folder containing the resource packs in the file explorer if it exists.
-    /// </summary>
-    /// <param name="sender">The source of the event, typically a button.</param>
-    /// <param name="e">The event data associated with the click event.</param>
-    private void ViewResourcePacksFolder_OnClick(object? sender, RoutedEventArgs e)
-    {
-        if (DataContext == null)
-            return;
-
-        if (DataContext.GameDirectory == null)
-            return;
-        
-        string? resourcePacksDir = Path.Combine(DataContext.GameDirectory, "resourcepacks");
-        if (!Directory.Exists(resourcePacksDir))
-            return;
-
-        FileSystemHelper.OpenFolderInFileExplorer(resourcePacksDir);
-    }
-    #endregion
-    
     /// <summary>
     /// Handles the selection change event for the overridden account ComboBox.
     /// Updates the account ID in the instance configuration based on the selected account.
@@ -232,24 +204,6 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     #endregion
     
     #region Servers
-
-    /// <summary>
-    /// Handles the click event for adding a new server to the server list.
-    /// Validates the input fields for server name and address before adding a new server
-    /// to the `Servers` collection in the view model.
-    /// </summary>
-    /// <param name="sender">The source of the event, typically a button.</param>
-    /// <param name="e">The event data associated with the click event.</param>
-    private void AddServer_OnClick(object? sender, RoutedEventArgs e)
-    {
-        if (DataContext == null)
-            return;
-        
-        if (string.IsNullOrEmpty(DataContext.ServerName) || string.IsNullOrEmpty(DataContext.ServerIp))
-            return;
-        
-        DataContext.Servers.Add(new ServerModel(DataContext.ServerName, DataContext.ServerIp, 0, 0, null));
-    }
     
     /// <summary>
     /// Handles the event when a row edit operation in the Servers DataGrid is completed.

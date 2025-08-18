@@ -64,16 +64,20 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     [ObservableProperty] private string _serverName;
     [ObservableProperty] private string _serverIp;
 
-    public ObservableCollection<ModModel> Mods { get; set; } = [];
+    private readonly SourceCache<ModModel, Guid> _modsCache = new(x => x.Id);
+    public ReadOnlyObservableCollection<ModModel> FilteredMods { get; }
     [ObservableProperty] private ModModel? _selectedMod;
+    [ObservableProperty] private string? _modSearchQuery = string.Empty;
 
     private readonly SourceCache<ResourcePackModel, Guid> _resourcePackCache = new(x => x.Id);
     public ReadOnlyObservableCollection<ResourcePackModel> FilteredResourcePacks { get; }
     [ObservableProperty] private ResourcePackModel? _selectedResourcePack;
     [ObservableProperty] private string? _resourcePackSearchQuery = string.Empty;
 
-    public ObservableCollection<ShaderPackModel> ShaderPacks { get; set; } = [];
+    private readonly SourceCache<ShaderPackModel, Guid> _shaderPackCache = new(x => x.Id);
+    public ReadOnlyObservableCollection<ShaderPackModel> FilteredShaderPacks { get; }
     [ObservableProperty] private ShaderPackModel? _selectedShaderPack;
+    [ObservableProperty] private string? _shaderPackSearchQuery = string.Empty;
 
     public ObservableCollection<WorldModel> Worlds { get; set; } = [];
     [ObservableProperty] private WorldModel? _selectedWorld;
@@ -130,11 +134,35 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         if (!string.IsNullOrEmpty(Logs))
             Dispatcher.UIThread.Invoke(async () => await LogsScrollToEnd.Handle(Unit.Default));
 
+        #region Mods
+        if (!_isVanilla)
+        {
+            var mods = this.WhenAnyValue(x => x.ModSearchQuery)
+                .Select(query =>
+                {
+                    if (string.IsNullOrWhiteSpace(query))
+                        return (Func<ModModel, bool>)(_ => true); // No filter
+                    return (Func<ModModel, bool>)(mod =>
+                        mod.Name.Contains(query, StringComparison.OrdinalIgnoreCase));
+                });
+
+            var modSubscription = _modsCache.Connect()
+                .Filter(mods)
+                .Bind(out var filteredMods)
+                .Subscribe();
+
+            Disposables.Add(modSubscription);
+            FilteredMods = filteredMods;
+
+            RefreshMods();
+        }
+        #endregion
+        
         #region Resource Packs
 
         // Set up a reactive filter for the ResourcePackSearchQuery property.
         // The filter updates dynamically based on the search query, matching resource packs whose names contain the query string (case-insensitive).
-        var filter = this.WhenAnyValue(x => x.ResourcePackSearchQuery)
+        var resourcePack = this.WhenAnyValue(x => x.ResourcePackSearchQuery)
             .Select(query =>
             {
                 if (string.IsNullOrWhiteSpace(query))
@@ -146,18 +174,43 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         // Connect the resource pack cache to the reactive filter.
         // Apply the filter and bind the resulting filtered collection to the FilteredResourcePacks property.
         // Subscribe to changes in the cache to keep the filtered collection up-to-date.
-        var bindingSubscription = _resourcePackCache.Connect()
-            .Filter(filter)
-            .Bind(out var filteredCollection)
+        var resourcePackSubscription = _resourcePackCache.Connect()
+            .Filter(resourcePack)
+            .Bind(out var filteredResourcePacks)
             .Subscribe();
 
-        Disposables.Add(bindingSubscription);
+        Disposables.Add(resourcePackSubscription);
 
-        FilteredResourcePacks = filteredCollection;
+        FilteredResourcePacks = filteredResourcePacks;
         RefreshResourcePacks();
 
         #endregion
 
+        #region Shader Packs
+
+        if (!_isVanilla)
+        {
+            var shaderPacks = this.WhenAnyValue(x => x.ShaderPackSearchQuery)
+                .Select(query =>
+                {
+                    if (string.IsNullOrWhiteSpace(query))
+                        return (Func<ShaderPackModel, bool>)(_ => true); // No filter
+                    return (Func<ShaderPackModel, bool>)(pack =>
+                        pack.Name.Contains(query, StringComparison.OrdinalIgnoreCase));
+                });
+
+            var shaderPackSubscription = _shaderPackCache.Connect()
+                .Filter(shaderPacks)
+                .Bind(out var filteredShaderPacks)
+                .Subscribe();
+
+            Disposables.Add(shaderPackSubscription);
+            FilteredShaderPacks = filteredShaderPacks;
+
+            RefreshShaderPacks();
+        }
+        #endregion
+        
         RefreshWorlds();
         RefreshServers();
         RefreshScreenshots();
@@ -204,10 +257,12 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         foreach (var screenshot in Screenshots)
             screenshot.Image?.Dispose();
         Accounts.Clear();
-        Mods.Clear();
+        _modsCache.Clear();
+        _modsCache.Dispose();
         _resourcePackCache.Clear();
         _resourcePackCache.Dispose();
-        ShaderPacks.Clear();
+        _shaderPackCache.Clear();
+        _shaderPackCache.Dispose();
         Worlds.Clear();
         Servers.Clear();
         Screenshots.Clear();
@@ -259,40 +314,136 @@ public partial class EditInstanceViewModel : KonkordObservableObject
 
     #region Mods
 
+    #region Commands
+    /// <summary>
+    /// Toggles the enabled state of a mod and saves the updated state.
+    /// </summary>
+    /// <param name="mod">The mod to toggle.</param>
     [RelayCommand]
     private void ModToggleCommand(ModModel mod)
     {
-
+        mod.IsEnabled = !mod.IsEnabled;
+        SaveMods();
     }
 
     [RelayCommand]
     private void ModCheckUpdateCommand(ModModel mod)
     {
-
+        // TODO: Implement mod update check logic
     }
 
     [RelayCommand]
     private void ModChangeVersionCommand(ModModel mod)
     {
-
+        // TODO: Implement mod version change logic
     }
 
+    /// <summary>
+    /// Removes the specified mod file from the file system and refreshes the mod list.
+    /// </summary>
+    /// <param name="mod">The mod to remove.</param>
     [RelayCommand]
     private void ModRemoveCommand(ModModel mod)
     {
+        if (!File.Exists(mod.Path))
+            return;
 
+        File.Delete(mod.Path);
+        RefreshMods();
     }
 
     [RelayCommand]
     private void ModDownloadCommand()
     {
-
+        // TODO: Implement mod download logic
     }
 
+    /// <summary>
+    /// Opens the directory containing the mods in the file explorer.
+    /// </summary>
     [RelayCommand]
     private void ModOpenDirectoryCommand()
     {
+        if (GameDirectory == null)
+            return;
+        
+        string modsDir = Path.Combine(GameDirectory, "mods");
+        if (!Directory.Exists(modsDir))
+            return;
 
+        FileSystemHelper.OpenFolderInFileExplorer(modsDir);
+    }
+    #endregion
+    
+    /// <summary>
+    /// Refreshes the list of mods by scanning the game directory for mod files.
+    /// Updates the `_modsCache` with metadata such as name, size, and enabled status for each mod.
+    /// </summary>
+    public void RefreshMods()
+    {
+        if (GameDirectory == null)
+            return;
+
+        string modsDir = Path.Combine(GameDirectory, "mods");
+        if (!Directory.Exists(modsDir))
+            return;
+
+        _modsCache.Edit(innerCache =>
+        {
+            innerCache.Clear();
+            var mods = Directory.GetFiles(modsDir, "*")
+                .Where(x => x.EndsWith(".jar") || x.EndsWith(".jar.dis"));
+            foreach (var mod in mods)
+            {
+                // Make sure the name does not include the extension
+                var modName = Path.GetFileNameWithoutExtension(mod.Replace(".jar.dis", ".jar"));
+                var size = File.ReadAllBytes(mod).LongLength;
+                
+                // TODO: Handle icon based on provider
+                var icon = ImageHelper.LoadFromResource(new Uri("avares://Desktop/Assets/Images/default_world.png"));
+                
+                // TODO: Handle provider & version
+                var newMod = new ModModel(mod.EndsWith(".jar"), modName, mod, icon, "unknown", "unknown", size);
+                innerCache.AddOrUpdate(newMod);
+            }
+        });
+    }
+    
+    /// <summary>
+    /// Saves the current state of mods by renaming their file extensions
+    /// based on their enabled or disabled status. Enabled mods have the
+    /// `.jar` extension, while disabled ones have `.jar.dis`.
+    /// </summary>
+    public void SaveMods()
+    {
+        _logger.Debug("Saving mods...");
+        if (GameDirectory == null)
+            return;
+
+        string modsDir = Path.Combine(GameDirectory, "mods");
+        if (!Directory.Exists(modsDir))
+            return;
+
+        foreach (var mod in _modsCache.Items)
+        {
+            string? newPath = null;
+            if (mod.IsEnabled && mod.Path.EndsWith(".jar.dis"))
+                newPath = mod.Path.Replace(".dis", "");
+            else if (!mod.IsEnabled && mod.Path.EndsWith(".jar"))
+                newPath = mod.Path.Replace(".jar", ".jar.dis");
+
+            if (newPath == null)
+                continue;
+
+            if (File.Exists(newPath))
+            {
+                _logger.Warn("Skipping save... Mod file already exists: " + newPath);
+                continue;
+            }
+
+            File.Move(mod.Path, newPath);
+            mod.Path = newPath;
+        }
     }
 
     #endregion
@@ -306,7 +457,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     /// </summary>
     /// <param name="resourcePack">The resource pack to toggle.</param>
     [RelayCommand]
-    public void ResourcePackToggleCommand(ResourcePackModel resourcePack)
+    private void ResourcePackToggleCommand(ResourcePackModel resourcePack)
     {
         resourcePack.IsEnabled = !resourcePack.IsEnabled;
         SaveResourcePacks();
@@ -317,7 +468,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     /// </summary>
     /// <param name="resourcePack">The resource pack to remove.</param>
     [RelayCommand]
-    public void ResourcePackRemoveCommand(ResourcePackModel resourcePack)
+    private void ResourcePackRemoveCommand(ResourcePackModel resourcePack)
     {
         if (!File.Exists(resourcePack.Path))
             return;
@@ -327,26 +478,25 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     }
 
     [RelayCommand]
-    public void ResourcePackDownloadCommand(ResourcePackModel resourcePack)
+    private void ResourcePackDownloadCommand(ResourcePackModel resourcePack)
     {
         // TODO: Implement resource pack download logic
     }
 
     /// <summary>
-    /// Opens the directory containing the specified resource pack in the file explorer.
+    /// Opens the directory containing the resource packs in the file explorer.
     /// </summary>
-    /// <param name="resourcePack">The resource pack whose directory to open.</param>
     [RelayCommand]
-    public void ResourcePackOpenDirectoryCommand(ResourcePackModel resourcePack)
+    private void ResourcePackOpenDirectoryCommand()
     {
-        if (!File.Exists(resourcePack.Path))
+        if (GameDirectory == null)
+            return;
+        
+        string resourcePacksDir = Path.Combine(GameDirectory, "resourcepacks");
+        if (!Directory.Exists(resourcePacksDir))
             return;
 
-        string? resourcePackDir = Path.GetDirectoryName(resourcePack.Path);
-        if (string.IsNullOrEmpty(resourcePackDir) || !Directory.Exists(resourcePackDir))
-            return;
-
-        FileSystemHelper.OpenFolderInFileExplorer(resourcePackDir);
+        FileSystemHelper.OpenFolderInFileExplorer(resourcePacksDir);
     }
 
     #endregion
@@ -445,27 +595,123 @@ public partial class EditInstanceViewModel : KonkordObservableObject
 
     #region Shaders
 
+    #region Commands
+
+    /// <summary>
+    /// Toggles the enabled state of a shader pack and saves the updated state.
+    /// </summary>
+    /// <param name="shader">The shader pack to toggle.</param>
     [RelayCommand]
     private void ShaderToggleCommand(ShaderPackModel shader)
     {
-        
+        shader.IsEnabled = !shader.IsEnabled;
+        SaveShaderPacks();
     }
     
+    /// <summary>
+    /// Removes a shader pack file from the file system and refreshes the shader pack list.
+    /// </summary>
+    /// <param name="shader">The shader pack to remove.</param>
     [RelayCommand]
     private void ShaderRemoveCommand(ShaderPackModel shader)
     {
-        
+        if (!File.Exists(shader.Path))
+            return;
+
+        File.Delete(shader.Path);
+        RefreshShaderPacks();
     }
 
     [RelayCommand]
     private void ShaderDownloadCommand()
     {
+        // TODO: Implement shader download logic
     }
 
+    /// <summary>
+    /// Opens the directory containing the shader packs in the file explorer.
+    /// </summary>
     [RelayCommand]
     private void ShaderOpenDirectoryCommand()
     {
+        if (GameDirectory == null)
+            return;
         
+        string shaderPacksDir = Path.Combine(GameDirectory, "shaderpacks");
+        if (!Directory.Exists(shaderPacksDir))
+            return;
+
+        FileSystemHelper.OpenFolderInFileExplorer(shaderPacksDir);
+    }
+
+    #endregion
+    
+    /// <summary>
+    /// Saves the current state of shader packs by renaming their file extensions
+    /// based on their enabled or disabled status. Enabled shader packs have the
+    /// `.zip` extension, while disabled ones have `.zip.dis`.
+    /// </summary>
+    public void SaveShaderPacks()
+    {
+        _logger.Debug("Saving shader packs...");
+        if (GameDirectory == null)
+            return;
+
+        string shaderPacksDir = Path.Combine(GameDirectory, "shaderpacks");
+        if (!Directory.Exists(shaderPacksDir))
+            return;
+
+        foreach (var shaderPack in _shaderPackCache.Items)
+        {
+            string? newPath = null;
+            if (shaderPack.IsEnabled && shaderPack.Path.EndsWith(".zip.dis"))
+                newPath = shaderPack.Path.Replace(".dis", "");
+            else if (!shaderPack.IsEnabled && shaderPack.Path.EndsWith(".zip"))
+                newPath = shaderPack.Path.Replace(".zip", ".zip.dis");
+
+            if (newPath == null)
+                continue;
+
+            if (File.Exists(newPath))
+            {
+                _logger.Warn("Skipping save... Shader pack file already exists: " + newPath);
+                continue;
+            }
+
+            File.Move(shaderPack.Path, newPath);
+            shaderPack.Path = newPath;
+        }
+    }
+    
+    /// <summary>
+    /// Refreshes the list of shader packs by scanning the game directory for shader pack files.
+    /// Updates the `_shaderPackCache` with metadata such as name, size, and enabled status for each shader pack.
+    /// </summary>
+    public void RefreshShaderPacks()
+    {
+        if (GameDirectory == null)
+            return;
+
+        string shaderPacksDir = Path.Combine(GameDirectory, "shaderpacks");
+        if (!Directory.Exists(shaderPacksDir))
+            return;
+
+        _shaderPackCache.Edit(innerCache =>
+        {
+            innerCache.Clear();
+            var packs = Directory.GetFiles(shaderPacksDir, "*")
+                .Where(x => x.EndsWith(".zip") || x.EndsWith(".zip.dis"));
+            foreach (var pack in packs)
+            {
+                // Make sure the name does not include the extension
+                var packName = Path.GetFileNameWithoutExtension(pack.Replace(".zip.dis", ".zip"));
+                var size = File.ReadAllBytes(pack).LongLength;
+                
+                // TODO: Handle provider
+                var newPack = new ShaderPackModel(pack.EndsWith(".zip"), packName, pack, "unknown", size);
+                innerCache.AddOrUpdate(newPack);
+            }
+        });
     }
 
     #endregion
@@ -480,7 +726,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     /// </summary>
     /// <param name="world">The world to duplicate.</param>
     [RelayCommand]
-    public void WorldsDuplicateCommand(WorldModel world)
+    private void WorldsDuplicateCommand(WorldModel world)
     {
         DuplicateWorld(world);
         RefreshWorlds();
@@ -492,7 +738,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     /// </summary>
     /// <param name="world">The world to rename.</param>
     [RelayCommand]
-    public async Task WorldsRenameCommand(WorldModel world) => await BeginWorldRename.Handle(Unit.Default);
+    private async Task WorldsRenameCommand(WorldModel world) => await BeginWorldRename.Handle(Unit.Default);
 
     /// <summary>
     /// Deletes the specified Minecraft world by removing its directory from the file system
@@ -500,7 +746,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     /// </summary>
     /// <param name="world">The world to delete.</param>
     [RelayCommand]
-    public void WorldsDeleteCommand(WorldModel world)
+    private void WorldsDeleteCommand(WorldModel world)
     {
         FileSystemHelper.DeleteDirectory(world.Path);
         RefreshWorlds();
@@ -511,14 +757,14 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     /// </summary>
     /// <param name="world">The world whose seed is to be copied.</param>
     [RelayCommand]
-    public async Task WorldsCopySeed(WorldModel world) => await SetClipboardText.Handle(world.Seed.ToString());
+    private async Task WorldsCopySeed(WorldModel world) => await SetClipboardText.Handle(world.Seed.ToString());
 
     /// <summary>
     /// Opens the directory of the specified Minecraft world in the file explorer.
     /// </summary>
     /// <param name="world">The world whose directory is to be opened.</param>
     [RelayCommand]
-    public void WorldsOpenDirectoryCommand(WorldModel world)
+    private void WorldsOpenDirectoryCommand(WorldModel world)
     {
         if (!Directory.Exists(world.Path))
             return;
@@ -824,7 +1070,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     /// </summary>
     /// <param name="server">The server to join.</param>
     [RelayCommand]
-    public async Task ServersJoinCommand(ServerModel server)
+    private async Task ServersJoinCommand(ServerModel server)
     {
         // TOOO: Implement server joining logic
         //await _instance.LaunchAsync(_parentWindow, server.Ip);
@@ -832,11 +1078,23 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     }
 
     /// <summary>
+    /// Adds a new server to the list of servers if both the server name and IP address are provided.
+    /// </summary>
+    [RelayCommand]
+    private void ServerAddCommand()
+    {
+        if (string.IsNullOrEmpty(ServerName) || string.IsNullOrEmpty(ServerIp))
+            return;
+
+        Servers.Add(new ServerModel(ServerName, ServerIp, 0, 0, null));
+    }
+
+    /// <summary>
     /// Removes the specified server from the list of servers if it exists in the collection.
     /// </summary>
     /// <param name="server">The server to remove.</param>
     [RelayCommand]
-    public void ServersRemoveCommand(ServerModel server)
+    private void ServersRemoveCommand(ServerModel server)
     {
         if (Servers.Contains(server))
             Servers.Remove(server);
@@ -947,14 +1205,14 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     /// </summary>
     /// <param name="screenshot">The screenshot to copy to the clipboard.</param>
     [RelayCommand]
-    public async Task ScreenshotsCopyCommand(ScreenshotModel screenshot) => await SetClipboardImage.Handle(screenshot);
+    private async Task ScreenshotsCopyCommand(ScreenshotModel screenshot) => await SetClipboardImage.Handle(screenshot);
 
     /// <summary>
     /// Deletes the specified screenshot file from the file system and refreshes the screenshot list.
     /// </summary>
     /// <param name="screenshot">The screenshot to delete.</param>
     [RelayCommand]
-    public void ScreenshotsDeleteCommand(ScreenshotModel screenshot)
+    private void ScreenshotsDeleteCommand(ScreenshotModel screenshot)
     {
         if (!File.Exists(screenshot.Path))
             return;
@@ -968,14 +1226,14 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     /// </summary>
     /// <param name="screenshot">The screenshot to rename.</param>
     [RelayCommand]
-    public async Task ScreenshotsRenameCommand(ScreenshotModel screenshot) => await BeginScreenshotRename.Handle(Unit.Default);
+    private async Task ScreenshotsRenameCommand(ScreenshotModel screenshot) => await BeginScreenshotRename.Handle(Unit.Default);
 
     /// <summary>
     /// Opens the directory containing the screenshots in the file explorer.
     /// </summary>
     /// <param name="screenshot">The screenshot whose directory to open.</param>
     [RelayCommand]
-    public void ScreenshotsOpenDirectoryCommand(ScreenshotModel screenshot)
+    private void ScreenshotsOpenDirectoryCommand(ScreenshotModel screenshot)
     {
         if (string.IsNullOrEmpty(GameDirectory))
             return;

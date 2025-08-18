@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
+using DiscordRPC;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Translation;
@@ -15,6 +16,7 @@ using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
+using Button = Avalonia.Controls.Button;
 using MainViewModel = Tavstal.KonkordLauncher.Desktop.Views.Models.MainViewModel;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views;
@@ -24,6 +26,7 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
 {
     // This window should not use KonkordWindow as long as it can only be opened once.
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MainWindow));
+    private DiscordRpcClient rpcClient;
     private Button _selectedButton;
     
     public MainWindow()
@@ -109,7 +112,7 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
     /// and ensures the correct button is highlighted as active.
     /// </summary>
     /// <param name="sidebarType">The sidebar section to switch to.</param>
-    public void HandleSidebarChange(ESidebarType sidebarType)
+    private void HandleSidebarChange(ESidebarType sidebarType)
     {
         if (DataContext is not { } viewModel)
             return;
@@ -161,7 +164,7 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
     /// A task that represents the asynchronous operation. The task result contains the path of the selected folder
     /// as a string, or null if no folder was selected or if folder picking is not supported.
     /// </returns>
-    public async Task<string?> OpenFolderPickerAsync()
+    private async Task<string?> OpenFolderPickerAsync()
     {
         // Ensure the VisualRoot is a TopLevel object
         if (VisualRoot is not TopLevel topLevel)
@@ -203,7 +206,47 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
     }
     
     #region Event Handlers
-    
+
+    /// <summary>
+    /// Handles the event when the window is opened. Initializes the Discord RPC client
+    /// and sets the initial presence for the application.
+    /// </summary>
+    /// <param name="e">The event data associated with the window opening.</param>
+    protected override void OnOpened(EventArgs e)
+    {
+        base.OnOpened(e);
+        rpcClient = new DiscordRpcClient("1178002101561995416");
+        rpcClient.Initialize();
+
+        // Set the initial presence
+        rpcClient.SetPresence(new RichPresence
+        {
+            Details = "Browsing instances...",
+            Timestamps = Timestamps.Now,
+            Assets = new Assets
+            {
+                LargeImageKey = "logo",
+                LargeImageText = "Konkord Launcher",
+            }
+        });
+    }
+
+    /// <summary>
+    /// Handles the event when the window is closing. Clears and disposes of the Discord RPC client
+    /// to ensure proper cleanup of resources.
+    /// </summary>
+    /// <param name="e">The event data associated with the window closing.</param>
+    protected override void OnClosing(WindowClosingEventArgs e)
+    {
+        // TODO: The library is probably bugged
+        // Fork it and fix it
+        // or I might make my own.
+        rpcClient.SetPresence(null);
+        rpcClient.ClearPresence();
+        rpcClient.Dispose();
+        base.OnClosing(e);
+    }
+
     /// <summary>
     /// Handles the selection of a language from a ComboBox and updates the application's language setting.
     /// </summary>

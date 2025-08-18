@@ -33,6 +33,10 @@ using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 
+/// <summary>
+/// Represents the view model for editing a Minecraft instance. 
+/// Provides properties and methods for managing mods, resource packs, shader packs, worlds, servers, and screenshots.
+/// </summary>
 public partial class EditInstanceViewModel : KonkordObservableObject
 {
     private readonly bool _isInitialized;
@@ -101,6 +105,10 @@ public partial class EditInstanceViewModel : KonkordObservableObject
 
     #endregion
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EditInstanceViewModel"/> class.
+    /// </summary>
+    /// <param name="instanceId">The unique identifier of the instance to edit.</param>
     public EditInstanceViewModel(string instanceId)
     {
         if (Design.IsDesignMode)

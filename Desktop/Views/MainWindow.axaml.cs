@@ -238,12 +238,9 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
     /// <param name="e">The event data associated with the window closing.</param>
     protected override void OnClosing(WindowClosingEventArgs e)
     {
-        // TODO: The library is probably bugged
-        // Fork it and fix it
-        // or I might make my own.
-        rpcClient.SetPresence(null);
         rpcClient.ClearPresence();
         rpcClient.Dispose();
+        Task.Delay(200).Wait(); // Fixes the issue with Discord RPC not closing properly
         base.OnClosing(e);
     }
 

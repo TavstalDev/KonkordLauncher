@@ -727,7 +727,7 @@
                                                     <Button Grid.Column="2" Classes="IconBtn" Click="JavaPathSelect_OnClick">
                                                         <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
                                                     </Button>
-                                                    <Button Grid.Column="3" Classes="IconBtn" Click="JavaOpenPathSelector_OnClick">
+                                                    <Button Grid.Column="3" Classes="IconBtn" Command="{Binding JavaPathSelectorCommand}">
                                                         <TextBlock Classes="FontAwesome" Text="&#xf126;" />
                                                     </Button>
                                                 </Grid>

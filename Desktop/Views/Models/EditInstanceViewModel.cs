@@ -51,6 +51,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
 
     public Interaction<Unit, Unit> CloseWindow { get; } = new();
     public Interaction<Alert, Unit> ShowAlertDialog { get; } = new();
+    public Interaction<Unit, JavaVersionModel?> ShowJavaPathSelector { get; } = new();
     public Interaction<string, Unit> SetClipboardText { get; } = new();
     public Interaction<ScreenshotModel, Unit> SetClipboardImage { get; } = new();
     public Interaction<Unit, Unit> BeginWorldRename { get; } = new();
@@ -1285,6 +1286,21 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     #endregion
 
     #region Settings
+    
+    #region Commands
+
+    [RelayCommand]
+    private async Task JavaPathSelector()
+    {
+        var javaVersion = await ShowJavaPathSelector.Handle(Unit.Default);
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+        if (javaVersion == null)
+            return;
+        
+        InstanceConfig.Java.DefaultJavaPath = javaVersion.Path;
+    }
+    
+    #endregion
 
     /// <summary>
     /// Subscribes to the PropertyChanged event of the child configuration models

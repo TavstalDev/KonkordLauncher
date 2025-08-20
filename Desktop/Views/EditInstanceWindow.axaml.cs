@@ -69,6 +69,12 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
                 await alertWindow.ShowDialog(this);
                 action.SetOutput(Unit.Default);
             }).DisposeWith(disposables);
+            DataContext.ShowJavaPathSelector.RegisterHandler(async action =>
+            {
+                var window = new JavaSelectorWindow();
+                var javaVersion = await window.ShowDialog<JavaVersionModel>(this);
+                action.SetOutput(javaVersion);
+            });
             DataContext.SetClipboardImage.RegisterHandler(async action =>
             {
                 await SetClipboardImageAsync(action.Input);
@@ -154,10 +160,6 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
         _logger.Debug("ResourcePack row updated. Saving...");
         DataContext.SaveResourcePacks();
     }
-
-    #endregion
-
-    #region Shaders
 
     #endregion
     
@@ -331,27 +333,6 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
 
             DataContext.InstanceConfig.Java.DefaultJavaPath = resultPath;
         });
-    }
-
-    /// <summary>
-    /// Handles the click event for opening the Java path selector.
-    /// Displays a dialog to select a Java version and updates the Java path in the InstanceConfig if a version is selected.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The event data associated with the click event.</param>
-    private async void JavaOpenPathSelector_OnClick(object? sender, RoutedEventArgs e)
-    {
-        // TODO: Replace async void with async Task
-        var window = new JavaSelectorWindow();
-        var javaVersion = await window.ShowDialog<JavaVersionModel>(this);
-        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-        if (javaVersion == null)
-            return;
-
-        if (DataContext == null)
-            return;
-
-        DataContext.InstanceConfig.Java.DefaultJavaPath = javaVersion.Path;
     }
 
     /// <summary>

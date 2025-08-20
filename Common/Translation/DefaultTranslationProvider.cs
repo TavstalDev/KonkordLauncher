@@ -359,6 +359,8 @@ public static class DefaultTranslationProvider
         {"auth.minecraft.ownership", "Checking Minecraft ownership..."},
         {"auth.minecraft.profile", "Requesting Minecraft profile..."},
 
+        {"auth.code.creating", "Creating device code..."},
+        
         {"account.login.failed", "Login Failed"},
         {"account.login.microsoft.failed", "Failed to login to Microsoft account. Please try again later."},
         {"account.login.microsoft.null", "Failed to retrieve Microsoft account information. Please try again later."},

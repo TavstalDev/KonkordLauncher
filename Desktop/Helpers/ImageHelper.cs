@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using QRCoder;
 
 namespace Tavstal.KonkordLauncher.Desktop.Helpers;
 
@@ -95,5 +96,22 @@ public static class ImageHelper
         bitmap.Save(ms);
         byte[] imageBytes = ms.ToArray();
         return Convert.ToBase64String(imageBytes);
+    }
+    
+    /// <summary>
+    /// Generates a QR code from the provided data and returns it as an Avalonia <see cref="Bitmap"/> object.
+    /// </summary>
+    /// <param name="data">The data to encode in the QR code.</param>
+    /// <returns>A <see cref="Bitmap"/> object representing the generated QR code.</returns>
+    public static Bitmap GenerateQrCode(string data)
+    {
+        var qrGenerator = new QRCodeGenerator();
+        var qrData = qrGenerator.CreateQrCode(data, QRCodeGenerator.ECCLevel.Q);
+        var qrCode = new PngByteQRCode(qrData);
+        var qrBytes = qrCode.GetGraphic(20); // 20 is the pixels per module
+
+        // Convert the byte array to an Avalonia IBitmap
+        using var stream = new MemoryStream(qrBytes);
+        return new Bitmap(stream);
     }
 }

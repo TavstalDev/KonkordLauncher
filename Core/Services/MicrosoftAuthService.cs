@@ -7,6 +7,7 @@ using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints;
+using Tavstal.KonkordLauncher.Core.Models.Microsoft;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
 
 namespace Tavstal.KonkordLauncher.Core.Services;
@@ -17,7 +18,7 @@ namespace Tavstal.KonkordLauncher.Core.Services;
 public static class MicrosoftAuthService
 {
     private static readonly CoreLogger _logger = new(typeof(MicrosoftAuthService));
-    private static string _microsoftClientId = "496a0c42-aa74-41fe-b7bc-0ad155cdaa26"; // TODO: Remove hardcoded client ID and set it via SetClientId method.
+    private static string _microsoftClientId = "496a0c42-aa74-41fe-b7bc-0ad155cdaa26";
     private static readonly string _redirectAuthenticateUrl = Path.Combine(AuthService.ListeningUrl, "microsoft/authcallback");
     private static IProgressReporter? _progressReporter;
     //private static readonly string _redirectTokenUrl = Path.Combine(AuthService.ListeningUrl, "microsoft/tokencallback");
@@ -151,7 +152,6 @@ public static class MicrosoftAuthService
             }
             
             var responseString = await response.Content.ReadAsStringAsync();
-
             JObject obj = JObject.Parse(responseString);
             if (!obj.TryGetValue("access_token", out var value))
             {
@@ -173,6 +173,96 @@ public static class MicrosoftAuthService
         catch (Exception ex)
         {
             _logger.Exc("Error while handling HTTP request for Microsoft authentication:");
+            _logger.Error(ex.ToString());
+            _authStatus = EAuthStatus.FAILED;
+        }
+    }
+
+    /// <summary>
+    /// Creates a device code for Microsoft OAuth authentication.
+    /// Sends a request to the Microsoft device code endpoint with the client ID and scope.
+    /// </summary>
+    /// <param name="progressReporter">An optional progress reporter for tracking the operation's progress.</param>
+    /// <returns>
+    /// A <see cref="DeviceCodeResult"/> object containing the device code details if successful; otherwise, null.
+    /// </returns>
+    public static async Task<DeviceCodeResult?> CreateDeviceCodeAsync(IProgressReporter? progressReporter = null)
+    {
+        try
+        {
+            _progressReporter?.SetStatusTranslated("auth.code.creating");
+            
+            object body = new
+            {
+                ClientId = _microsoftClientId,
+                Scope = "XboxLive.signin offline_access"
+            };
+            
+            var reqContent = new StringContent(
+                JsonConvert.SerializeObject(body), 
+                System.Text.Encoding.UTF8, 
+                "application/json"
+            );
+
+            using HttpClient client = HttpHelper.GetHttpClient();
+            var result = await client.PostAsync(MicrosoftEndpoints.MicrosoftDeviceUrl, reqContent).ConfigureAwait(false);
+            
+            var rawJson = await result.Content.ReadAsStringAsync();
+           return JsonConvert.DeserializeObject<DeviceCodeResult>(rawJson);
+        }
+        catch (Exception ex)
+        {
+            _logger.Exc("Error while create device code:");
+            _logger.Error(ex.ToString());
+            _authStatus = EAuthStatus.FAILED;
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Checks the status of a device code for Microsoft OAuth authentication.
+    /// Sends a request to the Microsoft device token endpoint with the device code and client ID.
+    /// </summary>
+    /// <param name="deviceCode">The device code to check.</param>
+    public static async Task CheckDeviceCodeAsync(string deviceCode)
+    {
+        try
+        {
+            object body = new
+            {
+                GrantType = "urn:ietf:params:oauth:grant-type:device_code",
+                ClientId = _microsoftClientId,
+                DeviceCode = deviceCode
+            };
+            
+            var reqContent = new StringContent(
+                JsonConvert.SerializeObject(body), 
+                System.Text.Encoding.UTF8, 
+                "application/json"
+            );
+
+            using HttpClient client = HttpHelper.GetHttpClient();
+            var response = await client.PostAsync(MicrosoftEndpoints.MicrosoftDeviceTokenUrl, reqContent).ConfigureAwait(false);
+            
+            var responseString = await response.Content.ReadAsStringAsync();
+            JObject obj = JObject.Parse(responseString);
+            if (!obj.TryGetValue("access_token", out var value))
+            {
+                _logger.Debug("Access token not found in the device code authentication response.\"");
+                return;
+            }
+            
+            if (!obj.TryGetValue("refresh_token", out var refreshToken))
+            {
+                _logger.Debug("Refresh token not found in the device code authentication response.");
+                return;
+            }
+            
+            await XboxTokenCallAsync(value.ToString(), refreshToken.ToString());
+        }
+        catch (Exception ex)
+        {
+            _logger.Exc("Error while create device code:");
             _logger.Error(ex.ToString());
             _authStatus = EAuthStatus.FAILED;
         }

@@ -24,17 +24,27 @@ public static class MicrosoftEndpoints
     /// <summary>
     /// The URL for obtaining Microsoft OAuth tokens.
     /// </summary>
-    public const string MicrosoftTokenUrl = $"https://login.live.com/oauth20_token.srf";
+    public const string MicrosoftTokenUrl = "https://login.live.com/oauth20_token.srf";
+
+    /// <summary>
+    /// The URL for obtaining a device code for Microsoft OAuth authentication.
+    /// </summary>
+    public const string MicrosoftDeviceUrl = "https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode";
+
+    /// <summary>
+    /// The URL for exchanging a device code for Microsoft OAuth tokens.
+    /// </summary>
+    public const string MicrosoftDeviceTokenUrl = "https://login.microsoftonline.com/consumers/oauth2/v2.0/token";
     
     /// <summary>
     /// The URL for Xbox user authentication.
     /// </summary>
-    public const string XboxAuthUrl = $"https://user.auth.xboxlive.com/user/authenticate";
+    public const string XboxAuthUrl = "https://user.auth.xboxlive.com/user/authenticate";
 
     /// <summary>
     /// The URL for obtaining Xbox XSTS tokens.
     /// </summary>
-    public const string XboxXstsUrl = $"https://xsts.auth.xboxlive.com/xsts/authorize";
+    public const string XboxXstsUrl = "https://xsts.auth.xboxlive.com/xsts/authorize";
 
     /// <summary>
     /// The URL for authenticating with Minecraft using an Xbox token.

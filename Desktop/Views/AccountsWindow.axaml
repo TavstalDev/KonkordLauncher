@@ -4,16 +4,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
         xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Translation"
-        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="410"
+        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="580"
         x:Class="Tavstal.KonkordLauncher.Desktop.Views.AccountsWindow"
         x:DataType="vm:AccountsViewModel"
         Title="{lang:Translate auth.title}"
         CanResize="False"
         ShowInTaskbar="False"
         Icon="avares://Desktop/Assets/Images/logo.png"
-        MinHeight="410"
+        MinHeight="580"
         MinWidth="500"
-        Height="410"
+        Height="580"
         Width="500">
     
     <Border Classes="ModalView">
@@ -42,22 +42,51 @@
                             </WrapPanel>
                             <!-- Show progress while waiting for browser confirmation -->
                             <WrapPanel Classes="ModalWrapper" IsVisible="{Binding IsLoggingInMicrosoftAccount}">
-                                <ProgressBar Name="ProgressBar" Classes="AccountsModalProgress" />
-                                <!-- Progress text -->
-                                <TextBlock Classes="AccountsModalProgressText" Text="{Binding ProgressText}" />
-                                <!-- Buttons -->
-                                <WrapPanel Classes="AccountsModalProgressWrapper">
-                                    <!-- Open link button -->
-                                    <Button Classes="IconBtn PrimaryBtn" Command="{Binding MicrosoftOpenLoginLinkCommand}">
-                                        <TextBlock Classes="FontAwesome" Text="&#xf0ac;" />
-                                    </Button>
+                                <!-- Open in browser button -->
+                                <Button Classes="IconBtn PrimaryBtn" HorizontalAlignment="Center" Command="{Binding MicrosoftOpenLoginLinkCommand}">
+                                    <WrapPanel Classes="IconBtnWrapper" Margin="15, 5">
+                                        <TextBlock Classes="FontAwesome MicrosoftButtonText" VerticalAlignment="Center" Text="&#xf0ac;" />
+                                        <TextBlock Classes="MicrosoftButtonText" Text="Sign in browser" VerticalAlignment="Center" />
+                                    </WrapPanel>
+                                </Button>
+                                
+                                <!-- Or divider -->
+                                <Grid ColumnDefinitions="*, Auto, *" VerticalAlignment="Center" Margin="0, 5">
+                                    <Border Grid.Column="0" Height="1" Background="#555" Margin="0,0,10,0" />
+
+                                    <TextBlock Grid.Column="1" Text="OR" Foreground="#888" FontWeight="Bold" />
+
+                                    <Border Grid.Column="2" Height="1" Background="#555" Margin="10,0,0,0" />
+                                </Grid>
+                                
+                                <!-- QR code -->
+                                <Image Width="150" Height="150" Source="{Binding QrCode}" />
+                                <!-- Code -->
+                                <WrapPanel HorizontalAlignment="Center">
+                                    <SelectableTextBlock FontSize="25" VerticalAlignment="Center" Text=" ABCDEF12 " />
                                     <!-- Copy link button -->
                                     <Button Classes="IconBtn" Command="{Binding MicrosoftCopyLoginLinkCommand}">
-                                        <TextBlock Classes="FontAwesome" Text="&#xf0c1;" />
+                                        <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf0c5;" />
+                                    </Button>
+                                </WrapPanel>
+                                
+                                <!-- Description text -->
+                                <TextBlock Classes="AccountsModalDescription" Text="Open https://microsoft.com/link or scan the QR image and enter the above code." />
+                                
+                                <WrapPanel Classes="AccountsModalProgressWrapper">
+                                    <!-- Open link button -->
+                                    <Button Classes="IconBtn PrimaryBtn" HorizontalAlignment="Center" Command="{Binding MicrosoftCancelLoginCommand}" >
+                                        <WrapPanel Classes="IconBtnWrapper">
+                                            <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf0c1;" />
+                                            <TextBlock Text="Open Link" VerticalAlignment="Center" />
+                                        </WrapPanel>
                                     </Button>
                                     <!-- Cancel button -->
-                                    <Button Classes="IconBtn ErrorBtn" Command="{Binding MicrosoftCancelLoginCommand}" >
-                                        <TextBlock Classes="FontAwesome" Text="&#xf00d;" />
+                                    <Button Classes="IconBtn ErrorBtn" HorizontalAlignment="Center" Command="{Binding MicrosoftCancelLoginCommand}" >
+                                        <WrapPanel Classes="IconBtnWrapper">
+                                            <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf00d;" />
+                                            <TextBlock Text="{lang:Translate common.cancel}" VerticalAlignment="Center" />
+                                        </WrapPanel>
                                     </Button>
                                 </WrapPanel>
                             </WrapPanel>

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ReactiveUI;
@@ -13,6 +14,7 @@ using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Services;
+using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 
@@ -32,10 +34,12 @@ public partial class AccountsViewModel : ObservableObject
     public Interaction<Alert, Unit> ShowAlertDialog { get; } = new();
     public Interaction<string, Unit> SetClipboardText { get; } = new();
     
-    [ObservableProperty] private bool isLoggingInMicrosoftAccount;
+    [ObservableProperty] private bool isLoggingInMicrosoftAccount = true;
     [ObservableProperty] private double _progress;
     [ObservableProperty] private string _progressText = "Loading...";
     [ObservableProperty] private string? _offlineUsername;
+
+    [ObservableProperty] private Bitmap _qrCode = ImageHelper.GenerateQrCode("https://microsoft.com/link");
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AccountsViewModel"/> class.

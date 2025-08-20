@@ -63,20 +63,6 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
     }
     
     /// <summary>
-    /// Handles the window closing event.
-    /// Ensures that the progress bar is not set to an indeterminate state when the window is closing,
-    /// as this may consume unnecessary resources.
-    /// </summary>
-    /// <param name="e">The event data associated with the window closing event.</param>
-    protected override void OnClosing(WindowClosingEventArgs e)
-    {
-        base.OnClosing(e);
-        // Ensure the progress bar is not indeterminate when closing
-        // it may use more resources than necessary otherwise
-        ProgressBar.IsIndeterminate = false;
-    }
-    
-    /// <summary>
     /// Asynchronously sets the specified text to the system clipboard.
     /// Ensures that the clipboard is accessible and logs any errors encountered during the operation.
     /// </summary>

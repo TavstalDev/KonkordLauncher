@@ -13,9 +13,11 @@ using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Core.Models.Microsoft;
 using Tavstal.KonkordLauncher.Core.Services;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models;
+using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
@@ -25,7 +27,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 /// Provides functionality for logging in with Microsoft and offline accounts,
 /// and handles related operations such as memory cleanup and progress tracking.
 /// </summary>
-public partial class AccountsViewModel : ObservableObject
+public partial class AccountsViewModel : KonkordObservableObject
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(AccountsViewModel));
     private readonly IProgressReporter _progressReporter;
@@ -38,7 +40,8 @@ public partial class AccountsViewModel : ObservableObject
     [ObservableProperty] private double _progress;
     [ObservableProperty] private string _progressText = "Loading...";
     [ObservableProperty] private string? _offlineUsername;
-
+    
+    [ObservableProperty] private DeviceCodeResult _deviceData;
     [ObservableProperty] private Bitmap _qrCode = ImageHelper.GenerateQrCode("https://microsoft.com/link");
 
     /// <summary>
@@ -51,7 +54,13 @@ public partial class AccountsViewModel : ObservableObject
     {
         _progressReporter = progressReporter;
     }
-    
+
+    protected override void Dispose(bool disposing)
+    {
+        QrCode.Dispose();
+        base.Dispose(disposing);
+    }
+
     /// <summary>
     /// Stops the Microsoft authentication process and resets related states.
     /// </summary>
@@ -68,11 +77,16 @@ public partial class AccountsViewModel : ObservableObject
     /// Handles authentication, error reporting, and account data updates.
     /// </summary>
     [RelayCommand]
-    public async Task LoginMicrosoftAccountAsync()
+    private async Task LoginMicrosoftAccountAsync()
     {
         IsLoggingInMicrosoftAccount = true;
-        MicrosoftAuthService.OpenAuthenticationUrl();
 
+        var codeResult = await MicrosoftAuthService.CreateDeviceCodeAsync(_progressReporter);
+        if (codeResult == null)
+            return;
+        
+        DeviceData = codeResult;
+        
         await AuthService.StartListening(_progressReporter);
         _logger.Debug($"Microsoft Status result: {MicrosoftAuthService.AuthStatus}");
         if (MicrosoftAuthService.AuthStatus == EAuthStatus.FAILED)
@@ -121,19 +135,22 @@ public partial class AccountsViewModel : ObservableObject
     /// Opens the Microsoft login URL in the default browser.
     /// </summary>
     [RelayCommand]
-    public void MicrosoftOpenLoginLink() => MicrosoftAuthService.OpenAuthenticationUrl();
+    private void MicrosoftOpenLoginLink() => MicrosoftAuthService.OpenAuthenticationUrl();
 
-    /// <summary>
-    /// Copies the Microsoft login URL to the system clipboard asynchronously.
-    /// </summary>
     [RelayCommand]
-    public async Task MicrosoftCopyLoginLinkAsync() => await SetClipboardText.Handle(MicrosoftAuthService.GetAuthenticationUrl());
+    private async Task MicrosoftOpenCodeLinkAsync()
+    {
+        // TODO:
+    }
 
+    [RelayCommand]
+    private async Task MicrosoftCopyCodeCommand() => await SetClipboardText.Handle(DeviceData.UserCode);
+    
     /// <summary>
     /// Cancels the Microsoft login process and stops the authentication listener.
     /// </summary>
     [RelayCommand]
-    public void MicrosoftCancelLogin()
+    private void MicrosoftCancelLogin()
     {
         AuthService.StopListening();
         StopMicrosoftAuth();

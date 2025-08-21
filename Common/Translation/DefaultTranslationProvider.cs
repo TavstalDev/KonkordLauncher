@@ -93,6 +93,8 @@ public static class DefaultTranslationProvider
         {"common.categories", "Categories"},
         {"common.bottom", "Bottom"},
         {"common.readMore", "Read More"},
+        {"common.open.link", "Open Link"},
+        {"common.or", "OR"},
         
         {"common.time.pass.minute", "{0} minutes ago"},
         {"common.time.pass.hour", "{0} hours ago"},
@@ -342,6 +344,7 @@ public static class DefaultTranslationProvider
         {"auth.microsoft.description", "Sign in with your Microsoft Account to access official Minecraft servers and features."},
         {"auth.microsoft.login", "Sign in with Microsoft"},
         {"auth.microsoft.note", "This will open a browser window for authentication."},
+        {"auth.microsoft.browser", "Login in browser"},
         {"auth.offline.description", "Play with an offline account."},
         {"auth.offline.login", "Login as Offline User"},
         {"auth.offline.note", "Offline accounts can only connect to offline servers; online multiplayer is unavailable."},
@@ -360,6 +363,7 @@ public static class DefaultTranslationProvider
         {"auth.minecraft.profile", "Requesting Minecraft profile..."},
 
         {"auth.code.creating", "Creating device code..."},
+        {"auth.code.note", "Open https://microsoft.com/link or scan the QR image and enter the above code."},
         
         {"account.login.failed", "Login Failed"},
         {"account.login.microsoft.failed", "Failed to login to Microsoft account. Please try again later."},

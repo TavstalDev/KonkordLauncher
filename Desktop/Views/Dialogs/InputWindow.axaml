@@ -1,0 +1,45 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
+        xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Translation"
+        mc:Ignorable="d" d:DesignWidth="300"
+        x:Class="Tavstal.KonkordLauncher.Desktop.Views.Dialogs.InputWindow"
+        x:DataType="models:InputViewModel"
+        Title="{Binding Title}"
+        CanResize="False"
+        ShowInTaskbar="False"
+        Icon="avares://Desktop/Assets/Images/logo.png"
+        MinWidth="300"
+        Width="300"
+        SizeToContent="Height">
+    <Border Classes="AlertView">
+        <Grid Classes="AlertView" RowDefinitions="Auto, Auto" RowSpacing="20">
+            <Grid Grid.Row="0" RowDefinitions="Auto, Auto" Margin="10,0" RowSpacing="10">
+                <!--  Text  -->
+                <TextBlock Classes="TextInput" TextWrapping="Wrap" Text="{Binding Title}" />
+                <!--  Input  -->
+                <TextBox
+                    Grid.Row="1"
+                    Classes="TextInput"
+                    Text="{Binding InputText}"
+                    Watermark="" />
+            </Grid>
+            <WrapPanel Grid.Row="1" Classes="AlertButtonWrapper">
+                <Button Classes="IconBtn PrimaryBtn" IsEnabled="{Binding CanClickOnOk}" Command="{Binding OkCommand}" Padding="10, 5">
+                    <WrapPanel Classes="IconBtnWrapper">
+                        <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf00c;" />
+                        <TextBlock Text="{lang:Translate common.ok}" VerticalAlignment="Center" />
+                    </WrapPanel>
+                </Button>
+                <Button Classes="IconBtn" Padding="10, 5" Command="{Binding CancelCommand}" >
+                    <WrapPanel Classes="IconBtnWrapper">
+                        <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf00d;" />
+                        <TextBlock Text="{lang:Translate common.cancel}" VerticalAlignment="Center" />
+                    </WrapPanel>
+                </Button>
+            </WrapPanel>
+        </Grid>
+    </Border>
+</Window>

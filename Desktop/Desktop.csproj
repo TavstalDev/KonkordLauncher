@@ -83,6 +83,14 @@
         <DependentUpon>InstallWindow.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
+      <Compile Update="Views\Dialogs\InstanceLogsWindow.axaml.cs">
+        <DependentUpon>InstanceLogsWindow.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Views\Dialogs\InputWindow.axaml.cs">
+        <DependentUpon>InputWindow.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
 
     <ItemGroup>

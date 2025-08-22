@@ -1,0 +1,105 @@
+<Window
+    x:Class="Tavstal.KonkordLauncher.Desktop.Views.Dialogs.InstanceLogsWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Translation"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
+    Title="{lang:Translate instance.edit.window}"
+    Width="800"
+    Height="500"
+    d:DesignHeight="500"
+    d:DesignWidth="800"
+    x:DataType="vm:InstanceLogsViewModel"
+    CanResize="True"
+    Icon="avares://Desktop/Assets/Images/logo.png"
+    ShowInTaskbar="False"
+    mc:Ignorable="d">
+
+    <!--  Content  -->
+    <Border Classes="InstanceView">
+        <Grid RowDefinitions="Auto,*">
+            <!--  Title  -->
+            <WrapPanel ItemSpacing="10">
+                <TextBlock
+                    HorizontalAlignment="Left"
+                    Classes="InstanceTitle"
+                    Text="{lang:Translate instance.logs.title}" />
+                <TextBlock
+                    HorizontalAlignment="Left"
+                    Classes="InstanceTitle"
+                    Text="{Binding InstanceName}" />
+            </WrapPanel>
+            <!--  Content  -->
+            <Border Grid.Row="1" Classes="ModalScrollableWrapper" CornerRadius="8" Padding="25">
+                <Grid Classes="ModalScrollableWrapper" RowDefinitions="*, Auto">
+                    <!--  Log content  -->
+                    <Border Grid.Row="0" Classes="GridInnerContent">
+                        <ScrollViewer
+                            Name="LogsScrollViewer"
+                            HorizontalScrollBarVisibility="Disabled"
+                            VerticalScrollBarVisibility="Auto">
+                            <TextBlock
+                                FontFamily="Consolas"
+                                FontSize="11"
+                                Opacity="0.8"
+                                Text="{Binding Logs}"
+                                TextWrapping="Wrap" />
+                        </ScrollViewer>
+                    </Border>
+                    <!--  Actions  -->
+                    <Grid
+                        Grid.Row="1"
+                        ColumnDefinitions="*, Auto, Auto, Auto"
+                        ColumnSpacing="5">
+                        <!--  Search bar  -->
+                        <TextBox
+                            Grid.Column="0"
+                            Classes="TextInput"
+                            Watermark="{lang:Translate common.search}" />
+                        <!--  To bottom button  -->
+                        <Button
+                            Grid.Column="1"
+                            Classes="IconBtn"
+                            Command="{Binding ScrollLogsToEndCommand}">
+                            <WrapPanel Classes="IconBtnWrapper">
+                                <TextBlock
+                                    VerticalAlignment="Center"
+                                    Classes="FontAwesome"
+                                    Text="&#xe4b8;" />
+                                <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.bottom}" />
+                            </WrapPanel>
+                        </Button>
+                        <!--  Copy button  -->
+                        <Button
+                            Grid.Column="2"
+                            Classes="IconBtn"
+                            Command="{Binding CopyLogsCommand}">
+                            <WrapPanel Classes="IconBtnWrapper">
+                                <TextBlock
+                                    VerticalAlignment="Center"
+                                    Classes="FontAwesome"
+                                    Text="&#xf0c5;" />
+                                <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.copy}" />
+                            </WrapPanel>
+                        </Button>
+                        <!--  Clear button  -->
+                        <Button
+                            Grid.Column="3"
+                            Classes="IconBtn ErrorBtn"
+                            Command="{Binding ClearLogsCommand}">
+                            <WrapPanel Classes="IconBtnWrapper">
+                                <TextBlock
+                                    VerticalAlignment="Center"
+                                    Classes="FontAwesome"
+                                    Text="&#xf1b8;" />
+                                <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.clear}" />
+                            </WrapPanel>
+                        </Button>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

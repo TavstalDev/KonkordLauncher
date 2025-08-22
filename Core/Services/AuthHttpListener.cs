@@ -7,12 +7,12 @@ namespace Tavstal.KonkordLauncher.Core.Services;
 /// Provides authentication services, including starting and stopping an HTTP listener
 /// and handling HTTP requests for authentication callbacks.
 /// </summary>
-public static class AuthService
+public static class AuthHttpListener
 {
     private static bool _isListening;
     private static HttpListener? _httpListener;
     public const string ListeningUrl = "http://localhost:43319/";
-    private static readonly CoreLogger _logger = new(typeof(AuthService));
+    private static readonly CoreLogger _logger = new(typeof(AuthHttpListener));
     private static IProgressReporter? _progressReporter;
     
     /// <summary>
@@ -65,10 +65,7 @@ public static class AuthService
         }
         
         if (!_isListening)
-        {
-            _logger.Error("HTTP listener is not currently listening.");
             return;
-        }
 
         if (cancelled)
             _progressReporter?.SetStatusTranslated("auth.listener.cancelled");

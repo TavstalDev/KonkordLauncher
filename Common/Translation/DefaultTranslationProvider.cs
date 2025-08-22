@@ -96,6 +96,9 @@ public static class DefaultTranslationProvider
         {"common.open.link", "Open Link"},
         {"common.or", "OR"},
         {"common.loading", "Loading"},
+        {"common.launch", "Launch"},
+        {"common.stop", "Stop"},
+        {"common.export", "Export"},
         
         {"common.time.pass.minute", "{0} minutes ago"},
         {"common.time.pass.hour", "{0} hours ago"},
@@ -152,6 +155,11 @@ public static class DefaultTranslationProvider
         {"instance.download.shaders", "Download shaders"},
         {"instance.download.resourcePacks", "Download resource packs"},
         {"instance.download.mods", "Download mods"},
+        
+        {"instance.view.logs", "View Logs"},
+        {"instance.change.group", "Change Group"},
+        {"instance.change.icon", "Change Icon"},
+        {"instance.logs.title", "Latest Logs of"},
 
         #region Create
 

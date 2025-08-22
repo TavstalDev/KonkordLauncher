@@ -65,6 +65,12 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
                 await alertWindow.ShowDialog(this);
                 action.SetOutput(Unit.Default);
             }).DisposeWith(disposables);
+            DataContext.ShowConfirmDialog.RegisterHandler(async action =>
+            {
+                AlertWindow alertWindow = new(action.Input.Title, action.Input.Message, action.Input.Type);
+                var result = await alertWindow.ShowDialog<bool>(this);
+                action.SetOutput(result);
+            }).DisposeWith(disposables);
             DataContext.ShowInstanceCreationDialog.RegisterHandler(async action =>
             {
                 await new CreateInstanceWindow().ShowDialog(this);
@@ -91,6 +97,12 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
                 var javaVersion = await window.ShowDialog<JavaVersionModel>(this);
                 action.SetOutput(javaVersion);
             }).DisposeWith(disposables);
+            DataContext.ShowLogsWindow.RegisterHandler(action =>
+            {
+                var window = new InstanceLogsWindow(action.Input);
+                window.Show();
+                action.SetOutput(Unit.Default);
+            });
         });
 
         if (Design.IsDesignMode)
@@ -238,9 +250,9 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
     /// <param name="e">The event data associated with the window closing.</param>
     protected override void OnClosing(WindowClosingEventArgs e)
     {
-        rpcClient.ClearPresence();
+        rpcClient.SetPresence(null);
         rpcClient.Dispose();
-        Task.Delay(200).Wait(); // Fixes the issue with Discord RPC not closing properly
+        Task.Delay(1000).Wait(); // Fixes the issue with Discord RPC not closing properly
         base.OnClosing(e);
     }
 

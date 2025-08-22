@@ -31,15 +31,20 @@ public partial class MainViewModel : KonkordObservableObject
 {
     private readonly bool _isInitialized;
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MainViewModel));
-    
+
+    #region Interactions
+
     public Interaction<Unit, Unit> CloseWindow { get; }  = new();
     public Interaction<Alert, Unit> ShowAlertDialog { get; } = new();
+    public Interaction<Alert, bool> ShowConfirmDialog { get; } = new();
     public Interaction<ESidebarType, Unit> UpdateSidebarButton { get; }  = new();
     public Interaction<Unit, string?>  OpenFolderPicker { get; } = new();
     public Interaction<Unit, Unit> ShowInstanceCreationDialog { get; } = new();
     public Interaction<string, Unit> ShowInstanceEditDialog { get; } = new();
     public Interaction<Unit, Unit> ShowAccountsDialog { get; } = new();
     public Interaction<Unit, JavaVersionModel> ShowJavaSelectorDialog { get; } = new();
+    public Interaction<string, Unit> ShowLogsWindow { get; } = new();
+    #endregion
 
     [ObservableProperty] private ESidebarType _currentPageIndex;
     private readonly SourceCache<InstanceModel, string> _instanceCache = new(x => x.Id);
@@ -115,10 +120,10 @@ public partial class MainViewModel : KonkordObservableObject
     /// Gets a value indicating whether there are any instances available.
     /// </summary>
     public bool HasInstances => _instanceCache.Count > 0;
-    
+
     /// <summary>
-    /// Handles the event when the instances data changes by updating the <see cref="_instances"/> collection
-    /// with the latest instances retrieved from the launcher helper.
+    /// Handles changes to the instances collection by updating the cache with the latest instances data.
+    /// Clears the existing cache and adds or updates it with the new instances retrieved from the launcher helper.
     /// </summary>
     private void HandleInstancesChanged()
     {
@@ -186,6 +191,95 @@ public partial class MainViewModel : KonkordObservableObject
         if (instance == null)
             return;
         await ShowInstanceEditDialog.Handle(instance.Id);
+    }
+
+    /// <summary>
+    /// Displays the logs of the specified Minecraft instance in a separate window asynchronously.
+    /// </summary>
+    /// <param name="instance">The instance model representing the Minecraft instance whose logs are to be viewed.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    [RelayCommand]
+    private async Task ViewInstanceLogs(InstanceModel? instance)
+    {
+        if (instance == null)
+            return;
+        
+        await ShowLogsWindow.Handle(instance.Id);
+    }
+    
+    [RelayCommand]
+    private async Task RenameInstance(InstanceModel? instance)
+    {
+        if (instance == null)
+            return;
+    }
+    
+    [RelayCommand]
+    private async Task ChangeInstanceIcon(InstanceModel? instance)
+    {
+        if (instance == null)
+            return;
+    }
+    
+    [RelayCommand]
+    private async Task ChangeInstanceGroup(InstanceModel? instance)
+    {
+        if (instance == null)
+            return;
+    }
+    
+    /// <summary>
+    /// Opens the directory of the specified Minecraft instance in the file explorer.
+    /// </summary>
+    /// <param name="instance">The instance model representing the Minecraft instance whose directory is to be opened.</param>
+    [RelayCommand]
+    private void OpenInstanceDir(InstanceModel? instance)
+    {
+        if (instance == null)
+            return;
+        
+        if (string.IsNullOrEmpty(instance.GameDirectory))
+            return;
+        
+        FileSystemHelper.OpenFolderInFileExplorer(instance.GameDirectory);
+    }
+    
+    [RelayCommand]
+    private async Task ExportInstance(InstanceModel? instance)
+    {
+        if (instance == null)
+            return;
+    }
+    
+    /// <summary>
+    /// Deletes the specified Minecraft instance asynchronously.
+    /// Prompts the user for confirmation before proceeding with the deletion.
+    /// If confirmed, removes the instance from the list and deletes its associated directory.
+    /// </summary>
+    /// <param name="instance">The instance model representing the Minecraft instance to delete.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    [RelayCommand]
+    private async Task DeleteInstance(InstanceModel? instance)
+    {
+        if (instance == null)
+            return;
+
+        var result = await ShowConfirmDialog.Handle(new Alert("Are you sure?", "This will delete the instance including its maps etc...", EAlertType.Confirm));
+        if (!result)
+            return;
+        
+        var instances = await LauncherHelper.GetInstancesAsync();
+        var targetInstance = instances.FirstOrDefault(i => i.Id == instance.Id);
+        if (targetInstance == null)
+            return;
+
+        if (string.IsNullOrEmpty(targetInstance.GameDirectory))
+            return;
+            
+        FileSystemHelper.DeleteDirectory(targetInstance.GameDirectory);
+        instances.Remove(targetInstance);
+        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances);
+        GlobalEvents.InvokeInstancesChanged();
     }
     #endregion
     #endregion

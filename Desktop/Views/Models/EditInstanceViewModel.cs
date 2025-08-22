@@ -253,7 +253,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         base.Dispose(disposing);
         _logger.Debug("Freeing memory in EditInstanceViewModel...");
         _isClosing = true;
-        //GlobalEvents.OnInstanceLogged -= OnInstanceLogged;
+        GlobalEvents.OnInstanceLogged -= OnInstanceLogged;
         Worlds.CollectionChanged -= WorldsOnCollectionChanged;
         Servers.CollectionChanged -= ServersOnCollectionChanged;
         // Dispose of all image resources before clearing the collections

@@ -54,4 +54,26 @@
         <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
         <Setter Property="HorizontalScrollBarVisibility" Value="Disabled" />
     </Style>
+    
+    
+    <Style Selector="Grid.Divider">
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="10, 5" />
+    </Style>
+    
+    <Style Selector="Border.DividerLeft">
+        <Setter Property="Margin" Value="0,0,10,0" />
+        <Setter Property="Background" Value="#555" />
+    </Style>
+    
+    <Style Selector="Border.DividerRight">
+        <Setter Property="Margin" Value="10,0,0,0" />
+        <Setter Property="Background" Value="#555" />
+    </Style>
+    
+    <Style Selector="TextBlock.Divider">
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
+        <Setter Property="Opacity" Value="0.75" />
+    </Style>
 </Styles>

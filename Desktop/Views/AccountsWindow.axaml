@@ -51,12 +51,12 @@
                                 </Button>
                                 
                                 <!-- Or divider -->
-                                <Grid ColumnDefinitions="*, Auto, *" VerticalAlignment="Center" Margin="10, 5">
-                                    <Border Grid.Column="0" Height="1" Background="#555" Margin="0,0,10,0" />
+                                <Grid ColumnDefinitions="*, Auto, *" Classes="Divider">
+                                    <Border Grid.Column="0" Height="1" Classes="DividerLeft" />
 
-                                    <TextBlock Grid.Column="1" Text="{lang:Translate common.or}" Foreground="#888" FontWeight="Bold" />
+                                    <TextBlock Grid.Column="1" Classes="Divider" Text="{lang:Translate common.or}" />
 
-                                    <Border Grid.Column="2" Height="1" Background="#555" Margin="10,0,0,0" />
+                                    <Border Grid.Column="2" Height="1" Classes="DividerRight" />
                                 </Grid>
                                 
                                 <!-- QR code -->

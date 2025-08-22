@@ -95,6 +95,7 @@ public static class DefaultTranslationProvider
         {"common.readMore", "Read More"},
         {"common.open.link", "Open Link"},
         {"common.or", "OR"},
+        {"common.loading", "Loading"},
         
         {"common.time.pass.minute", "{0} minutes ago"},
         {"common.time.pass.hour", "{0} hours ago"},

@@ -84,6 +84,155 @@
                         <Button Classes="IconBtn SecondaryBtn" 
                                 Width="32"
                                 MaxWidth="32">
+                            <Button.Flyout>
+                                <MenuFlyout>
+                                    <!-- Name -->
+                                    <MenuItem Header="{Binding Name}" IsEnabled="False" />
+                                    <!-- Launch Btn -->
+                                    <MenuItem IsVisible="{Binding !IsGameRunning}" 
+                                              Command="{Binding $parent[Window].DataContext.LaunchInstanceCommand}"
+                                              CommandParameter="{Binding .}">
+                                        <MenuItem.HeaderTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock
+                                                        Padding="4,0"
+                                                        Classes="FontAwesome"
+                                                        Text="&#xf04b;" />
+                                                    <TextBlock Margin="5,0,0,0" Text="{lang:Translate common.launch}" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </MenuItem.HeaderTemplate>
+                                    </MenuItem>
+                                    <!-- Stop Btn -->
+                                    <MenuItem IsVisible="{Binding IsGameRunning}" 
+                                              Command="{Binding $parent[Window].DataContext.StopInstanceCommand}"
+                                              CommandParameter="{Binding .}">
+                                        <MenuItem.HeaderTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock
+                                                        Padding="4,0"
+                                                        Classes="FontAwesome"
+                                                        Text="&#xf04d;" />
+                                                    <TextBlock Margin="5,0,0,0" Text="{lang:Translate common.stop}" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </MenuItem.HeaderTemplate>
+                                    </MenuItem>
+                                    <!-- Logs Btn -->
+                                    <MenuItem Command="{Binding $parent[Window].DataContext.ViewInstanceLogsCommand}"
+                                              CommandParameter="{Binding .}">
+                                        <MenuItem.HeaderTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock
+                                                        Padding="4,0"
+                                                        Classes="FontAwesome"
+                                                        Text="&#xf15c;" />
+                                                    <TextBlock Margin="5,0,0,0" Text="{lang:Translate instance.view.logs}" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </MenuItem.HeaderTemplate>
+                                    </MenuItem>
+                                    <Separator/>
+                                    <!-- Rename Btn -->
+                                    <MenuItem Command="{Binding $parent[Window].DataContext.RenameInstanceCommand}"
+                                              CommandParameter="{Binding .}">
+                                        <MenuItem.HeaderTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock
+                                                        Padding="4,0"
+                                                        Classes="FontAwesome"
+                                                        Text="&#xf044;" />
+                                                    <TextBlock Margin="5,0,0,0" Text="{lang:Translate common.rename}" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </MenuItem.HeaderTemplate>
+                                    </MenuItem>
+                                    <!-- Change Icon Btn -->
+                                    <MenuItem Command="{Binding $parent[Window].DataContext.ChangeInstanceIconCommand}"
+                                              CommandParameter="{Binding .}">
+                                        <MenuItem.HeaderTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock
+                                                        Padding="4,0"
+                                                        Classes="FontAwesome"
+                                                        Text="&#xf03e;" />
+                                                    <TextBlock Margin="5,0,0,0" Text="{lang:Translate instance.change.icon}" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </MenuItem.HeaderTemplate>
+                                    </MenuItem>
+                                    <!-- Change Group Btn -->
+                                    <MenuItem Command="{Binding $parent[Window].DataContext.ChangeInstanceGroupCommand}"
+                                              CommandParameter="{Binding .}">
+                                        <MenuItem.HeaderTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock
+                                                        Padding="4,0"
+                                                        Classes="FontAwesome"
+                                                        Text="&#xf5fd;" />
+                                                    <TextBlock Margin="5,0,0,0" Text="{lang:Translate instance.change.group}" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </MenuItem.HeaderTemplate>
+                                    </MenuItem>
+                                    <Separator/>
+                                    <!-- Open Folder Btn -->
+                                    <MenuItem Command="{Binding $parent[Window].DataContext.OpenInstanceDirCommand}"
+                                              CommandParameter="{Binding .}">
+                                        <MenuItem.HeaderTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock
+                                                        Padding="4,0"
+                                                        Classes="FontAwesome"
+                                                        Text="&#xf07c;" />
+                                                    <TextBlock Margin="5,0,0,0" Text="{lang:Translate common.open.directory}" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </MenuItem.HeaderTemplate>
+                                    </MenuItem>
+                                    <!-- Export Btn -->
+                                    <MenuItem Header="Export">
+                                        <MenuItem.HeaderTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock
+                                                        Padding="4,0"
+                                                        Classes="FontAwesome"
+                                                        Text="&#xf56e;" />
+                                                    <TextBlock Margin="5,0,0,0" Text="{lang:Translate common.export}" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </MenuItem.HeaderTemplate>
+                                        <MenuItem Header="Konkord Launcher" />
+                                        <MenuItem Header="Modrinth" />
+                                        <MenuItem Header="CurseForge" />
+                                    </MenuItem>
+                                    <Separator/>
+                                    <!-- Delete Btn -->
+                                    <MenuItem Command="{Binding $parent[Window].DataContext.DeleteInstanceCommand}"
+                                              CommandParameter="{Binding .}">
+                                        <MenuItem.HeaderTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock
+                                                        Padding="4,0"
+                                                        Classes="FontAwesome"
+                                                        Text="&#xf1f8;" />
+                                                    <TextBlock Margin="5,0,0,0" Text="{lang:Translate common.delete}" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </MenuItem.HeaderTemplate>
+                                    </MenuItem>
+                                </MenuFlyout>
+                            </Button.Flyout>
+                            <!-- Button Icon -->
                             <TextBlock
                                 Padding="4,0"
                                 Classes="FontAwesome"

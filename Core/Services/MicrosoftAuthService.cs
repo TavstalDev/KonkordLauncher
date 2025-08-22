@@ -266,19 +266,12 @@ public static class MicrosoftAuthService
             var response = await client.PostAsync(MicrosoftEndpoints.MicrosoftDeviceTokenUrl, formContent);
             
             var responseString = await response.Content.ReadAsStringAsync();
-            _logger.Warn(responseString);
             JObject obj = JObject.Parse(responseString);
             if (!obj.TryGetValue("access_token", out var value))
-            {
-                _logger.Debug("Access token not found in the device code authentication response.");
                 return;
-            }
             
             if (!obj.TryGetValue("refresh_token", out var refreshToken))
-            {
-                _logger.Debug("Refresh token not found in the device code authentication response.");
                 return;
-            }
             
             await XboxTokenCallAsync(value.ToString(), refreshToken.ToString());
         }

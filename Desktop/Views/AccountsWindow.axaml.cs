@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Text.RegularExpressions;
@@ -7,9 +8,16 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Threading;
 using ReactiveUI;
+using Tavstal.KonkordLauncher.Common.Helpers;
+using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Translation;
+using Tavstal.KonkordLauncher.Core.Enums;
+using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Core.Services;
+using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
+using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
 
@@ -60,8 +68,23 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
         });
 
         OfflineUsernameInput.TextChanged += OfflineUsername_OnTextChanged;
+        MicrosoftAuthService.OnAuthStatusChanged += OnAuthStatusChanged;
     }
-    
+
+    /// <summary>
+    /// Handles the cleanup and resource deallocation when the window is closing.
+    /// Unsubscribes from events and stops any active listeners to ensure proper disposal.
+    /// </summary>
+    /// <param name="e">Provides data for the window closing event.</param>
+    protected override void OnClosing(WindowClosingEventArgs e)
+    {
+        OfflineUsernameInput.TextChanged -= OfflineUsername_OnTextChanged;
+        MicrosoftAuthService.OnAuthStatusChanged -= OnAuthStatusChanged;
+        AuthHttpListener.StopListening();
+        MicrosoftDeviceListener.StopListening();
+        base.OnClosing(e);
+    }
+
     /// <summary>
     /// Asynchronously sets the specified text to the system clipboard.
     /// Ensures that the clipboard is accessible and logs any errors encountered during the operation.
@@ -109,6 +132,65 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
             textBox.Text = allowed;
             textBox.CaretIndex = Math.Min(caret - 1, allowed.Length);
         }
+    }
+
+    /// <summary>
+    /// Handles changes in the authentication status for Microsoft accounts.
+    /// Updates the UI and performs necessary actions based on the new status.
+    /// </summary>
+    /// <param name="status">The new authentication status.</param>
+    private void OnAuthStatusChanged(EAuthStatus status)
+    {
+        Dispatcher.UIThread.Invoke(async () =>
+        {
+            if (DataContext == null)
+                return;
+            
+            _logger.Debug($"Microsoft Status result: {MicrosoftAuthService.AuthStatus}");
+            if (MicrosoftAuthService.AuthStatus == EAuthStatus.FAILED)
+            {
+                DataContext.IsLoggingInMicrosoftAccount = false;
+                AlertWindow alertWindow = new(TranslationManager.Translate("account.login.failed"),
+                    TranslationManager.Translate("account.login.microsoft.failed"),
+                    EAlertType.Error);
+                await alertWindow.ShowDialog(this);
+                return;
+            }
+
+            if (MicrosoftAuthService.AuthStatus != EAuthStatus.SUCCESS)
+                return;
+
+            var microsoftAccount = MicrosoftAuthService.Account;
+            if (microsoftAccount == null)
+            {
+                AlertWindow alertWindow = new(TranslationManager.Translate("account.login.failed"),
+                    TranslationManager.Translate("account.login.microsoft.null"),
+                    EAlertType.Error);
+                await alertWindow.ShowDialog(this);
+                DataContext.StopMicrosoftAuth();
+                return;
+            }
+
+            AccountData accountData = await LauncherHelper.GetAccountDataAsync();
+            var account = accountData.Accounts.FirstOrDefault(x => x.Uuid == microsoftAccount.Uuid);
+            if (account != null)
+            {
+                AlertWindow alertWindow = new(TranslationManager.Translate("account.duplicate"),
+                    TranslationManager.Translate("account.duplicate.microsoft"),
+                    EAlertType.Error);
+                await alertWindow.ShowDialog(this);
+                DataContext.StopMicrosoftAuth();
+                return;
+            }
+
+            if (string.IsNullOrEmpty(accountData.SelectedAccountId))
+                accountData.SelectedAccountId = microsoftAccount.Id;
+            accountData.Accounts.Add(microsoftAccount);
+            await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData);
+            GlobalEvents.InvokeAccountsChanged();
+            MicrosoftAuthService.Reset(); 
+            Close();
+        });
     }
     
     #region Progress Reporter

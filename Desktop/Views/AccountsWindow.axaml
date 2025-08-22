@@ -62,7 +62,7 @@
                                 <!-- QR code -->
                                 <Image Width="150" Height="150" Source="{Binding QrCode}" />
                                 <!-- Code -->
-                                <WrapPanel HorizontalAlignment="Center">
+                                <WrapPanel HorizontalAlignment="Center" ItemSpacing="10">
                                     <SelectableTextBlock FontSize="25" VerticalAlignment="Center" Text="{Binding DeviceData.UserCode}" />
                                     <!-- Copy link button -->
                                     <Button Classes="IconBtn" Command="{Binding MicrosoftCopyCodeCommand}">

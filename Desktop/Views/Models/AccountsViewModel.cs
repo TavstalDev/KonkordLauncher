@@ -4,8 +4,10 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Newtonsoft.Json;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
@@ -36,13 +38,16 @@ public partial class AccountsViewModel : KonkordObservableObject
     public Interaction<Alert, Unit> ShowAlertDialog { get; } = new();
     public Interaction<string, Unit> SetClipboardText { get; } = new();
     
-    [ObservableProperty] private bool isLoggingInMicrosoftAccount = true;
+    [ObservableProperty] private bool isLoggingInMicrosoftAccount;
     [ObservableProperty] private double _progress;
     [ObservableProperty] private string _progressText = "Loading...";
     [ObservableProperty] private string? _offlineUsername;
     
-    [ObservableProperty] private DeviceCodeResult _deviceData;
-    [ObservableProperty] private Bitmap _qrCode = ImageHelper.GenerateQrCode("https://microsoft.com/link");
+    [ObservableProperty] private DeviceCodeResult _deviceData = new DeviceCodeResult()
+    {
+        UserCode = TranslationManager.Translate("common.loading"),
+    };
+    [ObservableProperty] private Bitmap? _qrCode = ImageHelper.Load("avares://Desktop/Assets/creeper.jpg").Result;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AccountsViewModel"/> class.
@@ -55,16 +60,24 @@ public partial class AccountsViewModel : KonkordObservableObject
         _progressReporter = progressReporter;
     }
 
+    /// <summary>
+    /// Releases the resources used by the ViewModel, including the QR code bitmap.
+    /// Ensures proper cleanup of unmanaged resources when disposing.
+    /// </summary>
+    /// <param name="disposing">
+    /// A boolean value indicating whether the method is called explicitly 
+    /// (true) or by the garbage collector (false).
+    /// </param>
     protected override void Dispose(bool disposing)
     {
-        QrCode.Dispose();
+        QrCode?.Dispose();
         base.Dispose(disposing);
     }
 
     /// <summary>
     /// Stops the Microsoft authentication process and resets related states.
     /// </summary>
-    private void StopMicrosoftAuth()
+    public void StopMicrosoftAuth()
     {
         MicrosoftAuthService.Reset();
         IsLoggingInMicrosoftAccount = false;
@@ -80,55 +93,25 @@ public partial class AccountsViewModel : KonkordObservableObject
     private async Task LoginMicrosoftAccountAsync()
     {
         IsLoggingInMicrosoftAccount = true;
-
         var codeResult = await MicrosoftAuthService.CreateDeviceCodeAsync(_progressReporter);
         if (codeResult == null)
+        {
+            _logger.Error("Failed to create Microsoft device code.");
             return;
-        
+        }
+
         DeviceData = codeResult;
+        QrCode?.Dispose();
+        QrCode = ImageHelper.GenerateQrCode(DeviceData.VerificationUri);
         
-        await AuthService.StartListening(_progressReporter);
-        _logger.Debug($"Microsoft Status result: {MicrosoftAuthService.AuthStatus}");
-        if (MicrosoftAuthService.AuthStatus == EAuthStatus.FAILED)
+        _ = Task.Run(async () =>
         {
-            IsLoggingInMicrosoftAccount = false;
-            await ShowAlertDialog.Handle(new Alert(TranslationManager.Translate("account.login.failed"),
-                TranslationManager.Translate("account.login.microsoft.failed"),
-                EAlertType.Error));
-            return;
-        }
-
-        if (MicrosoftAuthService.AuthStatus != EAuthStatus.SUCCESS)
-            return;
-
-        var microsoftAccount = MicrosoftAuthService.Account;
-        if (microsoftAccount == null)
+            await AuthHttpListener.StartListening();
+        });
+        _ = Task.Run(async () =>
         {
-            await ShowAlertDialog.Handle(new Alert(TranslationManager.Translate("account.login.failed"),
-                TranslationManager.Translate("account.login.microsoft.null"),
-                EAlertType.Error));
-            StopMicrosoftAuth();
-            return;
-        }
-
-        AccountData accountData = await LauncherHelper.GetAccountDataAsync();
-        var account = accountData.Accounts.FirstOrDefault(x => x.Uuid == microsoftAccount.Uuid);
-        if (account != null)
-        {
-            await ShowAlertDialog.Handle(new Alert(TranslationManager.Translate("account.duplicate"),
-                TranslationManager.Translate("account.duplicate.microsoft"),
-                EAlertType.Error));
-            StopMicrosoftAuth();
-            return;
-        }
-
-        if (string.IsNullOrEmpty(accountData.SelectedAccountId))
-            accountData.SelectedAccountId = microsoftAccount.Id;
-        accountData.Accounts.Add(microsoftAccount);
-        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData);
-        GlobalEvents.InvokeAccountsChanged();
-        MicrosoftAuthService.Reset();
-        await CloseWindow.Handle(Unit.Default);
+            await MicrosoftDeviceListener.StartListening(DeviceData.DeviceCode, DeviceData.Interval);
+        });
     }
 
     /// <summary>
@@ -137,14 +120,30 @@ public partial class AccountsViewModel : KonkordObservableObject
     [RelayCommand]
     private void MicrosoftOpenLoginLink() => MicrosoftAuthService.OpenAuthenticationUrl();
 
+    /// <summary>
+    /// Opens the Microsoft device code verification URL in the default browser.
+    /// </summary>
     [RelayCommand]
     private async Task MicrosoftOpenCodeLinkAsync()
     {
-        // TODO:
+        MicrosoftAuthService.OpenUrl(DeviceData.VerificationUri);
     }
 
+    /// <summary>
+    /// Copies the Microsoft device code to the clipboard.
+    /// </summary>
     [RelayCommand]
-    private async Task MicrosoftCopyCodeCommand() => await SetClipboardText.Handle(DeviceData.UserCode);
+    private async Task MicrosoftCopyCode()
+    {
+        try
+        {
+            await SetClipboardText.Handle(DeviceData.UserCode);
+        }
+        catch (Exception ex)
+        {
+            _logger.Error(ex);
+        }
+    }
     
     /// <summary>
     /// Cancels the Microsoft login process and stops the authentication listener.
@@ -152,7 +151,8 @@ public partial class AccountsViewModel : KonkordObservableObject
     [RelayCommand]
     private void MicrosoftCancelLogin()
     {
-        AuthService.StopListening();
+        AuthHttpListener.StopListening();
+        MicrosoftDeviceListener.StopListening();
         StopMicrosoftAuth();
     }
     

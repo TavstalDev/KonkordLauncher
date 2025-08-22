@@ -112,7 +112,7 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
             DataContext.ShowIconSelectorDialog.RegisterHandler(async action =>
             {
                 var dialog = new IconSelectorWindow();
-                var result = await dialog.ShowDialog<IconDataModel?>(this);
+                var result = await dialog.ShowDialog<string?>(this);
                 action.SetOutput(result);
             });
         });

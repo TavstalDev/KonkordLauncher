@@ -12,6 +12,7 @@ using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Config;
+using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
@@ -45,7 +46,7 @@ public partial class MainViewModel : KonkordObservableObject
     public Interaction<Unit, JavaVersionModel> ShowJavaSelectorDialog { get; } = new();
     public Interaction<string, Unit> ShowLogsWindow { get; } = new();
     public Interaction<string, string?> ShowTextInputDialog { get; } = new();
-    public Interaction<Unit, IconDataModel?> ShowIconSelectorDialog { get; } = new();
+    public Interaction<Unit, string?> ShowIconSelectorDialog { get; } = new();
     #endregion
 
     [ObservableProperty] private ESidebarType _currentPageIndex;
@@ -209,6 +210,11 @@ public partial class MainViewModel : KonkordObservableObject
         await ShowLogsWindow.Handle(instance.Id);
     }
     
+    /// <summary>
+    /// Renames the specified Minecraft instance asynchronously.
+    /// Prompts the user for a new name, validates it, and updates the instance if valid.
+    /// </summary>
+    /// <param name="instance">The instance model representing the Minecraft instance to rename.</param>
     [RelayCommand]
     private async Task RenameInstance(InstanceModel? instance)
     {
@@ -220,13 +226,28 @@ public partial class MainViewModel : KonkordObservableObject
         if (targetInstance == null)
             return;
 
-        var result = await ShowTextInputDialog.Handle("New name for the instance");
+        int index = instances.IndexOf(targetInstance);
+        var result = await ShowTextInputDialog.Handle(TranslationManager.Translate("instance.rename.title"));
         if (string.IsNullOrEmpty(result))
             return;
         
-        // TODO
+        if (instances.Any(x => x.Name.Equals(result, StringComparison.OrdinalIgnoreCase)))
+        {
+            await ShowAlertDialog.Handle(new Alert(TranslationManager.Translate("common.error"), TranslationManager.Translate("instance.rename.duplicate"), EAlertType.Error));
+            return;
+        }
+        
+        targetInstance.Name = result;
+        instances[index] = targetInstance;
+        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances);
+        GlobalEvents.InvokeInstancesChanged();
     }
     
+    /// <summary>
+    /// Changes the icon of the specified Minecraft instance asynchronously.
+    /// Opens an icon selector dialog, validates the selection, and updates the instance if valid.
+    /// </summary>
+    /// <param name="instance">The instance model representing the Minecraft instance to update the icon for.</param>
     [RelayCommand]
     private async Task ChangeInstanceIcon(InstanceModel? instance)
     {
@@ -238,13 +259,22 @@ public partial class MainViewModel : KonkordObservableObject
         if (targetInstance == null)
             return;
         
+        int index = instances.IndexOf(targetInstance);
         var result = await ShowIconSelectorDialog.Handle(Unit.Default);
-        if (result == null)
+        if (string.IsNullOrEmpty(result))
             return;
-        
-        // TODO
+
+        targetInstance.IconPath = result;
+        instances[index] = targetInstance;
+        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances);
+        GlobalEvents.InvokeInstancesChanged();
     }
     
+    /// <summary>
+    /// Changes the group of the specified Minecraft instance asynchronously.
+    /// Prompts the user for a new group name, validates it, and updates the instance if valid.
+    /// </summary>
+    /// <param name="instance">The instance model representing the Minecraft instance to update the group for.</param>
     [RelayCommand]
     private async Task ChangeInstanceGroup(InstanceModel? instance)
     {
@@ -256,11 +286,15 @@ public partial class MainViewModel : KonkordObservableObject
         if (targetInstance == null)
             return;
         
-        var result = await ShowTextInputDialog.Handle("New group of the instance");
+        int index = instances.IndexOf(targetInstance);
+        var result = await ShowTextInputDialog.Handle(TranslationManager.Translate("instance.change.group.title"));
         if (string.IsNullOrEmpty(result))
             return;
         
-        // TODO
+        targetInstance.Group = result;
+        instances[index] = targetInstance;
+        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances);
+        GlobalEvents.InvokeInstancesChanged();
     }
     
     /// <summary>
@@ -300,9 +334,8 @@ public partial class MainViewModel : KonkordObservableObject
     {
         if (instance == null)
             return;
-
-        // TODO
-        var result = await ShowConfirmDialog.Handle(new Alert("Are you sure?", "This will delete the instance including its maps etc...", EAlertType.Confirm));
+        
+        var result = await ShowConfirmDialog.Handle(new Alert(TranslationManager.Translate("instance.delete.title"), TranslationManager.Translate("instance.delete.message", instance.Name), EAlertType.Confirm));
         if (!result)
             return;
         

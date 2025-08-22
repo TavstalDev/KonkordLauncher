@@ -30,6 +30,7 @@ public static class HttpHelper
     /// <returns>The shared <see cref="HttpClient"/> instance.</returns>
     public static HttpClient GetHttpClient()
     {
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (_httpClient == null)
         {
             _logger.Exc("HttpClient is not initialized. Returning a new instance.");

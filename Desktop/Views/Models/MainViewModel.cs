@@ -44,6 +44,8 @@ public partial class MainViewModel : KonkordObservableObject
     public Interaction<Unit, Unit> ShowAccountsDialog { get; } = new();
     public Interaction<Unit, JavaVersionModel> ShowJavaSelectorDialog { get; } = new();
     public Interaction<string, Unit> ShowLogsWindow { get; } = new();
+    public Interaction<string, string?> ShowTextInputDialog { get; } = new();
+    public Interaction<Unit, IconDataModel?> ShowIconSelectorDialog { get; } = new();
     #endregion
 
     [ObservableProperty] private ESidebarType _currentPageIndex;
@@ -212,6 +214,17 @@ public partial class MainViewModel : KonkordObservableObject
     {
         if (instance == null)
             return;
+        
+        var instances = await LauncherHelper.GetInstancesAsync();
+        var targetInstance = instances.FirstOrDefault(i => i.Id == instance.Id);
+        if (targetInstance == null)
+            return;
+
+        var result = await ShowTextInputDialog.Handle("New name for the instance");
+        if (string.IsNullOrEmpty(result))
+            return;
+        
+        // TODO
     }
     
     [RelayCommand]
@@ -219,6 +232,17 @@ public partial class MainViewModel : KonkordObservableObject
     {
         if (instance == null)
             return;
+        
+        var instances = await LauncherHelper.GetInstancesAsync();
+        var targetInstance = instances.FirstOrDefault(i => i.Id == instance.Id);
+        if (targetInstance == null)
+            return;
+        
+        var result = await ShowIconSelectorDialog.Handle(Unit.Default);
+        if (result == null)
+            return;
+        
+        // TODO
     }
     
     [RelayCommand]
@@ -226,6 +250,17 @@ public partial class MainViewModel : KonkordObservableObject
     {
         if (instance == null)
             return;
+        
+        var instances = await LauncherHelper.GetInstancesAsync();
+        var targetInstance = instances.FirstOrDefault(i => i.Id == instance.Id);
+        if (targetInstance == null)
+            return;
+        
+        var result = await ShowTextInputDialog.Handle("New group of the instance");
+        if (string.IsNullOrEmpty(result))
+            return;
+        
+        // TODO
     }
     
     /// <summary>
@@ -249,6 +284,8 @@ public partial class MainViewModel : KonkordObservableObject
     {
         if (instance == null)
             return;
+        
+        // TODO
     }
     
     /// <summary>
@@ -264,6 +301,7 @@ public partial class MainViewModel : KonkordObservableObject
         if (instance == null)
             return;
 
+        // TODO
         var result = await ShowConfirmDialog.Handle(new Alert("Are you sure?", "This will delete the instance including its maps etc...", EAlertType.Confirm));
         if (!result)
             return;

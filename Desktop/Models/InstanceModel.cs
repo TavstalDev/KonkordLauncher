@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
@@ -184,19 +185,8 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         };
     }
 
-    /// <summary>
-    /// Launches the Minecraft instance asynchronously with the specified settings and configurations.
-    /// </summary>
-    /// <param name="closeWindow">
-    /// An interaction to close the launcher window if configured to do so.
-    /// </param>
-    /// <param name="showAlertDialog">
-    /// An interaction to display alert dialogs in case of errors or warnings.
-    /// </param>
-    /// <param name="serverAddress">
-    /// An optional server address to join upon launching the instance.
-    /// </param>
-    public async Task LaunchAsync(Interaction<Unit, Unit> closeWindow, Interaction<Alert, Unit> showAlertDialog, string? serverAddress = null)
+
+    public async Task LaunchAsync(Interaction<string, Unit> showLogsWindow, Interaction<Unit, Unit> closeWindow, Interaction<Alert, Unit> showAlertDialog, string? serverAddress = null)
     {
         _lastReadPosition = 0;
         _logger.Debug($"Launching instance: {Name}");
@@ -438,6 +428,11 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             GameProcess = process;
             IsGameRunning = true;
             AttachProcessEvent();
+
+            if (ConfigModel.Game.ShowConsoleWhileGameRunning)
+            {
+                await showLogsWindow.Handle(Id);
+            }
             
             if (settings.Minecraft.CloseLauncherOnGameStart)
             {
@@ -447,8 +442,16 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
 
             if (settings.Minecraft.CloseLauncherOnGameExit)
             {
-                GameProcess.Exited += (_, _) =>
+                GameProcess.Exited += (_, e) =>
                 {
+                    if (ConfigModel.Game.ShowConsoleWhenGameCrashes && GameProcess?.ExitCode != 0)
+                    {
+                        Dispatcher.UIThread.Invoke(async () => await showLogsWindow.Handle(Id));
+                    }
+                    else if (ConfigModel.Game.CloseConsoleOnGameExit)
+                    {
+                        //TODO
+                    }
                     closeWindow.Handle(Unit.Default);
                 };
             }

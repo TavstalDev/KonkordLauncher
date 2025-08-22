@@ -160,6 +160,12 @@ public static class DefaultTranslationProvider
         {"instance.change.group", "Change Group"},
         {"instance.change.icon", "Change Icon"},
         {"instance.logs.title", "Latest Logs of"},
+        
+        {"instance.rename.title", "New name of the instance"},
+        {"instance.rename.duplicate", "An instance with this name already exists."},
+        {"instance.change.group.title", "New group of the instance"},
+        {"instance.delete.title", "Are you sure?"},
+        {"instance.delete.message", "This will delete the instance '{0}' and all its files. This action cannot be undone."},
 
         #region Create
 

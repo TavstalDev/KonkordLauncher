@@ -19,7 +19,7 @@ public static class MicrosoftAuthService
 {
     private static readonly CoreLogger _logger = new(typeof(MicrosoftAuthService));
     private static string _microsoftClientId = "496a0c42-aa74-41fe-b7bc-0ad155cdaa26";
-    private static readonly string _redirectAuthenticateUrl = Path.Combine(AuthService.ListeningUrl, "microsoft/authcallback");
+    private static readonly string _redirectAuthenticateUrl = Path.Combine(AuthHttpListener.ListeningUrl, "microsoft/authcallback");
     private static IProgressReporter? _progressReporter;
     //private static readonly string _redirectTokenUrl = Path.Combine(AuthService.ListeningUrl, "microsoft/tokencallback");
     
@@ -30,6 +30,9 @@ public static class MicrosoftAuthService
     public static MojangProfile? MojangProfile => _mojangProfile;
     private static Account? _account;
     public static Account? Account => _account;
+    
+    public delegate void AuthStatusChangedHandler(EAuthStatus status);
+    public static event AuthStatusChangedHandler? OnAuthStatusChanged;
     
     /// <summary>
     /// Sets the Microsoft client ID for authentication.
@@ -54,6 +57,7 @@ public static class MicrosoftAuthService
         _account = null;
         _mojangProfile = null;
         _authStatus = EAuthStatus.NONE;
+        OnAuthStatusChanged?.Invoke(_authStatus);
     }
     
     /// <summary>
@@ -68,10 +72,25 @@ public static class MicrosoftAuthService
         }
         
         string authUrl = MicrosoftEndpoints.MakeMicrosoftAuthUrl(_microsoftClientId, _redirectAuthenticateUrl);
+        OpenUrl(authUrl);
+    }
+    
+    /// <summary>
+    /// Opens the specified URL in the default web browser.
+    /// </summary>
+    /// <param name="url">The URL to open. Must not be null or empty.</param>
+    public static void OpenUrl(string url)
+    {
+        if (string.IsNullOrEmpty(url))
+        {
+            _logger.Error("URL cannot be null or empty.");
+            return;
+        }
+        
         Process process = new();
         process.StartInfo = new ProcessStartInfo
         {
-            FileName = authUrl,
+            FileName = url,
             UseShellExecute = true
         };
         process.Start();
@@ -104,11 +123,13 @@ public static class MicrosoftAuthService
     public static async Task HandleHttpRequestAsync(HttpListenerRequest request, IProgressReporter? progressReporter = null)
     {
         _authStatus = EAuthStatus.PENDING;
+        OnAuthStatusChanged?.Invoke(_authStatus);
         _progressReporter = progressReporter;
         if (string.IsNullOrEmpty(_microsoftClientId))
         {
             _logger.Error("Microsoft client ID is not set.");
             _authStatus = EAuthStatus.FAILED;
+            OnAuthStatusChanged?.Invoke(_authStatus);
             return;
         }
         
@@ -116,6 +137,7 @@ public static class MicrosoftAuthService
         {
             _logger.Error("HTTP request does not contain 'code' query parameter.");
             _authStatus = EAuthStatus.FAILED;
+            OnAuthStatusChanged?.Invoke(_authStatus);
             return;
         }
 
@@ -124,6 +146,7 @@ public static class MicrosoftAuthService
         {
             _logger.Error("Received 'code' query parameter is null or empty.");
             _authStatus = EAuthStatus.FAILED;
+            OnAuthStatusChanged?.Invoke(_authStatus);
             return;
         }
 
@@ -141,13 +164,14 @@ public static class MicrosoftAuthService
             };
             var requestContent = new FormUrlEncodedContent(requestParams);
 
-            using HttpClient client = HttpHelper.GetHttpClient();
+            HttpClient client = HttpHelper.GetHttpClient();
             var response = await client.PostAsync(requestUrl, requestContent).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
                 _logger.Error("Failed to get access token from Microsoft. Status code: " + response.StatusCode);
                 _authStatus = EAuthStatus.FAILED;
+                OnAuthStatusChanged?.Invoke(_authStatus);
                 return;
             }
             
@@ -157,6 +181,7 @@ public static class MicrosoftAuthService
             {
                 _logger.Error("Access token not found in the Microsoft authentication response.\"");
                 _authStatus = EAuthStatus.FAILED;
+                OnAuthStatusChanged?.Invoke(_authStatus);
                 return;
             }
             
@@ -164,6 +189,7 @@ public static class MicrosoftAuthService
             {
                 _logger.Error("Refresh token not found in the Microsoft authentication response.");
                 _authStatus = EAuthStatus.FAILED;
+                OnAuthStatusChanged?.Invoke(_authStatus);
                 return;
             }
            
@@ -175,6 +201,7 @@ public static class MicrosoftAuthService
             _logger.Exc("Error while handling HTTP request for Microsoft authentication:");
             _logger.Error(ex.ToString());
             _authStatus = EAuthStatus.FAILED;
+            OnAuthStatusChanged?.Invoke(_authStatus);
         }
     }
 
@@ -192,20 +219,16 @@ public static class MicrosoftAuthService
         {
             _progressReporter?.SetStatusTranslated("auth.code.creating");
             
-            object body = new
+            var parameters = new Dictionary<string, string>
             {
-                ClientId = _microsoftClientId,
-                Scope = "XboxLive.signin offline_access"
+                { "client_id", _microsoftClientId },
+                { "scope", "XboxLive.signin offline_access" }
             };
-            
-            var reqContent = new StringContent(
-                JsonConvert.SerializeObject(body), 
-                System.Text.Encoding.UTF8, 
-                "application/json"
-            );
 
-            using HttpClient client = HttpHelper.GetHttpClient();
-            var result = await client.PostAsync(MicrosoftEndpoints.MicrosoftDeviceUrl, reqContent).ConfigureAwait(false);
+            var formContent = new FormUrlEncodedContent(parameters);
+
+            HttpClient client = HttpHelper.GetHttpClient();
+            var result = await client.PostAsync(MicrosoftEndpoints.MicrosoftDeviceUrl, formContent);
             
             var rawJson = await result.Content.ReadAsStringAsync();
            return JsonConvert.DeserializeObject<DeviceCodeResult>(rawJson);
@@ -215,6 +238,7 @@ public static class MicrosoftAuthService
             _logger.Exc("Error while create device code:");
             _logger.Error(ex.ToString());
             _authStatus = EAuthStatus.FAILED;
+            OnAuthStatusChanged?.Invoke(_authStatus);
             return null;
         }
     }
@@ -228,27 +252,25 @@ public static class MicrosoftAuthService
     {
         try
         {
-            object body = new
+            _logger.Debug("Device code checked at " + DateTime.Now.ToString("HH:mm:ss"));
+            var parameters = new Dictionary<string, string>
             {
-                GrantType = "urn:ietf:params:oauth:grant-type:device_code",
-                ClientId = _microsoftClientId,
-                DeviceCode = deviceCode
+                { "client_id", _microsoftClientId },
+                { "device_code", deviceCode },
+                { "grant_type", "urn:ietf:params:oauth:grant-type:device_code" }
             };
-            
-            var reqContent = new StringContent(
-                JsonConvert.SerializeObject(body), 
-                System.Text.Encoding.UTF8, 
-                "application/json"
-            );
 
-            using HttpClient client = HttpHelper.GetHttpClient();
-            var response = await client.PostAsync(MicrosoftEndpoints.MicrosoftDeviceTokenUrl, reqContent).ConfigureAwait(false);
+            var formContent = new FormUrlEncodedContent(parameters);
+
+            HttpClient client = HttpHelper.GetHttpClient();
+            var response = await client.PostAsync(MicrosoftEndpoints.MicrosoftDeviceTokenUrl, formContent);
             
             var responseString = await response.Content.ReadAsStringAsync();
+            _logger.Warn(responseString);
             JObject obj = JObject.Parse(responseString);
             if (!obj.TryGetValue("access_token", out var value))
             {
-                _logger.Debug("Access token not found in the device code authentication response.\"");
+                _logger.Debug("Access token not found in the device code authentication response.");
                 return;
             }
             
@@ -265,6 +287,7 @@ public static class MicrosoftAuthService
             _logger.Exc("Error while create device code:");
             _logger.Error(ex.ToString());
             _authStatus = EAuthStatus.FAILED;
+            OnAuthStatusChanged?.Invoke(_authStatus);
         }
     }
     
@@ -297,7 +320,7 @@ public static class MicrosoftAuthService
                 "application/json"
                 );
 
-            using HttpClient client = HttpHelper.GetHttpClient();
+            HttpClient client = HttpHelper.GetHttpClient();
             var result = await client.PostAsync(MicrosoftEndpoints.XboxAuthUrl, reqContent).ConfigureAwait(false);
             
             JObject resultObj = JObject.Parse(await result.Content.ReadAsStringAsync());
@@ -305,6 +328,7 @@ public static class MicrosoftAuthService
             {
                 _logger.Error("Token not found in the Xbox authentication response.");
                 _authStatus = EAuthStatus.FAILED;
+                OnAuthStatusChanged?.Invoke(_authStatus);
                 return;
             }
             
@@ -315,6 +339,7 @@ public static class MicrosoftAuthService
             _logger.Exc("Error while making Xbox token call:");
             _logger.Error(ex.ToString());
             _authStatus = EAuthStatus.FAILED;
+            OnAuthStatusChanged?.Invoke(_authStatus);
         }
     }
     
@@ -346,7 +371,7 @@ public static class MicrosoftAuthService
                 "application/json"
             );
 
-            using HttpClient client = HttpHelper.GetHttpClient();
+            HttpClient client = HttpHelper.GetHttpClient();
             var result = await client.PostAsync(MicrosoftEndpoints.XboxXstsUrl, reqContent).ConfigureAwait(false);
 
             var rawJson = await result.Content.ReadAsStringAsync();
@@ -355,6 +380,7 @@ public static class MicrosoftAuthService
             {
                 _logger.Error("Token not found in the Xbox XSTS response.");
                 _authStatus = EAuthStatus.FAILED;
+                OnAuthStatusChanged?.Invoke(_authStatus);
                 return;
             }
 
@@ -362,6 +388,7 @@ public static class MicrosoftAuthService
             {
                 _logger.Error("DisplayClaims not found in the Xbox XSTS response.");
                 _authStatus = EAuthStatus.FAILED;
+                OnAuthStatusChanged?.Invoke(_authStatus);
                 return;
             }
 
@@ -370,6 +397,7 @@ public static class MicrosoftAuthService
             {
                 _logger.Error("xui not found or empty in the Xbox XSTS response.");
                 _authStatus = EAuthStatus.FAILED;
+                OnAuthStatusChanged?.Invoke(_authStatus);
                 return;
             }
 
@@ -378,6 +406,7 @@ public static class MicrosoftAuthService
             {
                 _logger.Error("User hash (uhs) not found in the Xbox XSTS response.");
                 _authStatus = EAuthStatus.FAILED;
+                OnAuthStatusChanged?.Invoke(_authStatus);
                 return;
             }
             
@@ -386,6 +415,7 @@ public static class MicrosoftAuthService
             {
                 _logger.Error("User hash (uhs) is null in the Xbox XSTS response.");
                 _authStatus = EAuthStatus.FAILED;
+                OnAuthStatusChanged?.Invoke(_authStatus);
                 return;
             }
             
@@ -396,6 +426,7 @@ public static class MicrosoftAuthService
             _logger.Exc("Error while making Xbox XSTS call:");
             _logger.Error(ex.ToString());
             _authStatus = EAuthStatus.FAILED;
+            OnAuthStatusChanged?.Invoke(_authStatus);
         }
     }
     
@@ -423,7 +454,7 @@ public static class MicrosoftAuthService
                 "application/json"
             );
 
-            using HttpClient client = HttpHelper.GetHttpClient();
+            HttpClient client = HttpHelper.GetHttpClient();
             var result = await client.PostAsync(MicrosoftEndpoints.MinecraftAuthUrl, reqContent).ConfigureAwait(false);
             
             JObject resultObj = JObject.Parse(await result.Content.ReadAsStringAsync());
@@ -431,6 +462,7 @@ public static class MicrosoftAuthService
             {
                 _logger.Error("Access token not found in the Minecraft authentication response.");
                 _authStatus = EAuthStatus.FAILED;
+                OnAuthStatusChanged?.Invoke(_authStatus);
                 return;
             }
             
@@ -438,6 +470,7 @@ public static class MicrosoftAuthService
             {
                 _logger.Error("Expiration time not found in the Minecraft authentication response.");
                 _authStatus = EAuthStatus.FAILED;
+                OnAuthStatusChanged?.Invoke(_authStatus);
                 return;
             }
             
@@ -448,6 +481,7 @@ public static class MicrosoftAuthService
             _logger.Exc("Error while making Minecraft access call:");
             _logger.Error(ex.ToString());
             _authStatus = EAuthStatus.FAILED;
+            OnAuthStatusChanged?.Invoke(_authStatus);
         }
     }
     
@@ -480,6 +514,7 @@ public static class MicrosoftAuthService
             {
                 _logger.Error("User does not own Minecraft.");
                 _authStatus = EAuthStatus.FAILED;
+                OnAuthStatusChanged?.Invoke(_authStatus);
                 return;
             }
 
@@ -490,6 +525,7 @@ public static class MicrosoftAuthService
             _logger.Exc("Error while checking Minecraft ownership:");
             _logger.Error(ex.ToString());
             _authStatus = EAuthStatus.FAILED;
+            OnAuthStatusChanged?.Invoke(_authStatus);
         }
     }
     
@@ -516,19 +552,22 @@ public static class MicrosoftAuthService
             {
                 _logger.Error("Failed to retrieve Minecraft profile.");
                 _authStatus = EAuthStatus.FAILED;
+                OnAuthStatusChanged?.Invoke(_authStatus);
                 return;
             }
 
             _account = new Account(Guid.NewGuid().ToString(),_mojangProfile.Id, _mojangProfile.Name, EAccountType.MICROSOFT, mcToken, refreshToken, DateTime.Now.AddSeconds(expireSecs));
             
             _authStatus = EAuthStatus.SUCCESS;
-            AuthService.StopListening(false);
+            OnAuthStatusChanged?.Invoke(_authStatus);
+            AuthHttpListener.StopListening(false);
         }
         catch (Exception ex)
         {
             _logger.Error("Error while getting Minecraft profile:");
             _logger.Error(ex.ToString());
             _authStatus = EAuthStatus.FAILED;
+            OnAuthStatusChanged?.Invoke(_authStatus);
         }
     }
     
@@ -538,6 +577,7 @@ public static class MicrosoftAuthService
         {
             _logger.Error("Microsoft client ID is not set.");
             _authStatus = EAuthStatus.FAILED;
+            OnAuthStatusChanged?.Invoke(_authStatus);
             return false;
         }
 
@@ -553,13 +593,14 @@ public static class MicrosoftAuthService
             };
             var requestContent = new FormUrlEncodedContent(requestParams);
 
-            using HttpClient client = HttpHelper.GetHttpClient();
+            HttpClient client = HttpHelper.GetHttpClient();
             var response = await client.PostAsync(requestUrl, requestContent).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
                 _logger.Error("Failed to get access token from Microsoft. Status code: " + response.StatusCode);
                 _authStatus = EAuthStatus.FAILED;
+                OnAuthStatusChanged?.Invoke(_authStatus);
                 return false;
             }
             
@@ -570,6 +611,7 @@ public static class MicrosoftAuthService
             {
                 _logger.Error("Access token not found in the Microsoft authentication response.\"");
                 _authStatus = EAuthStatus.FAILED;
+                OnAuthStatusChanged?.Invoke(_authStatus);
                 return false;
             }
             
@@ -577,6 +619,7 @@ public static class MicrosoftAuthService
             {
                 _logger.Error("Refresh token not found in the Microsoft authentication response.");
                 _authStatus = EAuthStatus.FAILED;
+                OnAuthStatusChanged?.Invoke(_authStatus);
                 return false;
             }
            
@@ -591,6 +634,7 @@ public static class MicrosoftAuthService
             _logger.Exc("Error while handling HTTP request for Microsoft authentication:");
             _logger.Error(ex.ToString());
             _authStatus = EAuthStatus.FAILED;
+            OnAuthStatusChanged?.Invoke(_authStatus);
             return false;
         }
     }

@@ -161,7 +161,7 @@ public partial class MainViewModel : KonkordObservableObject
     {
         if (instance == null)
             return;
-        await instance.LaunchAsync(CloseWindow, ShowAlertDialog);
+        await instance.LaunchAsync(ShowLogsWindow, CloseWindow, ShowAlertDialog);
     }
     
     /// <summary>

@@ -264,7 +264,6 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
     {
         rpcClient.SetPresence(null);
         rpcClient.Dispose();
-        Task.Delay(1000).Wait(); // Fixes the issue with Discord RPC not closing properly
         base.OnClosing(e);
     }
 

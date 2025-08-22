@@ -16,7 +16,7 @@ public static class HttpHelper
     /// Creates and configures an instance of <see cref="HttpClient"/> with default headers.
     /// </summary>
     /// <returns>A configured <see cref="HttpClient"/> instance.</returns>
-    private static HttpClient CreateHttpClient()
+    public static HttpClient CreateHttpClient()
     {
         var client = new HttpClient();
         client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
@@ -30,6 +30,11 @@ public static class HttpHelper
     /// <returns>The shared <see cref="HttpClient"/> instance.</returns>
     public static HttpClient GetHttpClient()
     {
+        if (_httpClient == null)
+        {
+            _logger.Exc("HttpClient is not initialized. Returning a new instance.");
+            return CreateHttpClient();
+        }
         return _httpClient;
     }
 

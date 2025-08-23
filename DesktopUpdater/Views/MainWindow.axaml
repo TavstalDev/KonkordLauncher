@@ -1,0 +1,40 @@
+<Window 
+    CanResize="False"
+    Icon="avares://DesktopUpdater/Assets/logo.png"
+    ShowInTaskbar="True"
+    Title="{lang:Translate updater.title}"
+    Width="300"
+    SizeToContent="Height"
+    d:DesignWidth="300"
+    mc:Ignorable="d"
+    x:Class="Tavstal.KonkordLauncher.DesktopUpdater.Views.MainWindow"
+    x:DataType="views:MainViewModel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:views="clr-namespace:Tavstal.KonkordLauncher.DesktopUpdater.Views"
+    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common">
+    <Border Classes="ModalView">
+        <Grid
+            Classes="ModalWrapper"
+            RowDefinitions="Auto,Auto,Auto"
+            RowSpacing="10">
+            <!-- Logo -->
+            <Image
+                Classes="StartupLogo"
+                Source="avares://DesktopUpdater/Assets/logo.png" />
+            <!-- Progress bar -->
+            <ProgressBar
+                Grid.Row="1"
+                Classes="StartupProgress"
+                Name="ProgressBar"
+                Value="{Binding Progress}"/>
+            <!--  Progress text  -->
+            <TextBlock
+                Grid.Row="2"
+                Classes="StartupProgressText"
+                Text="{Binding ProgressText}" />
+        </Grid>
+    </Border>
+</Window>

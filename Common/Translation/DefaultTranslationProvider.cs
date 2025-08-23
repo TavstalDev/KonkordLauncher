@@ -13,8 +13,7 @@ public static class DefaultTranslationProvider
     {
         #region Startup
         
-        {"startup.title", "Konkord Launcher"},
-        {"startup.subtitle", "A modern Minecraft launcher"},
+        {"startup.title", "Starting Konkord Launcher"},
         
         {"startup.progress.initializing", "Initializing..."},
         {"startup.validation.dataFolder", "Validating data folder..."},
@@ -38,6 +37,9 @@ public static class DefaultTranslationProvider
         {"startup.progress.checking", "Checking for updates..."},
         {"startup.progress.updating", "Updating..."},
         {"startup.progress.restarting", "Restarting..."},
+        
+        {"startup.update.fail", "Update Failed"},
+        {"startup.update.failMessage", "Failed to launch updater."},
         
         #endregion
 
@@ -402,6 +404,18 @@ public static class DefaultTranslationProvider
         {"java.table.version", "Version"},
         {"java.table.architecture", "Architecture"},
         {"java.table.path", "Path"},
+
+        #endregion
+
+        #region Updater
+
+        {"updater.title", "Updater"},
+        
+        {"updater.downloading", "Downloading update {0}%..."},
+        {"updater.extracting", "Extracting update..."},
+        {"updater.applying", "Applying update..."},
+        {"updater.finalizing", "Finalizing update..."},
+        {"updater.completed", "Update completed! Restarting..."},
 
         #endregion
         

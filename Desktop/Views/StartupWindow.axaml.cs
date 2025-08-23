@@ -15,6 +15,7 @@ using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Core.Models.Endpoints;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
@@ -174,7 +175,22 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
                 JavaHelper.LocateJavaInstallations(settings.Launcher.JavaDirectoryPath, true);
             }
 
-            // 6. Check for Updates
+            // 6. Refresh GitHub Cache for patches
+            SetStatus("startup.validation.github");
+            bool shouldRefreshCache = settings.CacheRefreshDate < DateTime.Now;
+            string githubCachePath = Path.Combine(settings.Launcher.CacheDirectoryPath, "github_cache.json");
+            if (!File.Exists(githubCachePath) || shouldRefreshCache)
+            {
+                string? response = await HttpHelper.GetStringAsync(KonkordEndpoints.AllReleases);
+                if (response == null)
+                {
+                    SetStatus("startup.validation.github.failed");
+                    return;
+                }
+                await File.WriteAllTextAsync(githubCachePath, response);
+            }
+            
+            // 7. Check for Updates
             if (settings.Launcher.EnableAutomaticUpdates && DateTime.Now > settings.Launcher.NextUpdateCheck)
             {
                 SetStatusTranslated("startup.progress.checking");
@@ -193,6 +209,14 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
                 _logger.Debug("No updates found, starting application...");
             }
 
+            // 8. Update cache refresh time if needed
+            if (shouldRefreshCache)
+            {
+                settings.CacheRefreshDate = DateTime.Now.AddDays(7);
+                await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherConfigPath, settings);
+            }
+            
+            // 9. Start Main Window
             if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
                 var oldWindow = desktop.MainWindow;
@@ -232,7 +256,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
         try
         {
             // 1. Fetch the latest release information from GitHub
-            var result = await HttpHelper.GetAsync("https://github.com/TavstalDev/KonkordLauncher/releases/latest");
+            var result = await HttpHelper.GetAsync(KonkordEndpoints.LatestRelease);
             if (result == null)
             {
                 _logger.Error("Failed to get latest release");

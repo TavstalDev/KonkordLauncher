@@ -48,6 +48,29 @@
         <Setter Property="BorderThickness" Value="0,0,1,1" />
         <Setter Property="Cursor" Value="Hand" />
     </Style>
+    
+    <!--  Icon HyperlinkButton  -->
+    <Style Selector="HyperlinkButton.IconBtn">
+        <Setter Property="Opacity" Value="0.8" />
+        <Setter Property="Padding" Value="5" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="BorderThickness" Value="0,0,2,2" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <!--  Icon HyperlinkButton Hover  -->
+    <Style Selector="HyperlinkButton.IconBtn:pointerover /template/ ContentPresenter">
+        <Setter Property="Opacity" Value="0.9" />
+        <Setter Property="BorderThickness" Value="0,0,2,2" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <!--  Icon HyperlinkButton Active  -->
+    <Style Selector="HyperlinkButton.IconBtn:pressed /template/ ContentPresenter">
+        <Setter Property="Opacity" Value="1.0" />
+        <Setter Property="BorderThickness" Value="0,0,1,1" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    
     <!--  Icon Button Wrapper  -->
     <Style Selector="WrapPanel.IconBtnWrapper">
         <Setter Property="Margin" Value="5, 0" />
@@ -68,6 +91,25 @@
     </Style>
     <!-- Default Button Active  -->
     <Style Selector="Button:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource default}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource default-border}" />
+        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
+    </Style>
+    
+    <!-- Default HyperlinkButton  -->
+    <Style Selector="HyperlinkButton.DefaultBtn">
+        <Setter Property="Background" Value="{DynamicResource default}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource default-border}" />
+        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
+    </Style>
+    <!-- Default HyperlinkButton Hover  -->
+    <Style Selector="HyperlinkButton.DefaultBtn:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource default}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource default-border}" />
+        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
+    </Style>
+    <!-- Default HyperlinkButton Active  -->
+    <Style Selector="HyperlinkButton.DefaultBtn:pressed /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource default}" />
         <Setter Property="BorderBrush" Value="{DynamicResource default-border}" />
         <Setter Property="Foreground" Value="{DynamicResource primary-content}" />

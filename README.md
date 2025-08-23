@@ -29,7 +29,8 @@
 - [ ] Implement better token encryption for Linux & MacOS
 - [ ] Remove sensitive data from log files before 1.7
 - [ ] Implement a more robust way to install old forge libraries
-- [ ] Implement automatic updates for the launcher
+- [x] Implement automatic updates for the launcher
+- - [ ] Test the updater on Windows, Linux and MacOS
 - [ ] Implement patch notes
 
 ## Description

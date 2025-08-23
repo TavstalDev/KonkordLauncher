@@ -752,7 +752,8 @@ public partial class MainViewModel : KonkordObservableObject
                 UseDedicatedGpu = newValue.Misc.UseDedicatedGpu,
                 EnableMangoHud = newValue.Misc.EnableMangoHud,
                 EnableFeralGameMode = newValue.Misc.EnableFeralGameMode,
-            }
+            },
+            CacheRefreshDate = oldSettings.CacheRefreshDate
         };
 
         JsonHelper.WriteJsonFile(PathHelper.LauncherConfigPath, settings);

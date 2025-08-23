@@ -132,10 +132,10 @@ public static class ValidationHelper
         {
             using var httpClient = new HttpClient();
             var settings = await LauncherHelper.GetLauncherSettingsAsync();
+            bool refreshManifests = DateTime.Now > settings.CacheRefreshDate;
             
-
             // Vanilla
-            if (!File.Exists(settings.Launcher.GetVanillaManifestPath()))
+            if (!File.Exists(settings.Launcher.GetVanillaManifestPath()) || refreshManifests)
             {
                 Progress<double> progress = new Progress<double>();
                 progress.ProgressChanged += (_, e) =>
@@ -148,7 +148,7 @@ public static class ValidationHelper
                 _logger.Error("Failed to load Minecraft manifest");
 
             // Fabric
-            if (!File.Exists(settings.Launcher.GetFabricManifestPath()))
+            if (!File.Exists(settings.Launcher.GetFabricManifestPath()) || refreshManifests)
             {
                 Progress<double> progress = new Progress<double>();
                 progress.ProgressChanged += (_, e) =>
@@ -161,7 +161,7 @@ public static class ValidationHelper
                 _logger.Error("Failed to load Fabric manifest");
 
             // Forge
-            if (!File.Exists(settings.Launcher.GetForgeManifestPath()))
+            if (!File.Exists(settings.Launcher.GetForgeManifestPath()) || refreshManifests)
             {
                 string raw = await httpClient.GetStringAsync(ForgeEndpoints.VersionManifest);
                 XDocument doc = XDocument.Parse(raw);
@@ -197,7 +197,7 @@ public static class ValidationHelper
             
             
             // NeoForge
-            if (!File.Exists(settings.Launcher.GetNeoForgeManifestPath()))
+            if (!File.Exists(settings.Launcher.GetNeoForgeManifestPath()) || refreshManifests)
             {
                 string raw = await httpClient.GetStringAsync(NeoForgeEndpoints.VersionManifest);
                 XDocument doc = XDocument.Parse(raw);
@@ -234,7 +234,7 @@ public static class ValidationHelper
                 _logger.Error("Failed to load NeoForge manifest");
 
             // Quilt
-            if (!File.Exists(settings.Launcher.GetQuiltManifestPath()))
+            if (!File.Exists(settings.Launcher.GetQuiltManifestPath()) || refreshManifests)
             {
                 Progress<double> progress = new Progress<double>();
                 progress.ProgressChanged += (_, e) =>

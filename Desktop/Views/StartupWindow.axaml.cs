@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -184,7 +185,10 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
                 await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherConfigPath, settings);
 
                 if (await CheckUpdateAsync())
+                {
+                    Close();
                     return;
+                }
 
                 _logger.Debug("No updates found, starting application...");
             }
@@ -279,14 +283,35 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
     }
 
     /// <summary>
-    /// Updates the launcher to the latest version.
+    /// Updates the launcher by starting the updater process.
+    /// Determines the appropriate updater executable based on the operating system
+    /// and attempts to launch it. Displays an error dialog if the process fails to start.
     /// </summary>
     private async Task UpdateLauncherAsync()
     {
         try
         {
-            // TODO: Implement the logic to update the launcher
-            await Task.Delay(1); // Temporal warning disable
+            string fileName = "Updater";
+            if (OSHelper.GetOperatingSystem() == EOperatingSystem.Windows)
+                fileName += ".exe";
+            else if (OSHelper.GetOperatingSystem() == EOperatingSystem.MacOS)
+                fileName += ".app";
+            
+            ProcessStartInfo processInfo = new ProcessStartInfo()
+            {
+                FileName = Path.Combine(Directory.GetCurrentDirectory(), fileName),
+                UseShellExecute = true,
+            };
+            var process = Process.Start(processInfo);
+            if (process == null)
+            {
+                AlertWindow window = new AlertWindow(
+                    TranslationManager.Translate("startup.update.fail"),
+                    TranslationManager.Translate("startup.update.failMessage", fileName),
+                    EAlertType.Error
+                );
+                await window.ShowDialog(this);
+            }
         }
         catch (Exception ex)
         {

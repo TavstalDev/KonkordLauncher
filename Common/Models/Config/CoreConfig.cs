@@ -33,6 +33,9 @@ public class CoreConfig
     [JsonProperty("misc"), JsonPropertyName("misc")]
     public MiscConfig Misc { get; set; }
     
+    [JsonProperty("cacheRefreshDate"), JsonPropertyName("cacheRefreshDate")]
+    public DateTime CacheRefreshDate { get; set; }
+    
     /// <summary>
     /// Initializes a new instance of the <see cref="CoreConfig"/> class with default values.
     /// </summary>
@@ -42,20 +45,23 @@ public class CoreConfig
         Java = new JavaConfig();
         Minecraft = new MinecraftConfig();
         Misc = new MiscConfig();
+        CacheRefreshDate = DateTime.Now;
     }
     
     /// <summary>
-    /// Initializes a new instance of the <see cref="CoreConfig"/> class with specified values.
+    /// Initializes a new instance of the <see cref="CoreConfig"/> class with the specified configurations.
     /// </summary>
-    /// <param name="launcher">The configuration for the launcher.</param>
-    /// <param name="java">The Java configuration for the launcher.</param>
-    /// <param name="minecraft">The Minecraft configuration for the launcher.</param>
-    /// <param name="misc">The miscellaneous configuration for the launcher.</param>
-    public CoreConfig(LauncherConfig launcher, JavaConfig java, MinecraftConfig minecraft, MiscConfig misc)
+    /// <param name="launcher">The launcher configuration.</param>
+    /// <param name="java">The Java configuration.</param>
+    /// <param name="minecraft">The Minecraft configuration.</param>
+    /// <param name="misc">The miscellaneous configuration.</param>
+    /// <param name="cacheRefreshDate">The date when the cache was last refreshed.</param>
+    public CoreConfig(LauncherConfig launcher, JavaConfig java, MinecraftConfig minecraft, MiscConfig misc, DateTime cacheRefreshDate)
     {
         Launcher = launcher;
         Java = java;
         Minecraft = minecraft;
         Misc = misc;
+        CacheRefreshDate = cacheRefreshDate;
     }
 }

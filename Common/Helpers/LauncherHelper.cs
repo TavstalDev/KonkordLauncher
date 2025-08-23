@@ -1,3 +1,4 @@
+using Newtonsoft.Json.Linq;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Config;
 using Tavstal.KonkordLauncher.Core.Helpers;
@@ -175,5 +176,31 @@ public static class LauncherHelper
         }
         
         return readResult;
+    }
+    
+    /// <summary>
+    /// Retrieves a list of patch notes from a cached GitHub JSON file.
+    /// If the file does not exist, an empty list is returned.
+    /// </summary>
+    /// <param name="cacheDir">The directory where the GitHub cache file is located.</param>
+    /// <returns>A list of <see cref="PatchNote"/> objects containing the patch notes.</returns>
+    public static List<PatchNote> GetPatchNotes(string cacheDir)
+    {
+        string githubFilePath = Path.Combine(cacheDir, "github_cache.json");
+        if (!File.Exists(githubFilePath))
+            return [];
+
+        List<PatchNote> result = [];
+        string rawJson = File.ReadAllText(githubFilePath);
+        JArray jArray = JArray.Parse(rawJson);
+        foreach (var patchNote in jArray)
+        {
+            string tagName = patchNote["tag_name"]?.ToString() ?? "Unknown Version";
+            string body = patchNote["body"]?.ToString() ?? "No description available.";
+            string url = patchNote["html_url"]?.ToString() ?? "";
+            result.Add(new PatchNote(tagName, body, url));
+        }
+        
+        return result;
     }
 }

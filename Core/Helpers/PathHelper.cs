@@ -30,13 +30,13 @@ public static class PathHelper
                 return _workingDirectory;
             }
             
-            if (dirName != "bin")
+            if (!dirName.EndsWith("bin", StringComparison.OrdinalIgnoreCase))
             {
-                _workingDirectory = dir;
+                _workingDirectory = dir.EndsWith("bin", StringComparison.OrdinalIgnoreCase) ? dirName : dir;
                 return _workingDirectory;
             }
 
-            _workingDirectory = Directory.GetParent(dir)?.FullName ?? dir;
+            _workingDirectory = Path.GetDirectoryName(dirName) ?? dirName;
             return _workingDirectory;
 #endif
         }

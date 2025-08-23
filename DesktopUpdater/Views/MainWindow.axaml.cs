@@ -14,6 +14,7 @@ using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Core.Models.Endpoints;
 
 namespace Tavstal.KonkordLauncher.DesktopUpdater.Views;
 
@@ -24,7 +25,6 @@ namespace Tavstal.KonkordLauncher.DesktopUpdater.Views;
 public partial class MainWindow : Window, IProgressReporter
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MainWindow));
-    private const string GitHubApiUrl = "https://api.github.com/repos/TavstalDev/KonkordLauncher/releases/latest";
     private readonly string _tmpDir;
 
     /// <summary>
@@ -98,7 +98,7 @@ public partial class MainWindow : Window, IProgressReporter
         }
 
         // 0. Send http request to GitHub API to get the latest release info
-        var response = await HttpHelper.GetStringAsync(GitHubApiUrl);
+        var response = await HttpHelper.GetStringAsync(KonkordEndpoints.LatestRelease);
         if (string.IsNullOrEmpty(response))
         {
             _logger.Error("Failed to fetch release info from GitHub API.");

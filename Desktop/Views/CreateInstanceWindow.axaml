@@ -18,8 +18,8 @@
     xmlns:mdxaml="https://github.com/whistyun/Markdown.Avalonia.Tight"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Translation"
-    xmlns:enums="clr-namespace:Tavstal.KonkordLauncher.Core.Enums;assembly=Core">
+    xmlns:enums="clr-namespace:Tavstal.KonkordLauncher.Core.Enums;assembly=Core"
+    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common">
 
     <Border Classes="InstanceView">
         <Grid RowDefinitions="Auto,*">

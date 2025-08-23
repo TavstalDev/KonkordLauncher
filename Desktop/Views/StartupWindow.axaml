@@ -3,7 +3,7 @@
     Height="350"
     Icon="avares://Desktop/Assets/Images/logo.png"
     ShowInTaskbar="False"
-    Title="Starting..."
+    Title="{lang:Translate startup.title}"
     Width="300"
     d:DesignHeight="350"
     d:DesignWidth="300"
@@ -14,7 +14,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models">
+    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
+    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common">
     <Border Classes="ModalView">
         <Grid
             Classes="ModalWrapper"

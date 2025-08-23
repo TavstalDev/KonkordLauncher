@@ -15,14 +15,14 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
-    xmlns:translation="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Translation">
+    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common">
 
     <Border Classes="ModalView">
         <StackPanel
             Classes="ModalWrapper"
             Spacing="15">
             <!-- Title -->
-            <TextBlock Classes="InstallTitleText" Text="{translation:Translate instance.install.title}" />
+            <TextBlock Classes="InstallTitleText" Text="{lang:Translate instance.install.title}" />
             <!-- Step -->
             <TextBlock Classes="InstallStepText" Text="{Binding ProgressText}" />
             <!-- Progress bar -->

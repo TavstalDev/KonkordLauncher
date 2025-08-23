@@ -15,9 +15,12 @@ namespace Tavstal.KonkordLauncher.Desktop;
 /// <summary>
 /// Represents the main application class for the Konkord Launcher desktop application.
 /// </summary>
+// ReSharper disable once PartialTypeWithSinglePart - Avalonia code generation
 public partial class App : Application
 {
     private static readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(App));
+
+    #region Screen Size
     private static PixelSize _screenSize = new(1920, 1080);
     public static PixelSize ScreenSize => _screenSize;
     
@@ -27,8 +30,10 @@ public partial class App : Application
     {
         _screenSize = screenSize;
     }
+    #endregion
 
-    private static string _version;
+    #region Versioning
+    private static string _version = string.Empty;
     public static string Version
     {
         get
@@ -50,7 +55,18 @@ public partial class App : Application
             return _version;
         }
     }
-    public static string Branch => "stable";
+
+    public static string Branch
+    {
+        get
+        {
+#if  DEBUG
+            return "dev";
+#else 
+            return "stable";
+#endif
+        }   
+    }
     public static string BuildDate
     {
         get // TODO: Use a more reliable method to get the build date
@@ -58,7 +74,7 @@ public partial class App : Application
             object[] buildDateAttributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyMetadataAttribute), false);
             foreach (var attribute in buildDateAttributes)
             {
-                if (attribute is AssemblyMetadataAttribute metadata && metadata.Key == "BuildDate")
+                if (attribute is AssemblyMetadataAttribute { Key: "BuildDate" } metadata)
                 {
                     return metadata.Value ?? DateTime.UtcNow.ToString("yyyy-MM-dd");
                 }
@@ -66,6 +82,7 @@ public partial class App : Application
             return DateTime.UtcNow.ToString("yyyy-MM-dd");
         }
     }
+    #endregion
     
     /// <summary>
     /// Initializes the application by loading XAML resources.

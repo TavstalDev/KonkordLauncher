@@ -6,7 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
     xmlns:local="clr-namespace:Tavstal.KonkordLauncher.Desktop"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Translation"
+    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common"
     Title="{lang:Translate instance.edit.window}"
     Width="900"
     Height="500"

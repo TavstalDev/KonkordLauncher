@@ -8,6 +8,15 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Reference Include="Avalonia.Base">
+        <HintPath>..\..\..\..\..\.nuget\packages\avalonia\11.3.4\ref\net8.0\Avalonia.Base.dll</HintPath>
+      </Reference>
+      <Reference Include="Avalonia.Markup">
+        <HintPath>..\..\..\..\..\.nuget\packages\avalonia\11.3.4\ref\net8.0\Avalonia.Markup.dll</HintPath>
+      </Reference>
+      <Reference Include="Avalonia.Markup.Xaml">
+        <HintPath>..\..\..\..\..\.nuget\packages\avalonia\11.3.4\ref\net8.0\Avalonia.Markup.Xaml.dll</HintPath>
+      </Reference>
       <Reference Include="Newtonsoft.Json">
         <HintPath>..\..\..\..\..\.nuget\packages\newtonsoft.json\13.0.3\lib\net6.0\Newtonsoft.Json.dll</HintPath>
       </Reference>

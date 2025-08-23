@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using Tavstal.KonkordLauncher.Common.Translation;
 
-namespace Tavstal.KonkordLauncher.Desktop.Models.Translation;
+namespace Tavstal.KonkordLauncher.Common.Models.Translation;
 
 /// <summary>
 /// Provides a binding source for translations, enabling dynamic updates when the language changes.

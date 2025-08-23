@@ -1,8 +1,7 @@
-using System;
 using Avalonia.Data;
 using Avalonia.Markup.Xaml;
 
-namespace Tavstal.KonkordLauncher.Desktop.Models.Translation;
+namespace Tavstal.KonkordLauncher.Common.Models.Translation;
 
 /// <summary>
 /// A markup extension that provides a binding to a translated string based on a specified key.

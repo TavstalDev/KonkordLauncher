@@ -52,7 +52,12 @@ public partial class MainViewModel : KonkordObservableObject
     [ObservableProperty] private ESidebarType _currentPageIndex;
     private readonly SourceCache<InstanceModel, string> _instanceCache = new(x => x.Id);
     public ReadOnlyObservableCollection<InstanceModel> Instances { get; }
-    [ObservableProperty] private ObservableCollection<NewsCardModel> _patches = [];
+    public bool HasInstances => _instanceCache.Count > 0;
+    
+    private readonly SourceCache<PatchNote, string> _patchCache = new(x => x.Title);
+    public ReadOnlyObservableCollection<PatchNote> Patches { get; }
+    public bool HasPatches => Patches.Count > 0;
+    
     [ObservableProperty] private AccountDataModel _accountData;
     [ObservableProperty] private CoreConfigModel _coreConfig;
     public bool IsLinux => OSHelper.GetOperatingSystem() == EOperatingSystem.Linux;
@@ -66,6 +71,7 @@ public partial class MainViewModel : KonkordObservableObject
         _coreConfig = new CoreConfigModel(LauncherHelper.GetLauncherSettings());
         _accountData = new AccountDataModel(LauncherHelper.GetAccountData());
 
+        #region Instances
         var instanceDisposer =  _instanceCache.Connect()
             .Bind(out var instances)
             .Subscribe();
@@ -84,8 +90,30 @@ public partial class MainViewModel : KonkordObservableObject
             innerCache.Clear();
             innerCache.AddOrUpdate(newInstances);
         });
-        _isInitialized = true;
+        #endregion
+        
+        #region Patches
+        var patchesDisposer =  _patchCache.Connect()
+            .Bind(out var patches)
+            .Subscribe();
+        Disposables.Add(patchesDisposer);
+        Patches = patches;
+        
+        var patchesCountDisposer = _patchCache.CountChanged
+            .Select(count => count > 0)
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .BindTo(this, x => x.HasPatches);
+        Disposables.Add(patchesCountDisposer);
+        
+        var newPatches = LauncherHelper.GetPatchNotes(_coreConfig.Launcher.CacheDirectoryPath);
+        _patchCache.Edit(innerCache =>
+        {
+            innerCache.Clear();
+            innerCache.AddOrUpdate(newPatches);
+        });
+        #endregion
 
+        _isInitialized = true;
         SubscribeToCoreConfigChildren(_coreConfig);
         SubscribeToAccountDataChildren(_accountData);
         GlobalEvents.OnAccountsChanged += OnAccountUpdated;
@@ -119,11 +147,6 @@ public partial class MainViewModel : KonkordObservableObject
     #endregion
 
     #region Instances Management
-    /// <summary>
-    /// Gets a value indicating whether there are any instances available.
-    /// </summary>
-    public bool HasInstances => _instanceCache.Count > 0;
-
     /// <summary>
     /// Handles changes to the instances collection by updating the cache with the latest instances data.
     /// Clears the existing cache and adds or updates it with the new instances retrieved from the launcher helper.

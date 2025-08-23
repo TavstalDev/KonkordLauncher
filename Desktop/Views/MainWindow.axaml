@@ -10,6 +10,7 @@
     xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
     xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common"
+    xmlns:models1="clr-namespace:Tavstal.KonkordLauncher.Common.Models;assembly=Common"
     Title="{lang:Translate main.title}"
     Width="900"
     Height="550"
@@ -243,16 +244,24 @@
             </Border>
         </DataTemplate>
         <!--  Patch Card  -->
-        <DataTemplate DataType="models:NewsCardModel">
+        <DataTemplate DataType="models1:PatchNote">
             <Border Classes="NewsCard">
-                <StackPanel>
+                <Grid RowDefinitions="Auto, Auto, Auto" ColumnDefinitions="*">
                     <!--  News Card Title  -->
                     <TextBlock Classes="NewsCardTitle" Text="{Binding Title}" />
                     <!--  News Card Description  -->
-                    <TextBlock Classes="NewsCardDescription" Text="{Binding Description}" />
+                    <TextBlock Grid.Row="1" Classes="NewsCardDescription" TextWrapping="Wrap" Text="{Binding Content}" />
                     <!--  Read More Button  -->
-                    <Button Classes="IconBtn InfoBtn" Content="{lang:Translate common.readMore}" />
-                </StackPanel>
+                    <HyperlinkButton Grid.Row="2" Classes="IconBtn DefaultBtn" NavigateUri="{Binding Url}">
+                        <WrapPanel Classes="IconBtnWrapper">
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                Classes="FontAwesome"
+                                Text="&#xf02d;" />
+                            <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.readMore}" />
+                        </WrapPanel>
+                    </HyperlinkButton>
+                </Grid>
             </Border>
         </DataTemplate>
         <!--  Account Card  -->
@@ -419,24 +428,22 @@
                         </Grid>
                     </StackPanel>
                     <!--  Patch Page  -->
-                    <StackPanel Classes="MainContentArea">
+                    <Grid RowDefinitions="Auto, Auto, *" Classes="MainContentArea">
                         <!--  Title  -->
                         <TextBlock Classes="MainContentTitle" Text="{lang:Translate main.page.patch.title}" />
                         <!--  Empty text  -->
-                        <TextBlock Text="{lang:Translate main.page.patch.empty}" />
+                        <TextBlock Grid.Row="1" IsVisible="{Binding !HasPatches}" Text="{lang:Translate main.page.patch.empty}" />
                         <!--  News Grid  -->
-                        <Grid MaxHeight="440">
-                            <ScrollViewer>
+                        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
                                 <ItemsControl ItemsSource="{Binding Patches}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
-                                            <WrapPanel Classes="NewsPageWrapper" />
+                                            <StackPanel Classes="NewsPageWrapper" />
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
                                 </ItemsControl>
-                            </ScrollViewer>
-                        </Grid>
-                    </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
                     <!--  Accounts Page  -->
                     <StackPanel Classes="MainContentArea">
                         <Grid Width="480" ColumnDefinitions="*, Auto">

@@ -132,14 +132,6 @@ public static class JavaHelper
                 }
                 else
                     ZipFile.ExtractToDirectory(zipFilePath, targetPath);
-                
-                
-
-                // Make java executable
-                if (operatingSystem != EOperatingSystem.Windows)
-                {
-                    
-                }
             }
             finally
             {

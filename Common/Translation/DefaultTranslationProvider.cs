@@ -41,6 +41,9 @@ public static class DefaultTranslationProvider
         {"startup.update.fail", "Update Failed"},
         {"startup.update.failMessage", "Failed to launch updater."},
         
+        {"startup.validation.github", "Validating GitHub cache..."},
+        {"startup.validation.githubFailed", "Failed to validate GitHub cache."},
+        
         #endregion
 
         #region Main

@@ -8,7 +8,7 @@ public static class DefaultTranslationProvider
     /// <summary>
     /// A dictionary containing default translation key-value pairs.
     /// </summary>
-    // TODO: Before release, merge duplicate translations, remove unused keys and reoganize the structure.
+    // TODO: Before release, merge duplicate translations, remove unused keys and reorganize the structure.
     private static readonly Dictionary<string, string> _translations = new()
     {
         #region Startup

@@ -4,8 +4,11 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.DependencyInjection;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
+using Tavstal.KonkordLauncher.Core.Encryption;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Views;
@@ -19,6 +22,7 @@ namespace Tavstal.KonkordLauncher.Desktop;
 public partial class App : Application
 {
     private static readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(App));
+    public static IServiceProvider? Services => Program.AppHost?.Services;
 
     #region Screen Size
     private static PixelSize _screenSize = new(1920, 1080);
@@ -91,6 +95,9 @@ public partial class App : Application
     {
         AvaloniaXamlLoader.Load(this);
         GlobalEvents.OnThemeChanged += ApplyTheme;
+        var dataProctionService = Services?.GetRequiredService<IDataProtectionProvider>();
+        if (dataProctionService != null)
+            EncryptionUtility.SetDataProtectionProvider(dataProctionService);
 
         try
         {

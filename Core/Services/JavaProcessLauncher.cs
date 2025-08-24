@@ -52,11 +52,11 @@ public static class JavaProcessLauncher
         {
 #if DEBUG
             UseShellExecute = false,
+            RedirectStandardError = true,
+            RedirectStandardOutput = true,
 #else
             UseShellExecute = true,
 #endif
-            RedirectStandardError = true,
-            RedirectStandardOutput = true,
         };
         // Add environment variables if provided
         if (environmentVariables != null)

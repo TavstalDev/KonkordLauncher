@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.AspNetCore.DataProtection;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
@@ -17,6 +18,20 @@ public static class EncryptionUtility
     /// </summary>
     private static readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EncryptionUtility));
 
+    /// <summary>
+    /// A data protector instance used for encrypting and decrypting data.
+    /// </summary>
+    private static IDataProtector? _protector;
+
+    /// <summary>
+    /// Sets the data protection provider and initializes the data protector instance.
+    /// </summary>
+    /// <param name="provider">The data protection provider to create the protector from.</param>
+    public static void SetDataProtectionProvider(IDataProtectionProvider provider)
+    {
+        _protector = provider.CreateProtector("KonkordLauncher.Protector");
+    }
+    
     /// <summary>
     /// Entropy value used for encryption on Windows.
     /// </summary>
@@ -41,6 +56,9 @@ public static class EncryptionUtility
     {
         try
         {
+            if (_protector != null)
+                return _protector.Protect(text);
+            
             switch (OSHelper.GetOperatingSystem())
             {
                 case EOperatingSystem.Windows:
@@ -70,6 +88,9 @@ public static class EncryptionUtility
     {
         try
         {
+            if (_protector != null)
+                return _protector.Unprotect(text);
+            
             switch (OSHelper.GetOperatingSystem())
             {
                 case EOperatingSystem.Windows:
@@ -146,12 +167,14 @@ public static class EncryptionUtility
             if (string.IsNullOrEmpty(text))
                 return text;
             
-            // TODO: Replace with better Linux encryption method
-            // Currently using a simple AES encryption with a static key
-            // This is not secure and should be replaced with a proper implementation
-            // For now, I will use the Encrypt method with a predefined key
-            // This is better than nothing, but not recommended for production use
-            // After finishing other tasks, I will implement a proper Linux encryption method
+            // This is a fallback method for encryption
+            // in case if IDataProtector is not set.
+            // It is recommended to set IDataProtector for better security.
+            // However, if not set, this method will be used.
+            // This is not the most secure method, especially with a static key,
+            // but it is better than nothing.
+            // I could generate a custom key on each machine, but since I would need to store it
+            // somewhere unencrypted, it would defeat the purpose of encryption.
             return Encrypt(linuxKey, text);
         }
         catch (Exception ex)
@@ -174,12 +197,14 @@ public static class EncryptionUtility
             if (string.IsNullOrEmpty(text))
                 return text;
             
-            // TODO: Replace with better Linux decryption method
-            // Currently using a simple AES decryption with a static key
-            // This is not secure and should be replaced with a proper implementation
-            // For now, I will use the Decrypt method with a predefined key
-            // This is better than nothing, but not recommended for production use
-            // After finishing other tasks, I will implement a proper Linux decryption method
+            // This is a fallback method for encryption
+            // in case if IDataProtector is not set.
+            // It is recommended to set IDataProtector for better security.
+            // However, if not set, this method will be used.
+            // This is not the most secure method, especially with a static key,
+            // but it is better than nothing.
+            // I could generate a custom key on each machine, but since I would need to store it
+            // somewhere unencrypted, it would defeat the purpose of encryption.
             return Decrypt(linuxKey, text);
         }
         catch (Exception ex)
@@ -202,12 +227,14 @@ public static class EncryptionUtility
             if (string.IsNullOrEmpty(text))
                 return text;
             
-            // TODO: Replace with better macOS encryption method
-            // Currently using a simple AES encryption with a static key
-            // This is not secure and should be replaced with a proper implementation
-            // For now, I will use the Encrypt method with a predefined key
-            // This is better than nothing, but not recommended for production use
-            // After finishing other tasks, I will implement a proper macOS encryption method
+            // This is a fallback method for encryption
+            // in case if IDataProtector is not set.
+            // It is recommended to set IDataProtector for better security.
+            // However, if not set, this method will be used.
+            // This is not the most secure method, especially with a static key,
+            // but it is better than nothing.
+            // I could generate a custom key on each machine, but since I would need to store it
+            // somewhere unencrypted, it would defeat the purpose of encryption.
             return Encrypt(macKey, text);
         }
         catch (Exception ex)
@@ -230,12 +257,14 @@ public static class EncryptionUtility
             if (string.IsNullOrEmpty(text))
                 return text;
             
-            // TODO: Replace with better macOS decryption method
-            // Currently using a simple AES decryption with a static key
-            // This is not secure and should be replaced with a proper implementation
-            // For now, I will use the Decrypt method with a predefined key
-            // This is better than nothing, but not recommended for production use
-            // After finishing other tasks, I will implement a proper macOS decryption method
+            // This is a fallback method for encryption
+            // in case if IDataProtector is not set.
+            // It is recommended to set IDataProtector for better security.
+            // However, if not set, this method will be used.
+            // This is not the most secure method, especially with a static key,
+            // but it is better than nothing.
+            // I could generate a custom key on each machine, but since I would need to store it
+            // somewhere unencrypted, it would defeat the purpose of encryption.
             return Decrypt(macKey, text);
         }
         catch (Exception ex)

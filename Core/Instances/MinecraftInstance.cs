@@ -17,6 +17,9 @@ public class MinecraftInstance
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MinecraftInstance));
     private readonly LauncherDetails _launcherDetails;
     private readonly ClientDetails _client;
+    private FileSystemWatcher? _watcher;
+    private readonly Lock _watcherLock = new();
+    private bool _isSanitizingLogFile = false;
 
     protected GameDetails GameDetails { get; }
     protected PathDetails PathDetails { get; }
@@ -114,7 +117,6 @@ public class MinecraftInstance
             
             // Below 1.7 there is no dedicated logs directory
             // so this fixes this issue
-            // TODO: Remove sensitive data from logs
             Version minecraftVersion = new Version(GameDetails.MinecraftVersion);
             Version seven = new Version(1, 7);
             string? logsFilePath = null;
@@ -130,6 +132,14 @@ public class MinecraftInstance
                     File.Move(latestLogFile, Path.Combine(logsDir, $"{lastEditDate:yyyy-MM-dd_HH-mm-ss}.log"), true);
                 }
                 logsFilePath = latestLogFile;
+                
+                // Make a file watcher to remove sensitive data from logs
+                _watcher = new FileSystemWatcher(logsDir, "latest.log")
+                {
+                    NotifyFilter = NotifyFilters.LastWrite,
+                    EnableRaisingEvents = true
+                };
+                _watcher.Changed += HandleFileWatcherChanged;
             }
             
             // Launch the Minecraft game process with the constructed arguments
@@ -137,10 +147,20 @@ public class MinecraftInstance
                 GameDetails.EnvironmentVariables);
             
             // Execute post-exit command if specified
-            if (!string.IsNullOrEmpty(GameDetails.PostExitCommand) && process != null)
-            {
-                process.Exited += (_, _) => JavaProcessLauncher.StartCommand(GameDetails.PostExitCommand);
-            }
+            // Make sure to dispose the file watcher when the game process exits
+            if (process != null)
+                process.Exited += (_, _) =>
+                {
+                    if (!string.IsNullOrEmpty(GameDetails.PostExitCommand))
+                        JavaProcessLauncher.StartCommand(GameDetails.PostExitCommand);
+                    
+                    if (_watcher == null)
+                        return;
+                    
+                    _watcher.Changed -= HandleFileWatcherChanged;
+                    _watcher?.Dispose();
+                };
+            
             return process;
         }
         finally
@@ -393,8 +413,7 @@ public class MinecraftInstance
 
         return replacements.Aggregate(argumentString, (current, replacement) => current.Replace(replacement.Key, replacement.Value));
     }
-
-
+    
     #region  Events
 
     /// <summary>
@@ -417,6 +436,60 @@ public class MinecraftInstance
     {
         GameDetails.JavaPath = javaPath;
         _logger.Debug($"Java path updated to: {javaPath}");
+    }
+
+    /// <summary>
+    /// Handles changes to the log file being watched by the file system watcher.
+    /// Replaces sensitive information such as the access token and UUID in the log file with masked values.
+    /// </summary>
+    /// <param name="sender">The source of the event.</param>
+    /// <param name="e">The event data containing information about the file change.</param>
+    private void HandleFileWatcherChanged(object sender, FileSystemEventArgs e)
+    {
+        // Impossible but the IDE complains
+        if (_watcher == null)
+            return;
+        
+        lock (_watcherLock)
+        {
+            if (_isSanitizingLogFile)
+                return;
+            _isSanitizingLogFile = true;
+        }
+        
+        try
+        {
+            _watcher.EnableRaisingEvents = false;
+            
+            string logsDir = Path.Combine(VersionData.GameDir, "logs");
+            string latestLogFile = Path.Combine(logsDir, "latest.log");
+            if (!File.Exists(latestLogFile))
+            {
+                _logger.Error("Latest log file not found for sanitization.");
+                return;
+            }
+            
+            string[] lines = File.ReadAllLines(latestLogFile);
+            for (int i = 0; i < lines.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(_client.AccessToken) && lines[i].Contains(_client.AccessToken))
+                    lines[i] = lines[i].Replace(_client.AccessToken, "****");
+                
+                if (lines[i].Contains(_client.UUID))
+                    lines[i] = lines[i].Replace(_client.UUID, "****");
+            }
+            File.WriteAllLines(latestLogFile, lines);
+        }
+        catch (IOException)
+        {
+            // File is being used by another process, ignore
+        }
+        finally
+        {
+            lock (_watcherLock)
+                _isSanitizingLogFile = false;
+            _watcher.EnableRaisingEvents = true;
+        }
     }
     #endregion
 }

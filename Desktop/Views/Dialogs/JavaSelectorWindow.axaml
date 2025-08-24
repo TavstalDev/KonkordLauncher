@@ -16,7 +16,7 @@
     x:DataType="models:JavaSelectorViewModel"
     CanResize="False"
     Icon="avares://Desktop/Assets/Images/logo.png"
-    ShowInTaskbar="False"
+    ShowInTaskbar="True"
     mc:Ignorable="d">
 
     <Border Classes="ModalView">

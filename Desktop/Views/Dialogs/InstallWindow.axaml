@@ -2,7 +2,7 @@
     CanResize="False"
     Height="175"
     Icon="avares://Desktop/Assets/Images/logo.png"
-    ShowInTaskbar="False"
+    ShowInTaskbar="True"
     Title="Starting..."
     Width="400"
     d:DesignHeight="175"

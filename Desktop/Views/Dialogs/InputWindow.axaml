@@ -9,7 +9,7 @@
         x:DataType="models:InputViewModel"
         Title="{Binding Title}"
         CanResize="False"
-        ShowInTaskbar="False"
+        ShowInTaskbar="True"
         Icon="avares://Desktop/Assets/Images/logo.png"
         MinWidth="300"
         Width="300"

@@ -8,7 +8,6 @@ public static class DefaultTranslationProvider
     /// <summary>
     /// A dictionary containing default translation key-value pairs.
     /// </summary>
-    // TODO: Before release, merge duplicate translations, remove unused keys and reorganize the structure.
     private static readonly Dictionary<string, string> _translations = new()
     {
         #region Startup
@@ -97,7 +96,6 @@ public static class DefaultTranslationProvider
         {"common.none", "None"},
         {"common.categories", "Categories"},
         {"common.bottom", "Bottom"},
-        {"common.readMore", "Read More"},
         {"common.open.link", "Open Link"},
         {"common.or", "OR"},
         {"common.loading", "Loading"},
@@ -192,7 +190,6 @@ public static class DefaultTranslationProvider
         {"instance.create.experiments", "Experiments" },
         {"instance.create.modloader", "Mod Loader"},
         {"instance.create.button", "Create Instance"},
-        {"instance.create.subtitle.search", "Search"},
         {"instance.create.subtitle.platform", "Platform"},
         
         {"instance.create.category.adventure", "Adventure"},

@@ -237,7 +237,7 @@
                                         <!--  Name  -->
                                         <Grid RowDefinitions="Auto, Auto" RowSpacing="8">
                                             <!--  Text  -->
-                                            <TextBlock Classes="TextInput" Name="ModpackSearchTb" Text="{lang:Translate instance.create.subtitle.search}" />
+                                            <TextBlock Classes="TextInput" Name="ModpackSearchTb" Text="{lang:Translate common.search}" />
                                             <!--  Input  -->
                                             <TextBox
                                                 Classes="TextInput"

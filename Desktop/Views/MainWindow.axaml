@@ -258,7 +258,7 @@
                                 VerticalAlignment="Center"
                                 Classes="FontAwesome"
                                 Text="&#xf02d;" />
-                            <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.readMore}" />
+                            <TextBlock VerticalAlignment="Center" Text="{lang:Translate main.page.patch.read}" />
                         </WrapPanel>
                     </HyperlinkButton>
                 </Grid>

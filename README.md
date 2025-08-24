@@ -26,7 +26,7 @@
 - - This requires a server-side API due to CurseForge API limitations, so since I have no resources to host a server 24/7 with good network connection, this will be implemented later.
 - [ ] Implement instance creation with modpacks
 - [ ] Implement instance import/export
-- [ ] Implement better token encryption for Linux & MacOS
+- [x] Implement better token encryption for Linux & MacOS
 - [x] Remove sensitive data from log files before 1.7
 - [x] Implement a more robust way to install old forge libraries
 - [x] Implement automatic updates for the launcher

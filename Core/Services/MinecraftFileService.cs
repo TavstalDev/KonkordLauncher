@@ -161,6 +161,11 @@ public static class MinecraftFileService
             {
                 string resourcesDir = Path.Combine(gameDir, "resources");
                 Directory.CreateDirectory(resourcesDir);
+                
+                // For some reason pre-1.6 still wants to use icons from legacy folder
+                // So we fix this by copying the icon files to the legacy folder
+                string legacyDir= Path.Combine(assetsDir, "virtual", "legacy");
+                Directory.CreateDirectory(legacyDir);
             
                 foreach (JProperty token in assetJToken.Children<JProperty>().ToList())
                 {
@@ -185,12 +190,25 @@ public static class MinecraftFileService
                         await HttpHelper.DownloadFileAsync(
                             $"{MicrosoftEndpoints.MinecraftResourcesUrl}/{hash.Substring(0, 2)}/{hash}", objectPath, null);
                     }
+
+                    if (fileName.Contains("icon") || (objectDir != null && objectDir.Contains("icon")))
+                    {
+                        if (!string.IsNullOrEmpty(fileDirectory))
+                        {
+                            objectDir = Path.Combine(legacyDir, fileDirectory);
+                            Directory.CreateDirectory(objectDir);
+                        }
+                        var legacyObjectPath = Path.Combine(objectDir ?? legacyDir, fileName);
+                        if (!File.Exists(legacyObjectPath) && File.Exists(objectPath)) // Double check to be sure
+                            File.Copy(objectPath, legacyObjectPath);
+                    }
                 
                     var sizeToken = token.First?["size"];
                     downloadedAssetSize += sizeToken != null ? int.Parse(sizeToken.ToString()) : 0;
                     double percent = (double)downloadedAssetSize / (double)versionMeta.Index.TotalSize * 100d;
                     progressReporter?.SetStatusTranslated("instance.downloading.assets", percent.ToString("0.00"));
                 }
+                
                 break;
             }
             // Legacy Assets

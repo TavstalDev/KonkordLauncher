@@ -53,11 +53,11 @@ public partial class MainViewModel : KonkordObservableObject
     [ObservableProperty] private ESidebarType _currentPageIndex;
     private readonly SourceCache<InstanceModel, string> _instanceCache = new(x => x.Id);
     public ReadOnlyObservableCollection<InstanceModel> Instances { get; }
-    public bool HasInstances => Instances.Count > 0;
+    [ObservableProperty] private bool _hasInstances;
     
     private readonly SourceCache<PatchNote, string> _patchCache = new(x => x.Title);
     public ReadOnlyObservableCollection<PatchNote> Patches { get; }
-    public bool HasPatches => Patches.Count > 0;
+    [ObservableProperty] private bool _hasPatches;
     
     [ObservableProperty] private AccountDataModel _accountData;
     [ObservableProperty] private CoreConfigModel _coreConfig;
@@ -370,7 +370,8 @@ public partial class MainViewModel : KonkordObservableObject
         if (string.IsNullOrEmpty(targetInstance.GameDirectory))
             return;
             
-        FileSystemHelper.DeleteDirectory(targetInstance.GameDirectory);
+        if (System.IO.Directory.Exists(targetInstance.GameDirectory))
+            FileSystemHelper.DeleteDirectory(targetInstance.GameDirectory);
         instances.Remove(targetInstance);
         await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances);
         GlobalEvents.InvokeInstancesChanged();

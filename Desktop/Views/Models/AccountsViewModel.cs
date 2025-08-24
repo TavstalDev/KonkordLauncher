@@ -122,7 +122,7 @@ public partial class AccountsViewModel : KonkordObservableObject
     /// Opens the Microsoft device code verification URL in the default browser.
     /// </summary>
     [RelayCommand]
-    private async Task MicrosoftOpenCodeLinkAsync()
+    private void MicrosoftOpenCodeLink()
     {
         MicrosoftAuthService.OpenUrl(DeviceData.VerificationUri);
     }

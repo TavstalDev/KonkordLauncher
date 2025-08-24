@@ -59,10 +59,7 @@ public static class AuthHttpListener
     public static void StopListening(bool cancelled = true)
     {
         if (_httpListener == null)
-        {
-            _logger.Error("HTTP listener is not initialized.");
             return;
-        }
         
         if (!_isListening)
             return;

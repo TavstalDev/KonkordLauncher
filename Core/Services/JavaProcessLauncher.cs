@@ -45,6 +45,8 @@ public static class JavaProcessLauncher
         else
             fullCommand = finalJavaPath + " " + arguments;
         
+        fullCommand = fullCommand.Replace("\"", "\\\"");
+        
         // Configure the process start information
         var psi = new ProcessStartInfo()
         {
@@ -93,7 +95,7 @@ public static class JavaProcessLauncher
                 if (string.IsNullOrEmpty(logFilePath))
                     psi.Arguments = $@"-c ""{fullCommand}""";
                 else
-                    psi.Arguments = $@"-c ""{fullCommand} >> ""{logFilePath}"" 2>&1""";
+                    psi.Arguments = $@"-c ""{fullCommand} >> '{logFilePath}' 2>&1""";
                 break;
             }
         }
@@ -101,13 +103,19 @@ public static class JavaProcessLauncher
         // Log the process start details
         _logger.Debug($"Java Path: {javaPath}");
         _logger.Debug("Starting Java process with arguments:");
-        _logger.Debug($"\n# START OF ARGUMENTS#\n{arguments.Replace(" ", "\n")}\n# END OF ARGUMENTS#");
+        //_logger.Debug("FileName: " + psi.FileName);
+        //_logger.Debug("Arguments: " + psi.Arguments);
+        //_logger.Debug("Log File Path: " + (string.IsNullOrEmpty(logFilePath) ? "No log file specified" : logFilePath));
+        _logger.Debug($"\n# START OF JAVA ARGUMENTS#\n{arguments.Replace(" ", "\n")}\n# END OF JAVA ARGUMENTS#");
+        
 
         var process = Process.Start(psi);
         if (process != null)
         {
             process.EnableRaisingEvents = true;
-#if DEBUG
+            process.Exited += (sender, e) => { _logger.Info($"Java process exited with code: {process.ExitCode}"); };
+            
+            /*
             process.OutputDataReceived += (sender, e) =>
             {
                 if (e.Data != null)
@@ -118,11 +126,9 @@ public static class JavaProcessLauncher
                 if (e.Data != null)
                     _logger.Error($"{e.Data}");
             };
-            process.Exited += (sender, e) => { _logger.Info($"Java process exited with code: {process.ExitCode}"); };
 
             process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
-#endif
+            process.BeginErrorReadLine();*/
         }
 
         // Start the process and return the Process object

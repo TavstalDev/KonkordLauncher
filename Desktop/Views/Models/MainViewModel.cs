@@ -32,6 +32,7 @@ public partial class MainViewModel : KonkordObservableObject
 {
     private readonly bool _isInitialized;
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MainViewModel));
+    public bool IsLinux => OSHelper.GetOperatingSystem() == EOperatingSystem.Linux;
 
     #region Interactions
 
@@ -52,7 +53,7 @@ public partial class MainViewModel : KonkordObservableObject
     [ObservableProperty] private ESidebarType _currentPageIndex;
     private readonly SourceCache<InstanceModel, string> _instanceCache = new(x => x.Id);
     public ReadOnlyObservableCollection<InstanceModel> Instances { get; }
-    public bool HasInstances => _instanceCache.Count > 0;
+    public bool HasInstances => Instances.Count > 0;
     
     private readonly SourceCache<PatchNote, string> _patchCache = new(x => x.Title);
     public ReadOnlyObservableCollection<PatchNote> Patches { get; }
@@ -60,7 +61,6 @@ public partial class MainViewModel : KonkordObservableObject
     
     [ObservableProperty] private AccountDataModel _accountData;
     [ObservableProperty] private CoreConfigModel _coreConfig;
-    public bool IsLinux => OSHelper.GetOperatingSystem() == EOperatingSystem.Linux;
     
     /// <summary>
     /// Initializes a new instance of the <see cref="MainViewModel"/> class.

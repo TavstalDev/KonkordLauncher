@@ -24,6 +24,7 @@
 - [ ] Add Modrinth support
 - [ ] Add CurseForge support
 - - This requires a server-side API due to CurseForge API limitations, so since I have no resources to host a server 24/7 with good network connection, this will be implemented later.
+- [ ] CurseForge API server-side implementation
 - [ ] Implement instance creation with modpacks
 - [ ] Implement instance import/export
 - [x] Implement better token encryption for Linux & MacOS

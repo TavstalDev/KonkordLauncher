@@ -176,7 +176,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
             }
 
             // 6. Refresh GitHub Cache for patches
-            SetStatus("startup.validation.github");
+            SetStatusTranslated("startup.validation.github");
             bool shouldRefreshCache = settings.CacheRefreshDate < DateTime.Now;
             string githubCachePath = Path.Combine(settings.Launcher.CacheDirectoryPath, "github_cache.json");
             if (!File.Exists(githubCachePath) || shouldRefreshCache)
@@ -184,12 +184,12 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
                 string? response = await HttpHelper.GetStringAsync(KonkordEndpoints.AllReleases);
                 if (response == null)
                 {
-                    SetStatus("startup.validation.github.failed");
+                    SetStatusTranslated("startup.validation.github.failed");
                     return;
                 }
                 await File.WriteAllTextAsync(githubCachePath, response);
             }
-            
+
             // 7. Check for Updates
             if (settings.Launcher.EnableAutomaticUpdates && DateTime.Now > settings.Launcher.NextUpdateCheck)
             {
@@ -215,22 +215,26 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
                 settings.CacheRefreshDate = DateTime.Now.AddDays(7);
                 await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherConfigPath, settings);
             }
-            
+
             // 9. Start Main Window
-            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop)
             {
-                var oldWindow = desktop.MainWindow;
-                var newWindow = new MainWindow
-                {
-                    WindowStartupLocation = WindowStartupLocation.CenterScreen
-                };
-                desktop.MainWindow = newWindow;
-                newWindow.Show();
-                if (oldWindow != null)
-                    oldWindow.Close();
-                else
-                    Close();
+                _logger.Error(
+                    "Failed to start main window: Application lifetime is not IClassicDesktopStyleApplicationLifetime");
+                return;
             }
+
+            var oldWindow = desktop.MainWindow;
+            var newWindow = new MainWindow
+            {
+                WindowStartupLocation = WindowStartupLocation.CenterScreen
+            };
+            desktop.MainWindow = newWindow;
+            newWindow.Show();
+            if (oldWindow != null)
+                oldWindow.Close();
+            else
+                Close();
         });
     }
 

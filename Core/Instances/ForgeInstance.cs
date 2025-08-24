@@ -89,7 +89,7 @@ public static class ForgeInstance
     
     // Contains old Forge libraries for version 1.5.2
     // Fixes forge compatibility issues
-    public static List<string> GetLegacyLibraries(string minecraftVersion, string path = "Tavstal.KonkordLauncher.Desktop.Assets.Fmllib.")
+    public static List<string> GetLegacyLibraries(string minecraftVersion, string path = "Tavstal.KonkordLauncher.Core.Assets.Fmllib.")
     {
         Version mcVersion = new Version(minecraftVersion);
         

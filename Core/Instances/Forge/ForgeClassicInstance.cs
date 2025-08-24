@@ -210,14 +210,13 @@ public class ForgeClassicInstance(string forgeVersionName,
         // Copy legacy libraries to the forge lib directory
         foreach (var library in legacyLibraries)
         {
-            string libraryFileName = library.Replace("Tavstal.KonkordLauncher.Desktop.Assets.Fmllib.", "");
+            string libraryFileName = library.Replace("Tavstal.KonkordLauncher.Core.Assets.Fmllib.", "");
             string libraryTargetPath = Path.Combine(forgeLibDir, libraryFileName);
             
             if (File.Exists(libraryTargetPath))
                 continue;
             
-            // TODO: Use a more robust way to get the resource stream
-            var stream = _progressReporter?.GetType().Assembly.GetManifestResourceStream(library);
+            var stream = this.GetType().Assembly.GetManifestResourceStream(library);
             if (stream == null)
             {
                 _logger.Error($"Failed to get resource stream for {library}");

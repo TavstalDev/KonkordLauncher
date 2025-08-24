@@ -73,8 +73,8 @@ public class ForgeEarlyInstance(string forgeVersionName, string universalName,
         }
 
         ModdedData moddedData = new ModdedData(null, forgeVersion, []);
-        var libraaries = ForgeInstance.GetLegacyLibraries(GameDetails.MinecraftVersion);
-        if (libraaries.Count == 0)
+        var libraries = ForgeInstance.GetLegacyLibraries(GameDetails.MinecraftVersion);
+        if (libraries.Count == 0)
             return moddedData;
         
         string forgeLibDir = Path.Combine(forgeVersion.GameDir, "lib");
@@ -82,16 +82,15 @@ public class ForgeEarlyInstance(string forgeVersionName, string universalName,
             Directory.CreateDirectory(forgeLibDir);
         
         // Copy legacy libraries to the forge lib directory
-        foreach (var library in libraaries)
+        foreach (var library in libraries)
         {
-            string libraryFileName = library.Replace("Tavstal.KonkordLauncher.Desktop.Assets.Fmllib.", "");
+            string libraryFileName = library.Replace("Tavstal.KonkordLauncher.Core.Assets.Fmllib.", "");
             string libraryTargetPath = Path.Combine(forgeLibDir, libraryFileName);
             
             if (File.Exists(libraryTargetPath))
                 continue;
             
-            // TODO: Use a more robust way to get the resource stream
-            var stream = _progressReporter?.GetType().Assembly.GetManifestResourceStream(library);
+            var stream = this.GetType().Assembly.GetManifestResourceStream(library);
             if (stream == null)
             {
                 _logger.Error($"Failed to get resource stream for {library}");

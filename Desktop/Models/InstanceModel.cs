@@ -178,7 +178,6 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         _watcher.EnableRaisingEvents = true;
         _watcher.Changed += OnLogFileChanged;
         _watcher.Created += OnLogFileChanged;
-        _watcher.Renamed += OnLogFileChanged;
         _watcher.Error += (_, e) =>
         {
             _logger.Error("Watcher error: " + e.GetException().Message);
@@ -198,7 +197,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         if (account == null)
         {
             _logger.Error("No account selected for launching the ");
-            showAlertDialog.Handle(new Alert(TranslationManager.Translate("account.none.title"), TranslationManager.Translate("account.none.message"), EAlertType.Warning));
+            await showAlertDialog.Handle(new Alert(TranslationManager.Translate("account.none.title"), TranslationManager.Translate("account.none.message"), EAlertType.Warning));
             return;
         }
 
@@ -494,7 +493,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
 
             showAlertDialog.Handle(new Alert(TranslationManager.Translate("instance.java.notfound.title", meta.JavaVersionMeta.MajorVersion),
                 TranslationManager.Translate("instance.java.notfound.message", meta.JavaVersionMeta.MajorVersion),
-                EAlertType.Warning));
+                EAlertType.Warning)).Wait();
             return;
         }
 
@@ -542,6 +541,9 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             
             if (e.ChangeType != WatcherChangeTypes.Changed)
                 return;
+
+            // This will ensure that no sensitive data is read while the file is being written to
+            Task.Delay(100).Wait(); // Wait a bit to ensure the file is ready to be read
             
             using var fs = new FileStream(e.FullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             fs.Seek(_lastReadPosition, SeekOrigin.Begin);

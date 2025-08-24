@@ -435,7 +435,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             
             if (settings.Minecraft.CloseLauncherOnGameStart)
             {
-                closeWindow.Handle(Unit.Default);
+                await closeWindow.Handle(Unit.Default);
                 return;
             }
 

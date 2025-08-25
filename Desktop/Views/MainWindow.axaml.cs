@@ -126,8 +126,14 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
         var screenSize = screen.Bounds.Size;
         App.SetScreenSize(screenSize);
 
-        // TODO: Implement an actual way to show if there is update available
-        VersionLabel.Content = TranslationManager.Translate("main.sidebar.version.update.none");
+
+        if (App.IsUpToDate == null)
+            VersionLabel.Content = TranslationManager.Translate("main.sidebar.version.update.none");
+        else
+            VersionLabel.Content = App.IsUpToDate.Value ? 
+                TranslationManager.Translate("main.sidebar.version.update.none")
+                :
+                TranslationManager.Translate("main.sidebar.version.update.available");
     }
 
     /// <summary>

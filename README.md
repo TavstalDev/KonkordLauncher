@@ -31,7 +31,7 @@
 - [x] Remove sensitive data from log files before 1.7
 - [x] Implement a more robust way to install old forge libraries
 - [x] Implement automatic updates for the launcher
-- - [ ] Test the updater on Windows, Linux and MacOS
+  - [ ] Test the updater on Windows, Linux and MacOS
 - [x] Implement patch notes
 
 ## Description

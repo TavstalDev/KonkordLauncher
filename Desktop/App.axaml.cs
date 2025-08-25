@@ -59,7 +59,6 @@ public partial class App : Application
             return _version;
         }
     }
-
     public static string Branch
     {
         get
@@ -71,21 +70,29 @@ public partial class App : Application
 #endif
         }   
     }
+    private static string _buidDate = string.Empty;
     public static string BuildDate
     {
-        get // TODO: Use a more reliable method to get the build date
+        get
         {
+            if (!string.IsNullOrEmpty(_buidDate))
+                return _buidDate;
+            
             object[] buildDateAttributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyMetadataAttribute), false);
             foreach (var attribute in buildDateAttributes)
             {
                 if (attribute is AssemblyMetadataAttribute { Key: "BuildDate" } metadata)
                 {
-                    return metadata.Value ?? DateTime.UtcNow.ToString("yyyy-MM-dd");
+                    _buidDate = metadata.Value ?? DateTime.UtcNow.ToString("yyyy-MM-dd");
+                    return _buidDate;
                 }
             }
-            return DateTime.UtcNow.ToString("yyyy-MM-dd");
+
+            _buidDate = DateTime.UtcNow.ToString("yyyy-MM-dd");
+            return _buidDate;
         }
     }
+    public static bool? IsUpToDate { get; set; } = null;
     #endregion
     
     /// <summary>

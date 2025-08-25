@@ -191,6 +191,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
             }
 
             // 7. Check for Updates
+            App.IsUpToDate = true;
             if (settings.Launcher.EnableAutomaticUpdates && DateTime.Now > settings.Launcher.NextUpdateCheck)
             {
                 SetStatusTranslated("startup.progress.checking");
@@ -202,12 +203,15 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
 
                 if (await CheckUpdateAsync())
                 {
+                    App.IsUpToDate = false;
                     Close();
                     return;
                 }
 
                 _logger.Debug("No updates found, starting application...");
             }
+            else
+                App.IsUpToDate = !await CheckUpdateAsync(true);
 
             // 8. Update cache refresh time if needed
             if (shouldRefreshCache)
@@ -250,12 +254,16 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
         // it may use more resources than necessary otherwise
         ProgressBar.IsIndeterminate = false;
     }
-
+    
     /// <summary>
-    /// Checks for updates by comparing the current version with the latest release version.
+    /// Checks for updates by comparing the current launcher version with the latest version available on GitHub.
+    /// If an update is available, optionally initiates the update process.
     /// </summary>
-    /// <returns>True if an update is required, otherwise false.</returns>
-    private async Task<bool> CheckUpdateAsync()
+    /// <param name="justCheck">
+    /// A boolean flag indicating whether to only check for updates without initiating the update process.
+    /// Defaults to false.
+    /// </param>
+    private async Task<bool> CheckUpdateAsync(bool justCheck = false)
     {
         try
         {
@@ -299,7 +307,8 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
             if (currentVersion >= latestVer)
                 return false;
             
-            await UpdateLauncherAsync();
+            if (!justCheck)
+                await UpdateLauncherAsync();
             return true;
         }
         catch (Exception ex)

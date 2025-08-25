@@ -126,6 +126,13 @@ public static class ValidationHelper
         }
     }
     
+    /// <summary>
+    /// Validates and updates various manifests required by the launcher, such as Vanilla, Fabric, Forge, NeoForge, and Quilt.
+    /// Downloads the manifests if they are missing or outdated.
+    /// </summary>
+    /// <param name="progressReporter">
+    /// An optional progress reporter to report the download progress of the manifests.
+    /// </param>
     public static async Task<bool> ValidateManifests(IProgressReporter? progressReporter = null)
     {
         try

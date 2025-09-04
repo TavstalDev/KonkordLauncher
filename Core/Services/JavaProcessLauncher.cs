@@ -103,8 +103,8 @@ public static class JavaProcessLauncher
         // Log the process start details
         _logger.Debug($"Java Path: {javaPath}");
         _logger.Debug("Starting Java process with arguments:");
-        //_logger.Debug("FileName: " + psi.FileName);
-        //_logger.Debug("Arguments: " + psi.Arguments);
+        _logger.Debug("FileName: " + psi.FileName);
+        _logger.Debug("Arguments: " + psi.Arguments);
         //_logger.Debug("Log File Path: " + (string.IsNullOrEmpty(logFilePath) ? "No log file specified" : logFilePath));
         _logger.Debug($"\n# START OF JAVA ARGUMENTS#\n{arguments.Replace(" ", "\n")}\n# END OF JAVA ARGUMENTS#");
         

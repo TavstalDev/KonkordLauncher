@@ -113,7 +113,10 @@ public static class JavaProcessLauncher
         if (process != null)
         {
             process.EnableRaisingEvents = true;
-            process.Exited += (sender, e) => { _logger.Info($"Java process exited with code: {process.ExitCode}"); };
+            process.Exited += (sender, e) =>
+            {
+                _logger.Debug($"Java process exited with code: {process.ExitCode}");
+            };
             
             /*
             process.OutputDataReceived += (sender, e) =>

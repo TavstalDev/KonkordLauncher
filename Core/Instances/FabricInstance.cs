@@ -157,6 +157,7 @@ public class FabricInstance(
         _jvmArguments.Add(new LaunchArg("-Dlog4j2.formatMsgNoLookups=true", 1));
         _jvmArguments.Add(new LaunchArg("-Djava.rmi.server.useCodebaseOnly=true", 1));
         _jvmArguments.Add(new LaunchArg("-Dcom.sun.jndi.rmi.object.trustURLCodebase=false", 1));*/
+        //_jvmArguments.Add(new LaunchArg("-Dorg.lwjgl.librarypath=", 1));
         return moddedData;
     }
 }

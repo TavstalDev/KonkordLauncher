@@ -375,7 +375,14 @@ public static class MinecraftFileService
         }
 
         // Download libraries
-        foreach (var lib in mcLibs.Where(lib => lib.GetRulesResult()))
+        var filteredMcLibs = mcLibs.Where(lib => lib.GetRulesResult());
+        
+        // Before downloading, we must get rid of duplicates
+        // Fixes fabric 0.17.x libraries issue
+        // TODO: Add a check to remove duplicated libraries and keep the newest one only
+        
+        // Now download the libraries
+        foreach (var lib in filteredMcLibs)
         {
             if (lib.Downloads.Artifact != null)
             {

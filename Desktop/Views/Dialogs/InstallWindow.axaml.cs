@@ -1,4 +1,3 @@
-using Avalonia;
 using Avalonia.Controls;
 using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Models;

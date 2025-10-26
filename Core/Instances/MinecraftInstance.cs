@@ -19,7 +19,7 @@ public class MinecraftInstance
     private readonly ClientDetails _client;
     private FileSystemWatcher? _watcher;
     private readonly Lock _watcherLock = new();
-    private bool _isSanitizingLogFile = false;
+    private bool _isSanitizingLogFile;
 
     protected GameDetails GameDetails { get; }
     protected PathDetails PathDetails { get; }

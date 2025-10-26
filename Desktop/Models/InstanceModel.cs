@@ -441,7 +441,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
 
             if (settings.Minecraft.CloseLauncherOnGameExit)
             {
-                GameProcess.Exited += (_, e) =>
+                GameProcess.Exited += (_, _) =>
                 {
                     if (ConfigModel.Game.ShowConsoleWhenGameCrashes && GameProcess?.ExitCode != 0)
                     {

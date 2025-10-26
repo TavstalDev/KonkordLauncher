@@ -12,9 +12,11 @@ public static class MicrosoftDeviceListener
     private static bool _isListening;
 
     // Logger instance for logging messages related to the listener.
+    // ReSharper disable once UnusedMember.Local
     private static readonly CoreLogger _logger = new(typeof(MicrosoftDeviceListener));
 
     // Optional progress reporter for reporting progress updates.
+    // ReSharper disable once NotAccessedField.Local
     private static IProgressReporter? _progressReporter;
 
     // Tracks the next time the device code should be checked.

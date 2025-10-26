@@ -73,29 +73,29 @@ public static class JavaProcessLauncher
             case EOperatingSystem.Windows:
             {
                 psi.FileName = "cmd.exe";
-                if (string.IsNullOrEmpty(logFilePath))
-                    psi.Arguments = $@"/C ""{fullCommand}""";
-                else
-                    psi.Arguments = $@"/C ""{fullCommand} >> ""{logFilePath}"" 2>&1""";
+                psi.Arguments = string.IsNullOrEmpty(logFilePath) ? 
+                    $@"/C ""{fullCommand}""" 
+                    : 
+                    $@"/C ""{fullCommand} >> ""{logFilePath}"" 2>&1""";
                 break;
             }
             case EOperatingSystem.MacOS:
             {
                 psi.FileName = "/bin/zsh";
-                if (string.IsNullOrEmpty(logFilePath))
-                    psi.Arguments = $@"-c ""{fullCommand}""";
-                else
-                    psi.Arguments = $@"-c ""{fullCommand} >> ""{logFilePath}"" 2>&1""";
+                psi.Arguments = string.IsNullOrEmpty(logFilePath) ? 
+                    $@"-c ""{fullCommand}""" 
+                    : 
+                    $@"-c ""{fullCommand} >> ""{logFilePath}"" 2>&1""";
                 break;
             }
             case EOperatingSystem.Unknown:
             case EOperatingSystem.Linux:
             {
                 psi.FileName = "/bin/sh";
-                if (string.IsNullOrEmpty(logFilePath))
-                    psi.Arguments = $@"-c ""{fullCommand}""";
-                else
-                    psi.Arguments = $@"-c ""{fullCommand} >> '{logFilePath}' 2>&1""";
+                psi.Arguments = string.IsNullOrEmpty(logFilePath) ? 
+                    $@"-c ""{fullCommand}""" 
+                    : 
+                    $@"-c ""{fullCommand} >> '{logFilePath}' 2>&1""";
                 break;
             }
         }
@@ -113,25 +113,10 @@ public static class JavaProcessLauncher
         if (process != null)
         {
             process.EnableRaisingEvents = true;
-            process.Exited += (sender, e) =>
+            process.Exited += (_, _) =>
             {
                 _logger.Debug($"Java process exited with code: {process.ExitCode}");
             };
-            
-            /*
-            process.OutputDataReceived += (sender, e) =>
-            {
-                if (e.Data != null)
-                    _logger.Debug($"{e.Data}");
-            };
-            process.ErrorDataReceived += (sender, e) =>
-            {
-                if (e.Data != null)
-                    _logger.Error($"{e.Data}");
-            };
-
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();*/
         }
 
         // Start the process and return the Process object

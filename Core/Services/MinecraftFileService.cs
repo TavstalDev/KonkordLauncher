@@ -188,7 +188,7 @@ public static class MinecraftFileService
                     if (!File.Exists(objectPath))
                     {
                         await HttpHelper.DownloadFileAsync(
-                            $"{MicrosoftEndpoints.MinecraftResourcesUrl}/{hash.Substring(0, 2)}/{hash}", objectPath, null);
+                            $"{MicrosoftEndpoints.MinecraftResourcesUrl}/{hash[..2]}/{hash}", objectPath, null);
                     }
 
                     if (fileName.Contains("icon") || (objectDir != null && objectDir.Contains("icon")))
@@ -205,7 +205,7 @@ public static class MinecraftFileService
                 
                     var sizeToken = token.First?["size"];
                     downloadedAssetSize += sizeToken != null ? int.Parse(sizeToken.ToString()) : 0;
-                    double percent = (double)downloadedAssetSize / (double)versionMeta.Index.TotalSize * 100d;
+                    double percent = downloadedAssetSize / (double)versionMeta.Index.TotalSize * 100d;
                     progressReporter?.SetStatusTranslated("instance.downloading.assets", percent.ToString("0.00"));
                 }
                 
@@ -238,12 +238,12 @@ public static class MinecraftFileService
                     if (!File.Exists(objectPath))
                     {
                         await HttpHelper.DownloadFileAsync(
-                            $"{MicrosoftEndpoints.MinecraftResourcesUrl}/{hash.Substring(0, 2)}/{hash}", objectPath, null);
+                            $"{MicrosoftEndpoints.MinecraftResourcesUrl}/{hash[..2]}/{hash}", objectPath, null);
                     }
                 
                     var sizeToken = token.First?["size"];
                     downloadedAssetSize += sizeToken != null ? int.Parse(sizeToken.ToString()) : 0;
-                    double percent = (double)downloadedAssetSize / (double)versionMeta.Index.TotalSize * 100d;
+                    double percent = downloadedAssetSize / (double)versionMeta.Index.TotalSize * 100d;
                     progressReporter?.SetStatusTranslated("instance.downloading.assets", percent.ToString("0.00"));
                 }
                 break;
@@ -261,7 +261,7 @@ public static class MinecraftFileService
                     if (rawHash == null) continue;
 
                     var hash = rawHash.ToString();
-                    var objectDir = Path.Combine(assetObjectDir, hash.Substring(0, 2));
+                    var objectDir = Path.Combine(assetObjectDir, hash[..2]);
                     var objectPath = Path.Combine(objectDir, $"{hash}");
 
                     Directory.CreateDirectory(objectDir);
@@ -269,12 +269,12 @@ public static class MinecraftFileService
                     if (!File.Exists(objectPath))
                     {
                         await HttpHelper.DownloadFileAsync(
-                            $"{MicrosoftEndpoints.MinecraftResourcesUrl}/{hash.Substring(0, 2)}/{hash}", objectPath, null);
+                            $"{MicrosoftEndpoints.MinecraftResourcesUrl}/{hash[..2]}/{hash}", objectPath, null);
                     }
 
                     var sizeToken = token.First?["size"];
                     downloadedAssetSize += sizeToken != null ? int.Parse(sizeToken.ToString()) : 0;
-                    double percent = (double)downloadedAssetSize / (double)versionMeta.Index.TotalSize * 100d;
+                    double percent = downloadedAssetSize / (double)versionMeta.Index.TotalSize * 100d;
                     progressReporter?.SetStatusTranslated("instance.downloading.assets", percent.ToString("0.00"));
                 }
                 break;
@@ -373,17 +373,30 @@ public static class MinecraftFileService
             await File.WriteAllTextAsync(librarySizeCacheFilePath,
                 libraryOverallSize.ToString(CultureInfo.InvariantCulture));
         }
-
-        // Download libraries
-        var filteredMcLibs = mcLibs.Where(lib => lib.GetRulesResult());
         
+        // Download libraries
         // Before downloading, we must get rid of duplicates
         // Fixes fabric 0.17.x libraries issue
-        // TODO: Add a check to remove duplicated libraries and keep the newest one only
-        
-        // Now download the libraries
-        foreach (var lib in filteredMcLibs)
+        var libraryMetas = mcLibs.Where(lib => lib.GetRulesResult()).ToArray();
+        foreach (var lib in libraryMetas)
         {
+            var libParts = lib.Name.Split(':').ToList();
+            var libVersion = libParts[2];
+            libParts.RemoveAt(2);
+            var libName = String.Join(":", libParts);
+            var hasNewerVersion = libraryMetas.Any(otherLib =>
+            {
+                var otherParts = otherLib.Name.Split(':').ToList();
+                if (otherParts.Count < 3) return false;
+
+                var otherVersion = otherParts[2];
+                otherParts.RemoveAt(2);
+                var otherName = String.Join(":", otherParts);
+                return otherName == libName && VersionHelper.isNewer(otherVersion, libVersion);
+            });
+            if (hasNewerVersion)
+                continue;
+            
             if (lib.Downloads.Artifact != null)
             {
                 var libFilePath = await DownloadLibraryArtifactAsync(lib, libsDir, progressReporter);

@@ -185,7 +185,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     }
 
 
-    public async Task LaunchAsync(Interaction<string, Unit> showLogsWindow, Interaction<Unit, Unit> closeWindow, Interaction<Alert, Unit> showAlertDialog, string? serverAddress = null)
+    public async Task LaunchAsync(Interaction<string, Unit> showLogsWindow, Interaction<string, Unit> closeLogsWindow, Interaction<Unit, Unit> closeWindow, Interaction<Alert, Unit> showAlertDialog, string? serverAddress = null)
     {
         _lastReadPosition = 0;
         _logger.Debug($"Launching instance: {Name}");
@@ -427,6 +427,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             GameProcess = process;
             IsGameRunning = true;
             AttachProcessEvent();
+            App.ClearRPC();
 
             if (ConfigModel.Game.ShowConsoleWhileGameRunning)
             {
@@ -439,21 +440,26 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
                 return;
             }
 
-            if (settings.Minecraft.CloseLauncherOnGameExit)
+            GameProcess.Exited += (_, _) =>
             {
-                GameProcess.Exited += (_, _) =>
+                App.UpdateRPC("Browsing instances...");
+                if (settings.Minecraft.CloseLauncherOnGameExit)
                 {
-                    if (ConfigModel.Game.ShowConsoleWhenGameCrashes && GameProcess?.ExitCode != 0)
+                    Dispatcher.UIThread.Invoke(async () =>
                     {
-                        Dispatcher.UIThread.Invoke(async () => await showLogsWindow.Handle(Id));
-                    }
-                    else if (ConfigModel.Game.CloseConsoleOnGameExit)
-                    {
-                        //TODO
-                    }
-                    closeWindow.Handle(Unit.Default);
-                };
-            }
+                        if (ConfigModel.Game.ShowConsoleWhenGameCrashes && GameProcess?.ExitCode != 0)
+                        {
+                            await showLogsWindow.Handle(Id);
+                        }
+                        else if (ConfigModel.Game.CloseConsoleOnGameExit)
+                        {
+                            await closeLogsWindow.Handle(Id);
+                        }
+
+                        await closeWindow.Handle(Unit.Default);
+                    });
+                }
+            };
         }
         catch (Exception ex)
         {

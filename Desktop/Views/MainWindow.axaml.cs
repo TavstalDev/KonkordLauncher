@@ -4,9 +4,10 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
-using DiscordRPC;
+using Avalonia.Threading;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Translation;
@@ -25,9 +26,9 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
 {
     // This window should not use KonkordWindow as long as it can only be opened once.
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MainWindow));
-    private DiscordRpcClient rpcClient;
+    private readonly Dictionary<string, InstanceLogsWindow> _logWindows = new(); 
     private Button _selectedButton;
-    
+        
     public MainWindow()
     {
         InitializeComponent();
@@ -100,6 +101,15 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
             {
                 var window = new InstanceLogsWindow(action.Input);
                 window.Show();
+                _logWindows[action.Input] = window;
+                action.SetOutput(Unit.Default);
+            });
+            DataContext.CloseLogsWindow.RegisterHandler(action =>
+            {
+                var window = _logWindows.GetValueOrDefault(action.Input);
+                window?.Close();
+                if (window != null)
+                    _logWindows.Remove(action.Input);
                 action.SetOutput(Unit.Default);
             });
             DataContext.ShowTextInputDialog.RegisterHandler(async action =>
@@ -157,7 +167,6 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
         {
             case ESidebarType.Play:
             {
-                
                 _selectedButton = PlaySideBtn;
                 break;
             }
@@ -244,20 +253,7 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
     protected override void OnOpened(EventArgs e)
     {
         base.OnOpened(e);
-        rpcClient = new DiscordRpcClient("1178002101561995416");
-        rpcClient.Initialize();
-
-        // Set the initial presence
-        rpcClient.SetPresence(new RichPresence
-        {
-            Details = "Browsing instances...",
-            Timestamps = Timestamps.Now,
-            Assets = new Assets
-            {
-                LargeImageKey = "logo",
-                LargeImageText = "Konkord Launcher",
-            }
-        });
+        App.UpdateRPC("Browsing instances...");
     }
 
     /// <summary>
@@ -267,8 +263,7 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
     /// <param name="e">The event data associated with the window closing.</param>
     protected override void OnClosing(WindowClosingEventArgs e)
     {
-        rpcClient.SetPresence(null);
-        rpcClient.Dispose();
+        App.ClearRPC();
         base.OnClosing(e);
     }
 

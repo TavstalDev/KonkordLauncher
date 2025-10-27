@@ -383,7 +383,7 @@ public static class MinecraftFileService
             var libParts = lib.Name.Split(':').ToList();
             var libVersion = libParts[2];
             libParts.RemoveAt(2);
-            var libName = String.Join(":", libParts);
+            var libName = string.Join(":", libParts);
             var hasNewerVersion = libraryMetas.Any(otherLib =>
             {
                 var otherParts = otherLib.Name.Split(':').ToList();
@@ -391,7 +391,7 @@ public static class MinecraftFileService
 
                 var otherVersion = otherParts[2];
                 otherParts.RemoveAt(2);
-                var otherName = String.Join(":", otherParts);
+                var otherName = string.Join(":", otherParts);
                 return otherName == libName && VersionHelper.isNewer(otherVersion, libVersion);
             });
             if (hasNewerVersion)

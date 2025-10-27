@@ -46,6 +46,7 @@ public partial class MainViewModel : KonkordObservableObject
     public Interaction<Unit, Unit> ShowAccountsDialog { get; } = new();
     public Interaction<Unit, JavaVersionModel> ShowJavaSelectorDialog { get; } = new();
     public Interaction<string, Unit> ShowLogsWindow { get; } = new();
+    public Interaction<string, Unit> CloseLogsWindow { get; } = new();
     public Interaction<string, string?> ShowTextInputDialog { get; } = new();
     public Interaction<Unit, string?> ShowIconSelectorDialog { get; } = new();
     #endregion
@@ -184,7 +185,7 @@ public partial class MainViewModel : KonkordObservableObject
     {
         if (instance == null)
             return;
-        await instance.LaunchAsync(ShowLogsWindow, CloseWindow, ShowAlertDialog);
+        await instance.LaunchAsync(ShowLogsWindow, CloseLogsWindow, CloseWindow, ShowAlertDialog);
     }
     
     /// <summary>

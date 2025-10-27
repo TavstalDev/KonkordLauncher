@@ -211,9 +211,15 @@
                                                 </StackPanel>
                                             </DataTemplate>
                                         </MenuItem.HeaderTemplate>
-                                        <MenuItem Header="Konkord Launcher" />
-                                        <MenuItem Header="Modrinth" />
-                                        <MenuItem Header="CurseForge" />
+                                        <MenuItem Header="Konkord Launcher" 
+                                                  Command="{Binding $parent[Window].DataContext.ExportNativeInstanceCommand}"
+                                                  CommandParameter="{Binding .}" />
+                                        <MenuItem Header="Modrinth"  
+                                                  Command="{Binding $parent[Window].DataContext.ExportModrinthInstanceCommand}"
+                                                  CommandParameter="{Binding .}" />
+                                        <MenuItem Header="CurseForge"  
+                                                  Command="{Binding $parent[Window].DataContext.ExportCurseForgeInstanceCommand}"
+                                                  CommandParameter="{Binding .}" />
                                     </MenuItem>
                                     <Separator/>
                                     <!-- Delete Btn -->

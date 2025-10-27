@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -36,11 +37,11 @@ public partial class MainViewModel : KonkordObservableObject
 
     #region Interactions
 
-    public Interaction<Unit, Unit> CloseWindow { get; }  = new();
+    public Interaction<Unit, Unit> CloseWindow { get; } = new();
     public Interaction<Alert, Unit> ShowAlertDialog { get; } = new();
     public Interaction<Alert, bool> ShowConfirmDialog { get; } = new();
-    public Interaction<ESidebarType, Unit> UpdateSidebarButton { get; }  = new();
-    public Interaction<Unit, string?>  OpenFolderPicker { get; } = new();
+    public Interaction<ESidebarType, Unit> UpdateSidebarButton { get; } = new();
+    public Interaction<Unit, string?> OpenFolderPicker { get; } = new();
     public Interaction<Unit, Unit> ShowInstanceCreationDialog { get; } = new();
     public Interaction<string, Unit> ShowInstanceEditDialog { get; } = new();
     public Interaction<Unit, Unit> ShowAccountsDialog { get; } = new();
@@ -49,20 +50,21 @@ public partial class MainViewModel : KonkordObservableObject
     public Interaction<string, Unit> CloseLogsWindow { get; } = new();
     public Interaction<string, string?> ShowTextInputDialog { get; } = new();
     public Interaction<Unit, string?> ShowIconSelectorDialog { get; } = new();
+
     #endregion
 
     [ObservableProperty] private ESidebarType _currentPageIndex;
     private readonly SourceCache<InstanceModel, string> _instanceCache = new(x => x.Id);
     public ReadOnlyObservableCollection<InstanceModel> Instances { get; }
     [ObservableProperty] private bool _hasInstances;
-    
+
     private readonly SourceCache<PatchNote, string> _patchCache = new(x => x.Title);
     public ReadOnlyObservableCollection<PatchNote> Patches { get; }
     [ObservableProperty] private bool _hasPatches;
-    
+
     [ObservableProperty] private AccountDataModel _accountData;
     [ObservableProperty] private CoreConfigModel _coreConfig;
-    
+
     /// <summary>
     /// Initializes a new instance of the <see cref="MainViewModel"/> class.
     /// </summary>
@@ -73,45 +75,49 @@ public partial class MainViewModel : KonkordObservableObject
         _accountData = new AccountDataModel(LauncherHelper.GetAccountData());
 
         #region Instances
-        var instanceDisposer =  _instanceCache.Connect()
+
+        var instanceDisposer = _instanceCache.Connect()
             .Bind(out var instances)
             .Subscribe();
         Disposables.Add(instanceDisposer);
         Instances = instances;
-        
+
         var instanceCountDisposer = _instanceCache.CountChanged
             .Select(count => count > 0)
             .ObserveOn(RxApp.MainThreadScheduler)
             .BindTo(this, x => x.HasInstances);
         Disposables.Add(instanceCountDisposer);
-        
+
         var newInstances = LauncherHelper.GetInstances().ConvertAll(x => new InstanceModel(x));
         _instanceCache.Edit(innerCache =>
         {
             innerCache.Clear();
             innerCache.AddOrUpdate(newInstances);
         });
+
         #endregion
-        
+
         #region Patches
-        var patchesDisposer =  _patchCache.Connect()
+
+        var patchesDisposer = _patchCache.Connect()
             .Bind(out var patches)
             .Subscribe();
         Disposables.Add(patchesDisposer);
         Patches = patches;
-        
+
         var patchesCountDisposer = _patchCache.CountChanged
             .Select(count => count > 0)
             .ObserveOn(RxApp.MainThreadScheduler)
             .BindTo(this, x => x.HasPatches);
         Disposables.Add(patchesCountDisposer);
-        
+
         var newPatches = LauncherHelper.GetPatchNotes(_coreConfig.Launcher.CacheDirectoryPath);
         _patchCache.Edit(innerCache =>
         {
             innerCache.Clear();
             innerCache.AddOrUpdate(newPatches);
         });
+
         #endregion
 
         _isInitialized = true;
@@ -144,10 +150,11 @@ public partial class MainViewModel : KonkordObservableObject
     /// <param name="sidebarType">The type of sidebar to switch to.</param>
     [RelayCommand]
     public async Task HandleSidebarBtn(ESidebarType sidebarType) => await UpdateSidebarButton.Handle(sidebarType);
-    
+
     #endregion
 
     #region Instances Management
+
     /// <summary>
     /// Handles changes to the instances collection by updating the cache with the latest instances data.
     /// Clears the existing cache and adds or updates it with the new instances retrieved from the launcher helper.
@@ -164,7 +171,7 @@ public partial class MainViewModel : KonkordObservableObject
     }
 
     #region Commands
-    
+
     /// <summary>
     /// Opens the "Create Instance" window to allow the user to add a new Minecraft instance asynchronously.
     /// </summary>
@@ -174,7 +181,7 @@ public partial class MainViewModel : KonkordObservableObject
     {
         await ShowInstanceCreationDialog.Handle(Unit.Default);
     }
-    
+
     /// <summary>
     /// Launches the specified Minecraft instance asynchronously.
     /// </summary>
@@ -187,7 +194,7 @@ public partial class MainViewModel : KonkordObservableObject
             return;
         await instance.LaunchAsync(ShowLogsWindow, CloseLogsWindow, CloseWindow, ShowAlertDialog);
     }
-    
+
     /// <summary>
     /// Stops the specified Minecraft instance if it is currently running.
     /// </summary>
@@ -197,13 +204,13 @@ public partial class MainViewModel : KonkordObservableObject
     {
         if (instance == null)
             return;
-        
+
         if (!instance.IsGameRunning || instance.GameProcess == null)
         {
             _logger.Warn($"Instance {instance.Name} is not running or has no associated process.");
             return;
         }
-        
+
         instance.GameProcess.Kill();
     }
 
@@ -230,10 +237,10 @@ public partial class MainViewModel : KonkordObservableObject
     {
         if (instance == null)
             return;
-        
+
         await ShowLogsWindow.Handle(instance.Id);
     }
-    
+
     /// <summary>
     /// Renames the specified Minecraft instance asynchronously.
     /// Prompts the user for a new name, validates it, and updates the instance if valid.
@@ -244,7 +251,7 @@ public partial class MainViewModel : KonkordObservableObject
     {
         if (instance == null)
             return;
-        
+
         var instances = await LauncherHelper.GetInstancesAsync();
         var targetInstance = instances.FirstOrDefault(i => i.Id == instance.Id);
         if (targetInstance == null)
@@ -254,19 +261,20 @@ public partial class MainViewModel : KonkordObservableObject
         var result = await ShowTextInputDialog.Handle(TranslationManager.Translate("instance.rename.title"));
         if (string.IsNullOrEmpty(result))
             return;
-        
+
         if (instances.Any(x => x.Name.Equals(result, StringComparison.OrdinalIgnoreCase)))
         {
-            await ShowAlertDialog.Handle(new Alert(TranslationManager.Translate("common.error"), TranslationManager.Translate("instance.rename.duplicate"), EAlertType.Error));
+            await ShowAlertDialog.Handle(new Alert(TranslationManager.Translate("common.error"),
+                TranslationManager.Translate("instance.rename.duplicate"), EAlertType.Error));
             return;
         }
-        
+
         targetInstance.Name = result;
         instances[index] = targetInstance;
         await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances);
         GlobalEvents.InvokeInstancesChanged();
     }
-    
+
     /// <summary>
     /// Changes the icon of the specified Minecraft instance asynchronously.
     /// Opens an icon selector dialog, validates the selection, and updates the instance if valid.
@@ -277,12 +285,12 @@ public partial class MainViewModel : KonkordObservableObject
     {
         if (instance == null)
             return;
-        
+
         var instances = await LauncherHelper.GetInstancesAsync();
         var targetInstance = instances.FirstOrDefault(i => i.Id == instance.Id);
         if (targetInstance == null)
             return;
-        
+
         int index = instances.IndexOf(targetInstance);
         var result = await ShowIconSelectorDialog.Handle(Unit.Default);
         if (string.IsNullOrEmpty(result))
@@ -293,7 +301,7 @@ public partial class MainViewModel : KonkordObservableObject
         await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances);
         GlobalEvents.InvokeInstancesChanged();
     }
-    
+
     /// <summary>
     /// Changes the group of the specified Minecraft instance asynchronously.
     /// Prompts the user for a new group name, validates it, and updates the instance if valid.
@@ -304,23 +312,23 @@ public partial class MainViewModel : KonkordObservableObject
     {
         if (instance == null)
             return;
-        
+
         var instances = await LauncherHelper.GetInstancesAsync();
         var targetInstance = instances.FirstOrDefault(i => i.Id == instance.Id);
         if (targetInstance == null)
             return;
-        
+
         int index = instances.IndexOf(targetInstance);
         var result = await ShowTextInputDialog.Handle(TranslationManager.Translate("instance.change.group.title"));
         if (string.IsNullOrEmpty(result))
             return;
-        
+
         targetInstance.Group = result;
         instances[index] = targetInstance;
         await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances);
         GlobalEvents.InvokeInstancesChanged();
     }
-    
+
     /// <summary>
     /// Opens the directory of the specified Minecraft instance in the file explorer.
     /// </summary>
@@ -330,22 +338,69 @@ public partial class MainViewModel : KonkordObservableObject
     {
         if (instance == null)
             return;
-        
+
         if (string.IsNullOrEmpty(instance.GameDirectory))
             return;
-        
+
         FileSystemHelper.OpenFolderInFileExplorer(instance.GameDirectory);
     }
-    
+
+    /// <summary>
+    /// Exports the specified Minecraft instance in the Konkord format asynchronously.
+    /// </summary>
+    /// <param name="instance">The instance model representing the Minecraft instance to export.</param>
     [RelayCommand]
-    private async Task ExportInstance(InstanceModel? instance)
+    private async Task ExportNativeInstance(InstanceModel? instance)
     {
         if (instance == null)
             return;
-        
-        // TODO
+
+        var directoryResult = await OpenFolderPicker.Handle(Unit.Default);
+        if (string.IsNullOrEmpty(directoryResult))
+            return;
+
+        string exportPath = Path.Combine(directoryResult, instance.Name + "-konkord.zip");
+        await InstanceHelper.ExportAsync(instance.getInstance(), exportPath, EInstanceProvider.Konkord);
     }
-    
+
+    /// <summary>
+    /// Exports the specified Minecraft instance in the Modrinth format asynchronously.
+    /// </summary>
+    /// <param name="instance">The instance model representing the Minecraft instance to export.</param>
+    [RelayCommand]
+    private async Task ExportModrinthInstance(InstanceModel? instance)
+    {
+        if (instance == null)
+            return;
+
+        var directoryResult = await OpenFolderPicker.Handle(Unit.Default);
+        if (string.IsNullOrEmpty(directoryResult))
+            return;
+
+        string exportPath = Path.Combine(directoryResult, instance.Name + "-modrinth.mrpack");
+
+        await InstanceHelper.ExportAsync(instance.getInstance(), exportPath, EInstanceProvider.Modrinth);
+    }
+
+    /// <summary>
+    /// Exports the specified Minecraft instance in the CurseForge format asynchronously.
+    /// </summary>
+    /// <param name="instance">The instance model representing the Minecraft instance to export.</param>
+    [RelayCommand]
+    private async Task ExportCurseForgeInstance(InstanceModel? instance)
+    {
+        if (instance == null)
+            return;
+
+        var directoryResult = await OpenFolderPicker.Handle(Unit.Default);
+        if (string.IsNullOrEmpty(directoryResult))
+            return;
+
+        string exportPath = Path.Combine(directoryResult, instance.Name + "-curseforge.zip");
+
+        await InstanceHelper.ExportAsync(instance.getInstance(), exportPath, EInstanceProvider.CurseForge);
+    }
+
     /// <summary>
     /// Deletes the specified Minecraft instance asynchronously.
     /// Prompts the user for confirmation before proceeding with the deletion.
@@ -358,11 +413,12 @@ public partial class MainViewModel : KonkordObservableObject
     {
         if (instance == null)
             return;
-        
-        var result = await ShowConfirmDialog.Handle(new Alert(TranslationManager.Translate("instance.delete.title"), TranslationManager.Translate("instance.delete.message", instance.Name), EAlertType.Confirm));
+
+        var result = await ShowConfirmDialog.Handle(new Alert(TranslationManager.Translate("instance.delete.title"),
+            TranslationManager.Translate("instance.delete.message", instance.Name), EAlertType.Confirm));
         if (!result)
             return;
-        
+
         var instances = await LauncherHelper.GetInstancesAsync();
         var targetInstance = instances.FirstOrDefault(i => i.Id == instance.Id);
         if (targetInstance == null)
@@ -370,19 +426,22 @@ public partial class MainViewModel : KonkordObservableObject
 
         if (string.IsNullOrEmpty(targetInstance.GameDirectory))
             return;
-            
+
         if (System.IO.Directory.Exists(targetInstance.GameDirectory))
             FileSystemHelper.DeleteDirectory(targetInstance.GameDirectory);
         instances.Remove(targetInstance);
         await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances);
         GlobalEvents.InvokeInstancesChanged();
     }
+
     #endregion
+
     #endregion
-    
+
     #region Account Management
 
     #region Commands
+
     /// <summary>
     /// Opens the account management window to add a new account asynchronously.
     /// </summary>
@@ -401,7 +460,7 @@ public partial class MainViewModel : KonkordObservableObject
     {
         if (AccountData.SelectedAccountId == accountId)
             return;
-        
+
         AccountData.SelectedAccountId = accountId;
         GlobalEvents.InvokeAccountsChanged();
     }
@@ -457,15 +516,16 @@ public partial class MainViewModel : KonkordObservableObject
     private void RemoveAccountBtn(Account account)
     {
         AccountData.Accounts.Remove(account);
-        if (account.Id != AccountData.SelectedAccountId) 
+        if (account.Id != AccountData.SelectedAccountId)
             return;
-        
+
         AccountData.SelectedAccountId = AccountData.HasAccounts ? AccountData.Accounts.FirstOrDefault()?.Id : null;
     }
+
     #endregion
 
     #region Account Operations
-    
+
     /// <summary>
     /// Updates the account data by fetching the latest data from the launcher helper.
     /// </summary>
@@ -535,12 +595,15 @@ public partial class MainViewModel : KonkordObservableObject
         var accounts = new AccountData
         {
             SelectedAccountId = newValue.SelectedAccountId ?? string.Empty,
-            Accounts = newValue.Accounts.Select(a => new Account(a.Id, a.Uuid, a.DisplayName, a.Type, a.AccessToken, a.RefreshToken, a.AccessTokenExpireDate)).ToList()
+            Accounts = newValue.Accounts.Select(a => new Account(a.Id, a.Uuid, a.DisplayName, a.Type, a.AccessToken,
+                a.RefreshToken, a.AccessTokenExpireDate)).ToList()
         };
 
         JsonHelper.WriteJsonFile(PathHelper.LauncherAccountsPath, accounts);
     }
+
     #endregion
+
     #endregion
 
     #region Config Management
@@ -569,7 +632,7 @@ public partial class MainViewModel : KonkordObservableObject
     {
         if (!int.TryParse(rawIndex, out var index))
             return;
-        
+
         var directoryResult = await OpenFolderPicker.Handle(Unit.Default);
         if (string.IsNullOrEmpty(directoryResult))
             return;
@@ -645,7 +708,7 @@ public partial class MainViewModel : KonkordObservableObject
     #endregion
 
     #region Config Operations
-    
+
     /// <summary>
     /// Subscribes to property change events for the child configuration objects.
     /// </summary>
@@ -783,7 +846,9 @@ public partial class MainViewModel : KonkordObservableObject
 
         JsonHelper.WriteJsonFile(PathHelper.LauncherConfigPath, settings);
     }
+
     #endregion
+
     #endregion
 
     #region About Us Properties

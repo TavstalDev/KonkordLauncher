@@ -1,9 +1,12 @@
 using System;
 using System.Reflection;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
+using Avalonia.Threading;
+using DiscordRPC;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.DependencyInjection;
 using Tavstal.KonkordLauncher.Common.Helpers;
@@ -22,6 +25,7 @@ namespace Tavstal.KonkordLauncher.Desktop;
 public partial class App : Application
 {
     private static readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(App));
+    private static DiscordRpcClient? _rpcClient;
     public static IServiceProvider? Services => Program.AppHost?.Services;
 
     #region Screen Size
@@ -92,7 +96,7 @@ public partial class App : Application
             return _buidDate;
         }
     }
-    public static bool? IsUpToDate { get; set; } = null;
+    public static bool? IsUpToDate { get; set; }
     #endregion
     
     /// <summary>
@@ -110,6 +114,19 @@ public partial class App : Application
         {
             var settings = LauncherHelper.GetLauncherSettings();
             ApplyTheme(settings.Launcher.Theme);
+            
+            _rpcClient = new DiscordRpcClient("1178002101561995416");
+            _rpcClient.Initialize();
+            _rpcClient.SetPresence(new RichPresence
+            {
+                Details = "Starting...",
+                Timestamps = Timestamps.Now,
+                Assets = new Assets
+                {
+                    LargeImageKey = "logo",
+                    LargeImageText = "Konkord Launcher",
+                }
+            });
         }
         catch
         {
@@ -159,6 +176,52 @@ public partial class App : Application
         catch (Exception ex)
         {
             _logger.Exc("Failed to apply theme");
+            _logger.Error(ex);
+        }
+    }
+    
+    public static void UpdateRPC(string details)
+    {
+        try
+        {
+            if (_rpcClient == null || _rpcClient.IsDisposed)
+            {
+                _logger.Error("Discord RPC client is not initialized or disposed.");
+                return;
+            }
+            
+            _rpcClient.SetPresence(new RichPresence
+            {
+                Details = details,
+                Timestamps = _rpcClient?.CurrentPresence?.Timestamps ?? Timestamps.Now
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.Exc("Failed to update Discord RPC");
+            _logger.Error(ex);
+        }
+    }
+
+    public static void ClearRPC()
+    {
+        try
+        {
+            if (_rpcClient == null || _rpcClient.IsDisposed)
+            {
+                _logger.Error("Discord RPC client is not initialized or disposed.");
+                return;
+            }
+
+            Task.Run(() =>
+            {
+                _rpcClient.SetPresence(null);
+                _rpcClient.Invoke();
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.Exc("Failed to clear Discord RPC");
             _logger.Error(ex);
         }
     }

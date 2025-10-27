@@ -33,7 +33,6 @@
 - [x] Implement automatic updates for the launcher
   - [ ] Test the updater on Windows, Linux and MacOS
 - [x] Implement patch notes
-- [ ] Fix Fabric & Quilt, some reason they do not launch after installation, maybe related to the new way of handling java arguments?
 
 ## Description
 KonkordLauncher is a free and open-source Minecraft launcher written in C# using .NET 9 and Avalonia UI. It is designed to be lightweight, fast, and user-friendly, providing a seamless experience for launching and managing Minecraft instances.

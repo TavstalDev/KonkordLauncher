@@ -180,16 +180,22 @@ public partial class App : Application
         }
     }
     
+    /// <summary>
+    /// Updates the Discord Rich Presence (RPC) with the specified details.
+    /// </summary>
+    /// <param name="details">The details to display in the Discord Rich Presence.</param>
     public static void UpdateRPC(string details)
     {
         try
         {
+            // Check if the Discord RPC client is initialized and not disposed.
             if (_rpcClient == null || _rpcClient.IsDisposed)
             {
                 _logger.Error("Discord RPC client is not initialized or disposed.");
                 return;
             }
-            
+        
+            // Set the presence with the provided details and current timestamps.
             _rpcClient.SetPresence(new RichPresence
             {
                 Details = details,
@@ -198,21 +204,27 @@ public partial class App : Application
         }
         catch (Exception ex)
         {
+            // Log any exceptions that occur during the update process.
             _logger.Exc("Failed to update Discord RPC");
             _logger.Error(ex);
         }
     }
 
+    /// <summary>
+    /// Clears the Discord Rich Presence (RPC) by removing the current presence.
+    /// </summary>
     public static void ClearRPC()
     {
         try
         {
+            // Check if the Discord RPC client is initialized and not disposed.
             if (_rpcClient == null || _rpcClient.IsDisposed)
             {
                 _logger.Error("Discord RPC client is not initialized or disposed.");
                 return;
             }
 
+            // Clear the presence asynchronously.
             Task.Run(() =>
             {
                 _rpcClient.SetPresence(null);
@@ -221,6 +233,7 @@ public partial class App : Application
         }
         catch (Exception ex)
         {
+            // Log any exceptions that occur during the clearing process.
             _logger.Exc("Failed to clear Discord RPC");
             _logger.Error(ex);
         }

@@ -131,6 +131,30 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         GameDirectory = instance.GameDirectory;
         ConfigModel = instance.Config;
     }
+    
+    /// <summary>
+    /// Converts the current instance model into a common instance model.
+    /// </summary>
+    /// <returns>
+    /// A new instance of <see cref="Common.Models.Instance"/> populated with the properties
+    /// of the current instance model.
+    /// </returns>
+    public Common.Models.Instance getInstance()
+    {
+        return new Common.Models.Instance
+        {
+            Id = Id,
+            Name = Name,
+            Group = Group,
+            IconPath = IconPath,
+            MinecraftVersion = MinecraftVersion,
+            CustomVersion = CustomVersion,
+            Type = Type,
+            Kind = Kind,
+            GameDirectory = GameDirectory,
+            Config = ConfigModel
+        };
+    }
 
     /// <summary>
     /// Attaches event handlers to the game process to handle its exit and disposal events.

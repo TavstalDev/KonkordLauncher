@@ -1,6 +1,7 @@
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;

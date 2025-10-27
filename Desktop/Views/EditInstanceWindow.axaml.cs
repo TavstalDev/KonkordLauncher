@@ -118,6 +118,29 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
 
         await topLevel.Clipboard.SetTextAsync(text);
     }
+    
+    /// <summary>
+    /// Called when the window is opened.
+    /// Updates the Rich Presence status to indicate that an instance is being edited.
+    /// </summary>
+    /// <param name="e">The event arguments for the opened event.</param>
+    protected override void OnOpened(EventArgs e)
+    {
+        base.OnOpened(e);
+        App.UpdateRPC("Editing instance...");
+    }
+
+    /// <summary>
+    /// Called when the window is closed.
+    /// Updates the Rich Presence status to indicate that the user is browsing instances.
+    /// </summary>
+    /// <param name="e">The event arguments for the closed event.</param>
+    protected override void OnClosed(EventArgs e)
+    {
+        base.OnClosed(e);
+        App.UpdateRPC("Browsing instances...");
+    }
+
 
     #region Action Handlers
     

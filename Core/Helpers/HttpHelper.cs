@@ -98,7 +98,7 @@ public static class HttpHelper
             long? contentLength = response.Content.Headers.ContentLength;
 
             await using Stream responseStream = await response.Content.ReadAsStreamAsync();
-            await using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None);
+            await using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Read);
 
             byte[] buffer = new byte[8192]; // Use a larger buffer for better performance
             int bytesRead;

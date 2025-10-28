@@ -206,6 +206,7 @@ public static class MinecraftFileService
                     var sizeToken = token.First?["size"];
                     downloadedAssetSize += sizeToken != null ? int.Parse(sizeToken.ToString()) : 0;
                     double percent = downloadedAssetSize / (double)versionMeta.Index.TotalSize * 100d;
+                    progressReporter?.SetProgress(percent);
                     progressReporter?.SetStatusTranslated("instance.downloading.assets", percent.ToString("0.00"));
                 }
                 
@@ -244,6 +245,7 @@ public static class MinecraftFileService
                     var sizeToken = token.First?["size"];
                     downloadedAssetSize += sizeToken != null ? int.Parse(sizeToken.ToString()) : 0;
                     double percent = downloadedAssetSize / (double)versionMeta.Index.TotalSize * 100d;
+                    progressReporter?.SetProgress(percent);
                     progressReporter?.SetStatusTranslated("instance.downloading.assets", percent.ToString("0.00"));
                 }
                 break;
@@ -275,6 +277,7 @@ public static class MinecraftFileService
                     var sizeToken = token.First?["size"];
                     downloadedAssetSize += sizeToken != null ? int.Parse(sizeToken.ToString()) : 0;
                     double percent = downloadedAssetSize / (double)versionMeta.Index.TotalSize * 100d;
+                    progressReporter?.SetProgress(percent);
                     progressReporter?.SetStatusTranslated("instance.downloading.assets", percent.ToString("0.00"));
                 }
                 break;

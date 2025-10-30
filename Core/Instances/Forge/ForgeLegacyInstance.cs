@@ -87,7 +87,6 @@ public class ForgeLegacyInstance(string forgeVersionName,
                 
                 if (!File.Exists(forgeUniversalPath))
                     File.Copy(universalJarPath, forgeUniversalPath, true);
-                _classPath += $"{forgeUniversalPath}${{classpath_separator}}";
             
                 // VERSION
                 if (!File.Exists(forgeVersion.VersionJsonPath))
@@ -100,7 +99,7 @@ public class ForgeLegacyInstance(string forgeVersionName,
         }
         
         // Add Forge Universal Jar to classpath
-        _classPath += $"{forgeUniversalPath}${{classpath_separator}}";
+        _classPath.Add(forgeUniversalPath);
 
         // Read Forge Version Meta
         var rawForgeVersionMeta = await File.ReadAllTextAsync(forgeVersion.VersionJsonPath);

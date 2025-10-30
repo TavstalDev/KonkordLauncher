@@ -103,7 +103,7 @@ public class ForgeClassicInstance(string forgeVersionName,
         }
         
         // Include Forge Universal Jar Classpath
-        _classPath += $"{forgeUniversalPath}${{classpath_separator}}";
+        _classPath.Add(forgeUniversalPath);
         
         // Read Forge Install Profile
         var rawInstallProfile = await File.ReadAllTextAsync(installerProfilePath);

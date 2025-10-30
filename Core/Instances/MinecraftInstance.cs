@@ -30,7 +30,7 @@ public class MinecraftInstance
     protected IProgressReporter? _progressReporter { get; }
 
     protected VersionMeta MinecraftVersionMeta { get; private set; }
-    protected string _classPath = string.Empty;
+    protected List<string> _classPath = [];
     protected readonly List<LaunchArg> _jvmArguments = [];
     protected readonly List<LaunchArg> _gameArguments = [];
     protected readonly List<LaunchArg> _jvmArgumentsBeforeClassPath = [];
@@ -89,10 +89,7 @@ public class MinecraftInstance
             var libraries = GetCombinedLibraries(moddedData);
             await DownloadDependenciesAsync(versionDetails, libraries);
             
-            if (moddedData != null)
-                _classPath += moddedData.VersionData.VersionJarPath;
-            else
-                _classPath += VersionData.VersionJarPath;
+            _classPath.Add(moddedData != null ? moddedData.VersionData.VersionJarPath : VersionData.VersionJarPath);
 
             string arguments = BuildArguments(versionDetails.GameDir, mainClass, versionDetails.NativesDir, customVersion);
             await Task.Delay(250); // Ensure the progress reporter has time to update before launching
@@ -236,7 +233,7 @@ public class MinecraftInstance
             _jvmArgumentsBeforeClassPath.Add(loggingArg);
 
         var classPath = await MinecraftFileService.DownloadLibrariesAsync(GameDetails.Kind, VersionData, libraries, _classPath, PathDetails.CacheDir, PathDetails.LibrariesDir, _progressReporter);
-        _classPath = classPath;
+        _classPath.AddRange(classPath);
     }
 
     /// <summary>
@@ -377,14 +374,17 @@ public class MinecraftInstance
     /// <returns>The argument string with placeholders replaced.</returns>
     private string ReplacePlaceholders(string argumentString, string gameDir, string nativesDir, string? modVersion)
     {
-        string classPathSeparator = ";";
-        if (OSHelper.GetOperatingSystem() != EOperatingSystem.Windows)
-            classPathSeparator = ":";
-
         string gameAssetsDir = Path.Combine(PathDetails.AssetsDir, "virtual", "legacy");
         gameAssetsDir = gameAssetsDir.StartsWith('"') ? gameAssetsDir : $"\"{gameAssetsDir}\"";
         string userType = _client.IsOffline ? "offline" : "msa";
         
+        string classpath;
+        // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
+        // It is more readable this way
+        if (OSHelper.GetOperatingSystem() == EOperatingSystem.Windows)
+            classpath = string.Join(";", _classPath).Replace("/", "\\");
+        else
+            classpath = string.Join(":", _classPath);
         
         var replacements = new Dictionary<string, string?>
         {
@@ -404,9 +404,8 @@ public class MinecraftInstance
             { "${auth_xuid}", _client.Xuid },
             { "${user_type}", userType },
             { "${version_type}", "release" },
-            { "${classpath}", _classPath.StartsWith('"') ? _classPath : $"\"{_classPath}\"" },
+            { "${classpath}", $"\"{classpath}\"" },
             { "${library_directory}", PathDetails.LibrariesDir.StartsWith('"') ? PathDetails.LibrariesDir : $"\"{PathDetails.LibrariesDir}\"" },
-            { "${classpath_separator}", classPathSeparator},
             { "${user_properties}", "{}" },
             { "${arch}", Environment.Is64BitOperatingSystem ? "64" : "32" }
         };

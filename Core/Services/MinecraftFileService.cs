@@ -14,6 +14,8 @@ namespace Tavstal.KonkordLauncher.Core.Services;
 
 public static class MinecraftFileService
 {
+    private static readonly int MaxParallelDownloads = 16;
+    
     /// <summary>
     /// Downloads a file from a URL, deserializes its content, and saves it locally if it doesn't already exist.
     /// </summary>
@@ -140,7 +142,7 @@ public static class MinecraftFileService
             versionMeta.Index.Url,
             "asset_index_json",
             progressReporter,
-            (json) => json); // Deserialize to string, then parse JObject
+            json => json); // Deserialize to string, then parse JObject
 
         if (resultJson == null) return;
 
@@ -151,9 +153,12 @@ public static class MinecraftFileService
             throw new Exception("Asset JToken is null, something went wrong while reading the asset index JSON.");
 
         // Assets
-        int downloadedAssetSize = 0;
         progressReporter?.SetStatusTranslated("instance.reading.assets");
 
+        var semaphore = new SemaphoreSlim(MaxParallelDownloads);
+        long downloadedBytes = 0;
+        var tasks = new List<Task>();
+        
         switch (assetsType)
         {
             // Olds Assets
@@ -184,30 +189,46 @@ public static class MinecraftFileService
                         Directory.CreateDirectory(objectDir);
                     }
                     var objectPath = Path.Combine(objectDir ?? resourcesDir, fileName);
-
-                    if (!File.Exists(objectPath))
+                    if (File.Exists(objectPath))
+                        continue;
+                    
+                    await semaphore.WaitAsync();
+                    var t = Task.Run(async () =>
                     {
-                        await HttpHelper.DownloadFileAsync(
-                            $"{MicrosoftEndpoints.MinecraftResourcesUrl}/{hash[..2]}/{hash}", objectPath, null);
-                    }
-
-                    if (fileName.Contains("icon") || (objectDir != null && objectDir.Contains("icon")))
-                    {
-                        if (!string.IsNullOrEmpty(fileDirectory))
+                        try
                         {
-                            objectDir = Path.Combine(legacyDir, fileDirectory);
-                            Directory.CreateDirectory(objectDir);
+                            await HttpHelper.DownloadFileAsync(
+                                $"{MicrosoftEndpoints.MinecraftResourcesUrl}/{hash[..2]}/{hash}",
+                                objectPath,
+                                null
+                            );
+                            
+                            if (fileName.Contains("icon") || (objectDir != null && objectDir.Contains("icon")))
+                            {
+                                if (!string.IsNullOrEmpty(fileDirectory))
+                                {
+                                    objectDir = Path.Combine(legacyDir, fileDirectory);
+                                    Directory.CreateDirectory(objectDir);
+                                }
+                                var legacyObjectPath = Path.Combine(objectDir ?? legacyDir, fileName);
+                                if (!File.Exists(legacyObjectPath) && File.Exists(objectPath)) // Double check to be sure
+                                    File.Copy(objectPath, legacyObjectPath);
+                            }
+
+                            var sizeToken = token.First?["size"];
+                            var size = sizeToken != null ? int.Parse(sizeToken.ToString()) : 0;
+                            Interlocked.Add(ref downloadedBytes, size);
+
+                            double percent = downloadedBytes / (double)versionMeta.Index.TotalSize * 100d;
+                            progressReporter?.SetProgress(percent);
+                            progressReporter?.SetStatusTranslated("instance.downloading.assets", percent.ToString("0.00"));
                         }
-                        var legacyObjectPath = Path.Combine(objectDir ?? legacyDir, fileName);
-                        if (!File.Exists(legacyObjectPath) && File.Exists(objectPath)) // Double check to be sure
-                            File.Copy(objectPath, legacyObjectPath);
-                    }
-                
-                    var sizeToken = token.First?["size"];
-                    downloadedAssetSize += sizeToken != null ? int.Parse(sizeToken.ToString()) : 0;
-                    double percent = downloadedAssetSize / (double)versionMeta.Index.TotalSize * 100d;
-                    progressReporter?.SetProgress(percent);
-                    progressReporter?.SetStatusTranslated("instance.downloading.assets", percent.ToString("0.00"));
+                        finally
+                        {
+                            semaphore.Release();
+                        }
+                    });
+                    tasks.Add(t);
                 }
                 
                 break;
@@ -235,18 +256,34 @@ public static class MinecraftFileService
                         Directory.CreateDirectory(objectDir);
                     }
                     var objectPath = Path.Combine(objectDir ?? resourcesDir, fileName);
-
-                    if (!File.Exists(objectPath))
+                    if (File.Exists(objectPath))
+                        continue;
+                    
+                    await semaphore.WaitAsync();
+                    var t = Task.Run(async () =>
                     {
-                        await HttpHelper.DownloadFileAsync(
-                            $"{MicrosoftEndpoints.MinecraftResourcesUrl}/{hash[..2]}/{hash}", objectPath, null);
-                    }
-                
-                    var sizeToken = token.First?["size"];
-                    downloadedAssetSize += sizeToken != null ? int.Parse(sizeToken.ToString()) : 0;
-                    double percent = downloadedAssetSize / (double)versionMeta.Index.TotalSize * 100d;
-                    progressReporter?.SetProgress(percent);
-                    progressReporter?.SetStatusTranslated("instance.downloading.assets", percent.ToString("0.00"));
+                        try
+                        {
+                            await HttpHelper.DownloadFileAsync(
+                                $"{MicrosoftEndpoints.MinecraftResourcesUrl}/{hash[..2]}/{hash}",
+                                objectPath,
+                                null
+                            );
+
+                            var sizeToken = token.First?["size"];
+                            var size = sizeToken != null ? int.Parse(sizeToken.ToString()) : 0;
+                            Interlocked.Add(ref downloadedBytes, size);
+
+                            double percent = downloadedBytes / (double)versionMeta.Index.TotalSize * 100d;
+                            progressReporter?.SetProgress(percent);
+                            progressReporter?.SetStatusTranslated("instance.downloading.assets", percent.ToString("0.00"));
+                        }
+                        finally
+                        {
+                            semaphore.Release();
+                        }
+                    });
+                    tasks.Add(t);
                 }
                 break;
             }
@@ -268,21 +305,39 @@ public static class MinecraftFileService
 
                     Directory.CreateDirectory(objectDir);
 
-                    if (!File.Exists(objectPath))
+                    if (File.Exists(objectPath))
+                        continue;
+                    
+                    await semaphore.WaitAsync();
+                    var t = Task.Run(async () =>
                     {
-                        await HttpHelper.DownloadFileAsync(
-                            $"{MicrosoftEndpoints.MinecraftResourcesUrl}/{hash[..2]}/{hash}", objectPath, null);
-                    }
+                        try
+                        {
+                            await HttpHelper.DownloadFileAsync(
+                                $"{MicrosoftEndpoints.MinecraftResourcesUrl}/{hash[..2]}/{hash}",
+                                objectPath,
+                                null
+                            );
 
-                    var sizeToken = token.First?["size"];
-                    downloadedAssetSize += sizeToken != null ? int.Parse(sizeToken.ToString()) : 0;
-                    double percent = downloadedAssetSize / (double)versionMeta.Index.TotalSize * 100d;
-                    progressReporter?.SetProgress(percent);
-                    progressReporter?.SetStatusTranslated("instance.downloading.assets", percent.ToString("0.00"));
+                            var sizeToken = token.First?["size"];
+                            var size = sizeToken != null ? int.Parse(sizeToken.ToString()) : 0;
+                            Interlocked.Add(ref downloadedBytes, size);
+
+                            double percent = downloadedBytes / (double)versionMeta.Index.TotalSize * 100d;
+                            progressReporter?.SetProgress(percent);
+                            progressReporter?.SetStatusTranslated("instance.downloading.assets", percent.ToString("0.00"));
+                        }
+                        finally
+                        {
+                            semaphore.Release();
+                        }
+                    });
+                    tasks.Add(t);
                 }
                 break;
             }
         }
+        await Task.WhenAll(tasks);
     }
 
     /// <summary>
@@ -305,7 +360,7 @@ public static class MinecraftFileService
             versionMeta.LoggingMeta.Client.File.Url,
             "logging",
             progressReporter,
-            (json) => json); // Deserialize to string
+            json => json); // Deserialize to string
 
         if (logContent == null) return null;
 
@@ -339,7 +394,7 @@ public static class MinecraftFileService
             versionMeta.Downloads.ClientMappings.Url,
             "client_mappings",
             progressReporter,
-            (json) => json); // Deserialize to string
+            json => json); // Deserialize to string
     }
 
     /// <summary>
@@ -353,9 +408,9 @@ public static class MinecraftFileService
     /// <param name="libsDir">The directory where libraries will be downloaded.</param>
     /// <param name="progressReporter">An optional progress reporter for tracking download progress.</param>
     /// <returns>A tuple containing the updated classpath and a list of native libraries.</returns>
-    public static async Task<string> DownloadLibrariesAsync(
+    public static async Task<List<string>> DownloadLibrariesAsync(
         EMinecraftKind kind, VersionDetails versionData, List<LibraryMeta> mcLibs,
-        string classPath, string cacheDir, string libsDir, IProgressReporter? progressReporter = null)
+        List<string> classPath, string cacheDir, string libsDir, IProgressReporter? progressReporter = null)
     {
         progressReporter?.SetProgress(0);
         progressReporter?.SetStatusTranslated("instance.reading.libraries");
@@ -367,15 +422,22 @@ public static class MinecraftFileService
             $"{versionData.MinecraftVersion}-{kind}-{versionData.CustomVersion}.json");
 
         // Calculate or read library size
+        long overallLibrarySize;
         if (!File.Exists(librarySizeCacheFilePath))
         {
-            double libraryOverallSize = mcLibs
+            overallLibrarySize = mcLibs
                 .Where(lib => lib.GetRulesResult() && lib.Downloads.Artifact != null)
                 .Sum(lib => lib.Downloads.Artifact?.Size ?? 0);
 
             await File.WriteAllTextAsync(librarySizeCacheFilePath,
-                libraryOverallSize.ToString(CultureInfo.InvariantCulture));
+                overallLibrarySize.ToString(CultureInfo.InvariantCulture));
         }
+        else
+            overallLibrarySize = long.Parse(await File.ReadAllTextAsync(librarySizeCacheFilePath), CultureInfo.InvariantCulture);
+        
+        var semaphore = new SemaphoreSlim(MaxParallelDownloads);
+        long downloadedBytes = 0;
+        var tasks = new List<Task>();
         
         // Download libraries
         // Before downloading, we must get rid of duplicates
@@ -400,23 +462,40 @@ public static class MinecraftFileService
             if (hasNewerVersion)
                 continue;
             
-            if (lib.Downloads.Artifact != null)
+            await semaphore.WaitAsync();
+            var t = Task.Run(async () =>
             {
-                var libFilePath = await DownloadLibraryArtifactAsync(lib, libsDir, progressReporter);
-                if (!string.IsNullOrEmpty(libFilePath) && !classPath.Contains(libFilePath))
-                    classPath += $"{libFilePath}${{classpath_separator}}";
-            }
+                try
+                {
+                    if (lib.Downloads.Artifact != null)
+                    {
+                        var libFilePath = await DownloadLibraryArtifactAsync(lib, libsDir, progressReporter);
+                        Interlocked.Add(ref downloadedBytes, lib.Downloads.Artifact.Size);
+                        
+                        if (!string.IsNullOrEmpty(libFilePath) && !classPath.Contains(libFilePath))
+                            classPath.Add(libFilePath);
+                    }
             
-            if (lib.Downloads.Classifiers != null)
-            {
-                var classifier = lib.Downloads.Classifiers.GetOsNative();
-                var libJarFilePath = Path.Combine(libsDir, classifier.Path);
-                await DownloadNativeFileAsync(classifier.Url, libJarFilePath, lib.Name, versionData.NativesDir, progressReporter);
-                if (!string.IsNullOrEmpty(libJarFilePath) && !classPath.Contains(libJarFilePath))
-                    classPath += $"{libJarFilePath}${{classpath_separator}}";
-            }
+                    if (lib.Downloads.Classifiers != null)
+                    {
+                        var classifier = lib.Downloads.Classifiers.GetOsNative();
+                        var libJarFilePath = Path.Combine(libsDir, classifier.Path);
+                        await DownloadNativeFileAsync(classifier.Url, libJarFilePath, lib.Name, versionData.NativesDir, progressReporter);
+                        Interlocked.Add(ref downloadedBytes, classifier.Size);
+                        
+                        if (!string.IsNullOrEmpty(libJarFilePath) && !classPath.Contains(libJarFilePath))
+                            classPath.Add(libJarFilePath);
+                    }
+                }
+                finally
+                {
+                    progressReporter?.SetProgress(downloadedBytes / (double)overallLibrarySize * 100d);
+                    semaphore.Release();
+                }
+            });
+            tasks.Add(t);
         }
-
+        await Task.WhenAll(tasks);
         return classPath;
     }
 

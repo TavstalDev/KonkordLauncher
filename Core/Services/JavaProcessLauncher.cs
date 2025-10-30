@@ -72,11 +72,9 @@ public static class JavaProcessLauncher
         {
             case EOperatingSystem.Windows:
             {
-                psi.FileName = "cmd.exe";
-                psi.Arguments = string.IsNullOrEmpty(logFilePath) ? 
-                    $@"/C ""{fullCommand}""" 
-                    : 
-                    $@"/C ""{fullCommand} >> ""{logFilePath}"" 2>&1""";
+                psi.FileName = finalJavaPath;
+                psi.Arguments = arguments;
+                // TODO: Implement custom logging if specified
                 break;
             }
             case EOperatingSystem.MacOS:

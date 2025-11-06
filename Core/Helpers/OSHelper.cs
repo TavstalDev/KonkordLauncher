@@ -179,6 +179,8 @@ public static class OSHelper
                 
                 string userHomeDir = GetHomeDirectory();
                 string desktopDir = Path.Combine(userHomeDir, "Desktop"); // Fallback to "Desktop" in home directory
+                if (Directory.Exists(desktopDir))
+                    return desktopDir;
                 
                 var userDirsFilePath = Path.Combine(userHomeDir, ".config", "user-dirs.dirs");
                 if (!File.Exists(userDirsFilePath))

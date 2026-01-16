@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Threading;
 using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Models;
 using InstallViewModel = Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models.InstallViewModel;
@@ -42,10 +43,12 @@ public partial class InstallWindow : Window, IProgressReporter
     /// <param name="progress">The progress value to set, typically a percentage (0-100).</param>
     public void SetProgress(double progress)
     {
-        if (DataContext is not InstallViewModel viewModel)
-            return;
-        
-        viewModel.ProgressValue = progress;
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            if (DataContext is not InstallViewModel viewModel)
+                return;
+            viewModel.ProgressValue = progress;
+        });
     }
 
     /// <summary>
@@ -54,10 +57,12 @@ public partial class InstallWindow : Window, IProgressReporter
     /// <param name="status">The status message to display.</param>
     public void SetStatus(string status)
     {
-        if (DataContext is not InstallViewModel viewModel)
-            return;
-        
-        viewModel.ProgressText = status;
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            if (DataContext is not InstallViewModel viewModel)
+                return;
+            viewModel.ProgressText = status;
+        });
     }
 
     /// <summary>
@@ -67,9 +72,11 @@ public partial class InstallWindow : Window, IProgressReporter
     /// <param name="args">Optional arguments to format the translated message.</param>
     public void SetStatusTranslated(string statusKey, params object[]? args)
     {
-        if (DataContext is not InstallViewModel viewModel)
-            return;
-        
-        viewModel.ProgressText = TranslationManager.Translate(statusKey, args);
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            if (DataContext is not InstallViewModel viewModel)
+                return;
+            viewModel.ProgressText = TranslationManager.Translate(statusKey, args);
+        });
     }
 }

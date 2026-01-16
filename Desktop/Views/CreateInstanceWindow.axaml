@@ -115,27 +115,27 @@
                                                 <!--  Release  -->
                                                 <CheckBox
                                                     Content="{lang:Translate instance.create.releases}"
-                                                    IsChecked="{Binding ShowReleases}"
+                                                    IsChecked="{Binding ShowReleases, Mode=TwoWay}"
                                                      />
                                                 <!--  Snapshot  -->
                                                 <CheckBox
                                                     Content="{lang:Translate instance.create.snapshots}"
-                                                    IsChecked="{Binding ShowSnapshots}"
+                                                    IsChecked="{Binding ShowSnapshots, Mode=TwoWay}"
                                                      />
                                                 <!--  Beta  -->
                                                 <CheckBox
                                                     Content="{lang:Translate instance.create.betas}"
-                                                    IsChecked="{Binding ShowBetas}"
+                                                    IsChecked="{Binding ShowBetas, Mode=TwoWay}"
                                                      />
                                                 <!--  Alpha  -->
                                                 <CheckBox
                                                     Content="{lang:Translate instance.create.alphas}"
-                                                    IsChecked="{Binding ShowAlphas}"
+                                                    IsChecked="{Binding ShowAlphas, Mode=TwoWay}"
                                                     />
                                                 <!--  Experiment  -->
                                                 <CheckBox
                                                     Content="{lang:Translate instance.create.experiments}"
-                                                    IsChecked="{Binding ShowExperiments}"
+                                                    IsChecked="{Binding ShowExperiments, Mode=TwoWay}"
                                                      />
 
                                                 <!--  Search Box  -->

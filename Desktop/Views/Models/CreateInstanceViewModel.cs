@@ -19,6 +19,7 @@ using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
 using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
+using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
@@ -31,6 +32,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 
 public partial class CreateInstanceViewModel : KonkordObservableObject
 {
+    private CoreLogger _logger = CoreLogger.WithModuleType(typeof(CreateInstanceViewModel));
     private ReverseMarkdown.Converter? _converter = new();
     public Interaction<Unit, Unit> CloseWindow { get; }  = new();
     public Interaction<Alert, Unit> ShowAlertDialog { get; } = new();
@@ -85,7 +87,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
 
     [ObservableProperty] private bool _showExperiments;
     
-    [ObservableProperty]  [NotifyPropertyChangedFor(nameof(ModLoaderVersionResult))] [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))] private MinecraftVersion? _selectedMinecraftVersion;
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(ModLoaderVersionResult))] [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))] private MinecraftVersion? _selectedMinecraftVersion;
     #endregion
     #region  Mod Loader
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(ModLoaderVersionResult))] private string _modLoaderSearchQuery = string.Empty;
@@ -205,27 +207,45 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
         if (Design.IsDesignMode)
             return;
         
-        var filter = this.WhenAnyValue(x => x.SearchQuery)
-            .Select(query =>
+        var search = this.WhenAnyValue(x => x.SearchQuery)
+            .Throttle(TimeSpan.FromMilliseconds(150), RxApp.MainThreadScheduler);
+        
+        var toggles = this.WhenAnyValue(
+            x => x.ShowReleases,
+            x => x.ShowSnapshots,
+            x => x.ShowAlphas,
+            x => x.ShowBetas,
+            x => x.ShowExperiments
+        );
+        
+        var filter = search.CombineLatest(toggles, (query, t) => (query, t))
+            .Select(values =>
             {
-                if (string.IsNullOrWhiteSpace(query) && !ShowReleases && !ShowSnapshots && !ShowAlphas && !ShowBetas &&
-                    !ShowExperiments)
-                    return (Func<MinecraftVersion, bool>)(_ => true); // No filter
-
+                var (query, t) = values;
+                var (showReleases, showSnapshots, showAlphas, showBetas, showExperiments) = t;
+                
                 return (Func<MinecraftVersion, bool>)(x =>
-                    (string.IsNullOrEmpty(SearchQuery) || x.Id.StartsWith(SearchQuery)) &&
-                    (x.Type != "release" || ShowReleases) &&
-                    (x.Type != "snapshot" || ShowSnapshots) &&
-                    (x.Type != "old_alpha" || ShowAlphas) &&
-                    (x.Type != "old_beta" || ShowBetas) &&
-                    (x.Type != "experiment" || ShowExperiments));
+                        (string.IsNullOrWhiteSpace(query) || x.Id.StartsWith(query)) &&
+                        (x.Type != "release"    || showReleases) &&
+                        (x.Type != "snapshot"   || showSnapshots) &&
+                        (x.Type != "old_alpha"  || showAlphas) &&
+                        (x.Type != "old_beta"   || showBetas) &&
+                        (x.Type != "experiment" || showExperiments)
+                    );
             });
 
-        var bindingSubscription = _minecraftVersionCache.Connect()
-            .Filter(filter)
-            .Sort(SortExpressionComparer<MinecraftVersion>.Descending(x => x.GetVersion()))
-            .Bind(out var filteredCollection)
-            .Subscribe();
+        var bindingSubscription =
+            _minecraftVersionCache
+                .Connect()
+                .Filter(filter)
+                .Sort(
+                    SortExpressionComparer<MinecraftVersion>.Descending(x => x.ReleaseTime)
+                )
+                .Bind(out var filteredCollection)
+                .Subscribe(
+                    _ => { },
+                    ex => _logger.Error("DynamicData pipeline crashed: " + ex)
+                );
         Disposables.Add(bindingSubscription);
         MinecraftVersions = filteredCollection;
         _minecraftVersionCache.Edit(innerCache =>

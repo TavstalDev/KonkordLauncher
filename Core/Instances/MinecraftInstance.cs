@@ -20,6 +20,7 @@ public class MinecraftInstance
     private FileSystemWatcher? _watcher;
     private readonly Lock _watcherLock = new();
     private bool _isSanitizingLogFile;
+    private string _classPathFilePath = string.Empty;
 
     protected GameDetails GameDetails { get; }
     protected PathDetails PathDetails { get; }
@@ -78,16 +79,26 @@ public class MinecraftInstance
 
         try
         {
+            _logger.Debug("Downloading core files...");
+            DateTime startTime = DateTime.Now;
             await DownloadCoreFilesAsync();
+            DateTime endTime = DateTime.Now;
+            _logger.Info($"Core files downloaded in {(endTime - startTime).TotalMilliseconds}ms.");
 
+            startTime = DateTime.Now;
             var moddedData = await InstallModdedAsync(tempDir);
+            endTime = DateTime.Now;
+            _logger.Info($"Modded data installation completed in {(endTime - startTime).TotalMilliseconds}ms.");
             var (versionDetails, mainClass, customVersion) = GetLaunchParameters(moddedData);
 
             if (!Directory.Exists(versionDetails.GameDir))
                 Directory.CreateDirectory(versionDetails.GameDir);
 
             var libraries = GetCombinedLibraries(moddedData);
+            startTime = DateTime.Now;
             await DownloadDependenciesAsync(versionDetails, libraries);
+            endTime = DateTime.Now;
+            _logger.Info($"Dependencies downloaded in {(endTime - startTime).TotalMilliseconds}ms.");
             
             _classPath.Add(moddedData != null ? moddedData.VersionData.VersionJarPath : VersionData.VersionJarPath);
 
@@ -96,6 +107,7 @@ public class MinecraftInstance
             _progressReporter?.Hide();
             
             // Copy custom natives if specified
+            startTime = DateTime.Now;
             foreach (string nativePath in PathDetails.CustomNativeFiles)
             {
                 if (!File.Exists(nativePath))
@@ -103,42 +115,58 @@ public class MinecraftInstance
                 string destPath = Path.Combine(versionDetails.NativesDir, Path.GetFileName(nativePath));
                 File.Copy(nativePath, destPath, true);
             }
+            endTime = DateTime.Now;
+            _logger.Info($"Custom native files copied in {(endTime - startTime).TotalMilliseconds}ms.");
 
             // Execute pre-launch command if specified
             if (!string.IsNullOrEmpty(GameDetails.PreLaunchCommand))
             {
                var preLaunchProc = JavaProcessLauncher.StartCommand(GameDetails.PreLaunchCommand);
                if (preLaunchProc != null)
+               {
+                   startTime = DateTime.Now;
                    await preLaunchProc.WaitForExitAsync();
+                   endTime = DateTime.Now;
+                   _logger.Info($"Pre-launch command executed in {(endTime - startTime).TotalMilliseconds}ms.");
+               }
             }
             
             // Below 1.7 there is no dedicated logs directory
             // so this fixes this issue
-            Version minecraftVersion = new Version(GameDetails.MinecraftVersion);
-            Version seven = new Version(1, 7);
             string? logsFilePath = null;
-            if (minecraftVersion < seven)
+            try
             {
-                string logsDir = Path.Combine(versionDetails.GameDir, "logs");
-                if (!Directory.Exists(logsDir))
-                    Directory.CreateDirectory(logsDir);
-                string latestLogFile = Path.Combine(logsDir, "latest.log");
-                if (File.Exists(latestLogFile))
+                Version minecraftVersion = new Version(GameDetails.MinecraftVersion);
+                Version seven = new Version(1, 7);
+                if (minecraftVersion < seven)
                 {
-                    DateTime lastEditDate = File.GetLastWriteTime(latestLogFile);
-                    File.Move(latestLogFile, Path.Combine(logsDir, $"{lastEditDate:yyyy-MM-dd_HH-mm-ss}.log"), true);
+                    string logsDir = Path.Combine(versionDetails.GameDir, "logs");
+                    if (!Directory.Exists(logsDir))
+                        Directory.CreateDirectory(logsDir);
+                    string latestLogFile = Path.Combine(logsDir, "latest.log");
+                    if (File.Exists(latestLogFile))
+                    {
+                        DateTime lastEditDate = File.GetLastWriteTime(latestLogFile);
+                        File.Move(latestLogFile, Path.Combine(logsDir, $"{lastEditDate:yyyy-MM-dd_HH-mm-ss}.log"),
+                            true);
+                    }
+
+                    logsFilePath = latestLogFile;
+
+                    // Make a file watcher to remove sensitive data from logs
+                    _watcher = new FileSystemWatcher(logsDir, "latest.log")
+                    {
+                        NotifyFilter = NotifyFilters.LastWrite,
+                        EnableRaisingEvents = true
+                    };
+                    _watcher.Changed += HandleFileWatcherChanged;
                 }
-                logsFilePath = latestLogFile;
-                
-                // Make a file watcher to remove sensitive data from logs
-                _watcher = new FileSystemWatcher(logsDir, "latest.log")
-                {
-                    NotifyFilter = NotifyFilters.LastWrite,
-                    EnableRaisingEvents = true
-                };
-                _watcher.Changed += HandleFileWatcherChanged;
             }
-            
+            catch (Exception _)
+            {
+                // Ignore any errors with the log file watcher
+            }
+
             // Launch the Minecraft game process with the constructed arguments
             var process = JavaProcessLauncher.StartJava(GameDetails.JavaPath, arguments, logsFilePath, GameDetails.WrapperCommand,
                 GameDetails.EnvironmentVariables);
@@ -184,7 +212,7 @@ public class MinecraftInstance
                 MinecraftVersionMeta.JavaVersionMeta.MajorVersion = 7;
         }
         
-        if (GameDetails.JavaPath == "LAUNCH_ME_FIRST")
+        if (GameDetails.JavaPath == "LAUNCH_ME_FIRST" || string.IsNullOrEmpty(GameDetails.JavaPath))
             OnSetupDefaultJava.Invoke(MinecraftVersionMeta);
         
         await MinecraftFileService.DownloadMappingsAsync(MinecraftVersionMeta, VersionData, _progressReporter);
@@ -233,7 +261,12 @@ public class MinecraftInstance
             _jvmArgumentsBeforeClassPath.Add(loggingArg);
 
         var classPath = await MinecraftFileService.DownloadLibrariesAsync(GameDetails.Kind, VersionData, libraries, _classPath, PathDetails.CacheDir, PathDetails.LibrariesDir, _progressReporter);
-        _classPath.AddRange(classPath);
+        foreach (var cp in classPath)
+        {
+            if (_classPath.Contains(cp))
+                continue;
+            _classPath.Add(cp);
+        }
     }
 
     /// <summary>
@@ -263,6 +296,25 @@ public class MinecraftInstance
         arguments.AddRange(BuildGameArguments(mainClass));
 
         string argumentString = string.Join(' ', arguments);
+        string classpath;
+        // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
+        // It is more readable this way
+        if (OSHelper.GetOperatingSystem() == EOperatingSystem.Windows)
+            classpath = string.Join(";", _classPath).Replace(@"\", @"\\");
+        else
+            classpath = string.Join(":", _classPath);
+
+        if (MinecraftVersionMeta.JavaVersionMeta.MajorVersion < 9)
+        {
+            _classPathFilePath = classpath;
+        }
+        else
+        {
+            _classPathFilePath = Path.Combine(gameDir, "classpath.txt");
+            File.WriteAllText(_classPathFilePath, classpath);
+            _classPathFilePath = "@" + _classPathFilePath;
+        }
+
         return ReplacePlaceholders(argumentString, gameDir, nativesDir, modVersion);
     }
 
@@ -378,14 +430,6 @@ public class MinecraftInstance
         gameAssetsDir = gameAssetsDir.StartsWith('"') ? gameAssetsDir : $"\"{gameAssetsDir}\"";
         string userType = _client.IsOffline ? "offline" : "msa";
         
-        string classpath;
-        // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
-        // It is more readable this way
-        if (OSHelper.GetOperatingSystem() == EOperatingSystem.Windows)
-            classpath = string.Join(";", _classPath).Replace("/", "\\");
-        else
-            classpath = string.Join(":", _classPath);
-        
         var replacements = new Dictionary<string, string?>
         {
             { "${natives_directory}", nativesDir.StartsWith('"') ? nativesDir : $"\"{nativesDir}\"" },
@@ -404,7 +448,7 @@ public class MinecraftInstance
             { "${auth_xuid}", _client.Xuid },
             { "${user_type}", userType },
             { "${version_type}", "release" },
-            { "${classpath}", $"\"{classpath}\"" },
+            { "${classpath}", $"\"{_classPathFilePath}\"" },
             { "${library_directory}", PathDetails.LibrariesDir.StartsWith('"') ? PathDetails.LibrariesDir : $"\"{PathDetails.LibrariesDir}\"" },
             { "${user_properties}", "{}" },
             { "${arch}", Environment.Is64BitOperatingSystem ? "64" : "32" }

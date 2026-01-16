@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi;
@@ -66,19 +67,6 @@ public class MinecraftVersion
         Url = url;
         Time = time;
         ReleaseTime = releaseTime;
-    }
-    
-    /// <summary>
-    /// Retrieves the .NET version associated with the Minecraft version.
-    /// If the version is not already initialized, it creates a new instance
-    /// of the <see cref="Version"/> class using the <see cref="Id"/> property.
-    /// </summary>
-    /// <returns>The .NET version associated with the Minecraft version.</returns>
-    public Version GetVersion()
-    {
-        if (_version == null)
-            _version = new Version(Id);
-        return _version;
     }
 
     /// <summary>

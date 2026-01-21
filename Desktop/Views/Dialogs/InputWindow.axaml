@@ -18,11 +18,13 @@
         <Grid Classes="AlertView" RowDefinitions="Auto, Auto" RowSpacing="20">
             <Grid Grid.Row="0" RowDefinitions="Auto, Auto" Margin="10,0" RowSpacing="10">
                 <!--  Text  -->
-                <TextBlock Classes="TextInput" TextWrapping="Wrap" Text="{Binding Title}" />
+                <TextBlock Classes="TextInput" HorizontalAlignment="Center" TextWrapping="Wrap" Text="{Binding Title}" />
                 <!--  Input  -->
                 <TextBox
                     Grid.Row="1"
                     Classes="TextInput"
+                    Width="250"
+                    HorizontalAlignment="Stretch"
                     Text="{Binding InputText}"
                     Watermark="" />
             </Grid>

@@ -37,7 +37,9 @@ public partial class MainViewModel : KonkordObservableObject
 
     #region Interactions
 
-    public Interaction<Unit, Unit> CloseWindow { get; } = new();
+    public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
+    public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
+    public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
     public Interaction<Alert, Unit> ShowAlertDialog { get; } = new();
     public Interaction<Alert, bool> ShowConfirmDialog { get; } = new();
     public Interaction<ESidebarType, Unit> UpdateSidebarButton { get; } = new();
@@ -141,6 +143,26 @@ public partial class MainViewModel : KonkordObservableObject
         GlobalEvents.OnAccountsChanged -= OnAccountUpdated;
         GlobalEvents.OnInstancesChanged -= HandleInstancesChanged;
     }
+    
+    #region Window Commands
+    [RelayCommand]
+    public async Task MinimizeWindow()
+    {
+        await MinimizeWindowInteraction.Handle(Unit.Default);
+    }
+
+    [RelayCommand]
+    public async Task MaximizeWindow()
+    {
+        await MaximizeWindowInteraction.Handle(Unit.Default);
+    }
+
+    [RelayCommand]
+    public async Task CloseWindow()
+    {
+        await CloseWindowInteraction.Handle(Unit.Default);
+    }
+    #endregion
 
     #region Sidebar Management
 
@@ -192,7 +214,7 @@ public partial class MainViewModel : KonkordObservableObject
     {
         if (instance == null)
             return;
-        await instance.LaunchAsync(ShowLogsWindow, CloseLogsWindow, CloseWindow, ShowAlertDialog);
+        await instance.LaunchAsync(ShowLogsWindow, CloseLogsWindow, CloseWindowInteraction, ShowAlertDialog);
     }
 
     /// <summary>

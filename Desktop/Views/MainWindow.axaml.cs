@@ -42,7 +42,19 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
         DataContext = new MainViewModel();
         this.WhenActivated(disposables =>
         {
-            DataContext.CloseWindow.RegisterHandler(action =>
+            DataContext.MinimizeWindowInteraction.RegisterHandler(action =>
+            {
+                WindowState = WindowState.Minimized;
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
+            DataContext.MaximizeWindowInteraction.RegisterHandler(action =>
+            {
+                WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
+            DataContext.CloseWindowInteraction.RegisterHandler(action =>
             {
                 Close();
                 action.SetOutput(Unit.Default);
@@ -136,13 +148,13 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
         App.SetScreenSize(screenSize);
 
 
-        if (App.IsUpToDate == null)
+        /*if (App.IsUpToDate == null)
             VersionLabel.Content = TranslationManager.Translate("main.sidebar.version.update.none");
         else
             VersionLabel.Content = App.IsUpToDate.Value ? 
                 TranslationManager.Translate("main.sidebar.version.update.none")
                 :
-                TranslationManager.Translate("main.sidebar.version.update.available");
+                TranslationManager.Translate("main.sidebar.version.update.available");*/
     }
 
     /// <summary>
@@ -160,8 +172,8 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
             return;
 
         viewModel.CurrentPageIndex = sidebarType;
-        _selectedButton.Classes.Remove("PrimaryBtn");
-        _selectedButton.Classes.Add("SecondaryBtn");
+        _selectedButton.Classes.Remove("SideBarActiveBtn");
+        //_selectedButton.Classes.Add("SecondaryBtn");
 
         switch (sidebarType)
         {
@@ -191,8 +203,8 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
                 break;
             }
         }
-        _selectedButton.Classes.Remove("SecondaryBtn");
-        _selectedButton.Classes.Add("PrimaryBtn");
+        //_selectedButton.Classes.Remove("SecondaryBtn");
+        _selectedButton.Classes.Add("SideBarActiveBtn");
     }
 
     /// <summary>

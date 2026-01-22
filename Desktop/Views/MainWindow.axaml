@@ -289,15 +289,15 @@
         <!--  Account Card  -->
         <DataTemplate DataType="core:Account">
             <Border Classes="AccountsCard" Classes.selected="{Binding IsSelected}">
-                <Grid Width="450" ColumnDefinitions="*, Auto">
+                <Grid ColumnDefinitions="*, Auto">
                     <!--  Name & Type  -->
-                    <WrapPanel Orientation="Vertical">
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
                         <TextBlock Classes="AccountsCardName" Text="{Binding DisplayName}" />
                         <TextBlock Text="{Binding Type}" TextWrapping="Wrap" />
-                    </WrapPanel>
+                    </StackPanel>
 
                     <!--  Buttons  -->
-                    <WrapPanel Grid.Column="1" Classes="AccountsCardWrapper">
+                    <StackPanel Grid.Column="1" Classes="AccountsCardWrapper">
                         <Button
                             Classes="IconBtn SuccessBtn"
                             Command="{Binding $parent[Window].DataContext.SelectAccountBtnCommand}"
@@ -318,7 +318,7 @@
                             CommandParameter="{Binding .}">
                             <TextBlock Classes="FontAwesome" Text="&#xf1f8;" />
                         </Button>
-                    </WrapPanel>
+                    </StackPanel>
                 </Grid>
             </Border>
         </DataTemplate>
@@ -446,7 +446,7 @@
                 
                 <!-- Content Area -->
                 <!-- TODO: Finish redesigning the main content area -->
-                <Border Grid.Row="1" Classes="MainContentArea">
+                <Border Grid.Row="1" Margin="0, 10, 0, 20">
                     <Carousel SelectedIndex="{Binding CurrentPageIndex}">
                         <Carousel.PageTransition>
                             <CompositePageTransition>
@@ -456,7 +456,7 @@
                         <Carousel.Items>
                             <!--  Play Page  -->
                             <StackPanel Margin="20,20,5,20" Classes="MainContentArea">
-                                <Grid Width="480" ColumnDefinitions="*, Auto">
+                                <Grid Margin="5, 0, 15, 0" ColumnDefinitions="*, Auto">
                                     <!--  Title  -->
                                     <TextBlock Classes="MainContentTitle" Text="{lang:Translate main.page.play.title}" />
                                     <!--  Add instance button  -->
@@ -507,7 +507,7 @@
                             </Grid>
                             <!--  Accounts Page  -->
                             <StackPanel Classes="MainContentArea">
-                                <Grid Width="480" ColumnDefinitions="*, Auto">
+                                <Grid  ColumnDefinitions="*, Auto">
                                     <!--  Title  -->
                                     <TextBlock Classes="MainContentTitle" Text="{lang:Translate main.page.accounts.title}" />
                                     <!--  Add account button  -->
@@ -526,7 +526,7 @@
                                         <ItemsControl ItemsSource="{Binding AccountData.Accounts}">
                                             <ItemsControl.ItemsPanel>
                                                 <ItemsPanelTemplate>
-                                                    <WrapPanel Classes="AccountsPageWrapper" />
+                                                    <StackPanel Classes="AccountsPageWrapper" HorizontalAlignment="Stretch" />
                                                 </ItemsPanelTemplate>
                                             </ItemsControl.ItemsPanel>
                                         </ItemsControl>

@@ -79,4 +79,23 @@ public static class StartlightSkinService
             return null;
         }
     }
+    
+    public static async Task<byte[]?> GetHeadshotAsync(string username, string? skinUrl = null)
+    {
+        try
+        {
+            string requestUrl =
+                $"https://starlightskins.lunareclipse.studio/render/head/{username}/full";
+            if (skinUrl != null)
+                requestUrl += $"?skinUrl={skinUrl}";
+
+            return await HttpHelper.GetByteArrayAsync(requestUrl);
+        }
+        catch (Exception ex)
+        {
+            _logger.Error("Failed to download skin model");
+            _logger.Error(ex.Message);
+            return null;
+        }
+    }
 }

@@ -1,11 +1,14 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using Avalonia.Media.Imaging;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DynamicData;
@@ -19,6 +22,7 @@ using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Services;
+using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Config.Launcher;
@@ -57,7 +61,9 @@ public partial class MainViewModel : KonkordObservableObject
 
     [ObservableProperty] private ESidebarType _currentPageIndex;
     private readonly SourceCache<InstanceModel, string> _instanceCache = new(x => x.Id);
-    public ReadOnlyObservableCollection<InstanceModel> Instances { get; }
+    private readonly SourceCache<InstanceGroup, string> _groupCache = new(x => x.GroupName);
+
+    public ReadOnlyObservableCollection<InstanceGroup> InstanceGroups { get; }
     [ObservableProperty] private bool _hasInstances;
 
     private readonly SourceCache<PatchNote, string> _patchCache = new(x => x.Title);
@@ -65,6 +71,15 @@ public partial class MainViewModel : KonkordObservableObject
     [ObservableProperty] private bool _hasPatches;
 
     [ObservableProperty] private AccountDataModel _accountData;
+
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(AccountName))]
+    private Account? _selectedAccount;
+
+    public string AccountName => SelectedAccount != null
+        ? SelectedAccount.DisplayName
+        : TranslationManager.Translate("main.sidebar.accounts.guest");
+    
+    [ObservableProperty] private Bitmap _accountAvatar;
     [ObservableProperty] private CoreConfigModel _coreConfig;
 
     /// <summary>
@@ -75,14 +90,71 @@ public partial class MainViewModel : KonkordObservableObject
         _currentPageIndex = ESidebarType.Play;
         _coreConfig = new CoreConfigModel(LauncherHelper.GetLauncherSettings());
         _accountData = new AccountDataModel(LauncherHelper.GetAccountData());
+        Account? selectedAccount = AccountData.Accounts.FirstOrDefault(x => x.Id == AccountData.SelectedAccountId);
+        _selectedAccount = selectedAccount;
+        UpdateSelectedAccountAvatar();
 
         #region Instances
 
-        var instanceDisposer = _instanceCache.Connect()
-            .Bind(out var instances)
+        var groupDisposer = _groupCache.Connect()
+            .ObserveOn(RxApp.MainThreadScheduler)
+            .Bind(out var instanceGroups)
             .Subscribe();
+        Disposables.Add(groupDisposer);
+        InstanceGroups = instanceGroups;
+
+        string uncategorized = TranslationManager.Translate("main.page.play.uncategorized");
+
+        // Then watch for instance changes and update groups manually
+        var instanceDisposer = _instanceCache.Connect()
+            .Subscribe(changes =>
+            {
+                _logger.Debug($"Processing {changes.Count} instance changes");
+        
+                // Get all unique groups
+                var allGroups = _instanceCache.Items
+                    .Select(x => x.Group ?? uncategorized)
+                    .Distinct()
+                    .ToList();
+        
+                _logger.Debug($"Found {allGroups.Count} groups");
+        
+                // Update group cache
+                _groupCache.Edit(groupCache =>
+                {
+                    // Remove groups that no longer exist
+                    var groupsToRemove = groupCache.Keys.Except(allGroups).ToList();
+                    foreach (var group in groupsToRemove)
+                    {
+                        groupCache.Remove(group);
+                    }
+            
+                    // Add or update groups
+                    foreach (var groupName in allGroups)
+                    {
+                        if (!groupCache.Lookup(groupName).HasValue)
+                        {
+                            groupCache.AddOrUpdate(new InstanceGroup(groupName));
+                        }
+                
+                        var group = groupCache.Lookup(groupName).Value;
+                        var instancesInGroup = _instanceCache.Items
+                            .Where(x => (x.Group ?? uncategorized) == groupName)
+                            .ToList();
+                
+                        // Update instances in group
+                        Dispatcher.UIThread.Post(() =>
+                        {
+                            group.Instances.Clear();
+                            foreach (var instance in instancesInGroup)
+                            {
+                                group.Instances.Add(instance);
+                            }
+                        });
+                    }
+                });
+            });
         Disposables.Add(instanceDisposer);
-        Instances = instances;
 
         var instanceCountDisposer = _instanceCache.CountChanged
             .Select(count => count > 0)
@@ -96,6 +168,7 @@ public partial class MainViewModel : KonkordObservableObject
             innerCache.Clear();
             innerCache.AddOrUpdate(newInstances);
         });
+        _logger.Debug("Initialized instance cache");
 
         #endregion
 
@@ -449,7 +522,7 @@ public partial class MainViewModel : KonkordObservableObject
         if (string.IsNullOrEmpty(targetInstance.GameDirectory))
             return;
 
-        if (System.IO.Directory.Exists(targetInstance.GameDirectory))
+        if (Directory.Exists(targetInstance.GameDirectory))
             FileSystemHelper.DeleteDirectory(targetInstance.GameDirectory);
         instances.Remove(targetInstance);
         await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances);
@@ -554,6 +627,24 @@ public partial class MainViewModel : KonkordObservableObject
     private void OnAccountUpdated()
     {
         AccountData = new AccountDataModel(LauncherHelper.GetAccountData());
+        Account? selectedAccount = AccountData.Accounts.FirstOrDefault(x => x.Id == AccountData.SelectedAccountId);
+        SelectedAccount = selectedAccount;
+        UpdateSelectedAccountAvatar();
+    }
+    
+    private void UpdateSelectedAccountAvatar()
+    {
+        AccountAvatar?.Dispose();
+        
+        var avatarPath = SelectedAccount != null
+            ? Path.Combine(LauncherHelper.GetLauncherSettings().Launcher.CacheDirectoryPath, "skins",
+                $"{SelectedAccount.Uuid}_head.png")
+            : null;
+
+        AccountAvatar = File.Exists(avatarPath)
+            ? new Bitmap(avatarPath)
+            : ImageHelper.LoadFromResource(
+                new Uri("avares://Tavstal.KonkordLauncher.Desktop/Assets/Images/placeholders/steve_head.png"));
     }
 
     /// <summary>

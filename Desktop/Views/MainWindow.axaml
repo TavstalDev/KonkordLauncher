@@ -82,7 +82,7 @@
                         <Button
                             Width="34"
                             MaxWidth="34"
-                            Classes="IconBtn NeutralBtn"
+                            Classes="IconBtn AccentAltBtn"
                             Command="{Binding $parent[Window].DataContext.EditInstanceCommand}"
                             CommandParameter="{Binding .}">
                             <TextBlock
@@ -265,15 +265,20 @@
                     <!--  News Card Title  -->
                     <TextBlock Classes="NewsCardTitle" Text="{Binding Title}" />
                     <!--  News Card Description  -->
-                    <TextBlock
-                        Grid.Row="1"
-                        Classes="NewsCardDescription"
-                        Text="{Binding Content}"
-                        TextWrapping="Wrap" />
+                    <HtmlLabel Grid.Row="1" 
+                         MaxWidth="{Binding $parent[Grid].Bounds.Width}"
+                        Text="{Binding Content}" 
+                        BaseStylesheet="body, p, div, span, h1, h2, h3, ul, ol { 
+                        color: white !important; 
+                        font-family: sans-serif; 
+                        white-space: normal; 
+                        word-wrap: break-word;
+                        }" />
+                    
                     <!--  Read More Button  -->
                     <HyperlinkButton
                         Grid.Row="2"
-                        Classes="IconBtn DefaultBtn"
+                        Classes="IconBtn InfoBtn"
                         NavigateUri="{Binding Url}">
                         <WrapPanel Classes="IconBtnWrapper">
                             <TextBlock
@@ -297,7 +302,7 @@
                     </StackPanel>
 
                     <!--  Buttons  -->
-                    <StackPanel Grid.Column="1" Classes="AccountsCardWrapper">
+                    <WrapPanel Grid.Column="1" Classes="AccountsCardWrapper">
                         <Button
                             Classes="IconBtn SuccessBtn"
                             Command="{Binding $parent[Window].DataContext.SelectAccountBtnCommand}"
@@ -318,7 +323,7 @@
                             CommandParameter="{Binding .}">
                             <TextBlock Classes="FontAwesome" Text="&#xf1f8;" />
                         </Button>
-                    </StackPanel>
+                    </WrapPanel>
                 </Grid>
             </Border>
         </DataTemplate>
@@ -410,12 +415,12 @@
                 <Border Grid.Row="2" Background="{DynamicResource base-100}" CornerRadius="8" HorizontalAlignment="Stretch" Height="75" BorderBrush="{DynamicResource border-two}" BorderThickness="1">
                     <Grid ColumnDefinitions="Auto, *">
                         <!--  Avatar  -->
-                        <Image Margin="10" VerticalAlignment="Center" HorizontalAlignment="Center" Source="avares://Desktop/Assets/Images/placeholders/steve_head.png" />
+                        <Image Margin="10" VerticalAlignment="Center" HorizontalAlignment="Center" Source="{Binding AccountAvatar}" />
                         <StackPanel Grid.Column="1" Margin="5" VerticalAlignment="Center">
                             <!--  Logged in text  -->
-                            <TextBlock FontSize="10" FontWeight="SemiLight" Foreground="{DynamicResource text-faded}" Text="LOGGED IN AS" />
+                            <TextBlock FontSize="10" FontWeight="SemiLight" Foreground="{DynamicResource text-faded}" Text="{lang:Translate main.sidebar.accounts.loggedin}" />
                             <!--  Username  -->
-                            <TextBlock FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource base-content}" Text="Abcdefghjkl123456" />
+                            <TextBlock FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource base-content}" Text="{Binding AccountName}" />
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -455,8 +460,8 @@
                         </Carousel.PageTransition>
                         <Carousel.Items>
                             <!--  Play Page  -->
-                            <StackPanel Margin="20,20,5,20" Classes="MainContentArea">
-                                <Grid Margin="5, 0, 15, 10" ColumnDefinitions="*, Auto">
+                            <Grid RowDefinitions="Auto, *" Margin="20,20,5,0" Classes="MainContentArea">
+                                <Grid Grid.Row="0" Margin="5, 0, 15, 20" ColumnDefinitions="*, Auto">
                                     <!--  Title  -->
                                     <TextBlock Classes="MainContentTitle" Margin="0" Text="{lang:Translate main.page.play.title}" />
                                     <!--  Add instance button  -->
@@ -468,23 +473,36 @@
                                     </Button>
                                 </Grid>
                                 <!--  No instances text  -->
-                                <TextBlock IsVisible="{Binding !HasInstances}" Text="{lang:Translate main.page.play.empty}" />
+                                <TextBlock Grid.Row="0" IsVisible="{Binding !HasInstances}" Text="{lang:Translate main.page.play.empty}" />
                                 <!--  Instances on Play Page  -->
-                                <Grid MaxHeight="440">
+                                <Grid Grid.Row="1">
                                     <ScrollViewer Padding="0,0,15,0">
-                                        <ItemsControl ItemsSource="{Binding Instances}">
+                                        <ItemsControl ItemsSource="{Binding InstanceGroups}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Expander Classes="InstanceExpander" Header="{Binding GroupName}" IsExpanded="True">
+                                                        <ItemsControl ItemsSource="{Binding Instances}">
+                                                            <ItemsControl.ItemsPanel>
+                                                                <ItemsPanelTemplate>
+                                                                    <WrapPanel Classes="PlayPageWrapper"/>
+                                                                </ItemsPanelTemplate>
+                                                            </ItemsControl.ItemsPanel>
+                                                        </ItemsControl>
+                                                    </Expander>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
                                             <ItemsControl.ItemsPanel>
                                                 <ItemsPanelTemplate>
-                                                    <WrapPanel Classes="PlayPageWrapper" />
+                                                    <StackPanel Spacing="10"/>
                                                 </ItemsPanelTemplate>
                                             </ItemsControl.ItemsPanel>
                                         </ItemsControl>
                                     </ScrollViewer>
                                 </Grid>
-                            </StackPanel>
+                            </Grid>
                             <!--  Patch Page  -->
                             <Grid
-                                Margin="20,20,10,20"
+                                Margin="20,20,10,0"
                                 Classes="MainContentArea"
                                 RowDefinitions="Auto, Auto, *">
                                 <!--  Title  -->
@@ -513,7 +531,7 @@
                                     <!--  Add account button  -->
                                     <Button
                                         Grid.Column="1"
-                                        Classes="IconBtn InfoBtn"
+                                        Classes="IconBtn PrimaryBtn"
                                         Command="{Binding AddAccountBtnCommand}">
                                         <TextBlock Classes="FontAwesome" Text="&#xf234;" />
                                     </Button>
@@ -521,12 +539,12 @@
                                 <!--  No accounts text  -->
                                 <TextBlock IsVisible="{Binding !AccountData.HasAccounts}" Text="{lang:Translate main.page.accounts.empty}" />
                                 <!--  Accounts Grid  -->
-                                <Grid MaxHeight="440">
+                                <Grid>
                                     <ScrollViewer>
                                         <ItemsControl ItemsSource="{Binding AccountData.Accounts}">
                                             <ItemsControl.ItemsPanel>
                                                 <ItemsPanelTemplate>
-                                                    <StackPanel Classes="AccountsPageWrapper" HorizontalAlignment="Stretch" />
+                                                    <UniformGrid Columns="2" Classes="AccountsPageWrapper" />
                                                 </ItemsPanelTemplate>
                                             </ItemsControl.ItemsPanel>
                                         </ItemsControl>

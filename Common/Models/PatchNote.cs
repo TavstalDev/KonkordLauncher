@@ -29,7 +29,7 @@ public class PatchNote
     public PatchNote(string title, string content, string url)
     {
         Title = title;
-        Content = content;
+        Content = Markdig.Markdown.ToHtml(content);
         Url = url;
     }
 }

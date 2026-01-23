@@ -57,6 +57,10 @@ public static class ValidationHelper
 
             if (!Directory.Exists(settings.Launcher.CacheDirectoryPath))
                 Directory.CreateDirectory(settings.Launcher.CacheDirectoryPath);
+            
+            string skinsDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins");
+            if (!Directory.Exists(skinsDir))
+                Directory.CreateDirectory(skinsDir);
 
             if (!Directory.Exists(settings.Launcher.LibrariesDirectoryPath))
                 Directory.CreateDirectory(settings.Launcher.LibrariesDirectoryPath);

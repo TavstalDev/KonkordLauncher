@@ -52,6 +52,8 @@ public static class DefaultTranslationProvider
         {"main.sidebar.play", "Play"},
         {"main.sidebar.patch", "Patch Notes"},
         {"main.sidebar.accounts", "Accounts"},
+        {"main.sidebar.accounts.loggedin", "LOGGED IN AS"},
+        {"main.sidebar.accounts.guest", "Guest"},
         {"main.sidebar.settings", "Settings"},
         {"main.sidebar.about", "About"},
         
@@ -60,6 +62,7 @@ public static class DefaultTranslationProvider
 
         {"main.page.play.title", "Instances"},
         {"main.page.play.empty", "No instances found. Create one to start playing."},
+        {"main.page.play.uncategorized", "Uncategorized"},
         
         {"main.page.patch.title", "Patch Notes"},
         {"main.page.patch.empty", "No patches available."},

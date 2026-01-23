@@ -15,7 +15,6 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:mdxaml="https://github.com/whistyun/Markdown.Avalonia.Tight"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
     xmlns:enums="clr-namespace:Tavstal.KonkordLauncher.Core.Enums;assembly=Core"
@@ -354,10 +353,10 @@
                                         <GridSplitter Classes="InstanceSplitter" Grid.Column="1" />
 
                                         <!--  Modpack preview  -->
-                                        <mdxaml:MarkdownScrollViewer
+                                        <!--<mdxaml:MarkdownScrollViewer
                                             Grid.Column="2"
                                             Margin="10,0,0,0"
-                                            Markdown="{Binding ModpackPreview}" />
+                                            Markdown="{Binding ModpackPreview}" />-->
                                     </Grid>
                                     <!--  Modpack Version & Buttons  -->
                                     <Grid ColumnDefinitions="*, *" Grid.Row="1">

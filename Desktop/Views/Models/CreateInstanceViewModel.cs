@@ -343,7 +343,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
         {
             Name = InstanceName,
             Kind = ModLoaderType,
-            Group = "none",
+            Group = null,
             MinecraftVersion = SelectedMinecraftVersion?.Id,
             CustomVersion = SelectedModLoader?.Version ?? string.Empty,
             IconPath = InstanceIconPath ?? string.Empty,

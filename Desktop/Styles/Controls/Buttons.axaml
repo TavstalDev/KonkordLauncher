@@ -56,19 +56,19 @@
         <Setter Property="Padding" Value="5" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="BorderThickness" Value="0,0,2,2" />
+        <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Cursor" Value="Hand" />
     </Style>
     <!--  Icon Button Hover  -->
     <Style Selector="Button.IconBtn:pointerover /template/ ContentPresenter">
         <Setter Property="Opacity" Value="0.9" />
-        <Setter Property="BorderThickness" Value="0,0,2,2" />
+        <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Cursor" Value="Hand" />
     </Style>
     <!--  Icon Button Active  -->
     <Style Selector="Button.IconBtn:pressed /template/ ContentPresenter">
         <Setter Property="Opacity" Value="1.0" />
-        <Setter Property="BorderThickness" Value="0,0,1,1" />
+        <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Cursor" Value="Hand" />
     </Style>
     
@@ -78,19 +78,19 @@
         <Setter Property="Padding" Value="5" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="BorderThickness" Value="0,0,2,2" />
+        <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Cursor" Value="Hand" />
     </Style>
     <!--  Icon HyperlinkButton Hover  -->
     <Style Selector="HyperlinkButton.IconBtn:pointerover /template/ ContentPresenter">
         <Setter Property="Opacity" Value="0.9" />
-        <Setter Property="BorderThickness" Value="0,0,2,2" />
+        <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Cursor" Value="Hand" />
     </Style>
     <!--  Icon HyperlinkButton Active  -->
     <Style Selector="HyperlinkButton.IconBtn:pressed /template/ ContentPresenter">
         <Setter Property="Opacity" Value="1.0" />
-        <Setter Property="BorderThickness" Value="0,0,1,1" />
+        <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Cursor" Value="Hand" />
     </Style>
     
@@ -195,95 +195,96 @@
     <!--  Info Button  -->
     <Style Selector="Button.InfoBtn">
         <Setter Property="Background" Value="{DynamicResource info}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource info-content}" />
-        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource info-content}" />
     </Style>
     <!--  Info Button Hover  -->
     <Style Selector="Button.InfoBtn:pointerover /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource info}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource info-content}" />
-        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource info-content}" />
     </Style>
     <!--  Info Button Active  -->
     <Style Selector="Button.InfoBtn:pressed /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource info}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource info-content}" />
-        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource info-content}" />
     </Style>
     
     <!--  Success Button  -->
     <Style Selector="Button.SuccessBtn">
         <Setter Property="Background" Value="{DynamicResource success}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource success-content}" />
-        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource success-content}" />
     </Style>
     <!--  Success Button Hover  -->
     <Style Selector="Button.SuccessBtn:pointerover /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource success}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource success-content}" />
-        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource success-content}" />
     </Style>
     <!--  Success Button Active  -->
     <Style Selector="Button.SuccessBtn:pressed /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource success}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource success-content}" />
-        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource success-content}" />
     </Style>
     
     <!--  Warning Button  -->
     <Style Selector="Button.WarningBtn">
         <Setter Property="Background" Value="{DynamicResource warning}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource warning-content}" />
-        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource warning-content}" />
     </Style>
     <!--  Warning Button Hover  -->
     <Style Selector="Button.WarningBtn:pointerover /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource warning}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource warning-content}" />
-        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource warning-content}" />
     </Style>
     <!--  Warning Button Active  -->
     <Style Selector="Button.WarningBtn:pressed /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource warning}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource warning-content}" />
-        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource warning-content}" />
     </Style>
     
     <!--  Error Button  -->
     <Style Selector="Button.ErrorBtn">
         <Setter Property="Background" Value="{DynamicResource error}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource error-content}" />
-        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource error-content}" />
     </Style>
     <!--  Error Button Hover  -->
     <Style Selector="Button.ErrorBtn:pointerover /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource error}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource error-content}" />
-        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource error-content}" />
     </Style>
     <!--  Error Button Active  -->
     <Style Selector="Button.ErrorBtn:pressed /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource error}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource error-content}" />
-        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource error-content}" />
     </Style>
     
     <!--  Accent Button  -->
     <Style Selector="Button.AccentBtn">
         <Setter Property="Background" Value="{DynamicResource accent}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource accent-content}" />
-        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource accent-content}" />
     </Style>
     <!--  Accent Button Hover  -->
     <Style Selector="Button.AccentBtn:pointerover /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource accent}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource accent-content}" />
-        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource accent-content}" />
     </Style>
     <!--  Accent Button Active  -->
     <Style Selector="Button.AccentBtn:pressed /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource accent}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource accent-content}" />
-        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource accent-content}" />
+    </Style>
+    
+    <!--  Neutral Button  -->
+    <Style Selector="Button.NeutralBtn">
+        <Setter Property="Background" Value="{DynamicResource neutral}" />
+        <Setter Property="Foreground" Value="{DynamicResource neutral-content}" />
+    </Style>
+    <!--  Neutral Button Hover  -->
+    <Style Selector="Button.NeutralBtn:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource neutral}" />
+        <Setter Property="Foreground" Value="{DynamicResource neutral-content}" />
+    </Style>
+    <!--  Neutral Button Active  -->
+    <Style Selector="Button.NeutralBtn:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource neutral}" />
+        <Setter Property="Foreground" Value="{DynamicResource neutral-content}" />
     </Style>
 </Styles>

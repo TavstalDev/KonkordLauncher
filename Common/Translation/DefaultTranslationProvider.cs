@@ -58,7 +58,7 @@ public static class DefaultTranslationProvider
         {"main.sidebar.version.update.none", "Ready to launch. No update available."},
         {"main.sidebar.version.update.available", "Ready to launch. Update available."},
 
-        {"main.page.play.title", "Launch Game"},
+        {"main.page.play.title", "Instances"},
         {"main.page.play.empty", "No instances found. Create one to start playing."},
         
         {"main.page.patch.title", "Patch Notes"},

@@ -10,24 +10,24 @@
     <SolidColorBrush x:Key="default" Color="#191919" />
     <SolidColorBrush x:Key="default-border" Color="#3F3F3F" />
 
-    <SolidColorBrush x:Key="primary" Color="#16a34a" />
-    <SolidColorBrush x:Key="primary-border" Color="#0f7133" />
+    <SolidColorBrush x:Key="primary" Color="#007853" />
+    <SolidColorBrush x:Key="primary-border" Color="#005F42" />
     <SolidColorBrush x:Key="primary-content" Color="#FFFFFF" />
-    <SolidColorBrush x:Key="secondary" Color="#6B7280" />
-    <SolidColorBrush x:Key="secondary-border" Color="#4B5563" />
+    <SolidColorBrush x:Key="secondary" Color="#5E6472" />
+    <SolidColorBrush x:Key="secondary-border" Color="#3F4451" />
     <SolidColorBrush x:Key="secondary-content" Color="#FFFFFF" />
 
     <SolidColorBrush x:Key="accent" Color="#009689" />
     <SolidColorBrush x:Key="accent-content" Color="#084d49" />
 
-    <SolidColorBrush x:Key="neutral" Color="#09090b" />
-    <SolidColorBrush x:Key="neutral-content" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="neutral" Color="#0F1115" />
+    <SolidColorBrush x:Key="neutral-content" Color="#FFF" />
 
-    <SolidColorBrush x:Key="info" Color="#00a4f2" />
-    <SolidColorBrush x:Key="info-content" Color="#042e49" />
+    <SolidColorBrush x:Key="info" Color="#0EA5E9" />
+    <SolidColorBrush x:Key="info-content" Color="#03263D" />
 
     <SolidColorBrush x:Key="success" Color="#009764" />
-    <SolidColorBrush x:Key="success-content" Color="#001A11" />
+    <SolidColorBrush x:Key="success-content" Color="#004c39" />
 
     <SolidColorBrush x:Key="warning" Color="#fcb700" />
     <SolidColorBrush x:Key="warning-content" Color="#793205" />

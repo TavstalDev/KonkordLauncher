@@ -82,7 +82,7 @@
                         <Button
                             Width="34"
                             MaxWidth="34"
-                            Classes="IconBtn InfoBtn"
+                            Classes="IconBtn NeutralBtn"
                             Command="{Binding $parent[Window].DataContext.EditInstanceCommand}"
                             CommandParameter="{Binding .}">
                             <TextBlock
@@ -456,13 +456,13 @@
                         <Carousel.Items>
                             <!--  Play Page  -->
                             <StackPanel Margin="20,20,5,20" Classes="MainContentArea">
-                                <Grid Margin="5, 0, 15, 0" ColumnDefinitions="*, Auto">
+                                <Grid Margin="5, 0, 15, 10" ColumnDefinitions="*, Auto">
                                     <!--  Title  -->
-                                    <TextBlock Classes="MainContentTitle" Text="{lang:Translate main.page.play.title}" />
+                                    <TextBlock Classes="MainContentTitle" Margin="0" Text="{lang:Translate main.page.play.title}" />
                                     <!--  Add instance button  -->
                                     <Button
                                         Grid.Column="1"
-                                        Classes="IconBtn InfoBtn"
+                                        Classes="IconBtn PrimaryBtn"
                                         Command="{Binding AddInstanceBtnCommand}">
                                         <TextBlock Classes="FontAwesome" Text="&#x2b;" />
                                     </Button>

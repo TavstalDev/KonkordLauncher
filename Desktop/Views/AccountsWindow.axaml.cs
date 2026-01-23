@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
@@ -6,6 +7,8 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Shapes;
+using Avalonia.Media;
 using Avalonia.Threading;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Helpers;
@@ -20,6 +23,7 @@ using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
+using Path = System.IO.Path;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views;
 
@@ -186,7 +190,14 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
             if (string.IsNullOrEmpty(accountData.SelectedAccountId))
                 accountData.SelectedAccountId = microsoftAccount.Id;
             accountData.Accounts.Add(microsoftAccount);
+            var settings = await LauncherHelper.GetLauncherSettingsAsync();
             await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData);
+            byte[]? skinResult = await StartlightSkinService.GetHeadshotAsync(microsoftAccount.DisplayName);
+            if (skinResult != null)
+            {
+                string skinPath = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins", $"{microsoftAccount.Uuid}_head.png");
+                await File.WriteAllBytesAsync(skinPath, skinResult);
+            }
             GlobalEvents.InvokeAccountsChanged();
             MicrosoftAuthService.Reset(); 
             Close();

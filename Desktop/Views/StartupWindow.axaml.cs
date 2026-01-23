@@ -11,11 +11,13 @@ using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Newtonsoft.Json.Linq;
 using Tavstal.KonkordLauncher.Common.Helpers;
+using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints;
+using Tavstal.KonkordLauncher.Core.Services;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
@@ -175,7 +177,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
                 JavaHelper.LocateJavaInstallations(settings.Launcher.JavaDirectoryPath, true);
             }
 
-            // 6. Refresh GitHub Cache for patches
+            // 6.1 Refresh GitHub Cache for patches
             SetStatusTranslated("startup.validation.github");
             bool shouldRefreshCache = settings.CacheRefreshDate < DateTime.Now;
             string githubCachePath = Path.Combine(settings.Launcher.CacheDirectoryPath, "github_cache.json");
@@ -188,6 +190,22 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
                     return;
                 }
                 await File.WriteAllTextAsync(githubCachePath, response);
+            }
+            
+            // 6.2 Refresh skins cache
+            AccountData accountData = await LauncherHelper.GetAccountDataAsync();
+            foreach (Account account in accountData.Accounts)
+            {
+                // Refresh head if needed or missing
+                string headCachePath = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins", $"{account.Uuid}_head.png");
+                if (!File.Exists(headCachePath) || shouldRefreshCache)
+                {
+                    byte[]? skinResult = await StartlightSkinService.GetHeadshotAsync(account.DisplayName);
+                    if (skinResult != null)
+                        await File.WriteAllBytesAsync(headCachePath, skinResult);
+                    else 
+                        _logger.Error($"Failed to fetch headshot for {account.DisplayName}");
+                }
             }
 
             // 7. Check for Updates
@@ -216,7 +234,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
             // 8. Update cache refresh time if needed
             if (shouldRefreshCache)
             {
-                settings.CacheRefreshDate = DateTime.Now.AddDays(7);
+                settings.CacheRefreshDate = DateTime.Now.AddDays(1);
                 await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherConfigPath, settings);
             }
 

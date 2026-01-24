@@ -7,8 +7,9 @@
     <SolidColorBrush x:Key="border-one" Color="#222222" />
     <SolidColorBrush x:Key="border-two" Color="#272727" />
 
-    <SolidColorBrush x:Key="default" Color="#191919" />
-    <SolidColorBrush x:Key="default-border" Color="#3F3F3F" />
+    <SolidColorBrush x:Key="default" Color="#2a2a2a" />
+    <SolidColorBrush x:Key="default-border" Color="#353535" />
+    <SolidColorBrush x:Key="default-content" Color="#FFFFFF" />
 
     <SolidColorBrush x:Key="primary" Color="#007853" />
     <SolidColorBrush x:Key="primary-border" Color="#005F42" />

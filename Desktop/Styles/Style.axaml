@@ -48,6 +48,14 @@
         <Setter Property="Margin" Value="0, 0, 0, 10" />
 
     </Style>
+    
+    <!-- Window Button Panel  -->
+    <Style Selector="StackPanel.WindowBtnPanel">
+        <Setter Property="Margin" Value="0, 12, 12 ,12" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="Orientation" Value="Horizontal" />
+        <Setter Property="Spacing" Value="8" />
+    </Style>
 
     <!--  ScrollViewer  -->
     <Style Selector="ScrollViewer">
@@ -55,7 +63,7 @@
         <Setter Property="HorizontalScrollBarVisibility" Value="Disabled" />
     </Style>
     
-    
+    <!--  Divider Styles  -->
     <Style Selector="Grid.Divider">
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="Margin" Value="10, 5" />

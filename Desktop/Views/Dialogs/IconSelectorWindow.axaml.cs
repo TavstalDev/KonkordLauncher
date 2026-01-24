@@ -6,6 +6,7 @@ using System.Reactive.Disposables;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Platform.Storage;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Helpers;
@@ -39,9 +40,21 @@ public partial class IconSelectorWindow : KonkordWindow<IconSelectorViewModel>
         DataContext = new IconSelectorViewModel();
         this.WhenActivated(disposables =>
         {
-            DataContext.CloseWindow.RegisterHandler(action =>
+            DataContext.MinimizeWindowInteraction.RegisterHandler(action =>
             {
-                this.Close(action.Input);
+                WindowState = WindowState.Minimized;
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
+            DataContext.MaximizeWindowInteraction.RegisterHandler(action =>
+            {
+                WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
+            DataContext.CloseWindowInteraction.RegisterHandler(action =>
+            {
+                Close(action.Input);
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             }).DisposeWith(disposables);
@@ -53,6 +66,14 @@ public partial class IconSelectorWindow : KonkordWindow<IconSelectorViewModel>
         });
     }
     
+    private void DragStart_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        // Start moving the window when left mouse button is pressed
+        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        {
+            BeginMoveDrag(e);
+        }
+    }
     
     /// <summary>
     /// Opens a file picker dialog to select image files and copies them to the icons directory.

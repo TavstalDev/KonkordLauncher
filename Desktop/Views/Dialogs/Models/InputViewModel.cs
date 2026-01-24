@@ -1,6 +1,7 @@
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using Avalonia.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ReactiveUI;
@@ -13,10 +14,9 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 /// </summary>
 public partial class InputViewModel : ObservableObject
 {
-    /// <summary>
-    /// Interaction used to signal the closing of the input dialog window.
-    /// </summary>
-    public Interaction<string?, Unit> CloseWindow { get; }  = new();
+    public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
+    public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
+    public Interaction<string?, Unit> CloseWindowInteraction { get; } = new();
 
     /// <summary>
     /// The title of the input dialog.
@@ -54,13 +54,24 @@ public partial class InputViewModel : ObservableObject
         if (string.IsNullOrEmpty(InputText))
             return;
 
-        await CloseWindow.Handle(InputText);
+        await CloseWindowInteraction.Handle(InputText);
+    }
+    
+    [RelayCommand]
+    public async Task MinimizeWindow()
+    {
+        await MinimizeWindowInteraction.Handle(Unit.Default);
     }
 
-    /// <summary>
-    /// Command executed when the "Cancel" button is clicked.
-    /// Closes the dialog without passing any input.
-    /// </summary>
     [RelayCommand]
-    public async Task Cancel() => await CloseWindow.Handle(null);
+    public async Task MaximizeWindow()
+    {
+        await MaximizeWindowInteraction.Handle(Unit.Default);
+    }
+
+    [RelayCommand]
+    public async Task CloseWindow()
+    {
+        await CloseWindowInteraction.Handle(null);
+    }
 }

@@ -39,7 +39,9 @@ public partial class IconSelectorViewModel : KonkordObservableObject
     /// </summary>
     public bool HasSelectedIcon => SelectedIcon != null;
     
-    public Interaction<string?, Unit> CloseWindow { get; }  = new();
+    public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
+    public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
+    public Interaction<string?, Unit> CloseWindowInteraction { get; } = new();
     public Interaction<Unit, List<(string, string)>?> ShowFilePicker { get; }  = new();
     
     /// <summary>
@@ -80,18 +82,35 @@ public partial class IconSelectorViewModel : KonkordObservableObject
     }
     
     #region Commands
+    [RelayCommand]
+    public async Task MinimizeWindow()
+    {
+        await MinimizeWindowInteraction.Handle(Unit.Default);
+    }
+
+    [RelayCommand]
+    public async Task MaximizeWindow()
+    {
+        await MaximizeWindowInteraction.Handle(Unit.Default);
+    }
+
+    [RelayCommand]
+    public async Task CloseWindow()
+    {
+        await CloseWindowInteraction.Handle(null);
+    }
 
     /// <summary>
     /// Closes the parent window and returns the currently selected icon as the result.
     /// </summary>
     [RelayCommand]
-    public async Task OkBtn() => await CloseWindow.Handle(SelectedIcon?.Path);
+    public async Task OkBtn() => await CloseWindowInteraction.Handle(SelectedIcon?.Path);
 
     /// <summary>
     /// Closes the parent window without returning any result.
     /// </summary>
     [RelayCommand]
-    public async Task CancelBtn() => await CloseWindow.Handle(null);
+    public async Task CancelBtn() => await CloseWindowInteraction.Handle(null);
 
     /// <summary>
     /// Opens a file picker dialog to allow the user to add new icons.

@@ -1,4 +1,9 @@
+using System.Reactive;
+using System.Reactive.Linq;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using ReactiveUI;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
@@ -21,4 +26,28 @@ public partial class InstallViewModel : ObservableObject
     /// </summary>
     [ObservableProperty] 
     private double _progressValue;
+    
+    public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
+    public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
+    public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
+    
+    #region Window Commands
+    [RelayCommand]
+    public async Task MinimizeWindow()
+    {
+        await MinimizeWindowInteraction.Handle(Unit.Default);
+    }
+
+    [RelayCommand]
+    public async Task MaximizeWindow()
+    {
+        await MaximizeWindowInteraction.Handle(Unit.Default);
+    }
+
+    [RelayCommand]
+    public async Task CloseWindow()
+    {
+        await CloseWindowInteraction.Handle(Unit.Default);
+    }
+    #endregion
 }

@@ -3,6 +3,7 @@ using System.Reactive.Disposables;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using ReactiveUI;
@@ -54,9 +55,21 @@ public partial class AlertWindow : KonkordWindow<AlertViewModel>
         DataContext = new AlertViewModel(title, message, type);
         this.WhenActivated(disposables =>
         {
-            DataContext.CloseWindow.RegisterHandler(action =>
+            DataContext.MinimizeWindowInteraction.RegisterHandler(action =>
             {
-                Close(action.Input);
+                WindowState = WindowState.Minimized;
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
+            DataContext.MaximizeWindowInteraction.RegisterHandler(action =>
+            {
+                WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
+            DataContext.CloseWindowInteraction.RegisterHandler(action =>
+            {
+                Close();
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             }).DisposeWith(disposables);
@@ -75,5 +88,14 @@ public partial class AlertWindow : KonkordWindow<AlertViewModel>
         // Retrieves the color resource associated with the alert type and applies it to the icon.
         if (this.FindResource(DataContext.GetIconColor) is SolidColorBrush brush)
             AlertIcon.Foreground = brush;
+    }
+    
+    private void DragStart_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        // Start moving the window when left mouse button is pressed
+        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        {
+            BeginMoveDrag(e);
+        }
     }
 }

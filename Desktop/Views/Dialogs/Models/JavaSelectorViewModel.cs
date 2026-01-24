@@ -23,7 +23,9 @@ public partial class JavaSelectorViewModel : ObservableObject
     /// </summary>
     public bool HasSelectedJavaVersion => SelectedJavaVersion != null;
     
-    public Interaction< JavaVersionModel?, Unit> CloseWindow { get; }  = new();
+    public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
+    public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
+    public Interaction<JavaVersionModel?, Unit> CloseWindowInteraction { get; } = new();
     
     public JavaSelectorViewModel(string? customJavaDirectory = null)
     {
@@ -40,11 +42,31 @@ public partial class JavaSelectorViewModel : ObservableObject
     /// Handles the selection action by closing the parent window and passing the selected Java version.
     /// </summary>
     [RelayCommand]
-    public async Task SelectedBtn() => await CloseWindow.Handle(SelectedJavaVersion);
+    public async Task SelectedBtn() => await CloseWindowInteraction.Handle(SelectedJavaVersion);
 
     /// <summary>
     /// Handles the cancel action by closing the parent window without passing a selected Java version.
     /// </summary>
     [RelayCommand]
-    public async Task CancelBtn() => await CloseWindow.Handle(null);
+    public async Task CancelBtn() => await CloseWindowInteraction.Handle(null);
+    
+    #region Window Commands
+    [RelayCommand]
+    public async Task MinimizeWindow()
+    {
+        await MinimizeWindowInteraction.Handle(Unit.Default);
+    }
+
+    [RelayCommand]
+    public async Task MaximizeWindow()
+    {
+        await MaximizeWindowInteraction.Handle(Unit.Default);
+    }
+
+    [RelayCommand]
+    public async Task CloseWindow()
+    {
+        await CloseWindowInteraction.Handle(null);
+    }
+    #endregion
 }

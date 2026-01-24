@@ -3,6 +3,7 @@ using System.Reactive.Disposables;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
@@ -36,13 +37,34 @@ public partial class JavaSelectorWindow : KonkordWindow<JavaSelectorViewModel>
             DataContext = new JavaSelectorViewModel(settings.Launcher.JavaDirectoryPath);
             this.WhenActivated(disposables =>
             {
-                DataContext.CloseWindow.RegisterHandler(action =>
+                DataContext.MinimizeWindowInteraction.RegisterHandler(action =>
+                {
+                    WindowState = WindowState.Minimized;
+                    action.SetOutput(Unit.Default);
+                    return Task.CompletedTask;
+                }).DisposeWith(disposables);
+                DataContext.MaximizeWindowInteraction.RegisterHandler(action =>
+                {
+                    WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+                    action.SetOutput(Unit.Default);
+                    return Task.CompletedTask;
+                }).DisposeWith(disposables);
+                DataContext.CloseWindowInteraction.RegisterHandler(action =>
                 {
                     Close(action.Input);
                     action.SetOutput(Unit.Default);
                     return Task.CompletedTask;
                 }).DisposeWith(disposables);
             });
+        }
+    }
+    
+    private void DragStart_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        // Start moving the window when left mouse button is pressed
+        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        {
+            BeginMoveDrag(e);
         }
     }
 }

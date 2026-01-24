@@ -4,13 +4,13 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ReactiveUI;
+using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
-public partial class AlertViewModel : ObservableObject
+public partial class AlertViewModel : KonkordObservableObject
 {
-    public Interaction<bool, Unit> CloseWindow { get; }  = new();
     [ObservableProperty] private string _title;
     [ObservableProperty] private string _message;
     [ObservableProperty] private EAlertType _alertType;
@@ -19,6 +19,9 @@ public partial class AlertViewModel : ObservableObject
     [ObservableProperty] private string _getIcon;
     [ObservableProperty] private bool _hasCancelButton;
     
+    public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
+    public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
+    public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
 
     public AlertViewModel(string title, string message, EAlertType type)
     {
@@ -55,10 +58,23 @@ public partial class AlertViewModel : ObservableObject
         }
     }
     
-    /// <summary>
-    /// Closes the parent alert window with the specified result value.
-    /// </summary>
-    /// <param name="value">The result value indicating the outcome of the alert dialog.</param>
+    #region Window Commands
     [RelayCommand]
-    public async Task Close(bool value) => await CloseWindow.Handle(value);
+    public async Task MinimizeWindow()
+    {
+        await MinimizeWindowInteraction.Handle(Unit.Default);
+    }
+
+    [RelayCommand]
+    public async Task MaximizeWindow()
+    {
+        await MaximizeWindowInteraction.Handle(Unit.Default);
+    }
+
+    [RelayCommand]
+    public async Task CloseWindow()
+    {
+        await CloseWindowInteraction.Handle(Unit.Default);
+    }
+    #endregion
 }

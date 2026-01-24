@@ -1,8 +1,14 @@
+using System.Reactive;
+using System.Reactive.Disposables;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Threading;
+using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using InstallViewModel = Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models.InstallViewModel;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
@@ -11,7 +17,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 /// Represents the installation window in the application, which implements the <see cref="IProgressReporter"/> interface
 /// to report progress and status updates during installation.
 /// </summary>
-public partial class InstallWindow : Window, IProgressReporter
+public partial class InstallWindow : KonkordWindow<InstallViewModel>, IProgressReporter
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="InstallWindow"/> class.
@@ -27,6 +33,27 @@ public partial class InstallWindow : Window, IProgressReporter
 
         // Sets the data context of the window to an instance of the InstallViewModel.
         DataContext = new InstallViewModel();
+        this.WhenActivated(disposables =>
+        {
+            DataContext.MinimizeWindowInteraction.RegisterHandler(action =>
+            {
+                WindowState = WindowState.Minimized;
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
+            DataContext.MaximizeWindowInteraction.RegisterHandler(action =>
+            {
+                WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
+            DataContext.CloseWindowInteraction.RegisterHandler(action =>
+            {
+                Close();
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
+        });
     }
     
     protected override void OnClosing(WindowClosingEventArgs e)
@@ -36,7 +63,17 @@ public partial class InstallWindow : Window, IProgressReporter
         // it may use more resources than necessary otherwise
         ProgressBar.IsIndeterminate = false;
     }
+    
+    private void DragStart_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        // Start moving the window when left mouse button is pressed
+        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        {
+            BeginMoveDrag(e);
+        }
+    }
 
+    #region  IProgressReporter Implementation
     /// <summary>
     /// Updates the progress value in the associated view model.
     /// </summary>
@@ -45,9 +82,9 @@ public partial class InstallWindow : Window, IProgressReporter
     {
         Dispatcher.UIThread.Invoke(() =>
         {
-            if (DataContext is not InstallViewModel viewModel)
+            if (DataContext == null)
                 return;
-            viewModel.ProgressValue = progress;
+            DataContext.ProgressValue = progress;
         });
     }
 
@@ -59,9 +96,9 @@ public partial class InstallWindow : Window, IProgressReporter
     {
         Dispatcher.UIThread.Invoke(() =>
         {
-            if (DataContext is not InstallViewModel viewModel)
+            if (DataContext == null)
                 return;
-            viewModel.ProgressText = status;
+            DataContext.ProgressText = status;
         });
     }
 
@@ -74,9 +111,10 @@ public partial class InstallWindow : Window, IProgressReporter
     {
         Dispatcher.UIThread.Invoke(() =>
         {
-            if (DataContext is not InstallViewModel viewModel)
+            if (DataContext == null)
                 return;
-            viewModel.ProgressText = TranslationManager.Translate(statusKey, args);
+            DataContext.ProgressText = TranslationManager.Translate(statusKey, args);
         });
     }
+    #endregion
 }

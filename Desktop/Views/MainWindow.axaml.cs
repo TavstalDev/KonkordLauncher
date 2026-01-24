@@ -6,6 +6,7 @@ using System.Reactive.Disposables;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using ReactiveUI;
@@ -279,6 +280,15 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
         base.OnClosing(e);
     }
 
+    private void DragStart_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        // Start moving the window when left mouse button is pressed
+        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        {
+            BeginMoveDrag(e);
+        }
+    }
+    
     /// <summary>
     /// Handles the selection of a language from a ComboBox and updates the application's language setting.
     /// </summary>

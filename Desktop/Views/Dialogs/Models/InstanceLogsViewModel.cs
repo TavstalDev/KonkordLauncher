@@ -21,7 +21,9 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(InstanceLogsViewModel));
     
     #region Interactions
-    public Interaction<Unit, Unit> CloseWindow { get; } = new();
+    public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
+    public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
+    public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
     public Interaction<string, Unit> SetClipboardText { get; } = new();
     public Interaction<Unit, Unit> LogsScrollToEnd { get; } = new();
 
@@ -122,4 +124,24 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
         Logs = string.Empty;
         GlobalEvents.CleareInstanceLogs(_instanceId);
     }
+    
+    #region Window Commands
+    [RelayCommand]
+    public async Task MinimizeWindow()
+    {
+        await MinimizeWindowInteraction.Handle(Unit.Default);
+    }
+
+    [RelayCommand]
+    public async Task MaximizeWindow()
+    {
+        await MaximizeWindowInteraction.Handle(Unit.Default);
+    }
+
+    [RelayCommand]
+    public async Task CloseWindow()
+    {
+        await CloseWindowInteraction.Handle(Unit.Default);
+    }
+    #endregion
 }

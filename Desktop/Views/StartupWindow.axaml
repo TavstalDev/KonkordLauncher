@@ -1,43 +1,78 @@
 <Window
-    CanResize="False"
-    Height="350"
-    Icon="avares://Desktop/Assets/Images/logo.png"
-    ShowInTaskbar="False"
+    x:Class="Tavstal.KonkordLauncher.Desktop.Views.StartupWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
     Title="{lang:Translate startup.title}"
     Width="300"
-    d:DesignHeight="350"
+    SizeToContent="Height"
     d:DesignWidth="300"
-    mc:Ignorable="d"
-    x:Class="Tavstal.KonkordLauncher.Desktop.Views.StartupWindow"
     x:DataType="vm:StartupViewModel"
-    xmlns="https://github.com/avaloniaui"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common">
-    <Viewbox x:Name="RootViewbox" Stretch="Uniform">
-        <Border Classes="ModalView" Height="350" Width="300">
-            <Grid
-                Classes="ModalWrapper"
-                RowDefinitions="Auto,Auto,Auto"
-                RowSpacing="10">
-                <!-- Logo -->
-                <Image
-                    Classes="StartupLogo"
-                    Source="avares://Desktop/Assets/Images/logo.png" />
-                <!-- Progress bar -->
-                <ProgressBar
-                    Grid.Row="1"
-                    Classes="StartupProgress"
-                    Name="ProgressBar"
-                    Value="{Binding Progress}"/>
-                <!--  Progress text  -->
-                <TextBlock
-                    Grid.Row="2"
-                    Classes="StartupProgressText"
-                    Text="{Binding ProgressText}" />
-            </Grid>
-        </Border>
-    </Viewbox>
+    Background="Transparent"
+    CanResize="False"
+    CornerRadius="14"
+    ExtendClientAreaChromeHints="NoChrome"
+    ExtendClientAreaToDecorationsHint="True"
+    Icon="avares://Desktop/Assets/Images/logo.png"
+    ShowInTaskbar="False"
+    SystemDecorations="None"
+    TransparencyLevelHint="Transparent"
+    UseLayoutRounding="True"
+    WindowStartupLocation="CenterScreen"
+    mc:Ignorable="d">
+    <Border
+        Background="{DynamicResource base-200}"
+        BorderBrush="{DynamicResource border-one}"
+        BorderThickness="1"
+        CornerRadius="14"
+        PointerPressed="DragStart_PointerPressed">
+        <Grid RowDefinitions="Auto, *">
+            <!--  Window Controls  -->
+            <Border HorizontalAlignment="Stretch" PointerPressed="DragStart_PointerPressed">
+                <StackPanel Classes="WindowBtnPanel">
+                    <!--  MINIMIZE  -->
+                    <Button
+                        Classes="WindowBtn WarningBtn"
+                        Command="{Binding MinimizeWindowCommand}"
+                        ToolTip.Tip="{lang:Translate main.window.minimize}" />
+                    <!--  MAXIMIZE / RESTORE  -->
+                    <Button
+                        Classes="WindowBtn SuccessBtn"
+                        Command="{Binding MaximizeWindowCommand}"
+                        IsEnabled="{Binding $parent[Window].CanResize}"
+                        ToolTip.Tip="{lang:Translate main.window.maximize}" />
+                    <!--  CLOSE  -->
+                    <Button
+                        Classes="WindowBtn ErrorBtn"
+                        Command="{Binding CloseWindowCommand}"
+                        ToolTip.Tip="lang:Translate main.window.close" />
+                </StackPanel>
+            </Border>
+            <!--  Main Content  -->
+            <Border Grid.Row="1" Classes="ModalView" Padding="20, 0, 20 ,35" PointerPressed="DragStart_PointerPressed">
+                <Grid
+                    Classes="ModalWrapper"
+                    RowDefinitions="Auto,Auto,Auto"
+                    RowSpacing="10">
+                    <!--  Logo  -->
+                    <Image Classes="StartupLogo" Source="avares://Desktop/Assets/Images/logo.png" />
+                    <!--  Progress bar  -->
+                    <ProgressBar
+                        Name="ProgressBar"
+                        Grid.Row="1"
+                        Classes="StartupProgress"
+                        IsIndeterminate="False"
+                        Value="{Binding Progress}" />
+                    <!--  Progress text  -->
+                    <TextBlock
+                        Grid.Row="2"
+                        Classes="StartupProgressText"
+                        Text="{Binding ProgressText}" />
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
 </Window>

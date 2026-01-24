@@ -1,32 +1,75 @@
 <Window
-    CanResize="False"
-    Height="175"
-    Icon="avares://Desktop/Assets/Images/logo.png"
-    ShowInTaskbar="True"
-    Title="Starting..."
+    x:Class="Tavstal.KonkordLauncher.Desktop.Views.Dialogs.InstallWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
+    Title="Installing..."
     Width="400"
+    Height="175"
     d:DesignHeight="175"
     d:DesignWidth="400"
-    mc:Ignorable="d"
-    x:Class="Tavstal.KonkordLauncher.Desktop.Views.Dialogs.InstallWindow"
     x:DataType="models:InstallViewModel"
-    xmlns="https://github.com/avaloniaui"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common">
-
-    <Border Classes="ModalView">
-        <StackPanel
-            Classes="ModalWrapper"
-            Spacing="15">
-            <!-- Title -->
-            <TextBlock Classes="InstallTitleText" Text="{lang:Translate instance.install.title}" />
-            <!-- Step -->
-            <TextBlock Classes="InstallStepText" Text="{Binding ProgressText}" />
-            <!-- Progress bar -->
-            <ProgressBar Name="ProgressBar" Classes="InstallProgress" Value="{Binding ProgressValue}" />
-        </StackPanel>
+    Background="Transparent"
+    CanResize="False"
+    CornerRadius="14"
+    ExtendClientAreaChromeHints="NoChrome"
+    ExtendClientAreaToDecorationsHint="True"
+    Icon="avares://Desktop/Assets/Images/logo.png"
+    ShowInTaskbar="True"
+    SystemDecorations="None"
+    TransparencyLevelHint="Transparent"
+    UseLayoutRounding="True"
+    WindowStartupLocation="CenterScreen"
+    mc:Ignorable="d">
+    <Border
+        Background="{DynamicResource base-200}"
+        BorderBrush="{DynamicResource border-one}"
+        BorderThickness="1"
+        CornerRadius="14"
+        PointerPressed="DragStart_PointerPressed">
+        <Grid RowDefinitions="Auto, *">
+            <!--  Window Controls  -->
+            <Border HorizontalAlignment="Stretch" PointerPressed="DragStart_PointerPressed">
+                <StackPanel Classes="WindowBtnPanel">
+                    <!--  MINIMIZE  -->
+                    <Button
+                        Classes="WindowBtn WarningBtn"
+                        Command="{Binding MinimizeWindowCommand}"
+                        ToolTip.Tip="{lang:Translate main.window.minimize}" />
+                    <!--  MAXIMIZE / RESTORE  -->
+                    <Button
+                        Classes="WindowBtn SuccessBtn"
+                        Command="{Binding MaximizeWindowCommand}"
+                        IsEnabled="{Binding $parent[Window].CanResize}"
+                        ToolTip.Tip="{lang:Translate main.window.maximize}" />
+                    <!--  CLOSE  -->
+                    <Button
+                        Classes="WindowBtn ErrorBtn"
+                        Command="{Binding CloseWindowCommand}"
+                        ToolTip.Tip="lang:Translate main.window.close" />
+                </StackPanel>
+            </Border>
+            <!--  Main Content  -->
+            <Border
+                Grid.Row="1"
+                Padding="20,0,20,35"
+                Classes="ModalView"
+                PointerPressed="DragStart_PointerPressed">
+                <StackPanel Classes="ModalWrapper" Spacing="15">
+                    <!--  Title  -->
+                    <TextBlock Classes="InstallTitleText" Text="{lang:Translate instance.install.title}" />
+                    <!--  Step  -->
+                    <TextBlock Classes="InstallStepText" Text="{Binding ProgressText}" />
+                    <!--  Progress bar  -->
+                    <ProgressBar
+                        Name="ProgressBar"
+                        Classes="InstallProgress"
+                        Value="{Binding ProgressValue}" />
+                </StackPanel>
+            </Border>
+        </Grid>
     </Border>
 </Window>

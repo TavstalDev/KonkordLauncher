@@ -2,14 +2,18 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Disposables;
 using System.Reflection;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Newtonsoft.Json.Linq;
+using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Translation;
@@ -54,6 +58,27 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
 #endif
         
         DataContext = new StartupViewModel();
+        this.WhenActivated(disposables =>
+        {
+            DataContext.MinimizeWindowInteraction.RegisterHandler(action =>
+            {
+                WindowState = WindowState.Minimized;
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
+            DataContext.MaximizeWindowInteraction.RegisterHandler(action =>
+            {
+                WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
+            DataContext.CloseWindowInteraction.RegisterHandler(action =>
+            {
+                Close();
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
+        });
     }
     
     /// <summary>
@@ -273,6 +298,15 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
         ProgressBar.IsIndeterminate = false;
     }
     
+    private void DragStart_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        // Start moving the window when left mouse button is pressed
+        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        {
+            BeginMoveDrag(e);
+        }
+    }
+    
     /// <summary>
     /// Checks for updates by comparing the current launcher version with the latest version available on GitHub.
     /// If an update is available, optionally initiates the update process.
@@ -375,6 +409,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
         }
     }
 
+    #region IProgressReporter Implementation
     /// <summary>
     /// Sets the progress value for the startup process.
     /// </summary>
@@ -411,4 +446,5 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
 
         DataContext.ProgressText = TranslationManager.Translate(statusKey, args);
     }
+    #endregion
 }

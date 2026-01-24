@@ -3,39 +3,81 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common"
     Title="{lang:Translate instance.edit.latestLog}"
     Width="800"
     Height="500"
     d:DesignHeight="500"
     d:DesignWidth="800"
     x:DataType="vm:InstanceLogsViewModel"
+    Background="Transparent"
     CanResize="True"
+    CornerRadius="14"
+    ExtendClientAreaChromeHints="NoChrome"
+    ExtendClientAreaToDecorationsHint="True"
     Icon="avares://Desktop/Assets/Images/logo.png"
     ShowInTaskbar="True"
+    SystemDecorations="None"
+    TransparencyLevelHint="Transparent"
+    UseLayoutRounding="True"
+    WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
-
-    <!--  Content  -->
-    <Border Classes="InstanceView">
-        <Grid RowDefinitions="Auto,*">
-            <!--  Title  -->
-            <WrapPanel ItemSpacing="10">
-                <TextBlock
-                    HorizontalAlignment="Left"
-                    Classes="InstanceTitle"
-                    Text="{lang:Translate instance.logs.title}" />
-                <TextBlock
-                    HorizontalAlignment="Left"
-                    Classes="InstanceTitle"
-                    Text="{Binding InstanceName}" />
-            </WrapPanel>
-            <!--  Content  -->
-            <Border Grid.Row="1" Classes="ModalScrollableWrapper" CornerRadius="8" Padding="25">
-                <Grid Classes="ModalScrollableWrapper" RowDefinitions="*, Auto">
+    <Border
+        Background="{DynamicResource base-200}"
+        BorderBrush="{DynamicResource border-one}"
+        BorderThickness="1"
+        CornerRadius="14"
+        PointerPressed="DragStart_PointerPressed">
+        <Grid RowDefinitions="Auto, *">
+            <!--  Window Controls  -->
+            <Border HorizontalAlignment="Stretch" PointerPressed="DragStart_PointerPressed">
+                <StackPanel Classes="WindowBtnPanel">
+                    <!--  MINIMIZE  -->
+                    <Button
+                        Classes="WindowBtn WarningBtn"
+                        Command="{Binding MinimizeWindowCommand}"
+                        ToolTip.Tip="{lang:Translate main.window.minimize}" />
+                    <!--  MAXIMIZE / RESTORE  -->
+                    <Button
+                        Classes="WindowBtn SuccessBtn"
+                        Command="{Binding MaximizeWindowCommand}"
+                        IsEnabled="{Binding $parent[Window].CanResize}"
+                        ToolTip.Tip="{lang:Translate main.window.maximize}" />
+                    <!--  CLOSE  -->
+                    <Button
+                        Classes="WindowBtn ErrorBtn"
+                        Command="{Binding CloseWindowCommand}"
+                        ToolTip.Tip="lang:Translate main.window.close" />
+                </StackPanel>
+            </Border>
+            <!--  Main Content  -->
+            <Grid
+                Grid.Row="1"
+                Margin="25"
+                RowDefinitions="Auto,*">
+                <!--  Title  -->
+                <WrapPanel ItemSpacing="10">
+                    <TextBlock
+                        HorizontalAlignment="Left"
+                        Classes="InstanceTitle"
+                        Text="{lang:Translate instance.logs.title}" />
+                    <TextBlock
+                        HorizontalAlignment="Left"
+                        Classes="InstanceTitle"
+                        Text="{Binding InstanceName}" />
+                </WrapPanel>
+                <!--  Content  -->
+                <Grid
+                    Grid.Row="1"
+                    Classes="ModalScrollableWrapper"
+                    RowDefinitions="*, Auto">
                     <!--  Log content  -->
-                    <Border Grid.Row="0" Classes="GridInnerContent">
+                    <Border
+                        Grid.Row="0"
+                        Background="{DynamicResource base-100}"
+                        Classes="GridInnerContent">
                         <ScrollViewer
                             Name="LogsScrollViewer"
                             HorizontalScrollBarVisibility="Disabled"
@@ -61,7 +103,7 @@
                         <!--  To bottom button  -->
                         <Button
                             Grid.Column="1"
-                            Classes="IconBtn"
+                            Classes="IconBtn DefaultBtn"
                             Command="{Binding ScrollLogsToEndCommand}">
                             <WrapPanel Classes="IconBtnWrapper">
                                 <TextBlock
@@ -74,7 +116,7 @@
                         <!--  Copy button  -->
                         <Button
                             Grid.Column="2"
-                            Classes="IconBtn"
+                            Classes="IconBtn DefaultBtn"
                             Command="{Binding CopyLogsCommand}">
                             <WrapPanel Classes="IconBtnWrapper">
                                 <TextBlock
@@ -99,7 +141,7 @@
                         </Button>
                     </Grid>
                 </Grid>
-            </Border>
+            </Grid>
         </Grid>
     </Border>
 </Window>

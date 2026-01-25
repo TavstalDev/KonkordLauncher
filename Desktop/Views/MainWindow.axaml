@@ -384,6 +384,19 @@
                         </WrapPanel>
                     </Button>
                     <Button
+                        Name="SkinsSideBtn"
+                        Classes="SidebarBtn"
+                        Command="{Binding HandleSidebarBtnCommand}"
+                        CommandParameter="{x:Static enums:ESidebarType.Skins}">
+                        <WrapPanel Classes="IconBtnWrapper">
+                            <TextBlock
+                                VerticalAlignment="Center"
+                                Classes="FontAwesome"
+                                Text="&#xf553;" />
+                            <TextBlock VerticalAlignment="Center" Text="{lang:Translate main.sidebar.skins}" />
+                        </WrapPanel>
+                    </Button>
+                    <Button
                         Name="SettingsSideBtn"
                         Classes="SidebarBtn"
                         Command="{Binding HandleSidebarBtnCommand}"
@@ -1168,6 +1181,52 @@
                                     </ScrollViewer>
                                 </TabItem>
                             </TabControl>
+                            <!-- Skins Page -->
+                            <Grid RowDefinitions="Auto, *" Margin="20" RowSpacing="10">
+                                <!-- Title  -->
+                                <TextBlock Classes="MainContentTitle" Text="{lang:Translate main.page.skins.title}" />
+                                <!-- Content -->
+                                <Grid Grid.Row="1" ColumnDefinitions="*, *" ColumnSpacing="10">
+                                    <!-- Preview -->
+                                    <StackPanel Spacing="10">
+                                        <!-- Skin Preview -->
+                                        <Border Background="{DynamicResource base-300}" CornerRadius="14" Padding="20">
+                                            <StackPanel Spacing="10">
+                                                <!-- Title -->
+                                                <TextBlock Classes="Muted" Text="PREVIEW" />
+                                                <!-- Options -->
+                                            </StackPanel>
+                                        </Border>
+                                        <!-- Model Type Selection -->
+                                        <Border Background="{DynamicResource base-300}" CornerRadius="14" Padding="20">
+                                            <StackPanel Spacing="10">
+                                                <!-- Title -->
+                                                <TextBlock Classes="Muted" Text="MODEL" />
+                                                <!-- Options -->
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+                                    <!-- Content -->
+                                    <StackPanel Grid.Column="1" Spacing="10">
+                                        <!-- Skin Selection -->
+                                        <Border Background="{DynamicResource base-300}" CornerRadius="14" Padding="20">
+                                            <StackPanel Spacing="10">
+                                                <!-- Title -->
+                                                <TextBlock Classes="Muted" Text="SKINS" />
+                                                <!-- Options -->
+                                            </StackPanel>
+                                        </Border>
+                                        <!-- Cape Selection -->
+                                        <Border Background="{DynamicResource base-300}" CornerRadius="14" Padding="20">
+                                            <StackPanel Spacing="10">
+                                                <!-- Title -->
+                                                <TextBlock Classes="Muted" Text="CAPES" />
+                                                <!-- Options -->
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
                         </Carousel.Items>
                     </Carousel>
                 </Border>

@@ -203,6 +203,11 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
                 _selectedButton = AboutSideBtn;
                 break;
             }
+            case ESidebarType.Skins:
+            {
+                _selectedButton = SkinsSideBtn;
+                break;
+            }
         }
         //_selectedButton.Classes.Remove("SecondaryBtn");
         _selectedButton.Classes.Add("SideBarActiveBtn");

@@ -87,7 +87,7 @@ public partial class MainViewModel : KonkordObservableObject
     /// </summary>
     public MainViewModel()
     {
-        _currentPageIndex = ESidebarType.Play;
+        _currentPageIndex = ESidebarType.Skins;
         _coreConfig = new CoreConfigModel(LauncherHelper.GetLauncherSettings());
         _accountData = new AccountDataModel(LauncherHelper.GetAccountData());
         Account? selectedAccount = AccountData.Accounts.FirstOrDefault(x => x.Id == AccountData.SelectedAccountId);

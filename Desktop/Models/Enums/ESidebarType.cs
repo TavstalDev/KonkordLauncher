@@ -28,5 +28,7 @@ public enum ESidebarType
     /// <summary>
     /// The "About" sidebar option, providing information about the application.
     /// </summary>
-    About = 4
+    About = 4,
+    
+    Skins = 5
 }

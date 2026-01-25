@@ -59,6 +59,7 @@ public static class DefaultTranslationProvider
         {"main.sidebar.accounts.guest", "Guest"},
         {"main.sidebar.settings", "Settings"},
         {"main.sidebar.about", "About"},
+        {"main.sidebar.skins", "Skins"},
         
         {"main.sidebar.version.update.none", "Ready to launch. No update available."},
         {"main.sidebar.version.update.available", "Ready to launch. Update available."},
@@ -73,6 +74,8 @@ public static class DefaultTranslationProvider
         
         {"main.page.accounts.title", "Accounts"},
         {"main.page.accounts.empty", "No accounts found. Add one to start playing."},
+        
+        {"main.page.skins.title", "Skins"},
         
         {"main.page.settings.title", "Settings"},
         

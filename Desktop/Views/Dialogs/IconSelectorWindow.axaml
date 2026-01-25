@@ -51,7 +51,7 @@
                     <Button
                         Classes="WindowBtn ErrorBtn"
                         Command="{Binding CloseWindowCommand}"
-                        ToolTip.Tip="lang:Translate main.window.close" />
+                        ToolTip.Tip="{lang:Translate main.window.close}" />
                 </StackPanel>
             </Border>
             <!--  Main Content  -->

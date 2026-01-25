@@ -32,7 +32,9 @@ public partial class AccountsViewModel : KonkordObservableObject
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(AccountsViewModel));
     private readonly IProgressReporter _progressReporter;
 
-    public Interaction<Unit, Unit> CloseWindow { get; }  = new();
+    public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
+    public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
+    public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
     public Interaction<Alert, Unit> ShowAlertDialog { get; } = new();
     public Interaction<string, Unit> SetClipboardText { get; } = new();
     
@@ -80,6 +82,26 @@ public partial class AccountsViewModel : KonkordObservableObject
         MicrosoftAuthService.Reset();
         IsLoggingInMicrosoftAccount = false;
     }
+    
+    #region Window Commands
+    [RelayCommand]
+    public async Task MinimizeWindow()
+    {
+        await MinimizeWindowInteraction.Handle(Unit.Default);
+    }
+
+    [RelayCommand]
+    public async Task MaximizeWindow()
+    {
+        await MaximizeWindowInteraction.Handle(Unit.Default);
+    }
+
+    [RelayCommand]
+    public async Task CloseWindow()
+    {
+        await CloseWindowInteraction.Handle(Unit.Default);
+    }
+    #endregion
 
     #region Microsoft Commands
 
@@ -193,7 +215,7 @@ public partial class AccountsViewModel : KonkordObservableObject
         await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData);
         GlobalEvents.InvokeAccountsChanged();
         
-        await CloseWindow.Handle(Unit.Default);
+        await CloseWindowInteraction.Handle(Unit.Default);
     }
 
     #endregion

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
+using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Threading;
 using ReactiveUI;
@@ -52,7 +53,19 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
 
         this.WhenActivated(disposables =>
         {
-            DataContext.CloseWindow.RegisterHandler(action =>
+            DataContext.MinimizeWindowInteraction.RegisterHandler(action =>
+            {
+                WindowState = WindowState.Minimized;
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
+            DataContext.MaximizeWindowInteraction.RegisterHandler(action =>
+            {
+                WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
+            DataContext.CloseWindowInteraction.RegisterHandler(action =>
             {
                 Close();
                 action.SetOutput(Unit.Default);
@@ -87,6 +100,15 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
         AuthHttpListener.StopListening();
         MicrosoftDeviceListener.StopListening();
         base.OnClosing(e);
+    }
+    
+    private void DragStart_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        // Start moving the window when left mouse button is pressed
+        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        {
+            BeginMoveDrag(e);
+        }
     }
 
     /// <summary>

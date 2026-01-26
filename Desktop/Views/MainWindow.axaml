@@ -1195,6 +1195,9 @@
                                                 <!-- Title -->
                                                 <TextBlock Classes="Muted" Text="PREVIEW" />
                                                 <!-- Options -->
+                                                <Viewbox Classes="SkinViewBox" MaxHeight="280">
+                                                    <Image Classes="SkinPreview" Source="avares://Desktop/Assets/Images/placeholders/steve_full.png" />
+                                                </Viewbox>
                                             </StackPanel>
                                         </Border>
                                         <!-- Model Type Selection -->
@@ -1203,28 +1206,64 @@
                                                 <!-- Title -->
                                                 <TextBlock Classes="Muted" Text="MODEL" />
                                                 <!-- Options -->
+                                                <Grid ColumnDefinitions="*, *" ColumnSpacing="10">
+                                                    <!-- Wide Model -->
+                                                    <Button Classes="SkinModelBtn">
+                                                        <TextBlock Foreground="{DynamicResource base-content}" Text="Wide" />
+                                                    </Button>
+                                                    <!-- Slim Model -->
+                                                    <Button Grid.Column="1" Classes="SkinModelBtn">
+                                                        <TextBlock Foreground="{DynamicResource base-content}" Text="Slim" />
+                                                    </Button>
+                                                </Grid>
                                             </StackPanel>
                                         </Border>
                                     </StackPanel>
                                     <!-- Content -->
-                                    <StackPanel Grid.Column="1" Spacing="10">
-                                        <!-- Skin Selection -->
-                                        <Border Background="{DynamicResource base-300}" CornerRadius="14" Padding="20">
-                                            <StackPanel Spacing="10">
-                                                <!-- Title -->
-                                                <TextBlock Classes="Muted" Text="SKINS" />
-                                                <!-- Options -->
-                                            </StackPanel>
-                                        </Border>
-                                        <!-- Cape Selection -->
-                                        <Border Background="{DynamicResource base-300}" CornerRadius="14" Padding="20">
-                                            <StackPanel Spacing="10">
-                                                <!-- Title -->
-                                                <TextBlock Classes="Muted" Text="CAPES" />
-                                                <!-- Options -->
-                                            </StackPanel>
-                                        </Border>
-                                    </StackPanel>
+                                    <ScrollViewer Grid.Column="1">
+                                        <StackPanel Spacing="10">
+                                            <!-- Skin Selection -->
+                                            <Border Background="{DynamicResource base-300}" CornerRadius="14" Padding="20">
+                                                <StackPanel Spacing="10">
+                                                    <!-- Title -->
+                                                    <Grid ColumnDefinitions="*, Auto">
+                                                        <TextBlock Classes="Muted" Text="SKINS" />
+                                                        <!-- Upload Button -->
+                                                        <Button Grid.Column="1" Classes="IconBtn PrimaryBtn">
+                                                            <TextBlock Classes="FontAwesome" Text="&#xf093;" />
+                                                        </Button>
+                                                    </Grid>
+                                                    <!-- Options -->
+                                                    <WrapPanel ItemSpacing="10" LineSpacing="10">
+                                                        <Border Classes="SkinBorder SkinBorderSelected">
+                                                            <Button Classes="SkinBtn">
+                                                                <Viewbox Classes="SkinViewBox">
+                                                                    <Image Classes="SkinPreview" Source="avares://Desktop/Assets/Images/placeholders/steve_full.png" />
+                                                                </Viewbox>
+                                                            </Button>
+                                                        </Border>
+                                                    </WrapPanel>
+                                                </StackPanel>
+                                            </Border>
+                                            <!-- Cape Selection -->
+                                            <Border Background="{DynamicResource base-300}" CornerRadius="14" Padding="20">
+                                                <StackPanel Spacing="10">
+                                                    <!-- Title -->
+                                                    <TextBlock Classes="Muted" Text="CAPES" />
+                                                    <!-- Options -->
+                                                    <WrapPanel ItemSpacing="10" LineSpacing="10">
+                                                        <Border Classes="SkinBorder SkinBorderSelected">
+                                                            <Button Classes="SkinBtn">
+                                                                <Viewbox Classes="SkinViewBox">
+                                                                    <Image Classes="SkinPreview" Source="avares://Desktop/Assets/Images/placeholders/steve_full_nocape.png" />
+                                                                </Viewbox>
+                                                            </Button>
+                                                        </Border>
+                                                    </WrapPanel>
+                                                </StackPanel>
+                                            </Border>
+                                        </StackPanel>
+                                    </ScrollViewer>
                                 </Grid>
                             </Grid>
                         </Carousel.Items>

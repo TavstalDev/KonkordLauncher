@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
@@ -8,7 +9,6 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Platform.Storage;
-using Avalonia.Threading;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Translation;
@@ -138,7 +138,7 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
                 action.SetOutput(result);
             });
         });
-
+        
         if (Design.IsDesignMode)
             return;
         

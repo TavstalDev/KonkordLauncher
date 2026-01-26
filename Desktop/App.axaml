@@ -47,6 +47,7 @@
         <StyleInclude Source="Styles/Layout/Main/AccountsPage.axaml" />
         <StyleInclude Source="Styles/Layout/Main/SettingsPage.axaml" />
         <StyleInclude Source="Styles/Layout/Main/AboutPage.axaml" />
+        <StyleInclude Source="Styles/Layout/Main/SkinsPage.axaml" />
         
         <StyleInclude Source="Styles/Layout/Accounts/AccountsView.axaml" />
         <StyleInclude Source="Styles/Layout/Instances/InstancesView.axaml" />

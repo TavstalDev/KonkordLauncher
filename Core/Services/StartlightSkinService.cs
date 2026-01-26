@@ -65,7 +65,7 @@ public static class StartlightSkinService
         try
         {
             string requestUrl =
-                $"https://starlightskins.lunareclipse.studio/render/default/${username}/full?cameraPosition={{%22x%22:%220%22,%22y%22:%2216%22,%22z%22:%2232%22}}&cameraFocalPoint={{%22x%22:%223.67%22,%22y%22:%2216.31%22,%22z%22:%223.35%22}}&capeEnabled=true&capeTexture={capeUrl}";
+                $"https://starlightskins.lunareclipse.studio/render/default/{username}/full?cameraPosition={{\"x\":\"0\",\"y\":\"18\",\"z\":\"15\"}}&cameraFocalPoint={{\"x\":\"0\",\"y\":\"15.9\",\"z\":\"3.35\"}}&capeEnabled=true&capeTexture={capeUrl}";
 
             if (skinUrl != null)
                 requestUrl += $"&skinUrl={skinUrl}";

@@ -23,6 +23,7 @@ public static class DefaultTranslationProvider
         {"startup.validation.translationsFailed", "Failed to validate translations."},
         {"startup.validation.accounts", "Validating accounts..."},
         {"startup.validation.accountsFailed", "Failed to validate accounts."},
+        {"startup.validation.skins", "Fetching skins..."},
         {"startup.validation.manifests", "Validating manifests..."},
         {"startup.validation.manifestsFailed", "Failed to validate manifests."},
         {"startup.validation.manifests.download", "Downloading {0} manifest {1}%"},
@@ -76,6 +77,12 @@ public static class DefaultTranslationProvider
         {"main.page.accounts.empty", "No accounts found. Add one to start playing."},
         
         {"main.page.skins.title", "Skins"},
+        {"main.page.skins.preview", "PREVIEW"},
+        {"main.page.skins.model", "MODEL"},
+        {"main.page.skins.model.wide", "Wide"},
+        {"main.page.skins.model.slim", "Slim"},
+        {"main.page.skins.skins", "SKINS"},
+        {"main.page.skins.capes", "CAPES"},
         
         {"main.page.settings.title", "Settings"},
         

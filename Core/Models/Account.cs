@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Core.Encryption;
 using Tavstal.KonkordLauncher.Core.Enums;
+using Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
 
 namespace Tavstal.KonkordLauncher.Core.Models;
 
@@ -88,6 +89,9 @@ public class Account
     /// </summary>
     [JsonPropertyName("accessTokenExpDate"), JsonProperty("accessTokenExpDate")]
     public DateTime AccessTokenExpireDate { get; set; }
+    
+    [JsonProperty("mojangProfile"), JsonPropertyName("mojangProfile")]
+    public MojangProfile? MojangProfile { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Account"/> class with default values.
@@ -105,8 +109,9 @@ public class Account
     /// <param name="accessToken">The decrypted access token for the account.</param>
     /// <param name="refreshToken">The decrypted refresh token for the account.</param>
     /// <param name="accessTokenExpDate">The expiration date of the access token.</param>
+    /// <param name="mojangProfile">The Mojang profile associated with the account, if any.</param>
     public Account(string id, string uuid, string displayName, EAccountType type, string accessToken, string refreshToken,
-        DateTime accessTokenExpDate)
+        DateTime accessTokenExpDate, MojangProfile? mojangProfile)
     {
         Id = id;
         Uuid = uuid;
@@ -115,6 +120,7 @@ public class Account
         AccessToken = accessToken;
         RefreshToken = refreshToken;
         AccessTokenExpireDate = accessTokenExpDate;
+        MojangProfile = mojangProfile;
     }
     
     /// <summary>

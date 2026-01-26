@@ -549,7 +549,7 @@ public static class MicrosoftAuthService
                 return;
             }
 
-            _account = new Account(Guid.NewGuid().ToString(),_mojangProfile.Id, _mojangProfile.Name, EAccountType.MICROSOFT, mcToken, refreshToken, DateTime.Now.AddSeconds(expireSecs));
+            _account = new Account(Guid.NewGuid().ToString(),_mojangProfile.Id, _mojangProfile.Name, EAccountType.MICROSOFT, mcToken, refreshToken, DateTime.Now.AddSeconds(expireSecs), _mojangProfile);
             
             _authStatus = EAuthStatus.SUCCESS;
             OnAuthStatusChanged?.Invoke(_authStatus);

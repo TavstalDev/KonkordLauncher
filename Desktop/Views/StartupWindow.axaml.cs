@@ -218,20 +218,10 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
             }
             
             // 6.2 Refresh skins cache
+            SetStatusTranslated("startup.validation.skins");
             AccountData accountData = await LauncherHelper.GetAccountDataAsync();
             foreach (Account account in accountData.Accounts)
-            {
-                // Refresh head if needed or missing
-                string headCachePath = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins", $"{account.Uuid}_head.png");
-                if (!File.Exists(headCachePath) || shouldRefreshCache)
-                {
-                    byte[]? skinResult = await StartlightSkinService.GetHeadshotAsync(account.DisplayName);
-                    if (skinResult != null)
-                        await File.WriteAllBytesAsync(headCachePath, skinResult);
-                    else 
-                        _logger.Error($"Failed to fetch headshot for {account.DisplayName}");
-                }
-            }
+                await Task.Run(async () => await MojangSkinService.FetchSkins(settings.Launcher.CacheDirectoryPath, account.Uuid, account.DisplayName, account.MojangProfile?.Capes ?? []));
 
             // 7. Check for Updates
             App.IsUpToDate = true;

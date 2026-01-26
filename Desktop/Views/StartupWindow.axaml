@@ -64,7 +64,6 @@
                         Name="ProgressBar"
                         Grid.Row="1"
                         Classes="StartupProgress"
-                        IsIndeterminate="False"
                         Value="{Binding Progress}" />
                     <!--  Progress text  -->
                     <TextBlock

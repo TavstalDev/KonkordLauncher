@@ -210,7 +210,7 @@ public partial class AccountsViewModel : KonkordObservableObject
             accountData.SelectedAccountId = id;
 
         account = new Account(id, uuid, OfflineUsername, EAccountType.OFFLINE, "0", "0",
-            DateTime.Now);
+            DateTime.Now, null);
         accountData.Accounts.Add(account);
         await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData);
         GlobalEvents.InvokeAccountsChanged();

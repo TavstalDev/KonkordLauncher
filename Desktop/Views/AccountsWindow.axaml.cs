@@ -212,12 +212,16 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
             accountData.Accounts.Add(microsoftAccount);
             var settings = await LauncherHelper.GetLauncherSettingsAsync();
             await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData);
-            byte[]? skinResult = await StartlightSkinService.GetHeadshotAsync(microsoftAccount.DisplayName);
-            if (skinResult != null)
-            {
-                string skinPath = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins", $"{microsoftAccount.Uuid}_head.png");
-                await File.WriteAllBytesAsync(skinPath, skinResult);
-            }
+            
+            string skinsDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins", microsoftAccount.Uuid);
+            string capesDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "capes");
+            if (!Directory.Exists(skinsDir))
+                Directory.CreateDirectory(skinsDir);
+            if (!Directory.Exists(capesDir))
+                Directory.CreateDirectory(capesDir);
+
+            await Task.Run(async () => await MojangSkinService.FetchSkins(settings.Launcher.CacheDirectoryPath, microsoftAccount.Uuid, microsoftAccount.DisplayName, microsoftAccount.MojangProfile?.Capes ?? []));
+            
             GlobalEvents.InvokeAccountsChanged();
             MicrosoftAuthService.Reset(); 
             Close();

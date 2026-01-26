@@ -70,4 +70,9 @@ public static class MicrosoftEndpoints
     /// The base URL for downloading Minecraft resources.
     /// </summary>
     public const string MinecraftResourcesUrl = "https://resources.download.minecraft.net";
+
+    /// <summary>
+    /// The URL for retrieving the player's Minecraft profile configuration.
+    /// </summary>
+    public const string PlayerConfigUrl = "https://api.minecraftservices.com/minecraft/profile";
 }

@@ -6,10 +6,10 @@
     </Style>
     
     <!-- Skin Border Selected -->
-    <Style Selector="Border.SkinBorderSelected">
+    <Style Selector="Border.SkinBorder.selected">
         <Setter Property="Background" Value="{DynamicResource base-100}" />
         <Setter Property="BorderBrush" Value="{DynamicResource primary-border}" />
-        <Setter Property="BorderThickness" Value="1.5" />
+        <Setter Property="BorderThickness" Value="2" />
     </Style>
     
     <!-- Skin Model Button -->
@@ -28,6 +28,29 @@
     
     <Style Selector="Button.SkinModelBtn:pressed">
         <Setter Property="Background" Value="{DynamicResource base-200}" />
+    </Style>
+    
+    <Style Selector="Button.SkinModelBtn.selected">
+        <Setter Property="Background" Value="{DynamicResource primary}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource primary-border}" />
+        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+    
+    <Style Selector="Button.SkinModelBtn.selected:pointerover">
+        <Setter Property="Background" Value="{DynamicResource primary}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource primary-border}" />
+        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
+    </Style>
+    
+    <Style Selector="Button.SkinModelBtn.selected:pressed">
+        <Setter Property="Background" Value="{DynamicResource primary}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource primary-border}" />
+        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
     </Style>
     
     <!-- Skin Button -->

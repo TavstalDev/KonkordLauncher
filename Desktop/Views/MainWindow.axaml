@@ -331,7 +331,6 @@
         <DataTemplate DataType="models:SkinDataModel">
             <Border Classes="SkinBorder" Classes.selected="{Binding IsSelected}">
                 <Button Classes="SkinBtn"
-                        IsEnabled="{Binding !$parent[Window].DataContext.IsAccountSkinProcessing}"
                         Command="{Binding $parent[Window].DataContext.SkinSelectCommand}"
                         CommandParameter="{Binding .}">
                     <Viewbox Classes="SkinViewBox">
@@ -344,7 +343,6 @@
         <DataTemplate DataType="models:CapeDataModel">
             <Border Classes="SkinBorder" Classes.selected="{Binding IsSelected}">
                 <Button Classes="SkinBtn" 
-                        IsEnabled="{Binding !$parent[Window].DataContext.IsAccountSkinProcessing}"
                         Command="{Binding $parent[Window].DataContext.CapeSelectCommand}"
                         CommandParameter="{Binding .}"
                         ToolTip.Tip="{Binding Alias}">

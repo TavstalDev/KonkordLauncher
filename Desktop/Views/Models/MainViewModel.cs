@@ -82,13 +82,17 @@ public partial class MainViewModel : KonkordObservableObject
     
     public bool IsMojangAccount => SelectedAccount is { Type: EAccountType.MICROSOFT };
     
-    public ObservableCollection<SkinDataModel> Skins { get; set; } = new();
-    public ObservableCollection<CapeDataModel> Capes { get; set; } = new();
+    private readonly SourceCache<SkinDataModel, string> _skinsCache = new(x => x.Id);
+    public ReadOnlyObservableCollection<SkinDataModel> Skins { get; }
+    private readonly SourceCache<CapeDataModel, string> _capesCache = new(x => x.Id);
+    public ReadOnlyObservableCollection<CapeDataModel> Capes { get; }
     [ObservableProperty] private Bitmap _accountAvatar;
     [ObservableProperty] private Bitmap? _accountSkinPreview;
     [ObservableProperty] private bool _isAccountHasWideModel;
     [ObservableProperty] private bool _isAccountSkinProcessing;
     [ObservableProperty] private CoreConfigModel _coreConfig;
+    [ObservableProperty] private string _selectedSkinId = string.Empty;
+    [ObservableProperty] private string _selectedCapeId = string.Empty;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MainViewModel"/> class.
@@ -98,9 +102,6 @@ public partial class MainViewModel : KonkordObservableObject
         _currentPageIndex = ESidebarType.Skins;
         _coreConfig = new CoreConfigModel(LauncherHelper.GetLauncherSettings());
         _accountData = new AccountDataModel(LauncherHelper.GetAccountData());
-        Account? selectedAccount = AccountData.Accounts.FirstOrDefault(x => x.Id == AccountData.SelectedAccountId);
-        _selectedAccount = selectedAccount;
-        OnAccountUpdated();
 
         #region Instances
 
@@ -202,6 +203,24 @@ public partial class MainViewModel : KonkordObservableObject
         });
 
         #endregion
+        
+        #region Skins
+        var skinsDisposer = _skinsCache.Connect()
+            .Bind(out var skins)
+            .Subscribe();
+        Disposables.Add(skinsDisposer);
+        Skins = skins;
+        
+        var capesDisposer = _capesCache.Connect()
+            .Bind(out var capes)
+            .Subscribe();
+        Disposables.Add(capesDisposer);
+        Capes = capes;
+        #endregion
+        
+        Account? selectedAccount = AccountData.Accounts.FirstOrDefault(x => x.Id == AccountData.SelectedAccountId);
+        _selectedAccount = selectedAccount;
+        OnAccountUpdated();
 
         _isInitialized = true;
         SubscribeToCoreConfigChildren(_coreConfig);
@@ -641,13 +660,19 @@ public partial class MainViewModel : KonkordObservableObject
             if (SelectedAccount != selectedAccount)
             {
                 List<SkinDataModel> skinCopies = Skins.ToList();
-                Skins.Clear();
                 foreach (SkinDataModel skin in skinCopies)
                     skin.Dispose();
+                _skinsCache.Edit(innerCache =>
+                {
+                    innerCache.Clear();
+                });
                 List<CapeDataModel> capeCopies = Capes.ToList();
-                Capes.Clear();
                 foreach (CapeDataModel cape in capeCopies)
                     cape.Dispose();
+                _capesCache.Edit(innerCache =>
+                {
+                    innerCache.Clear();
+                });
             }
             SelectedAccount = selectedAccount;
             if (SelectedAccount?.MojangProfile != null)
@@ -668,10 +693,14 @@ public partial class MainViewModel : KonkordObservableObject
                         _logger.Error("Failed to load skin image: " + ex);
                     }
                     bool isActive = skin.State.Equals("active", StringComparison.InvariantCultureIgnoreCase);
-                    Skins.Add(new  SkinDataModel(skin.Id, skin.Variant, img, isActive));
+                    _skinsCache.Edit(innerCache =>
+                    {
+                        innerCache.AddOrUpdate(new  SkinDataModel(skin.Id, skin.Variant, img, isActive));
+                    });
                     if (isActive)
                     {
                         IsAccountHasWideModel = skin.Variant.Equals("classic", StringComparison.InvariantCultureIgnoreCase);
+                        SelectedSkinId = skin.Id;
                         AccountSkinPreview = img;
                     }
                 }
@@ -687,7 +716,10 @@ public partial class MainViewModel : KonkordObservableObject
                 {
                     _logger.Error("Failed to load cape image: " + ex);
                 }
-                Capes.Add(new CapeDataModel("none", "None", noCapeImg, false));
+                _capesCache.Edit(innerCache =>
+                {
+                    innerCache.AddOrUpdate(new CapeDataModel("none", "None", noCapeImg, false));
+                });
                 foreach (Cape cape in SelectedAccount.MojangProfile.Capes)
                 {
                     string path = Path.Combine(capesDir, $"{cape.Id}.png");
@@ -701,9 +733,15 @@ public partial class MainViewModel : KonkordObservableObject
                         _logger.Error("Failed to load cape image: " + ex);
                     }
                     bool isActive = cape.State.Equals("active", StringComparison.InvariantCultureIgnoreCase);
-                    Capes.Add(new CapeDataModel(cape.Id, cape.Alias, img,  isActive));
+                    _capesCache.Edit(innerCache =>
+                    {
+                        innerCache.AddOrUpdate(new CapeDataModel(cape.Id, cape.Alias, img,  isActive));
+                    });
                     if (isActive)
+                    {
                         hadActiveCape = true;
+                        SelectedCapeId = cape.Id;
+                    }
                 }
 
                 if (!hadActiveCape)
@@ -1070,6 +1108,10 @@ public partial class MainViewModel : KonkordObservableObject
     {
         try
         {
+            // Prevent re-uploading while processing
+            if (IsAccountSkinProcessing)
+                return;
+            
             IsAccountSkinProcessing = true;
             // Ensure an account is selected
             if (SelectedAccount == null)
@@ -1090,10 +1132,11 @@ public partial class MainViewModel : KonkordObservableObject
     {
         try
         {
-            IsAccountSkinProcessing = true;
             // Prevent re-selecting the same skin
-            if (model.IsSelected)
+            if (model.IsSelected || IsAccountSkinProcessing)
                 return;
+            IsAccountSkinProcessing = true;
+            
             
             // Ensure an account is selected
             if (SelectedAccount == null)
@@ -1114,31 +1157,54 @@ public partial class MainViewModel : KonkordObservableObject
     {
         try
         {
-            IsAccountSkinProcessing = true;
             // Prevent re-selecting the same cape
-            if (model.IsSelected)
+            if (model.IsSelected || IsAccountSkinProcessing)
                 return;
+            IsAccountSkinProcessing = true;
             
             // Ensure an account is selected
             if (SelectedAccount == null)
                 return;
-            
+
+            MojangProfile? result;
             if (model.Id.Equals("none", StringComparison.InvariantCultureIgnoreCase))
+                result = await MojangSkinService.HideCape(SelectedAccount.AccessToken);
+            else
+                result = await MojangSkinService.ShowCape(SelectedAccount.AccessToken, model.Id);
+            
+            if (result == null)
             {
-                bool result = await MojangSkinService.HideCape(SelectedAccount.AccessToken);
-                if (!result)
+                // TODO: Translate
+                await ShowAlertDialog.Handle(new Alert("Error", "Failed to change cape.", EAlertType.Error));
+                foreach (CapeDataModel cape in Capes.ToList())
                 {
-                    // TODO: Translate
-                    await ShowAlertDialog.Handle(new Alert("Error", "Failed to hide cape.", EAlertType.Error));
-                    return;
+                    cape.IsSelected = cape.Id == SelectedCapeId;
+                    _capesCache.Edit(innerCache =>
+                    {
+                        innerCache.AddOrUpdate(cape);
+                    });
                 }
-                // TODO: Update cape selection in UI
                 return;
             }
+            SelectedCapeId = model.Id;
+            foreach (CapeDataModel cape in Capes.ToList())
+            {
+                cape.IsSelected = cape.Id == SelectedCapeId;
+                _capesCache.Edit(innerCache =>
+                {
+                    innerCache.AddOrUpdate(cape);
+                });
+            }
+
+            int accountIndex = AccountData.Accounts.IndexOf(SelectedAccount);
+            SelectedAccount.MojangProfile = result;
+            AccountData.Accounts[accountIndex] = SelectedAccount;
         }
         catch (Exception ex)
         {
             _logger.Error("Error while selecting cape: " + ex);
+            // TODO: Translate
+            await ShowAlertDialog.Handle(new Alert("Error", "Unexpected error happened while selecting the cape.", EAlertType.Error));
         }
         finally
         {
@@ -1151,11 +1217,11 @@ public partial class MainViewModel : KonkordObservableObject
     {
         try
         {
-            IsAccountSkinProcessing = true;
             bool newValue = model == "wide";
             // Prevent re-selecting the same model
-            if (newValue == IsAccountHasWideModel)
+            if (newValue == IsAccountHasWideModel || IsAccountSkinProcessing)
                 return;
+            IsAccountSkinProcessing = true;
             
             // Ensure an account is selected
             if (SelectedAccount == null)

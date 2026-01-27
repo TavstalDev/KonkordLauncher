@@ -331,6 +331,7 @@
         <DataTemplate DataType="models:SkinDataModel">
             <Border Classes="SkinBorder" Classes.selected="{Binding IsSelected}">
                 <Button Classes="SkinBtn"
+                        IsEnabled="{Binding !$parent[Window].DataContext.IsAccountSkinProcessing}"
                         Command="{Binding $parent[Window].DataContext.SkinSelectCommand}"
                         CommandParameter="{Binding .}">
                     <Viewbox Classes="SkinViewBox">
@@ -343,6 +344,7 @@
         <DataTemplate DataType="models:CapeDataModel">
             <Border Classes="SkinBorder" Classes.selected="{Binding IsSelected}">
                 <Button Classes="SkinBtn" 
+                        IsEnabled="{Binding !$parent[Window].DataContext.IsAccountSkinProcessing}"
                         Command="{Binding $parent[Window].DataContext.CapeSelectCommand}"
                         CommandParameter="{Binding .}"
                         ToolTip.Tip="{Binding Alias}">
@@ -1235,12 +1237,14 @@
                                                 <Grid ColumnDefinitions="*, *" ColumnSpacing="10">
                                                     <!-- Wide Model -->
                                                     <Button Classes="SkinModelBtn" Classes.selected="{Binding IsAccountHasWideModel}"
+                                                            IsEnabled="{Binding !IsAccountSkinProcessing}"
                                                             Command="{Binding ModelSelectCommand}"
                                                             CommandParameter="wide">
                                                         <TextBlock Foreground="{DynamicResource base-content}" Text="{lang:Translate main.page.skins.model.wide}" />
                                                     </Button>
                                                     <!-- Slim Model -->
                                                     <Button Grid.Column="1" Classes="SkinModelBtn" Classes.selected="{Binding !IsAccountHasWideModel}"
+                                                            IsEnabled="{Binding !IsAccountSkinProcessing}"
                                                             Command="{Binding ModelSelectCommand}"
                                                             CommandParameter="slim">
                                                         <TextBlock Foreground="{DynamicResource base-content}" Text="{lang:Translate main.page.skins.model.slim}" />
@@ -1259,7 +1263,9 @@
                                                     <Grid ColumnDefinitions="*, Auto">
                                                         <TextBlock Classes="Muted" Text="{lang:Translate main.page.skins.skins}" />
                                                         <!-- Upload Button -->
-                                                        <Button Grid.Column="1" Classes="IconBtn PrimaryBtn">
+                                                        <Button Grid.Column="1" Classes="IconBtn PrimaryBtn" 
+                                                                IsEnabled="{Binding !IsAccountSkinProcessing}"
+                                                                Command="{Binding SkinUploadCommand}">
                                                             <TextBlock Classes="FontAwesome" Text="&#xf093;" />
                                                         </Button>
                                                     </Grid>

@@ -87,6 +87,7 @@ public partial class MainViewModel : KonkordObservableObject
     [ObservableProperty] private Bitmap _accountAvatar;
     [ObservableProperty] private Bitmap? _accountSkinPreview;
     [ObservableProperty] private bool _isAccountHasWideModel;
+    [ObservableProperty] private bool _isAccountSkinProcessing;
     [ObservableProperty] private CoreConfigModel _coreConfig;
 
     /// <summary>
@@ -1064,29 +1065,111 @@ public partial class MainViewModel : KonkordObservableObject
     #endregion
     
     #region Skin Management
+    [RelayCommand]
+    private async Task SkinUpload()
+    {
+        try
+        {
+            IsAccountSkinProcessing = true;
+            // Ensure an account is selected
+            if (SelectedAccount == null)
+                return;
+        }
+        catch (Exception ex)
+        {
+            _logger.Error("Error while uploading skin: " + ex);
+        }
+        finally
+        {
+            IsAccountSkinProcessing = false;
+        }
+    }
 
     [RelayCommand]
     private async Task SkinSelect(SkinDataModel model)
     {
-        
+        try
+        {
+            IsAccountSkinProcessing = true;
+            // Prevent re-selecting the same skin
+            if (model.IsSelected)
+                return;
+            
+            // Ensure an account is selected
+            if (SelectedAccount == null)
+                return;
+        }
+        catch (Exception ex)
+        {
+            _logger.Error("Error while selecting skin: " + ex);
+        }
+        finally
+        {
+            IsAccountSkinProcessing = false;
+        }
     }
     
     [RelayCommand]
     private async Task CapeSelect(CapeDataModel model)
     {
-        
+        try
+        {
+            IsAccountSkinProcessing = true;
+            // Prevent re-selecting the same cape
+            if (model.IsSelected)
+                return;
+            
+            // Ensure an account is selected
+            if (SelectedAccount == null)
+                return;
+            
+            if (model.Id.Equals("none", StringComparison.InvariantCultureIgnoreCase))
+            {
+                bool result = await MojangSkinService.HideCape(SelectedAccount.AccessToken);
+                if (!result)
+                {
+                    // TODO: Translate
+                    await ShowAlertDialog.Handle(new Alert("Error", "Failed to hide cape.", EAlertType.Error));
+                    return;
+                }
+                // TODO: Update cape selection in UI
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.Error("Error while selecting cape: " + ex);
+        }
+        finally
+        {
+            IsAccountSkinProcessing = false;
+        }
     }
     
     [RelayCommand]
     private async Task ModelSelect(string model)
     {
-        if (model == "wide")
+        try
         {
-            IsAccountHasWideModel = true;
+            IsAccountSkinProcessing = true;
+            bool newValue = model == "wide";
+            // Prevent re-selecting the same model
+            if (newValue == IsAccountHasWideModel)
+                return;
+            
+            // Ensure an account is selected
+            if (SelectedAccount == null)
+                return;
+            
+            IsAccountHasWideModel = newValue;
         }
-        else
+        catch (Exception ex)
         {
-            IsAccountHasWideModel = false;
+            _logger.Error("Error while selecting skin model: " + ex);
+        }
+        finally
+        {
+            IsAccountSkinProcessing = false;
         }
     }
     #endregion

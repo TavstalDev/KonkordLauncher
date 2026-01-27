@@ -97,7 +97,6 @@ public class Account
     /// Initializes a new instance of the <see cref="Account"/> class with default values.
     /// </summary>
     public Account() {}
-    
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Account"/> class with the specified details.
@@ -106,19 +105,21 @@ public class Account
     /// <param name="uuid">The universally unique identifier (UUID) of the account.</param>
     /// <param name="displayName">The display name of the account.</param>
     /// <param name="type">The type of the account (e.g., Mojang, Microsoft).</param>
-    /// <param name="accessToken">The decrypted access token for the account.</param>
-    /// <param name="refreshToken">The decrypted refresh token for the account.</param>
+    /// <param name="encryptedAccessToken">The encrypted access token for the account.</param>
+    /// <param name="encryptedRefreshToken">The encrypted refresh token for the account.</param>
     /// <param name="accessTokenExpDate">The expiration date of the access token.</param>
     /// <param name="mojangProfile">The Mojang profile associated with the account, if any.</param>
-    public Account(string id, string uuid, string displayName, EAccountType type, string accessToken, string refreshToken,
+    public Account(string id, string uuid, string displayName, EAccountType type, string encryptedAccessToken, string encryptedRefreshToken,
         DateTime accessTokenExpDate, MojangProfile? mojangProfile)
     {
         Id = id;
         Uuid = uuid;
         DisplayName = displayName;
         Type = type;
-        AccessToken = accessToken;
-        RefreshToken = refreshToken;
+#pragma warning disable CS0618 // Type or member is obsolete
+        EncryptedAccessToken = EncryptionUtility.Reprotect(encryptedAccessToken);
+        EncryptedRefreshToken = EncryptionUtility.Reprotect(encryptedRefreshToken);
+#pragma warning restore CS0618 // Type or member is obsolete
         AccessTokenExpireDate = accessTokenExpDate;
         MojangProfile = mojangProfile;
     }

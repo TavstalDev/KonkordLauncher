@@ -17,6 +17,11 @@ public static class EncryptionUtility
     /// Logger instance for the EncryptionUtility class.
     /// </summary>
     private static readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EncryptionUtility));
+    private const string DP_PREFIX = "dpv1:";
+    private const string WIN_PREFIX = "winv1:";
+    private const string LINUX_PREFIX = "linuxv1:";
+    private const string MAC_PREFIX   = "macv1:";
+
 
     /// <summary>
     /// A data protector instance used for encrypting and decrypting data.
@@ -29,7 +34,10 @@ public static class EncryptionUtility
     /// <param name="provider">The data protection provider to create the protector from.</param>
     public static void SetDataProtectionProvider(IDataProtectionProvider provider)
     {
-        _protector = provider.CreateProtector("KonkordLauncher.Protector");
+        // Prevent re-initialization if already set
+        if (_protector != null)
+            return;
+        _protector = provider.CreateProtector("KonkordLauncher.Encryption.v1");
     }
     
     /// <summary>
@@ -57,16 +65,16 @@ public static class EncryptionUtility
         try
         {
             if (_protector != null)
-                return _protector.Protect(text);
+                return DP_PREFIX + _protector.Protect(text);
             
             switch (OSHelper.GetOperatingSystem())
             {
                 case EOperatingSystem.Windows:
-                    return EncryptWin(text);
+                    return WIN_PREFIX + EncryptWin(text);
                 case EOperatingSystem.Linux:
-                    return EncryptLinux(text);
+                    return LINUX_PREFIX + EncryptLinux(text);
                 case EOperatingSystem.MacOS:
-                    return EncryptMac(text);
+                    return MAC_PREFIX + EncryptMac(text);
                 default:
                     throw new Exception("Unknown operating system");
             }
@@ -88,20 +96,22 @@ public static class EncryptionUtility
     {
         try
         {
-            if (_protector != null)
-                return _protector.Unprotect(text);
+            if (string.IsNullOrEmpty(text))
+                return text;
             
-            switch (OSHelper.GetOperatingSystem())
-            {
-                case EOperatingSystem.Windows:
-                    return DecryptWin(text);
-                case EOperatingSystem.Linux:
-                    return DecryptLinux(text);
-                case EOperatingSystem.MacOS:
-                    return DecryptMac(text);
-                default:
-                    throw new Exception("Unknown operating system");
-            }
+            if (text.StartsWith(DP_PREFIX))
+                return _protector!.Unprotect(text[DP_PREFIX.Length..]);
+
+            if (text.StartsWith(WIN_PREFIX))
+                return DecryptWin(text[WIN_PREFIX.Length..]);
+
+            if (text.StartsWith(LINUX_PREFIX))
+                return DecryptLinux(text[LINUX_PREFIX.Length..]);
+            
+            if (text.StartsWith(MAC_PREFIX))
+                return DecryptMac(text[MAC_PREFIX.Length..]);
+
+            throw new CryptographicException("Unknown encryption format");
         }
         catch (Exception ex)
         {
@@ -110,6 +120,67 @@ public static class EncryptionUtility
             return text;
         }
     }
+    
+    /// <summary>
+    /// Reprotects an encrypted string by decrypting it and re-encrypting it using the current data protection provider.
+    /// </summary>
+    /// <param name="encrypted">The encrypted string to be reprotected.</param>
+    /// <returns>
+    /// The reprotected string if the data protection provider is set; otherwise, the original encrypted string.
+    /// </returns>
+    /// <remarks>
+    /// This method handles different encryption formats based on their prefixes:
+    /// - If the prefix is "dpv1:", the string is decrypted and re-encrypted using the current data protection provider.
+    /// - If the prefix is "winv1:", "linuxv1:", or "macv1:", the string is decrypted using the respective platform-specific method
+    ///   and then re-encrypted using the current data protection provider.
+    /// - If the format is unknown, the string is re-encrypted as-is.
+    /// If the data protection provider is not set, the method returns the original encrypted string.
+    /// </remarks>
+    public static string Reprotect(string encrypted)
+    {
+        if (string.IsNullOrEmpty(encrypted)) 
+            return encrypted;
+
+        try
+        {
+            if (_protector != null)
+            {
+                // if prefix is DP, decrypt & re-protect with current provider
+                if (encrypted.StartsWith(DP_PREFIX))
+                    return DP_PREFIX + _protector.Protect(_protector.Unprotect(encrypted[DP_PREFIX.Length..]));
+                if (encrypted.StartsWith(WIN_PREFIX))
+                {
+                    // else if prefix is WIN, decrypt using Windows, then protect with DP
+                    var plain = DecryptWin(encrypted[WIN_PREFIX.Length..]);
+                    return DP_PREFIX + _protector.Protect(plain);
+                }
+
+                if (encrypted.StartsWith(LINUX_PREFIX))
+                {
+                    // else if prefix is LINUX, decrypt using Linux, then protect with DP
+                    var plain = DecryptLinux(encrypted[LINUX_PREFIX.Length..]);
+                    return DP_PREFIX + _protector.Protect(plain);
+                }
+
+                if (encrypted.StartsWith(MAC_PREFIX))
+                {
+                    // else if prefix is MAC, decrypt using Mac, then protect with DP
+                    var plain = DecryptMac(encrypted[MAC_PREFIX.Length..]);
+                    return DP_PREFIX + _protector.Protect(plain);
+                }
+
+                // Not known format, protect as-is
+                return DP_PREFIX + _protector.Protect(encrypted);
+            }
+
+            return encrypted; // fallback: keep as-is
+        }
+        catch
+        {
+            return encrypted; // fail-safe
+        }
+    }
+
 
     /// <summary>
     /// Encrypts text using Windows-specific encryption.
@@ -168,7 +239,7 @@ public static class EncryptionUtility
                 return text;
             
             // This is a fallback method for encryption
-            // in case if IDataProtector is not set.
+            // in case of IDataProtector is not set.
             // It is recommended to set IDataProtector for better security.
             // However, if not set, this method will be used.
             // This is not the most secure method, especially with a static key,
@@ -198,7 +269,7 @@ public static class EncryptionUtility
                 return text;
             
             // This is a fallback method for encryption
-            // in case if IDataProtector is not set.
+            // in case of IDataProtector is not set.
             // It is recommended to set IDataProtector for better security.
             // However, if not set, this method will be used.
             // This is not the most secure method, especially with a static key,
@@ -228,7 +299,7 @@ public static class EncryptionUtility
                 return text;
             
             // This is a fallback method for encryption
-            // in case if IDataProtector is not set.
+            // in case of IDataProtector is not set.
             // It is recommended to set IDataProtector for better security.
             // However, if not set, this method will be used.
             // This is not the most secure method, especially with a static key,
@@ -258,7 +329,7 @@ public static class EncryptionUtility
                 return text;
             
             // This is a fallback method for encryption
-            // in case if IDataProtector is not set.
+            // in case of IDataProtector is not set.
             // It is recommended to set IDataProtector for better security.
             // However, if not set, this method will be used.
             // This is not the most secure method, especially with a static key,
@@ -336,15 +407,11 @@ public static class EncryptionUtility
     private static byte[] HexToBytes(string hex)
     {
         if (hex.Length % 2 != 0)
-        {
             throw new ArgumentException("Hex string must have an even length.");
-        }
 
         byte[] bytes = new byte[hex.Length / 2];
         for (int i = 0; i < hex.Length; i += 2)
-        {
             bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
-        }
         return bytes;
     }
 }

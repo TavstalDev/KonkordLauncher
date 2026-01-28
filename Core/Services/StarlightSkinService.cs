@@ -1,17 +1,19 @@
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
 
 namespace Tavstal.KonkordLauncher.Core.Services;
 
 /// <summary>
 /// Provides services for interacting with the Starlight Skin API to retrieve skin and cape data.
 /// </summary>
-public static class StartlightSkinService
+public static class StarlightSkinService
 {
     /// <summary>
     /// Logger instance for logging errors and information related to the StartlightSkinService.
     /// </summary>
-    private static readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(StartlightSkinService));
+    private static readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(StarlightSkinService));
+    private static readonly int MaxParallelDownloads = 16;
 
     /// <summary>
     /// HTTP client used for making requests to the Starlight Skin API.
@@ -97,5 +99,91 @@ public static class StartlightSkinService
             _logger.Error(ex.Message);
             return null;
         }
+    }
+    
+    public static async Task FetchSkins(string cacheDir, string uuid, string username, List<Cape> capes)
+    {
+        string skinsDir = Path.Combine(cacheDir, "skins", uuid);
+        string capesDir = Path.Combine(cacheDir, "capes");
+        if (!Directory.Exists(skinsDir))
+            Directory.CreateDirectory(skinsDir);
+        if (!Directory.Exists(capesDir))
+            Directory.CreateDirectory(capesDir);
+        
+        var semaphore = new SemaphoreSlim(MaxParallelDownloads);
+        var tasks = new List<Task>();
+
+        // Fetch headshot
+        Task t = Task.Run(async () =>
+        {
+            byte[]? skinResult = await StarlightSkinService.GetHeadshotAsync(username);
+            if (skinResult != null)
+            {
+                string skinPath = Path.Combine(skinsDir, "head.png");
+                await File.WriteAllBytesAsync(skinPath, skinResult);
+            }
+        });
+        tasks.Add(t);
+            
+        // Fetch full skin
+        t = Task.Run(async () =>
+        {
+            byte[]? skinResult = await StarlightSkinService.GetFullSkinAsync(username, enableCape: false);
+            if (skinResult != null)
+            {
+                string skinPath = Path.Combine(skinsDir, "preview.png");
+                await File.WriteAllBytesAsync(skinPath, skinResult);
+            }
+        });
+        tasks.Add(t);
+                
+        // Fetch capes if not already cached
+        foreach (Cape cape in capes)
+        {
+            await semaphore.WaitAsync();
+            t = Task.Run(async () =>
+            {
+                try
+                {
+                    string capePath = Path.Combine(capesDir, $"{cape.Id}.png");
+                    if (File.Exists(capePath))
+                        return;
+                    byte[]? capeResult =
+                        await GetCapeViewAsync(username, cape.Url,
+                            "https://textures.minecraft.net/texture/9d4f187f41cae641558f8787bf1e7be72a6d72911b21c97d916f0a7faaf28f7");
+                    if (capeResult == null)
+                    {
+                        _logger.Warn("Failed to download cape view for cape ID: " + cape.Id);
+                        return;
+                    }
+
+                    await File.WriteAllBytesAsync(capePath, capeResult);
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            });
+            tasks.Add(t);
+        }
+        
+        await Task.WhenAll(tasks);
+    }
+
+    public static async Task FetchPreviewSkin(string cacheDir, string uuid, string username, string? skinId, bool isWide)
+    {
+        string skinsDir = Path.Combine(cacheDir, "skins", uuid);
+        if (!Directory.Exists(skinsDir))
+            Directory.CreateDirectory(skinsDir);
+        bool showCape = skinId == null;
+        skinId ??= "preview";
+        skinId += isWide ? "_wide" : "_classic";
+        string skinPath = Path.Combine(skinsDir, $"{skinId}.png");
+        if (File.Exists(skinPath))
+            return;
+        
+        byte[]? skinResult = await GetFullSkinAsync(username, enableCape: showCape);
+        if (skinResult != null)
+            await File.WriteAllBytesAsync(skinPath, skinResult);
     }
 }

@@ -220,7 +220,7 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
             if (!Directory.Exists(capesDir))
                 Directory.CreateDirectory(capesDir);
 
-            await Task.Run(async () => await MojangSkinService.FetchSkins(settings.Launcher.CacheDirectoryPath, microsoftAccount.Uuid, microsoftAccount.DisplayName, microsoftAccount.MojangProfile?.Capes ?? []));
+            await Task.Run(async () => await StarlightSkinService.FetchSkins(settings.Launcher.CacheDirectoryPath, microsoftAccount.Uuid, microsoftAccount.DisplayName, microsoftAccount.MojangProfile?.Capes ?? []));
             
             GlobalEvents.InvokeAccountsChanged();
             MicrosoftAuthService.Reset(); 

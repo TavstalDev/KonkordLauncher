@@ -221,7 +221,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
             SetStatusTranslated("startup.validation.skins");
             AccountData accountData = await LauncherHelper.GetAccountDataAsync();
             foreach (Account account in accountData.Accounts)
-                await Task.Run(async () => await MojangSkinService.FetchSkins(settings.Launcher.CacheDirectoryPath, account.Uuid, account.DisplayName, account.MojangProfile?.Capes ?? []));
+                await Task.Run(async () => await StarlightSkinService.FetchSkins(settings.Launcher.CacheDirectoryPath, account.Uuid, account.DisplayName, account.MojangProfile?.Capes ?? []));
 
             // 7. Check for Updates
             App.IsUpToDate = true;

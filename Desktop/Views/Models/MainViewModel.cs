@@ -1199,6 +1199,8 @@ public partial class MainViewModel : KonkordObservableObject
             int accountIndex = AccountData.Accounts.IndexOf(SelectedAccount);
             SelectedAccount.MojangProfile = result;
             AccountData.Accounts[accountIndex] = SelectedAccount;
+            
+            // TODO: Update Preview
         }
         catch (Exception ex)
         {
@@ -1217,17 +1219,44 @@ public partial class MainViewModel : KonkordObservableObject
     {
         try
         {
-            bool newValue = model == "wide";
+            bool newValue = model == "classic";
             // Prevent re-selecting the same model
             if (newValue == IsAccountHasWideModel || IsAccountSkinProcessing)
+            {
+                _logger.Debug("Skipped re-selecting the same skin model.");
                 return;
+            }
             IsAccountSkinProcessing = true;
             
             // Ensure an account is selected
             if (SelectedAccount == null)
+            {
+                _logger.Debug("No account selected while selecting skin model.");
                 return;
+            }
             
+            Skin? skin = SelectedAccount.MojangProfile?.Skins.FirstOrDefault(x => x.Id == SelectedSkinId);
+            if (skin == null)
+            {
+                _logger.Debug("No skin found while selecting skin model.");
+                return;
+            }
+
+            MojangProfile? result = await MojangSkinService.ChangeSkin(SelectedAccount.AccessToken, model, skin.Url);
+            if (result == null)
+            {
+                // TODO: Translate
+                await ShowAlertDialog.Handle(new Alert("Error", "Failed to change model.", EAlertType.Error));
+                return;
+            }
+
+            int accountIndex = AccountData.Accounts.IndexOf(SelectedAccount);
+            SelectedAccount.MojangProfile = result;
+            AccountData.Accounts[accountIndex] = SelectedAccount;
             IsAccountHasWideModel = newValue;
+            SelectedSkinId = result.Skins[0].Id;
+            
+            // TODO: Update Preview
         }
         catch (Exception ex)
         {
@@ -1238,5 +1267,23 @@ public partial class MainViewModel : KonkordObservableObject
             IsAccountSkinProcessing = false;
         }
     }
+    
+    // NOTES ABOUT SKINS:
+    /*
+     * Since Mojang API does not store multiple skins per account, or at least the api does not expose that,
+     * we need to handle skin switching manually by re-uploading the selected skin each time.
+     * So there should be a new field in the AccountDataModel to store skins.
+     * Fields of the model:
+     * - Id (string): Unique identifier for the skin.
+     * - Model (string): The model type of the skin (e.g., "classic" or "slim").
+     * - CapeId (string?): The cape ID associated with the skin, if any.
+     * - MojangId (string?): The Mojang skin ID associated with the skin.
+     *
+     * How should now skins be handled?
+     * The main texture should be stored in a new directory for skins, previews should still be in the cache.
+     * So the previews should be stored like: $id_$model.png without a cape
+     * Preview.png should be the current skin preview.
+     * The best would be to have a local 3D skin previewer, but that's not possible right now.
+     */
     #endregion
 }

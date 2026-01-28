@@ -503,7 +503,7 @@
                         <Carousel.Items>
                             <!--  Play Page  -->
                             <Grid RowDefinitions="Auto, *" Margin="20,20,5,0" Classes="MainContentArea">
-                                <Grid Grid.Row="0" Margin="5, 0, 15, 20" ColumnDefinitions="*, Auto">
+                                <Grid Grid.Row="0" Margin="0, 0, 15, 20" ColumnDefinitions="*, Auto">
                                     <!--  Title  -->
                                     <TextBlock Classes="MainContentTitle" Margin="0" Text="{lang:Translate main.page.play.title}" />
                                     <!--  Add instance button  -->
@@ -515,7 +515,7 @@
                                     </Button>
                                 </Grid>
                                 <!--  No instances text  -->
-                                <TextBlock Grid.Row="0" IsVisible="{Binding !HasInstances}" Text="{lang:Translate main.page.play.empty}" />
+                                <TextBlock Grid.Row="1" IsVisible="{Binding !HasInstances}" Text="{lang:Translate main.page.play.empty}" />
                                 <!--  Instances on Play Page  -->
                                 <Grid Grid.Row="1">
                                     <ScrollViewer Padding="0,0,15,0">
@@ -1237,7 +1237,7 @@
                                                     <Button Classes="SkinModelBtn" Classes.selected="{Binding IsAccountHasWideModel}"
                                                             IsEnabled="{Binding !IsAccountSkinProcessing}"
                                                             Command="{Binding ModelSelectCommand}"
-                                                            CommandParameter="wide">
+                                                            CommandParameter="classic">
                                                         <TextBlock Foreground="{DynamicResource base-content}" Text="{lang:Translate main.page.skins.model.wide}" />
                                                     </Button>
                                                     <!-- Slim Model -->

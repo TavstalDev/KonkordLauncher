@@ -162,7 +162,7 @@ public class MinecraftInstance
                     _watcher.Changed += HandleFileWatcherChanged;
                 }
             }
-            catch (Exception _)
+            catch (Exception)
             {
                 // Ignore any errors with the log file watcher
             }

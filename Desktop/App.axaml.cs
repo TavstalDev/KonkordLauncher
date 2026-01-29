@@ -136,6 +136,7 @@ public partial class App : Application
         {
             // Sets the main window to the StartupWindow, passing the application lifetime.
             desktop.MainWindow = new StartupWindow();
+            //desktop.MainWindow = new TestWindow();
         }
 
         base.OnFrameworkInitializationCompleted();

@@ -90,6 +90,15 @@ public class Account
     [JsonPropertyName("accessTokenExpDate"), JsonProperty("accessTokenExpDate")]
     public DateTime AccessTokenExpireDate { get; set; }
     
+    /// <summary>
+    /// Gets or sets the list of skins associated with the account.
+    /// </summary>
+    [JsonPropertyName("skins"), JsonProperty("skins")]
+    public List<AccountSkin> Skins { get; set; } = new();
+    
+    /// <summary>
+    /// Gets or sets the Mojang profile associated with the account, if any.
+    /// </summary>
     [JsonProperty("mojangProfile"), JsonPropertyName("mojangProfile")]
     public MojangProfile? MojangProfile { get; set; }
 
@@ -108,9 +117,10 @@ public class Account
     /// <param name="encryptedAccessToken">The encrypted access token for the account.</param>
     /// <param name="encryptedRefreshToken">The encrypted refresh token for the account.</param>
     /// <param name="accessTokenExpDate">The expiration date of the access token.</param>
+    /// <param name="skins">The list of skins associated with the account.</param>
     /// <param name="mojangProfile">The Mojang profile associated with the account, if any.</param>
     public Account(string id, string uuid, string displayName, EAccountType type, string encryptedAccessToken, string encryptedRefreshToken,
-        DateTime accessTokenExpDate, MojangProfile? mojangProfile)
+        DateTime accessTokenExpDate, List<AccountSkin> skins, MojangProfile? mojangProfile)
     {
         Id = id;
         Uuid = uuid;
@@ -121,6 +131,7 @@ public class Account
         EncryptedRefreshToken = EncryptionUtility.Reprotect(encryptedRefreshToken);
 #pragma warning restore CS0618 // Type or member is obsolete
         AccessTokenExpireDate = accessTokenExpDate;
+        Skins = skins;
         MojangProfile = mojangProfile;
     }
     

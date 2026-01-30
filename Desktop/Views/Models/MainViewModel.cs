@@ -835,7 +835,7 @@ public partial class MainViewModel : KonkordObservableObject
         {
             SelectedAccountId = newValue.SelectedAccountId ?? string.Empty,
             Accounts = newValue.Accounts.Select(a => new Account(a.Id, a.Uuid, a.DisplayName, a.Type, a.AccessToken,
-                a.RefreshToken, a.AccessTokenExpireDate, a.MojangProfile)).ToList()
+                a.RefreshToken, a.AccessTokenExpireDate, a.Skins, a.MojangProfile)).ToList()
         };
 
         JsonHelper.WriteJsonFile(PathHelper.LauncherAccountsPath, accounts);

@@ -208,9 +208,9 @@ public partial class AccountsViewModel : KonkordObservableObject
         var id = Guid.NewGuid().ToString();
         if (string.IsNullOrEmpty(accountData.SelectedAccountId))
             accountData.SelectedAccountId = id;
-
+        
         account = new Account(id, uuid, OfflineUsername, EAccountType.OFFLINE, "0", "0",
-            DateTime.Now, null);
+            DateTime.Now, [], null);
         accountData.Accounts.Add(account);
         await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData);
         GlobalEvents.InvokeAccountsChanged();

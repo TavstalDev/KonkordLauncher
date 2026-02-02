@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -44,6 +46,8 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
     /// Delay in milliseconds for each validation step.
     /// </summary>
     private readonly int _stepDelay = 100;
+    
+    private readonly int MaxParallelDownloads = 16;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="StartupWindow"/> class with default settings.
@@ -220,8 +224,29 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
             // 6.2 Refresh skins cache
             SetStatusTranslated("startup.validation.skins");
             AccountData accountData = await LauncherHelper.GetAccountDataAsync();
+            var semaphore = new SemaphoreSlim(MaxParallelDownloads);
+            var tasks = new List<Task>();
             foreach (Account account in accountData.Accounts)
-                await Task.Run(async () => await StarlightSkinService.FetchSkins(settings.Launcher.CacheDirectoryPath, account.Uuid, account.DisplayName, account.MojangProfile?.Capes ?? []));
+            {
+                await semaphore.WaitAsync();
+                Task t = Task.Run(async () =>
+                {
+                    try
+                    {
+                        foreach (var skin in account.Skins)
+                            await SkinService.FetchSkins(settings.Launcher.CacheDirectoryPath, account.Uuid, skin);
+                        var capes = account.MojangProfile?.Capes ?? [];
+                        if (capes.Count > 0)
+                            await SkinService.FetchCapes(settings.Launcher.CacheDirectoryPath, capes);
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                });
+                tasks.Add(t);
+            }
+            await Task.WhenAll(tasks);
 
             // 7. Check for Updates
             App.IsUpToDate = true;

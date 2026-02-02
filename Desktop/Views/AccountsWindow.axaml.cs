@@ -220,7 +220,9 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
             if (!Directory.Exists(capesDir))
                 Directory.CreateDirectory(capesDir);
 
-            await Task.Run(async () => await StarlightSkinService.FetchSkins(settings.Launcher.CacheDirectoryPath, microsoftAccount.Uuid, microsoftAccount.DisplayName, microsoftAccount.MojangProfile?.Capes ?? []));
+            foreach (var skin in microsoftAccount.Skins) 
+                await SkinService.FetchSkins(settings.Launcher.CacheDirectoryPath, microsoftAccount.Uuid, skin);
+            await SkinService.FetchCapes(settings.Launcher.CacheDirectoryPath, microsoftAccount.MojangProfile?.Capes ?? []);
             
             GlobalEvents.InvokeAccountsChanged();
             MicrosoftAuthService.Reset(); 

@@ -680,6 +680,7 @@ public partial class MainViewModel : KonkordObservableObject
                 var settings = await LauncherHelper.GetLauncherSettingsAsync();
                 string skinsDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins");
                 string capesDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "capes");
+                // TODO: Adjust this to the new skin handling system
                 foreach (Skin skin in SelectedAccount.MojangProfile.Skins)
                 {
                     string path = Path.Combine(skinsDir, SelectedAccount.Uuid, "preview.png");

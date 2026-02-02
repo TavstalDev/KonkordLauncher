@@ -7,7 +7,8 @@ using Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
 namespace Tavstal.KonkordLauncher.Core.Models;
 
 /// <summary>
-/// Represents an account with user details, authentication tokens, and account type.
+/// Represents an account with properties such as ID, UUID, display name, account type, 
+/// access token, refresh token, expiration date, skins, and Mojang profile.
 /// </summary>
 [Serializable]
 public class Account
@@ -17,9 +18,9 @@ public class Account
     /// </summary>
     [JsonPropertyName("id"), JsonProperty("id")]
     public string Id { get; set; }
-    
+
     /// <summary>
-    /// Gets or sets the universally unique identifier (UUID) of the account.
+    /// Gets or sets the UUID of the account.
     /// </summary>
     [JsonPropertyName("uuid"), JsonProperty("uuid")]
     public string Uuid { get; set; }
@@ -31,119 +32,112 @@ public class Account
     public string DisplayName { get; set; }
 
     /// <summary>
-    /// Gets or sets the type of the account (e.g., Mojang, Microsoft).
+    /// Gets or sets the type of the account.
     /// </summary>
     [JsonPropertyName("type"), JsonProperty("type")]
     public EAccountType Type { get; set; }
-    
+
     /// <summary>
-    /// Stores the encrypted access token for the account.
+    /// Gets or sets the encrypted access token. 
+    /// This property is obsolete and should not be used directly.
     /// </summary>
-    /// <remarks>
-    /// This property is marked as obsolete. Use the <see cref="AccessToken"/> property instead.
-    /// </remarks>
-    [Obsolete("Use AccessToken property instead. This property should not be used directly.")]
+    [Obsolete("Use GetAccessToken() instead. This property should not be used directly.")]
     [JsonPropertyName("accessToken"), JsonProperty("accessToken")]
     [System.Text.Json.Serialization.JsonIgnore(Condition = JsonIgnoreCondition.Never)]
     public string EncryptedAccessToken { get; set; }
-    
+
     /// <summary>
-    /// Stores the encrypted refresh token for the account.
+    /// Gets or sets the encrypted refresh token. 
+    /// This property is obsolete and should not be used directly.
     /// </summary>
-    /// <remarks>
-    /// This property is marked as obsolete. Use the <see cref="RefreshToken"/> property instead.
-    /// </remarks>
-    [Obsolete("Use RefreshToken property instead. This property should not be used directly.")]
+    [Obsolete("Use GetRefreshToken() instead. This property should not be used directly.")]
     [JsonPropertyName("refreshToken"), JsonProperty("refreshToken")]
     [System.Text.Json.Serialization.JsonIgnore(Condition = JsonIgnoreCondition.Never)]
     public string EncryptedRefreshToken { get; set; }
-    
-    /// <summary>
-    /// Gets or sets the decrypted access token for the account.
-    /// The token is encrypted when set and decrypted when retrieved.
-    /// </summary>
-    [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
-    public string AccessToken
-    {
-#pragma warning disable CS0618 // Type or member is obsolete
-        get => EncryptionUtility.Decrypt(EncryptedAccessToken);
-        set => EncryptedAccessToken = EncryptionUtility.Encrypt(value);
-#pragma warning restore CS0618 // Type or member is obsolete
-    }
-    
-    /// <summary>
-    /// Gets or sets the decrypted refresh token for the account.
-    /// The token is encrypted when set and decrypted when retrieved.
-    /// </summary>
-    [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
-    public string RefreshToken
-    {
-#pragma warning disable CS0618 // Type or member is obsolete
-        get => EncryptionUtility.Decrypt(EncryptedRefreshToken);
-        set => EncryptedRefreshToken = EncryptionUtility.Encrypt(value);
-#pragma warning restore CS0618 // Type or member is obsolete
-    }
 
     /// <summary>
     /// Gets or sets the expiration date of the access token.
     /// </summary>
     [JsonPropertyName("accessTokenExpDate"), JsonProperty("accessTokenExpDate")]
     public DateTime AccessTokenExpireDate { get; set; }
-    
+
     /// <summary>
     /// Gets or sets the list of skins associated with the account.
     /// </summary>
     [JsonPropertyName("skins"), JsonProperty("skins")]
     public List<AccountSkin> Skins { get; set; } = new();
-    
+
     /// <summary>
-    /// Gets or sets the Mojang profile associated with the account, if any.
+    /// Gets or sets the Mojang profile associated with the account.
     /// </summary>
     [JsonProperty("mojangProfile"), JsonPropertyName("mojangProfile")]
     public MojangProfile? MojangProfile { get; set; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Account"/> class with default values.
-    /// </summary>
-    public Account() {}
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Account"/> class with the specified details.
-    /// </summary>
-    /// <param name="id">The unique identifier of the account.</param>
-    /// <param name="uuid">The universally unique identifier (UUID) of the account.</param>
-    /// <param name="displayName">The display name of the account.</param>
-    /// <param name="type">The type of the account (e.g., Mojang, Microsoft).</param>
-    /// <param name="encryptedAccessToken">The encrypted access token for the account.</param>
-    /// <param name="encryptedRefreshToken">The encrypted refresh token for the account.</param>
-    /// <param name="accessTokenExpDate">The expiration date of the access token.</param>
-    /// <param name="skins">The list of skins associated with the account.</param>
-    /// <param name="mojangProfile">The Mojang profile associated with the account, if any.</param>
-    public Account(string id, string uuid, string displayName, EAccountType type, string encryptedAccessToken, string encryptedRefreshToken,
-        DateTime accessTokenExpDate, List<AccountSkin> skins, MojangProfile? mojangProfile)
-    {
-        Id = id;
-        Uuid = uuid;
-        DisplayName = displayName;
-        Type = type;
-#pragma warning disable CS0618 // Type or member is obsolete
-        EncryptedAccessToken = EncryptionUtility.Reprotect(encryptedAccessToken);
-        EncryptedRefreshToken = EncryptionUtility.Reprotect(encryptedRefreshToken);
-#pragma warning restore CS0618 // Type or member is obsolete
-        AccessTokenExpireDate = accessTokenExpDate;
-        Skins = skins;
-        MojangProfile = mojangProfile;
-    }
-    
-    /// <summary>
-    /// Gets a value indicating whether the account's access token can expire.
-    /// Returns true if the account type is not OFFLINE; otherwise, false.
-    /// </summary>
-    public bool CanExpire => Type != EAccountType.OFFLINE;
-    
-    /// <summary>
-    /// Gets or sets a value indicating whether the account is currently selected.
+    /// Gets or sets a value indicating whether the account is selected.
     /// </summary>
     [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
     public bool IsSelected { get; set; }
+
+    /// <summary>
+    /// Gets a value indicating whether the account can expire.
+    /// </summary>
+    public bool CanExpire => Type != EAccountType.OFFLINE;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Account"/> class.
+    /// </summary>
+    public Account() {}
+
+    private string _accessTokenCache = string.Empty;
+
+    /// <summary>
+    /// Retrieves the decrypted access token. If the token is cached, it returns the cached value.
+    /// </summary>
+    /// <returns>The decrypted access token.</returns>
+    public string GetAccessToken()
+    {
+        if (!string.IsNullOrEmpty(_accessTokenCache))
+            return _accessTokenCache;
+        if (!EncryptionUtility.IsDataProtectorSet)
+            return EncryptedAccessToken;
+        _accessTokenCache = EncryptionUtility.Decrypt(EncryptedAccessToken);
+        return _accessTokenCache;
+    }
+
+    /// <summary>
+    /// Sets the access token and encrypts it for storage.
+    /// </summary>
+    /// <param name="accessToken">The access token to set.</param>
+    public void SetAccessToken(string accessToken)
+    {
+        _accessTokenCache = accessToken;
+        EncryptedAccessToken = EncryptionUtility.Reprotect(accessToken);
+    }
+
+    private string _refreshTokenCache = string.Empty;
+
+    /// <summary>
+    /// Retrieves the decrypted refresh token. If the token is cached, it returns the cached value.
+    /// </summary>
+    /// <returns>The decrypted refresh token.</returns>
+    public string GetRefreshToken()
+    {
+        if (!string.IsNullOrEmpty(_refreshTokenCache))
+            return _refreshTokenCache;
+        if (!EncryptionUtility.IsDataProtectorSet)
+            return EncryptedRefreshToken;
+        _refreshTokenCache = EncryptionUtility.Decrypt(EncryptedRefreshToken);
+        return _refreshTokenCache;
+    }
+
+    /// <summary>
+    /// Sets the refresh token and encrypts it for storage.
+    /// </summary>
+    /// <param name="refreshToken">The refresh token to set.</param>
+    public void SetRefreshToken(string refreshToken)
+    {
+        _refreshTokenCache = refreshToken;
+        EncryptedRefreshToken = EncryptionUtility.Reprotect(refreshToken);
+    }
 }

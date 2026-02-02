@@ -213,15 +213,8 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
             var settings = await LauncherHelper.GetLauncherSettingsAsync();
             await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData);
             
-            string skinsDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins", microsoftAccount.Uuid);
-            string capesDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "capes");
-            if (!Directory.Exists(skinsDir))
-                Directory.CreateDirectory(skinsDir);
-            if (!Directory.Exists(capesDir))
-                Directory.CreateDirectory(capesDir);
-
             foreach (var skin in microsoftAccount.Skins) 
-                await SkinService.FetchSkins(settings.Launcher.CacheDirectoryPath, microsoftAccount.Uuid, skin);
+                await SkinService.FetchSkins(settings.Launcher.CacheDirectoryPath, microsoftAccount.Id, microsoftAccount.Uuid, skin);
             await SkinService.FetchCapes(settings.Launcher.CacheDirectoryPath, microsoftAccount.MojangProfile?.Capes ?? []);
             
             GlobalEvents.InvokeAccountsChanged();

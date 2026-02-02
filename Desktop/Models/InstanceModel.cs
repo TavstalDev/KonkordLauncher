@@ -317,7 +317,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             );
             var launcherDetails = new LauncherDetails("KonkordLauncher", App.Version);
             var clientDetails = new ClientDetails(
-                account.AccessToken,
+                account.GetAccessToken(),
                 account.DisplayName,
                 account.Uuid,
                 account.Type !=

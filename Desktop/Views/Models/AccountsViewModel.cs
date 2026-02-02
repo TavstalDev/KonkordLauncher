@@ -208,12 +208,25 @@ public partial class AccountsViewModel : KonkordObservableObject
         var id = Guid.NewGuid().ToString();
         if (string.IsNullOrEmpty(accountData.SelectedAccountId))
             accountData.SelectedAccountId = id;
-        
-        account = new Account(id, uuid, OfflineUsername, EAccountType.OFFLINE, "0", "0",
-            DateTime.Now, [], null);
+
+        account = new Account
+        {
+            Id = id,
+            Uuid = uuid,
+            DisplayName = OfflineUsername,
+            Type = EAccountType.OFFLINE,
+            AccessTokenExpireDate = DateTime.Now,
+            Skins = [],
+            MojangProfile = null
+        };
+        account.SetAccessToken("0");
+        account.SetRefreshToken("0");
+
         accountData.Accounts.Add(account);
         await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData);
         GlobalEvents.InvokeAccountsChanged();
+        var settings = await LauncherHelper.GetLauncherSettingsAsync();
+        await SkinService.FetchOfflineSkins(settings.Launcher.CacheDirectoryPath, id, OfflineUsername);
         
         await CloseWindowInteraction.Handle(Unit.Default);
     }

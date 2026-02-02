@@ -32,8 +32,6 @@ class Program
                     "keys"
                 );
                 Directory.CreateDirectory(keyDir);
-                
-                // Register your Data Protection services here.
                 services.AddDataProtection()
                     .PersistKeysToFileSystem(new DirectoryInfo(keyDir))
                     .SetApplicationName("KonkordLauncher");

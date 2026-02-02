@@ -554,10 +554,21 @@ public static class MicrosoftAuthService
             {
                 Cape? cape = _mojangProfile.Capes.Find(x => x.State.Equals("active", StringComparison.OrdinalIgnoreCase));
                 foreach (var skin in _mojangProfile.Skins)
-                    skins.Add(new AccountSkin(Guid.Empty.ToString(), skin.Variant, cape?.Id, skin.Id));
+                    skins.Add(new AccountSkin(Guid.NewGuid().ToString(), skin.Variant, cape?.Id, skin.Id));
             }
             
-            _account = new Account(Guid.NewGuid().ToString(),_mojangProfile.Id, _mojangProfile.Name, EAccountType.MICROSOFT, mcToken, refreshToken, DateTime.Now.AddSeconds(expireSecs), skins, _mojangProfile);
+            _account = new Account
+            {
+                Id = Guid.NewGuid().ToString(),
+                Uuid = _mojangProfile.Id,
+                DisplayName = _mojangProfile.Name,
+                Type = EAccountType.MICROSOFT,
+                AccessTokenExpireDate = DateTime.Now.AddSeconds(expireSecs),
+                Skins = skins,
+                MojangProfile = _mojangProfile
+            };
+            _account.SetAccessToken(mcToken);
+            _account.SetRefreshToken(refreshToken);
             
             _authStatus = EAuthStatus.SUCCESS;
             OnAuthStatusChanged?.Invoke(_authStatus);

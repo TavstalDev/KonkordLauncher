@@ -552,10 +552,9 @@ public static class MicrosoftAuthService
             List<AccountSkin> skins = [];
             if (_mojangProfile.Skins.Count > 0)
             {
-                Cape? cape = _mojangProfile.Capes.Find(x => x.State.Equals("active", StringComparison.OrdinalIgnoreCase)); 
+                Cape? cape = _mojangProfile.Capes.Find(x => x.State.Equals("active", StringComparison.OrdinalIgnoreCase));
                 foreach (var skin in _mojangProfile.Skins)
                     skins.Add(new AccountSkin(Guid.Empty.ToString(), skin.Variant, cape?.Id, skin.Id));
-                // TODO: Download skin texture
             }
             
             _account = new Account(Guid.NewGuid().ToString(),_mojangProfile.Id, _mojangProfile.Name, EAccountType.MICROSOFT, mcToken, refreshToken, DateTime.Now.AddSeconds(expireSecs), skins, _mojangProfile);

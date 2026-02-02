@@ -116,7 +116,7 @@ public static class ValidationHelper
             {
                 case EAccountType.MICROSOFT:
                 {
-                    return !string.IsNullOrEmpty(account.AccessToken);
+                    return !string.IsNullOrEmpty(account.GetAccessToken());
                 }
             }
 

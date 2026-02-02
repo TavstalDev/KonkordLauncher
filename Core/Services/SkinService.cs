@@ -1,3 +1,8 @@
+using System.Text;
+using MinecraftSkinRender;
+using MinecraftSkinRender.Image;
+using Newtonsoft.Json.Linq;
+using SkiaSharp;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
@@ -7,12 +12,12 @@ namespace Tavstal.KonkordLauncher.Core.Services;
 /// <summary>
 /// Provides services for interacting with the Starlight Skin API to retrieve skin and cape data.
 /// </summary>
-public static class StarlightSkinService
+public static class SkinService
 {
     /// <summary>
     /// Logger instance for logging errors and information related to the StartlightSkinService.
     /// </summary>
-    private static readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(StarlightSkinService));
+    private static readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(SkinService));
     private static readonly int MaxParallelDownloads = 16;
 
     /// <summary>
@@ -54,110 +59,97 @@ public static class StarlightSkinService
             return null;
         }
     }
-
-    /// <summary>
-    /// Retrieves a cape view for a given username and cape URL.
-    /// </summary>
-    /// <param name="username">The username of the player whose cape view is to be retrieved.</param>
-    /// <param name="capeUrl">The URL of the cape texture to be used.</param>
-    /// <param name="skinUrl">Optional custom skin URL to override the default skin.</param>
-    /// <returns>A byte array containing the cape view data, or null if the request fails.</returns>
-    public static async Task<byte[]?> GetCapeViewAsync(string username, string capeUrl, string? skinUrl = null)
-    {
-        try
-        {
-            string requestUrl =
-                $"https://starlightskins.lunareclipse.studio/render/default/{username}/full?cameraPosition={{\"x\":\"0\",\"y\":\"18\",\"z\":\"15\"}}&cameraFocalPoint={{\"x\":\"0\",\"y\":\"15.9\",\"z\":\"3.35\"}}&capeEnabled=true&capeTexture={capeUrl}";
-
-            if (skinUrl != null)
-                requestUrl += $"&skinUrl={skinUrl}";
-
-            return await HttpHelper.GetByteArrayAsync(requestUrl);
-        }
-        catch (Exception ex)
-        {
-            _logger.Error("Failed to download cape view");
-            _logger.Error(ex.Message);
-            return null;
-        }
-    }
     
-    public static async Task<byte[]?> GetHeadshotAsync(string username, string? skinUrl = null)
+    public static async Task FetchSkins(string cacheDir, string uuid, AccountSkin skin)
     {
-        try
-        {
-            string requestUrl =
-                $"https://starlightskins.lunareclipse.studio/render/head/{username}/full";
-            if (skinUrl != null)
-                requestUrl += $"?skinUrl={skinUrl}";
-
-            return await HttpHelper.GetByteArrayAsync(requestUrl);
-        }
-        catch (Exception ex)
-        {
-            _logger.Error("Failed to download skin model");
-            _logger.Error(ex.Message);
-            return null;
-        }
-    }
-    
-    public static async Task FetchSkins(string cacheDir, string uuid, string username, List<Cape> capes)
-    {
-        string skinsDir = Path.Combine(cacheDir, "skins", uuid);
-        string capesDir = Path.Combine(cacheDir, "capes");
+        string skinsDir = Path.Combine(cacheDir, "skins", uuid, skin.Id);
+        
         if (!Directory.Exists(skinsDir))
             Directory.CreateDirectory(skinsDir);
+        
+        string texturePath = Path.Combine(skinsDir, "texture.png");
+        string previewPath = Path.Combine(skinsDir, "preview.png");
+        string headshotPath = Path.Combine(skinsDir, "head.png");
+        
+        // Fetch texture
+        if (!File.Exists(texturePath))
+        {
+            string? textureResult = await HttpHelper.GetStringAsync($"https://sessionserver.mojang.com/session/minecraft/profile/{uuid}");
+            if (textureResult == null)
+            {
+                _logger.Warn("Failed to download skin texture for UUID: " + uuid);
+                return;
+            }
+            
+            JObject textureJson = JObject.Parse(textureResult);
+            string? base64Texture = textureJson["properties"]?.FirstOrDefault()?["value"]?.Value<string>();
+            if (base64Texture == null)
+            {
+                _logger.Warn("Failed to parse skin texture for UUID: " + uuid);
+                return;
+            }
+            byte[] textureBytes = Convert.FromBase64String(base64Texture);
+            JObject textureData = JObject.Parse(Encoding.UTF8.GetString(textureBytes));
+            string? skinUrl = textureData["textures"]?["SKIN"]?["url"]?.Value<string>();
+            if (skinUrl == null)
+            {
+                _logger.Warn("No skin URL found for UUID: " + uuid);
+                return;
+            }
+            
+            byte[]? skinData = await HttpHelper.GetByteArrayAsync(skinUrl);
+            if (skinData == null)
+            {
+                _logger.Warn("Failed to download skin data for UUID: " + uuid);
+                return;
+            }
+            await File.WriteAllBytesAsync(texturePath, skinData);
+        }
+
+        await using var skinStream = File.OpenRead(texturePath);
+        using var skinBitmap = SKBitmap.Decode(skinStream);
+        if (skinBitmap == null)
+        {
+            _logger.Warn("Failed to decode skin bitmap for UUID: " + uuid);
+            return;
+        }
+
+        // Make headshot
+        Skin3DHeadTypeA.MakeHeadImage(skinBitmap).SavePng(headshotPath);
+            
+        // Make full skin
+        Skin2DTypeB.MakeSkinImage(skinBitmap, skin.Model.Equals("classic", StringComparison.InvariantCultureIgnoreCase) ? SkinType.New : SkinType.NewSlim).SavePng(previewPath);
+    }
+
+    public static async Task FetchCapes(string cacheDir, List<Cape> capes)
+    {
+        string capesDir = Path.Combine(cacheDir, "capes");
         if (!Directory.Exists(capesDir))
             Directory.CreateDirectory(capesDir);
         
         var semaphore = new SemaphoreSlim(MaxParallelDownloads);
         var tasks = new List<Task>();
-
-        // Fetch headshot
-        Task t = Task.Run(async () =>
-        {
-            byte[]? skinResult = await StarlightSkinService.GetHeadshotAsync(username);
-            if (skinResult != null)
-            {
-                string skinPath = Path.Combine(skinsDir, "head.png");
-                await File.WriteAllBytesAsync(skinPath, skinResult);
-            }
-        });
-        tasks.Add(t);
-            
-        // Fetch full skin
-        t = Task.Run(async () =>
-        {
-            byte[]? skinResult = await StarlightSkinService.GetFullSkinAsync(username, enableCape: false);
-            if (skinResult != null)
-            {
-                string skinPath = Path.Combine(skinsDir, "preview.png");
-                await File.WriteAllBytesAsync(skinPath, skinResult);
-            }
-        });
-        tasks.Add(t);
-                
-        // Fetch capes if not already cached
+        
         foreach (Cape cape in capes)
         {
             await semaphore.WaitAsync();
-            t = Task.Run(async () =>
+            Task t = Task.Run(async () =>
             {
                 try
                 {
                     string capePath = Path.Combine(capesDir, $"{cape.Id}.png");
                     if (File.Exists(capePath))
                         return;
-                    byte[]? capeResult =
-                        await GetCapeViewAsync(username, cape.Url,
-                            "https://textures.minecraft.net/texture/9d4f187f41cae641558f8787bf1e7be72a6d72911b21c97d916f0a7faaf28f7");
-                    if (capeResult == null)
+                    
+                    var capeBytes = await HttpHelper.GetByteArrayAsync(cape.Url);
+                    if (capeBytes == null)
                     {
-                        _logger.Warn("Failed to download cape view for cape ID: " + cape.Id);
+                        _logger.Warn("Failed to download cape image for cape ID: " + cape.Id);
                         return;
                     }
-
-                    await File.WriteAllBytesAsync(capePath, capeResult);
+                    await using var capeStream = new MemoryStream(capeBytes);
+                    using var capeBitmap = SKBitmap.Decode(capeStream);
+                    Cape2DTypaA.MakeCapeImage(capeBitmap).SavePng(capePath);
                 }
                 finally
                 {

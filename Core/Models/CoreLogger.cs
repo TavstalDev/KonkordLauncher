@@ -11,6 +11,7 @@ public class CoreLogger
     /// The name of the module associated with the logger.
     /// </summary>
     private readonly string _moduleName;
+    private static readonly Lock _logLock = new();
     public static DateTime StartTime { get; } = DateTime.Now;
 
     /// <summary>
@@ -62,16 +63,21 @@ public class CoreLogger
         
         try
         {
-            Console.ForegroundColor = color;
-            Console.WriteLine(text);
-            Console.ResetColor();
-            
-            string logsFilePath = Path.Combine(PathHelper.LauncherLogsDir, string.Format(PathHelper.LogsFileFormat, StartTime));
-            if (File.Exists(logsFilePath))
+            lock (_logLock)
             {
-                using StreamWriter streamWriter = File.AppendText(logsFilePath);
-                streamWriter.WriteLine(string.Concat("[", DateTime.Now, "] ", text));
-                streamWriter.Close();
+                Console.ForegroundColor = color;
+                Console.WriteLine(text);
+                Console.ResetColor();
+
+                string logsFilePath = Path.Combine(PathHelper.LauncherLogsDir,
+                    string.Format(PathHelper.LogsFileFormat, StartTime));
+                if (File.Exists(logsFilePath))
+                {
+                    File.AppendAllText(
+                        logsFilePath,
+                        $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] {text}{Environment.NewLine}"
+                    );
+                }
             }
         }
         catch (Exception ex)

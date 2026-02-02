@@ -234,7 +234,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
                     try
                     {
                         foreach (var skin in account.Skins)
-                            await SkinService.FetchSkins(settings.Launcher.CacheDirectoryPath, account.Uuid, skin);
+                            await SkinService.FetchSkins(settings.Launcher.CacheDirectoryPath, account.Id, account.Uuid, skin);
                         var capes = account.MojangProfile?.Capes ?? [];
                         if (capes.Count > 0)
                             await SkinService.FetchCapes(settings.Launcher.CacheDirectoryPath, capes);

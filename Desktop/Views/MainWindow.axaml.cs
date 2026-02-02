@@ -71,6 +71,11 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
                 var result = await OpenFolderPickerAsync();
                 action.SetOutput(result);
             }).DisposeWith(disposables);
+            DataContext.OpenImagePicker.RegisterHandler(async action =>
+            {
+                var result = await OpenImagePickerAsync();
+                action.SetOutput(result);
+            }).DisposeWith(disposables);
             DataContext.ShowAlertDialog.RegisterHandler(async action =>
             {
                 AlertWindow alertWindow = new(action.Input.Title, action.Input.Message, action.Input.Type);
@@ -210,6 +215,46 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
         }
         //_selectedButton.Classes.Remove("SecondaryBtn");
         _selectedButton.Classes.Add("SideBarActiveBtn");
+    }
+    
+    /// <summary>
+    /// Opens a file picker dialog to allow the user to select an image file.
+    /// </summary>
+    /// <returns>
+    /// A task that represents the asynchronous operation. The task result contains the 
+    /// absolute path of the selected image file as a string, or null if no file was selected 
+    /// or if folder picking is not supported.
+    /// </returns>
+    private async Task<string?> OpenImagePickerAsync()
+    {
+        // Ensure the VisualRoot is a TopLevel object
+        if (VisualRoot is not TopLevel topLevel)
+            return null;
+
+        var storageProvider = topLevel.StorageProvider;
+
+        // Check if folder picking is supported on the current platform
+        if (!storageProvider.CanPickFolder)
+        {
+            _logger.Error("Folder picking is not supported on this platform.");
+            return null;
+        }
+    
+        var options = new FilePickerOpenOptions
+        {
+            Title = TranslationManager.Translate("common.select.file"),
+            AllowMultiple = false,
+            FileTypeFilter = new List<FilePickerFileType>
+            {
+                new("PNG Images")
+                {
+                    Patterns = new List<string> { "*.png" }
+                }
+            }
+        };
+        
+        var files = await storageProvider.OpenFilePickerAsync(options);
+        return !files.Any() ? null : files[0].Path.AbsolutePath;
     }
 
     /// <summary>

@@ -12,7 +12,10 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DynamicData;
+using MinecraftSkinRender;
+using MinecraftSkinRender.Image;
 using ReactiveUI;
+using SkiaSharp;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Config;
@@ -23,11 +26,11 @@ using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
 using Tavstal.KonkordLauncher.Core.Services;
-using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Config.Launcher;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
+using ImageHelper = Tavstal.KonkordLauncher.Desktop.Helpers.ImageHelper;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 
@@ -49,6 +52,7 @@ public partial class MainViewModel : KonkordObservableObject
     public Interaction<Alert, bool> ShowConfirmDialog { get; } = new();
     public Interaction<ESidebarType, Unit> UpdateSidebarButton { get; } = new();
     public Interaction<Unit, string?> OpenFolderPicker { get; } = new();
+    public Interaction<Unit, string?> OpenImagePicker { get; } = new();
     public Interaction<Unit, Unit> ShowInstanceCreationDialog { get; } = new();
     public Interaction<string, Unit> ShowInstanceEditDialog { get; } = new();
     public Interaction<Unit, Unit> ShowAccountsDialog { get; } = new();
@@ -91,8 +95,7 @@ public partial class MainViewModel : KonkordObservableObject
     [ObservableProperty] private bool _isAccountHasWideModel;
     [ObservableProperty] private bool _isAccountSkinProcessing;
     [ObservableProperty] private CoreConfigModel _coreConfig;
-    [ObservableProperty] private string _selectedSkinId = string.Empty;
-    [ObservableProperty] private string _selectedCapeId = string.Empty;
+    [ObservableProperty] private AccountSkin _selectedSkin;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MainViewModel"/> class.
@@ -595,7 +598,7 @@ public partial class MainViewModel : KonkordObservableObject
     [RelayCommand]
     private async Task RefreshAccountBtnAsync(Account account)
     {
-        if (!account.CanExpire || string.IsNullOrEmpty(account.RefreshToken))
+        if (!account.CanExpire || string.IsNullOrEmpty(account.GetAccessToken()))
             return;
 
         if (MicrosoftAuthService.AuthStatus != EAuthStatus.NONE)
@@ -604,7 +607,7 @@ public partial class MainViewModel : KonkordObservableObject
         if (account.AccessTokenExpireDate > DateTime.Now)
             return;
 
-        if (!await MicrosoftAuthService.RefreshLoginAsync(account.RefreshToken))
+        if (!await MicrosoftAuthService.RefreshLoginAsync(account.GetRefreshToken()))
         {
             _logger.Error($"Failed to refresh account {account.DisplayName} ({account.Id}).");
             return;
@@ -657,6 +660,7 @@ public partial class MainViewModel : KonkordObservableObject
         {
             AccountData = new AccountDataModel(await LauncherHelper.GetAccountDataAsync());
             Account? selectedAccount = AccountData.Accounts.FirstOrDefault(x => x.Id == AccountData.SelectedAccountId);
+            
             if (SelectedAccount != selectedAccount)
             {
                 List<SkinDataModel> skinCopies = Skins.ToList();
@@ -680,10 +684,13 @@ public partial class MainViewModel : KonkordObservableObject
                 var settings = await LauncherHelper.GetLauncherSettingsAsync();
                 string skinsDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins");
                 string capesDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "capes");
-                // TODO: Adjust this to the new skin handling system
-                foreach (Skin skin in SelectedAccount.MojangProfile.Skins)
+
+                var activeSkin = SelectedAccount.MojangProfile.Skins.FirstOrDefault(x =>
+                    x.State.Equals("active", StringComparison.InvariantCultureIgnoreCase));
+                
+                foreach (AccountSkin skin in SelectedAccount.Skins)
                 {
-                    string path = Path.Combine(skinsDir, SelectedAccount.Uuid, "preview.png");
+                    string path = Path.Combine(skinsDir, SelectedAccount.Id, skin.Id, "preview.png");
                     Bitmap? img = null;
                     try
                     {
@@ -693,15 +700,16 @@ public partial class MainViewModel : KonkordObservableObject
                     {
                         _logger.Error("Failed to load skin image: " + ex);
                     }
-                    bool isActive = skin.State.Equals("active", StringComparison.InvariantCultureIgnoreCase);
+
+                    bool isActive = skin.MojangId == activeSkin?.Id && activeSkin != null;
                     _skinsCache.Edit(innerCache =>
                     {
-                        innerCache.AddOrUpdate(new  SkinDataModel(skin.Id, skin.Variant, img, isActive));
+                        innerCache.AddOrUpdate(new  SkinDataModel(skin.Id, skin.Model, img, isActive));
                     });
                     if (isActive)
                     {
-                        IsAccountHasWideModel = skin.Variant.Equals("classic", StringComparison.InvariantCultureIgnoreCase);
-                        SelectedSkinId = skin.Id;
+                        IsAccountHasWideModel = skin.Model.Equals("classic", StringComparison.InvariantCultureIgnoreCase);
+                        SelectedSkin = skin;
                         AccountSkinPreview = img;
                     }
                 }
@@ -739,10 +747,7 @@ public partial class MainViewModel : KonkordObservableObject
                         innerCache.AddOrUpdate(new CapeDataModel(cape.Id, cape.Alias, img,  isActive));
                     });
                     if (isActive)
-                    {
                         hadActiveCape = true;
-                        SelectedCapeId = cape.Id;
-                    }
                 }
 
                 if (!hadActiveCape)
@@ -760,18 +765,26 @@ public partial class MainViewModel : KonkordObservableObject
         string? avatarPath;
         if (SelectedAccount != null)
         {
-            string avatarDir = Path.Combine(skinsDir, SelectedAccount.Uuid);
+            string avatarDir = Path.Combine(skinsDir, SelectedAccount.Id);
             if (!Directory.Exists(avatarDir))
                 Directory.CreateDirectory(avatarDir);
-            avatarPath = Path.Combine(avatarDir, "head.png");
+            if (SelectedAccount.Type == EAccountType.OFFLINE)
+                avatarPath = Path.Combine(avatarDir, "head.png");
+            else
+            {
+                AccountSkin? selectedSkin =
+                    SelectedAccount.Skins.FirstOrDefault(x =>
+                        x.MojangId == SelectedAccount.MojangProfile?.Skins[0]?.Id);
+                avatarPath = selectedSkin == null ? null : Path.Combine(avatarDir, selectedSkin.Id, "head.png");
+            }
         }
         else
             avatarPath = null;
-
+        
         AccountAvatar = File.Exists(avatarPath)
             ? new Bitmap(avatarPath)
             : ImageHelper.LoadFromResource(
-                new Uri("avares://Tavstal.KonkordLauncher.Desktop/Assets/Images/placeholders/steve_head.png"));
+                new Uri("avares://Desktop/Assets/Images/placeholders/steve_head.png"));
     }
 
     /// <summary>
@@ -835,8 +848,22 @@ public partial class MainViewModel : KonkordObservableObject
         var accounts = new AccountData
         {
             SelectedAccountId = newValue.SelectedAccountId ?? string.Empty,
-            Accounts = newValue.Accounts.Select(a => new Account(a.Id, a.Uuid, a.DisplayName, a.Type, a.AccessToken,
-                a.RefreshToken, a.AccessTokenExpireDate, a.Skins, a.MojangProfile)).ToList()
+            Accounts = newValue.Accounts.Select(a =>
+            {
+                Account account = new()
+                {
+                    Id = a.Id,
+                    Uuid = a.Uuid,
+                    DisplayName = a.DisplayName,
+                    Type = a.Type,
+                    AccessTokenExpireDate = a.AccessTokenExpireDate,
+                    MojangProfile = a.MojangProfile,
+                    Skins = a.Skins,
+                };
+                account.SetAccessToken(a.GetAccessToken());
+                account.SetRefreshToken(a.GetRefreshToken());
+                return account;
+            }).ToList()
         };
 
         JsonHelper.WriteJsonFile(PathHelper.LauncherAccountsPath, accounts);
@@ -1117,6 +1144,31 @@ public partial class MainViewModel : KonkordObservableObject
             // Ensure an account is selected
             if (SelectedAccount == null)
                 return;
+
+            string? filePath = await OpenImagePicker.Handle(Unit.Default);
+            if (filePath == null || !File.Exists(filePath))
+                return;
+
+            string skinId = Guid.NewGuid().ToString();
+            var settings = await LauncherHelper.GetLauncherSettingsAsync();
+            string skinDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins", SelectedAccount.Id, skinId);
+            if (!Directory.Exists(skinDir))
+                Directory.CreateDirectory(skinDir);
+            string skinPath = Path.Combine(skinDir, "texture.png");
+            File.Copy(filePath, skinPath, true);
+            int accountIndex = AccountData.Accounts.IndexOf(SelectedAccount);
+            SelectedAccount.Skins.Add(new AccountSkin(skinId, IsAccountHasWideModel ? "classic" : "slim", SelectedSkin.CapeId));
+            AccountData.Accounts[accountIndex] = SelectedAccount;
+           
+            string previewPath = Path.Combine(skinDir, "preview.png");
+            string headshotPath = Path.Combine(skinDir, "head.png");
+            
+            await using var skinStream = File.OpenRead(skinPath);
+            using var skinBitmap = SKBitmap.Decode(skinStream);
+            Skin3DHeadTypeB.MakeHeadImage(skinBitmap, 15, 65).SavePng(headshotPath);
+            Skin2DTypeB.MakeSkinImage(skinBitmap, IsAccountHasWideModel ? SkinType.New : SkinType.NewSlim).SavePng(previewPath);
+            
+            this.OnAccountUpdated();
         }
         catch (Exception ex)
         {
@@ -1142,6 +1194,46 @@ public partial class MainViewModel : KonkordObservableObject
             // Ensure an account is selected
             if (SelectedAccount == null)
                 return;
+            
+            var settings = await LauncherHelper.GetLauncherSettingsAsync();
+            string skinPath = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins", SelectedAccount.Id, model.Id, "texture.png");
+            if (!File.Exists(skinPath))
+            {
+                _logger.Error("Skin file does not exist: " + skinPath);
+                return;
+            }
+            
+            MojangProfile? profile = await MojangSkinService.UploadSkin(SelectedAccount.GetAccessToken(), model.Variant, skinPath);
+            if (profile == null)
+            {
+                // TODO: Translate
+                await ShowAlertDialog.Handle(new Alert("Error", "Failed to upload skin. Please try again later.", EAlertType.Error));
+                return;
+            }
+
+            var newSkin = SelectedAccount.Skins.Find(x => x.Id == model.Id);
+            if (SelectedSkin.CapeId != newSkin?.CapeId && newSkin is { CapeId: not null })
+            {
+                profile = await MojangSkinService.ShowCape(SelectedAccount.GetAccessToken(), newSkin.CapeId);
+                if (profile == null)
+                {
+                    // TODO: Translate
+                    await ShowAlertDialog.Handle(new Alert("Error", "Failed to change cape. Please try again later.", EAlertType.Error));
+                    return;
+                }
+            }
+            
+            int accountIndex = AccountData.Accounts.IndexOf(SelectedAccount);
+            int skinIndex = SelectedAccount.Skins.FindIndex(x => x.Id == model.Id);
+            if (skinIndex >= 0)
+            {
+                SelectedAccount.Skins[skinIndex].MojangId = profile.Skins[0].Id;
+            }
+
+            SelectedAccount.MojangProfile = profile;
+            AccountData.Accounts[accountIndex] = SelectedAccount;
+            IsAccountHasWideModel = model.Variant.Equals("classic", StringComparison.InvariantCultureIgnoreCase);
+            OnAccountUpdated();
         }
         catch (Exception ex)
         {
@@ -1169,9 +1261,9 @@ public partial class MainViewModel : KonkordObservableObject
 
             MojangProfile? result;
             if (model.Id.Equals("none", StringComparison.InvariantCultureIgnoreCase))
-                result = await MojangSkinService.HideCape(SelectedAccount.AccessToken);
+                result = await MojangSkinService.HideCape(SelectedAccount.GetAccessToken());
             else
-                result = await MojangSkinService.ShowCape(SelectedAccount.AccessToken, model.Id);
+                result = await MojangSkinService.ShowCape(SelectedAccount.GetAccessToken(), model.Id);
             
             if (result == null)
             {
@@ -1179,7 +1271,7 @@ public partial class MainViewModel : KonkordObservableObject
                 await ShowAlertDialog.Handle(new Alert("Error", "Failed to change cape.", EAlertType.Error));
                 foreach (CapeDataModel cape in Capes.ToList())
                 {
-                    cape.IsSelected = cape.Id == SelectedCapeId;
+                    cape.IsSelected = cape.Id == SelectedSkin.CapeId && SelectedSkin.CapeId != null;
                     _capesCache.Edit(innerCache =>
                     {
                         innerCache.AddOrUpdate(cape);
@@ -1187,10 +1279,10 @@ public partial class MainViewModel : KonkordObservableObject
                 }
                 return;
             }
-            SelectedCapeId = model.Id;
+
             foreach (CapeDataModel cape in Capes.ToList())
             {
-                cape.IsSelected = cape.Id == SelectedCapeId;
+                cape.IsSelected = cape.Id == SelectedSkin.CapeId && SelectedSkin.CapeId != null;
                 _capesCache.Edit(innerCache =>
                 {
                     innerCache.AddOrUpdate(cape);
@@ -1198,10 +1290,15 @@ public partial class MainViewModel : KonkordObservableObject
             }
 
             int accountIndex = AccountData.Accounts.IndexOf(SelectedAccount);
+            int skinIndex = SelectedAccount.Skins.FindIndex(x => x.Id == SelectedSkin.Id);
+            if (skinIndex >= 0)
+            {
+                SelectedAccount.Skins[skinIndex].MojangId = result.Skins[0].Id;
+                SelectedAccount.Skins[skinIndex].CapeId = model.Id;
+            }
             SelectedAccount.MojangProfile = result;
             AccountData.Accounts[accountIndex] = SelectedAccount;
-            
-            // TODO: Update Preview
+            OnAccountUpdated();
         }
         catch (Exception ex)
         {
@@ -1236,14 +1333,14 @@ public partial class MainViewModel : KonkordObservableObject
                 return;
             }
             
-            Skin? skin = SelectedAccount.MojangProfile?.Skins.FirstOrDefault(x => x.Id == SelectedSkinId);
+            Skin? skin = SelectedAccount.MojangProfile?.Skins.FirstOrDefault(x => x.Id == SelectedSkin.MojangId);
             if (skin == null)
             {
                 _logger.Debug("No skin found while selecting skin model.");
                 return;
             }
 
-            MojangProfile? result = await MojangSkinService.ChangeSkin(SelectedAccount.AccessToken, model, skin.Url);
+            MojangProfile? result = await MojangSkinService.ChangeSkin(SelectedAccount.GetAccessToken(), model, skin.Url);
             if (result == null)
             {
                 // TODO: Translate
@@ -1253,9 +1350,15 @@ public partial class MainViewModel : KonkordObservableObject
 
             int accountIndex = AccountData.Accounts.IndexOf(SelectedAccount);
             SelectedAccount.MojangProfile = result;
+            int skinIndex = SelectedAccount.Skins.FindIndex(x => x.Id == SelectedSkin.Id);
+            if (skinIndex >= 0)
+            {
+                SelectedAccount.Skins[skinIndex].MojangId = result.Skins[0].Id;
+                SelectedAccount.Skins[skinIndex].Model = model;
+            }
             AccountData.Accounts[accountIndex] = SelectedAccount;
             IsAccountHasWideModel = newValue;
-            SelectedSkinId = result.Skins[0].Id;
+            SelectedSkin.Model = model;
             
             // TODO: Update Preview
         }
@@ -1268,23 +1371,5 @@ public partial class MainViewModel : KonkordObservableObject
             IsAccountSkinProcessing = false;
         }
     }
-    
-    // NOTES ABOUT SKINS:
-    /*
-     * Since Mojang API does not store multiple skins per account, or at least the api does not expose that,
-     * we need to handle skin switching manually by re-uploading the selected skin each time.
-     * So there should be a new field in the AccountDataModel to store skins.
-     * Fields of the model:
-     * - Id (string): Unique identifier for the skin.
-     * - Model (string): The model type of the skin (e.g., "classic" or "slim").
-     * - CapeId (string?): The cape ID associated with the skin, if any.
-     * - MojangId (string?): The Mojang skin ID associated with the skin.
-     *
-     * How should now skins be handled?
-     * The main texture should be stored in a new directory for skins, previews should still be in the cache.
-     * So the previews should be stored like: $id_$model.png without a cape
-     * Preview.png should be the current skin preview.
-     * The best would be to have a local 3D skin previewer, but that's not possible right now.
-     */
     #endregion
 }

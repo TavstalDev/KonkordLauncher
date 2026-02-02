@@ -78,36 +78,33 @@ public static class GameHelper
     }
 
     /// <summary>
-    /// Retrieves the UUID (Universally Unique Identifier) of a player based on the provided username.
+    /// Generates an offline UUID for a player based on their username.
     /// </summary>
     /// <param name="username">The username of the player.</param>
     /// <returns>
-    /// A <see cref="string"/> representing the UUID of the player.
+    /// A string representing the offline UUID in lowercase hexadecimal format without dashes.
     /// </returns>
-    private static string GetPlayerUUID(string username)
-    {
-        //new GameProfile(UUID.nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes(Charsets.UTF_8)), name));
-        byte[] rawresult = System.Security.Cryptography.MD5.Create().ComputeHash(Encoding.UTF8.GetBytes(username));
-        //set the version to 3 -> Name based md5 hash
-        rawresult[6] = (byte)(rawresult[6] & 0x0f | 0x30);
-        //IETF variant
-        rawresult[8] = (byte)(rawresult[8] & 0x3f | 0x80);
-        //convert to string and remove any - if any
-        string finalresult = BitConverter.ToString(rawresult).Replace("-", "");
-        //formatting
-        finalresult = finalresult.Insert(8, "-").Insert(13, "-").Insert(18, "-").Insert(23, "-");
-        return finalresult;
-    }
-
-    /// <summary>
-    /// Retrieves the UUID (Universally Unique Identifier) of an offline player based on the provided username.
-    /// </summary>
-    /// <param name="username">The username of the offline player.</param>
-    /// <returns>
-    /// A <see cref="string"/> representing the UUID of the offline player.
-    /// </returns>
+    /// <remarks>
+    /// The UUID is generated using the MD5 hash of the string "OfflinePlayer:{username}".
+    /// The UUID version is set to 3 (name-based MD5), and the IETF variant is applied.
+    /// </remarks>
     public static string GetOfflinePlayerUUID(string username)
     {
-        return GetPlayerUUID($"OfflinePlayer:{username}");
+        using var md5 = System.Security.Cryptography.MD5.Create();
+        
+        byte[] hash = md5.ComputeHash(
+            Encoding.UTF8.GetBytes($"OfflinePlayer:{username}")
+        );
+
+        // Set UUID version to 3 (name-based MD5)
+        hash[6] = (byte)((hash[6] & 0x0F) | 0x30);
+
+        // Set IETF variant
+        hash[8] = (byte)((hash[8] & 0x3F) | 0x80);
+
+        // Convert to lowercase hex, no dashes
+        return BitConverter.ToString(hash)
+            .Replace("-", "")
+            .ToLowerInvariant();
     }
 }

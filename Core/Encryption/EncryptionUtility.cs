@@ -29,6 +29,11 @@ public static class EncryptionUtility
     private static IDataProtector? _protector;
 
     /// <summary>
+    /// Gets a value indicating whether the data protector is set.
+    /// </summary>
+    public static bool IsDataProtectorSet => _protector != null;
+    
+    /// <summary>
     /// Sets the data protection provider and initializes the data protector instance.
     /// </summary>
     /// <param name="provider">The data protection provider to create the protector from.</param>
@@ -91,16 +96,21 @@ public static class EncryptionUtility
     /// Decrypts the given text based on the current operating system.
     /// </summary>
     /// <param name="text">The text to decrypt.</param>
+    /// <param name="ignoreIfUnknown"></param>
     /// <returns>The decrypted text.</returns>
-    public static string Decrypt(string text)
+    public static string Decrypt(string text, bool ignoreIfUnknown = false)
     {
         try
         {
             if (string.IsNullOrEmpty(text))
                 return text;
-            
+
             if (text.StartsWith(DP_PREFIX))
+            {
+                if (_protector == null)
+                    throw new CryptographicException("Data protector is not set for DP encrypted text");
                 return _protector!.Unprotect(text[DP_PREFIX.Length..]);
+            }
 
             if (text.StartsWith(WIN_PREFIX))
                 return DecryptWin(text[WIN_PREFIX.Length..]);
@@ -111,6 +121,8 @@ public static class EncryptionUtility
             if (text.StartsWith(MAC_PREFIX))
                 return DecryptMac(text[MAC_PREFIX.Length..]);
 
+            if (ignoreIfUnknown)
+                return text;
             throw new CryptographicException("Unknown encryption format");
         }
         catch (Exception ex)

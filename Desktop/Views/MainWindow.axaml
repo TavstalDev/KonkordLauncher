@@ -833,7 +833,7 @@
                                     </TabItem>
                                     <!--  Minecraft Settings  -->
                                     <TabItem Classes="SettingsMainTabItem" Header="{lang:Translate settings.tab.minecraft}">
-                                        <ScrollViewer Margin="0,0,10,0">
+                                        <ScrollViewer>
                                             <WrapPanel Classes="SettingsWrapper">
                                                 <!--  Minecraft Maximized  -->
                                                 <CheckBox IsChecked="{Binding CoreConfig.Minecraft.StartMaximized, Mode=TwoWay}">

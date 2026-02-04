@@ -102,7 +102,7 @@ public partial class MainViewModel : KonkordObservableObject
     /// </summary>
     public MainViewModel()
     {
-        _currentPageIndex = ESidebarType.Skins;
+        _currentPageIndex = ESidebarType.Play;
         _coreConfig = new CoreConfigModel(LauncherHelper.GetLauncherSettings());
         _accountData = new AccountDataModel(LauncherHelper.GetAccountData());
 

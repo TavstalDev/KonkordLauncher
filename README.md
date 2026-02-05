@@ -33,6 +33,8 @@
 - [x] Implement automatic updates for the launcher
   - [ ] Test the updater on Windows, Linux and MacOS
 - [x] Implement patch notes
+- [x] Implement skin selection
+- - [ ] Implement 3D skin preview (this is a big task and will be implemented later)
 - [ ] Resize instance creation window, the whole window should be changed, feels to big
 - [ ] Resize instance edit settings, it feels too big
 - [ ] Fix java version selection width, it should be scrollable but not like now

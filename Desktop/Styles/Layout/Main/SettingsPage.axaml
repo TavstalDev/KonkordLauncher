@@ -4,6 +4,7 @@
         <Setter Property="Margin" Value="0, 5, 0, 5" />
         <Setter Property="Padding" Value="0" />
     </Style>
+    
 
     <Style Selector="TabItem.SettingsMainTabItem">
         <Setter Property="FontSize" Value="18" />
@@ -22,10 +23,9 @@
         <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
     
-    <Style Selector="WrapPanel.SettingsWrapper">
-        <Setter Property="LineSpacing" Value="10" />
-        <Setter Property="ItemSpacing" Value="10" />
-        <Setter Property="Margin" Value="20,10,20,25" />
+    <Style Selector="StackPanel.SettingsWrapper">
+        <Setter Property="Spacing" Value="10" />
+        <Setter Property="Margin" Value="10,10,10,25" />
         <Setter Property="Orientation" Value="Vertical" />
     </Style>
     

@@ -602,7 +602,7 @@
                                     <!--  Launcher Settings  -->
                                     <TabItem Classes="SettingsMainTabItem" Header="{lang:Translate settings.tab.launcher}">
                                         <ScrollViewer>
-                                            <WrapPanel Classes="SettingsWrapper">
+                                            <StackPanel Classes="SettingsWrapper">
                                                 <!--  Enable Launcher Updates  -->
                                                 <CheckBox IsChecked="{Binding CoreConfig.Launcher.EnableAutomaticUpdates, Mode=TwoWay}">
                                                     <TextBlock Text="{lang:Translate settings.launcher.autoUpdate}" />
@@ -828,13 +828,13 @@
                                                         <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
                                                     </Button>
                                                 </Grid>
-                                            </WrapPanel>
+                                            </StackPanel>
                                         </ScrollViewer>
                                     </TabItem>
                                     <!--  Minecraft Settings  -->
                                     <TabItem Classes="SettingsMainTabItem" Header="{lang:Translate settings.tab.minecraft}">
                                         <ScrollViewer>
-                                            <WrapPanel Classes="SettingsWrapper">
+                                            <StackPanel Classes="SettingsWrapper">
                                                 <!--  Minecraft Maximized  -->
                                                 <CheckBox IsChecked="{Binding CoreConfig.Minecraft.StartMaximized, Mode=TwoWay}">
                                                     <TextBlock Text="{lang:Translate settings.minecraft.startMaximized}" />
@@ -877,13 +877,13 @@
                                                 <CheckBox IsChecked="{Binding CoreConfig.Minecraft.CloseLauncherOnGameExit, Mode=TwoWay}">
                                                     <TextBlock Text="{lang:Translate settings.minecraft.closeExit}" />
                                                 </CheckBox>
-                                            </WrapPanel>
+                                            </StackPanel>
                                         </ScrollViewer>
                                     </TabItem>
                                     <!--  Java Settings  -->
                                     <TabItem Classes="SettingsMainTabItem" Header="{lang:Translate settings.tab.java}">
                                         <ScrollViewer Margin="0,0,10,0">
-                                            <WrapPanel Classes="SettingsWrapper">
+                                            <StackPanel Classes="SettingsWrapper">
                                                 <!--  Minimum Memory  -->
                                                 <Grid ColumnDefinitions="Auto, *">
                                                     <!--  Text  -->
@@ -958,13 +958,13 @@
                                                     MaxLines="512"
                                                     Text="{Binding CoreConfig.Java.JvmArguments, Mode=TwoWay}"
                                                     TextWrapping="Wrap" />
-                                            </WrapPanel>
+                                            </StackPanel>
                                         </ScrollViewer>
                                     </TabItem>
                                     <!--  Misc Settings  -->
                                     <TabItem Classes="SettingsMainTabItem" Header="{lang:Translate settings.tab.misc}">
                                         <ScrollViewer Margin="0,0,10,0">
-                                            <WrapPanel Classes="SettingsWrapper">
+                                            <StackPanel Classes="SettingsWrapper">
                                                 <!--  Subtitle  -->
                                                 <TextBlock Classes="SettingsCategory" Text="{lang:Translate settings.misc.subtitle.customCommands}" />
                                                 <!--  Pre-launch Command  -->
@@ -1048,7 +1048,7 @@
                                                 <CheckBox IsChecked="{Binding CoreConfig.Misc.UseDedicatedGpu, Mode=TwoWay}">
                                                     <TextBlock Text="{lang:Translate settings.misc.useDedicatedGpu}" />
                                                 </CheckBox>
-                                            </WrapPanel>
+                                            </StackPanel>
                                         </ScrollViewer>
                                     </TabItem>
                                 </TabControl>

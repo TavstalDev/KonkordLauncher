@@ -6,7 +6,7 @@ public static class NeoForgeEndpoints
     /// The URL for retrieving the Forge version manifest.
     /// </summary>
     // https://maven.neoforged.net/api/maven/versions/releases/net%2Fneoforged%2Fneoforge
-    public const string VersionManifest = "https://maven.neoforged.net/net/neoforged/neoforge/maven-metadata.xml";
+    public const string VersionManifest = "https://maven.neoforged.net/releases/net/neoforged/neoforge/maven-metadata.xml";
 
     /// <summary>
     /// The URL template for downloading the Forge universal JAR file for a specific version.

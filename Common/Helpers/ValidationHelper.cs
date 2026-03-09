@@ -208,41 +208,51 @@ public static class ValidationHelper
             
             
             // NeoForge
-            if (!File.Exists(settings.Launcher.GetNeoForgeManifestPath()) || refreshManifests)
+            try
             {
-                string raw = await httpClient.GetStringAsync(NeoForgeEndpoints.VersionManifest);
-                XDocument doc = XDocument.Parse(raw);
-                XElement? metadata = doc.Element("metadata");
-                if (metadata == null)
+                if (!File.Exists(settings.Launcher.GetNeoForgeManifestPath()) || refreshManifests)
                 {
-                    _logger.Error("Forge manifest metadata not found in the XML.");
-                    return false;
-                }
-                
-                var versions = metadata
-                    .Element("versioning")
-                    ?.Element("versions")
-                    ?.Elements("version")
-                    .Select(v => v.Value);
-                if (versions == null)
-                {
-                    _logger.Error("Forge manifest versions not found in the XML.");
-                    return false;
+                    string raw = await httpClient.GetStringAsync(NeoForgeEndpoints.VersionManifest);
+                    XDocument doc = XDocument.Parse(raw);
+                    XElement? metadata = doc.Element("metadata");
+                    if (metadata == null)
+                    {
+                        _logger.Error("Forge manifest metadata not found in the XML.");
+                        return false;
+                    }
+
+                    var versions = metadata
+                        .Element("versioning")
+                        ?.Element("versions")
+                        ?.Elements("version")
+                        .Select(v => v.Value);
+                    if (versions == null)
+                    {
+                        _logger.Error("Forge manifest versions not found in the XML.");
+                        return false;
+                    }
+
+                    List<ForgeManifest> manifest = [];
+                    foreach (var version in versions)
+                    {
+                        var parts = version.Split('.');
+                        string gameVersion = $"1.{parts[0]}.{parts[1]}";
+
+                        manifest.Add(new ForgeManifest(version, gameVersion));
+                    }
+
+                    await JsonHelper.WriteJsonFileAsync(settings.Launcher.GetNeoForgeManifestPath(), manifest);
                 }
 
-                List<ForgeManifest> manifest = [];
-                foreach (var version in versions)
-                {
-                    var parts = version.Split('.');
-                    string gameVersion = $"1.{parts[0]}.{parts[1]}";
-                    
-                    manifest.Add(new ForgeManifest(version, gameVersion));
-                }
-                
-                await JsonHelper.WriteJsonFileAsync(settings.Launcher.GetNeoForgeManifestPath(), manifest);
+                if (await ManifestHelper.GetNeoForgeManifestAsync(settings.Launcher.GetNeoForgeManifestPath()) == null)
+                    _logger.Error("Failed to load NeoForge manifest");
             }
-            if (await ManifestHelper.GetNeoForgeManifestAsync(settings.Launcher.GetNeoForgeManifestPath()) == null)
-                _logger.Error("Failed to load NeoForge manifest");
+            catch (Exception e)
+            {
+                _logger.Error("Failed to validate NeoForge manifest:");
+                _logger.Error(e.ToString());
+                // Skipping due to known issues with the NeoForge manifest (as of 2026. 03. 09.)
+            }
 
             // Quilt
             if (!File.Exists(settings.Launcher.GetQuiltManifestPath()) || refreshManifests)

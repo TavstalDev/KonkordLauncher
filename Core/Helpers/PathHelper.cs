@@ -71,4 +71,27 @@ public static class PathHelper
     /// Specifies the format for log file names, where `{0}` is replaced with the log name.
     /// </summary>
     public static readonly string LogsFileFormat = "{0:yyyy-MM-dd_HH-mm-ss}.log";
+    
+    /// <summary>
+    /// Validates whether the specified path is a valid file system path.
+    /// </summary>
+    /// <param name="path">The path to validate.</param>
+    /// <returns>
+    /// <c>true</c> if the path is valid; otherwise, <c>false</c>.
+    /// </returns>
+    public static bool IsValidPath(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return false;
+
+        try
+        {
+            Path.GetFullPath(path);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }

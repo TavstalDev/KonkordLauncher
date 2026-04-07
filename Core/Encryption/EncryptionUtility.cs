@@ -364,66 +364,43 @@ public static class EncryptionUtility
     /// <param name="key">The encryption key.</param>
     /// <param name="plainText">The text to encrypt.</param>
     /// <returns>The encrypted text.</returns>
-    private static string Encrypt(string key, string plainText)
+    public static string Encrypt(string key, string plainText)
     {
-        byte[] iv = new byte[16];
-        byte[] array;
+        using Aes aes = Aes.Create();
+        aes.Key = Encoding.UTF8.GetBytes(key);
+        aes.GenerateIV();
 
-        using (Aes aes = Aes.Create())
-        {
-            aes.Key = HexToBytes(key);
-            aes.IV = iv;
+        using ICryptoTransform encryptor = aes.CreateEncryptor();
 
-            ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
+        byte[] plainBytes = Encoding.UTF8.GetBytes(plainText);
+        byte[] cipherText = encryptor.TransformFinalBlock(plainBytes, 0, plainBytes.Length);
+        
+        byte[] combined = new byte[aes.IV.Length + cipherText.Length];
+        Buffer.BlockCopy(aes.IV, 0, combined, 0, aes.IV.Length);
+        Buffer.BlockCopy(cipherText, 0, combined, aes.IV.Length, cipherText.Length);
 
-            using (MemoryStream memoryStream = new MemoryStream())
-            {
-                using (CryptoStream cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write))
-                using (StreamWriter streamWriter = new StreamWriter(cryptoStream))
-                    streamWriter.Write(plainText);
-
-                array = memoryStream.ToArray();
-            }
-        }
-
-        return Convert.ToBase64String(array);
+        return Convert.ToBase64String(combined);
     }
 
     /// <summary>
     /// Decrypts text using AES decryption with the specified key.
     /// </summary>
     /// <param name="key">The decryption key.</param>
-    /// <param name="cipherText">The text to decrypt.</param>
+    /// <param name="base64String">The text to decrypt.</param>
     /// <returns>The decrypted text.</returns>
-    private static string Decrypt(string key, string cipherText)
+    public static string Decrypt(string key, string base64String)
     {
+        byte[] buffer = Convert.FromBase64String(base64String);
         byte[] iv = new byte[16];
-        byte[] buffer = Convert.FromBase64String(cipherText);
-
+        byte[] cipherText = new byte[buffer.Length - 16];
+        Buffer.BlockCopy(buffer, 0, iv, 0, iv.Length);
+        Buffer.BlockCopy(buffer, iv.Length, cipherText, 0, cipherText.Length);
+        
         using Aes aes = Aes.Create();
-        aes.Key = HexToBytes(key);
+        aes.Key = Encoding.UTF8.GetBytes(key);
         aes.IV = iv;
-        ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
-
-        using MemoryStream memoryStream = new MemoryStream(buffer);
-        using CryptoStream cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read);
-        using StreamReader streamReader = new StreamReader(cryptoStream);
-        return streamReader.ReadToEnd();
-    }
-    
-    /// <summary>
-    /// Converts a hexadecimal string to a byte array.
-    /// </summary>
-    /// <param name="hex">The hexadecimal string.</param>
-    /// <returns>The byte array.</returns>
-    private static byte[] HexToBytes(string hex)
-    {
-        if (hex.Length % 2 != 0)
-            throw new ArgumentException("Hex string must have an even length.");
-
-        byte[] bytes = new byte[hex.Length / 2];
-        for (int i = 0; i < hex.Length; i += 2)
-            bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
-        return bytes;
+        using ICryptoTransform decryptor = aes.CreateDecryptor();
+        byte[] plainBytes = decryptor.TransformFinalBlock(cipherText, 0, cipherText.Length);
+        return Encoding.UTF8.GetString(plainBytes);
     }
 }

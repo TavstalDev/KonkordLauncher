@@ -1,6 +1,8 @@
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Hardware.Info;
 using Tavstal.KonkordLauncher.Core.Enums;
+using Tavstal.KonkordLauncher.Core.Models;
 
 namespace Tavstal.KonkordLauncher.Core.Helpers;
 
@@ -9,6 +11,15 @@ namespace Tavstal.KonkordLauncher.Core.Helpers;
 /// </summary>
 public static class OSHelper
 {
+    private static readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(OSHelper));
+    private static readonly HardwareInfo _hardwareInfo = new();
+    private const int Windows11MajorVersion = 10;
+    private const int Windows11MinimumBuild = 22000;
+    private static readonly string[] NvidiaKeywords = ["nvidia", "geforce", "quadro", "gtx", "rtx", "mx", "tesla", "h100"];
+    private static readonly string[] AmdKeywords = ["amd", "radeon", "vega", "rx", "r9", "r7", "r5"];
+    private static readonly string[] IntelKeywords = ["intel", "arc", "battlemage"];
+    private static readonly string[] AppleKeywords = ["apple", "m1", "m2", "m3"];
+    
     /// <summary>
     /// Determines the operating system type.
     /// </summary>
@@ -24,22 +35,29 @@ public static class OSHelper
             case PlatformID.Win32Windows:
             case PlatformID.Win32S:
             case PlatformID.WinCE:
-            {
                 return EOperatingSystem.Windows;
-            }
             case PlatformID.Unix:
-            {
                 return EOperatingSystem.Linux;
-            }
             case PlatformID.MacOSX:
-            {
                 return EOperatingSystem.MacOS;
-            }
             default:
-            {
                 return EOperatingSystem.Unknown;
-            }
         }
+    }
+    
+    /// <summary>
+    /// Determines if the operating system is Windows 11.
+    /// </summary>
+    /// <returns>
+    /// A boolean value indicating whether the operating system is Windows 11.
+    /// </returns>
+    public static bool IsWindows11()
+    {
+        if (GetOperatingSystem() != EOperatingSystem.Windows)
+            return false;
+
+        Version osVersion = Environment.OSVersion.Version;
+        return (osVersion.Major > Windows11MajorVersion) || osVersion is { Major: Windows11MajorVersion, Build: >= Windows11MinimumBuild };
     }
 
     /// <summary>
@@ -60,41 +78,33 @@ public static class OSHelper
     /// <returns>
     /// A boolean value indicating whether the operating system is 64-bit.
     /// </returns>
-    public static bool Is64BitOperatingSystem()
-    {
-        return Environment.Is64BitOperatingSystem;
-    }
+    public static bool Is64BitOperatingSystem() => Environment.Is64BitOperatingSystem;
     
     /// <summary>
     /// Retrieves the type and description of the dedicated GPU available on the system.
     /// </summary>
     /// <returns>
     /// A tuple containing:
-    /// - A string representing the GPU type ("nvidia", "amd", "intel", or "apple") if detected.
-    /// - A string representing the GPU description.
+    /// <br/>- A string representing the GPU type ("nvidia", "amd", "intel", or "apple") if detected.
+    /// <br/>- A string representing the GPU description.
     /// Returns <c>null</c> if no dedicated GPU is detected.
     /// </returns>
     public static (string, string)? GetDedicatedGpuType()
     {
-        var hardwareInfo = new HardwareInfo();
-        hardwareInfo.RefreshVideoControllerList();
-        foreach (var gpu in hardwareInfo.VideoControllerList)
+        _hardwareInfo.RefreshVideoControllerList();
+        foreach (var gpu in _hardwareInfo.VideoControllerList)
         {
             var lowerName = gpu.Description.ToLowerInvariant();
-            if (lowerName.Contains("nvidia") && (lowerName.Contains("geforce") || 
-                                                 lowerName.Contains("quadro") || 
-                                                 lowerName.Contains("gtx") || 
-                                                 lowerName.Contains("rtx") || 
-                                                 lowerName.Contains("mx")))
+            if (NvidiaKeywords.Any(lowerName.Contains))
                 return ("nvidia", gpu.Description);
             
-            if (lowerName.Contains("radeon rx") || lowerName.Contains("radeon r9") || lowerName.Contains("radeon r7") || lowerName.Contains("radeon r5"))
+            if (AmdKeywords.Any(lowerName.Contains))
                 return ("amd", gpu.Description);
             
-            if (lowerName.Contains("intel arc") || lowerName.Contains("intel battlemage"))
+            if (IntelKeywords.Any(lowerName.Contains))
                 return ("intel", gpu.Description);
             
-            if (lowerName.Contains("apple"))
+            if (AppleKeywords.Any(lowerName.Contains))
                 return ("apple", gpu.Description);
         }
         
@@ -109,10 +119,8 @@ public static class OSHelper
     /// </returns>
     public static ulong GetRamInBytes()
     {
-        HardwareInfo hardwareInfo = new HardwareInfo();
-        hardwareInfo.RefreshMemoryStatus();
-
-        return hardwareInfo.MemoryStatus.TotalPhysical;
+        _hardwareInfo.RefreshMemoryStatus();
+        return _hardwareInfo.MemoryStatus.TotalPhysical;
     }
     
     /// <summary>
@@ -126,8 +134,7 @@ public static class OSHelper
     /// </returns>
     public static string GetHomeDirectory(EOperatingSystem? os = null)
     {
-        if (os == null)
-            os = GetOperatingSystem();
+        os ??= GetOperatingSystem();
 
         switch (os)
         {
@@ -157,8 +164,7 @@ public static class OSHelper
     /// </returns>
     public static string GetDesktopDirectory(EOperatingSystem? os = null)
     {
-        if (os == null)
-            os = GetOperatingSystem();
+        os ??= GetOperatingSystem();
 
         switch (os)
         {
@@ -213,8 +219,7 @@ public static class OSHelper
     /// </returns>
     public static string GetProgramsDirectory(EOperatingSystem? os = null)
     {
-        if (os == null)
-            os = GetOperatingSystem();
+        os ??= GetOperatingSystem();
 
         switch (os)
         {
@@ -237,6 +242,59 @@ public static class OSHelper
             }
             default:
                 throw new ArgumentOutOfRangeException(nameof(os));
+        }
+    }
+    
+    /// <summary>
+    /// Opens the specified URL in the default web browser based on the operating system.
+    /// </summary>
+    /// <param name="url">The URL to be opened.</param>
+    public static bool OpenUrl(string url)
+    {
+        try
+        {
+            ProcessStartInfo startInfo;
+            switch (GetOperatingSystem())
+            {
+                case EOperatingSystem.Windows:
+                {
+                    startInfo = new ProcessStartInfo(url)
+                    {
+                        UseShellExecute = true
+                    };
+                    break;
+                }
+                case EOperatingSystem.MacOS:
+                {
+                    startInfo = new ProcessStartInfo("open", url)
+                    {
+                        UseShellExecute = false
+                    };
+                    break;
+                }
+                case EOperatingSystem.Linux:
+                {
+                    startInfo = new ProcessStartInfo("xdg-open", url)
+                    {
+                        UseShellExecute = false // xdg-open is the executable
+                    };
+                    break;
+                }
+                default:
+                {
+                    _logger.Warn("Unsupported operating system for opening URLs.");
+                    return false;
+                }
+            }
+        
+            // Start the process
+            Process.Start(startInfo);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.Error($"Failed to open the website after installation: {ex}");
+            return false;
         }
     }
 }

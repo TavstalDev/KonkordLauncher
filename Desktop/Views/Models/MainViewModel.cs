@@ -61,10 +61,11 @@ public partial class MainViewModel : KonkordObservableObject
     public Interaction<string, Unit> CloseLogsWindow { get; } = new();
     public Interaction<string, string?> ShowTextInputDialog { get; } = new();
     public Interaction<Unit, string?> ShowIconSelectorDialog { get; } = new();
-
+    public Interaction<ESettingsTab, Unit> UpdateSettingsTabButton { get; } = new();
     #endregion
 
     [ObservableProperty] private ESidebarType _currentPageIndex;
+    [ObservableProperty] private ESettingsTab _currentSettingsTab;
     private readonly SourceCache<InstanceModel, string> _instanceCache = new(x => x.Id);
     private readonly SourceCache<InstanceGroup, string> _groupCache = new(x => x.GroupName);
 
@@ -102,7 +103,8 @@ public partial class MainViewModel : KonkordObservableObject
     /// </summary>
     public MainViewModel()
     {
-        _currentPageIndex = ESidebarType.Play;
+        _currentPageIndex = ESidebarType.Settings;
+        _currentSettingsTab = ESettingsTab.LAUNCHER;
         _coreConfig = new CoreConfigModel(LauncherHelper.GetLauncherSettings());
         _accountData = new AccountDataModel(LauncherHelper.GetAccountData());
 
@@ -877,6 +879,9 @@ public partial class MainViewModel : KonkordObservableObject
 
     #region Commands
 
+    [RelayCommand]
+    public async Task HandleSettingsBtn(ESettingsTab tabType) => await UpdateSettingsTabButton.Handle(tabType);
+    
     /// <summary>
     /// Opens a folder picker dialog to select a directory and updates the corresponding configuration path
     /// based on the provided index.

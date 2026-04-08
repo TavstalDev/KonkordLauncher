@@ -27,8 +27,9 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
     // This window should not use KonkordWindow as long as it can only be opened once.
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MainWindow));
     private readonly Dictionary<string, InstanceLogsWindow> _logWindows = new(); 
-    private Button _selectedButton;
-        
+    private Button _selectedSideBarButton;
+    private Button _selectedSettingsTabButton;
+    
     public MainWindow()
     {
         InitializeComponent();
@@ -37,8 +38,9 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
         this.AttachDevTools(); // Attaches Avalonia Dev Tools for debugging
 #endif
         
-        // Instantiate your ViewModel and assign it to the DataContext
-        _selectedButton = PlaySideBtn;
+        _selectedSideBarButton = PlaySideBtn;
+        _selectedSettingsTabButton = LauncherSettingsBtn;
+        
         DataContext = new MainViewModel();
         this.WhenActivated(disposables =>
         {
@@ -141,6 +143,12 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
                 var result = await dialog.ShowDialog<string?>(this);
                 action.SetOutput(result);
             });
+            DataContext.UpdateSettingsTabButton.RegisterHandler(action =>
+            {
+                HandleSettingsTabChange(action.Input);
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            });
         });
         
         if (Design.IsDesignMode)
@@ -177,44 +185,80 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
             return;
 
         viewModel.CurrentPageIndex = sidebarType;
-        _selectedButton.Classes.Remove("SideBarActiveBtn");
+        _selectedSideBarButton.Classes.Remove("SideBarActiveBtn");
         //_selectedButton.Classes.Add("SecondaryBtn");
 
         switch (sidebarType)
         {
             case ESidebarType.Play:
             {
-                _selectedButton = PlaySideBtn;
+                _selectedSideBarButton = PlaySideBtn;
                 break;
             }
             case ESidebarType.Patch:
             {
-                _selectedButton = NewsSideBtn;
+                _selectedSideBarButton = NewsSideBtn;
                 break;
             }
             case ESidebarType.Accounts:
             {
-                _selectedButton = AccountsSideBtn;
+                _selectedSideBarButton = AccountsSideBtn;
                 break;
             }
             case ESidebarType.Settings:
             {
-                _selectedButton = SettingsSideBtn;
+                _selectedSideBarButton = SettingsSideBtn;
                 break;
             }
             case ESidebarType.About:
             {
-                _selectedButton = AboutSideBtn;
+                _selectedSideBarButton = AboutSideBtn;
                 break;
             }
             case ESidebarType.Skins:
             {
-                _selectedButton = SkinsSideBtn;
+                _selectedSideBarButton = SkinsSideBtn;
                 break;
             }
         }
         //_selectedButton.Classes.Remove("SecondaryBtn");
-        _selectedButton.Classes.Add("SideBarActiveBtn");
+        _selectedSideBarButton.Classes.Add("SideBarActiveBtn");
+    }
+    
+    private void HandleSettingsTabChange(ESettingsTab tabType)
+    {
+        if (DataContext is not { } viewModel)
+            return;
+        
+        if (viewModel.CurrentSettingsTab == tabType)
+            return;
+
+        viewModel.CurrentSettingsTab = tabType;
+        _selectedSettingsTabButton.Classes.Remove("SettingsTabBtnActive");
+        switch (tabType)
+        {
+            case ESettingsTab.LAUNCHER:
+            {
+                _selectedSettingsTabButton = LauncherSettingsBtn;
+                break;
+            }
+            case ESettingsTab.MINECRAFT:
+            {
+                _selectedSettingsTabButton = MinecraftSettingsBtn;
+                break;
+            }
+            case ESettingsTab.JAVA:
+            {
+                _selectedSettingsTabButton = JavaSettingsBtn;
+                break;
+            }
+            case ESettingsTab.MISC:
+            {
+                _selectedSettingsTabButton = MiscSettingsBtn;
+                break;
+            }
+        }
+        _selectedSettingsTabButton.Classes.Add("SettingsTabBtnActive");
     }
     
     /// <summary>

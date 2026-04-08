@@ -292,7 +292,8 @@ public static class DefaultTranslationProvider
         {"settings.launcher.updateInterval", "Update interval (hours)"},
         {"settings.launcher.language", "Language"},
         {"settings.launcher.theme", "Theme"},
-        {"settings.launcher.subtitle.directories", "Directories"},
+        {"settings.launcher.subtitle.general", "GENERAL"},
+        {"settings.launcher.subtitle.directories", "DIRECTORIES"},
         
         {"settings.launcher.dir.assets", "Assets"},
         {"settings.launcher.dir.cache", "Cache"},

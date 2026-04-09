@@ -39,6 +39,7 @@
         <PackageReference Include="NbtLib" Version="1.0.1" />
         <PackageReference Include="QRCoder" Version="1.7.0" />
         <PackageReference Include="ReverseMarkdown" Version="5.0.0" />
+        <PackageReference Include="Velopack" Version="0.0.1298" />
     </ItemGroup>
 
     <ItemGroup>

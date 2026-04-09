@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Tavstal.KonkordLauncher.Core.Encryption;
+using Velopack;
 
 namespace Tavstal.KonkordLauncher.Desktop;
 
@@ -23,6 +24,7 @@ class Program
     [STAThread]
     public static void Main(string[] args)
     {
+        VelopackApp.Build().Run();
         AppHost = Host.CreateDefaultBuilder(args)
             .ConfigureServices(services =>
             {

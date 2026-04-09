@@ -80,7 +80,7 @@ public partial class InstallWindow : KonkordWindow<InstallViewModel>, IProgressR
     /// <param name="progress">The progress value to set, typically a percentage (0-100).</param>
     public void SetProgress(double progress)
     {
-        Dispatcher.UIThread.Invoke(() =>
+        Dispatcher.UIThread.Post(() =>
         {
             if (DataContext == null)
                 return;
@@ -94,7 +94,7 @@ public partial class InstallWindow : KonkordWindow<InstallViewModel>, IProgressR
     /// <param name="status">The status message to display.</param>
     public void SetStatus(string status)
     {
-        Dispatcher.UIThread.Invoke(() =>
+        Dispatcher.UIThread.Post(() =>
         {
             if (DataContext == null)
                 return;
@@ -109,7 +109,7 @@ public partial class InstallWindow : KonkordWindow<InstallViewModel>, IProgressR
     /// <param name="args">Optional arguments to format the translated message.</param>
     public void SetStatusTranslated(string statusKey, params object[]? args)
     {
-        Dispatcher.UIThread.Invoke(() =>
+        Dispatcher.UIThread.Post(() =>
         {
             if (DataContext == null)
                 return;

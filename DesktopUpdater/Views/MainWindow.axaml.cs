@@ -257,10 +257,13 @@ public partial class MainWindow : KonkordWindow<MainViewModel>, IProgressReporte
     /// <param name="progress">The progress value as a double.</param>
     public void SetProgress(double progress)
     {
-        if (DataContext is not MainViewModel vm)
-            return;
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (DataContext is not { } vm)
+                return;
 
-        vm.Progress = progress;
+            vm.Progress = progress;
+        });
     }
 
     /// <summary>
@@ -269,10 +272,13 @@ public partial class MainWindow : KonkordWindow<MainViewModel>, IProgressReporte
     /// <param name="status">The status message as a string.</param>
     public void SetStatus(string status)
     {
-        if (DataContext is not MainViewModel vm)
-            return;
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (DataContext is not { } vm)
+                return;
 
-        vm.ProgressText = status;
+            vm.ProgressText = status;
+        });
     }
 
     /// <summary>
@@ -282,10 +288,13 @@ public partial class MainWindow : KonkordWindow<MainViewModel>, IProgressReporte
     /// <param name="args">Optional arguments for the translation.</param>
     public void SetStatusTranslated(string statusKey, params object[]? args)
     {
-        if (DataContext is not MainViewModel vm)
-            return;
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (DataContext is not { } vm)
+                return;
 
-        vm.ProgressText = TranslationManager.Translate(statusKey, args);
+            vm.ProgressText = TranslationManager.Translate(statusKey, args);
+        });
     }
 
     #endregion

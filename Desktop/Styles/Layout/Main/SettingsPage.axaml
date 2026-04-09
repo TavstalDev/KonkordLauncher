@@ -63,17 +63,14 @@
         <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
     
-    <!-- ScrollViewer -->
-    <Style Selector="ScrollViewer.SettingsScrollViewer">
-        <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
-        <Setter Property="HorizontalScrollBarVisibility" Value="Disabled" />
-        <Setter Property="Padding" Value="0, 0, 25, 0" />
-    </Style>
-    
     <!-- Wrapper -->
     <Style Selector="StackPanel.SettingsWrapper">
         <Setter Property="Spacing" Value="20" />
         <Setter Property="Orientation" Value="Vertical" />
+    </Style>
+    <Style Selector="Grid.SettingsWrapper">
+        <Setter Property="RowSpacing" Value="20" />
+        <Setter Property="ColumnSpacing" Value="20" />
     </Style>
     
     <!-- Category Border -->

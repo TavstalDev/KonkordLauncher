@@ -9,7 +9,7 @@
         <Setter Property="FontSize" Value="24" />
         <Setter Property="FontWeight" Value="600" />
         <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
-        <Setter Property="Margin" Value="0, 0, 0, 20" />
+        <Setter Property="Margin" Value="0, 0, 0, 25" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="TextAlignment" Value="Center" />
     </Style>

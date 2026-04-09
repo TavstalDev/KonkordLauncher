@@ -47,8 +47,8 @@
     
     <!-- Instance Icon -->
     <Style Selector="Image.InstanceIcon">
-        <Setter Property="Height" Value="60" />
-        <Setter Property="Width" Value="60" />
+        <Setter Property="Height" Value="72" />
+        <Setter Property="Width" Value="72" />
     </Style>
     
     <!-- Single Select Table -->
@@ -122,6 +122,13 @@
         <Setter Property="MaxWidth" Value="175" />
         <Setter Property="Margin" Value="0,5,0,0" />
         <Setter Property="Foreground" Value="{DynamicResource base-content}" />
+    </Style>
+    
+    <!-- Instance Button Wrapper Border -->
+    <Style Selector="Border.InstanceButtonBorder">
+        <Setter Property="BorderBrush" Value="{DynamicResource border-one}" />
+        <Setter Property="BorderThickness" Value="0, 1, 0, 0" />
+        <Setter Property="Padding" Value="20" />
     </Style>
     
     <!-- Instance Button Wrapper -->

@@ -99,6 +99,9 @@
     </ItemGroup>
 
     <ItemGroup>
+        <EmbeddedResource Include="..\LICENSE">
+          <Link>Assets\LICENSE</Link>
+        </EmbeddedResource>
         <EmbeddedResource Include="Assets\Icons\**\*" />
         <EmbeddedResource Include="Assets\Fmllib\**\*" />
     </ItemGroup>

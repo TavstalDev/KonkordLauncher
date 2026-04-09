@@ -439,9 +439,10 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             if (gameInstance == null)
                 return;
 
-            gameInstance.OnSetupDefaultJava += meta => SetupDefaultJavaPath(gameInstance, meta, settings, showAlertDialog);
+            // TODO: Fix
+            //gameInstance.OnSetupDefaultJava += meta => Dispatcher.UIThread.Post(() => SetupDefaultJavaPath(gameInstance, meta, settings, showAlertDialog));
 
-            var process = await gameInstance.Start();
+            var process = await gameInstance.StartAsync();
             if (process == null)
             {
                 _logger.Error("Failed to launch the  Process is null.");
@@ -504,38 +505,49 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     /// </param>
     private void SetupDefaultJavaPath(MinecraftInstance gameInstance, VersionMeta? meta, CoreConfig settings, Interaction<Alert, Unit> showAlertDialog)
     {
-        string defaultJavaPath = settings.Java.JavaPath;
-        var instances = LauncherHelper.GetInstances();
-        var instanceIndex = instances.FindIndex(x => x.Id == Id);
-
-        if (meta == null)
+        try
         {
-            UpdateJavaPath(gameInstance, defaultJavaPath, instances, instanceIndex);
-            return;
-        }
-        
-        // Check if the Java version specified in the metadata is available, if not attempt to download it
-        var javaInstallations = JavaHelper.LocateJavaInstallations(settings.Launcher.JavaDirectoryPath);
-        if (javaInstallations.All(x => x.Major != meta.JavaVersionMeta.MajorVersion) && string.IsNullOrEmpty(defaultJavaPath))
-        {
-            if (IsGameRunning && GameProcess != null)
-                GameProcess.Kill();
+            string defaultJavaPath = settings.Java.JavaPath;
+            var instances = LauncherHelper.GetInstances();
+            var instanceIndex = instances.FindIndex(x => x.Id == Id);
 
-            showAlertDialog.Handle(new Alert(TranslationManager.Translate("instance.java.notfound.title", meta.JavaVersionMeta.MajorVersion),
-                TranslationManager.Translate("instance.java.notfound.message", meta.JavaVersionMeta.MajorVersion),
-                EAlertType.Warning)).Wait();
-            return;
-        }
-
-        foreach (var javaInstallation in javaInstallations)
-        {
-            if (meta.JavaVersionMeta != null && javaInstallation.Major == meta.JavaVersionMeta.MajorVersion)
+            if (meta == null)
             {
-                defaultJavaPath = javaInstallation.Path;
-                break;
+                UpdateJavaPath(gameInstance, defaultJavaPath, instances, instanceIndex);
+                return;
             }
+
+            // Check if the Java version specified in the metadata is available, if not attempt to download it
+            var javaInstallations = JavaHelper.LocateJavaInstallations(settings.Launcher.JavaDirectoryPath);
+            if (javaInstallations.All(x => x.Major != meta.JavaVersionMeta.MajorVersion) &&
+                string.IsNullOrEmpty(defaultJavaPath))
+            {
+                if (IsGameRunning && GameProcess != null)
+                    GameProcess.Kill();
+
+                showAlertDialog.Handle(new Alert(
+                    TranslationManager.Translate("instance.java.notfound.title", meta.JavaVersionMeta.MajorVersion),
+                    TranslationManager.Translate("instance.java.notfound.message", meta.JavaVersionMeta.MajorVersion),
+                    EAlertType.Warning)).Wait();
+                return;
+            }
+
+            foreach (var javaInstallation in javaInstallations)
+            {
+                if (meta.JavaVersionMeta != null && javaInstallation.Major == meta.JavaVersionMeta.MajorVersion)
+                {
+                    defaultJavaPath = javaInstallation.Path;
+                    break;
+                }
+            }
+
+            UpdateJavaPath(gameInstance, defaultJavaPath, instances, instanceIndex);
         }
-        UpdateJavaPath(gameInstance, defaultJavaPath, instances, instanceIndex);
+        catch (Exception ex)
+        {
+            _logger.Exc("Error while setting up default Java path:");
+            _logger.Error(ex);
+        }
     }
     
     /// <summary>
@@ -601,17 +613,20 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     
     #region Progress Reporter
     private InstallWindow? _instanceInstallWindow;
-    
+
     /// <summary>
     /// Sets the progress value for the installation window. If the window is not open, it will be shown.
     /// </summary>
     /// <param name="progress">The progress value to set, typically between 0.0 and 1.0.</param>
     public void SetProgress(double progress)
     {
-        if (_instanceInstallWindow == null)
-            Show();
-    
-        _instanceInstallWindow?.SetProgress(progress);
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (_instanceInstallWindow == null)
+                Show();
+
+            _instanceInstallWindow?.SetProgress(progress);
+        });
     }
 
     /// <summary>
@@ -620,10 +635,13 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     /// <param name="status">The status message to display.</param>
     public void SetStatus(string status)
     {
-        if (_instanceInstallWindow == null)
-            Show();
-    
-        _instanceInstallWindow?.SetStatus(status);
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (_instanceInstallWindow == null)
+                Show();
+
+            _instanceInstallWindow?.SetStatus(status);
+        });
     }
 
     /// <summary>
@@ -633,10 +651,13 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     /// <param name="args">Optional arguments to format the translated message.</param>
     public void SetStatusTranslated(string statusKey, params object[]? args)
     {
-        if (_instanceInstallWindow == null)
-            Show();
-    
-        _instanceInstallWindow?.SetStatusTranslated(statusKey, args);
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (_instanceInstallWindow == null)
+                Show();
+
+            _instanceInstallWindow?.SetStatusTranslated(statusKey, args);
+        });
     }
 
     /// <summary>
@@ -644,11 +665,14 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     /// </summary>
     public void Show()
     {
-        if (_instanceInstallWindow != null)
-            return;
-    
-        _instanceInstallWindow = new InstallWindow();
-        _instanceInstallWindow.Show();
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (_instanceInstallWindow != null)
+                return;
+
+            _instanceInstallWindow = new InstallWindow();
+            _instanceInstallWindow.Show();
+        });
     }
 
     /// <summary>
@@ -656,11 +680,15 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     /// </summary>
     public void Hide()
     {
-        if (_instanceInstallWindow == null)
-            return;
-    
-        _instanceInstallWindow.Close();
-        _instanceInstallWindow = null;
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (_instanceInstallWindow == null)
+                return;
+
+            _instanceInstallWindow.Close();
+            _instanceInstallWindow = null;
+        });
     }
+
     #endregion
 }

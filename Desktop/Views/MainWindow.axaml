@@ -492,7 +492,6 @@
                 </Border>
                 
                 <!-- Content Area -->
-                <!-- TODO: Finish redesigning the main content area -->
                 <Border Grid.Row="1" Margin="0, 0, 0, 20">
                     <Carousel SelectedIndex="{Binding CurrentPageIndex}">
                         <Carousel.PageTransition>
@@ -636,7 +635,7 @@
                                     </Carousel.PageTransition>
                                     <Carousel.Items>
                                         <!-- Launcher -->
-                                        <ScrollViewer Classes="SettingsScrollViewer">
+                                        <ScrollViewer>
                                             <StackPanel Classes="SettingsWrapper">
                                                 <!--  General Category  -->
                                                 <Border Classes="SettingsCategoryBorder">
@@ -861,7 +860,7 @@
                                         </ScrollViewer>
                                         
                                         <!-- Minecraft -->
-                                        <ScrollViewer Classes="SettingsScrollViewer">
+                                        <ScrollViewer>
                                             <StackPanel Classes="SettingsWrapper">
                                                 <!--  General Category  -->
                                                 <Border Classes="SettingsCategoryBorder">
@@ -921,7 +920,7 @@
                                         </ScrollViewer>
                                         
                                         <!-- Java -->
-                                        <ScrollViewer Classes="SettingsScrollViewer">
+                                        <ScrollViewer>
                                             <StackPanel Classes="SettingsWrapper">
                                                 <!--  General Category  -->
                                                 <Border Classes="SettingsCategoryBorder">
@@ -1012,7 +1011,7 @@
                                         </ScrollViewer>
                                         
                                         <!-- Misc -->
-                                        <ScrollViewer Classes="SettingsScrollViewer">
+                                        <ScrollViewer>
                                             <StackPanel Classes="SettingsWrapper">
                                                 <!--  Custom Commands Category  -->
                                                 <Border Classes="SettingsCategoryBorder">

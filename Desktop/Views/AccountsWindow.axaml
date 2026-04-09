@@ -54,7 +54,7 @@
                 </StackPanel>
             </Border>
             <!--  Main Content  -->
-            <StackPanel Grid.Row="1" Margin="20, 10, 20 ,20">
+            <StackPanel Grid.Row="1" Margin="20, 0, 20 ,20">
                 <TextBlock Classes="ModalTitle" Text="{lang:Translate auth.title}" />
                 <TabControl Classes="ModalTab">
                     <!--  Microsoft account login tab  -->

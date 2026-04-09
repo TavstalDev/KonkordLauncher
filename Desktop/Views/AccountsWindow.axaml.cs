@@ -104,9 +104,7 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
     {
         // Start moving the window when left mouse button is pressed
         if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
-        {
             BeginMoveDrag(e);
-        }
     }
 
     /// <summary>

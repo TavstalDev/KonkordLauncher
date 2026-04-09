@@ -103,7 +103,7 @@ public abstract class ForgeInstanceBase(
             }
             // Updates the progress reporter with the current progress.
             double percent = i / (double)processors.Count * 100d;
-            _progressReporter?.SetStatusTranslated("instance.building", "forge", percent.ToString("0.00"));
+            _progressReporter?.UpdateStatusTranslated("instance.building", "forge", percent.ToString("0.00"));
         }
     }
     

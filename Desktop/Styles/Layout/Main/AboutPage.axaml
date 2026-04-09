@@ -72,6 +72,7 @@
     <Style Selector="TextBlock.LicenseText">
         <Setter Property="Foreground" Value="{DynamicResource base-content}" />
         <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="TextAlignment" Value="Center" />
         <Setter Property="Margin" Value="0, 0, 25, 0" />
     </Style>
 </Styles>

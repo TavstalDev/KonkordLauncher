@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -19,6 +20,7 @@ using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
+using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 
@@ -32,22 +34,25 @@ public partial class AccountsViewModel : KonkordObservableObject
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(AccountsViewModel));
     private readonly IProgressReporter _progressReporter;
 
+    #region Interactions
     public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
     public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
     public Interaction<Alert, Unit> ShowAlertDialog { get; } = new();
     public Interaction<string, Unit> SetClipboardText { get; } = new();
-    
+    #endregion
+
+    #region Observable Properties
     [ObservableProperty] private bool isLoggingInMicrosoftAccount;
     [ObservableProperty] private double _progress;
     [ObservableProperty] private string _progressText = "Loading...";
     [ObservableProperty] private string? _offlineUsername;
-    
-    [ObservableProperty] private DeviceCodeResult _deviceData = new DeviceCodeResult()
+    [ObservableProperty] private DeviceCodeResult _deviceData = new()
     {
         UserCode = TranslationManager.Translate("common.loading"),
     };
     [ObservableProperty] private Bitmap? _qrCode = ImageHelper.Load("avares://Desktop/Assets/creeper.jpg").Result;
+    #endregion
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AccountsViewModel"/> class.
@@ -81,6 +86,63 @@ public partial class AccountsViewModel : KonkordObservableObject
     {
         MicrosoftAuthService.Reset();
         IsLoggingInMicrosoftAccount = false;
+    }
+
+    public void OnAuthStatusChange(EAuthStatus status)
+    {
+        _ = HandleAuthStatusChange(status);
+    }
+
+    private async Task HandleAuthStatusChange(EAuthStatus status)
+    {
+        _logger.Debug($"Microsoft Status result: {MicrosoftAuthService.AuthStatus}");
+        if (status == EAuthStatus.FAILED)
+        {
+            IsLoggingInMicrosoftAccount = false;
+            await ShowAlertDialog.Handle(new Alert(TranslationManager.Translate("account.login.failed"),
+                TranslationManager.Translate("account.login.microsoft.failed"),
+                EAlertType.Error));
+            return;
+        }
+
+        if (status != EAuthStatus.SUCCESS)
+            return;
+
+        var microsoftAccount = MicrosoftAuthService.Account;
+        if (microsoftAccount == null)
+        {
+            await ShowAlertDialog.Handle(new Alert(TranslationManager.Translate("account.login.failed"),
+                TranslationManager.Translate("account.login.microsoft.null"),
+                EAlertType.Error));
+            StopMicrosoftAuth();
+            return;
+        }
+
+        AccountData accountData = await LauncherHelper.GetAccountDataAsync();
+        var account = accountData.Accounts.FirstOrDefault(x => x.Uuid == microsoftAccount.Uuid);
+        if (account != null)
+        {
+            await ShowAlertDialog.Handle(new Alert(TranslationManager.Translate("account.login.failed"),
+                TranslationManager.Translate("account.duplicate.microsoft"),
+                EAlertType.Error));
+            StopMicrosoftAuth();
+            return;
+        }
+
+        if (string.IsNullOrEmpty(accountData.SelectedAccountId))
+            accountData.SelectedAccountId = microsoftAccount.Id;
+        accountData.Accounts.Add(microsoftAccount);
+        var settings = await LauncherHelper.GetLauncherSettingsAsync();
+        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData);
+
+        foreach (var skin in microsoftAccount.Skins)
+            await SkinService.FetchSkins(settings.Launcher.CacheDirectoryPath, microsoftAccount.Id,
+                microsoftAccount.Uuid, skin);
+        await SkinService.FetchCapes(settings.Launcher.CacheDirectoryPath, microsoftAccount.MojangProfile?.Capes ?? []);
+
+        GlobalEvents.InvokeAccountsChanged();
+        MicrosoftAuthService.Reset();
+        await CloseWindowInteraction.Handle(Unit.Default);
     }
     
     #region Window Commands
@@ -124,14 +186,10 @@ public partial class AccountsViewModel : KonkordObservableObject
         QrCode?.Dispose();
         QrCode = ImageHelper.GenerateQrCode(DeviceData.VerificationUri);
         
-        _ = Task.Run(async () =>
-        {
-            await AuthHttpListener.StartListening();
-        });
-        _ = Task.Run(async () =>
-        {
-            await MicrosoftDeviceListener.StartListening(DeviceData.DeviceCode, DeviceData.Interval);
-        });
+        await Task.WhenAny(
+            Task.Run(async () => await AuthHttpListener.StartListening()),
+            Task.Run(async () => await MicrosoftDeviceListener.StartListening(DeviceData.DeviceCode, DeviceData.Interval))
+        );
     }
 
     /// <summary>
@@ -144,10 +202,7 @@ public partial class AccountsViewModel : KonkordObservableObject
     /// Opens the Microsoft device code verification URL in the default browser.
     /// </summary>
     [RelayCommand]
-    private void MicrosoftOpenCodeLink()
-    {
-        MicrosoftAuthService.OpenUrl(DeviceData.VerificationUri);
-    }
+    private void MicrosoftOpenCodeLink() =>  MicrosoftAuthService.OpenUrl(DeviceData.VerificationUri);
 
     /// <summary>
     /// Copies the Microsoft device code to the clipboard.
@@ -184,7 +239,7 @@ public partial class AccountsViewModel : KonkordObservableObject
     /// Validates the username, checks for duplicate accounts, and updates account data.
     /// </summary>
     [RelayCommand]
-    public async Task OfflineLoginAsync()
+    public async Task OfflineLoginAsync(CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(OfflineUsername))
         {
@@ -195,7 +250,7 @@ public partial class AccountsViewModel : KonkordObservableObject
         }
 
         string uuid = GameHelper.GetOfflinePlayerUUID(OfflineUsername);
-        AccountData accountData = await LauncherHelper.GetAccountDataAsync();
+        AccountData accountData = await LauncherHelper.GetAccountDataAsync(cancellationToken);
         var account = accountData.Accounts.FirstOrDefault(x => x.Uuid == uuid);
         if (account != null)
         {
@@ -223,10 +278,10 @@ public partial class AccountsViewModel : KonkordObservableObject
         account.SetRefreshToken("0");
 
         accountData.Accounts.Add(account);
-        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData);
+        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData, cancellationToken);
         GlobalEvents.InvokeAccountsChanged();
-        var settings = await LauncherHelper.GetLauncherSettingsAsync();
-        await SkinService.FetchOfflineSkins(settings.Launcher.CacheDirectoryPath, id, OfflineUsername);
+        var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
+        await SkinService.FetchOfflineSkins(settings.Launcher.CacheDirectoryPath, id, OfflineUsername, cancellationToken);
         
         await CloseWindowInteraction.Handle(Unit.Default);
     }

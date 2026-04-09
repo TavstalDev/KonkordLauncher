@@ -169,6 +169,56 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
                 :
                 TranslationManager.Translate("main.sidebar.version.update.available");*/
     }
+    
+    #region Events
+
+    /// <summary>
+    /// Handles the event when the window is opened. Initializes the Discord RPC client
+    /// and sets the initial presence for the application.
+    /// </summary>
+    /// <param name="e">The event data associated with the window opening.</param>
+    protected override void OnOpened(EventArgs e)
+    {
+        base.OnOpened(e);
+        App.UpdateRPC("Browsing instances...");
+    }
+
+    /// <summary>
+    /// Handles the event when the window is closing. Clears and disposes of the Discord RPC client
+    /// to ensure proper cleanup of resources.
+    /// </summary>
+    /// <param name="e">The event data associated with the window closing.</param>
+    protected override void OnClosing(WindowClosingEventArgs e)
+    {
+        App.ClearRPC();
+        base.OnClosing(e);
+    }
+
+    private void DragStart_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        // Start moving the window when left mouse button is pressed
+        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        {
+            BeginMoveDrag(e);
+        }
+    }
+    
+    /// <summary>
+    /// Handles the selection of a language from a ComboBox and updates the application's language setting.
+    /// </summary>
+    /// <param name="sender">The ComboBox that triggered the event.</param>
+    /// <param name="e">The event data associated with the selection change.</param>
+    private void Language_OnSelected(object? sender, SelectionChangedEventArgs e)
+    {
+        if (DataContext is not { } viewModel)
+            return;
+        
+        if (sender is not ComboBox { SelectedItem: Language selectedLanguage })
+            return;
+        
+        viewModel.CoreConfig.Launcher.Language = selectedLanguage.TwoLetterCode;
+    }
+    #endregion
 
     /// <summary>
     /// Handles the logic for changing the active sidebar section in the main window.
@@ -348,54 +398,4 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
         // Return the local path of the selected folder
         return selectedFolder.Path.LocalPath;
     }
-    
-    #region Event Handlers
-
-    /// <summary>
-    /// Handles the event when the window is opened. Initializes the Discord RPC client
-    /// and sets the initial presence for the application.
-    /// </summary>
-    /// <param name="e">The event data associated with the window opening.</param>
-    protected override void OnOpened(EventArgs e)
-    {
-        base.OnOpened(e);
-        App.UpdateRPC("Browsing instances...");
-    }
-
-    /// <summary>
-    /// Handles the event when the window is closing. Clears and disposes of the Discord RPC client
-    /// to ensure proper cleanup of resources.
-    /// </summary>
-    /// <param name="e">The event data associated with the window closing.</param>
-    protected override void OnClosing(WindowClosingEventArgs e)
-    {
-        App.ClearRPC();
-        base.OnClosing(e);
-    }
-
-    private void DragStart_PointerPressed(object? sender, PointerPressedEventArgs e)
-    {
-        // Start moving the window when left mouse button is pressed
-        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
-        {
-            BeginMoveDrag(e);
-        }
-    }
-    
-    /// <summary>
-    /// Handles the selection of a language from a ComboBox and updates the application's language setting.
-    /// </summary>
-    /// <param name="sender">The ComboBox that triggered the event.</param>
-    /// <param name="e">The event data associated with the selection change.</param>
-    private void Language_OnSelected(object? sender, SelectionChangedEventArgs e)
-    {
-        if (DataContext is not { } viewModel)
-            return;
-        
-        if (sender is not ComboBox { SelectedItem: Language selectedLanguage })
-            return;
-        
-        viewModel.CoreConfig.Launcher.Language = selectedLanguage.TwoLetterCode;
-    }
-    #endregion
 }

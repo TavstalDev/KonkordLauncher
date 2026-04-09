@@ -8,12 +8,11 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
-using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using DynamicData;
 using MinecraftSkinRender;
 using MinecraftSkinRender.Image;
 using ReactiveUI;
@@ -41,12 +40,11 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 /// </summary>
 public partial class MainViewModel : KonkordObservableObject
 {
-    private readonly bool _isInitialized;
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MainViewModel));
-    public bool IsLinux => OSHelper.GetOperatingSystem() == EOperatingSystem.Linux;
+    public Task Initialization { get; }
+    public bool IsLinux { get; } = OSHelper.GetOperatingSystem() == EOperatingSystem.Linux;
 
     #region Interactions
-
     public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
     public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
@@ -65,21 +63,16 @@ public partial class MainViewModel : KonkordObservableObject
     public Interaction<Unit, string?> ShowIconSelectorDialog { get; } = new();
     public Interaction<ESettingsTab, Unit> UpdateSettingsTabButton { get; } = new();
     #endregion
+    
+    [ObservableProperty] private bool _isLoading;
+    [ObservableProperty] private ESidebarType _currentPageIndex = ESidebarType.Play;
+    [ObservableProperty] private ESettingsTab _currentSettingsTab = ESettingsTab.LAUNCHER;
+    public ObservableCollection<InstanceGroup> InstanceGroups { get; } = new();
+    public ObservableCollection<PatchNote> Patches { get; } = new();
 
-    [ObservableProperty] private ESidebarType _currentPageIndex;
-    [ObservableProperty] private ESettingsTab _currentSettingsTab;
-    private readonly SourceCache<InstanceModel, string> _instanceCache = new(x => x.Id);
-    private readonly SourceCache<InstanceGroup, string> _groupCache = new(x => x.GroupName);
-
-    public ReadOnlyObservableCollection<InstanceGroup> InstanceGroups { get; }
     [ObservableProperty] private bool _hasInstances;
-
-    private readonly SourceCache<PatchNote, string> _patchCache = new(x => x.Title);
-    public ReadOnlyObservableCollection<PatchNote> Patches { get; }
     [ObservableProperty] private bool _hasPatches;
-
     [ObservableProperty] private AccountDataModel _accountData;
-
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(AccountName))] [NotifyPropertyChangedFor(nameof(IsMojangAccount))]
     private Account? _selectedAccount;
 
@@ -88,11 +81,10 @@ public partial class MainViewModel : KonkordObservableObject
         : TranslationManager.Translate("main.sidebar.accounts.guest");
     
     public bool IsMojangAccount => SelectedAccount is { Type: EAccountType.MICROSOFT };
+
+    public ObservableCollection<SkinDataModel> Skins { get; } = new();
+    public ObservableCollection<CapeDataModel> Capes { get; } = new();
     
-    private readonly SourceCache<SkinDataModel, string> _skinsCache = new(x => x.Id);
-    public ReadOnlyObservableCollection<SkinDataModel> Skins { get; }
-    private readonly SourceCache<CapeDataModel, string> _capesCache = new(x => x.Id);
-    public ReadOnlyObservableCollection<CapeDataModel> Capes { get; }
     [ObservableProperty] private Bitmap _accountAvatar;
     [ObservableProperty] private Bitmap? _accountSkinPreview;
     [ObservableProperty] private bool _isAccountHasWideModel;
@@ -114,143 +106,16 @@ public partial class MainViewModel : KonkordObservableObject
     /// </summary>
     public MainViewModel()
     {
-        _currentPageIndex = ESidebarType.Play;
-        _currentSettingsTab = ESettingsTab.LAUNCHER;
-        _coreConfig = new CoreConfigModel(LauncherHelper.GetLauncherSettings());
-        _accountData = new AccountDataModel(LauncherHelper.GetAccountData());
-
-        #region Instances
-
-        var groupDisposer = _groupCache.Connect()
-            .ObserveOn(RxApp.MainThreadScheduler)
-            .Bind(out var instanceGroups)
-            .Subscribe();
-        Disposables.Add(groupDisposer);
-        InstanceGroups = instanceGroups;
-
-        string uncategorized = TranslationManager.Translate("main.page.play.uncategorized");
-
-        // Then watch for instance changes and update groups manually
-        var instanceDisposer = _instanceCache.Connect()
-            .Subscribe(changes =>
-            {
-                _logger.Debug($"Processing {changes.Count} instance changes");
-        
-                // Get all unique groups
-                var allGroups = _instanceCache.Items
-                    .Select(x => x.Group ?? uncategorized)
-                    .Distinct()
-                    .ToList();
-        
-                _logger.Debug($"Found {allGroups.Count} groups");
-        
-                // Update group cache
-                _groupCache.Edit(groupCache =>
-                {
-                    // Remove groups that no longer exist
-                    var groupsToRemove = groupCache.Keys.Except(allGroups).ToList();
-                    foreach (var group in groupsToRemove)
-                    {
-                        groupCache.Remove(group);
-                    }
-            
-                    // Add or update groups
-                    foreach (var groupName in allGroups)
-                    {
-                        if (!groupCache.Lookup(groupName).HasValue)
-                        {
-                            groupCache.AddOrUpdate(new InstanceGroup(groupName));
-                        }
-                
-                        var group = groupCache.Lookup(groupName).Value;
-                        var instancesInGroup = _instanceCache.Items
-                            .Where(x => (x.Group ?? uncategorized) == groupName)
-                            .ToList();
-                
-                        // Update instances in group
-                        Dispatcher.UIThread.Post(() =>
-                        {
-                            group.Instances.Clear();
-                            foreach (var instance in instancesInGroup)
-                            {
-                                group.Instances.Add(instance);
-                            }
-                        });
-                    }
-                });
-            });
-        Disposables.Add(instanceDisposer);
-
-        var instanceCountDisposer = _instanceCache.CountChanged
-            .Select(count => count > 0)
-            .ObserveOn(RxApp.MainThreadScheduler)
-            .BindTo(this, x => x.HasInstances);
-        Disposables.Add(instanceCountDisposer);
-
-        var newInstances = LauncherHelper.GetInstances().ConvertAll(x => new InstanceModel(x));
-        _instanceCache.Edit(innerCache =>
+        Initialization = InitAsync();
+        Initialization.ContinueWith(task =>
         {
-            innerCache.Clear();
-            innerCache.AddOrUpdate(newInstances);
-        });
-        _logger.Debug("Initialized instance cache");
-
-        #endregion
-
-        #region Patches
-
-        var patchesDisposer = _patchCache.Connect()
-            .Bind(out var patches)
-            .Subscribe();
-        Disposables.Add(patchesDisposer);
-        Patches = patches;
-
-        var patchesCountDisposer = _patchCache.CountChanged
-            .Select(count => count > 0)
-            .ObserveOn(RxApp.MainThreadScheduler)
-            .BindTo(this, x => x.HasPatches);
-        Disposables.Add(patchesCountDisposer);
-
-        var newPatches = LauncherHelper.GetPatchNotes(_coreConfig.Launcher.CacheDirectoryPath);
-        _patchCache.Edit(innerCache =>
-        {
-            innerCache.Clear();
-            innerCache.AddOrUpdate(newPatches);
-        });
-
-        #endregion
-        
-        #region Skins
-        var skinsDisposer = _skinsCache.Connect()
-            .Bind(out var skins)
-            .Subscribe();
-        Disposables.Add(skinsDisposer);
-        Skins = skins;
-        
-        var capesDisposer = _capesCache.Connect()
-            .Bind(out var capes)
-            .Subscribe();
-        Disposables.Add(capesDisposer);
-        Capes = capes;
-        #endregion
-        
-        Account? selectedAccount = AccountData.Accounts.FirstOrDefault(x => x.Id == AccountData.SelectedAccountId);
-        _selectedAccount = selectedAccount;
-        OnAccountUpdated();
-        
-        // Load LICENSE
-        var assembly = Assembly.GetExecutingAssembly(); 
-        using var stream = assembly.GetManifestResourceStream("Tavstal.KonkordLauncher.Desktop.Assets.LICENSE");
-        using var reader = new StreamReader(stream!);
-        _license = Regex.Replace(reader.ReadToEnd().Trim(), @" {3,}", " ");
-
-        _isInitialized = true;
-        SubscribeToCoreConfigChildren(_coreConfig);
-        SubscribeToAccountDataChildren(_accountData);
-        GlobalEvents.OnAccountsChanged += OnAccountUpdated;
-        GlobalEvents.OnInstancesChanged += HandleInstancesChanged;
+            if (task.IsFaulted)
+                _logger.Error("Initialization failed: " + task.Exception);
+            else
+                _logger.Debug("Initialization completed successfully.");
+        }, TaskScheduler.Default);
     }
-
+    
     /// <summary>
     /// Releases the resources used by the MainViewModel and unsubscribes from global events.
     /// </summary>
@@ -263,27 +128,97 @@ public partial class MainViewModel : KonkordObservableObject
     {
         base.Dispose(disposing);
         GlobalEvents.OnAccountsChanged -= OnAccountUpdated;
-        GlobalEvents.OnInstancesChanged -= HandleInstancesChanged;
+        GlobalEvents.OnInstancesChanged -= OnInstancesChanged;
+    }
+
+    private async Task InitAsync(CancellationToken cancellationToken = default)
+    {
+        IsLoading = true;
+        try
+        {
+            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
+            var accountData = await LauncherHelper.GetAccountDataAsync(cancellationToken);
+
+            CoreConfig = new CoreConfigModel(settings);
+            AccountData = new AccountDataModel(accountData);
+            
+            #region Instances
+
+            var instances = await LauncherHelper.GetInstancesAsync(cancellationToken);
+            var instanceGroups = new Dictionary<string, InstanceGroup>();
+            string uncategorized = TranslationManager.Translate("main.page.play.uncategorized");
+            foreach (var instance in instances)
+            {
+                string key = instance.Group ?? string.Empty;
+                if (instanceGroups.ContainsKey(key))
+                {
+                    instanceGroups[key].Instances.Add(new InstanceModel(instance));
+                }
+                else
+                {
+                    var groupName = instance.Group ?? uncategorized;
+                    var newGroup = new InstanceGroup(groupName);
+                    newGroup.Instances.Add(new InstanceModel(instance));
+                    instanceGroups.Add(key, newGroup);
+                }
+            }
+
+            foreach (var group in instanceGroups.Values)
+                InstanceGroups.Add(group);
+
+            HasInstances = InstanceGroups.Count > 0;
+
+            #endregion
+
+            #region Patches
+
+            var patches =
+                await LauncherHelper.GetPatchNotesAsync(settings.Launcher.CacheDirectoryPath, cancellationToken);
+            foreach (var patch in patches)
+                Patches.Add(new PatchNote(patch.Title, patch.Content, patch.Url));
+
+            HasPatches = Patches.Count > 0;
+            
+            #endregion
+
+            #region Skins
+
+            Account? selectedAccount = AccountData.Accounts.FirstOrDefault(x => x.Id == AccountData.SelectedAccountId);
+            SelectedAccount = selectedAccount;
+
+            #endregion
+            
+            OnAccountUpdated();
+
+            // Load LICENSE
+            var assembly = Assembly.GetExecutingAssembly();
+            await using var stream = assembly.GetManifestResourceStream("Tavstal.KonkordLauncher.Desktop.Assets.LICENSE");
+            using var reader = new StreamReader(stream!);
+            License = Regex.Replace((await reader.ReadToEndAsync(cancellationToken)).Trim(), @" {3,}", " ");
+
+            SubscribeToCoreConfigChildren(CoreConfig);
+            SubscribeToAccountDataChildren(AccountData);
+            GlobalEvents.OnAccountsChanged += OnAccountUpdated;
+            GlobalEvents.OnInstancesChanged += OnInstancesChanged;
+        }
+        finally
+        {
+            IsLoading = false;
+        }
     }
     
     #region Window Commands
     [RelayCommand]
-    public async Task MinimizeWindow()
-    {
-        await MinimizeWindowInteraction.Handle(Unit.Default);
-    }
+    public async Task MinimizeWindow() => await MinimizeWindowInteraction.Handle(Unit.Default);
+    
 
     [RelayCommand]
-    public async Task MaximizeWindow()
-    {
-        await MaximizeWindowInteraction.Handle(Unit.Default);
-    }
+    public async Task MaximizeWindow() => await MaximizeWindowInteraction.Handle(Unit.Default);
+    
 
     [RelayCommand]
-    public async Task CloseWindow()
-    {
-        await CloseWindowInteraction.Handle(Unit.Default);
-    }
+    public async Task CloseWindow() => await CloseWindowInteraction.Handle(Unit.Default);
+    
     #endregion
 
     #region Sidebar Management
@@ -298,20 +233,38 @@ public partial class MainViewModel : KonkordObservableObject
     #endregion
 
     #region Instances Management
-
-    /// <summary>
-    /// Handles changes to the instances collection by updating the cache with the latest instances data.
-    /// Clears the existing cache and adds or updates it with the new instances retrieved from the launcher helper.
-    /// </summary>
-    private void HandleInstancesChanged()
+    
+    private void OnInstancesChanged()
     {
         _logger.Debug("Instances data changed. Updating instances collection.");
-        var newInstances = LauncherHelper.GetInstances().ConvertAll(x => new InstanceModel(x));
-        _instanceCache.Edit(innerCache =>
+        _ = HandleInstancesChangedAsync();
+    }
+
+    private async Task HandleInstancesChangedAsync(CancellationToken cancellationToken = default)
+    {
+        var instances = await LauncherHelper.GetInstancesAsync(cancellationToken);
+        var instanceGroups = new Dictionary<string, InstanceGroup>();
+        string uncategorized = TranslationManager.Translate("main.page.play.uncategorized");
+        foreach (var instance in instances)
         {
-            innerCache.Clear();
-            innerCache.AddOrUpdate(newInstances);
-        });
+            string key = instance.Group ?? string.Empty;
+            if (instanceGroups.ContainsKey(key))
+            {
+                instanceGroups[key].Instances.Add(new InstanceModel(instance));
+            }
+            else
+            {
+                var groupName = instance.Group ?? uncategorized;
+                var newGroup = new InstanceGroup(groupName);
+                newGroup.Instances.Add(new InstanceModel(instance));
+                instanceGroups.Add(key, newGroup);
+            }
+        }
+
+        foreach (var group in instanceGroups.Values)
+            InstanceGroups.Add(group);
+
+        HasInstances = InstanceGroups.Count > 0;
     }
 
     #region Commands
@@ -321,18 +274,16 @@ public partial class MainViewModel : KonkordObservableObject
     /// </summary>
     /// <returns>A task that represents the asynchronous operation.</returns>
     [RelayCommand]
-    private async Task AddInstanceBtnAsync()
-    {
-        await ShowInstanceCreationDialog.Handle(Unit.Default);
-    }
+    private async Task AddInstanceBtnAsync() => await ShowInstanceCreationDialog.Handle(Unit.Default);
 
     /// <summary>
     /// Launches the specified Minecraft instance asynchronously.
     /// </summary>
     /// <param name="instance">The instance model representing the Minecraft instance to launch.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
     [RelayCommand]
-    private async Task LaunchInstance(InstanceModel? instance)
+    private async Task LaunchInstance(InstanceModel? instance, CancellationToken cancellationToken = default)
     {
         if (instance == null)
             return;
@@ -390,13 +341,14 @@ public partial class MainViewModel : KonkordObservableObject
     /// Prompts the user for a new name, validates it, and updates the instance if valid.
     /// </summary>
     /// <param name="instance">The instance model representing the Minecraft instance to rename.</param>
+    ///  <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     [RelayCommand]
-    private async Task RenameInstance(InstanceModel? instance)
+    private async Task RenameInstance(InstanceModel? instance, CancellationToken cancellationToken = default)
     {
         if (instance == null)
             return;
 
-        var instances = await LauncherHelper.GetInstancesAsync();
+        var instances = await LauncherHelper.GetInstancesAsync(cancellationToken);
         var targetInstance = instances.FirstOrDefault(i => i.Id == instance.Id);
         if (targetInstance == null)
             return;
@@ -415,7 +367,7 @@ public partial class MainViewModel : KonkordObservableObject
 
         targetInstance.Name = result;
         instances[index] = targetInstance;
-        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances);
+        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances, cancellationToken);
         GlobalEvents.InvokeInstancesChanged();
     }
 
@@ -424,13 +376,14 @@ public partial class MainViewModel : KonkordObservableObject
     /// Opens an icon selector dialog, validates the selection, and updates the instance if valid.
     /// </summary>
     /// <param name="instance">The instance model representing the Minecraft instance to update the icon for.</param>
+    ///  <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     [RelayCommand]
-    private async Task ChangeInstanceIcon(InstanceModel? instance)
+    private async Task ChangeInstanceIcon(InstanceModel? instance, CancellationToken cancellationToken = default)
     {
         if (instance == null)
             return;
 
-        var instances = await LauncherHelper.GetInstancesAsync();
+        var instances = await LauncherHelper.GetInstancesAsync(cancellationToken);
         var targetInstance = instances.FirstOrDefault(i => i.Id == instance.Id);
         if (targetInstance == null)
             return;
@@ -442,7 +395,7 @@ public partial class MainViewModel : KonkordObservableObject
 
         targetInstance.IconPath = result;
         instances[index] = targetInstance;
-        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances);
+        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances, cancellationToken);
         GlobalEvents.InvokeInstancesChanged();
     }
 
@@ -451,13 +404,14 @@ public partial class MainViewModel : KonkordObservableObject
     /// Prompts the user for a new group name, validates it, and updates the instance if valid.
     /// </summary>
     /// <param name="instance">The instance model representing the Minecraft instance to update the group for.</param>
+    ///  <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     [RelayCommand]
-    private async Task ChangeInstanceGroup(InstanceModel? instance)
+    private async Task ChangeInstanceGroup(InstanceModel? instance, CancellationToken cancellationToken = default)
     {
         if (instance == null)
             return;
 
-        var instances = await LauncherHelper.GetInstancesAsync();
+        var instances = await LauncherHelper.GetInstancesAsync(cancellationToken);
         var targetInstance = instances.FirstOrDefault(i => i.Id == instance.Id);
         if (targetInstance == null)
             return;
@@ -469,7 +423,7 @@ public partial class MainViewModel : KonkordObservableObject
 
         targetInstance.Group = result;
         instances[index] = targetInstance;
-        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances);
+        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances, cancellationToken);
         GlobalEvents.InvokeInstancesChanged();
     }
 
@@ -493,8 +447,9 @@ public partial class MainViewModel : KonkordObservableObject
     /// Exports the specified Minecraft instance in the Konkord format asynchronously.
     /// </summary>
     /// <param name="instance">The instance model representing the Minecraft instance to export.</param>
+    ///  <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     [RelayCommand]
-    private async Task ExportNativeInstance(InstanceModel? instance)
+    private async Task ExportNativeInstance(InstanceModel? instance, CancellationToken cancellationToken = default)
     {
         if (instance == null)
             return;
@@ -504,15 +459,16 @@ public partial class MainViewModel : KonkordObservableObject
             return;
 
         string exportPath = Path.Combine(directoryResult, instance.Name + "-konkord.zip");
-        await InstanceHelper.ExportAsync(instance.getInstance(), exportPath, EInstanceProvider.Konkord);
+        await InstanceHelper.ExportAsync(instance.getInstance(), exportPath, EInstanceProvider.Konkord, cancellationToken);
     }
 
     /// <summary>
     /// Exports the specified Minecraft instance in the Modrinth format asynchronously.
     /// </summary>
     /// <param name="instance">The instance model representing the Minecraft instance to export.</param>
+    ///  <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     [RelayCommand]
-    private async Task ExportModrinthInstance(InstanceModel? instance)
+    private async Task ExportModrinthInstance(InstanceModel? instance, CancellationToken cancellationToken = default)
     {
         if (instance == null)
             return;
@@ -523,15 +479,16 @@ public partial class MainViewModel : KonkordObservableObject
 
         string exportPath = Path.Combine(directoryResult, instance.Name + "-modrinth.mrpack");
 
-        await InstanceHelper.ExportAsync(instance.getInstance(), exportPath, EInstanceProvider.Modrinth);
+        await InstanceHelper.ExportAsync(instance.getInstance(), exportPath, EInstanceProvider.Modrinth, cancellationToken);
     }
 
     /// <summary>
     /// Exports the specified Minecraft instance in the CurseForge format asynchronously.
     /// </summary>
     /// <param name="instance">The instance model representing the Minecraft instance to export.</param>
+    ///  <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     [RelayCommand]
-    private async Task ExportCurseForgeInstance(InstanceModel? instance)
+    private async Task ExportCurseForgeInstance(InstanceModel? instance, CancellationToken cancellationToken = default)
     {
         if (instance == null)
             return;
@@ -542,7 +499,7 @@ public partial class MainViewModel : KonkordObservableObject
 
         string exportPath = Path.Combine(directoryResult, instance.Name + "-curseforge.zip");
 
-        await InstanceHelper.ExportAsync(instance.getInstance(), exportPath, EInstanceProvider.CurseForge);
+        await InstanceHelper.ExportAsync(instance.getInstance(), exportPath, EInstanceProvider.CurseForge, cancellationToken);
     }
 
     /// <summary>
@@ -551,9 +508,10 @@ public partial class MainViewModel : KonkordObservableObject
     /// If confirmed, removes the instance from the list and deletes its associated directory.
     /// </summary>
     /// <param name="instance">The instance model representing the Minecraft instance to delete.</param>
+    ///  <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
     [RelayCommand]
-    private async Task DeleteInstance(InstanceModel? instance)
+    private async Task DeleteInstance(InstanceModel? instance, CancellationToken cancellationToken = default)
     {
         if (instance == null)
             return;
@@ -563,7 +521,7 @@ public partial class MainViewModel : KonkordObservableObject
         if (!result)
             return;
 
-        var instances = await LauncherHelper.GetInstancesAsync();
+        var instances = await LauncherHelper.GetInstancesAsync(cancellationToken);
         var targetInstance = instances.FirstOrDefault(i => i.Id == instance.Id);
         if (targetInstance == null)
             return;
@@ -574,7 +532,7 @@ public partial class MainViewModel : KonkordObservableObject
         if (Directory.Exists(targetInstance.GameDirectory))
             FileSystemHelper.DeleteDirectory(targetInstance.GameDirectory);
         instances.Remove(targetInstance);
-        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances);
+        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances, cancellationToken);
         GlobalEvents.InvokeInstancesChanged();
     }
 
@@ -590,10 +548,8 @@ public partial class MainViewModel : KonkordObservableObject
     /// Opens the account management window to add a new account asynchronously.
     /// </summary>
     [RelayCommand]
-    private async Task AddAccountBtnAsync()
-    {
-        await ShowAccountsDialog.Handle(Unit.Default);
-    }
+    private async Task AddAccountBtnAsync() => await ShowAccountsDialog.Handle(Unit.Default);
+    
 
     /// <summary>
     /// Selects the specified account by its ID and updates the selected account in the application.
@@ -614,8 +570,9 @@ public partial class MainViewModel : KonkordObservableObject
     /// Logs errors if the refresh process fails.
     /// </summary>
     /// <param name="account">The account to refresh.</param>
+    ///  <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     [RelayCommand]
-    private async Task RefreshAccountBtnAsync(Account account)
+    private async Task RefreshAccountBtnAsync(Account account, CancellationToken cancellationToken = default)
     {
         if (!account.CanExpire || string.IsNullOrEmpty(account.GetAccessToken()))
             return;
@@ -626,7 +583,7 @@ public partial class MainViewModel : KonkordObservableObject
         if (account.AccessTokenExpireDate > DateTime.Now)
             return;
 
-        if (!await MicrosoftAuthService.RefreshLoginAsync(account.GetRefreshToken()))
+        if (!await MicrosoftAuthService.RefreshLoginAsync(account.GetRefreshToken(), cancellationToken))
         {
             _logger.Error($"Failed to refresh account {account.DisplayName} ({account.Id}).");
             return;
@@ -642,11 +599,11 @@ public partial class MainViewModel : KonkordObservableObject
         updatedAccount.Id = account.Id; // Ensure the ID remains the same
         _logger.Info($"Successfully refreshed account {account.DisplayName} ({account.Id}).");
 
-        AccountData accountData = await LauncherHelper.GetAccountDataAsync();
+        AccountData accountData = await LauncherHelper.GetAccountDataAsync(cancellationToken);
         var index = accountData.Accounts.FindIndex(x => x.Id == account.Id);
         accountData.Accounts[index] = updatedAccount;
 
-        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData);
+        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData, cancellationToken);
         GlobalEvents.InvokeAccountsChanged();
         MicrosoftAuthService.Reset();
     }
@@ -675,112 +632,104 @@ public partial class MainViewModel : KonkordObservableObject
     /// </summary>
     private void OnAccountUpdated()
     {
-        Dispatcher.UIThread.Invoke(async () =>
+        _ = HandleAccountUpdatedAsync();
+    }
+
+    private async Task HandleAccountUpdatedAsync(CancellationToken cancellationToken = default)
+    {
+        AccountData = new AccountDataModel(await LauncherHelper.GetAccountDataAsync(cancellationToken));
+        Account? selectedAccount = AccountData.Accounts.FirstOrDefault(x => x.Id == AccountData.SelectedAccountId);
+
+        if (SelectedAccount != selectedAccount)
         {
-            AccountData = new AccountDataModel(await LauncherHelper.GetAccountDataAsync());
-            Account? selectedAccount = AccountData.Accounts.FirstOrDefault(x => x.Id == AccountData.SelectedAccountId);
-            
-            if (SelectedAccount != selectedAccount)
+            List<SkinDataModel> skinCopies = Skins.ToList();
+            foreach (SkinDataModel skin in skinCopies)
+                skin.Dispose();
+            Skins.Clear();
+            List<CapeDataModel> capeCopies = Capes.ToList();
+            foreach (CapeDataModel cape in capeCopies)
+                cape.Dispose();
+            Capes.Clear();
+        }
+
+        SelectedAccount = selectedAccount;
+        if (SelectedAccount?.MojangProfile != null)
+        {
+            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
+            string skinsDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins");
+            string capesDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "capes");
+
+            var activeSkin = SelectedAccount.MojangProfile.Skins.FirstOrDefault(x =>
+                x.State.Equals("active", StringComparison.InvariantCultureIgnoreCase));
+
+            foreach (AccountSkin skin in SelectedAccount.Skins)
             {
-                List<SkinDataModel> skinCopies = Skins.ToList();
-                foreach (SkinDataModel skin in skinCopies)
-                    skin.Dispose();
-                _skinsCache.Edit(innerCache =>
-                {
-                    innerCache.Clear();
-                });
-                List<CapeDataModel> capeCopies = Capes.ToList();
-                foreach (CapeDataModel cape in capeCopies)
-                    cape.Dispose();
-                _capesCache.Edit(innerCache =>
-                {
-                    innerCache.Clear();
-                });
-            }
-            SelectedAccount = selectedAccount;
-            if (SelectedAccount?.MojangProfile != null)
-            {
-                var settings = await LauncherHelper.GetLauncherSettingsAsync();
-                string skinsDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins");
-                string capesDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "capes");
-
-                var activeSkin = SelectedAccount.MojangProfile.Skins.FirstOrDefault(x =>
-                    x.State.Equals("active", StringComparison.InvariantCultureIgnoreCase));
-                
-                foreach (AccountSkin skin in SelectedAccount.Skins)
-                {
-                    string path = Path.Combine(skinsDir, SelectedAccount.Id, skin.Id, "preview.png");
-                    Bitmap? img = null;
-                    try
-                    {
-                        img = new  Bitmap(path);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.Error("Failed to load skin image: " + ex);
-                    }
-
-                    bool isActive = skin.MojangId == activeSkin?.Id && activeSkin != null;
-                    _skinsCache.Edit(innerCache =>
-                    {
-                        innerCache.AddOrUpdate(new  SkinDataModel(skin.Id, skin.Model, img, isActive));
-                    });
-                    if (isActive)
-                    {
-                        IsAccountHasWideModel = skin.Model.Equals("classic", StringComparison.InvariantCultureIgnoreCase);
-                        SelectedSkin = skin;
-                        AccountSkinPreview = img;
-                    }
-                }
-
-
-                bool hadActiveCape = false;
-                Bitmap? noCapeImg = null;
+                string path = Path.Combine(skinsDir, SelectedAccount.Id, skin.Id, "preview.png");
+                Bitmap? img = null;
                 try
                 {
-                    noCapeImg = ImageHelper.LoadFromResource(new Uri("avares://Desktop/Assets/Images/placeholders/no_cape.png"));
+                    img = new Bitmap(path);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error("Failed to load skin image: " + ex);
+                }
+
+                bool isActive = skin.MojangId == activeSkin?.Id && activeSkin != null;
+                Skins.Add(new SkinDataModel(skin.Id, skin.Model, img, isActive));
+                if (isActive)
+                {
+                    IsAccountHasWideModel = skin.Model.Equals("classic", StringComparison.InvariantCultureIgnoreCase);
+                    SelectedSkin = skin;
+                    AccountSkinPreview = img;
+                }
+            }
+
+
+            bool hadActiveCape = false;
+            Bitmap? noCapeImg = null;
+            try
+            {
+                noCapeImg = ImageHelper.LoadFromResource(
+                    new Uri("avares://Desktop/Assets/Images/placeholders/no_cape.png"));
+            }
+            catch (Exception ex)
+            {
+                _logger.Error("Failed to load cape image: " + ex);
+            }
+
+            Capes.Add(new CapeDataModel("none", "None", noCapeImg, false));
+            foreach (Cape cape in SelectedAccount.MojangProfile.Capes)
+            {
+                string path = Path.Combine(capesDir, $"{cape.Id}.png");
+                Bitmap? img = null;
+                try
+                {
+                    img = new Bitmap(path);
                 }
                 catch (Exception ex)
                 {
                     _logger.Error("Failed to load cape image: " + ex);
                 }
-                _capesCache.Edit(innerCache =>
-                {
-                    innerCache.AddOrUpdate(new CapeDataModel("none", "None", noCapeImg, false));
-                });
-                foreach (Cape cape in SelectedAccount.MojangProfile.Capes)
-                {
-                    string path = Path.Combine(capesDir, $"{cape.Id}.png");
-                    Bitmap? img = null;
-                    try
-                    {
-                        img = new  Bitmap(path);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.Error("Failed to load cape image: " + ex);
-                    }
-                    bool isActive = cape.State.Equals("active", StringComparison.InvariantCultureIgnoreCase);
-                    _capesCache.Edit(innerCache =>
-                    {
-                        innerCache.AddOrUpdate(new CapeDataModel(cape.Id, cape.Alias, img,  isActive));
-                    });
-                    if (isActive)
-                        hadActiveCape = true;
-                }
 
-                if (!hadActiveCape)
-                    Capes[0].IsSelected = true;
+                bool isActive = cape.State.Equals("active", StringComparison.InvariantCultureIgnoreCase);
+                Capes.Add(new CapeDataModel(cape.Id, cape.Alias, img, isActive));
+                if (isActive)
+                    hadActiveCape = true;
             }
-            UpdateSelectedAccountAvatar();
-        });
+
+            if (!hadActiveCape)
+                Capes[0].IsSelected = true;
+        }
+
+        await UpdateSelectedAccountAvatarAsync(cancellationToken);
     }
-    
-    private void UpdateSelectedAccountAvatar()
+
+    private async Task UpdateSelectedAccountAvatarAsync(CancellationToken cancellationToken = default)
     {
         AccountAvatar?.Dispose();
-        
-        string skinsDir = Path.Combine(LauncherHelper.GetLauncherSettings().Launcher.CacheDirectoryPath, "skins");
+        var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
+        string skinsDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins");
         string? avatarPath;
         if (SelectedAccount != null)
         {
@@ -839,9 +788,9 @@ public partial class MainViewModel : KonkordObservableObject
 
         SubscribeToAccountDataChildren(newValue);
 
-        if (!_isInitialized)
+        if (IsLoading || !Initialization.IsCompletedSuccessfully)
             return;
-        SaveAccountDataToFile(newValue);
+        _ = SaveAccountDataToFileAsync(newValue);
     }
 
     /// <summary>
@@ -852,17 +801,18 @@ public partial class MainViewModel : KonkordObservableObject
     /// <param name="e">The event data containing the name of the changed property.</param>
     private void OnChildAccountDataPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (!_isInitialized)
+        if (IsLoading || !Initialization.IsCompletedSuccessfully)
             return;
         _logger.Debug($"Inner property '{e.PropertyName}' changed on {sender?.GetType().Name}. Saving to file...");
-        SaveAccountDataToFile(AccountData);
+        _ = SaveAccountDataToFileAsync(AccountData);
     }
 
     /// <summary>
     /// Saves the provided AccountDataModel instance to a file in JSON format.
     /// </summary>
     /// <param name="newValue">The AccountDataModel instance to save.</param>
-    private void SaveAccountDataToFile(AccountDataModel newValue)
+    ///  <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    private async Task SaveAccountDataToFileAsync(AccountDataModel newValue, CancellationToken cancellationToken = default)
     {
         var accounts = new AccountData
         {
@@ -885,7 +835,7 @@ public partial class MainViewModel : KonkordObservableObject
             }).ToList()
         };
 
-        JsonHelper.WriteJsonFile(PathHelper.LauncherAccountsPath, accounts);
+        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accounts, cancellationToken);
     }
 
     #endregion
@@ -1036,9 +986,9 @@ public partial class MainViewModel : KonkordObservableObject
 
         SubscribeToCoreConfigChildren(newValue);
 
-        if (!_isInitialized)
+        if (IsLoading || !Initialization.IsCompletedSuccessfully)
             return;
-        SaveCoreConfigToFile(newValue);
+        _ = SaveCoreConfigToFileAsync(newValue);
     }
 
     /// <summary>
@@ -1048,10 +998,10 @@ public partial class MainViewModel : KonkordObservableObject
     /// <param name="e">The event data associated with the property change.</param>
     private void OnChildConfigPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (!_isInitialized)
+        if (IsLoading || !Initialization.IsCompletedSuccessfully)
             return;
         _logger.Debug($"Inner property '{e.PropertyName}' changed on {sender?.GetType().Name}. Saving to file...");
-        SaveCoreConfigToFile(CoreConfig);
+        _ = SaveCoreConfigToFileAsync(CoreConfig);
 
         // Handle theme change
         if (e.PropertyName == nameof(CoreConfig.Launcher.Theme))
@@ -1073,9 +1023,10 @@ public partial class MainViewModel : KonkordObservableObject
     /// Saves the core configuration model to a file, preserving non-observable properties.
     /// </summary>
     /// <param name="newValue">The updated core configuration model to save.</param>
-    private void SaveCoreConfigToFile(CoreConfigModel newValue)
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    private async Task SaveCoreConfigToFileAsync(CoreConfigModel newValue, CancellationToken cancellationToken = default)
     {
-        var oldSettings = LauncherHelper.GetLauncherSettings(); // Fetch to preserve non-observable properties
+        var oldSettings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken); // Fetch to preserve non-observable properties
 
         if (newValue.Java.MinMemory > newValue.Java.MaxMemory)
         {
@@ -1083,9 +1034,9 @@ public partial class MainViewModel : KonkordObservableObject
             newValue.Java.MinMemory = newValue.Java.MaxMemory;
         }
 
-        var settings = new CoreConfig()
+        var settings = new CoreConfig
         {
-            Launcher = new LauncherConfig()
+            Launcher = new LauncherConfig
             {
                 EnableAutomaticUpdates = newValue.Launcher.EnableAutomaticUpdates,
                 UpdateInterval = newValue.Launcher.UpdateInterval,
@@ -1101,7 +1052,7 @@ public partial class MainViewModel : KonkordObservableObject
                 TranslationsDirectoryPath = newValue.Launcher.TranslationsDirectoryPath,
                 VersionsDirectoryPath = newValue.Launcher.VersionsDirectoryPath,
             },
-            Java = new JavaConfig()
+            Java = new JavaConfig
             {
                 MinMemory = newValue.Java.MinMemory,
                 MaxMemory = newValue.Java.MaxMemory,
@@ -1109,7 +1060,7 @@ public partial class MainViewModel : KonkordObservableObject
                 JavaPath = newValue.Java.DefaultJavaPath,
                 JvmArguments = newValue.Java.JvmArguments,
             },
-            Minecraft = new MinecraftConfig()
+            Minecraft = new MinecraftConfig
             {
                 StartMaximized = newValue.Minecraft.StartMaximized,
                 WindowHeight = newValue.Minecraft.WindowHeight,
@@ -1117,7 +1068,7 @@ public partial class MainViewModel : KonkordObservableObject
                 CloseLauncherOnGameStart = newValue.Minecraft.CloseLauncherOnGameStart,
                 CloseLauncherOnGameExit = newValue.Minecraft.CloseLauncherOnGameExit,
             },
-            Misc = new MiscConfig()
+            Misc = new MiscConfig
             {
                 PreLaunchCommand = newValue.Misc.PreLaunchCommand,
                 WrapperCommand = newValue.Misc.WrapperCommand,
@@ -1133,7 +1084,7 @@ public partial class MainViewModel : KonkordObservableObject
             CacheRefreshDate = oldSettings.CacheRefreshDate
         };
 
-        JsonHelper.WriteJsonFile(PathHelper.LauncherConfigPath, settings);
+        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherConfigPath, settings, cancellationToken);
     }
 
     #endregion
@@ -1142,7 +1093,7 @@ public partial class MainViewModel : KonkordObservableObject
     
     #region Skin Management
     [RelayCommand]
-    private async Task SkinUpload()
+    private async Task SkinUpload(CancellationToken  cancellationToken = default)
     {
         try
         {
@@ -1160,7 +1111,7 @@ public partial class MainViewModel : KonkordObservableObject
                 return;
 
             string skinId = Guid.NewGuid().ToString();
-            var settings = await LauncherHelper.GetLauncherSettingsAsync();
+            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
             string skinDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins", SelectedAccount.Id, skinId);
             if (!Directory.Exists(skinDir))
                 Directory.CreateDirectory(skinDir);
@@ -1191,7 +1142,7 @@ public partial class MainViewModel : KonkordObservableObject
     }
 
     [RelayCommand]
-    private async Task SkinSelect(SkinDataModel model)
+    private async Task SkinSelect(SkinDataModel model, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -1205,7 +1156,7 @@ public partial class MainViewModel : KonkordObservableObject
             if (SelectedAccount == null)
                 return;
             
-            var settings = await LauncherHelper.GetLauncherSettingsAsync();
+            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
             string skinPath = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins", SelectedAccount.Id, model.Id, "texture.png");
             if (!File.Exists(skinPath))
             {
@@ -1213,7 +1164,7 @@ public partial class MainViewModel : KonkordObservableObject
                 return;
             }
             
-            MojangProfile? profile = await MojangSkinService.UploadSkin(SelectedAccount.GetAccessToken(), model.Variant, skinPath);
+            MojangProfile? profile = await MojangSkinService.UploadSkin(SelectedAccount.GetAccessToken(), model.Variant, skinPath, cancellationToken);
             if (profile == null)
             {
                 // TODO: Translate
@@ -1224,7 +1175,7 @@ public partial class MainViewModel : KonkordObservableObject
             var newSkin = SelectedAccount.Skins.Find(x => x.Id == model.Id);
             if (SelectedSkin.CapeId != newSkin?.CapeId && newSkin is { CapeId: not null })
             {
-                profile = await MojangSkinService.ShowCape(SelectedAccount.GetAccessToken(), newSkin.CapeId);
+                profile = await MojangSkinService.ShowCape(SelectedAccount.GetAccessToken(), newSkin.CapeId, cancellationToken);
                 if (profile == null)
                 {
                     // TODO: Translate
@@ -1256,7 +1207,7 @@ public partial class MainViewModel : KonkordObservableObject
     }
     
     [RelayCommand]
-    private async Task CapeSelect(CapeDataModel model)
+    private async Task CapeSelect(CapeDataModel model, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -1271,9 +1222,9 @@ public partial class MainViewModel : KonkordObservableObject
 
             MojangProfile? result;
             if (model.Id.Equals("none", StringComparison.InvariantCultureIgnoreCase))
-                result = await MojangSkinService.HideCape(SelectedAccount.GetAccessToken());
+                result = await MojangSkinService.HideCape(SelectedAccount.GetAccessToken(), cancellationToken);
             else
-                result = await MojangSkinService.ShowCape(SelectedAccount.GetAccessToken(), model.Id);
+                result = await MojangSkinService.ShowCape(SelectedAccount.GetAccessToken(), model.Id, cancellationToken);
             
             if (result == null)
             {
@@ -1281,22 +1232,20 @@ public partial class MainViewModel : KonkordObservableObject
                 await ShowAlertDialog.Handle(new Alert("Error", "Failed to change cape.", EAlertType.Error));
                 foreach (CapeDataModel cape in Capes.ToList())
                 {
+                    int index = Capes.IndexOf(cape);
+                    Capes.RemoveAt(index);
                     cape.IsSelected = cape.Id == SelectedSkin.CapeId && SelectedSkin.CapeId != null;
-                    _capesCache.Edit(innerCache =>
-                    {
-                        innerCache.AddOrUpdate(cape);
-                    });
+                    Capes.Insert(index, cape);
                 }
                 return;
             }
 
             foreach (CapeDataModel cape in Capes.ToList())
             {
+                int index = Capes.IndexOf(cape);
+                Capes.RemoveAt(index);
                 cape.IsSelected = cape.Id == SelectedSkin.CapeId && SelectedSkin.CapeId != null;
-                _capesCache.Edit(innerCache =>
-                {
-                    innerCache.AddOrUpdate(cape);
-                });
+                Capes.Insert(index, cape);
             }
 
             int accountIndex = AccountData.Accounts.IndexOf(SelectedAccount);
@@ -1323,7 +1272,7 @@ public partial class MainViewModel : KonkordObservableObject
     }
     
     [RelayCommand]
-    private async Task ModelSelect(string model)
+    private async Task ModelSelect(string model, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -1350,7 +1299,7 @@ public partial class MainViewModel : KonkordObservableObject
                 return;
             }
 
-            MojangProfile? result = await MojangSkinService.ChangeSkin(SelectedAccount.GetAccessToken(), model, skin.Url);
+            MojangProfile? result = await MojangSkinService.ChangeSkin(SelectedAccount.GetAccessToken(), model, skin.Url, cancellationToken);
             if (result == null)
             {
                 // TODO: Translate

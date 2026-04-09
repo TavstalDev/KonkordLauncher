@@ -86,6 +86,7 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
         MicrosoftAuthService.OnAuthStatusChanged += OnAuthStatusChanged;
     }
 
+    #region Events
     /// <summary>
     /// Handles the cleanup and resource deallocation when the window is closing.
     /// Unsubscribes from events and stops any active listeners to ensure proper disposal.
@@ -106,6 +107,7 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
         if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
             BeginMoveDrag(e);
     }
+    #endregion
 
     /// <summary>
     /// Asynchronously sets the specified text to the system clipboard.
@@ -163,71 +165,21 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
     /// <param name="status">The new authentication status.</param>
     private void OnAuthStatusChanged(EAuthStatus status)
     {
-        Dispatcher.UIThread.Invoke(async () =>
+        Dispatcher.UIThread.Invoke(() =>
         {
             if (DataContext == null)
                 return;
-            
-            _logger.Debug($"Microsoft Status result: {MicrosoftAuthService.AuthStatus}");
-            if (MicrosoftAuthService.AuthStatus == EAuthStatus.FAILED)
-            {
-                DataContext.IsLoggingInMicrosoftAccount = false;
-                AlertWindow alertWindow = new(TranslationManager.Translate("account.login.failed"),
-                    TranslationManager.Translate("account.login.microsoft.failed"),
-                    EAlertType.Error);
-                await alertWindow.ShowDialog(this);
-                return;
-            }
-
-            if (MicrosoftAuthService.AuthStatus != EAuthStatus.SUCCESS)
-                return;
-
-            var microsoftAccount = MicrosoftAuthService.Account;
-            if (microsoftAccount == null)
-            {
-                AlertWindow alertWindow = new(TranslationManager.Translate("account.login.failed"),
-                    TranslationManager.Translate("account.login.microsoft.null"),
-                    EAlertType.Error);
-                await alertWindow.ShowDialog(this);
-                DataContext.StopMicrosoftAuth();
-                return;
-            }
-
-            AccountData accountData = await LauncherHelper.GetAccountDataAsync();
-            var account = accountData.Accounts.FirstOrDefault(x => x.Uuid == microsoftAccount.Uuid);
-            if (account != null)
-            {
-                AlertWindow alertWindow = new(TranslationManager.Translate("account.duplicate"),
-                    TranslationManager.Translate("account.duplicate.microsoft"),
-                    EAlertType.Error);
-                await alertWindow.ShowDialog(this);
-                DataContext.StopMicrosoftAuth();
-                return;
-            }
-
-            if (string.IsNullOrEmpty(accountData.SelectedAccountId))
-                accountData.SelectedAccountId = microsoftAccount.Id;
-            accountData.Accounts.Add(microsoftAccount);
-            var settings = await LauncherHelper.GetLauncherSettingsAsync();
-            await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData);
-            
-            foreach (var skin in microsoftAccount.Skins) 
-                await SkinService.FetchSkins(settings.Launcher.CacheDirectoryPath, microsoftAccount.Id, microsoftAccount.Uuid, skin);
-            await SkinService.FetchCapes(settings.Launcher.CacheDirectoryPath, microsoftAccount.MojangProfile?.Capes ?? []);
-            
-            GlobalEvents.InvokeAccountsChanged();
-            MicrosoftAuthService.Reset(); 
-            Close();
+            DataContext.OnAuthStatusChange(status);
         });
     }
-    
+
     #region Progress Reporter
 
     /// <summary>
     /// Updates the progress value in the associated view model.
     /// </summary>
     /// <param name="progress">The progress value to set, typically between 0 and 1.</param>
-    public void SetProgress(double progress)
+    public void ReportProgress(double progress)
     {
         Dispatcher.UIThread.Post(() =>
         {
@@ -242,7 +194,7 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
     /// Updates the status text in the associated view model.
     /// </summary>
     /// <param name="status">The status message to display.</param>
-    public void SetStatus(string status)
+    public void UpdateStatus(string status)
     {
         Dispatcher.UIThread.Post(() =>
         {
@@ -256,18 +208,28 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
     /// <summary>
     /// Updates the status text in the associated view model using a translated string.
     /// </summary>
-    /// <param name="statusKey">The translation key for the status message.</param>
+    /// <param name="key">The translation key for the status message.</param>
     /// <param name="args">Optional arguments to format the translated string.</param>
-    public void SetStatusTranslated(string statusKey, params object[]? args)
+    public void UpdateStatusTranslated(string key, params object[]? args)
     {
         Dispatcher.UIThread.Post(() =>
         {
             if (DataContext == null)
                 return;
 
-            DataContext.ProgressText = TranslationManager.Translate(statusKey, args);
+            DataContext.ProgressText = TranslationManager.Translate(key, args);
         });
     }
+    
+    /// <summary>
+    /// Opens or displays the progress reporter UI for this view model.
+    /// </summary>
+    public void OpenReporter() { /* unused */ } 
+    
+    /// <summary>
+    /// Closes or hides the progress reporter UI for this view model.
+    /// </summary>
+    public void CloseReporter() { /* unused */ }
 
     #endregion
 }

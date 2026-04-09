@@ -9,7 +9,7 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
     public new TViewModel? DataContext
     {
         get => (TViewModel?)base.DataContext;
-        set => base.DataContext = value;
+        init => base.DataContext = value;
     }
     
     protected override void OnClosing(WindowClosingEventArgs e)

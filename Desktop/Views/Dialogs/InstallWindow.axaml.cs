@@ -78,7 +78,7 @@ public partial class InstallWindow : KonkordWindow<InstallViewModel>, IProgressR
     /// Updates the progress value in the associated view model.
     /// </summary>
     /// <param name="progress">The progress value to set, typically a percentage (0-100).</param>
-    public void SetProgress(double progress)
+    public void ReportProgress(double progress)
     {
         Dispatcher.UIThread.Post(() =>
         {
@@ -92,7 +92,7 @@ public partial class InstallWindow : KonkordWindow<InstallViewModel>, IProgressR
     /// Updates the status text in the associated view model.
     /// </summary>
     /// <param name="status">The status message to display.</param>
-    public void SetStatus(string status)
+    public void UpdateStatus(string status)
     {
         Dispatcher.UIThread.Post(() =>
         {
@@ -105,16 +105,26 @@ public partial class InstallWindow : KonkordWindow<InstallViewModel>, IProgressR
     /// <summary>
     /// Updates the status text in the associated view model using a translated string.
     /// </summary>
-    /// <param name="statusKey">The translation key for the status message.</param>
+    /// <param name="key">The translation key for the status message.</param>
     /// <param name="args">Optional arguments to format the translated message.</param>
-    public void SetStatusTranslated(string statusKey, params object[]? args)
+    public void UpdateStatusTranslated(string key, params object[]? args)
     {
         Dispatcher.UIThread.Post(() =>
         {
             if (DataContext == null)
                 return;
-            DataContext.ProgressText = TranslationManager.Translate(statusKey, args);
+            DataContext.ProgressText = TranslationManager.Translate(key, args);
         });
     }
+    
+    /// <summary>
+    /// Opens or displays the progress reporter UI for this view model.
+    /// </summary>
+    public void OpenReporter() { /* unused */ } 
+    
+    /// <summary>
+    /// Closes or hides the progress reporter UI for this view model.
+    /// </summary>
+    public void CloseReporter() { /* unused */ }
     #endregion
 }

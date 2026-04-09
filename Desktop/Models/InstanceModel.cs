@@ -618,14 +618,14 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     /// Sets the progress value for the installation window. If the window is not open, it will be shown.
     /// </summary>
     /// <param name="progress">The progress value to set, typically between 0.0 and 1.0.</param>
-    public void SetProgress(double progress)
+    public void ReportProgress(double progress)
     {
         Dispatcher.UIThread.Post(() =>
         {
             if (_instanceInstallWindow == null)
-                Show();
+                OpenReporter();
 
-            _instanceInstallWindow?.SetProgress(progress);
+            _instanceInstallWindow?.ReportProgress(progress);
         });
     }
 
@@ -633,37 +633,37 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     /// Sets the status message for the installation window. If the window is not open, it will be shown.
     /// </summary>
     /// <param name="status">The status message to display.</param>
-    public void SetStatus(string status)
+    public void UpdateStatus(string status)
     {
         Dispatcher.UIThread.Post(() =>
         {
             if (_instanceInstallWindow == null)
-                Show();
+                OpenReporter();
 
-            _instanceInstallWindow?.SetStatus(status);
+            _instanceInstallWindow?.UpdateStatus(status);
         });
     }
 
     /// <summary>
     /// Sets a translated status message for the installation window. If the window is not open, it will be shown.
     /// </summary>
-    /// <param name="statusKey">The translation key for the status message.</param>
+    /// <param name="key">The translation key for the status message.</param>
     /// <param name="args">Optional arguments to format the translated message.</param>
-    public void SetStatusTranslated(string statusKey, params object[]? args)
+    public void UpdateStatusTranslated(string key, params object[]? args)
     {
         Dispatcher.UIThread.Post(() =>
         {
             if (_instanceInstallWindow == null)
-                Show();
+                OpenReporter();
 
-            _instanceInstallWindow?.SetStatusTranslated(statusKey, args);
+            _instanceInstallWindow?.UpdateStatusTranslated(key, args);
         });
     }
 
     /// <summary>
     /// Displays the installation window as a modal dialog. If the window is already open, this method does nothing.
     /// </summary>
-    public void Show()
+    public void OpenReporter()
     {
         Dispatcher.UIThread.Post(() =>
         {
@@ -678,7 +678,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     /// <summary>
     /// Hides the installation window if it is currently open.
     /// </summary>
-    public void Hide()
+    public void CloseReporter()
     {
         Dispatcher.UIThread.Post(() =>
         {

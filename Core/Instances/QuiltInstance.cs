@@ -31,7 +31,7 @@ public class QuiltInstance(
     /// <returns>A task that represents the asynchronous operation. The task result contains the modded data if successful, or null if an error occurs.</returns>
     protected override async Task<ModdedData?> InstallModdedAsync(string tempDir, CancellationToken cancellationToken = default)
     {
-        _progressReporter?.SetStatusTranslated("instance.reading.manifest");
+        _progressReporter?.UpdateStatusTranslated("instance.reading.manifest");
         if (!File.Exists(PathDetails.CustomManifestPath))
         {
             _logger.Error("Quilt manifest file not found at path: " + PathDetails.CustomManifestPath);
@@ -60,7 +60,7 @@ public class QuiltInstance(
             progress.ProgressChanged += (_, e) =>
             {
                 //_progressReporter?.SetProgress(e);
-                _progressReporter?.SetStatusTranslated("instance.downloading.version_json", "quilt", e.ToString("0.00"));
+                _progressReporter?.UpdateStatusTranslated("instance.downloading.version_json", "quilt", e.ToString("0.00"));
             };
 
             string quiltVersionJsonUrl = string.Format(QuiltEndpoints.LoaderJsonUrl, quiltVersion.MinecraftVersion,
@@ -73,7 +73,7 @@ public class QuiltInstance(
             await File.WriteAllTextAsync(quiltVersion.VersionJsonPath, resultJson);
 
             // Add the libraries
-            _progressReporter?.SetStatusTranslated("instance.reading.version_json");
+            _progressReporter?.UpdateStatusTranslated("instance.reading.version_json");
             quiltVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(resultJson);
             int localLibrarySize = 0;
             if (quiltVersionMeta == null)
@@ -93,7 +93,7 @@ public class QuiltInstance(
         }
         else
         {
-            _progressReporter?.SetStatusTranslated("instance.reading.version_json");
+            _progressReporter?.UpdateStatusTranslated("instance.reading.version_json");
             quiltVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(await File.ReadAllTextAsync(quiltVersion.VersionJsonPath));
             if (quiltVersionMeta == null)
             {
@@ -120,7 +120,7 @@ public class QuiltInstance(
             progress.ProgressChanged += (_, e) =>
             {
                 //_progressReporter?.SetProgress(e);
-                _progressReporter?.SetStatusTranslated("instance.downloading.loader", "quilt", e.ToString("0.00"));
+                _progressReporter?.UpdateStatusTranslated("instance.downloading.loader", "quilt", e.ToString("0.00"));
             };
             _logger.Debug("Downloading quilt loader jar...");
             await HttpHelper.DownloadFileAsync(string.Format(QuiltEndpoints.LoaderJarUrl, quiltVersion.CustomVersion), loaderJarPath, progress);

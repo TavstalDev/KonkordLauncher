@@ -55,7 +55,7 @@ public class ForgeClassicInstance(string forgeVersionName,
             Progress<double> progress = new Progress<double>();
             progress.ProgressChanged += (_, e) =>
             {
-                _progressReporter?.SetStatusTranslated("instance.downloading.installer", "forge",
+                _progressReporter?.UpdateStatusTranslated("instance.downloading.installer", "forge",
                     e.ToString("0.00"));
             };
        
@@ -64,7 +64,7 @@ public class ForgeClassicInstance(string forgeVersionName,
                 progress);
        
             // Extract Installer
-            _progressReporter?.SetStatusTranslated("instance.extracting.installer", "forge");
+            _progressReporter?.UpdateStatusTranslated("instance.extracting.installer", "forge");
             ZipFile.ExtractToDirectory(installerJarPath, installerDir);
             
             // Move install_profile.json
@@ -152,9 +152,9 @@ public class ForgeClassicInstance(string forgeVersionName,
                 });
             }
             
-            _progressReporter?.SetStatusTranslated("instance.reading.libraries");
+            _progressReporter?.UpdateStatusTranslated("instance.reading.libraries");
             // Add launch arguments
-            _progressReporter?.SetStatusTranslated("instance.building.arguments");
+            _progressReporter?.UpdateStatusTranslated("instance.building.arguments");
             // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
             if (forgeVersionMeta.MinecraftArguments != null)
             {

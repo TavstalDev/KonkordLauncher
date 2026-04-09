@@ -9,28 +9,28 @@ public interface IProgressReporter
     /// Sets the progress value.
     /// </summary>
     /// <param name="progress">The progress value as a double, typically between 0.0 and 1.0.</param>
-    void SetProgress(double progress);
+    void ReportProgress(double progress);
 
     /// <summary>
     /// Sets the status message.
     /// </summary>
     /// <param name="status">The status message to display.</param>
-    void SetStatus(string status);
+    void UpdateStatus(string status);
 
     /// <summary>
     /// Sets the status message using a translation key and optional arguments.
     /// </summary>
-    /// <param name="statusKey">The translation key for the status message.</param>
+    /// <param name="key">The translation key for the status message.</param>
     /// <param name="args">Optional arguments for formatting the status message.</param>
-    void SetStatusTranslated(string statusKey, params object[]? args);
+    void UpdateStatusTranslated(string key, params object[]? args);
 
     /// <summary>
     /// Displays the progress reporter.
     /// </summary>
-    void Show();
+    void OpenReporter();
 
     /// <summary>
     /// Hides the progress reporter.
     /// </summary>
-    void Hide();
+    void CloseReporter();
 }

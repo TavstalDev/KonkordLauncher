@@ -141,7 +141,7 @@ public static class ValidationHelper
     {
         try
         {
-            using var httpClient = HttpHelper.GetHttpClient();
+            var httpClient = HttpHelper.GetHttpClient();
             var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
             bool refreshManifests = DateTime.Now > settings.CacheRefreshDate;
             
@@ -151,7 +151,7 @@ public static class ValidationHelper
                 Progress<double> progress = new Progress<double>();
                 progress.ProgressChanged += (_, e) =>
                 {
-                    progressReporter?.SetStatusTranslated("startup.validation.manifests.download", "minecraft", e.ToString("0.00"));
+                    progressReporter?.UpdateStatusTranslated("startup.validation.manifests.download", "minecraft", e.ToString("0.00"));
                 };
                 await HttpHelper.DownloadFileAsync(MicrosoftEndpoints.MinecraftManifestUrl, settings.Launcher.GetVanillaManifestPath(), progress, cancellationToken);
             }
@@ -164,7 +164,7 @@ public static class ValidationHelper
                 Progress<double> progress = new Progress<double>();
                 progress.ProgressChanged += (_, e) =>
                 {
-                    progressReporter?.SetStatusTranslated("startup.validation.manifests.download", "fabric", e.ToString("0.00"));
+                    progressReporter?.UpdateStatusTranslated("startup.validation.manifests.download", "fabric", e.ToString("0.00"));
                 };
                 await HttpHelper.DownloadFileAsync(FabricEndpoints.VersionManifestUrl, settings.Launcher.GetFabricManifestPath(), progress, cancellationToken);
             }
@@ -260,7 +260,7 @@ public static class ValidationHelper
                 Progress<double> progress = new Progress<double>();
                 progress.ProgressChanged += (_, e) =>
                 {
-                    progressReporter?.SetStatusTranslated("startup.validation.manifests.download", "quilt", e.ToString("0.00"));
+                    progressReporter?.UpdateStatusTranslated("startup.validation.manifests.download", "quilt", e.ToString("0.00"));
                 };
                 await HttpHelper.DownloadFileAsync(QuiltEndpoints.VersionManifestUrl, settings.Launcher.GetQuiltManifestPath(), progress, cancellationToken);
             }

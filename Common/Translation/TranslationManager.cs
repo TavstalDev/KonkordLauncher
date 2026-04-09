@@ -46,11 +46,11 @@ public static class TranslationManager
 
         try
         {
-            progressReporter?.SetStatus("Initializing translations...");
+            progressReporter?.UpdateStatus("Initializing translations...");
             _initialized = true;
             var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
 
-            progressReporter?.SetStatus("Reading current translations...");
+            progressReporter?.UpdateStatus("Reading current translations...");
             string locale = settings.Launcher.Language;
             string localePath = Path.Combine(settings.Launcher.TranslationsDirectoryPath, $"{locale}.json");
             if (File.Exists(localePath))
@@ -59,7 +59,7 @@ public static class TranslationManager
                 if (localTranslations == null)
                 {
                     _logger.Error("Failed to read local translation file.");
-                    progressReporter?.SetStatus($"Failed to read '{locale}.json' translation file.");
+                    progressReporter?.UpdateStatus($"Failed to read '{locale}.json' translation file.");
                     return;
                 }
 
@@ -72,7 +72,7 @@ public static class TranslationManager
             if (languagePack == null)
             {
                 _logger.Warn("Language pack not found for the current locale.");
-                progressReporter?.SetStatus($"Language pack not found for '{locale}' locale.");
+                progressReporter?.UpdateStatus($"Language pack not found for '{locale}' locale.");
                 return;
             }
 
@@ -80,7 +80,7 @@ public static class TranslationManager
             if (resultJson == null)
             {
                 _logger.Warn("Failed to fetch translations from the URL.");
-                progressReporter?.SetStatus($"Failed to fetch translations from '{languagePack.Url}'.");
+                progressReporter?.UpdateStatus($"Failed to fetch translations from '{languagePack.Url}'.");
                 return;
             }
 
@@ -88,13 +88,13 @@ public static class TranslationManager
             if (translation == null)
             {
                 _logger.Error("Failed to deserialize translations from the URL.");
-                progressReporter?.SetStatus($"Failed to deserialize translations from '{languagePack.Url}'.");
+                progressReporter?.UpdateStatus($"Failed to deserialize translations from '{languagePack.Url}'.");
                 return;
             }
 
             _currentLanguage = locale;
             _translations = translation;
-            progressReporter?.SetStatus("Saving translations...");
+            progressReporter?.UpdateStatus("Saving translations...");
             await SaveTranslationAsync(localePath, translation);
         }
         catch (Exception ex)

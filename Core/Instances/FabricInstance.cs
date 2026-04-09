@@ -31,7 +31,7 @@ public class FabricInstance(
     /// <returns>A task that represents the asynchronous operation. The task result contains the modded data if successful, or null if an error occurs.</returns>
     protected override async Task<ModdedData?> InstallModdedAsync(string tempDir, CancellationToken cancellationToken = default)
     {
-        _progressReporter?.SetStatusTranslated("instance.reading.manifest");
+        _progressReporter?.UpdateStatusTranslated("instance.reading.manifest");
         if (!File.Exists(PathDetails.CustomManifestPath))
         {
             _logger.Error("Fabric manifest file not found at path: " + PathDetails.CustomManifestPath);
@@ -60,7 +60,7 @@ public class FabricInstance(
             progress.ProgressChanged += (_, e) =>
             {
                 //_progressReporter?.SetProgress(e);
-                _progressReporter?.SetStatusTranslated("instance.downloading.version_json", "fabric", e.ToString("0.00"));
+                _progressReporter?.UpdateStatusTranslated("instance.downloading.version_json", "fabric", e.ToString("0.00"));
             };
 
             string fabricVersionJsonUrl = string.Format(FabricEndpoints.LoaderJsonUrl, fabricVersion.MinecraftVersion,
@@ -73,7 +73,7 @@ public class FabricInstance(
             await File.WriteAllTextAsync(fabricVersion.VersionJsonPath, resultJson);
 
             // Add the libraries
-            _progressReporter?.SetStatusTranslated("instance.reading.version_json");
+            _progressReporter?.UpdateStatusTranslated("instance.reading.version_json");
             fabricVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(resultJson);
             int localLibrarySize = 0;
             if (fabricVersionMeta == null)
@@ -93,7 +93,7 @@ public class FabricInstance(
         }
         else
         {
-            _progressReporter?.SetStatusTranslated("instance.reading.version_json");
+            _progressReporter?.UpdateStatusTranslated("instance.reading.version_json");
             fabricVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(await File.ReadAllTextAsync(fabricVersion.VersionJsonPath));
             if (fabricVersionMeta == null)
             {
@@ -120,7 +120,7 @@ public class FabricInstance(
             progress.ProgressChanged += (_, e) =>
             {
                 //_progressReporter?.SetProgress(e);
-                _progressReporter?.SetStatusTranslated("instance.downloading.loader", "fabric", e.ToString("0.00"));
+                _progressReporter?.UpdateStatusTranslated("instance.downloading.loader", "fabric", e.ToString("0.00"));
             };
             _logger.Debug("Downloading fabric loader jar...");
             await HttpHelper.DownloadFileAsync(string.Format(FabricEndpoints.LoaderJarUrl, fabricVersion.CustomVersion), loaderJarPath, progress);

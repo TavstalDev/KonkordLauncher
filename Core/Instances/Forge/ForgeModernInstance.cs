@@ -47,7 +47,7 @@ public class ForgeModernInstance(
             Progress<double> progress = new Progress<double>();
             progress.ProgressChanged += (_, e) =>
             {
-                _progressReporter?.SetStatusTranslated("instance.downloading.installer", "forge",
+                _progressReporter?.UpdateStatusTranslated("instance.downloading.installer", "forge",
                     e.ToString("0.00"));
             };
        
@@ -56,7 +56,7 @@ public class ForgeModernInstance(
                 progress);
        
             // Extract Installer
-            _progressReporter?.SetStatusTranslated("instance.extracting.installer", "forge");
+            _progressReporter?.UpdateStatusTranslated("instance.extracting.installer", "forge");
             ZipFile.ExtractToDirectory(installerJarPath, installerDir);
             
             // Move install_profile.json
@@ -95,7 +95,7 @@ public class ForgeModernInstance(
             throw new FileNotFoundException("Failed to get the forge install profile meta.");
         
         // Install Libraries From Install Profile
-        _progressReporter?.SetStatusTranslated("instance.reading.libraries");
+        _progressReporter?.UpdateStatusTranslated("instance.reading.libraries");
         foreach (var libMeta in installProfile.Libraries)
         {
             if (libMeta.Downloads.Artifact == null)
@@ -124,7 +124,7 @@ public class ForgeModernInstance(
             Progress<double> libProgress = new Progress<double>();
             libProgress.ProgressChanged += (_, e) =>
             {
-                _progressReporter?.SetStatusTranslated("instance.downloading.libraries", libMeta.Name,
+                _progressReporter?.UpdateStatusTranslated("instance.downloading.libraries", libMeta.Name,
                     e.ToString("0.00"));
             };
 
@@ -132,7 +132,7 @@ public class ForgeModernInstance(
         }
 
         // Map and start processors
-        _progressReporter?.SetStatusTranslated("instance.building", "forge", 0);
+        _progressReporter?.UpdateStatusTranslated("instance.building", "forge", 0);
         if (File.Exists(installerJarPath))
             await MapAndStartProcessors(installProfile, installerDir);
         
@@ -141,7 +141,7 @@ public class ForgeModernInstance(
             File.Copy(forgeVersion.VanillaJarPath, forgeVersion.VersionJarPath);
 
         // Add launch arguments
-        _progressReporter?.SetStatusTranslated("instance.building.arguments");
+        _progressReporter?.UpdateStatusTranslated("instance.building.arguments");
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (forgeVersionMeta.Arguments != null)
         {

@@ -43,7 +43,7 @@ public class ForgeEarlyInstance(string forgeVersionName, string universalName,
             Progress<double> progress = new Progress<double>();
             progress.ProgressChanged += (_, e) =>
             {
-                _progressReporter?.SetStatusTranslated("instance.downloading.installer", "forge",
+                _progressReporter?.UpdateStatusTranslated("instance.downloading.installer", "forge",
                     e.ToString("0.00"));
             };
        

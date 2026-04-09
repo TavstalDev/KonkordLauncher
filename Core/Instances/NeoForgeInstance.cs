@@ -46,7 +46,7 @@ public class NeoForgeInstance(
             Progress<double> progress = new Progress<double>();
             progress.ProgressChanged += (_, e) =>
             {
-                _progressReporter?.SetStatusTranslated("instance.downloading.installer", "neoforge",
+                _progressReporter?.UpdateStatusTranslated("instance.downloading.installer", "neoforge",
                     e.ToString("0.00"));
             };
        
@@ -55,7 +55,7 @@ public class NeoForgeInstance(
                 progress);
        
             // Extract Installer
-            _progressReporter?.SetStatusTranslated("instance.extracting.installer", "neoforge");
+            _progressReporter?.UpdateStatusTranslated("instance.extracting.installer", "neoforge");
             ZipFile.ExtractToDirectory(installerJarPath, installerDir);
             
             // Move install_profile.json
@@ -112,7 +112,7 @@ public class NeoForgeInstance(
             throw new FileNotFoundException("Failed to get the neoforge install profile meta.");
         
         // Install Libraries From Install Profile
-        _progressReporter?.SetStatusTranslated("instance.reading.libraries");
+        _progressReporter?.UpdateStatusTranslated("instance.reading.libraries");
         foreach (var libMeta in installProfile.Libraries)
         {
             if (libMeta.Downloads.Artifact == null)
@@ -141,7 +141,7 @@ public class NeoForgeInstance(
             Progress<double> libProgress = new Progress<double>();
             libProgress.ProgressChanged += (_, e) =>
             {
-                _progressReporter?.SetStatusTranslated("instance.downloading.libraries", libMeta.Name,
+                _progressReporter?.UpdateStatusTranslated("instance.downloading.libraries", libMeta.Name,
                     e.ToString("0.00"));
             };
 
@@ -149,7 +149,7 @@ public class NeoForgeInstance(
         }
 
         // Map and start processors
-        _progressReporter?.SetStatusTranslated("instance.building", "neoforge", 0);
+        _progressReporter?.UpdateStatusTranslated("instance.building", "neoforge", 0);
         if (File.Exists(installerJarPath))
             await MapAndStartProcessors(installProfile, installerDir);
         
@@ -164,7 +164,7 @@ public class NeoForgeInstance(
         }
 
         // Add launch arguments
-        _progressReporter?.SetStatusTranslated("instance.building.arguments");
+        _progressReporter?.UpdateStatusTranslated("instance.building.arguments");
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (forgeVersionMeta.Arguments != null)
         {

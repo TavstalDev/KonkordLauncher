@@ -15,6 +15,7 @@ public static class LauncherHelper
     /// If the file does not exist or is invalid, a new configuration is created and saved.
     /// </summary>
     /// <returns>The launcher settings as a <see cref="CoreConfig"/> object.</returns>
+    [Obsolete("This method is synchronous and may cause UI freezes. Use GetLauncherSettingsAsync instead.")]
     public static CoreConfig GetLauncherSettings()
     {
         if (!File.Exists(PathHelper.LauncherConfigPath))
@@ -67,6 +68,7 @@ public static class LauncherHelper
     /// If the file does not exist or is invalid, a new account data configuration is created and saved.
     /// </summary>
     /// <returns>The account data as an <see cref="AccountData"/> object.</returns>
+    [Obsolete("This method is synchronous and may cause UI freezes. Use GetAccountDataAsync instead.")]
     public static AccountData GetAccountData()
     {
         if (!File.Exists(PathHelper.LauncherAccountsPath))
@@ -131,6 +133,7 @@ public static class LauncherHelper
     /// This method is not yet implemented.
     /// </summary>
     /// <returns>A list of <see cref="Instance"/> objects.</returns>
+    [Obsolete("This method is synchronous and may cause UI freezes. Use GetInstancesAsync instead.")]
     public static List<Instance> GetInstances()
     {
         if (!File.Exists(PathHelper.LauncherInstancesPath))
@@ -184,14 +187,14 @@ public static class LauncherHelper
     /// </summary>
     /// <param name="cacheDir">The directory where the GitHub cache file is located.</param>
     /// <returns>A list of <see cref="PatchNote"/> objects containing the patch notes.</returns>
-    public static List<PatchNote> GetPatchNotes(string cacheDir)
+    public static async Task<List<PatchNote>> GetPatchNotesAsync(string cacheDir, CancellationToken cancellationToken = default)
     {
         string githubFilePath = Path.Combine(cacheDir, "github_cache.json");
         if (!File.Exists(githubFilePath))
             return [];
 
         List<PatchNote> result = [];
-        string rawJson = File.ReadAllText(githubFilePath);
+        string rawJson = await File.ReadAllTextAsync(githubFilePath, cancellationToken);
         JArray jArray = JArray.Parse(rawJson);
         foreach (var patchNote in jArray)
         {

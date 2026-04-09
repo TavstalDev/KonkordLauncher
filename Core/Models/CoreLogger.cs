@@ -73,6 +73,7 @@ public class CoreLogger
                 catch (Exception ex)
                 {
                     Console.WriteLine($"[Logger Error] Logging failed: {ex.Message}");
+                    Console.WriteLine($"[Logger Error] Failed log entry: {logEntry}");
                 }
             }
         }

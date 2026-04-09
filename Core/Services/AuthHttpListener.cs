@@ -18,7 +18,7 @@ public static class AuthHttpListener
     /// <summary>
     /// Starts the HTTP listener to handle incoming authentication requests.
     /// </summary>
-    public static async Task StartListening(IProgressReporter? progressReporter = null)
+    public static async Task StartListening(IProgressReporter? progressReporter = null, CancellationToken cancellationToken = default)
     {
         _progressReporter = progressReporter;
         
@@ -49,7 +49,7 @@ public static class AuthHttpListener
         while (_isListening)
         {
             HttpListenerContext context = await _httpListener.GetContextAsync(); // get te context 
-            await HandleHttpRequestAsync(context);
+            await HandleHttpRequestAsync(context, cancellationToken);
         }
     }
     
@@ -75,7 +75,7 @@ public static class AuthHttpListener
     /// Handles an incoming HTTP request and processes it based on the request URL.
     /// </summary>
     /// <param name="context">The HTTP context containing the request and response.</param>
-    private static async Task HandleHttpRequestAsync(HttpListenerContext context)
+    private static async Task HandleHttpRequestAsync(HttpListenerContext context, CancellationToken cancellationToken = default)
     {
         if (context.Request.RawUrl == null)
             return;
@@ -90,7 +90,7 @@ public static class AuthHttpListener
 
         if (context.Request.RawUrl.StartsWith("/microsoft/authcallback"))
         {
-            await CloseBrowserAsync(context);
+            await CloseBrowserAsync(context, cancellationToken);
             _progressReporter?.SetStatusTranslated("auth.listener.callback");
             await MicrosoftAuthService.HandleHttpRequestAsync(context.Request, _progressReporter);
             return;
@@ -98,12 +98,12 @@ public static class AuthHttpListener
 
         if (context.Request.RawUrl.StartsWith("/cancel"))
         {
-            await CloseBrowserAsync(context);
+            await CloseBrowserAsync(context, cancellationToken);
             return;
         }
 
         // Send Browser response
-        await CloseBrowserAsync(context);
+        await CloseBrowserAsync(context, cancellationToken);
     }
 
     /// <summary>
@@ -111,7 +111,7 @@ public static class AuthHttpListener
     /// and the browser window can be closed.
     /// </summary>
     /// <param name="context">The HTTP context containing the response to send.</param>
-    private static async Task CloseBrowserAsync(HttpListenerContext context)
+    private static async Task CloseBrowserAsync(HttpListenerContext context, CancellationToken cancellationToken = default)
     {
         const string responseString = @"
                     <!DOCTYPE html>
@@ -131,7 +131,7 @@ public static class AuthHttpListener
         HttpListenerResponse response = context.Response;
         response.ContentType = "text/html";
         response.ContentLength64 = buffer.Length;
-        await response.OutputStream.WriteAsync(buffer, 0, buffer.Length);
+        await response.OutputStream.WriteAsync(buffer, 0, buffer.Length, cancellationToken);
         response.Close();
     }
 }

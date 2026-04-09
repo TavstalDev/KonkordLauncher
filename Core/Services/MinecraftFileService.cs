@@ -27,12 +27,12 @@ public static class MinecraftFileService
     /// <param name="deserialize">A function to deserialize the file content into the specified type.</param>
     /// <returns>The deserialized object of type <typeparamref name="T"/> or null if the operation fails.</returns>
     private static async Task<T?> DownloadAndSaveFileAsync<T>(string filePath, string url, string statusKey,
-        IProgressReporter? progressReporter, Func<string, T?> deserialize)
+        IProgressReporter? progressReporter, Func<string, T?> deserialize, CancellationToken cancellationToken = default)
     {
         if (File.Exists(filePath))
         {
             progressReporter?.SetStatusTranslated($"instance.reading.{statusKey}", Path.GetFileName(filePath));
-            string jsonResult = await File.ReadAllTextAsync(filePath);
+            string jsonResult = await File.ReadAllTextAsync(filePath, cancellationToken);
             return deserialize(jsonResult);
         }
 
@@ -45,13 +45,13 @@ public static class MinecraftFileService
                 e.ToString("0.00"));
         };
 
-        string? result = await HttpHelper.GetStringAsync(url, progress);
+        string? result = await HttpHelper.GetStringAsync(url, progress, cancellationToken);
         if (result == null)
             return default;
 
         T? deserializedResult = deserialize(result);
         if (deserializedResult != null)
-            await File.WriteAllTextAsync(filePath, result);
+            await File.WriteAllTextAsync(filePath, result, cancellationToken);
 
         return deserializedResult;
     }
@@ -65,7 +65,7 @@ public static class MinecraftFileService
     /// <param name="progressReporter">An optional progress reporter for tracking download progress.</param>
     /// <returns>A byte array containing the file content or null if the operation fails.</returns>
     private static async Task DownloadAndSaveBinaryFileAsync(string filePath, string url, string statusKey,
-        IProgressReporter? progressReporter)
+        IProgressReporter? progressReporter, CancellationToken cancellationToken = default)
     {
         if (File.Exists(filePath))
         {
@@ -82,7 +82,7 @@ public static class MinecraftFileService
                 e.ToString("0.00"));
         };
 
-        await HttpHelper.DownloadFileAsync(url, filePath, progress);
+        await HttpHelper.DownloadFileAsync(url, filePath, progress, cancellationToken);
     }
 
     /// <summary>
@@ -93,7 +93,7 @@ public static class MinecraftFileService
     /// <param name="progressReporter">An optional progress reporter for tracking download progress.</param>
     /// <returns>The deserialized version metadata or null if the operation fails.</returns>
     public static async Task<VersionMeta?> DownloadVersionAsync(VersionDetails versionData,
-        MinecraftVersion minecraftVersion, IProgressReporter? progressReporter = null)
+        MinecraftVersion minecraftVersion, IProgressReporter? progressReporter = null, CancellationToken cancellationToken = default)
     {
         // JSON
         var versionResult = await DownloadAndSaveFileAsync(
@@ -101,7 +101,7 @@ public static class MinecraftFileService
             minecraftVersion.Url,
             "version_json",
             progressReporter,
-            JsonConvert.DeserializeObject<VersionMeta>);
+            JsonConvert.DeserializeObject<VersionMeta>, cancellationToken);
 
         if (versionResult == null) return null;
 
@@ -110,7 +110,7 @@ public static class MinecraftFileService
             versionData.VersionJarPath,
             versionResult.Downloads.Client.Url,
             "version_jar",
-            progressReporter);
+            progressReporter, cancellationToken);
 
         // Create default JavaVersionMeta if null
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
@@ -131,7 +131,7 @@ public static class MinecraftFileService
     /// <param name="gameDir">The directory where the game files are stored.</param>
     /// <param name="progressReporter">An optional progress reporter for tracking download progress.</param>
     public static async Task DownloadAssetsAsync(VersionMeta versionMeta, string assetsDir, string gameDir,
-        IProgressReporter? progressReporter = null)
+        IProgressReporter? progressReporter = null, CancellationToken cancellationToken = default)
     {
         // AssetIndex
         string assetIndexId = versionMeta.Index.Id;
@@ -142,7 +142,7 @@ public static class MinecraftFileService
             versionMeta.Index.Url,
             "asset_index_json",
             progressReporter,
-            json => json); // Deserialize to string, then parse JObject
+            json => json, cancellationToken); // Deserialize to string, then parse JObject
 
         if (resultJson == null) return;
 
@@ -192,7 +192,7 @@ public static class MinecraftFileService
                     if (File.Exists(objectPath))
                         continue;
                     
-                    await semaphore.WaitAsync();
+                    await semaphore.WaitAsync(cancellationToken);
                     var t = Task.Run(async () =>
                     {
                         try
@@ -200,8 +200,7 @@ public static class MinecraftFileService
                             await HttpHelper.DownloadFileAsync(
                                 $"{MicrosoftEndpoints.MinecraftResourcesUrl}/{hash[..2]}/{hash}",
                                 objectPath,
-                                null
-                            );
+                                null, cancellationToken);
                             
                             if (fileName.Contains("icon") || (objectDir != null && objectDir.Contains("icon")))
                             {
@@ -227,7 +226,7 @@ public static class MinecraftFileService
                         {
                             semaphore.Release();
                         }
-                    });
+                    }, cancellationToken);
                     tasks.Add(t);
                 }
                 
@@ -259,7 +258,7 @@ public static class MinecraftFileService
                     if (File.Exists(objectPath))
                         continue;
                     
-                    await semaphore.WaitAsync();
+                    await semaphore.WaitAsync(cancellationToken);
                     var t = Task.Run(async () =>
                     {
                         try
@@ -267,8 +266,7 @@ public static class MinecraftFileService
                             await HttpHelper.DownloadFileAsync(
                                 $"{MicrosoftEndpoints.MinecraftResourcesUrl}/{hash[..2]}/{hash}",
                                 objectPath,
-                                null
-                            );
+                                null, cancellationToken);
 
                             var sizeToken = token.First?["size"];
                             var size = sizeToken != null ? int.Parse(sizeToken.ToString()) : 0;
@@ -282,7 +280,7 @@ public static class MinecraftFileService
                         {
                             semaphore.Release();
                         }
-                    });
+                    }, cancellationToken);
                     tasks.Add(t);
                 }
                 break;
@@ -308,7 +306,7 @@ public static class MinecraftFileService
                     if (File.Exists(objectPath))
                         continue;
                     
-                    await semaphore.WaitAsync();
+                    await semaphore.WaitAsync(cancellationToken);
                     var t = Task.Run(async () =>
                     {
                         try
@@ -316,8 +314,7 @@ public static class MinecraftFileService
                             await HttpHelper.DownloadFileAsync(
                                 $"{MicrosoftEndpoints.MinecraftResourcesUrl}/{hash[..2]}/{hash}",
                                 objectPath,
-                                null
-                            );
+                                null, cancellationToken);
 
                             var sizeToken = token.First?["size"];
                             var size = sizeToken != null ? int.Parse(sizeToken.ToString()) : 0;
@@ -331,7 +328,7 @@ public static class MinecraftFileService
                         {
                             semaphore.Release();
                         }
-                    });
+                    }, cancellationToken);
                     tasks.Add(t);
                 }
                 break;
@@ -349,7 +346,7 @@ public static class MinecraftFileService
     /// <param name="progressReporter">An optional progress reporter for tracking download progress.</param>
     /// <returns>A launch argument for the logging configuration or null if the operation fails.</returns>
     public static async Task<LaunchArg?> DownloadLoggingAsync(VersionMeta versionMeta, string versionDirectory,
-        string gameDir, IProgressReporter? progressReporter = null)
+        string gameDir, IProgressReporter? progressReporter = null, CancellationToken cancellationToken = default)
     {
         if (versionMeta.LoggingMeta is not { Client: not null }) return null;
         
@@ -360,7 +357,7 @@ public static class MinecraftFileService
             versionMeta.LoggingMeta.Client.File.Url,
             "logging",
             progressReporter,
-            json => json); // Deserialize to string
+            json => json, cancellationToken); // Deserialize to string
 
         if (logContent == null) return null;
 
@@ -369,7 +366,7 @@ public static class MinecraftFileService
             .Replace("fileName=\"logs", $"fileName=\"{gameDir}/logs")
             .Replace("filePattern=\"logs", $"filePattern=\"{gameDir}/logs");
 
-        await File.WriteAllTextAsync(logFilePath, modifiedContent);
+        await File.WriteAllTextAsync(logFilePath, modifiedContent, cancellationToken);
 
         return new LaunchArg(versionMeta.LoggingMeta.Client.Argument.Replace("${path}", logFilePath), 2);
     }
@@ -410,7 +407,7 @@ public static class MinecraftFileService
     /// <returns>A tuple containing the updated classpath and a list of native libraries.</returns>
     public static async Task<List<string>> DownloadLibrariesAsync(
         EMinecraftKind kind, VersionDetails versionData, List<LibraryMeta> mcLibs,
-        List<string> classPath, string cacheDir, string libsDir, IProgressReporter? progressReporter = null)
+        List<string> classPath, string cacheDir, string libsDir, IProgressReporter? progressReporter = null, CancellationToken cancellationToken = default)
     {
         progressReporter?.SetProgress(0);
         progressReporter?.SetStatusTranslated("instance.reading.libraries");
@@ -430,10 +427,10 @@ public static class MinecraftFileService
                 .Sum(lib => lib.Downloads.Artifact?.Size ?? 0);
 
             await File.WriteAllTextAsync(librarySizeCacheFilePath,
-                overallLibrarySize.ToString(CultureInfo.InvariantCulture));
+                overallLibrarySize.ToString(CultureInfo.InvariantCulture), cancellationToken);
         }
         else
-            overallLibrarySize = long.Parse(await File.ReadAllTextAsync(librarySizeCacheFilePath), CultureInfo.InvariantCulture);
+            overallLibrarySize = long.Parse(await File.ReadAllTextAsync(librarySizeCacheFilePath, cancellationToken), CultureInfo.InvariantCulture);
         
         var semaphore = new SemaphoreSlim(MaxParallelDownloads);
         long downloadedBytes = 0;
@@ -462,14 +459,14 @@ public static class MinecraftFileService
             if (hasNewerVersion)
                 continue;
             
-            await semaphore.WaitAsync();
+            await semaphore.WaitAsync(cancellationToken);
             var t = Task.Run(async () =>
             {
                 try
                 {
                     if (lib.Downloads.Artifact != null)
                     {
-                        var libFilePath = await DownloadLibraryArtifactAsync(lib, libsDir, progressReporter);
+                        var libFilePath = await DownloadLibraryArtifactAsync(lib, libsDir, progressReporter, cancellationToken);
                         Interlocked.Add(ref downloadedBytes, lib.Downloads.Artifact.Size);
                         
                         if (!string.IsNullOrEmpty(libFilePath) && !classPath.Contains(libFilePath))
@@ -480,7 +477,7 @@ public static class MinecraftFileService
                     {
                         var classifier = lib.Downloads.Classifiers.GetOsNative();
                         var libJarFilePath = Path.Combine(libsDir, classifier.Path);
-                        await DownloadNativeFileAsync(classifier.Url, libJarFilePath, lib.Name, versionData.NativesDir, progressReporter);
+                        await DownloadNativeFileAsync(classifier.Url, libJarFilePath, lib.Name, versionData.NativesDir, progressReporter, cancellationToken);
                         Interlocked.Add(ref downloadedBytes, classifier.Size);
                         
                         if (!string.IsNullOrEmpty(libJarFilePath) && !classPath.Contains(libJarFilePath))
@@ -492,7 +489,7 @@ public static class MinecraftFileService
                     progressReporter?.SetProgress(downloadedBytes / (double)overallLibrarySize * 100d);
                     semaphore.Release();
                 }
-            });
+            }, cancellationToken);
             tasks.Add(t);
         }
         await Task.WhenAll(tasks);
@@ -507,7 +504,7 @@ public static class MinecraftFileService
     /// <param name="progressReporter">An optional progress reporter for tracking download progress.</param>
     /// <returns>The file path of the downloaded library.</returns>
     private static async Task<string> DownloadLibraryArtifactAsync(
-        LibraryMeta lib, string libsDir, IProgressReporter? progressReporter)
+        LibraryMeta lib, string libsDir, IProgressReporter? progressReporter, CancellationToken cancellationToken = default)
     {
         if (lib.Downloads.Artifact == null)
             return string.Empty;
@@ -526,7 +523,7 @@ public static class MinecraftFileService
                 progressReporter?.SetStatusTranslated("instance.downloading.libraries", lib.Name, e.ToString("0.00"));
             };
 
-            await HttpHelper.DownloadFileAsync(lib.Downloads.Artifact.Url, libFilePath, progress);
+            await HttpHelper.DownloadFileAsync(lib.Downloads.Artifact.Url, libFilePath, progress, cancellationToken);
         }
 
         return libFilePath;
@@ -542,7 +539,7 @@ public static class MinecraftFileService
     /// <param name="nativeDir">The directory where the extracted native files will be stored.</param>
     /// <param name="progressReporter">An optional progress reporter for tracking download progress.</param>
     private static async Task DownloadNativeFileAsync(
-        string url, string filePath, string libName, string nativeDir, IProgressReporter? progressReporter)
+        string url, string filePath, string libName, string nativeDir, IProgressReporter? progressReporter, CancellationToken cancellationToken = default)
     {
         string libDir = Path.GetDirectoryName(filePath)!;
         Directory.CreateDirectory(libDir);
@@ -560,7 +557,7 @@ public static class MinecraftFileService
             progressReporter?.SetStatusTranslated("instance.downloading.natives", libName, e.ToString("0.00"));
         };
 
-        await HttpHelper.DownloadFileAsync(url, filePath, progress);
+        await HttpHelper.DownloadFileAsync(url, filePath, progress, cancellationToken);
         ExtractNativeFiles(filePath,nativeDir);
     }
     

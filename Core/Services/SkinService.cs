@@ -24,7 +24,7 @@ public static class SkinService
     /// <param name="skinUrl">Optional URL of the skin.</param>
     /// <param name="enableCape">Indicates whether the cape should be included in the render.</param>
     /// <returns>A byte array containing the skin image, or null if the operation fails.</returns>
-    public static async Task<byte[]?> GetFullSkinAsync(string username, string? skinUrl = null, bool enableCape = true)
+    public static async Task<byte[]?> GetFullSkinAsync(string username, string? skinUrl = null, bool enableCape = true, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -33,7 +33,7 @@ public static class SkinService
             if (skinUrl != null)
                 requestUrl += $"&skinUrl={skinUrl}";
 
-            return await HttpHelper.GetByteArrayAsync(requestUrl);
+            return await HttpHelper.GetByteArrayAsync(requestUrl, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -49,13 +49,13 @@ public static class SkinService
     /// <param name="cacheDir">The directory where skins are cached.</param>
     /// <param name="accountId">The account ID associated with the skin.</param>
     /// <param name="name">The username of the player.</param>
-    public static async Task FetchOfflineSkins(string cacheDir, string accountId, string name)
+    public static async Task FetchOfflineSkins(string cacheDir, string accountId, string name, CancellationToken cancellationToken = default)
     {
         try
         {
             // Check if there is already a skin for this username
             byte[]? profileResult = await HttpHelper.GetByteArrayAsync(
-                $"https://api.minecraftservices.com/minecraft/profile/lookup/name/{name}");
+                $"https://api.minecraftservices.com/minecraft/profile/lookup/name/{name}", cancellationToken);
             if (profileResult == null)
                 return;
 
@@ -76,7 +76,7 @@ public static class SkinService
             {
                 string? textureResult =
                     await HttpHelper.GetStringAsync(
-                        $"https://sessionserver.mojang.com/session/minecraft/profile/{uuid}");
+                        $"https://sessionserver.mojang.com/session/minecraft/profile/{uuid}", cancellationToken);
                 if (textureResult == null)
                 {
                     _logger.Warn("Failed to download skin texture for UUID: " + uuid);
@@ -100,14 +100,14 @@ public static class SkinService
                     return;
                 }
 
-                byte[]? skinData = await HttpHelper.GetByteArrayAsync(skinUrl);
+                byte[]? skinData = await HttpHelper.GetByteArrayAsync(skinUrl, cancellationToken);
                 if (skinData == null)
                 {
                     _logger.Warn("Failed to download skin data for UUID: " + uuid);
                     return;
                 }
 
-                await File.WriteAllBytesAsync(texturePath, skinData);
+                await File.WriteAllBytesAsync(texturePath, skinData, cancellationToken);
             }
 
             await using var skinStream = File.OpenRead(texturePath);
@@ -135,7 +135,7 @@ public static class SkinService
     /// <param name="accountId">The account ID associated with the skin.</param>
     /// <param name="uuid">The UUID of the player.</param>
     /// <param name="skin">The skin details.</param>
-    public static async Task FetchSkins(string cacheDir, string accountId, string uuid, AccountSkin skin)
+    public static async Task FetchSkins(string cacheDir, string accountId, string uuid, AccountSkin skin, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -153,7 +153,7 @@ public static class SkinService
             {
                 string? textureResult =
                     await HttpHelper.GetStringAsync(
-                        $"https://sessionserver.mojang.com/session/minecraft/profile/{uuid}");
+                        $"https://sessionserver.mojang.com/session/minecraft/profile/{uuid}", cancellationToken);
                 if (textureResult == null)
                 {
                     _logger.Warn("Failed to download skin texture for UUID: " + uuid);
@@ -177,14 +177,7 @@ public static class SkinService
                     return;
                 }
 
-                byte[]? skinData = await HttpHelper.GetByteArrayAsync(skinUrl);
-                if (skinData == null)
-                {
-                    _logger.Warn("Failed to download skin data for UUID: " + uuid);
-                    return;
-                }
-
-                await File.WriteAllBytesAsync(texturePath, skinData);
+                await HttpHelper.DownloadFileAsync(skinUrl, texturePath, null, cancellationToken);
             }
 
             await using var skinStream = File.OpenRead(texturePath);
@@ -216,7 +209,7 @@ public static class SkinService
     /// </summary>
     /// <param name="cacheDir">The directory where capes are cached.</param>
     /// <param name="capes">The list of capes to fetch.</param>
-    public static async Task FetchCapes(string cacheDir, List<Cape> capes)
+    public static async Task FetchCapes(string cacheDir, List<Cape> capes, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -229,7 +222,7 @@ public static class SkinService
 
             foreach (Cape cape in capes)
             {
-                await semaphore.WaitAsync();
+                await semaphore.WaitAsync(cancellationToken);
                 Task t = Task.Run(async () =>
                 {
                     try
@@ -238,7 +231,7 @@ public static class SkinService
                         if (File.Exists(capePath))
                             return;
 
-                        var capeBytes = await HttpHelper.GetByteArrayAsync(cape.Url);
+                        var capeBytes = await HttpHelper.GetByteArrayAsync(cape.Url, cancellationToken);
                         if (capeBytes == null)
                         {
                             _logger.Warn("Failed to download cape image for cape ID: " + cape.Id);
@@ -253,7 +246,7 @@ public static class SkinService
                     {
                         semaphore.Release();
                     }
-                });
+                }, cancellationToken);
                 tasks.Add(t);
             }
 
@@ -274,7 +267,7 @@ public static class SkinService
     /// <param name="username">The username of the player.</param>
     /// <param name="skinId">The ID of the skin.</param>
     /// <param name="isWide">Indicates whether the skin is wide.</param>
-    public static async Task FetchPreviewSkin(string cacheDir, string uuid, string username, string? skinId, bool isWide)
+    public static async Task FetchPreviewSkin(string cacheDir, string uuid, string username, string? skinId, bool isWide, CancellationToken cancellationToken = default)
     {
         string skinsDir = Path.Combine(cacheDir, "skins", uuid);
         if (!Directory.Exists(skinsDir))
@@ -286,8 +279,8 @@ public static class SkinService
         if (File.Exists(skinPath))
             return;
 
-        byte[]? skinResult = await GetFullSkinAsync(username, enableCape: showCape);
+        byte[]? skinResult = await GetFullSkinAsync(username, enableCape: showCape, cancellationToken: cancellationToken);
         if (skinResult != null)
-            await File.WriteAllBytesAsync(skinPath, skinResult);
+            await File.WriteAllBytesAsync(skinPath, skinResult, cancellationToken);
     }
 }

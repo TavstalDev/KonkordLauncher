@@ -39,7 +39,7 @@ public static class TranslationManager
     /// Initializes the translations by loading them from local files or remote sources.
     /// </summary>
     /// <param name="progressReporter">Optional progress reporter to update the status during initialization.</param>
-    public static async Task InitializeTranslations(IProgressReporter? progressReporter = null)
+    public static async Task InitializeTranslations(IProgressReporter? progressReporter = null, CancellationToken cancellationToken = default)
     {
         if (_initialized)
             return;
@@ -48,7 +48,7 @@ public static class TranslationManager
         {
             progressReporter?.SetStatus("Initializing translations...");
             _initialized = true;
-            var settings = await LauncherHelper.GetLauncherSettingsAsync();
+            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
 
             progressReporter?.SetStatus("Reading current translations...");
             string locale = settings.Launcher.Language;
@@ -76,7 +76,7 @@ public static class TranslationManager
                 return;
             }
 
-            string? resultJson = await HttpHelper.GetStringAsync(languagePack.Url);
+            string? resultJson = await HttpHelper.GetStringAsync(languagePack.Url, cancellationToken);
             if (resultJson == null)
             {
                 _logger.Warn("Failed to fetch translations from the URL.");
@@ -127,11 +127,11 @@ public static class TranslationManager
     /// A task that represents the asynchronous operation. The task result contains a boolean value:
     /// true if the language file exists or was successfully created, otherwise false.
     /// </returns>
-    public static async Task<bool> EnsureLanguageFileExistsAsync(string language)
+    public static async Task<bool> EnsureLanguageFileExistsAsync(string language, CancellationToken cancellationToken = default)
     {
         try
         {
-            var settings = await LauncherHelper.GetLauncherSettingsAsync();
+            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
             string localePath = Path.Combine(settings.Launcher.TranslationsDirectoryPath, $"{language}.json");
             if (File.Exists(localePath))
                 return true;
@@ -143,7 +143,7 @@ public static class TranslationManager
                 return false;
             }
 
-            string? resultJson = await HttpHelper.GetStringAsync(languagePack.Url);
+            string? resultJson = await HttpHelper.GetStringAsync(languagePack.Url, cancellationToken);
             if (resultJson == null)
             {
                 _logger.Warn("Failed to fetch translations from the URL.");
@@ -172,11 +172,11 @@ public static class TranslationManager
     /// </summary>
     /// <param name="path">The file path to the translation file.</param>
     /// <returns>A dictionary of translations or null if an error occurs.</returns>
-    public static async Task<Dictionary<string, string>?> ReadTranslationAsync(string path)
+    public static async Task<Dictionary<string, string>?> ReadTranslationAsync(string path, CancellationToken cancellationToken = default)
     {
         try
         {
-            var result = await JsonHelper.ReadJsonFileAsync<Dictionary<string, string>>(path);
+            var result = await JsonHelper.ReadJsonFileAsync<Dictionary<string, string>>(path, cancellationToken);
             return result ?? new Dictionary<string, string>();
         }
         catch (Exception ex)
@@ -193,11 +193,11 @@ public static class TranslationManager
     /// <param name="path">The file path to save the translation file.</param>
     /// <param name="translation">The dictionary of translations to save.</param>
     /// <returns>True if the file was saved successfully, otherwise false.</returns>
-    public static async Task<bool> SaveTranslationAsync(string path, Dictionary<string, string> translation)
+    public static async Task<bool> SaveTranslationAsync(string path, Dictionary<string, string> translation, CancellationToken cancellationToken = default)
     {
         try
         {
-            return await JsonHelper.WriteJsonFileAsync(path, translation);
+            return await JsonHelper.WriteJsonFileAsync(path, translation, cancellationToken);
         }
         catch (Exception ex)
         {

@@ -29,7 +29,7 @@ public class FabricInstance(
     /// </summary>
     /// <param name="tempDir">The temporary directory used during installation.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the modded data if successful, or null if an error occurs.</returns>
-    protected override async Task<ModdedData?> InstallModdedAsync(string tempDir)
+    protected override async Task<ModdedData?> InstallModdedAsync(string tempDir, CancellationToken cancellationToken = default)
     {
         _progressReporter?.SetStatusTranslated("instance.reading.manifest");
         if (!File.Exists(PathDetails.CustomManifestPath))

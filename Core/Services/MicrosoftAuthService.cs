@@ -120,7 +120,7 @@ public static class MicrosoftAuthService
     /// </summary>
     /// <param name="request">The HTTP request containing the authentication data.</param>
     /// <param name="progressReporter">An optional progress reporter for tracking the authentication process.</param>
-    public static async Task HandleHttpRequestAsync(HttpListenerRequest request, IProgressReporter? progressReporter = null)
+    public static async Task HandleHttpRequestAsync(HttpListenerRequest request, IProgressReporter? progressReporter = null, CancellationToken cancellationToken = default)
     {
         _authStatus = EAuthStatus.PENDING;
         OnAuthStatusChanged?.Invoke(_authStatus);
@@ -165,7 +165,7 @@ public static class MicrosoftAuthService
             var requestContent = new FormUrlEncodedContent(requestParams);
 
             HttpClient client = HttpHelper.GetHttpClient();
-            var response = await client.PostAsync(requestUrl, requestContent).ConfigureAwait(false);
+            var response = await client.PostAsync(requestUrl, requestContent, cancellationToken).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -175,7 +175,7 @@ public static class MicrosoftAuthService
                 return;
             }
             
-            var responseString = await response.Content.ReadAsStringAsync();
+            var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
             JObject obj = JObject.Parse(responseString);
             if (!obj.TryGetValue("access_token", out var value))
             {
@@ -194,7 +194,7 @@ public static class MicrosoftAuthService
             }
            
             // Proceed with the token
-            await XboxTokenCallAsync(value.ToString(), refreshToken.ToString());
+            await XboxTokenCallAsync(value.ToString(), refreshToken.ToString(), cancellationToken);
         }
         catch (Exception ex)
         {
@@ -213,7 +213,7 @@ public static class MicrosoftAuthService
     /// <returns>
     /// A <see cref="DeviceCodeResult"/> object containing the device code details if successful; otherwise, null.
     /// </returns>
-    public static async Task<DeviceCodeResult?> CreateDeviceCodeAsync(IProgressReporter? progressReporter = null)
+    public static async Task<DeviceCodeResult?> CreateDeviceCodeAsync(IProgressReporter? progressReporter = null, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -228,9 +228,9 @@ public static class MicrosoftAuthService
             var formContent = new FormUrlEncodedContent(parameters);
 
             HttpClient client = HttpHelper.GetHttpClient();
-            var result = await client.PostAsync(MicrosoftEndpoints.MicrosoftDeviceUrl, formContent);
+            var result = await client.PostAsync(MicrosoftEndpoints.MicrosoftDeviceUrl, formContent, cancellationToken);
             
-            var rawJson = await result.Content.ReadAsStringAsync();
+            var rawJson = await result.Content.ReadAsStringAsync(cancellationToken);
            return JsonConvert.DeserializeObject<DeviceCodeResult>(rawJson);
         }
         catch (Exception ex)
@@ -248,7 +248,7 @@ public static class MicrosoftAuthService
     /// Sends a request to the Microsoft device token endpoint with the device code and client ID.
     /// </summary>
     /// <param name="deviceCode">The device code to check.</param>
-    public static async Task CheckDeviceCodeAsync(string deviceCode)
+    public static async Task CheckDeviceCodeAsync(string deviceCode, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -263,9 +263,9 @@ public static class MicrosoftAuthService
             var formContent = new FormUrlEncodedContent(parameters);
 
             HttpClient client = HttpHelper.GetHttpClient();
-            var response = await client.PostAsync(MicrosoftEndpoints.MicrosoftDeviceTokenUrl, formContent);
+            var response = await client.PostAsync(MicrosoftEndpoints.MicrosoftDeviceTokenUrl, formContent, cancellationToken);
             
-            var responseString = await response.Content.ReadAsStringAsync();
+            var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
             JObject obj = JObject.Parse(responseString);
             if (!obj.TryGetValue("access_token", out var value))
                 return;
@@ -273,7 +273,7 @@ public static class MicrosoftAuthService
             if (!obj.TryGetValue("refresh_token", out var refreshToken))
                 return;
             
-            await XboxTokenCallAsync(value.ToString(), refreshToken.ToString());
+            await XboxTokenCallAsync(value.ToString(), refreshToken.ToString(), cancellationToken);
         }
         catch (Exception ex)
         {
@@ -289,7 +289,7 @@ public static class MicrosoftAuthService
     /// </summary>
     /// <param name="token">The Microsoft access token used for authentication.</param>
     /// <param name="refreshToken">The refresh token to be used for subsequent authentication steps.</param>
-    private static async Task XboxTokenCallAsync(string token, string refreshToken)
+    private static async Task XboxTokenCallAsync(string token, string refreshToken, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -314,9 +314,9 @@ public static class MicrosoftAuthService
                 );
 
             HttpClient client = HttpHelper.GetHttpClient();
-            var result = await client.PostAsync(MicrosoftEndpoints.XboxAuthUrl, reqContent).ConfigureAwait(false);
+            var result = await client.PostAsync(MicrosoftEndpoints.XboxAuthUrl, reqContent, cancellationToken).ConfigureAwait(false);
             
-            JObject resultObj = JObject.Parse(await result.Content.ReadAsStringAsync());
+            JObject resultObj = JObject.Parse(await result.Content.ReadAsStringAsync(cancellationToken));
             if (!resultObj.TryGetValue("Token", out var value))
             {
                 _logger.Error("Token not found in the Xbox authentication response.");
@@ -325,7 +325,7 @@ public static class MicrosoftAuthService
                 return;
             }
             
-            await XboxXstsCallAsync(value.ToString(), refreshToken);
+            await XboxXstsCallAsync(value.ToString(), refreshToken, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -341,7 +341,7 @@ public static class MicrosoftAuthService
     /// </summary>
     /// <param name="token">The Xbox authentication token.</param>
     /// <param name="refreshToken">The refresh token to be used for subsequent authentication steps.</param>
-    private static async Task XboxXstsCallAsync(string token, string refreshToken)
+    private static async Task XboxXstsCallAsync(string token, string refreshToken, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -365,9 +365,9 @@ public static class MicrosoftAuthService
             );
 
             HttpClient client = HttpHelper.GetHttpClient();
-            var result = await client.PostAsync(MicrosoftEndpoints.XboxXstsUrl, reqContent).ConfigureAwait(false);
+            var result = await client.PostAsync(MicrosoftEndpoints.XboxXstsUrl, reqContent, cancellationToken).ConfigureAwait(false);
 
-            var rawJson = await result.Content.ReadAsStringAsync();
+            var rawJson = await result.Content.ReadAsStringAsync(cancellationToken);
             JObject resultObj = JObject.Parse(rawJson);
             if (!resultObj.TryGetValue("Token", out var value))
             {
@@ -412,7 +412,7 @@ public static class MicrosoftAuthService
                 return;
             }
             
-            await MinecraftAccessCallAsync(value.ToString(), refreshToken, userHash.ToString());
+            await MinecraftAccessCallAsync(value.ToString(), refreshToken, userHash.ToString(), cancellationToken);
         }
         catch (Exception ex)
         {
@@ -429,7 +429,7 @@ public static class MicrosoftAuthService
     /// <param name="token">The Xbox XSTS token.</param>
     /// <param name="refreshToken">The refresh token to be used for subsequent authentication steps.</param>
     /// <param name="userHash">The user hash retrieved from the Xbox XSTS response.</param>
-    private static async Task MinecraftAccessCallAsync(string token, string refreshToken, string userHash)
+    private static async Task MinecraftAccessCallAsync(string token, string refreshToken, string userHash, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -448,9 +448,9 @@ public static class MicrosoftAuthService
             );
 
             HttpClient client = HttpHelper.GetHttpClient();
-            var result = await client.PostAsync(MicrosoftEndpoints.MinecraftAuthUrl, reqContent).ConfigureAwait(false);
+            var result = await client.PostAsync(MicrosoftEndpoints.MinecraftAuthUrl, reqContent, cancellationToken).ConfigureAwait(false);
             
-            JObject resultObj = JObject.Parse(await result.Content.ReadAsStringAsync());
+            JObject resultObj = JObject.Parse(await result.Content.ReadAsStringAsync(cancellationToken));
             if (!resultObj.TryGetValue("access_token", out var minecraftToken))
             {
                 _logger.Error("Access token not found in the Minecraft authentication response.");
@@ -467,7 +467,7 @@ public static class MicrosoftAuthService
                 return;
             }
             
-            await CheckMinecraftOwnershipAsync(minecraftToken.ToString(), refreshToken, int.Parse(expiresIn.ToString()));
+            await CheckMinecraftOwnershipAsync(minecraftToken.ToString(), refreshToken, int.Parse(expiresIn.ToString()), cancellationToken);
         }
         catch (Exception ex)
         {
@@ -484,7 +484,7 @@ public static class MicrosoftAuthService
     /// <param name="mcToken">The Minecraft access token.</param>
     /// <param name="refreshToken">The refresh token to be used for subsequent authentication steps.</param>
     /// <param name="expireSeconds">The expiration time of the access token in seconds.</param>
-    private static async Task CheckMinecraftOwnershipAsync(string mcToken, string refreshToken, int expireSeconds)
+    private static async Task CheckMinecraftOwnershipAsync(string mcToken, string refreshToken, int expireSeconds, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -495,7 +495,7 @@ public static class MicrosoftAuthService
             var result = await client.GetAsync(MicrosoftEndpoints.MinecraftOwnershipUrl);
 
             OwnershipData? ownershipData =
-                JsonConvert.DeserializeObject<OwnershipData>(await result.Content.ReadAsStringAsync());
+                JsonConvert.DeserializeObject<OwnershipData>(await result.Content.ReadAsStringAsync(cancellationToken));
             
             OwnershipItem? gameOwnership = ownershipData?.Items.Find(x => 
                 x.Name == "game_minecraft" ||
@@ -511,7 +511,7 @@ public static class MicrosoftAuthService
                 return;
             }
 
-            await GetMinecraftProfileAsync(mcToken, refreshToken, expireSeconds);
+            await GetMinecraftProfileAsync(mcToken, refreshToken, expireSeconds, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -528,7 +528,7 @@ public static class MicrosoftAuthService
     /// <param name="mcToken">The Minecraft access token.</param>
     /// <param name="refreshToken">The refresh token to be used for subsequent authentication steps.</param>
     /// <param name="expireSecs">The expiration time of the access token in seconds.</param>
-    private static async Task GetMinecraftProfileAsync(string mcToken, string refreshToken, int expireSecs)
+    private static async Task GetMinecraftProfileAsync(string mcToken, string refreshToken, int expireSecs, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -536,10 +536,10 @@ public static class MicrosoftAuthService
             
             HttpClient client = HttpHelper.GetHttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", mcToken);
-            var result = await client.GetAsync(MicrosoftEndpoints.MinecraftProfileUrl);
+            var result = await client.GetAsync(MicrosoftEndpoints.MinecraftProfileUrl, cancellationToken);
 
             _mojangProfile =
-                JsonConvert.DeserializeObject<MojangProfile>(await result.Content.ReadAsStringAsync());
+                JsonConvert.DeserializeObject<MojangProfile>(await result.Content.ReadAsStringAsync(cancellationToken));
 
             if (_mojangProfile == null)
             {
@@ -583,7 +583,7 @@ public static class MicrosoftAuthService
         }
     }
     
-    public static async Task<bool> RefreshLoginAsync(string token)
+    public static async Task<bool> RefreshLoginAsync(string token, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(_microsoftClientId))
         {
@@ -606,7 +606,7 @@ public static class MicrosoftAuthService
             var requestContent = new FormUrlEncodedContent(requestParams);
 
             HttpClient client = HttpHelper.GetHttpClient();
-            var response = await client.PostAsync(requestUrl, requestContent).ConfigureAwait(false);
+            var response = await client.PostAsync(requestUrl, requestContent, cancellationToken).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -616,7 +616,7 @@ public static class MicrosoftAuthService
                 return false;
             }
             
-            var responseString = await response.Content.ReadAsStringAsync();
+            var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
 
             JObject obj = JObject.Parse(responseString);
             if (!obj.TryGetValue("access_token", out var value))
@@ -636,7 +636,7 @@ public static class MicrosoftAuthService
             }
            
             // Proceed with the token
-            await XboxTokenCallAsync(value.ToString(), refreshToken.ToString());
+            await XboxTokenCallAsync(value.ToString(), refreshToken.ToString(), cancellationToken);
             // Wait for the authentication process to complete
             _logger.Debug("Refresh auth status: " + AuthStatus);
             return true;

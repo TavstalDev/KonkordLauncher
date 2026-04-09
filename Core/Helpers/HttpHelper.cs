@@ -66,11 +66,11 @@ public static class HttpHelper
     /// </summary>
     /// <param name="request">The URL to send the GET request to.</param>
     /// <returns>The HTTP response, or null if an error occurs.</returns>
-    public static async Task<HttpResponseMessage?> GetAsync(string request)
+    public static async Task<HttpResponseMessage?> GetAsync(string request, CancellationToken cancellationToken = default)
     {
         try
         {
-            return await _httpClient.GetAsync(request);
+            return await _httpClient.GetAsync(request, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -86,11 +86,11 @@ public static class HttpHelper
     /// <param name="request">The URL to send the GET request to.</param>
     /// <returns>The byte array, or null if an error occurs.</returns>
     [Obsolete]
-    public static async Task<byte[]?> GetByteArrayAsync(string request)
+    public static async Task<byte[]?> GetByteArrayAsync(string request, CancellationToken cancellationToken = default)
     {
         try
         {
-            return await _httpClient.GetByteArrayAsync(request);
+            return await _httpClient.GetByteArrayAsync(request, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -110,25 +110,25 @@ public static class HttpHelper
     /// <returns>
     /// The file path of the downloaded file if successful, or null if an error occurs.
     /// </returns>
-    public static async Task<string?> DownloadFileAsync(string url, string filePath, IProgress<double>? progress)
+    public static async Task<string?> DownloadFileAsync(string url, string filePath, IProgress<double>? progress, CancellationToken cancellationToken = default)
     {
         try
         {
-            HttpResponseMessage response = await _httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+            HttpResponseMessage response = await _httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
             response.EnsureSuccessStatusCode();
 
             long? contentLength = response.Content.Headers.ContentLength;
 
-            await using Stream responseStream = await response.Content.ReadAsStreamAsync();
+            await using Stream responseStream = await response.Content.ReadAsStreamAsync(cancellationToken);
             await using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Read);
 
             byte[] buffer = new byte[8192]; // Use a larger buffer for better performance
             int bytesRead;
             long totalBytesRead = 0;
 
-            while ((bytesRead = await responseStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+            while ((bytesRead = await responseStream.ReadAsync(buffer, 0, buffer.Length, cancellationToken)) > 0)
             {
-                await fileStream.WriteAsync(buffer, 0, bytesRead);
+                await fileStream.WriteAsync(buffer, 0, bytesRead, cancellationToken);
                 totalBytesRead += bytesRead;
 
                 if (progress != null && contentLength.HasValue)
@@ -155,11 +155,11 @@ public static class HttpHelper
     /// </summary>
     /// <param name="request">The URL to send the GET request to.</param>
     /// <returns>The string response, or null if an error occurs.</returns>
-    public static async Task<string?> GetStringAsync(string request)
+    public static async Task<string?> GetStringAsync(string request, CancellationToken cancellationToken = default)
     {
         try
         {
-            return await _httpClient.GetStringAsync(request);
+            return await _httpClient.GetStringAsync(request, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -175,24 +175,24 @@ public static class HttpHelper
     /// <param name="url">The URL to send the GET request to.</param>
     /// <param name="progress">An optional progress reporter.</param>
     /// <returns>The string response, or null if an error occurs.</returns>
-    public static async Task<string?> GetStringAsync(string url, IProgress<double>? progress)
+    public static async Task<string?> GetStringAsync(string url, IProgress<double>? progress, CancellationToken cancellationToken = default)
     {
         try
         {
-            HttpResponseMessage response = await _httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+            HttpResponseMessage response = await _httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
             response.EnsureSuccessStatusCode();
 
             long? contentLength = response.Content.Headers.ContentLength;
 
-            await using Stream responseStream = await response.Content.ReadAsStreamAsync();
+            await using Stream responseStream = await response.Content.ReadAsStreamAsync(cancellationToken);
             using var memoryStream = new MemoryStream();
             byte[] buffer = new byte[4096];
             int bytesRead;
             long totalBytesRead = 0;
 
-            while ((bytesRead = await responseStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+            while ((bytesRead = await responseStream.ReadAsync(buffer, 0, buffer.Length, cancellationToken)) > 0)
             {
-                await memoryStream.WriteAsync(buffer, 0, bytesRead);
+                await memoryStream.WriteAsync(buffer, 0, bytesRead, cancellationToken);
                 totalBytesRead += bytesRead;
 
                 if (progress != null && contentLength.HasValue)
@@ -218,11 +218,11 @@ public static class HttpHelper
     /// </summary>
     /// <param name="request">The URL to send the GET request to.</param>
     /// <returns>The stream response, or null if an error occurs.</returns>
-    public static async Task<Stream?> GetStreamAsync(string request)
+    public static async Task<Stream?> GetStreamAsync(string request, CancellationToken cancellationToken = default)
     {
         try
         {
-            return await _httpClient.GetStreamAsync(request);
+            return await _httpClient.GetStreamAsync(request, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -238,11 +238,11 @@ public static class HttpHelper
     /// <typeparam name="T">The type of the object to deserialize.</typeparam>
     /// <param name="request">The URL to send the GET request to.</param>
     /// <returns>The deserialized object, or default if an error occurs.</returns>
-    public static async Task<T?> GetObjectFromJsonAsync<T>(string request)
+    public static async Task<T?> GetObjectFromJsonAsync<T>(string request, CancellationToken cancellationToken = default)
     {
         try
         {
-            return await _httpClient.GetFromJsonAsync<T>(request);
+            return await _httpClient.GetFromJsonAsync<T>(request, cancellationToken: cancellationToken);
         }
         catch (Exception ex)
         {
@@ -258,11 +258,11 @@ public static class HttpHelper
     /// <param name="request">The URL to send the POST request to.</param>
     /// <param name="content">The content to include in the POST request.</param>
     /// <returns>The HTTP response, or null if an error occurs.</returns>
-    public static async Task<HttpResponseMessage?> PostAsync(string request, HttpContent? content)
+    public static async Task<HttpResponseMessage?> PostAsync(string request, HttpContent? content, CancellationToken cancellationToken = default)
     {
         try
         {
-            return await _httpClient.PostAsync(request, content);
+            return await _httpClient.PostAsync(request, content, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -279,11 +279,11 @@ public static class HttpHelper
     /// <param name="request">The URL to send the POST request to.</param>
     /// <param name="value">The object to serialize as JSON.</param>
     /// <returns>The HTTP response, or null if an error occurs.</returns>
-    public static async Task<HttpResponseMessage?> PostJsonAsync<T>(string request, T value)
+    public static async Task<HttpResponseMessage?> PostJsonAsync<T>(string request, T value, CancellationToken cancellationToken = default)
     {
         try
         {
-            return await _httpClient.PostAsJsonAsync(request, value);
+            return await _httpClient.PostAsJsonAsync(request, value, cancellationToken: cancellationToken);
         }
         catch (Exception ex)
         {

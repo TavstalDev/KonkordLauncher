@@ -71,7 +71,7 @@ public class MinecraftInstance
     /// Starts the Minecraft installation and launches the game.
     /// </summary>
     /// <returns>A <see cref="Process"/> object representing the launched game, or null if the process fails.</returns>
-    public async Task<Process?> Start()
+    public async Task<Process?> StartAsync(CancellationToken cancellationToken = default)
     {
         string tempDir = Path.Combine(Path.GetTempPath(), "konkordlauncher_" + Path.GetRandomFileName());
         Directory.CreateDirectory(tempDir);
@@ -104,7 +104,7 @@ public class MinecraftInstance
 
             string arguments = BuildArguments(versionDetails.GameDir, mainClass, versionDetails.NativesDir, customVersion);
             await Task.Delay(250); // Ensure the progress reporter has time to update before launching
-            _progressReporter?.Hide();
+            //_progressReporter?.Hide();
             
             // Copy custom natives if specified
             startTime = DateTime.Now;
@@ -197,7 +197,7 @@ public class MinecraftInstance
     /// <summary>
     /// Downloads the core files required for the Minecraft installation.
     /// </summary>
-    private async Task DownloadCoreFilesAsync()
+    private async Task DownloadCoreFilesAsync(CancellationToken cancellationToken = default)
     {
         var localVersionMeta = await MinecraftFileService.DownloadVersionAsync(VersionData, MinecraftVersion, _progressReporter);
         MinecraftVersionMeta = localVersionMeta ?? throw new InvalidOperationException("Failed to download the version meta data. Please check your internet connection and try again.");
@@ -213,7 +213,7 @@ public class MinecraftInstance
         }
         
         if (GameDetails.JavaPath == "LAUNCH_ME_FIRST" || string.IsNullOrEmpty(GameDetails.JavaPath))
-            OnSetupDefaultJava.Invoke(MinecraftVersionMeta);
+            OnSetupDefaultJava?.Invoke(MinecraftVersionMeta);
         
         await MinecraftFileService.DownloadMappingsAsync(MinecraftVersionMeta, VersionData, _progressReporter);
         await MinecraftFileService.DownloadAssetsAsync(MinecraftVersionMeta, PathDetails.AssetsDir, VersionData.GameDir, _progressReporter);
@@ -254,7 +254,7 @@ public class MinecraftInstance
     /// <param name="versionDetails">The version details of the installation.</param>
     /// <param name="libraries">The list of libraries to download.</param>
     /// <returns>A list of native libraries required for the installation.</returns>
-    private async Task DownloadDependenciesAsync(VersionDetails versionDetails, List<LibraryMeta> libraries)
+    private async Task DownloadDependenciesAsync(VersionDetails versionDetails, List<LibraryMeta> libraries, CancellationToken cancellationToken = default)
     {
         var loggingArg = await MinecraftFileService.DownloadLoggingAsync(MinecraftVersionMeta, versionDetails.VersionDirectory, versionDetails.GameDir, _progressReporter);
         if (loggingArg != null)
@@ -274,7 +274,7 @@ public class MinecraftInstance
     /// </summary>
     /// <param name="tempDir">The temporary directory used for installation.</param>
     /// <returns>A task representing the asynchronous operation, returning modded data if applicable.</returns>
-    protected virtual Task<ModdedData?> InstallModdedAsync(string tempDir)
+    protected virtual Task<ModdedData?> InstallModdedAsync(string tempDir, CancellationToken cancellationToken = default)
     {
         // Vanilla installer, do nothing
         return Task.FromResult<ModdedData?>(null);

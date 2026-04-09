@@ -41,21 +41,21 @@ public static class LauncherHelper
     /// If the file does not exist or is invalid, a new configuration is created and saved.
     /// </summary>
     /// <returns>A task that represents the asynchronous operation. The task result contains the launcher settings as a <see cref="CoreConfig"/> object.</returns>
-    public static async Task<CoreConfig> GetLauncherSettingsAsync()
+    public static async Task<CoreConfig> GetLauncherSettingsAsync(CancellationToken cancellationToken = default)
     {
         if (!File.Exists(PathHelper.LauncherConfigPath))
         {
             CoreConfig result = new CoreConfig();
-            await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherConfigPath, result);
+            await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherConfigPath, result, cancellationToken);
             return result;
         }
 
-        var readResult = await JsonHelper.ReadJsonFileAsync<CoreConfig>(PathHelper.LauncherConfigPath);
+        var readResult = await JsonHelper.ReadJsonFileAsync<CoreConfig>(PathHelper.LauncherConfigPath, cancellationToken);
         if (readResult == null)
         {
             CoreConfig result = new CoreConfig();
             File.Move(PathHelper.LauncherConfigPath, PathHelper.LauncherConfigPath + ".bak", true);
-            await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherConfigPath, result);
+            await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherConfigPath, result, cancellationToken);
             return result;
         }
 
@@ -98,23 +98,23 @@ public static class LauncherHelper
     /// If the file does not exist or is invalid, a new account data configuration is created and saved.
     /// </summary>
     /// <returns>A task that represents the asynchronous operation. The task result contains the account data as an <see cref="AccountData"/> object.</returns>
-    public static async Task<AccountData> GetAccountDataAsync()
+    public static async Task<AccountData> GetAccountDataAsync(CancellationToken cancellationToken = default)
     {
         if (!File.Exists(PathHelper.LauncherAccountsPath))
         {
             AccountData result = new AccountData();
-            await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, result);
+            await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, result, cancellationToken);
             foreach (var account in result.Accounts)
                 account.IsSelected = result.SelectedAccountId == account.Id;
             return result;
         }
 
-        var readResult = await JsonHelper.ReadJsonFileAsync<AccountData>(PathHelper.LauncherAccountsPath);
+        var readResult = await JsonHelper.ReadJsonFileAsync<AccountData>(PathHelper.LauncherAccountsPath, cancellationToken);
         if (readResult == null)
         {
             AccountData result = new AccountData();
             File.Move(PathHelper.LauncherAccountsPath, PathHelper.LauncherAccountsPath + ".bak", true);
-            await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, result);
+            await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, result, cancellationToken);
             foreach (var account in result.Accounts)
                 account.IsSelected = result.SelectedAccountId == account.Id;
             return result;
@@ -157,21 +157,21 @@ public static class LauncherHelper
     /// This method is not yet implemented.
     /// </summary>
     /// <returns>A task that represents the asynchronous operation. The task result contains a list of <see cref="Instance"/> objects.</returns>
-    public static async Task<List<Instance>> GetInstancesAsync()
+    public static async Task<List<Instance>> GetInstancesAsync(CancellationToken cancellationToken = default)
     {
         if (!File.Exists(PathHelper.LauncherInstancesPath))
         {
             List<Instance> result = [];
-            await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, result);
+            await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, result, cancellationToken);
             return result;
         }
 
-        var readResult = await JsonHelper.ReadJsonFileAsync<List<Instance>>(PathHelper.LauncherInstancesPath);
+        var readResult = await JsonHelper.ReadJsonFileAsync<List<Instance>>(PathHelper.LauncherInstancesPath, cancellationToken);
         if (readResult == null)
         {
             List<Instance> result = [];
             File.Move(PathHelper.LauncherInstancesPath, PathHelper.LauncherInstancesPath + ".bak", true);
-            await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, result);
+            await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, result, cancellationToken);
             return result;
         }
         

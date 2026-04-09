@@ -22,7 +22,7 @@ public class NeoForgeInstance(
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(NeoForgeInstance));
     
-    protected override async Task<ModdedData?> InstallModdedAsync(string tempDir)
+    protected override async Task<ModdedData?> InstallModdedAsync(string tempDir, CancellationToken cancellationToken = default)
     {
         if (!File.Exists(PathDetails.CustomManifestPath))
         {

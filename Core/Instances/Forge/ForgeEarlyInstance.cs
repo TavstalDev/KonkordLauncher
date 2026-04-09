@@ -20,7 +20,7 @@ public class ForgeEarlyInstance(string forgeVersionName, string universalName,
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(ForgeClassicInstance));
     
-    protected override async Task<ModdedData?> InstallModdedAsync(string tempDir)
+    protected override async Task<ModdedData?> InstallModdedAsync(string tempDir, CancellationToken cancellationToken = default)
     {
         if (!File.Exists(PathDetails.CustomManifestPath))
         {

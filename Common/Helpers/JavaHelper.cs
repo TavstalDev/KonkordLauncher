@@ -59,7 +59,7 @@ public static class JavaHelper
     /// whether the download and extraction were successful.
     /// </returns>
     public static async Task<bool> DownloadJavaVersionAsync(int majorVersion, string targetPath,
-        Progress<double>? progress = null)
+        Progress<double>? progress = null, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -68,11 +68,11 @@ public static class JavaHelper
                 if (!File.Exists(PathHelper.JavaMirrorsPath))
                 {
                     _mirrorConfig = new JavaMirrorConfig();
-                    await JsonHelper.WriteJsonFileAsync(PathHelper.JavaMirrorsPath, _mirrorConfig);
+                    await JsonHelper.WriteJsonFileAsync(PathHelper.JavaMirrorsPath, _mirrorConfig, cancellationToken);
                 }
                 else
                 {
-                    _mirrorConfig = await JsonHelper.ReadJsonFileAsync<JavaMirrorConfig>(PathHelper.JavaMirrorsPath) ??
+                    _mirrorConfig = await JsonHelper.ReadJsonFileAsync<JavaMirrorConfig>(PathHelper.JavaMirrorsPath, cancellationToken) ??
                                     new JavaMirrorConfig();
                 }
             }
@@ -115,7 +115,7 @@ public static class JavaHelper
                 Directory.CreateDirectory(tempDir);
                 string extension = url.EndsWith(".zip") ? "zip" : "tar.gz";
                 string zipFilePath = Path.Combine(tempDir, $"java_{majorVersion}.{extension}");
-                await HttpHelper.DownloadFileAsync(url, zipFilePath, progress);
+                await HttpHelper.DownloadFileAsync(url, zipFilePath, progress, cancellationToken);
 
                 if (!File.Exists(zipFilePath))
                 {
@@ -131,7 +131,7 @@ public static class JavaHelper
                     tarArchive.ExtractContents(targetPath);
                 }
                 else
-                    ZipFile.ExtractToDirectory(zipFilePath, targetPath);
+                    await ZipFile.ExtractToDirectoryAsync(zipFilePath, targetPath, cancellationToken);
             }
             finally
             {

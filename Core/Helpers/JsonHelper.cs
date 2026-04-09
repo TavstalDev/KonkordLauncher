@@ -54,7 +54,7 @@ public static class JsonHelper
     /// <param name="path">The file path to write the JSON content to.</param>
     /// <param name="obj">The object to serialize into JSON.</param>
     /// <returns>True if the operation succeeds, otherwise false.</returns>
-    public static async Task<bool> WriteJsonFileAsync<T>(string path, T obj)
+    public static async Task<bool> WriteJsonFileAsync<T>(string path, T obj, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -64,15 +64,15 @@ public static class JsonHelper
                 IgnoreReadOnlyFields = true,
                 IgnoreReadOnlyProperties = true,
                 WriteIndented = true
-            });
+            }, cancellationToken: cancellationToken);
             stream.Position = 0;
             var reader = new StreamReader(stream);
-            string content = await reader.ReadToEndAsync();
+            string content = await reader.ReadToEndAsync(cancellationToken);
             var dir = Path.GetDirectoryName(path);
             if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
             
-            await File.WriteAllTextAsync(path, content, Encoding.UTF8);
+            await File.WriteAllTextAsync(path, content, Encoding.UTF8, cancellationToken);
             return true;
         }
         catch (Exception ex)
@@ -111,12 +111,12 @@ public static class JsonHelper
     /// <typeparam name="T">The type of the object to deserialize.</typeparam>
     /// <param name="path">The file path to read the JSON content from.</param>
     /// <returns>The deserialized object, or default if an error occurs.</returns>
-    public static async Task<T?> ReadJsonFileAsync<T>(string path)
+    public static async Task<T?> ReadJsonFileAsync<T>(string path, CancellationToken cancellationToken = default)
     {
         try
         {
             await using var stream = File.OpenRead(path);
-            var local = await JsonSerializer.DeserializeAsync<T>(stream);
+            var local = await JsonSerializer.DeserializeAsync<T>(stream, cancellationToken: cancellationToken);
             return local;
         }
         catch (Exception ex)

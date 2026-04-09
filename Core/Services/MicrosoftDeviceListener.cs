@@ -29,7 +29,7 @@ public static class MicrosoftDeviceListener
     /// <param name="interval">The interval, in seconds, between device code checks.</param>
     /// <param name="progressReporter">Optional progress reporter for reporting progress updates.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    public static async Task StartListening(string deviceCode, int interval, IProgressReporter? progressReporter = null)
+    public static async Task StartListening(string deviceCode, int interval, IProgressReporter? progressReporter = null, CancellationToken cancellationToken = default)
     {
         // Prevents starting the listener if it is already active.
         if (_isListening)
@@ -53,7 +53,7 @@ public static class MicrosoftDeviceListener
                 continue;
 
             // Checks the device code and updates the next check time.
-            await MicrosoftAuthService.CheckDeviceCodeAsync(deviceCode);
+            await MicrosoftAuthService.CheckDeviceCodeAsync(deviceCode, cancellationToken);
             _nextCheckTime = DateTime.Now.AddSeconds(interval);
         }
     }

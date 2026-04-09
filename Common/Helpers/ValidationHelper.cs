@@ -89,7 +89,7 @@ public static class ValidationHelper
     /// Validates the launcher accounts file and ensures it contains valid account data.
     /// </summary>
     /// <returns>True if the accounts file is validated successfully, otherwise false.</returns>
-    public static async Task<bool> ValidateAccounts()
+    public static async Task<bool> ValidateAccounts(CancellationToken cancellationToken = default)
     {
         try
         {
@@ -97,11 +97,11 @@ public static class ValidationHelper
             {
                 AccountData accountData = new();
 
-                await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData);
+                await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData, cancellationToken);
                 return true; // No account was found to check
             }
 
-            AccountData? data = await JsonHelper.ReadJsonFileAsync<AccountData>(PathHelper.LauncherAccountsPath);
+            AccountData? data = await JsonHelper.ReadJsonFileAsync<AccountData>(PathHelper.LauncherAccountsPath, cancellationToken);
             if (data == null)
             {
                 _logger.Error("Failed to read accounts data, file is corrupted or empty.");
@@ -137,12 +137,12 @@ public static class ValidationHelper
     /// <param name="progressReporter">
     /// An optional progress reporter to report the download progress of the manifests.
     /// </param>
-    public static async Task<bool> ValidateManifests(IProgressReporter? progressReporter = null)
+    public static async Task<bool> ValidateManifests(IProgressReporter? progressReporter = null, CancellationToken cancellationToken = default)
     {
         try
         {
-            using var httpClient = new HttpClient();
-            var settings = await LauncherHelper.GetLauncherSettingsAsync();
+            using var httpClient = HttpHelper.GetHttpClient();
+            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
             bool refreshManifests = DateTime.Now > settings.CacheRefreshDate;
             
             // Vanilla
@@ -153,9 +153,9 @@ public static class ValidationHelper
                 {
                     progressReporter?.SetStatusTranslated("startup.validation.manifests.download", "minecraft", e.ToString("0.00"));
                 };
-                await HttpHelper.DownloadFileAsync(MicrosoftEndpoints.MinecraftManifestUrl, settings.Launcher.GetVanillaManifestPath(), progress);
+                await HttpHelper.DownloadFileAsync(MicrosoftEndpoints.MinecraftManifestUrl, settings.Launcher.GetVanillaManifestPath(), progress, cancellationToken);
             }
-            if (await ManifestHelper.GetMinecraftManifestAsync(settings.Launcher.GetVanillaManifestPath()) == null)
+            if (await ManifestHelper.GetMinecraftManifestAsync(settings.Launcher.GetVanillaManifestPath(), cancellationToken) == null)
                 _logger.Error("Failed to load Minecraft manifest");
 
             // Fabric
@@ -166,15 +166,15 @@ public static class ValidationHelper
                 {
                     progressReporter?.SetStatusTranslated("startup.validation.manifests.download", "fabric", e.ToString("0.00"));
                 };
-                await HttpHelper.DownloadFileAsync(FabricEndpoints.VersionManifestUrl, settings.Launcher.GetFabricManifestPath(), progress);
+                await HttpHelper.DownloadFileAsync(FabricEndpoints.VersionManifestUrl, settings.Launcher.GetFabricManifestPath(), progress, cancellationToken);
             }
-            if (await ManifestHelper.GetFabricManifestAsync(settings.Launcher.GetFabricManifestPath()) == null)
+            if (await ManifestHelper.GetFabricManifestAsync(settings.Launcher.GetFabricManifestPath(), cancellationToken) == null)
                 _logger.Error("Failed to load Fabric manifest");
 
             // Forge
             if (!File.Exists(settings.Launcher.GetForgeManifestPath()) || refreshManifests)
             {
-                string raw = await httpClient.GetStringAsync(ForgeEndpoints.VersionManifest);
+                string raw = await httpClient.GetStringAsync(ForgeEndpoints.VersionManifest, cancellationToken);
                 XDocument doc = XDocument.Parse(raw);
                 XElement? metadata = doc.Element("metadata");
                 if (metadata == null)
@@ -201,9 +201,9 @@ public static class ValidationHelper
                     manifest.Add(new ForgeManifest(splittedVersion[1], splittedVersion[0]));
                 }
                 
-                await JsonHelper.WriteJsonFileAsync(settings.Launcher.GetForgeManifestPath(), manifest);
+                await JsonHelper.WriteJsonFileAsync(settings.Launcher.GetForgeManifestPath(), manifest, cancellationToken);
             }
-            if (await ManifestHelper.GetForgeManifestAsync(settings.Launcher.GetForgeManifestPath()) == null)
+            if (await ManifestHelper.GetForgeManifestAsync(settings.Launcher.GetForgeManifestPath(), cancellationToken) == null)
                 _logger.Error("Failed to load Forge manifest");
             
             
@@ -212,7 +212,7 @@ public static class ValidationHelper
             {
                 if (!File.Exists(settings.Launcher.GetNeoForgeManifestPath()) || refreshManifests)
                 {
-                    string raw = await httpClient.GetStringAsync(NeoForgeEndpoints.VersionManifest);
+                    string raw = await httpClient.GetStringAsync(NeoForgeEndpoints.VersionManifest, cancellationToken);
                     XDocument doc = XDocument.Parse(raw);
                     XElement? metadata = doc.Element("metadata");
                     if (metadata == null)
@@ -241,10 +241,10 @@ public static class ValidationHelper
                         manifest.Add(new ForgeManifest(version, gameVersion));
                     }
 
-                    await JsonHelper.WriteJsonFileAsync(settings.Launcher.GetNeoForgeManifestPath(), manifest);
+                    await JsonHelper.WriteJsonFileAsync(settings.Launcher.GetNeoForgeManifestPath(), manifest, cancellationToken);
                 }
 
-                if (await ManifestHelper.GetNeoForgeManifestAsync(settings.Launcher.GetNeoForgeManifestPath()) == null)
+                if (await ManifestHelper.GetNeoForgeManifestAsync(settings.Launcher.GetNeoForgeManifestPath(), cancellationToken) == null)
                     _logger.Error("Failed to load NeoForge manifest");
             }
             catch (Exception e)
@@ -262,9 +262,9 @@ public static class ValidationHelper
                 {
                     progressReporter?.SetStatusTranslated("startup.validation.manifests.download", "quilt", e.ToString("0.00"));
                 };
-                await HttpHelper.DownloadFileAsync(QuiltEndpoints.VersionManifestUrl, settings.Launcher.GetQuiltManifestPath(), progress);
+                await HttpHelper.DownloadFileAsync(QuiltEndpoints.VersionManifestUrl, settings.Launcher.GetQuiltManifestPath(), progress, cancellationToken);
             }
-            if (await ManifestHelper.GetQuiltManifestAsync(settings.Launcher.GetQuiltManifestPath()) == null)
+            if (await ManifestHelper.GetQuiltManifestAsync(settings.Launcher.GetQuiltManifestPath(), cancellationToken) == null)
                 _logger.Error("Failed to load Quilt manifest");
 
             return true;

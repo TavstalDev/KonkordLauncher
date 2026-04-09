@@ -27,12 +27,12 @@ public static class ManifestHelper
     /// </summary>
     /// <param name="manifestPath">The file path to the Minecraft manifest.</param>
     /// <returns>The loaded <see cref="VersionManifest"/> or null if loading fails.</returns>
-    public static async Task<VersionManifest?> GetMinecraftManifestAsync(string manifestPath)
+    public static async Task<VersionManifest?> GetMinecraftManifestAsync(string manifestPath, CancellationToken cancellationToken = default)
     {
         if (_minecraftManifest != null)
             return _minecraftManifest;
 
-        _minecraftManifest = await JsonHelper.ReadJsonFileAsync<VersionManifest>(manifestPath);
+        _minecraftManifest = await JsonHelper.ReadJsonFileAsync<VersionManifest>(manifestPath, cancellationToken);
         return _minecraftManifest;
     }
 
@@ -53,12 +53,12 @@ public static class ManifestHelper
     /// <param name="manifestPath">The file path to the Fabric manifest.</param>
     /// <returns>A list of <see cref="IModManifest"/> or null if loading fails.</returns>
     /// <exception cref="InvalidOperationException">Thrown if the loader section is missing in the JSON.</exception>
-    public static async Task<List<IModManifest>?> GetFabricManifestAsync(string manifestPath)
+    public static async Task<List<IModManifest>?> GetFabricManifestAsync(string manifestPath, CancellationToken cancellationToken = default)
     {
         if (_fabricManifest != null)
             return _fabricManifest;
 
-        var rawManifest = await File.ReadAllTextAsync(manifestPath);
+        var rawManifest = await File.ReadAllTextAsync(manifestPath, cancellationToken);
         JObject jObject = JObject.Parse(rawManifest);
         var mappings = jObject["loader"] as JArray;
         if (mappings == null)
@@ -91,12 +91,12 @@ public static class ManifestHelper
     /// <param name="manifestPath">The file path to the Quilt manifest.</param>
     /// <returns>A list of <see cref="IModManifest"/> or null if loading fails.</returns>
     /// <exception cref="InvalidOperationException">Thrown if the loader section is missing in the JSON.</exception>
-    public static async Task<List<IModManifest>?> GetQuiltManifestAsync(string manifestPath)
+    public static async Task<List<IModManifest>?> GetQuiltManifestAsync(string manifestPath, CancellationToken cancellationToken = default)
     {
         if (_quiltManifest != null)
             return _quiltManifest;
 
-        var rawManifest = await File.ReadAllTextAsync(manifestPath);
+        var rawManifest = await File.ReadAllTextAsync(manifestPath, cancellationToken);
         JObject jObject = JObject.Parse(rawManifest);
         var mappings = jObject["loader"] as JArray;
         if (mappings == null)
@@ -128,12 +128,12 @@ public static class ManifestHelper
     /// </summary>
     /// <param name="manifestPath">The file path to the Forge manifest.</param>
     /// <returns>A list of <see cref="ForgeManifest"/> or null if loading fails.</returns>
-    public static async Task<List<ForgeManifest>?> GetForgeManifestAsync(string manifestPath)
+    public static async Task<List<ForgeManifest>?> GetForgeManifestAsync(string manifestPath, CancellationToken cancellationToken = default)
     {
         if (_forgeManifest != null)
             return _forgeManifest;
 
-        _forgeManifest = await JsonHelper.ReadJsonFileAsync<List<ForgeManifest>>(manifestPath);
+        _forgeManifest = await JsonHelper.ReadJsonFileAsync<List<ForgeManifest>>(manifestPath, cancellationToken);
         return _forgeManifest;
     }
 
@@ -153,12 +153,12 @@ public static class ManifestHelper
     /// </summary>
     /// <param name="manifestPath">The file path to the NeoForge manifest.</param>
     /// <returns>A list of <see cref="ForgeManifest"/> or null if loading fails.</returns>
-    public static async Task<List<ForgeManifest>?> GetNeoForgeManifestAsync(string manifestPath)
+    public static async Task<List<ForgeManifest>?> GetNeoForgeManifestAsync(string manifestPath, CancellationToken cancellationToken = default)
     {
         if (_neoForgeManifest != null)
             return _neoForgeManifest;
 
-        _neoForgeManifest = await JsonHelper.ReadJsonFileAsync<List<ForgeManifest>>(manifestPath);
+        _neoForgeManifest = await JsonHelper.ReadJsonFileAsync<List<ForgeManifest>>(manifestPath, cancellationToken);
         return _neoForgeManifest;
     }
 }

@@ -15,7 +15,7 @@ public static class MojangSkinService
     private static readonly CoreLogger _logger = new(nameof(MojangSkinService));
     
 
-    public static async Task<MojangProfile?> ChangeSkin(string mcToken, string variant, string url)
+    public static async Task<MojangProfile?> ChangeSkin(string mcToken, string variant, string url, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -34,13 +34,13 @@ public static class MojangSkinService
 
             HttpClient client = HttpHelper.GetHttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", mcToken);
-            var result = await client.PostAsync(endpoint, reqContent).ConfigureAwait(false);
+            var result = await client.PostAsync(endpoint, reqContent, cancellationToken).ConfigureAwait(false);
             if (!result.IsSuccessStatusCode)
             {
-                _logger.Error($"Failed to change skin (HTTP {result.StatusCode}): " + await result.Content.ReadAsStringAsync().ConfigureAwait(false));
+                _logger.Error($"Failed to change skin (HTTP {result.StatusCode}): " + await result.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false));
                 return null;
             }
-            return JsonConvert.DeserializeObject<MojangProfile>(await result.Content.ReadAsStringAsync());
+            return JsonConvert.DeserializeObject<MojangProfile>(await result.Content.ReadAsStringAsync(cancellationToken));
         }
         catch (Exception ex)
         {
@@ -50,7 +50,7 @@ public static class MojangSkinService
     }
 
     
-    public static async Task<MojangProfile?> UploadSkin(string mcToken, string variant, string skinPath)
+    public static async Task<MojangProfile?> UploadSkin(string mcToken, string variant, string skinPath, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -65,13 +65,13 @@ public static class MojangSkinService
 
             HttpClient client = HttpHelper.GetHttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", mcToken);
-            var result = await client.PostAsync(endpoint, form).ConfigureAwait(false);
+            var result = await client.PostAsync(endpoint, form, cancellationToken).ConfigureAwait(false);
             if (!result.IsSuccessStatusCode)
             {
-                _logger.Error($"Failed to upload skin (HTTP {result.StatusCode}): " + await result.Content.ReadAsStringAsync().ConfigureAwait(false));
+                _logger.Error($"Failed to upload skin (HTTP {result.StatusCode}): " + await result.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false));
                 return null;
             }
-            return JsonConvert.DeserializeObject<MojangProfile>(await result.Content.ReadAsStringAsync());
+            return JsonConvert.DeserializeObject<MojangProfile>(await result.Content.ReadAsStringAsync(cancellationToken));
         }
         catch (Exception ex)
         {
@@ -81,20 +81,20 @@ public static class MojangSkinService
     }
 
     
-    public static async Task<MojangProfile?> ResetSkin(string mcToken, long playerId)
+    public static async Task<MojangProfile?> ResetSkin(string mcToken, long playerId, CancellationToken cancellationToken = default)
     {
         try
         {
             string endpoint = $"{MicrosoftEndpoints.PlayerConfigUrl}/skins/active?uuid={playerId}";
             HttpClient client = HttpHelper.GetHttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", mcToken);
-            var result = await client.DeleteAsync(endpoint).ConfigureAwait(false);
+            var result = await client.DeleteAsync(endpoint, cancellationToken).ConfigureAwait(false);
             if (!result.IsSuccessStatusCode)
             {
-                _logger.Error($"Failed to reset skin (HTTP {result.StatusCode}): " + await result.Content.ReadAsStringAsync().ConfigureAwait(false));
+                _logger.Error($"Failed to reset skin (HTTP {result.StatusCode}): " + await result.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false));
                 return null;
             }
-            return JsonConvert.DeserializeObject<MojangProfile>(await result.Content.ReadAsStringAsync());
+            return JsonConvert.DeserializeObject<MojangProfile>(await result.Content.ReadAsStringAsync(cancellationToken));
         }
         catch (Exception ex)
         {
@@ -104,7 +104,7 @@ public static class MojangSkinService
     }
 
     
-    public static async Task<MojangProfile?> ShowCape(string mcToken, string capeId)
+    public static async Task<MojangProfile?> ShowCape(string mcToken, string capeId, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -124,10 +124,10 @@ public static class MojangSkinService
             var result = await client.PutAsync(endpoint, reqContent).ConfigureAwait(false);
             if (!result.IsSuccessStatusCode)
             {
-                _logger.Error($"Failed to show cape (HTTP {result.StatusCode}): " + await result.Content.ReadAsStringAsync().ConfigureAwait(false));
+                _logger.Error($"Failed to show cape (HTTP {result.StatusCode}): " + await result.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false));
                 return null;
             }
-            return JsonConvert.DeserializeObject<MojangProfile>(await result.Content.ReadAsStringAsync());
+            return JsonConvert.DeserializeObject<MojangProfile>(await result.Content.ReadAsStringAsync(cancellationToken));
         }
         catch (Exception ex)
         {
@@ -137,20 +137,20 @@ public static class MojangSkinService
     }
     
     
-    public static async Task<MojangProfile?> HideCape(string mcToken)
+    public static async Task<MojangProfile?> HideCape(string mcToken, CancellationToken cancellationToken = default)
     {
         try
         {
             const string endpoint = $"{MicrosoftEndpoints.PlayerConfigUrl}/capes/active";
             HttpClient client = HttpHelper.GetHttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", mcToken);
-            var result = await client.DeleteAsync(endpoint).ConfigureAwait(false);
+            var result = await client.DeleteAsync(endpoint, cancellationToken).ConfigureAwait(false);
             if (!result.IsSuccessStatusCode)
             {
-                _logger.Error($"Failed to hide cape (HTTP {result.StatusCode}): " + await result.Content.ReadAsStringAsync().ConfigureAwait(false));
+                _logger.Error($"Failed to hide cape (HTTP {result.StatusCode}): " + await result.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false));
                 return null;
             }
-            return JsonConvert.DeserializeObject<MojangProfile>(await result.Content.ReadAsStringAsync());
+            return JsonConvert.DeserializeObject<MojangProfile>(await result.Content.ReadAsStringAsync(cancellationToken));
         }
         catch (Exception ex)
         {

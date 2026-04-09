@@ -12,6 +12,9 @@ public class CoreLogger
     /// </summary>
     private readonly string _moduleName;
     private static readonly Lock _logLock = new();
+    private static readonly Queue<string> _logQueue = new();
+    private static readonly SemaphoreSlim _signal = new(0);
+    private static readonly CancellationTokenSource _logCts = new();
     public static DateTime StartTime { get; } = DateTime.Now;
 
     /// <summary>
@@ -21,6 +24,7 @@ public class CoreLogger
     public CoreLogger(string moduleName)
     {
         _moduleName = moduleName;
+        Task.Run(() => ProcessLogQueueAsync(_logCts.Token));
     }
 
     /// <summary>
@@ -50,6 +54,31 @@ public class CoreLogger
     }
 
     /// <summary>
+    /// Continuously processes queued log entries and writes them to the log file.
+    /// </summary>
+    /// <param name="token">Cancellation token used to stop the processing loop.</param>
+    private static async Task ProcessLogQueueAsync(CancellationToken token)
+    {
+        while (!token.IsCancellationRequested)
+        {
+            await _signal.WaitAsync(token);
+
+            if (_logQueue.TryDequeue(out var logEntry))
+            {
+                try
+                {
+                    string logsFilePath = Path.Combine(PathHelper.LauncherLogsDir, string.Format(PathHelper.LogsFileFormat, StartTime));
+                    await File.AppendAllLinesAsync(logsFilePath, [logEntry], token);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[Logger Error] Logging failed: {ex.Message}");
+                }
+            }
+        }
+    }
+    
+    /// <summary>
     /// Logs a message to the console with a specified color and optional prefix.
     /// </summary>
     /// <param name="message">The message to log.</param>
@@ -57,39 +86,31 @@ public class CoreLogger
     /// <param name="prefix">An optional prefix for the message.</param>
     public void Log(object message, ConsoleColor color = ConsoleColor.White, string prefix = "")
     {
-        string text = $"{prefix}{message}";
-        if (!string.IsNullOrEmpty(_moduleName))
-            text = $"[{_moduleName}] {text}";
-        
-        try
+        lock (_logLock)
         {
-            lock (_logLock)
+            string text = $"{prefix}{message}";
+            if (!string.IsNullOrEmpty(_moduleName))
+                text = $"[{_moduleName}] {text}";
+
+            try
             {
                 Console.ForegroundColor = color;
                 Console.WriteLine(text);
-                Console.ResetColor();
 
-                string logsFilePath = Path.Combine(PathHelper.LauncherLogsDir,
-                    string.Format(PathHelper.LogsFileFormat, StartTime));
-                if (File.Exists(logsFilePath))
-                {
-                    File.AppendAllText(
-                        logsFilePath,
-                        $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] {text}{Environment.NewLine}"
-                    );
-                }
+                _logQueue.Enqueue(string.Concat("[", DateTime.Now.ToString("g"), "] ", text));
+                _signal.Release();
             }
-        }
-        catch (Exception ex)
-        {
-            // If console output fails, fallback to Debug.WriteLine
-            System.Diagnostics.Debug.WriteLine($"{prefix} {message}");
-            System.Diagnostics.Debug.WriteLine($"Error logging message: {ex.Message}");
-        }
-        finally
-        {
-            // Ensure the console color is reset
-            Console.ResetColor();
+            catch (Exception ex)
+            {
+                // If console output fails, fallback to Debug.WriteLine
+                System.Diagnostics.Debug.WriteLine($"[Logger Error] Failed to log: {text}");
+                System.Diagnostics.Debug.WriteLine($"[Logger Error] Exception: {ex}");
+            }
+            finally
+            {
+                // Ensure the console color is reset
+                Console.ResetColor();
+            }
         }
     }
 

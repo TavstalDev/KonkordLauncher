@@ -31,17 +31,17 @@ public static class MinecraftFileService
     {
         if (File.Exists(filePath))
         {
-            progressReporter?.SetStatusTranslated($"instance.reading.{statusKey}", Path.GetFileName(filePath));
+            progressReporter?.UpdateStatusTranslated($"instance.reading.{statusKey}", Path.GetFileName(filePath));
             string jsonResult = await File.ReadAllTextAsync(filePath, cancellationToken);
             return deserialize(jsonResult);
         }
 
-        progressReporter?.SetProgress(0);
+        progressReporter?.ReportProgress(0);
         Progress<double> progress = new Progress<double>();
         progress.ProgressChanged += (_, e) =>
         {
-            progressReporter?.SetProgress(e);
-            progressReporter?.SetStatusTranslated($"instance.downloading.{statusKey}", Path.GetFileName(filePath),
+            progressReporter?.ReportProgress(e);
+            progressReporter?.UpdateStatusTranslated($"instance.downloading.{statusKey}", Path.GetFileName(filePath),
                 e.ToString("0.00"));
         };
 
@@ -69,16 +69,16 @@ public static class MinecraftFileService
     {
         if (File.Exists(filePath))
         {
-            progressReporter?.SetStatusTranslated($"instance.reading.{statusKey}", Path.GetFileName(filePath));
+            progressReporter?.UpdateStatusTranslated($"instance.reading.{statusKey}", Path.GetFileName(filePath));
             return;
         }
 
-        progressReporter?.SetProgress(0);
+        progressReporter?.ReportProgress(0);
         Progress<double> progress = new Progress<double>();
         progress.ProgressChanged += (_, e) =>
         {
-            progressReporter?.SetProgress(e);
-            progressReporter?.SetStatusTranslated($"instance.downloading.{statusKey}", Path.GetFileName(filePath),
+            progressReporter?.ReportProgress(e);
+            progressReporter?.UpdateStatusTranslated($"instance.downloading.{statusKey}", Path.GetFileName(filePath),
                 e.ToString("0.00"));
         };
 
@@ -153,7 +153,7 @@ public static class MinecraftFileService
             throw new Exception("Asset JToken is null, something went wrong while reading the asset index JSON.");
 
         // Assets
-        progressReporter?.SetStatusTranslated("instance.reading.assets");
+        progressReporter?.UpdateStatusTranslated("instance.reading.assets");
 
         var semaphore = new SemaphoreSlim(MaxParallelDownloads);
         long downloadedBytes = 0;
@@ -219,8 +219,8 @@ public static class MinecraftFileService
                             Interlocked.Add(ref downloadedBytes, size);
 
                             double percent = downloadedBytes / (double)versionMeta.Index.TotalSize * 100d;
-                            progressReporter?.SetProgress(percent);
-                            progressReporter?.SetStatusTranslated("instance.downloading.assets", percent.ToString("0.00"));
+                            progressReporter?.ReportProgress(percent);
+                            progressReporter?.UpdateStatusTranslated("instance.downloading.assets", percent.ToString("0.00"));
                         }
                         finally
                         {
@@ -273,8 +273,8 @@ public static class MinecraftFileService
                             Interlocked.Add(ref downloadedBytes, size);
 
                             double percent = downloadedBytes / (double)versionMeta.Index.TotalSize * 100d;
-                            progressReporter?.SetProgress(percent);
-                            progressReporter?.SetStatusTranslated("instance.downloading.assets", percent.ToString("0.00"));
+                            progressReporter?.ReportProgress(percent);
+                            progressReporter?.UpdateStatusTranslated("instance.downloading.assets", percent.ToString("0.00"));
                         }
                         finally
                         {
@@ -321,8 +321,8 @@ public static class MinecraftFileService
                             Interlocked.Add(ref downloadedBytes, size);
 
                             double percent = downloadedBytes / (double)versionMeta.Index.TotalSize * 100d;
-                            progressReporter?.SetProgress(percent);
-                            progressReporter?.SetStatusTranslated("instance.downloading.assets", percent.ToString("0.00"));
+                            progressReporter?.ReportProgress(percent);
+                            progressReporter?.UpdateStatusTranslated("instance.downloading.assets", percent.ToString("0.00"));
                         }
                         finally
                         {
@@ -409,8 +409,8 @@ public static class MinecraftFileService
         EMinecraftKind kind, VersionDetails versionData, List<LibraryMeta> mcLibs,
         List<string> classPath, string cacheDir, string libsDir, IProgressReporter? progressReporter = null, CancellationToken cancellationToken = default)
     {
-        progressReporter?.SetProgress(0);
-        progressReporter?.SetStatusTranslated("instance.reading.libraries");
+        progressReporter?.ReportProgress(0);
+        progressReporter?.UpdateStatusTranslated("instance.reading.libraries");
         
         string libraryCacheDir = Path.Combine(cacheDir, "libsizes");
         Directory.CreateDirectory(libraryCacheDir);
@@ -486,7 +486,7 @@ public static class MinecraftFileService
                 }
                 finally
                 {
-                    progressReporter?.SetProgress(downloadedBytes / (double)overallLibrarySize * 100d);
+                    progressReporter?.ReportProgress(downloadedBytes / (double)overallLibrarySize * 100d);
                     semaphore.Release();
                 }
             }, cancellationToken);
@@ -519,8 +519,8 @@ public static class MinecraftFileService
             Progress<double> progress = new Progress<double>();
             progress.ProgressChanged += (_, e) =>
             {
-                progressReporter?.SetProgress(e);
-                progressReporter?.SetStatusTranslated("instance.downloading.libraries", lib.Name, e.ToString("0.00"));
+                progressReporter?.ReportProgress(e);
+                progressReporter?.UpdateStatusTranslated("instance.downloading.libraries", lib.Name, e.ToString("0.00"));
             };
 
             await HttpHelper.DownloadFileAsync(lib.Downloads.Artifact.Url, libFilePath, progress, cancellationToken);
@@ -553,8 +553,8 @@ public static class MinecraftFileService
         Progress<double> progress = new Progress<double>();
         progress.ProgressChanged += (_, e) =>
         {
-            progressReporter?.SetProgress(e);
-            progressReporter?.SetStatusTranslated("instance.downloading.natives", libName, e.ToString("0.00"));
+            progressReporter?.ReportProgress(e);
+            progressReporter?.UpdateStatusTranslated("instance.downloading.natives", libName, e.ToString("0.00"));
         };
 
         await HttpHelper.DownloadFileAsync(url, filePath, progress, cancellationToken);

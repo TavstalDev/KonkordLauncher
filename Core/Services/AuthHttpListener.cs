@@ -33,13 +33,13 @@ public static class AuthHttpListener
 
         try
         {
-            progressReporter?.SetStatusTranslated("auth.listener.starting");
+            progressReporter?.UpdateStatusTranslated("auth.listener.starting");
             _httpListener.Start();
             _isListening = true;
         }
         catch (HttpListenerException ex)
         {
-            progressReporter?.SetStatusTranslated("auth.listener.failed");
+            progressReporter?.UpdateStatusTranslated("auth.listener.failed");
             _logger.Exc("Failed to start HTTP listener:");
             _logger.Error(ex.ToString());
             _isListening = false;
@@ -65,7 +65,7 @@ public static class AuthHttpListener
             return;
 
         if (cancelled)
-            _progressReporter?.SetStatusTranslated("auth.listener.cancelled");
+            _progressReporter?.UpdateStatusTranslated("auth.listener.cancelled");
         _isListening = false;
         _httpListener.Stop();
     }
@@ -91,7 +91,7 @@ public static class AuthHttpListener
         if (context.Request.RawUrl.StartsWith("/microsoft/authcallback"))
         {
             await CloseBrowserAsync(context, cancellationToken);
-            _progressReporter?.SetStatusTranslated("auth.listener.callback");
+            _progressReporter?.UpdateStatusTranslated("auth.listener.callback");
             await MicrosoftAuthService.HandleHttpRequestAsync(context.Request, _progressReporter);
             return;
         }

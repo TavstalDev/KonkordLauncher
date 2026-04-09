@@ -177,7 +177,14 @@ public static class SkinService
                     return;
                 }
 
-                await HttpHelper.DownloadFileAsync(skinUrl, texturePath, null, cancellationToken);
+                byte[]? skinData = await HttpHelper.GetByteArrayAsync(skinUrl, cancellationToken);
+                if (skinData == null)
+                {
+                    _logger.Warn("Failed to download skin data for UUID: " + uuid);
+                    return;
+                }
+
+                await File.WriteAllBytesAsync(texturePath, skinData, cancellationToken);
             }
 
             await using var skinStream = File.OpenRead(texturePath);

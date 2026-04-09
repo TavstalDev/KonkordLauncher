@@ -120,6 +120,7 @@ public static class MicrosoftAuthService
     /// </summary>
     /// <param name="request">The HTTP request containing the authentication data.</param>
     /// <param name="progressReporter">An optional progress reporter for tracking the authentication process.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation if needed.</param>
     public static async Task HandleHttpRequestAsync(HttpListenerRequest request, IProgressReporter? progressReporter = null, CancellationToken cancellationToken = default)
     {
         _authStatus = EAuthStatus.PENDING;
@@ -151,7 +152,7 @@ public static class MicrosoftAuthService
         }
 
         string requestUrl = MicrosoftEndpoints.MicrosoftTokenUrl;
-        _progressReporter?.SetStatusTranslated("auth.microsoft.authenticating");
+        _progressReporter?.UpdateStatusTranslated("auth.microsoft.authenticating");
         
         try
         {
@@ -210,6 +211,7 @@ public static class MicrosoftAuthService
     /// Sends a request to the Microsoft device code endpoint with the client ID and scope.
     /// </summary>
     /// <param name="progressReporter">An optional progress reporter for tracking the operation's progress.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation if needed.</param>
     /// <returns>
     /// A <see cref="DeviceCodeResult"/> object containing the device code details if successful; otherwise, null.
     /// </returns>
@@ -217,7 +219,7 @@ public static class MicrosoftAuthService
     {
         try
         {
-            _progressReporter?.SetStatusTranslated("auth.code.creating");
+            _progressReporter?.UpdateStatusTranslated("auth.code.creating");
             
             var parameters = new Dictionary<string, string>
             {
@@ -248,6 +250,7 @@ public static class MicrosoftAuthService
     /// Sends a request to the Microsoft device token endpoint with the device code and client ID.
     /// </summary>
     /// <param name="deviceCode">The device code to check.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation if needed.</param>
     public static async Task CheckDeviceCodeAsync(string deviceCode, CancellationToken cancellationToken = default)
     {
         try
@@ -289,11 +292,12 @@ public static class MicrosoftAuthService
     /// </summary>
     /// <param name="token">The Microsoft access token used for authentication.</param>
     /// <param name="refreshToken">The refresh token to be used for subsequent authentication steps.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation if needed.</param>
     private static async Task XboxTokenCallAsync(string token, string refreshToken, CancellationToken cancellationToken = default)
     {
         try
         {
-            _progressReporter?.SetStatusTranslated("auth.xbox.authenticating");
+            _progressReporter?.UpdateStatusTranslated("auth.xbox.authenticating");
             
             object body = new
             {
@@ -341,11 +345,12 @@ public static class MicrosoftAuthService
     /// </summary>
     /// <param name="token">The Xbox authentication token.</param>
     /// <param name="refreshToken">The refresh token to be used for subsequent authentication steps.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation if needed.</param>
     private static async Task XboxXstsCallAsync(string token, string refreshToken, CancellationToken cancellationToken = default)
     {
         try
         {
-            _progressReporter?.SetStatusTranslated("auth.xbox.xsts");
+            _progressReporter?.UpdateStatusTranslated("auth.xbox.xsts");
             
             object body = new
             {
@@ -429,11 +434,12 @@ public static class MicrosoftAuthService
     /// <param name="token">The Xbox XSTS token.</param>
     /// <param name="refreshToken">The refresh token to be used for subsequent authentication steps.</param>
     /// <param name="userHash">The user hash retrieved from the Xbox XSTS response.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation if needed.</param>
     private static async Task MinecraftAccessCallAsync(string token, string refreshToken, string userHash, CancellationToken cancellationToken = default)
     {
         try
         {
-            _progressReporter?.SetStatusTranslated("auth.minecraft.authenticating");
+            _progressReporter?.UpdateStatusTranslated("auth.minecraft.authenticating");
             
             object body = new
             {
@@ -484,15 +490,16 @@ public static class MicrosoftAuthService
     /// <param name="mcToken">The Minecraft access token.</param>
     /// <param name="refreshToken">The refresh token to be used for subsequent authentication steps.</param>
     /// <param name="expireSeconds">The expiration time of the access token in seconds.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation if needed.</param>
     private static async Task CheckMinecraftOwnershipAsync(string mcToken, string refreshToken, int expireSeconds, CancellationToken cancellationToken = default)
     {
         try
         {
-            _progressReporter?.SetStatusTranslated("auth.minecraft.ownership");
+            _progressReporter?.UpdateStatusTranslated("auth.minecraft.ownership");
             
             HttpClient client = HttpHelper.GetHttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", mcToken);
-            var result = await client.GetAsync(MicrosoftEndpoints.MinecraftOwnershipUrl);
+            var result = await client.GetAsync(MicrosoftEndpoints.MinecraftOwnershipUrl, cancellationToken);
 
             OwnershipData? ownershipData =
                 JsonConvert.DeserializeObject<OwnershipData>(await result.Content.ReadAsStringAsync(cancellationToken));
@@ -528,11 +535,12 @@ public static class MicrosoftAuthService
     /// <param name="mcToken">The Minecraft access token.</param>
     /// <param name="refreshToken">The refresh token to be used for subsequent authentication steps.</param>
     /// <param name="expireSecs">The expiration time of the access token in seconds.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation if needed.</param>
     private static async Task GetMinecraftProfileAsync(string mcToken, string refreshToken, int expireSecs, CancellationToken cancellationToken = default)
     {
         try
         {
-            _progressReporter?.SetStatusTranslated("auth.minecraft.profile");
+            _progressReporter?.UpdateStatusTranslated("auth.minecraft.profile");
             
             HttpClient client = HttpHelper.GetHttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", mcToken);

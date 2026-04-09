@@ -3,8 +3,11 @@ using System.Reactive;
 using System.Reactive.Disposables;
 using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
+using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
 
@@ -15,6 +18,8 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 /// </summary>
 public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewModel>
 {
+    private Button _selectedTabBtn;
+    
     /// <summary>
     /// Initializes a new instance of the <see cref="CreateInstanceWindow"/> class.
     /// Sets up the data context, initializes components, and registers reactive handlers.
@@ -27,30 +32,42 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
         // Attaches Avalonia Dev Tools for debugging purposes.
         this.AttachDevTools();
 #endif
-
-        // Sets the data context to a new instance of CreateInstanceViewModel.
+        
         DataContext = new CreateInstanceViewModel();
-
-        // Registers reactive handlers for various interactions when the window is activated.
+        _selectedTabBtn = CustomTabBtn;
+        
         this.WhenActivated(disposables =>
         {
-            // Registers a handler to close the window when the CloseWindow interaction is triggered.
-            DataContext.CloseWindow.RegisterHandler(action =>
+            DataContext.MinimizeWindowInteraction.RegisterHandler(action =>
+            {
+                WindowState = WindowState.Minimized;
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
+            DataContext.MaximizeWindowInteraction.RegisterHandler(action =>
+            {
+                WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
+            DataContext.CloseWindowInteraction.RegisterHandler(action =>
             {
                 Close();
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             }).DisposeWith(disposables);
-
-            // Registers a handler to show an alert dialog when the ShowAlertDialog interaction is triggered.
+            DataContext.UpdateSelectedTabButton.RegisterHandler(action =>
+            {
+                HandleTabChange(action.Input);
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            });
             DataContext.ShowAlertDialog.RegisterHandler(async action =>
             {
                 AlertWindow alertWindow = new(action.Input.Title, action.Input.Message, action.Input.Type);
                 await alertWindow.ShowDialog(this);
                 action.SetOutput(Unit.Default);
             }).DisposeWith(disposables);
-
-            // Registers a handler to show the icon selector dialog when the ShowIconSelector interaction is triggered.
             DataContext.ShowIconSelector.RegisterHandler(async action =>
             {
                 IconSelectorWindow window = new();
@@ -59,7 +76,8 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
             }).DisposeWith(disposables);
         });
     }
-    
+
+    #region Events
     /// <summary>
     /// Called when the window is opened.
     /// Updates the Rich Presence status to indicate that an instance is being created.
@@ -81,5 +99,43 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
         base.OnClosed(e);
         App.UpdateRPC("Browsing instances...");
     }
+    
+    private void DragStart_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        // Start moving the window when left mouse button is pressed
+        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+            BeginMoveDrag(e);
+    }
+    #endregion
 
+    private void HandleTabChange(ECreateInstanceTab tab)
+    {
+        if (DataContext is not { } viewModel)
+            return;
+        
+        if (viewModel.SelectedTab == tab)
+            return;
+
+        viewModel.SelectedTab = tab;
+        _selectedTabBtn.Classes.Remove("SettingsTabBtnActive");
+        switch (tab)
+        {
+            case ECreateInstanceTab.CUSTOM:
+            {
+                _selectedTabBtn = CustomTabBtn;
+                break;
+            }
+            case ECreateInstanceTab.MODPACK:
+            {
+                _selectedTabBtn = ModpackTabBtn;
+                break;
+            }
+            case ECreateInstanceTab.IMPORT:
+            {
+                _selectedTabBtn = ImportTabBtn;
+                break;
+            }
+        }
+        _selectedTabBtn.Classes.Add("SettingsTabBtnActive");
+    }
 }

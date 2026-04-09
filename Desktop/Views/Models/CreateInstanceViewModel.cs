@@ -34,9 +34,17 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
 {
     private CoreLogger _logger = CoreLogger.WithModuleType(typeof(CreateInstanceViewModel));
     private ReverseMarkdown.Converter? _converter = new();
-    public Interaction<Unit, Unit> CloseWindow { get; }  = new();
+
+    [ObservableProperty] private ECreateInstanceTab _selectedTab;
+    
+    #region Interactions
+    public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
+    public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
+    public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
+    public Interaction<ECreateInstanceTab, Unit> UpdateSelectedTabButton { get; } = new();
     public Interaction<Alert, Unit> ShowAlertDialog { get; } = new();
     public Interaction<Unit, string?> ShowIconSelector { get; } = new();
+    #endregion
 
     #region Custom
     
@@ -288,6 +296,33 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
     
     #region Commands
 
+    #region Window
+    [RelayCommand]
+    public async Task MinimizeWindow()
+    {
+        await MinimizeWindowInteraction.Handle(Unit.Default);
+    }
+
+    [RelayCommand]
+    public async Task MaximizeWindow()
+    {
+        await MaximizeWindowInteraction.Handle(Unit.Default);
+    }
+
+    [RelayCommand]
+    public async Task CloseWindow()
+    {
+        await CloseWindowInteraction.Handle(Unit.Default);
+    }
+    #endregion
+
+    #region Common
+
+    [RelayCommand]
+    private async Task HandleTabBtn() => await UpdateSelectedTabButton.Handle(SelectedTab);
+
+    #endregion
+    
     #region Custom
     /// <summary>
     /// Opens a window to select a custom icon for the instance. 
@@ -378,14 +413,14 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
         });
         await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances);
         GlobalEvents.InvokeInstancesChanged();
-        await CloseWindow.Handle(Unit.Default);
+        await CloseWindowInteraction.Handle(Unit.Default);
     }
     
     /// <summary>
     /// Cancels the custom instance creation process and closes the parent window.
     /// </summary>
     [RelayCommand]
-    private async Task CustomCancelCreate() => await CloseWindow.Handle(Unit.Default);
+    private async Task CustomCancelCreate() => await CloseWindowInteraction.Handle(Unit.Default);
 
     #endregion
 

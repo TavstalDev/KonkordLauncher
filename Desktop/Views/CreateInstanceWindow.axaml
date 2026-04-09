@@ -6,6 +6,14 @@
     MinWidth="900"
     ShowInTaskbar="False"
     Title="{lang:Translate instance.create.title}"
+    Background="Transparent"
+    CornerRadius="14"
+    ExtendClientAreaChromeHints="NoChrome"
+    ExtendClientAreaToDecorationsHint="True"
+    SystemDecorations="None"
+    TransparencyLevelHint="Transparent"
+    UseLayoutRounding="True"
+    WindowStartupLocation="CenterScreen"
     Width="900"
     d:DesignHeight="500"
     d:DesignWidth="900"
@@ -17,478 +25,294 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
-    xmlns:enums="clr-namespace:Tavstal.KonkordLauncher.Core.Enums;assembly=Core"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common">
+    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common"
+    xmlns:enums="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Enums"
+    xmlns:enumsc="clr-namespace:Tavstal.KonkordLauncher.Core.Enums;assembly=Core">
 
-    <Border Classes="InstanceView">
-        <Grid RowDefinitions="Auto,*">
-            <!--  Title  -->
-            <TextBlock
-                Classes="InstanceTitle"
-                HorizontalAlignment="Left"
-                Text="{lang:Translate instance.create.title}" />
-
-            <!--  Content  -->
-            <Grid Grid.Row="1">
-                <TabControl Classes="ModalTab">
-                    <!--  Custom  -->
-                    <TabItem Classes="ModalTabItem" Header="{lang:Translate instance.create.tab.custom}">
-                        <Border Classes="InstanceWrapper">
-                            <Grid RowDefinitions="*, Auto" RowSpacing="10">
-                                <ScrollViewer>
-                                    <Grid Classes="InstanceWrapper" RowDefinitions="Auto, *, *, Auto">
-                                        <!--  Icon, Name & Group  -->
-                                        <Grid ColumnDefinitions="100,*,*" RowDefinitions="Auto">
-                                            <!--  Icon  -->
-                                            <Button Command="{Binding CustomIconSelectorCommand}">
-                                                <Image
-                                                    Classes="InstanceIcon"
-                                                    Source="{Binding InstanceIcon}"/>
-                                            </Button>
-                                            <!--  Name  -->
-                                            <Grid
-                                                Grid.Column="1"
-                                                RowDefinitions="Auto, Auto"
-                                                RowSpacing="8">
-                                                <!--  Text  -->
-                                                <TextBlock Classes="TextInput" Text="{lang:Translate instance.create.name}" />
-                                                <!--  Input  -->
-                                                <TextBox
-                                                    Classes="TextInput"
-                                                    Grid.Row="1"
-                                                    Text="{Binding InstanceName, UpdateSourceTrigger=PropertyChanged}"
-                                                    Watermark="My Instance" />
-                                            </Grid>
-                                            <!--  Group  -->
-                                            <Grid
-                                                Grid.Column="2"
-                                                RowDefinitions="Auto, Auto"
-                                                RowSpacing="8">
-                                                <!--  Text  -->
-                                                <TextBlock Classes="TextInput" Text="{lang:Translate instance.create.group}" />
-                                                <!--  Input  -->
-                                                <ComboBox
-                                                    Classes="TextDropdown"
-                                                    Grid.Row="1"
-                                                    SelectedIndex="0">
-                                                    <ComboBoxItem Content="None" />
-                                                </ComboBox>
-                                            </Grid>
-                                        </Grid>
-                                        <!--  Vanilla Version  -->
-                                        <Grid
-                                            Grid.Row="1"
-                                            RowDefinitions="Auto, *"
-                                            RowSpacing="8">
-                                            <!--  Text  -->
-                                            <TextBlock Classes="InstanceCategory" Text="{lang:Translate instance.create.minecraftVersion}" />
-                                            <!--  Table  -->
-                                            <Grid
-                                                ColumnDefinitions="*, Auto"
-                                                ColumnSpacing="15"
-                                                Grid.Row="1"
-                                                 >
-                                                <!--  Input  -->
-                                                <DataGrid
-                                                    Classes="InstanceTable"
-                                                    Grid.Column="0"
-                                                    Name="CustomMinecraftVersionDataTable"
-                                                    ItemsSource="{Binding MinecraftVersions}"
-                                                    SelectedItem="{Binding SelectedMinecraftVersion, Mode=TwoWay}">
-                                                    <DataGrid.Columns>
-                                                        <DataGridTextColumn
-                                                            Binding="{Binding Id}"
-                                                            Header="{lang:Translate instance.create.table.version}"
-                                                            Width="*" />
-                                                        <DataGridTextColumn
-                                                            Binding="{Binding ReleaseTime}"
-                                                            Header="{lang:Translate instance.create.table.released}"
-                                                            Width="*" />
-                                                        <DataGridTextColumn
-                                                            Binding="{Binding Type}"
-                                                            Header="{lang:Translate instance.create.table.type}"
-                                                            Width="*" />
-                                                    </DataGrid.Columns>
-                                                </DataGrid>
-                                                <!--  Version Options  -->
-                                                <StackPanel Grid.Column="1" MaxWidth="175">
-                                                    <!--  Release  -->
-                                                    <CheckBox
-                                                        Content="{lang:Translate instance.create.releases}"
-                                                        IsChecked="{Binding ShowReleases, Mode=TwoWay}"
-                                                         />
-                                                    <!--  Snapshot  -->
-                                                    <CheckBox
-                                                        Content="{lang:Translate instance.create.snapshots}"
-                                                        IsChecked="{Binding ShowSnapshots, Mode=TwoWay}"
-                                                         />
-                                                    <!--  Beta  -->
-                                                    <CheckBox
-                                                        Content="{lang:Translate instance.create.betas}"
-                                                        IsChecked="{Binding ShowBetas, Mode=TwoWay}"
-                                                         />
-                                                    <!--  Alpha  -->
-                                                    <CheckBox
-                                                        Content="{lang:Translate instance.create.alphas}"
-                                                        IsChecked="{Binding ShowAlphas, Mode=TwoWay}"
-                                                        />
-                                                    <!--  Experiment  -->
-                                                    <CheckBox
-                                                        Content="{lang:Translate instance.create.experiments}"
-                                                        IsChecked="{Binding ShowExperiments, Mode=TwoWay}"
-                                                         />
-
-                                                    <!--  Search Box  -->
-                                                    <TextBox
-                                                        Classes="InstanceSearch"
-                                                        Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
-                                                        Watermark="{lang:Translate common.search}" />
-                                                </StackPanel>
-                                            </Grid>
-                                        </Grid>
-                                        <!--  ModLoader Version  -->
-                                        <Grid
-                                            Grid.Row="2"
-                                            RowDefinitions="Auto, *"
-                                            RowSpacing="8">
-                                            <!--  Text  -->
-                                            <TextBlock Classes="InstanceCategory" Text="{lang:Translate instance.create.modloader}" />
-                                            <!--  Table  -->
-                                            <Grid
-                                                ColumnDefinitions="*, Auto"
-                                                ColumnSpacing="15"
-                                                Grid.Row="1">
-                                                <!--  Input  -->
-                                                <DataGrid
-                                                    Classes="InstanceTable"
-                                                    Grid.Column="0"
-                                                    ItemsSource="{Binding ModLoaderVersionResult}"
-                                                    SelectedItem="{Binding SelectedModLoader}">
-                                                    <DataGrid.Columns>
-                                                        <DataGridTextColumn
-                                                            Binding="{Binding Version}"
-                                                            Header="{lang:Translate instance.create.table.version}"
-                                                            Width="*" />
-                                                    </DataGrid.Columns>
-                                                </DataGrid>
-                                                <!--  Mod Loader Options  -->
-                                                <StackPanel Grid.Column="1" MaxWidth="175">
-                                                    <!--  None  -->
-                                                    <RadioButton
-                                                        Content="{lang:Translate common.none}"
-                                                        IsChecked="True"
-                                                        Command="{Binding CustomModLoaderTypeCommand}"
-                                                        CommandParameter="{x:Static enums:EMinecraftKind.VANILLA}"/>
-                                                    <!--  NeoForge  -->
-                                                    <RadioButton Content="NeoForge"
-                                                                 Command="{Binding CustomModLoaderTypeCommand}"
-                                                                 CommandParameter="{x:Static enums:EMinecraftKind.NEOFORGE}"/>
-                                                    <!--  Forge  -->
-                                                    <RadioButton Content="Forge"
-                                                                 Command="{Binding CustomModLoaderTypeCommand}"
-                                                                 CommandParameter="{x:Static enums:EMinecraftKind.FORGE}"/>
-                                                    <!--  Fabric  -->
-                                                    <RadioButton Content="Fabric"
-                                                                 Command="{Binding CustomModLoaderTypeCommand}"
-                                                                 CommandParameter="{x:Static enums:EMinecraftKind.FABRIC}"/>
-                                                    <!--  Quilt  -->
-                                                    <RadioButton Content="Quilt"
-                                                                 Command="{Binding CustomModLoaderTypeCommand}"
-                                                                 CommandParameter="{x:Static enums:EMinecraftKind.QUILT}"/>
-
-                                                    <!--  Search Box  -->
-                                                    <TextBox
-                                                        Classes="InstanceSearch"
-                                                        Text="{Binding ModLoaderSearchQuery, UpdateSourceTrigger=PropertyChanged}"
-                                                        Watermark="{lang:Translate common.search}" />
-                                                </StackPanel>
-                                            </Grid>
-                                        </Grid>
-                                    </Grid>
-                                </ScrollViewer>
-                                <!--  Buttons  -->
-                                <StackPanel Classes="InstanceButtonWrapper" Margin="0, 0, 10, 10" Grid.Row="1">
-                                    <!-- Create Instance Button  -->
-                                    <Button Classes="IconBtn SuccessBtn"
-                                            Command="{Binding CustomCreateCommand}"
-                                            IsEnabled="{Binding CanCreateCustomInstance}">
-                                        <WrapPanel Classes="IconBtnWrapper">
-                                            <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf0c7;" />
-                                            <TextBlock Text="{lang:Translate instance.create.button}" VerticalAlignment="Center" />
-                                        </WrapPanel>
-                                    </Button>
-                                    <!--  Cancel Button  -->
-                                    <Button Classes="IconBtn ErrorBtn" Command="{Binding CustomCancelCreateCommand}">
-                                        <WrapPanel Classes="IconBtnWrapper">
-                                            <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf00d;" />
-                                            <TextBlock Text="{lang:Translate common.cancel}" VerticalAlignment="Center" />
-                                        </WrapPanel>
-                                    </Button>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                    </TabItem>
-                    <!--  Modpacks  -->
-                    <TabItem Classes="ModalTabItem" Header="{lang:Translate instance.create.tab.modpacks}">
-                        <Border Classes="InstanceWrapper">
-                            <Grid Classes="InstanceModpackWrapper" ColumnDefinitions="180, *">
-                                <!--  Filters  -->
-                                <ScrollViewer>
-                                    <StackPanel Margin="0,0,25,0" Spacing="5">
-                                        <!--  Name  -->
-                                        <Grid RowDefinitions="Auto, Auto" RowSpacing="8">
-                                            <!--  Text  -->
-                                            <TextBlock Classes="TextInput" Name="ModpackSearchTb" Text="{lang:Translate common.search}" />
-                                            <!--  Input  -->
-                                            <TextBox
-                                                Classes="TextInput"
-                                                Grid.Row="1"
-                                                Name="ModpackSearchInput"
-                                                Watermark="Sodium" />
-                                        </Grid>
-                                        <!--  Platform  -->
-                                        <!-- TODO: Allow platform selection -->
-                                        <Grid RowDefinitions="Auto, Auto" RowSpacing="8">
-                                            <!--  Text  -->
-                                            <TextBlock Classes="TextInput" Name="ModpackPlatformTb" Text="{lang:Translate instance.create.subtitle.platform}" />
-                                            <!--  Input  -->
-                                            <ComboBox
-                                                Classes="TextDropdown"
-                                                Grid.Row="1"
-                                                Name="ModpackPlatformInput"
-                                                ItemsSource="{Binding AvailableModpackPlatforms}"
-                                                SelectedItem="{Binding SelectedModpackPlatform}"
-                                                IsEnabled="False">
-                                            </ComboBox>
-                                        </Grid>
-                                        <!--  ModLoader  -->
-                                        <Grid RowDefinitions="Auto, Auto" RowSpacing="8">
-                                            <!--  Text  -->
-                                            <TextBlock Classes="TextInput" Name="ModpackModLoaderTb" Text="{lang:Translate instance.create.modloader}" />
-                                            <!--  Input  -->
-                                            <ComboBox
-                                                Classes="TextDropdown"
-                                                Grid.Row="1"
-                                                Name="ModpackModLoaderInput"
-                                                SelectedIndex="0">
-                                                <ComboBoxItem Content="NeoForge" />
-                                                <ComboBoxItem Content="Forge" />
-                                                <ComboBoxItem Content="Fabric" />
-                                                <ComboBoxItem Content="Quilt" />
-                                            </ComboBox>
-                                        </Grid>
-                                        <!--  Minecraft Version  -->
-                                        <Grid RowDefinitions="Auto, Auto" RowSpacing="8">
-                                            <!--  Text  -->
-                                            <TextBlock Classes="TextInput" Name="ModpackMinecraftVersionTb" Text="{lang:Translate instance.create.minecraftVersion}" />
-                                            <!--  Input  -->
-                                            <ComboBox
-                                                Classes="TextDropdown"
-                                                Grid.Row="1"
-                                                Name="ModpackMinecraftVersionInput"
-                                                SelectedIndex="0">
-                                                <ComboBoxItem Content="1.20.1" />
-                                                <ComboBoxItem Content="1.19.2" />
-                                            </ComboBox>
-                                        </Grid>
-                                        <!--  Categories Subtitle  -->
-                                        <TextBlock
-                                            FontWeight="500"
-                                            Margin="0,5,0,0"
-                                            Name="ModpackCategoriesSubtitle"
-                                            Text="{lang:Translate common.categories}" />
-                                        <!--  Adventure Checkbox  -->
-                                        <CheckBox Content="{lang:Translate instance.create.category.adventure}" Name="ModpackAdventureCb" />
-                                        <!--  Challenging Checkbox  -->
-                                        <CheckBox Content="{lang:Translate instance.create.category.challenging}" Name="ModpackChallengingCb" />
-                                        <!--  Combat Checkbox  -->
-                                        <CheckBox Content="{lang:Translate instance.create.category.combat}" Name="ModpackCombatCb" />
-                                        <!--  Kitchen Sink Checkbox  -->
-                                        <CheckBox Content="{lang:Translate instance.create.category.kitchenSink}" Name="ModpackKitchenSinkCb" />
-                                        <!--  Lightweight Checkbox  -->
-                                        <CheckBox Content="{lang:Translate instance.create.category.lightweight}" Name="ModpackLightweightCb" />
-                                        <!--  Magic Checkbox  -->
-                                        <CheckBox Content="{lang:Translate instance.create.category.magic}" Name="ModpackMagicCb" />
-                                        <!--  Multiplayer Checkbox  -->
-                                        <CheckBox Content="{lang:Translate instance.create.category.multiplayer}" Name="ModpackMultiplayerCb" />
-                                        <!--  Optimization Checkbox  -->
-                                        <CheckBox Content="{lang:Translate instance.create.category.optimization}" Name="ModpackOptimizationCb" />
-                                        <!--  Quests Checkbox  -->
-                                        <CheckBox Content="{lang:Translate instance.create.category.quests}" Name="ModpackQuestsCb" />
-                                        <!--  Technology Checkbox  -->
-                                        <CheckBox Content="{lang:Translate instance.create.category.technology}" Name="ModpackTechnologyCb" />
-                                    </StackPanel>
-                                </ScrollViewer>
-                                <!--  Modpack List & Preview  -->
-                                <Grid Grid.Column="1" RowDefinitions="*, Auto">
-                                    <!--  Content Grid  -->
-                                    <Grid ColumnDefinitions="*, Auto, *" Margin="0,0,0,15">
-                                        <!--  Modpack List  -->
-                                        <ScrollViewer Grid.Column="0" Margin="0,0,10,0">
+    <Border
+        Background="{DynamicResource base-200}"
+        BorderBrush="{DynamicResource border-one}"
+        BorderThickness="1"
+        CornerRadius="14"
+        PointerPressed="DragStart_PointerPressed">
+        <Grid RowDefinitions="Auto, *">
+            <!--  Window Controls  -->
+            <Border HorizontalAlignment="Stretch" PointerPressed="DragStart_PointerPressed">
+                <StackPanel Classes="WindowBtnPanel">
+                    <!--  MINIMIZE  -->
+                    <Button
+                        Classes="WindowBtn WarningBtn"
+                        Command="{Binding MinimizeWindowCommand}"
+                        ToolTip.Tip="{lang:Translate main.window.minimize}" />
+                    <!--  MAXIMIZE / RESTORE  -->
+                    <Button
+                        Classes="WindowBtn SuccessBtn"
+                        Command="{Binding MaximizeWindowCommand}"
+                        IsEnabled="{Binding $parent[Window].CanResize}"
+                        ToolTip.Tip="{lang:Translate main.window.maximize}" />
+                    <!--  CLOSE  -->
+                    <Button
+                        Classes="WindowBtn ErrorBtn"
+                        Command="{Binding CloseWindowCommand}"
+                        ToolTip.Tip="{lang:Translate main.window.close}" />
+                </StackPanel>
+            </Border>
+            <!--  Main Content  -->
+            <Grid Grid.Row="1" RowDefinitions="Auto, Auto, *">
+                <!-- Title -->
+                <TextBlock Classes="InstanceTitle" 
+                           HorizontalAlignment="Left" 
+                           Margin="25, 0, 25, 15" 
+                           Text="{lang:Translate instance.create.title}" />
+                
+                <!-- Tab Buttons -->
+                <Border Grid.Row="1" Classes="SettingsTabBorder" Margin="25, 0, 25, 0">
+                                    <WrapPanel Classes="SettingsTabWrapper">
+                                        <Button Classes="SettingsTabBtn SettingsTabBtnActive"
+                                                Name="CustomTabBtn"
+                                                Command="{Binding HandleTabBtnCommand}"
+                                                CommandParameter="{x:Static enums:ECreateInstanceTab.CUSTOM}">
+                                            <TextBlock Text="{lang:Translate instance.create.tab.custom}" />
+                                        </Button>
+                                        <Button Classes="SettingsTabBtn"
+                                                Name="ModpackTabBtn"
+                                                Command="{Binding HandleTabBtnCommand}"
+                                                CommandParameter="{x:Static enums:ECreateInstanceTab.MODPACK}">
+                                            <TextBlock Text="{lang:Translate instance.create.tab.modpacks}" />
+                                        </Button>
+                                        <Button Classes="SettingsTabBtn"
+                                                Name="ImportTabBtn"
+                                                Command="{Binding HandleTabBtnCommand}"
+                                                CommandParameter="{x:Static enums:ECreateInstanceTab.IMPORT}">
+                                            <TextBlock Text="{lang:Translate instance.create.tab.import}" />
+                                        </Button>
+                                    </WrapPanel>
+                </Border>
+                                
+                <!-- Content -->
+                <Carousel Grid.Row="2" SelectedIndex="{Binding SelectedTab}" Margin="0, 15, 0, 0">
+                                    <Carousel.PageTransition>
+                                        <CompositePageTransition>
+                                            <PageSlide Orientation="Vertical" Duration="0:00:00.200" />
+                                        </CompositePageTransition>
+                                    </Carousel.PageTransition>
+                                    <Carousel.Items>
+                                        <!-- Custom -->
+                                        <Grid RowDefinitions="*, Auto">
                                             <!--  Content  -->
-                                            <ListBox
-                                                ItemsSource="{Binding Modpacks}"
-                                                SelectedItem="{Binding SelectedModpack}"
-                                                SelectionMode="Single">
-                                                <ListBox.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Border Classes="InstanceModCard">
-                                                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                            <ScrollViewer Margin="25, 0, 25, 0">
+                                                <Grid Classes="SettingsWrapper" RowDefinitions="Auto, Auto, Auto">
+                                                    <!-- Basic Information -->
+                                                    <Border Classes="SettingsCategoryBorder">
+                                                        <Grid RowDefinitions="Auto, Auto">
+                                                            <!--  Category Title  -->
+                                                            <TextBlock Classes="SettingsCategoryText" Text="INFORMATION" />
+                                                            
+                                                            <!--  Icon, Name & Group  -->
+                                                            <Grid Grid.Row="1" ColumnDefinitions="100,*,*" Margin="5, 5, 5, 0" ColumnSpacing="20">
                                                                 <!--  Icon  -->
-                                                                <Image Source="{Binding Icon}" Width="35" />
-                                                                <StackPanel>
-                                                                    <!--  Title  -->
-                                                                    <TextBlock Classes="InstanceModTitle" Text="{Binding Name}" />
-                                                                    <!--  Description  -->
-                                                                    <TextBlock Classes="InstanceModDescription" Text="{Binding Description}" />
-                                                                </StackPanel>
-                                                            </StackPanel>
-                                                        </Border>
-                                                    </DataTemplate>
-                                                </ListBox.ItemTemplate>
-                                            </ListBox>
-                                        </ScrollViewer>
+                                                                <Button Command="{Binding CustomIconSelectorCommand}">
+                                                                    <Image
+                                                                        Classes="InstanceIcon"
+                                                                        Source="{Binding InstanceIcon}"/>
+                                                                </Button>
+                                                                <!--  Name  -->
+                                                                <Grid
+                                                                    Grid.Column="1"
+                                                                    RowDefinitions="Auto, Auto"
+                                                                    RowSpacing="8"
+                                                                    VerticalAlignment="Center">
+                                                                    <!--  Text  -->
+                                                                    <TextBlock Classes="TextInput" Text="{lang:Translate instance.create.name}" />
+                                                                    <!--  Input  -->
+                                                                    <TextBox
+                                                                        Classes="TextInput"
+                                                                        Grid.Row="1"
+                                                                        Text="{Binding InstanceName, UpdateSourceTrigger=PropertyChanged}"
+                                                                        Watermark="My Instance" />
+                                                                </Grid>
+                                                                <!--  Group  -->
+                                                                <Grid
+                                                                    Grid.Column="2"
+                                                                    RowDefinitions="Auto, Auto"
+                                                                    RowSpacing="8"
+                                                                    VerticalAlignment="Center">
+                                                                    <!--  Text  -->
+                                                                    <TextBlock Classes="TextInput" Text="{lang:Translate instance.create.group}" />
+                                                                    <!--  Input  -->
+                                                                    <ComboBox
+                                                                        Classes="TextDropdown"
+                                                                        Grid.Row="1"
+                                                                        SelectedIndex="0">
+                                                                        <ComboBoxItem Content="None" />
+                                                                    </ComboBox>
+                                                                </Grid>
+                                                            </Grid>
+                                                        </Grid>
+                                                    </Border>
+                                                    
+                                                    <!-- Minecraft Version -->
+                                                    <Border Grid.Row="1" Classes="SettingsCategoryBorder">
+                                                        <Grid RowDefinitions="Auto, Auto">
+                                                            <!--  Category Title  -->
+                                                            <TextBlock Classes="SettingsCategoryText" Text="MINECRAFT VERSION" />
+                                                            
+                                                            <!--  Version Selector  -->
+                                                            <Grid ColumnDefinitions="*, Auto"
+                                                                    ColumnSpacing="15"
+                                                                    Grid.Row="1"
+                                                                    Margin="0, 5, 0, 0">
+                                                                    <!--  Input  -->
+                                                                    <DataGrid
+                                                                        Classes="InstanceTable"
+                                                                        Grid.Column="0"
+                                                                        Name="CustomMinecraftVersionDataTable"
+                                                                        ItemsSource="{Binding MinecraftVersions}"
+                                                                        SelectedItem="{Binding SelectedMinecraftVersion, Mode=TwoWay}"
+                                                                        MaxHeight="250">
+                                                                        <DataGrid.Columns>
+                                                                            <DataGridTextColumn
+                                                                                Binding="{Binding Id}"
+                                                                                Header="{lang:Translate instance.create.table.version}"
+                                                                                Width="*" />
+                                                                            <DataGridTextColumn
+                                                                                Binding="{Binding ReleaseTime}"
+                                                                                Header="{lang:Translate instance.create.table.released}"
+                                                                                Width="*" />
+                                                                            <DataGridTextColumn
+                                                                                Binding="{Binding Type}"
+                                                                                Header="{lang:Translate instance.create.table.type}"
+                                                                                Width="*" />
+                                                                        </DataGrid.Columns>
+                                                                    </DataGrid>
+                                                                    <!--  Version Options  -->
+                                                                    <StackPanel Grid.Column="1" MaxWidth="175">
+                                                                        <!--  Release  -->
+                                                                        <CheckBox
+                                                                            Content="{lang:Translate instance.create.releases}"
+                                                                            IsChecked="{Binding ShowReleases, Mode=TwoWay}"
+                                                                             />
+                                                                        <!--  Snapshot  -->
+                                                                        <CheckBox
+                                                                            Content="{lang:Translate instance.create.snapshots}"
+                                                                            IsChecked="{Binding ShowSnapshots, Mode=TwoWay}"
+                                                                             />
+                                                                        <!--  Beta  -->
+                                                                        <CheckBox
+                                                                            Content="{lang:Translate instance.create.betas}"
+                                                                            IsChecked="{Binding ShowBetas, Mode=TwoWay}"
+                                                                             />
+                                                                        <!--  Alpha  -->
+                                                                        <CheckBox
+                                                                            Content="{lang:Translate instance.create.alphas}"
+                                                                            IsChecked="{Binding ShowAlphas, Mode=TwoWay}"
+                                                                            />
+                                                                        <!--  Experiment  -->
+                                                                        <CheckBox
+                                                                            Content="{lang:Translate instance.create.experiments}"
+                                                                            IsChecked="{Binding ShowExperiments, Mode=TwoWay}"
+                                                                             />
 
-                                        <!--  Grid Splitter  -->
-                                        <GridSplitter Classes="InstanceSplitter" Grid.Column="1" />
+                                                                        <!--  Search Box  -->
+                                                                        <TextBox
+                                                                            Classes="InstanceSearch"
+                                                                            Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                                                                            Watermark="{lang:Translate common.search}" />
+                                                                    </StackPanel>
+                                                                </Grid>
+                                                        </Grid>
+                                                    </Border>
+                                                    
+                                                    <!-- ModLoader -->
+                                                    <Border Grid.Row="2" Classes="SettingsCategoryBorder">
+                                                        <Grid  RowDefinitions="Auto, Auto">
+                                                            <!--  Category Title  -->
+                                                            <TextBlock Classes="SettingsCategoryText" Text="MOD LOADER" />
+                                                            
+                                                            <Grid
+                                                                    ColumnDefinitions="*, Auto"
+                                                                    ColumnSpacing="15"
+                                                                    Grid.Row="1"
+                                                                    Margin="0, 5, 0, 0">
+                                                                    <!--  Input  -->
+                                                                    <DataGrid
+                                                                        Classes="InstanceTable"
+                                                                        Grid.Column="0"
+                                                                        ItemsSource="{Binding ModLoaderVersionResult}"
+                                                                        SelectedItem="{Binding SelectedModLoader}"
+                                                                        MaxHeight="250">
+                                                                        <DataGrid.Columns>
+                                                                            <DataGridTextColumn
+                                                                                Binding="{Binding Version}"
+                                                                                Header="{lang:Translate instance.create.table.version}"
+                                                                                Width="*" />
+                                                                        </DataGrid.Columns>
+                                                                    </DataGrid>
+                                                                    <!--  Mod Loader Options  -->
+                                                                    <StackPanel Grid.Column="1" MaxWidth="175">
+                                                                        <!--  None  -->
+                                                                        <RadioButton
+                                                                            Content="{lang:Translate common.none}"
+                                                                            IsChecked="True"
+                                                                            Command="{Binding CustomModLoaderTypeCommand}"
+                                                                            CommandParameter="{x:Static enumsc:EMinecraftKind.VANILLA}"/>
+                                                                        <!--  NeoForge  -->
+                                                                        <RadioButton Content="NeoForge"
+                                                                                     Command="{Binding CustomModLoaderTypeCommand}"
+                                                                                     CommandParameter="{x:Static enumsc:EMinecraftKind.NEOFORGE}"/>
+                                                                        <!--  Forge  -->
+                                                                        <RadioButton Content="Forge"
+                                                                                     Command="{Binding CustomModLoaderTypeCommand}"
+                                                                                     CommandParameter="{x:Static enumsc:EMinecraftKind.FORGE}"/>
+                                                                        <!--  Fabric  -->
+                                                                        <RadioButton Content="Fabric"
+                                                                                     Command="{Binding CustomModLoaderTypeCommand}"
+                                                                                     CommandParameter="{x:Static enumsc:EMinecraftKind.FABRIC}"/>
+                                                                        <!--  Quilt  -->
+                                                                        <RadioButton Content="Quilt"
+                                                                                     Command="{Binding CustomModLoaderTypeCommand}"
+                                                                                     CommandParameter="{x:Static enumsc:EMinecraftKind.QUILT}"/>
 
-                                        <!--  Modpack preview  -->
-                                        <!--<mdxaml:MarkdownScrollViewer
-                                            Grid.Column="2"
-                                            Margin="10,0,0,0"
-                                            Markdown="{Binding ModpackPreview}" />-->
-                                    </Grid>
-                                    <!--  Modpack Version & Buttons  -->
-                                    <Grid ColumnDefinitions="*, *" Grid.Row="1">
-                                        <!--  Modpack Version  -->
-                                        <Grid Grid.Column="0" ColumnDefinitions="Auto, *">
-                                            <!--  Text  -->
-                                            <TextBlock Classes="TextDropdown" Name="ModpackVersionTb" Text="{lang:Translate instance.create.modpack.version}" />
-                                            <!--  Input  -->
-                                            <ComboBox
-                                                Classes="TextDropdown"
-                                                Grid.Column="1"
-                                                ItemsSource="{Binding SelectedModpack.Versions}"
-                                                Name="ModpackVersionInput"
-                                                SelectedIndex="0"
-                                                VerticalAlignment="Center">
-                                                <ComboBoxItem Content="{lang:Translate instance.create.modpack.select}" />
-                                            </ComboBox>
+                                                                        <!--  Search Box  -->
+                                                                        <TextBox
+                                                                            Classes="InstanceSearch"
+                                                                            Text="{Binding ModLoaderSearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                                                                            Watermark="{lang:Translate common.search}" />
+                                                                    </StackPanel>
+                                                                </Grid>
+                                                        </Grid>
+                                                    </Border>
+                                                </Grid>
+                                            </ScrollViewer>
+                                            
+                                            <!-- Buttons -->
+                                            <Border Grid.Row="1" Classes="InstanceButtonBorder">
+                                                <StackPanel Classes="InstanceButtonWrapper">
+                                                    <!--  Cancel Button  -->
+                                                    <Button Classes="IconBtn ErrorBtn" Command="{Binding CustomCancelCreateCommand}">
+                                                        <WrapPanel Classes="IconBtnWrapper">
+                                                            <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf00d;" />
+                                                            <TextBlock Text="{lang:Translate common.cancel}" VerticalAlignment="Center" />
+                                                        </WrapPanel>
+                                                    </Button>
+                                                    <!-- Create Instance Button  -->
+                                                    <Button Classes="IconBtn SuccessBtn"
+                                                            Command="{Binding CustomCreateCommand}"
+                                                            IsEnabled="{Binding CanCreateCustomInstance}">
+                                                        <WrapPanel Classes="IconBtnWrapper">
+                                                            <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf0c7;" />
+                                                            <TextBlock Text="{lang:Translate instance.create.button}" VerticalAlignment="Center" />
+                                                        </WrapPanel>
+                                                    </Button>
+                                                </StackPanel>
+                                            </Border>
                                         </Grid>
-                                        <!--  Buttons  -->
-                                        <StackPanel Classes="InstanceButtonWrapper" Grid.Column="1">
-                                            <!--  Create Instance Button  -->
-                                            <Button Classes="IconBtn SuccessBtn" Name="ModpackCreateInstanceBtn">
-                                                <WrapPanel Classes="IconBtnWrapper">
-                                                    <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf0c7;" />
-                                                    <TextBlock Text="{lang:Translate instance.create.button}" VerticalAlignment="Center" />
-                                                </WrapPanel>
-                                            </Button>
-                                            <!--  Cancel Button  -->
-                                            <Button Classes="IconBtn ErrorBtn" Name="ModpackCancelBtn">
-                                                <WrapPanel Classes="IconBtnWrapper">
-                                                    <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf00d;" />
-                                                    <TextBlock Text="{lang:Translate common.cancel}" VerticalAlignment="Center" />
-                                                </WrapPanel>
-                                            </Button>
-                                        </StackPanel>
-                                    </Grid>
-                                </Grid>
-                            </Grid>
-                        </Border>
-                    </TabItem>
-                    <!--  Import  -->
-                    <TabItem Classes="ModalTabItem" Header="{lang:Translate instance.create.tab.import}">
-                        <Border Classes="InstanceWrapper">
-                            <ScrollViewer>
-                                <Grid Classes="InstanceWrapper" RowDefinitions="Auto, Auto, Auto, Auto">
-                                    <TextBlock Name="ImportSelect" Text="{lang:Translate instance.create.import.description}" />
-                                    <!--  Source  -->
-                                    <Grid
-                                        Grid.Row="1"
-                                        RowDefinitions="Auto, Auto"
-                                        RowSpacing="8">
-                                        <!--  Text  -->
-                                        <TextBlock Classes="TextInput" Name="ImportSourceTb" Text="{lang:Translate instance.create.import.source}" />
-                                        <!--  Input  -->
-                                        <ComboBox
-                                            Classes="TextDropdown"
-                                            Grid.Row="1"
-                                            Name="ImportSourceInput"
-                                            SelectedIndex="{Binding SelectedImportSourceIndex}">
-                                            <ComboBoxItem Content="{lang:Translate instance.create.import.source.file}" />
-                                            <ComboBoxItem Content="{lang:Translate instance.create.import.source.url}" />
-                                        </ComboBox>
-                                    </Grid>
-                                    <!--  File  -->
-                                    <Grid
-                                        Grid.Row="2"
-                                        RowDefinitions="Auto, Auto, Auto"
-                                        RowSpacing="8"
-                                        IsVisible="{Binding IsSourceFromFile}">
-                                        <!--  Text  -->
-                                        <TextBlock Classes="TextInput" Name="ImportInstanceFileTb" Text="{lang:Translate instance.create.import.select.instanceFile}" />
-                                        <!--  Input  -->
-                                        <Grid
-                                            ColumnDefinitions="*, Auto"
-                                            Grid.Row="1"
-                                            RowDefinitions="Auto">
-                                            <!--  Input  -->
-                                            <TextBox
-                                                Classes="TextInput"
-                                                Grid.Column="0"
-                                                Name="ImportInstanceFileInput"
-                                                Watermark="{lang:Translate common.select.file}" />
-                                            <!--  Button  -->
-                                            <Button
-                                                Classes="IconBtn InfoBtn"
-                                                Grid.Column="1"
-                                                Name="ImportInstanceFileBtn">
-                                                <TextBlock Classes="FontAwesome" Text="&#xf56f;" />
-                                            </Button>
-                                        </Grid>
-                                        <!--  Note  -->
-                                        <TextBlock
-                                            Grid.Row="2"
-                                            Name="ImportNoteTb"
-                                            Opacity="0.5"
-                                            Text="{lang:Translate instance.create.import.formats}" />
-                                    </Grid>
-                                    <!--  URL  -->
-                                    <Grid
-                                        Grid.Row="2"
-                                        IsVisible="{Binding !IsSourceFromFile}"
-                                        RowDefinitions="Auto, Auto"
-                                        RowSpacing="8">
-                                        <!--  Text  -->
-                                        <TextBlock Classes="TextInput" Name="ImportInstanceUrlTb" Text="{lang:Translate instance.create.import.select.instanceUrl}" />
-                                        <!--  Input  -->
-                                        <TextBox
-                                            Classes="TextInput"
-                                            Grid.Row="1"
-                                            Name="ImportInstanceUrlInput"
-                                            Watermark="e.g., https://example.com/my-modpack.mrpack" />
-                                    </Grid>
-                                    <!--  Buttons  -->
-                                    <StackPanel Classes="InstanceButtonWrapper" Grid.Row="3">
-                                        <Button Classes="IconBtn SuccessBtn" Name="ImportCreateInstanceBtn">
-                                            <WrapPanel Classes="IconBtnWrapper">
-                                                <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf0c7;" />
-                                                <TextBlock Text="{lang:Translate instance.create.button}" VerticalAlignment="Center" />
-                                            </WrapPanel>
-                                        </Button>
-                                        <Button Classes="IconBtn ErrorBtn" Name="ImportCancelBtn">
-                                            <WrapPanel Classes="IconBtnWrapper">
-                                                <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf00d;" />
-                                                <TextBlock Text="{lang:Translate common.cancel}" VerticalAlignment="Center" />
-                                            </WrapPanel>
-                                        </Button>
-                                    </StackPanel>
-                                </Grid>
-                            </ScrollViewer>
-                        </Border>
-                    </TabItem>
-                </TabControl>
+                                            
+                                        <!-- Modpacks  -->
+                                        
+                                        <!-- Import  -->
+                                    </Carousel.Items>
+                </Carousel>
             </Grid>
         </Grid>
     </Border>

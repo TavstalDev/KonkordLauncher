@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -21,28 +22,23 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 /// </summary>
 public partial class IconSelectorViewModel : KonkordObservableObject
 {
-    /// <summary>
-    /// The currently selected icon.
-    /// </summary>
+    #region Observable Properties
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasSelectedIcon))]
     private IconDataModel? _selectedIcon;
 
-    /// <summary>
-    /// The collection of available icons.
-    /// </summary>
-    [ObservableProperty]
-    private ObservableCollection<IconDataModel> _icons;
-
-    /// <summary>
-    /// Indicates whether an icon is currently selected.
-    /// </summary>
-    public bool HasSelectedIcon => SelectedIcon != null;
+    public ObservableCollection<IconDataModel> Icons { get; } = new();
     
+    public bool HasSelectedIcon => SelectedIcon != null;
+    #endregion
+    
+    #region Interaction
     public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
     public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
     public Interaction<string?, Unit> CloseWindowInteraction { get; } = new();
     public Interaction<Unit, List<(string, string)>?> ShowFilePicker { get; }  = new();
+    #endregion
+    
     
     /// <summary>
     /// Initializes a new instance of the <see cref="IconSelectorViewModel"/> class.
@@ -50,17 +46,7 @@ public partial class IconSelectorViewModel : KonkordObservableObject
     /// </summary>
     public IconSelectorViewModel()
     {
-        _icons = [];
-        _selectedIcon = null;
-
-        // Load available icons
-        var settings = LauncherHelper.GetLauncherSettings();
-        var icons = Directory.GetFiles(settings.Launcher.IconsDirectoryPath);
-        foreach (var iconPath in icons)
-        {
-            var bitmap = new Bitmap(iconPath);
-            _icons.Add(new IconDataModel(Path.GetFileName(iconPath), iconPath, bitmap));
-        }
+        _ = InitAsync();
     }
     
     /// <summary>
@@ -77,28 +63,31 @@ public partial class IconSelectorViewModel : KonkordObservableObject
         SelectedIcon?.Image.Dispose();
         foreach (var icon in Icons)
             icon.Image.Dispose();
-        Icons = [];
+        Icons.Clear();
         SelectedIcon = null;
+    }
+
+    private async Task InitAsync(CancellationToken cancellationToken = default)
+    {
+        // Load available icons
+        var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
+        var icons = Directory.GetFiles(settings.Launcher.IconsDirectoryPath);
+        foreach (var iconPath in icons)
+        {
+            var bitmap = new Bitmap(iconPath);
+            Icons.Add(new IconDataModel(Path.GetFileName(iconPath), iconPath, bitmap));
+        }
     }
     
     #region Commands
     [RelayCommand]
-    public async Task MinimizeWindow()
-    {
-        await MinimizeWindowInteraction.Handle(Unit.Default);
-    }
+    public async Task MinimizeWindow() => await MinimizeWindowInteraction.Handle(Unit.Default);
 
     [RelayCommand]
-    public async Task MaximizeWindow()
-    {
-        await MaximizeWindowInteraction.Handle(Unit.Default);
-    }
+    public async Task MaximizeWindow() => await MaximizeWindowInteraction.Handle(Unit.Default);
 
     [RelayCommand]
-    public async Task CloseWindow()
-    {
-        await CloseWindowInteraction.Handle(null);
-    }
+    public async Task CloseWindow() => await CloseWindowInteraction.Handle(null);
 
     /// <summary>
     /// Closes the parent window and returns the currently selected icon as the result.

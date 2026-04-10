@@ -63,15 +63,6 @@ public partial class InstallWindow : KonkordWindow<InstallViewModel>, IProgressR
         // it may use more resources than necessary otherwise
         ProgressBar.IsIndeterminate = false;
     }
-    
-    private void DragStart_PointerPressed(object? sender, PointerPressedEventArgs e)
-    {
-        // Start moving the window when left mouse button is pressed
-        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
-        {
-            BeginMoveDrag(e);
-        }
-    }
 
     #region  IProgressReporter Implementation
     /// <summary>

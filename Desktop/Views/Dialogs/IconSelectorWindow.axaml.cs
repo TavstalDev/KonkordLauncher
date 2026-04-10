@@ -66,15 +66,6 @@ public partial class IconSelectorWindow : KonkordWindow<IconSelectorViewModel>
         });
     }
     
-    private void DragStart_PointerPressed(object? sender, PointerPressedEventArgs e)
-    {
-        // Start moving the window when left mouse button is pressed
-        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
-        {
-            BeginMoveDrag(e);
-        }
-    }
-    
     /// <summary>
     /// Opens a file picker dialog to select image files and copies them to the icons directory.
     /// </summary>

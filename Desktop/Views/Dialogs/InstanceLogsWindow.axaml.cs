@@ -64,27 +64,4 @@ public partial class InstanceLogsWindow : KonkordWindow<InstanceLogsViewModel>
             });
         });
     }
-    
-    private void DragStart_PointerPressed(object? sender, PointerPressedEventArgs e)
-    {
-        // Start moving the window when left mouse button is pressed
-        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
-        {
-            BeginMoveDrag(e);
-        }
-    }
-
-    /// <summary>
-    /// Copies the provided text to the system clipboard.
-    /// </summary>
-    /// <param name="text">The text to copy to the clipboard.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    public async Task SetClipboardTextAsync(string text)
-    {
-        var topLevel = GetTopLevel(this);
-        if (topLevel?.Clipboard == null)
-            return;
-
-        await topLevel.Clipboard.SetTextAsync(text);
-    }
 }

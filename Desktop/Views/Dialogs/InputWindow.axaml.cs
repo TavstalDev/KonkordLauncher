@@ -72,13 +72,4 @@ public partial class InputWindow : KonkordWindow<InputViewModel>
             }).DisposeWith(disposables);
         });
     }
-    
-    private void DragStart_PointerPressed(object? sender, PointerPressedEventArgs e)
-    {
-        // Start moving the window when left mouse button is pressed
-        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
-        {
-            BeginMoveDrag(e);
-        }
-    }
 }

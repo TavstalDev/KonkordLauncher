@@ -58,13 +58,4 @@ public partial class JavaSelectorWindow : KonkordWindow<JavaSelectorViewModel>
             });
         }
     }
-    
-    private void DragStart_PointerPressed(object? sender, PointerPressedEventArgs e)
-    {
-        // Start moving the window when left mouse button is pressed
-        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
-        {
-            BeginMoveDrag(e);
-        }
-    }
 }

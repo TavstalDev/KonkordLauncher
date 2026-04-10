@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Collections.Concurrent;
+using System.Text;
 using System.Text.Json;
 using Tavstal.KonkordLauncher.Core.Models;
 
@@ -10,34 +11,49 @@ namespace Tavstal.KonkordLauncher.Core.Helpers;
 public static class JsonHelper
 {
     private static readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(JsonHelper));
-
-    /// <summary>
-    /// Writes an object to a JSON file at the specified path.
-    /// </summary>
-    /// <typeparam name="T">The type of the object to serialize.</typeparam>
-    /// <param name="path">The file path to write the JSON content to.</param>
-    /// <param name="obj">The object to serialize into JSON.</param>
-    /// <returns>True if the operation succeeds, otherwise false.</returns>
+    private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
+    {
+        IgnoreReadOnlyFields = true,
+        IgnoreReadOnlyProperties = true,
+        WriteIndented = true
+    };
+    private static readonly ConcurrentDictionary<string, SemaphoreSlim> _fileLocks =
+        new(StringComparer.OrdinalIgnoreCase);
+    private const int _maxRetries = 5;
+    private static readonly TimeSpan _retryDelay = TimeSpan.FromMilliseconds(75);
+    
+    
     public static bool WriteJsonFile<T>(string path, T obj)
     {
         try
         {
-            using var stream = new MemoryStream();
-            JsonSerializer.Serialize(stream, obj, options: new()
-            {
-                IgnoreReadOnlyFields = true,
-                IgnoreReadOnlyProperties = true,
-                WriteIndented = true
-            });
-            stream.Position = 0;
-            var reader = new StreamReader(stream);
-            string content = reader.ReadToEnd();
-            var dir = Path.GetDirectoryName(path);
-            if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
-                Directory.CreateDirectory(dir);
+            string content = JsonSerializer.Serialize(obj, _jsonSerializerOptions);
+            CreateDirectory(path);
             
-            File.WriteAllText(path, content, Encoding.UTF8);
-            return true;
+            for (int i = 0; i < _maxRetries; i++)
+            {
+                string tempPath = GetTempPath(path);
+                try
+                {
+                    File.WriteAllText(tempPath, content, Encoding.UTF8);
+
+                    if (!FileSystemHelper.DeleteFile(path))
+                    {
+                        _logger.Error($"Failed to delete file {path}.");
+                        continue;
+                    }
+                    File.Move(tempPath, path, true);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error($"Failed to delete file {path}:\n {ex.Message}");
+                    FileSystemHelper.DeleteFile(tempPath);
+                }
+            }
+            
+            _logger.Error($"Failed to acquire file lock for {path} after {_maxRetries} attempts.");
+            return false;
         }
         catch (Exception ex)
         {
@@ -46,34 +62,51 @@ public static class JsonHelper
             return false;
         }
     }
-
-    /// <summary>
-    /// Asynchronously writes an object to a JSON file at the specified path.
-    /// </summary>
-    /// <typeparam name="T">The type of the object to serialize.</typeparam>
-    /// <param name="path">The file path to write the JSON content to.</param>
-    /// <param name="obj">The object to serialize into JSON.</param>
-    /// <returns>True if the operation succeeds, otherwise false.</returns>
+    
     public static async Task<bool> WriteJsonFileAsync<T>(string path, T obj, CancellationToken cancellationToken = default)
     {
+        var fileLock = GetFileLock(path);
+        
         try
         {
-            using var stream = new MemoryStream();
-            await JsonSerializer.SerializeAsync(stream, obj, options: new()
-            {
-                IgnoreReadOnlyFields = true,
-                IgnoreReadOnlyProperties = true,
-                WriteIndented = true
-            }, cancellationToken: cancellationToken);
-            stream.Position = 0;
-            var reader = new StreamReader(stream);
-            string content = await reader.ReadToEndAsync(cancellationToken);
-            var dir = Path.GetDirectoryName(path);
-            if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
-                Directory.CreateDirectory(dir);
+            string content = JsonSerializer.Serialize(obj, _jsonSerializerOptions);
+            CreateDirectory(path);
             
-            await File.WriteAllTextAsync(path, content, Encoding.UTF8, cancellationToken);
-            return true;
+            await fileLock.WaitAsync(_retryDelay, cancellationToken);
+            try
+            {
+                for (int i = 0; i < _maxRetries; i++)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    string tempPath = GetTempPath(path);
+                    try
+                    {
+                        await File.WriteAllTextAsync(tempPath, content, Encoding.UTF8, cancellationToken);
+
+                        if (!FileSystemHelper.DeleteFile(path))
+                        {
+                            _logger.Error($"Failed to delete file {path}.");
+                            continue;
+                        }
+                        File.Move(tempPath, path, true);
+                        return true;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error($"Failed to delete file {path}:\n {ex.Message}");
+                        FileSystemHelper.DeleteFile(tempPath);
+                        if (_maxRetries - 1 > i)
+                            await Task.Delay(_retryDelay, cancellationToken);
+                    }
+                }
+            }
+            finally
+            {
+                fileLock.Release();
+            }
+
+            _logger.Error($"Failed to acquire file lock for {path} after {_maxRetries} attempts.");
+            return false;
         }
         catch (Exception ex)
         {
@@ -89,6 +122,7 @@ public static class JsonHelper
     /// <typeparam name="T">The type of the object to deserialize.</typeparam>
     /// <param name="path">The file path to read the JSON content from.</param>
     /// <returns>The deserialized object, or default if an error occurs.</returns>
+    [Obsolete]
     public static T? ReadJsonFile<T>(string path)
     {
         try
@@ -125,5 +159,24 @@ public static class JsonHelper
             _logger.Error(ex.ToString());
             return default;
         }
+    }
+    
+    private static SemaphoreSlim GetFileLock(string path)
+    {
+        string fullPath = Path.GetFullPath(path);
+        return _fileLocks.GetOrAdd(fullPath, _ => new SemaphoreSlim(1, 1));
+    }
+
+    private static void CreateDirectory(string path)
+    {
+        var dir = Path.GetDirectoryName(path);
+        if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+            Directory.CreateDirectory(dir);
+    }
+
+    private static string GetTempPath(string path)
+    {
+        string? dir = Path.GetDirectoryName(path);
+        return Path.Combine(string.IsNullOrEmpty(dir) ? path : dir, Guid.NewGuid().ToString());
     }
 }

@@ -438,9 +438,8 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
 
             if (gameInstance == null)
                 return;
-
-            // TODO: Fix
-            //gameInstance.OnSetupDefaultJava += meta => Dispatcher.UIThread.Post(() => SetupDefaultJavaPath(gameInstance, meta, settings, showAlertDialog));
+            
+            gameInstance.OnSetupDefaultJava += meta => Dispatcher.UIThread.Invoke(() => SetupDefaultJavaPath(gameInstance, meta, settings, showAlertDialog));
 
             var process = await gameInstance.StartAsync();
             if (process == null)

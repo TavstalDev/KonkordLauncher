@@ -6,6 +6,7 @@
     xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
+    xmlns:avalonia="clr-namespace:LoadingIndicators.Avalonia;assembly=LoadingIndicators.Avalonia"
     Title="{lang:Translate auth.title}"
     Width="500"
     MinWidth="500"
@@ -54,7 +55,7 @@
                 </StackPanel>
             </Border>
             <!--  Main Content  -->
-            <StackPanel Grid.Row="1" Margin="20, 0, 20 ,20">
+            <StackPanel Grid.Row="1" Margin="20, 0, 20 ,20" IsVisible="{Binding !IsProcessingLogin}">
                 <TextBlock Classes="ModalTitle" Text="{lang:Translate auth.title}" />
                 <TabControl Classes="ModalTab">
                     <!--  Microsoft account login tab  -->
@@ -213,6 +214,12 @@
                         </Border>
                     </TabItem>
                 </TabControl>
+            </StackPanel>
+            <!-- Loading progress  -->
+            <StackPanel Grid.Row="1" Margin="20, 0, 20 ,20" IsVisible="{Binding IsProcessingLogin}">
+                <TextBlock Classes="ModalTitle" Text="{lang:Translate auth.title}" />
+                <avalonia:LoadingIndicator IsActive="{Binding IsProcessingLogin}" Height="200" Mode="Arc" SpeedRatio="1.2" Margin="0, -40, 0, 0" />
+                <TextBlock HorizontalAlignment="Center" Margin="0, -30, 0, 20" Text="{lang:Translate auth.logging_in}" />
             </StackPanel>
         </Grid>
     </Border>

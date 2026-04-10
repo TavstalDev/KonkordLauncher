@@ -32,8 +32,6 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 /// </summary>
 public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgressReporter
 {
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(AccountsWindow));
-    
     /// <summary>
     /// Initializes a new instance of the AccountsWindow class.
     /// Sets up the DataContext and attaches developer tools in debug mode.
@@ -87,6 +85,7 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
     }
 
     #region Events
+    
     /// <summary>
     /// Handles the cleanup and resource deallocation when the window is closing.
     /// Unsubscribes from events and stops any active listeners to ensure proper disposal.
@@ -99,39 +98,6 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
         AuthHttpListener.StopListening();
         MicrosoftDeviceListener.StopListening();
         base.OnClosing(e);
-    }
-    
-    private void DragStart_PointerPressed(object? sender, PointerPressedEventArgs e)
-    {
-        // Start moving the window when left mouse button is pressed
-        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
-            BeginMoveDrag(e);
-    }
-    #endregion
-
-    /// <summary>
-    /// Asynchronously sets the specified text to the system clipboard.
-    /// Ensures that the clipboard is accessible and logs any errors encountered during the operation.
-    /// </summary>
-    /// <param name="text">The text to set to the clipboard. If null or empty, the method returns immediately.</param>
-    public async Task SetClipboardTextAsync(string text)
-    {
-        if (string.IsNullOrEmpty(text))
-            return;
-        
-        var topLevel = GetTopLevel(this);
-        if (topLevel?.Clipboard == null)
-            return;
-
-        try
-        {
-            await topLevel.Clipboard.SetTextAsync(text);
-        }
-        catch (Exception ex)
-        {
-            _logger.Exc("Failed to set clipboard text");
-            _logger.Error(ex);
-        }
     }
     
     /// <summary>
@@ -157,6 +123,7 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
             textBox.CaretIndex = Math.Min(caret - 1, allowed.Length);
         }
     }
+    #endregion
 
     /// <summary>
     /// Handles changes in the authentication status for Microsoft accounts.

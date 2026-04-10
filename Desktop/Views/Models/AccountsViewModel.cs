@@ -5,6 +5,7 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ReactiveUI;
@@ -44,6 +45,7 @@ public partial class AccountsViewModel : KonkordObservableObject
 
     #region Observable Properties
     [ObservableProperty] private bool isLoggingInMicrosoftAccount;
+    [ObservableProperty] private bool isProcessingLogin;
     [ObservableProperty] private double _progress;
     [ObservableProperty] private string _progressText = "Loading...";
     [ObservableProperty] private string? _offlineUsername;
@@ -95,7 +97,8 @@ public partial class AccountsViewModel : KonkordObservableObject
 
     private async Task HandleAuthStatusChange(EAuthStatus status)
     {
-        _logger.Debug($"Microsoft Status result: {MicrosoftAuthService.AuthStatus}");
+        _logger.Debug($"Microsoft Status result: {status}");
+        IsProcessingLogin = status == EAuthStatus.PROCESSING || status ==  EAuthStatus.SUCCESS;
         if (status == EAuthStatus.FAILED)
         {
             IsLoggingInMicrosoftAccount = false;

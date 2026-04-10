@@ -95,6 +95,7 @@ public static class JavaHelper
                 8 => osMirror.Jdk8,
                 17 => osMirror.Jdk17,
                 21 => osMirror.Jdk21,
+                25 => osMirror.Jdk25,
                 _ => null
             };
 

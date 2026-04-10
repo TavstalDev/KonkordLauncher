@@ -31,6 +31,12 @@ public class JavaMirrorJdks
     /// </summary>
     [JsonProperty("java_21"), JsonPropertyName("java_21")]
     public JavaMirrorArchitecture Jdk21 { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the Java mirror for JDK 25.
+    /// </summary>
+    [JsonProperty("java_25"), JsonPropertyName("java_25")]
+    public JavaMirrorArchitecture Jdk25 { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="JavaMirrorJdks"/> class with default values.
@@ -41,6 +47,7 @@ public class JavaMirrorJdks
         Jdk8 = new JavaMirrorArchitecture();
         Jdk17 = new JavaMirrorArchitecture();
         Jdk21 = new JavaMirrorArchitecture();
+        Jdk25 = new JavaMirrorArchitecture();
     }
 
     /// <summary>
@@ -50,11 +57,13 @@ public class JavaMirrorJdks
     /// <param name="jdk8">The Java mirror for JDK 8.</param>
     /// <param name="jdk17">The Java mirror for JDK 17.</param>
     /// <param name="jdk21">The Java mirror for JDK 21.</param>
-    public JavaMirrorJdks(JavaMirrorArchitecture jdk7, JavaMirrorArchitecture jdk8, JavaMirrorArchitecture jdk17, JavaMirrorArchitecture jdk21)
+    /// <param name="jdk25">The Java mirror for JDK 25.</param>
+    public JavaMirrorJdks(JavaMirrorArchitecture jdk7, JavaMirrorArchitecture jdk8, JavaMirrorArchitecture jdk17, JavaMirrorArchitecture jdk21, JavaMirrorArchitecture jdk25)
     {
         Jdk7 = jdk7;
         Jdk8 = jdk8;
         Jdk17 = jdk17;
         Jdk21 = jdk21;
+        Jdk25 = jdk25;
     }
 }

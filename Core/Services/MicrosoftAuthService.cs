@@ -193,7 +193,10 @@ public static class MicrosoftAuthService
                 OnAuthStatusChanged?.Invoke(_authStatus);
                 return;
             }
-           
+
+            _authStatus = EAuthStatus.PROCESSING;
+            OnAuthStatusChanged?.Invoke(_authStatus);
+            
             // Proceed with the token
             await XboxTokenCallAsync(value.ToString(), refreshToken.ToString(), cancellationToken);
         }
@@ -275,6 +278,9 @@ public static class MicrosoftAuthService
             
             if (!obj.TryGetValue("refresh_token", out var refreshToken))
                 return;
+            
+            _authStatus = EAuthStatus.PROCESSING;
+            OnAuthStatusChanged?.Invoke(_authStatus);
             
             await XboxTokenCallAsync(value.ToString(), refreshToken.ToString(), cancellationToken);
         }

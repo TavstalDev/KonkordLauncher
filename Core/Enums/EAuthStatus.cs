@@ -16,12 +16,17 @@ public enum EAuthStatus
     PENDING = 1,
 
     /// <summary>
+    /// The authentication process is currently in progress.
+    /// </summary>
+    PROCESSING = 2,
+    
+    /// <summary>
     /// The authentication process was successful.
     /// </summary>
-    SUCCESS = 2,
+    SUCCESS = 3,
 
     /// <summary>
     /// The authentication process failed.
     /// </summary>
-    FAILED = 3,
+    FAILED = 4,
 }

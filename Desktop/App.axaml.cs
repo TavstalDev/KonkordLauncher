@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -21,6 +22,8 @@ namespace Tavstal.KonkordLauncher.Desktop;
 public partial class App : Application
 {
     private static readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(App));
+    // ReSharper disable once NotAccessedField.Local - Used to ensure the task is not garbage collected before completion
+    private static Task? _initializeTask;
     private static DiscordRpcClient? _rpcClient;
 
     #region Screen Size
@@ -91,7 +94,6 @@ public partial class App : Application
             return _buidDate;
         }
     }
-    public static bool? IsUpToDate { get; set; }
     #endregion
     
     /// <summary>
@@ -101,10 +103,19 @@ public partial class App : Application
     {
         AvaloniaXamlLoader.Load(this);
         GlobalEvents.OnThemeChanged += ApplyTheme;
+        _initializeTask = InitAsync();
+    }
 
+    /// <summary>
+    /// Initializes launcher runtime state by loading persisted settings, applying the selected UI theme,
+    /// and configuring Discord Rich Presence with an initial "Starting..." status.
+    /// </summary>
+    /// <param name="cancellationToken">A token used to cancel the asynchronous settings load operation.</param>
+    private async Task InitAsync(CancellationToken cancellationToken = default)
+    {
         try
         {
-            var settings = LauncherHelper.GetLauncherSettings();
+            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
             ApplyTheme(settings.Launcher.Theme);
             
             _rpcClient = new DiscordRpcClient("1178002101561995416");
@@ -191,7 +202,7 @@ public partial class App : Application
             _rpcClient.SetPresence(new RichPresence
             {
                 Details = details,
-                Timestamps = _rpcClient?.CurrentPresence?.Timestamps ?? Timestamps.Now
+                Timestamps = _rpcClient.CurrentPresence?.Timestamps ?? Timestamps.Now
             });
         }
         catch (Exception ex)

@@ -197,7 +197,6 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
         bool shouldRefreshCache = await ValidateCachesAsync(settings, cancellationToken);
 
         // Check for Updates
-        App.IsUpToDate = true;
         if (settings.Launcher.EnableAutomaticUpdates && DateTime.Now > settings.Launcher.NextUpdateCheck)
         {
             UpdateStatusTranslated("startup.progress.checking");
@@ -213,8 +212,6 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
             }
             _logger.Debug("No updates found, starting application...");
         }
-        else
-            App.IsUpToDate = !await CheckUpdateAsync(true, cancellationToken);
 
         // Update cache refresh time if needed
         if (shouldRefreshCache)

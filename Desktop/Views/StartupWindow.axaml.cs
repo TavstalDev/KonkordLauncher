@@ -49,7 +49,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
     
     private const int _maxParallelDownloads = 16;
 
-    private readonly int[] _javaVersionsToDownload = [8, 17, 21];
+    private readonly int[] _javaVersionsToDownload = [8, 17, 21, 25];
 
     /// <summary>
     /// Initializes a new instance of the <see cref="StartupWindow"/> class with default settings.
@@ -122,17 +122,6 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
         ProgressBar.IsIndeterminate = false;
     }
     
-    /// <summary>
-    /// Begins a window drag operation when the primary (left) mouse button is pressed on the drag region.
-    /// </summary>
-    /// <param name="sender">The source of the pointer event (typically the control that raised the event). May be null.</param>
-    /// <param name="e">The <see cref="PointerPressedEventArgs"/> instance containing event data for the pointer press.</param>
-    private void DragStart_PointerPressed(object? sender, PointerPressedEventArgs e)
-    {
-        // Start moving the window when left mouse button is pressed
-        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
-            BeginMoveDrag(e);
-    }
     #endregion
 
     private async Task InitAsync(CancellationToken cancellationToken = default)

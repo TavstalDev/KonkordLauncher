@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MinecraftSkinRender;
@@ -41,6 +42,10 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 public partial class MainViewModel : KonkordObservableObject
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MainViewModel));
+    private DateTime _nextCacheRefresh;
+    private DateTime _nextUpdate;
+    
+    
     public Task Initialization { get; }
     public bool IsLinux { get; } = OSHelper.GetOperatingSystem() == EOperatingSystem.Linux;
 
@@ -137,6 +142,8 @@ public partial class MainViewModel : KonkordObservableObject
         try
         {
             var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
+            _nextUpdate = settings.Launcher.NextUpdateCheck;
+            _nextCacheRefresh = settings.CacheRefreshDate;
             var accountData = await LauncherHelper.GetAccountDataAsync(cancellationToken);
 
             CoreConfig = new CoreConfigModel(settings);
@@ -197,7 +204,6 @@ public partial class MainViewModel : KonkordObservableObject
             License = Regex.Replace((await reader.ReadToEndAsync(cancellationToken)).Trim(), @" {3,}", " ");
 
             SubscribeToCoreConfigChildren(CoreConfig);
-            SubscribeToAccountDataChildren(AccountData);
             GlobalEvents.OnAccountsChanged += OnAccountUpdated;
             GlobalEvents.OnInstancesChanged += OnInstancesChanged;
         }
@@ -261,6 +267,7 @@ public partial class MainViewModel : KonkordObservableObject
             }
         }
 
+        InstanceGroups.Clear();
         foreach (var group in instanceGroups.Values)
             InstanceGroups.Add(group);
 
@@ -632,13 +639,14 @@ public partial class MainViewModel : KonkordObservableObject
     /// </summary>
     private void OnAccountUpdated()
     {
-        _ = HandleAccountUpdatedAsync();
+        Dispatcher.UIThread.Invoke(async () => await HandleAccountUpdatedAsync());
     }
 
     private async Task HandleAccountUpdatedAsync(CancellationToken cancellationToken = default)
     {
-        AccountData = new AccountDataModel(await LauncherHelper.GetAccountDataAsync(cancellationToken));
-        Account? selectedAccount = AccountData.Accounts.FirstOrDefault(x => x.Id == AccountData.SelectedAccountId);
+        var accountData = await LauncherHelper.GetAccountDataAsync(cancellationToken);
+        AccountData = new AccountDataModel(accountData);
+        Account? selectedAccount = accountData.Accounts.FirstOrDefault(x => x.Id == AccountData.SelectedAccountId);
 
         if (SelectedAccount != selectedAccount)
         {
@@ -781,16 +789,17 @@ public partial class MainViewModel : KonkordObservableObject
     /// <param name="newValue">The new AccountDataModel instance.</param>
     partial void OnAccountDataChanged(AccountDataModel? oldValue, AccountDataModel newValue)
     {
+        if (IsLoading || !Initialization.IsCompletedSuccessfully)
+            return;
+        
         _logger.Debug("AccountData changed with old and new value. Unsubscribing from old, subscribing to new.");
 
         if (oldValue != null)
             UnsubscribeFromAccountDataChildren(oldValue);
 
         SubscribeToAccountDataChildren(newValue);
-
-        if (IsLoading || !Initialization.IsCompletedSuccessfully)
-            return;
-        _ = SaveAccountDataToFileAsync(newValue);
+        
+        SaveAccountDataToFile(newValue);
     }
 
     /// <summary>
@@ -803,16 +812,19 @@ public partial class MainViewModel : KonkordObservableObject
     {
         if (IsLoading || !Initialization.IsCompletedSuccessfully)
             return;
+     
+        if (sender is not AccountDataModel accountData)
+            return;
+        
         _logger.Debug($"Inner property '{e.PropertyName}' changed on {sender?.GetType().Name}. Saving to file...");
-        _ = SaveAccountDataToFileAsync(AccountData);
+        SaveAccountDataToFile(accountData);
     }
 
     /// <summary>
     /// Saves the provided AccountDataModel instance to a file in JSON format.
     /// </summary>
     /// <param name="newValue">The AccountDataModel instance to save.</param>
-    ///  <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-    private async Task SaveAccountDataToFileAsync(AccountDataModel newValue, CancellationToken cancellationToken = default)
+    private void SaveAccountDataToFile(AccountDataModel newValue)
     {
         var accounts = new AccountData
         {
@@ -835,7 +847,7 @@ public partial class MainViewModel : KonkordObservableObject
             }).ToList()
         };
 
-        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accounts, cancellationToken);
+        JsonHelper.WriteJsonFile(PathHelper.LauncherAccountsPath, accounts);
     }
 
     #endregion
@@ -979,16 +991,17 @@ public partial class MainViewModel : KonkordObservableObject
     /// <param name="newValue">The new core configuration model.</param>
     partial void OnCoreConfigChanged(CoreConfigModel? oldValue, CoreConfigModel newValue)
     {
+        if (IsLoading || !Initialization.IsCompletedSuccessfully)
+            return; 
+        
         _logger.Debug("CoreConfig changed with old and new value. Unsubscribing from old, subscribing to new.");
 
         if (oldValue != null)
             UnsubscribeFromCoreConfigChildren(oldValue);
 
         SubscribeToCoreConfigChildren(newValue);
-
-        if (IsLoading || !Initialization.IsCompletedSuccessfully)
-            return;
-        _ = SaveCoreConfigToFileAsync(newValue);
+        
+        SaveCoreConfigToFile(newValue);
     }
 
     /// <summary>
@@ -1000,8 +1013,9 @@ public partial class MainViewModel : KonkordObservableObject
     {
         if (IsLoading || !Initialization.IsCompletedSuccessfully)
             return;
+        
         _logger.Debug($"Inner property '{e.PropertyName}' changed on {sender?.GetType().Name}. Saving to file...");
-        _ = SaveCoreConfigToFileAsync(CoreConfig);
+        SaveCoreConfigToFile(CoreConfig);
 
         // Handle theme change
         if (e.PropertyName == nameof(CoreConfig.Launcher.Theme))
@@ -1023,11 +1037,8 @@ public partial class MainViewModel : KonkordObservableObject
     /// Saves the core configuration model to a file, preserving non-observable properties.
     /// </summary>
     /// <param name="newValue">The updated core configuration model to save.</param>
-    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-    private async Task SaveCoreConfigToFileAsync(CoreConfigModel newValue, CancellationToken cancellationToken = default)
+    private void SaveCoreConfigToFile(CoreConfigModel newValue)
     {
-        var oldSettings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken); // Fetch to preserve non-observable properties
-
         if (newValue.Java.MinMemory > newValue.Java.MaxMemory)
         {
             _logger.Warn("Min memory cannot be greater than max memory. Adjusting values.");
@@ -1040,7 +1051,7 @@ public partial class MainViewModel : KonkordObservableObject
             {
                 EnableAutomaticUpdates = newValue.Launcher.EnableAutomaticUpdates,
                 UpdateInterval = newValue.Launcher.UpdateInterval,
-                NextUpdateCheck = oldSettings.Launcher.NextUpdateCheck, // Preserve
+                NextUpdateCheck = _nextUpdate,
                 Language = newValue.Launcher.Language,
                 Theme = newValue.Launcher.Theme,
                 AssetsDirectoryPath = newValue.Launcher.AssetsDirectoryPath,
@@ -1081,10 +1092,10 @@ public partial class MainViewModel : KonkordObservableObject
                 EnableMangoHud = newValue.Misc.EnableMangoHud,
                 EnableFeralGameMode = newValue.Misc.EnableFeralGameMode,
             },
-            CacheRefreshDate = oldSettings.CacheRefreshDate
+            CacheRefreshDate = _nextCacheRefresh
         };
 
-        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherConfigPath, settings, cancellationToken);
+        JsonHelper.WriteJsonFile(PathHelper.LauncherConfigPath, settings);
     }
 
     #endregion

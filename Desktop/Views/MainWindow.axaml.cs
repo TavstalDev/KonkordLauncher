@@ -193,15 +193,6 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
         App.ClearRPC();
         base.OnClosing(e);
     }
-
-    private void DragStart_PointerPressed(object? sender, PointerPressedEventArgs e)
-    {
-        // Start moving the window when left mouse button is pressed
-        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
-        {
-            BeginMoveDrag(e);
-        }
-    }
     
     /// <summary>
     /// Handles the selection of a language from a ComboBox and updates the application's language setting.

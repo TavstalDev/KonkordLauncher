@@ -104,20 +104,6 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
             });
         });
     }
-
-    /// <summary>
-    /// Copies the provided text to the system clipboard.
-    /// </summary>
-    /// <param name="text">The text to copy to the clipboard.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    public async Task SetClipboardTextAsync(string text)
-    {
-        var topLevel = GetTopLevel(this);
-        if (topLevel?.Clipboard == null)
-            return;
-
-        await topLevel.Clipboard.SetTextAsync(text);
-    }
     
     /// <summary>
     /// Called when the window is opened.

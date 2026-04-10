@@ -100,12 +100,6 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
         App.UpdateRPC("Browsing instances...");
     }
     
-    private void DragStart_PointerPressed(object? sender, PointerPressedEventArgs e)
-    {
-        // Start moving the window when left mouse button is pressed
-        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
-            BeginMoveDrag(e);
-    }
     #endregion
 
     private void HandleTabChange(ECreateInstanceTab tab)

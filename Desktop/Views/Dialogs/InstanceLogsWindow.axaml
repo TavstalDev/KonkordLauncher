@@ -24,150 +24,190 @@
     UseLayoutRounding="True"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
-<Grid>
-    <!-- Main Window Content -->
-    <Border
-        Background="{DynamicResource base-200}"
-        BorderBrush="{DynamicResource border-one}"
-        BorderThickness="1"
-        CornerRadius="14"
-        PointerPressed="DragStart_PointerPressed">
-        <Grid RowDefinitions="Auto, *">
-            <!--  Window Controls  -->
-            <Border HorizontalAlignment="Stretch" PointerPressed="DragStart_PointerPressed">
-                <StackPanel Classes="WindowBtnPanel">
-                    <!--  MINIMIZE  -->
-                    <Button
-                        Classes="WindowBtn WarningBtn"
-                        Command="{Binding MinimizeWindowCommand}"
-                        ToolTip.Tip="{lang:Translate main.window.minimize}" />
-                    <!--  MAXIMIZE / RESTORE  -->
-                    <Button
-                        Classes="WindowBtn SuccessBtn"
-                        Command="{Binding MaximizeWindowCommand}"
-                        IsEnabled="{Binding $parent[Window].CanResize}"
-                        ToolTip.Tip="{lang:Translate main.window.maximize}" />
-                    <!--  CLOSE  -->
-                    <Button
-                        Classes="WindowBtn ErrorBtn"
-                        Command="{Binding CloseWindowCommand}"
-                        ToolTip.Tip="{lang:Translate main.window.close}" />
-                </StackPanel>
-            </Border>
-            <!--  Main Content  -->
-            <Grid
-                Grid.Row="1"
-                Margin="25"
-                RowDefinitions="Auto,*">
-                <!--  Title  -->
-                <WrapPanel ItemSpacing="10">
-                    <TextBlock
-                        HorizontalAlignment="Left"
-                        Classes="InstanceTitle"
-                        Text="{lang:Translate instance.logs.title}" />
-                    <TextBlock
-                        HorizontalAlignment="Left"
-                        Classes="InstanceTitle"
-                        Text="{Binding InstanceName}" />
-                </WrapPanel>
-                <!--  Content  -->
+    <Grid>
+        <!--  Main Window Content  -->
+        <Border
+            Background="{DynamicResource base-200}"
+            BorderBrush="{DynamicResource border-one}"
+            BorderThickness="1"
+            CornerRadius="14"
+            PointerPressed="DragStart_PointerPressed">
+            <Grid RowDefinitions="Auto, *">
+                <!--  Window Controls  -->
+                <Border HorizontalAlignment="Stretch" PointerPressed="DragStart_PointerPressed">
+                    <StackPanel Classes="WindowBtnPanel">
+                        <!--  MINIMIZE  -->
+                        <Button
+                            Classes="WindowBtn WarningBtn"
+                            Command="{Binding MinimizeWindowCommand}"
+                            ToolTip.Tip="{lang:Translate main.window.minimize}" />
+                        <!--  MAXIMIZE / RESTORE  -->
+                        <Button
+                            Classes="WindowBtn SuccessBtn"
+                            Command="{Binding MaximizeWindowCommand}"
+                            IsEnabled="{Binding $parent[Window].CanResize}"
+                            ToolTip.Tip="{lang:Translate main.window.maximize}" />
+                        <!--  CLOSE  -->
+                        <Button
+                            Classes="WindowBtn ErrorBtn"
+                            Command="{Binding CloseWindowCommand}"
+                            ToolTip.Tip="{lang:Translate main.window.close}" />
+                    </StackPanel>
+                </Border>
+                <!--  Main Content  -->
                 <Grid
                     Grid.Row="1"
-                    Classes="ModalScrollableWrapper"
-                    RowDefinitions="*, Auto">
-                    <!--  Log content  -->
-                    <Border
-                        Grid.Row="0"
-                        Background="{DynamicResource base-100}"
-                        Classes="GridInnerContent">
-                        <ScrollViewer
-                            Name="LogsScrollViewer"
-                            HorizontalScrollBarVisibility="Disabled"
-                            VerticalScrollBarVisibility="Auto">
-                            <TextBlock
-                                FontFamily="Consolas"
-                                FontSize="11"
-                                Opacity="0.8"
-                                Text="{Binding Logs}"
-                                TextWrapping="Wrap" />
-                        </ScrollViewer>
-                    </Border>
-                    <!--  Actions  -->
+                    Margin="25, 0, 25, 25"
+                    RowDefinitions="Auto,*">
+                    <!--  Title  -->
+                    <WrapPanel ItemSpacing="10">
+                        <TextBlock
+                            HorizontalAlignment="Left"
+                            Classes="InstanceTitle"
+                            Text="{lang:Translate instance.logs.title}" />
+                        <TextBlock
+                            HorizontalAlignment="Left"
+                            Classes="InstanceTitle"
+                            Text="{Binding InstanceName}" />
+                    </WrapPanel>
+                    <!--  Content  -->
                     <Grid
                         Grid.Row="1"
-                        ColumnDefinitions="*, Auto, Auto, Auto"
-                        ColumnSpacing="5">
-                        <!--  Search bar  -->
-                        <TextBox
-                            Grid.Column="0"
-                            Classes="TextInput"
-                            Watermark="{lang:Translate common.search}" />
-                        <!--  To bottom button  -->
-                        <Button
-                            Grid.Column="1"
-                            Classes="IconBtn DefaultBtn"
-                            Command="{Binding ScrollLogsToEndCommand}">
-                            <WrapPanel Classes="IconBtnWrapper">
+                        Classes="ModalScrollableWrapper"
+                        RowDefinitions="*, Auto">
+                        <!--  Log content  -->
+                        <Border
+                            Grid.Row="0"
+                            Background="{DynamicResource base-100}"
+                            Classes="GridInnerContent">
+                            <ScrollViewer
+                                Name="LogsScrollViewer"
+                                HorizontalScrollBarVisibility="Disabled"
+                                VerticalScrollBarVisibility="Auto">
                                 <TextBlock
-                                    VerticalAlignment="Center"
-                                    Classes="FontAwesome"
-                                    Text="&#xe4b8;" />
-                                <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.bottom}" />
-                            </WrapPanel>
-                        </Button>
-                        <!--  Copy button  -->
-                        <Button
-                            Grid.Column="2"
-                            Classes="IconBtn DefaultBtn"
-                            Command="{Binding CopyLogsCommand}">
-                            <WrapPanel Classes="IconBtnWrapper">
-                                <TextBlock
-                                    VerticalAlignment="Center"
-                                    Classes="FontAwesome"
-                                    Text="&#xf0c5;" />
-                                <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.copy}" />
-                            </WrapPanel>
-                        </Button>
-                        <!--  Clear button  -->
-                        <Button
-                            Grid.Column="3"
-                            Classes="IconBtn ErrorBtn"
-                            Command="{Binding ClearLogsCommand}">
-                            <WrapPanel Classes="IconBtnWrapper">
-                                <TextBlock
-                                    VerticalAlignment="Center"
-                                    Classes="FontAwesome"
-                                    Text="&#xf1b8;" />
-                                <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.clear}" />
-                            </WrapPanel>
-                        </Button>
+                                    FontFamily="Consolas"
+                                    FontSize="11"
+                                    Opacity="0.8"
+                                    Text="{Binding Logs}"
+                                    TextWrapping="Wrap" />
+                            </ScrollViewer>
+                        </Border>
+                        <!--  Actions  -->
+                        <Grid
+                            Grid.Row="1"
+                            ColumnDefinitions="*, Auto, Auto, Auto"
+                            ColumnSpacing="5">
+                            <!--  Search bar  -->
+                            <TextBox
+                                Grid.Column="0"
+                                Classes="TextInput"
+                                Watermark="{lang:Translate common.search}" />
+                            <!--  To bottom button  -->
+                            <Button
+                                Grid.Column="1"
+                                Classes="IconBtn DefaultBtn"
+                                Command="{Binding ScrollLogsToEndCommand}">
+                                <WrapPanel Classes="IconBtnWrapper">
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        Classes="FontAwesome"
+                                        Text="&#xe4b8;" />
+                                    <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.bottom}" />
+                                </WrapPanel>
+                            </Button>
+                            <!--  Copy button  -->
+                            <Button
+                                Grid.Column="2"
+                                Classes="IconBtn DefaultBtn"
+                                Command="{Binding CopyLogsCommand}">
+                                <WrapPanel Classes="IconBtnWrapper">
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        Classes="FontAwesome"
+                                        Text="&#xf0c5;" />
+                                    <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.copy}" />
+                                </WrapPanel>
+                            </Button>
+                            <!--  Clear button  -->
+                            <Button
+                                Grid.Column="3"
+                                Classes="IconBtn ErrorBtn"
+                                Command="{Binding ClearLogsCommand}">
+                                <WrapPanel Classes="IconBtnWrapper">
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        Classes="FontAwesome"
+                                        Text="&#xf1b8;" />
+                                    <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.clear}" />
+                                </WrapPanel>
+                            </Button>
+                        </Grid>
                     </Grid>
                 </Grid>
             </Grid>
-        </Grid>
-    </Border>
-    
-    <!-- Resize overlay (8px grips) -->
-    <Grid RowDefinitions="8,*,8" ColumnDefinitions="8,*,8">
-        <!-- Edges -->
-        <Border Grid.Row="0" Grid.Column="1" Background="Transparent" Cursor="TopSide" 
-                Tag="North" PointerPressed="ResizeHandle_PointerPressed"/>
-        <Border Grid.Row="2" Grid.Column="1" Background="Transparent" Cursor="BottomSide"
-                Tag="South" PointerPressed="ResizeHandle_PointerPressed"/>
-        <Border Grid.Row="1" Grid.Column="0" Background="Transparent" Cursor="LeftSide"
-                Tag="West" PointerPressed="ResizeHandle_PointerPressed"/>
-        <Border Grid.Row="1" Grid.Column="2" Background="Transparent" Cursor="RightSide"
-                Tag="East" PointerPressed="ResizeHandle_PointerPressed"/>
+        </Border>
 
-        <!-- Corners -->
-        <Border Grid.Row="0" Grid.Column="0" Background="Transparent" Cursor="TopLeftCorner"
-                Tag="NorthWest" PointerPressed="ResizeHandle_PointerPressed"/>
-        <Border Grid.Row="0" Grid.Column="2" Background="Transparent" Cursor="TopRightCorner"
-                Tag="NorthEast" PointerPressed="ResizeHandle_PointerPressed"/>
-        <Border Grid.Row="2" Grid.Column="0" Background="Transparent" Cursor="BottomLeftCorner"
-                Tag="SouthWest" PointerPressed="ResizeHandle_PointerPressed"/>
-        <Border Grid.Row="2" Grid.Column="2" Background="Transparent" Cursor="BottomRightCorner"
-                Tag="SouthEast" PointerPressed="ResizeHandle_PointerPressed"/>
+        <!--  Resize overlay (8px grips)  -->
+        <Grid ColumnDefinitions="8,*,8" RowDefinitions="8,*,8">
+            <!--  Edges  -->
+            <Border
+                Grid.Row="0"
+                Grid.Column="1"
+                Background="Transparent"
+                Cursor="TopSide"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="North" />
+            <Border
+                Grid.Row="2"
+                Grid.Column="1"
+                Background="Transparent"
+                Cursor="BottomSide"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="South" />
+            <Border
+                Grid.Row="1"
+                Grid.Column="0"
+                Background="Transparent"
+                Cursor="LeftSide"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="West" />
+            <Border
+                Grid.Row="1"
+                Grid.Column="2"
+                Background="Transparent"
+                Cursor="RightSide"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="East" />
+
+            <!--  Corners  -->
+            <Border
+                Grid.Row="0"
+                Grid.Column="0"
+                Background="Transparent"
+                Cursor="TopLeftCorner"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="NorthWest" />
+            <Border
+                Grid.Row="0"
+                Grid.Column="2"
+                Background="Transparent"
+                Cursor="TopRightCorner"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="NorthEast" />
+            <Border
+                Grid.Row="2"
+                Grid.Column="0"
+                Background="Transparent"
+                Cursor="BottomLeftCorner"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="SouthWest" />
+            <Border
+                Grid.Row="2"
+                Grid.Column="2"
+                Background="Transparent"
+                Cursor="BottomRightCorner"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="SouthEast" />
+        </Grid>
     </Grid>
-</Grid>
 </Window>

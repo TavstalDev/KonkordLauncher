@@ -26,134 +26,174 @@
     UseLayoutRounding="True"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
-<Grid>
-    <!-- Main Window Content -->
-    <Border
-        Background="{DynamicResource base-200}"
-        BorderBrush="{DynamicResource border-one}"
-        BorderThickness="1"
-        CornerRadius="14"
-        PointerPressed="DragStart_PointerPressed">
-        <Grid RowDefinitions="Auto, *">
-            <!--  Window Controls  -->
-            <Border HorizontalAlignment="Stretch" PointerPressed="DragStart_PointerPressed">
-                <StackPanel Classes="WindowBtnPanel">
-                    <!--  MINIMIZE  -->
-                    <Button
-                        Classes="WindowBtn WarningBtn"
-                        Command="{Binding MinimizeWindowCommand}"
-                        ToolTip.Tip="{lang:Translate main.window.minimize}" />
-                    <!--  MAXIMIZE / RESTORE  -->
-                    <Button
-                        Classes="WindowBtn SuccessBtn"
-                        Command="{Binding MaximizeWindowCommand}"
-                        IsEnabled="{Binding $parent[Window].CanResize}"
-                        ToolTip.Tip="{lang:Translate main.window.maximize}" />
-                    <!--  CLOSE  -->
-                    <Button
-                        Classes="WindowBtn ErrorBtn"
-                        Command="{Binding CloseWindowCommand}"
-                        ToolTip.Tip="{lang:Translate main.window.close}" />
-                </StackPanel>
-            </Border>
-            <!--  Main Content  -->
-            <Grid
-                Grid.Row="1"
-                Margin="20"
-                RowDefinitions="Auto, *, Auto">
-                <TextBlock Classes="ModalTitle" Text="{lang:Translate java.select}" />
-                <ScrollViewer
+    <Grid>
+        <!--  Main Window Content  -->
+        <Border
+            Background="{DynamicResource base-200}"
+            BorderBrush="{DynamicResource border-one}"
+            BorderThickness="1"
+            CornerRadius="14"
+            PointerPressed="DragStart_PointerPressed">
+            <Grid RowDefinitions="Auto, *">
+                <!--  Window Controls  -->
+                <Border HorizontalAlignment="Stretch" PointerPressed="DragStart_PointerPressed">
+                    <StackPanel Classes="WindowBtnPanel">
+                        <!--  MINIMIZE  -->
+                        <Button
+                            Classes="WindowBtn WarningBtn"
+                            Command="{Binding MinimizeWindowCommand}"
+                            ToolTip.Tip="{lang:Translate main.window.minimize}" />
+                        <!--  MAXIMIZE / RESTORE  -->
+                        <Button
+                            Classes="WindowBtn SuccessBtn"
+                            Command="{Binding MaximizeWindowCommand}"
+                            IsEnabled="{Binding $parent[Window].CanResize}"
+                            ToolTip.Tip="{lang:Translate main.window.maximize}" />
+                        <!--  CLOSE  -->
+                        <Button
+                            Classes="WindowBtn ErrorBtn"
+                            Command="{Binding CloseWindowCommand}"
+                            ToolTip.Tip="{lang:Translate main.window.close}" />
+                    </StackPanel>
+                </Border>
+                <!--  Main Content  -->
+                <Grid
                     Grid.Row="1"
-                    Margin="0,0,0,20"
-                    Classes="TableScrollViewer">
-                    <DataGrid
-                        Name="VersionTable"
-                        Background="{DynamicResource base-100}"
-                        Classes="InstanceTable"
-                        ItemsSource="{Binding Versions}"
-                        SelectedItem="{Binding SelectedJavaVersion, Mode=TwoWay}">
-                        <DataGrid.Columns>
-                            <!--  Major  -->
-                            <DataGridTextColumn
-                                Width="Auto"
-                                Binding="{Binding Major}"
-                                Header="{lang:Translate java.table.major}" />
-                            <!--  Version  -->
-                            <DataGridTextColumn
-                                Width="Auto"
-                                Binding="{Binding Version}"
-                                Header="{lang:Translate java.table.version}" />
-                            <!--  Architecture  -->
-                            <DataGridTextColumn
-                                Width="Auto"
-                                Binding="{Binding Architecture}"
-                                Header="{lang:Translate java.table.architecture}" />
-                            <!--  Path  -->
-                            <DataGridTextColumn
-                                Width="Auto"
-                                Binding="{Binding Path}"
-                                Header="{lang:Translate java.table.path}" />
-                        </DataGrid.Columns>
-                    </DataGrid>
-                </ScrollViewer>
-                <WrapPanel
-                    Grid.Row="2"
-                    HorizontalAlignment="Center"
-                    ItemSpacing="5">
-                    <!--  Ok Button  -->
-                    <Button
-                        MinWidth="90"
-                        Classes="IconBtn"
-                        Command="{Binding SelectedBtnCommand}"
-                        IsEnabled="{Binding HasSelectedJavaVersion}">
-                        <WrapPanel Classes="IconBtnWrapper">
-                            <TextBlock
-                                VerticalAlignment="Center"
-                                Classes="FontAwesome"
-                                Text="&#xf00c;" />
-                            <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.ok}" />
-                        </WrapPanel>
+                    Margin="20"
+                    RowDefinitions="Auto, *, Auto">
+                    <TextBlock Classes="ModalTitle" Text="{lang:Translate java.select}" />
+                    <ScrollViewer
+                        Grid.Row="1"
+                        Margin="0,0,0,20"
+                        Classes="TableScrollViewer">
+                        <DataGrid
+                            Name="VersionTable"
+                            Background="{DynamicResource base-100}"
+                            Classes="InstanceTable"
+                            ItemsSource="{Binding Versions}"
+                            SelectedItem="{Binding SelectedJavaVersion, Mode=TwoWay}">
+                            <DataGrid.Columns>
+                                <!--  Major  -->
+                                <DataGridTextColumn
+                                    Width="Auto"
+                                    Binding="{Binding Major}"
+                                    Header="{lang:Translate java.table.major}" />
+                                <!--  Version  -->
+                                <DataGridTextColumn
+                                    Width="Auto"
+                                    Binding="{Binding Version}"
+                                    Header="{lang:Translate java.table.version}" />
+                                <!--  Architecture  -->
+                                <DataGridTextColumn
+                                    Width="Auto"
+                                    Binding="{Binding Architecture}"
+                                    Header="{lang:Translate java.table.architecture}" />
+                                <!--  Path  -->
+                                <DataGridTextColumn
+                                    Width="Auto"
+                                    Binding="{Binding Path}"
+                                    Header="{lang:Translate java.table.path}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </ScrollViewer>
+                    <WrapPanel
+                        Grid.Row="2"
+                        HorizontalAlignment="Center"
+                        ItemSpacing="5">
+                        <!--  Ok Button  -->
+                        <Button
+                            MinWidth="90"
+                            Classes="IconBtn"
+                            Command="{Binding SelectedBtnCommand}"
+                            IsEnabled="{Binding HasSelectedJavaVersion}">
+                            <WrapPanel Classes="IconBtnWrapper">
+                                <TextBlock
+                                    VerticalAlignment="Center"
+                                    Classes="FontAwesome"
+                                    Text="&#xf00c;" />
+                                <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.ok}" />
+                            </WrapPanel>
 
-                    </Button>
-                    <!--  Cancel Button  -->
-                    <Button
-                        MinWidth="90"
-                        Classes="IconBtn"
-                        Command="{Binding CancelBtnCommand}">
-                        <WrapPanel Classes="IconBtnWrapper">
-                            <TextBlock
-                                VerticalAlignment="Center"
-                                Classes="FontAwesome"
-                                Text="&#xf00d;" />
-                            <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.cancel}" />
-                        </WrapPanel>
-                    </Button>
-                </WrapPanel>
+                        </Button>
+                        <!--  Cancel Button  -->
+                        <Button
+                            MinWidth="90"
+                            Classes="IconBtn"
+                            Command="{Binding CancelBtnCommand}">
+                            <WrapPanel Classes="IconBtnWrapper">
+                                <TextBlock
+                                    VerticalAlignment="Center"
+                                    Classes="FontAwesome"
+                                    Text="&#xf00d;" />
+                                <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.cancel}" />
+                            </WrapPanel>
+                        </Button>
+                    </WrapPanel>
+                </Grid>
             </Grid>
-        </Grid>
-    </Border>
-    
-    <!-- Resize overlay (8px grips) -->
-    <Grid RowDefinitions="8,*,8" ColumnDefinitions="8,*,8">
-        <!-- Edges -->
-        <Border Grid.Row="0" Grid.Column="1" Background="Transparent" Cursor="TopSide" 
-                Tag="North" PointerPressed="ResizeHandle_PointerPressed"/>
-        <Border Grid.Row="2" Grid.Column="1" Background="Transparent" Cursor="BottomSide"
-                Tag="South" PointerPressed="ResizeHandle_PointerPressed"/>
-        <Border Grid.Row="1" Grid.Column="0" Background="Transparent" Cursor="LeftSide"
-                Tag="West" PointerPressed="ResizeHandle_PointerPressed"/>
-        <Border Grid.Row="1" Grid.Column="2" Background="Transparent" Cursor="RightSide"
-                Tag="East" PointerPressed="ResizeHandle_PointerPressed"/>
+        </Border>
 
-        <!-- Corners -->
-        <Border Grid.Row="0" Grid.Column="0" Background="Transparent" Cursor="TopLeftCorner"
-                Tag="NorthWest" PointerPressed="ResizeHandle_PointerPressed"/>
-        <Border Grid.Row="0" Grid.Column="2" Background="Transparent" Cursor="TopRightCorner"
-                Tag="NorthEast" PointerPressed="ResizeHandle_PointerPressed"/>
-        <Border Grid.Row="2" Grid.Column="0" Background="Transparent" Cursor="BottomLeftCorner"
-                Tag="SouthWest" PointerPressed="ResizeHandle_PointerPressed"/>
-        <Border Grid.Row="2" Grid.Column="2" Background="Transparent" Cursor="BottomRightCorner"
-                Tag="SouthEast" PointerPressed="ResizeHandle_PointerPressed"/>
+        <!--  Resize overlay (8px grips)  -->
+        <Grid ColumnDefinitions="8,*,8" RowDefinitions="8,*,8">
+            <!--  Edges  -->
+            <Border
+                Grid.Row="0"
+                Grid.Column="1"
+                Background="Transparent"
+                Cursor="TopSide"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="North" />
+            <Border
+                Grid.Row="2"
+                Grid.Column="1"
+                Background="Transparent"
+                Cursor="BottomSide"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="South" />
+            <Border
+                Grid.Row="1"
+                Grid.Column="0"
+                Background="Transparent"
+                Cursor="LeftSide"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="West" />
+            <Border
+                Grid.Row="1"
+                Grid.Column="2"
+                Background="Transparent"
+                Cursor="RightSide"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="East" />
+
+            <!--  Corners  -->
+            <Border
+                Grid.Row="0"
+                Grid.Column="0"
+                Background="Transparent"
+                Cursor="TopLeftCorner"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="NorthWest" />
+            <Border
+                Grid.Row="0"
+                Grid.Column="2"
+                Background="Transparent"
+                Cursor="TopRightCorner"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="NorthEast" />
+            <Border
+                Grid.Row="2"
+                Grid.Column="0"
+                Background="Transparent"
+                Cursor="BottomLeftCorner"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="SouthWest" />
+            <Border
+                Grid.Row="2"
+                Grid.Column="2"
+                Background="Transparent"
+                Cursor="BottomRightCorner"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="SouthEast" />
+        </Grid>
     </Grid>
-</Grid>
 </Window>

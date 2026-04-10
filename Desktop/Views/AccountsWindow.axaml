@@ -2,11 +2,11 @@
     x:Class="Tavstal.KonkordLauncher.Desktop.Views.AccountsWindow"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:avalonia="clr-namespace:LoadingIndicators.Avalonia;assembly=LoadingIndicators.Avalonia"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
-    xmlns:avalonia="clr-namespace:LoadingIndicators.Avalonia;assembly=LoadingIndicators.Avalonia"
     Title="{lang:Translate auth.title}"
     Width="500"
     MinWidth="500"
@@ -26,55 +26,182 @@
     UseLayoutRounding="True"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
-<Grid>
-    <!-- Main Window Content -->
-    <Border
-        Background="{DynamicResource base-200}"
-        BorderBrush="{DynamicResource border-one}"
-        BorderThickness="1"
-        CornerRadius="14"
-        PointerPressed="DragStart_PointerPressed">
-        <Grid RowDefinitions="Auto, *">
-            <!--  Window Controls  -->
-            <Border HorizontalAlignment="Stretch" PointerPressed="DragStart_PointerPressed">
-                <StackPanel Classes="WindowBtnPanel">
-                    <!--  MINIMIZE  -->
-                    <Button
-                        Classes="WindowBtn WarningBtn"
-                        Command="{Binding MinimizeWindowCommand}"
-                        ToolTip.Tip="{lang:Translate main.window.minimize}" />
-                    <!--  MAXIMIZE / RESTORE  -->
-                    <Button
-                        Classes="WindowBtn SuccessBtn"
-                        Command="{Binding MaximizeWindowCommand}"
-                        IsEnabled="{Binding $parent[Window].CanResize}"
-                        ToolTip.Tip="{lang:Translate main.window.maximize}" />
-                    <!--  CLOSE  -->
-                    <Button
-                        Classes="WindowBtn ErrorBtn"
-                        Command="{Binding CloseWindowCommand}"
-                        ToolTip.Tip="{lang:Translate main.window.close}" />
-                </StackPanel>
-            </Border>
-            <!--  Main Content  -->
-            <StackPanel Grid.Row="1" Margin="20, 0, 20 ,20" IsVisible="{Binding !IsProcessingLogin}">
-                <TextBlock Classes="ModalTitle" Text="{lang:Translate auth.title}" />
-                <TabControl Classes="ModalTab">
-                    <!--  Microsoft account login tab  -->
-                    <TabItem Classes="ModalTabItem" Header="{lang:Translate auth.tab.microsoft}">
-                        <Border Classes="ModalWrapper">
-                            <Grid>
-                                <!--  Start with Microsoft account login  -->
-                                <WrapPanel Classes="ModalWrapper" IsVisible="{Binding !IsLoggingInMicrosoftAccount}">
+    <Grid>
+        <!--  Main Window Content  -->
+        <Border
+            Background="{DynamicResource base-200}"
+            BorderBrush="{DynamicResource border-one}"
+            BorderThickness="1"
+            CornerRadius="14"
+            PointerPressed="DragStart_PointerPressed">
+            <Grid RowDefinitions="Auto, *">
+                <!--  Window Controls  -->
+                <Border HorizontalAlignment="Stretch" PointerPressed="DragStart_PointerPressed">
+                    <StackPanel Classes="WindowBtnPanel">
+                        <!--  MINIMIZE  -->
+                        <Button
+                            Classes="WindowBtn WarningBtn"
+                            Command="{Binding MinimizeWindowCommand}"
+                            ToolTip.Tip="{lang:Translate main.window.minimize}" />
+                        <!--  MAXIMIZE / RESTORE  -->
+                        <Button
+                            Classes="WindowBtn SuccessBtn"
+                            Command="{Binding MaximizeWindowCommand}"
+                            IsEnabled="{Binding $parent[Window].CanResize}"
+                            ToolTip.Tip="{lang:Translate main.window.maximize}" />
+                        <!--  CLOSE  -->
+                        <Button
+                            Classes="WindowBtn ErrorBtn"
+                            Command="{Binding CloseWindowCommand}"
+                            ToolTip.Tip="{lang:Translate main.window.close}" />
+                    </StackPanel>
+                </Border>
+                <!--  Main Content  -->
+                <StackPanel
+                    Grid.Row="1"
+                    Margin="20,0,20,20"
+                    IsVisible="{Binding !IsProcessingLogin}">
+                    <TextBlock Classes="ModalTitle" Text="{lang:Translate auth.title}" />
+                    <TabControl Classes="ModalTab">
+                        <!--  Microsoft account login tab  -->
+                        <TabItem Classes="ModalTabItem" Header="{lang:Translate auth.tab.microsoft}">
+                            <Border Classes="ModalWrapper">
+                                <Grid>
+                                    <!--  Start with Microsoft account login  -->
+                                    <WrapPanel Classes="ModalWrapper" IsVisible="{Binding !IsLoggingInMicrosoftAccount}">
+                                        <!--  Description text  -->
+                                        <TextBlock Classes="AccountsModalDescription" Text="{lang:Translate auth.microsoft.description}" />
+                                        <!--  Microsoft logo  -->
+                                        <Image Classes="AccountsModalImage" Source="avares://Desktop/Assets/Images/Brands/microsoft.png" />
+                                        <!--  Start login button  -->
+                                        <Button
+                                            HorizontalAlignment="Center"
+                                            Classes="IconBtn PrimaryBtn"
+                                            Command="{Binding LoginMicrosoftAccountCommand}">
+                                            <WrapPanel Margin="15,5" Classes="IconBtnWrapper">
+                                                <TextBlock
+                                                    VerticalAlignment="Center"
+                                                    Classes="FontAwesome MicrosoftButtonText"
+                                                    Text="&#xf4fc;" />
+                                                <TextBlock
+                                                    VerticalAlignment="Center"
+                                                    Classes="MicrosoftButtonText"
+                                                    Text="{lang:Translate auth.microsoft.login}" />
+                                            </WrapPanel>
+                                        </Button>
+                                        <!--  Note text  -->
+                                        <TextBlock Classes="AccountsNote" Text="{lang:Translate auth.microsoft.note}" />
+                                    </WrapPanel>
+                                    <!--  Show progress while waiting for browser confirmation  -->
+                                    <WrapPanel Classes="ModalWrapper" IsVisible="{Binding IsLoggingInMicrosoftAccount}">
+                                        <!--  Open in browser button  -->
+                                        <Button
+                                            HorizontalAlignment="Center"
+                                            Classes="IconBtn PrimaryBtn"
+                                            Command="{Binding MicrosoftOpenLoginLinkCommand}">
+                                            <WrapPanel Margin="15,5" Classes="IconBtnWrapper">
+                                                <TextBlock
+                                                    VerticalAlignment="Center"
+                                                    Classes="FontAwesome MicrosoftButtonText"
+                                                    Text="&#xf0ac;" />
+                                                <TextBlock
+                                                    VerticalAlignment="Center"
+                                                    Classes="MicrosoftButtonText"
+                                                    Text="{lang:Translate auth.microsoft.browser}" />
+                                            </WrapPanel>
+                                        </Button>
+
+                                        <!--  Or divider  -->
+                                        <Grid Classes="Divider" ColumnDefinitions="*, Auto, *">
+                                            <Border
+                                                Grid.Column="0"
+                                                Height="1"
+                                                Classes="DividerLeft" />
+
+                                            <TextBlock
+                                                Grid.Column="1"
+                                                Classes="Divider"
+                                                Text="{lang:Translate common.or}" />
+
+                                            <Border
+                                                Grid.Column="2"
+                                                Height="1"
+                                                Classes="DividerRight" />
+                                        </Grid>
+
+                                        <!--  QR code  -->
+                                        <Image
+                                            Width="150"
+                                            Height="150"
+                                            Source="{Binding QrCode}" />
+                                        <!--  Code  -->
+                                        <WrapPanel HorizontalAlignment="Center" ItemSpacing="10">
+                                            <SelectableTextBlock
+                                                VerticalAlignment="Center"
+                                                FontSize="25"
+                                                Text="{Binding DeviceData.UserCode}" />
+                                            <!--  Copy link button  -->
+                                            <Button Classes="IconBtn" Command="{Binding MicrosoftCopyCodeCommand}">
+                                                <TextBlock
+                                                    VerticalAlignment="Center"
+                                                    Classes="FontAwesome"
+                                                    Text="&#xf0c5;" />
+                                            </Button>
+                                        </WrapPanel>
+
+                                        <!--  Description text  -->
+                                        <TextBlock Classes="AccountsModalDescription" Text="{lang:Translate auth.code.note}" />
+
+                                        <WrapPanel Classes="AccountsModalProgressWrapper">
+                                            <!--  Open link button  -->
+                                            <Button
+                                                HorizontalAlignment="Center"
+                                                Classes="IconBtn PrimaryBtn"
+                                                Command="{Binding MicrosoftOpenCodeLinkCommand}">
+                                                <WrapPanel Classes="IconBtnWrapper">
+                                                    <TextBlock
+                                                        VerticalAlignment="Center"
+                                                        Classes="FontAwesome"
+                                                        Text="&#xf0c1;" />
+                                                    <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.open.link}" />
+                                                </WrapPanel>
+                                            </Button>
+                                            <!--  Cancel button  -->
+                                            <Button
+                                                HorizontalAlignment="Center"
+                                                Classes="IconBtn ErrorBtn"
+                                                Command="{Binding MicrosoftCancelLoginCommand}">
+                                                <WrapPanel Classes="IconBtnWrapper">
+                                                    <TextBlock
+                                                        VerticalAlignment="Center"
+                                                        Classes="FontAwesome"
+                                                        Text="&#xf00d;" />
+                                                    <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.cancel}" />
+                                                </WrapPanel>
+                                            </Button>
+                                        </WrapPanel>
+                                    </WrapPanel>
+                                </Grid>
+                            </Border>
+                        </TabItem>
+                        <!--  Offline account login tab  -->
+                        <TabItem Classes="ModalTabItem" Header="{lang:Translate auth.tab.offline}">
+                            <Border Classes="ModalWrapper">
+                                <WrapPanel Classes="ModalWrapper">
                                     <!--  Description text  -->
-                                    <TextBlock Classes="AccountsModalDescription" Text="{lang:Translate auth.microsoft.description}" />
-                                    <!--  Microsoft logo  -->
-                                    <Image Classes="AccountsModalImage" Source="avares://Desktop/Assets/Images/Brands/microsoft.png" />
-                                    <!--  Start login button  -->
+                                    <TextBlock Classes="AccountsModalDescription" Text="{lang:Translate auth.offline.description}" />
+                                    <!--  Username input  -->
+                                    <TextBox
+                                        Name="OfflineUsernameInput"
+                                        Classes="AccountsModalInput"
+                                        MaxLength="16"
+                                        Text="{Binding OfflineUsername}"
+                                        Watermark="steve" />
+                                    <!--  Offline login button  -->
                                     <Button
                                         HorizontalAlignment="Center"
                                         Classes="IconBtn PrimaryBtn"
-                                        Command="{Binding LoginMicrosoftAccountCommand}">
+                                        Command="{Binding OfflineLoginCommand}">
                                         <WrapPanel Margin="15,5" Classes="IconBtnWrapper">
                                             <TextBlock
                                                 VerticalAlignment="Center"
@@ -83,170 +210,97 @@
                                             <TextBlock
                                                 VerticalAlignment="Center"
                                                 Classes="MicrosoftButtonText"
-                                                Text="{lang:Translate auth.microsoft.login}" />
+                                                Text="{lang:Translate auth.offline.login}" />
                                         </WrapPanel>
                                     </Button>
                                     <!--  Note text  -->
-                                    <TextBlock Classes="AccountsNote" Text="{lang:Translate auth.microsoft.note}" />
+                                    <TextBlock Classes="AccountsNote" Text="{lang:Translate auth.offline.note}" />
                                 </WrapPanel>
-                                <!--  Show progress while waiting for browser confirmation  -->
-                                <WrapPanel Classes="ModalWrapper" IsVisible="{Binding IsLoggingInMicrosoftAccount}">
-                                    <!--  Open in browser button  -->
-                                    <Button
-                                        HorizontalAlignment="Center"
-                                        Classes="IconBtn PrimaryBtn"
-                                        Command="{Binding MicrosoftOpenLoginLinkCommand}">
-                                        <WrapPanel Margin="15,5" Classes="IconBtnWrapper">
-                                            <TextBlock
-                                                VerticalAlignment="Center"
-                                                Classes="FontAwesome MicrosoftButtonText"
-                                                Text="&#xf0ac;" />
-                                            <TextBlock
-                                                VerticalAlignment="Center"
-                                                Classes="MicrosoftButtonText"
-                                                Text="{lang:Translate auth.microsoft.browser}" />
-                                        </WrapPanel>
-                                    </Button>
+                            </Border>
+                        </TabItem>
+                    </TabControl>
+                </StackPanel>
+                <!--  Loading progress  -->
+                <StackPanel
+                    Grid.Row="1"
+                    Margin="20,0,20,20"
+                    IsVisible="{Binding IsProcessingLogin}">
+                    <TextBlock Classes="ModalTitle" Text="{lang:Translate auth.title}" />
+                    <avalonia:LoadingIndicator
+                        Height="200"
+                        Margin="0,-40,0,0"
+                        IsActive="{Binding IsProcessingLogin}"
+                        Mode="Arc"
+                        SpeedRatio="1.2" />
+                    <TextBlock
+                        Margin="0,-30,0,20"
+                        HorizontalAlignment="Center"
+                        Text="{lang:Translate auth.logging_in}" />
+                </StackPanel>
+            </Grid>
+        </Border>
 
-                                    <!--  Or divider  -->
-                                    <Grid Classes="Divider" ColumnDefinitions="*, Auto, *">
-                                        <Border
-                                            Grid.Column="0"
-                                            Height="1"
-                                            Classes="DividerLeft" />
+        <!--  Resize overlay (8px grips)  -->
+        <Grid ColumnDefinitions="8,*,8" RowDefinitions="8,*,8">
+            <!--  Edges  -->
+            <Border
+                Grid.Row="0"
+                Grid.Column="1"
+                Background="Transparent"
+                Cursor="TopSide"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="North" />
+            <Border
+                Grid.Row="2"
+                Grid.Column="1"
+                Background="Transparent"
+                Cursor="BottomSide"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="South" />
+            <Border
+                Grid.Row="1"
+                Grid.Column="0"
+                Background="Transparent"
+                Cursor="LeftSide"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="West" />
+            <Border
+                Grid.Row="1"
+                Grid.Column="2"
+                Background="Transparent"
+                Cursor="RightSide"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="East" />
 
-                                        <TextBlock
-                                            Grid.Column="1"
-                                            Classes="Divider"
-                                            Text="{lang:Translate common.or}" />
-
-                                        <Border
-                                            Grid.Column="2"
-                                            Height="1"
-                                            Classes="DividerRight" />
-                                    </Grid>
-
-                                    <!--  QR code  -->
-                                    <Image
-                                        Width="150"
-                                        Height="150"
-                                        Source="{Binding QrCode}" />
-                                    <!--  Code  -->
-                                    <WrapPanel HorizontalAlignment="Center" ItemSpacing="10">
-                                        <SelectableTextBlock
-                                            VerticalAlignment="Center"
-                                            FontSize="25"
-                                            Text="{Binding DeviceData.UserCode}" />
-                                        <!--  Copy link button  -->
-                                        <Button Classes="IconBtn" Command="{Binding MicrosoftCopyCodeCommand}">
-                                            <TextBlock
-                                                VerticalAlignment="Center"
-                                                Classes="FontAwesome"
-                                                Text="&#xf0c5;" />
-                                        </Button>
-                                    </WrapPanel>
-
-                                    <!--  Description text  -->
-                                    <TextBlock Classes="AccountsModalDescription" Text="{lang:Translate auth.code.note}" />
-
-                                    <WrapPanel Classes="AccountsModalProgressWrapper">
-                                        <!--  Open link button  -->
-                                        <Button
-                                            HorizontalAlignment="Center"
-                                            Classes="IconBtn PrimaryBtn"
-                                            Command="{Binding MicrosoftOpenCodeLinkCommand}">
-                                            <WrapPanel Classes="IconBtnWrapper">
-                                                <TextBlock
-                                                    VerticalAlignment="Center"
-                                                    Classes="FontAwesome"
-                                                    Text="&#xf0c1;" />
-                                                <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.open.link}" />
-                                            </WrapPanel>
-                                        </Button>
-                                        <!--  Cancel button  -->
-                                        <Button
-                                            HorizontalAlignment="Center"
-                                            Classes="IconBtn ErrorBtn"
-                                            Command="{Binding MicrosoftCancelLoginCommand}">
-                                            <WrapPanel Classes="IconBtnWrapper">
-                                                <TextBlock
-                                                    VerticalAlignment="Center"
-                                                    Classes="FontAwesome"
-                                                    Text="&#xf00d;" />
-                                                <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.cancel}" />
-                                            </WrapPanel>
-                                        </Button>
-                                    </WrapPanel>
-                                </WrapPanel>
-                            </Grid>
-                        </Border>
-                    </TabItem>
-                    <!--  Offline account login tab  -->
-                    <TabItem Classes="ModalTabItem" Header="{lang:Translate auth.tab.offline}">
-                        <Border Classes="ModalWrapper">
-                            <WrapPanel Classes="ModalWrapper">
-                                <!--  Description text  -->
-                                <TextBlock Classes="AccountsModalDescription" Text="{lang:Translate auth.offline.description}" />
-                                <!--  Username input  -->
-                                <TextBox
-                                    Name="OfflineUsernameInput"
-                                    Classes="AccountsModalInput"
-                                    MaxLength="16"
-                                    Text="{Binding OfflineUsername}"
-                                    Watermark="steve" />
-                                <!--  Offline login button  -->
-                                <Button
-                                    HorizontalAlignment="Center"
-                                    Classes="IconBtn PrimaryBtn"
-                                    Command="{Binding OfflineLoginCommand}">
-                                    <WrapPanel Margin="15,5" Classes="IconBtnWrapper">
-                                        <TextBlock
-                                            VerticalAlignment="Center"
-                                            Classes="FontAwesome MicrosoftButtonText"
-                                            Text="&#xf4fc;" />
-                                        <TextBlock
-                                            VerticalAlignment="Center"
-                                            Classes="MicrosoftButtonText"
-                                            Text="{lang:Translate auth.offline.login}" />
-                                    </WrapPanel>
-                                </Button>
-                                <!--  Note text  -->
-                                <TextBlock Classes="AccountsNote" Text="{lang:Translate auth.offline.note}" />
-                            </WrapPanel>
-                        </Border>
-                    </TabItem>
-                </TabControl>
-            </StackPanel>
-            <!-- Loading progress  -->
-            <StackPanel Grid.Row="1" Margin="20, 0, 20 ,20" IsVisible="{Binding IsProcessingLogin}">
-                <TextBlock Classes="ModalTitle" Text="{lang:Translate auth.title}" />
-                <avalonia:LoadingIndicator IsActive="{Binding IsProcessingLogin}" Height="200" Mode="Arc" SpeedRatio="1.2" Margin="0, -40, 0, 0" />
-                <TextBlock HorizontalAlignment="Center" Margin="0, -30, 0, 20" Text="{lang:Translate auth.logging_in}" />
-            </StackPanel>
+            <!--  Corners  -->
+            <Border
+                Grid.Row="0"
+                Grid.Column="0"
+                Background="Transparent"
+                Cursor="TopLeftCorner"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="NorthWest" />
+            <Border
+                Grid.Row="0"
+                Grid.Column="2"
+                Background="Transparent"
+                Cursor="TopRightCorner"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="NorthEast" />
+            <Border
+                Grid.Row="2"
+                Grid.Column="0"
+                Background="Transparent"
+                Cursor="BottomLeftCorner"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="SouthWest" />
+            <Border
+                Grid.Row="2"
+                Grid.Column="2"
+                Background="Transparent"
+                Cursor="BottomRightCorner"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="SouthEast" />
         </Grid>
-    </Border>
-    
-    <!-- Resize overlay (8px grips) -->
-    <Grid RowDefinitions="8,*,8" ColumnDefinitions="8,*,8">
-        <!-- Edges -->
-        <Border Grid.Row="0" Grid.Column="1" Background="Transparent" Cursor="TopSide" 
-                Tag="North" PointerPressed="ResizeHandle_PointerPressed"/>
-        <Border Grid.Row="2" Grid.Column="1" Background="Transparent" Cursor="BottomSide"
-                Tag="South" PointerPressed="ResizeHandle_PointerPressed"/>
-        <Border Grid.Row="1" Grid.Column="0" Background="Transparent" Cursor="LeftSide"
-                Tag="West" PointerPressed="ResizeHandle_PointerPressed"/>
-        <Border Grid.Row="1" Grid.Column="2" Background="Transparent" Cursor="RightSide"
-                Tag="East" PointerPressed="ResizeHandle_PointerPressed"/>
-
-        <!-- Corners -->
-        <Border Grid.Row="0" Grid.Column="0" Background="Transparent" Cursor="TopLeftCorner"
-                Tag="NorthWest" PointerPressed="ResizeHandle_PointerPressed"/>
-        <Border Grid.Row="0" Grid.Column="2" Background="Transparent" Cursor="TopRightCorner"
-                Tag="NorthEast" PointerPressed="ResizeHandle_PointerPressed"/>
-        <Border Grid.Row="2" Grid.Column="0" Background="Transparent" Cursor="BottomLeftCorner"
-                Tag="SouthWest" PointerPressed="ResizeHandle_PointerPressed"/>
-        <Border Grid.Row="2" Grid.Column="2" Background="Transparent" Cursor="BottomRightCorner"
-                Tag="SouthEast" PointerPressed="ResizeHandle_PointerPressed"/>
     </Grid>
-</Grid>
 </Window>

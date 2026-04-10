@@ -8,7 +8,6 @@
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
     Title="{lang:Translate startup.title}"
     Width="300"
-    SizeToContent="Height"
     d:DesignWidth="300"
     x:DataType="vm:StartupViewModel"
     Background="Transparent"
@@ -18,6 +17,7 @@
     ExtendClientAreaToDecorationsHint="True"
     Icon="avares://Desktop/Assets/Images/logo.png"
     ShowInTaskbar="False"
+    SizeToContent="Height"
     SystemDecorations="None"
     TransparencyLevelHint="Transparent"
     UseLayoutRounding="True"
@@ -52,7 +52,11 @@
                 </StackPanel>
             </Border>
             <!--  Main Content  -->
-            <Border Grid.Row="1" Classes="ModalView" Padding="20, 0, 20 ,35" PointerPressed="DragStart_PointerPressed">
+            <Border
+                Grid.Row="1"
+                Padding="20,0,20,35"
+                Classes="ModalView"
+                PointerPressed="DragStart_PointerPressed">
                 <Grid
                     Classes="ModalWrapper"
                     RowDefinitions="Auto,Auto,Auto"

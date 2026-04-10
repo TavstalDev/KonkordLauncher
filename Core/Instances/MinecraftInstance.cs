@@ -81,12 +81,12 @@ public class MinecraftInstance
         {
             _logger.Debug("Downloading core files...");
             DateTime startTime = DateTime.Now;
-            await DownloadCoreFilesAsync();
+            await DownloadCoreFilesAsync(cancellationToken);
             DateTime endTime = DateTime.Now;
             _logger.Info($"Core files downloaded in {(endTime - startTime).TotalMilliseconds}ms.");
 
             startTime = DateTime.Now;
-            var moddedData = await InstallModdedAsync(tempDir);
+            var moddedData = await InstallModdedAsync(tempDir, cancellationToken);
             endTime = DateTime.Now;
             _logger.Info($"Modded data installation completed in {(endTime - startTime).TotalMilliseconds}ms.");
             var (versionDetails, mainClass, customVersion) = GetLaunchParameters(moddedData);
@@ -96,15 +96,15 @@ public class MinecraftInstance
 
             var libraries = GetCombinedLibraries(moddedData);
             startTime = DateTime.Now;
-            await DownloadDependenciesAsync(versionDetails, libraries);
+            await DownloadDependenciesAsync(versionDetails, libraries, cancellationToken);
             endTime = DateTime.Now;
             _logger.Info($"Dependencies downloaded in {(endTime - startTime).TotalMilliseconds}ms.");
             
             _classPath.Add(moddedData != null ? moddedData.VersionData.VersionJarPath : VersionData.VersionJarPath);
 
             string arguments = BuildArguments(versionDetails.GameDir, mainClass, versionDetails.NativesDir, customVersion);
-            await Task.Delay(250); // Ensure the progress reporter has time to update before launching
-            //_progressReporter?.Hide();
+            await Task.Delay(250, cancellationToken); // Ensure the progress reporter has time to update before launching
+            _progressReporter?.CloseReporter();
             
             // Copy custom natives if specified
             startTime = DateTime.Now;
@@ -125,7 +125,7 @@ public class MinecraftInstance
                if (preLaunchProc != null)
                {
                    startTime = DateTime.Now;
-                   await preLaunchProc.WaitForExitAsync();
+                   await preLaunchProc.WaitForExitAsync(cancellationToken);
                    endTime = DateTime.Now;
                    _logger.Info($"Pre-launch command executed in {(endTime - startTime).TotalMilliseconds}ms.");
                }

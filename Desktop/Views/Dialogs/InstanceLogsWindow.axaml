@@ -24,6 +24,8 @@
     UseLayoutRounding="True"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
+<Grid>
+    <!-- Main Window Content -->
     <Border
         Background="{DynamicResource base-200}"
         BorderBrush="{DynamicResource border-one}"
@@ -144,4 +146,28 @@
             </Grid>
         </Grid>
     </Border>
+    
+    <!-- Resize overlay (8px grips) -->
+    <Grid RowDefinitions="8,*,8" ColumnDefinitions="8,*,8">
+        <!-- Edges -->
+        <Border Grid.Row="0" Grid.Column="1" Background="Transparent" Cursor="TopSide" 
+                Tag="North" PointerPressed="ResizeHandle_PointerPressed"/>
+        <Border Grid.Row="2" Grid.Column="1" Background="Transparent" Cursor="BottomSide"
+                Tag="South" PointerPressed="ResizeHandle_PointerPressed"/>
+        <Border Grid.Row="1" Grid.Column="0" Background="Transparent" Cursor="LeftSide"
+                Tag="West" PointerPressed="ResizeHandle_PointerPressed"/>
+        <Border Grid.Row="1" Grid.Column="2" Background="Transparent" Cursor="RightSide"
+                Tag="East" PointerPressed="ResizeHandle_PointerPressed"/>
+
+        <!-- Corners -->
+        <Border Grid.Row="0" Grid.Column="0" Background="Transparent" Cursor="TopLeftCorner"
+                Tag="NorthWest" PointerPressed="ResizeHandle_PointerPressed"/>
+        <Border Grid.Row="0" Grid.Column="2" Background="Transparent" Cursor="TopRightCorner"
+                Tag="NorthEast" PointerPressed="ResizeHandle_PointerPressed"/>
+        <Border Grid.Row="2" Grid.Column="0" Background="Transparent" Cursor="BottomLeftCorner"
+                Tag="SouthWest" PointerPressed="ResizeHandle_PointerPressed"/>
+        <Border Grid.Row="2" Grid.Column="2" Background="Transparent" Cursor="BottomRightCorner"
+                Tag="SouthEast" PointerPressed="ResizeHandle_PointerPressed"/>
+    </Grid>
+</Grid>
 </Window>

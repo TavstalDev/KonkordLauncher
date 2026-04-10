@@ -374,6 +374,7 @@ public static class DefaultTranslationProvider
         {"auth.tab.microsoft", "Microsoft"},
         {"auth.tab.offline", "Offline"},
         {"auth.tab.custom", "Custom"},
+        {"auth.logging_in", "Logging in..."},
         
         {"auth.microsoft.description", "Sign in with your Microsoft Account to access official Minecraft servers and features."},
         {"auth.microsoft.login", "Sign in with Microsoft"},

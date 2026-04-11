@@ -1,4 +1,4 @@
-namespace Tavstal.KonkordLauncher.Core.Helpers;
+namespace Tavstal.KonkordLauncher.Core.Helpers.Domain;
 
 /// <summary>
 /// Provides helper methods for version comparison and parsing.

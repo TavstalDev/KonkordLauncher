@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
 
-namespace Tavstal.KonkordLauncher.Core.Helpers;
+namespace Tavstal.KonkordLauncher.Core.Helpers.Domain;
 
 /// <summary>
 /// Provides methods for mapping and interpolation.

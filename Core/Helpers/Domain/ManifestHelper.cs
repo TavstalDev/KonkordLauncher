@@ -1,10 +1,11 @@
 using Newtonsoft.Json.Linq;
+using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Fabric;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 
-namespace Tavstal.KonkordLauncher.Core.Helpers;
+namespace Tavstal.KonkordLauncher.Core.Helpers.Domain;
 
 /// <summary>
 /// Provides helper methods for managing and retrieving mod loader manifests.

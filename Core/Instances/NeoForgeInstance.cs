@@ -1,7 +1,8 @@
 using System.IO.Compression;
 using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Helpers;
+using Tavstal.KonkordLauncher.Core.Helpers.Domain;
+using Tavstal.KonkordLauncher.Core.Helpers.Network;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints.Modding;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
@@ -24,6 +25,9 @@ public class NeoForgeInstance(
     
     protected override async Task<ModdedData?> InstallModdedAsync(string tempDir, CancellationToken cancellationToken = default)
     {
+        if (ArgumentBuilder == null)
+            throw new InvalidOperationException($"{nameof(ArgumentBuilder)} is null.");
+        
         if (!File.Exists(PathDetails.CustomManifestPath))
         {
             _logger.Error("NeoForge manifest file does not exist. Please ensure the manifest is downloaded.");
@@ -52,11 +56,11 @@ public class NeoForgeInstance(
        
             await HttpHelper.DownloadFileAsync(
                 string.Format(NeoForgeEndpoints.InstallerJarUrl, forgeVersion.CustomVersion), installerJarPath,
-                progress);
+                progress, cancellationToken);
        
             // Extract Installer
             _progressReporter?.UpdateStatusTranslated("instance.extracting.installer", "neoforge");
-            ZipFile.ExtractToDirectory(installerJarPath, installerDir);
+            await ZipFile.ExtractToDirectoryAsync(installerJarPath, installerDir, cancellationToken);
             
             // Move install_profile.json
             var source = Path.Combine(installerDir, "install_profile.json");
@@ -97,7 +101,7 @@ public class NeoForgeInstance(
         }
         
         // Read Forge Version Meta
-        var rawForgeVersionMeta = await File.ReadAllTextAsync(forgeVersion.VersionJsonPath);
+        var rawForgeVersionMeta = await File.ReadAllTextAsync(forgeVersion.VersionJsonPath, cancellationToken);
         var forgeVersionMeta = JsonConvert.DeserializeObject<ForgeVersionMeta>(rawForgeVersionMeta);
         if (forgeVersionMeta == null)
             throw new FileNotFoundException("Failed to get the neoforge version meta.");
@@ -106,7 +110,7 @@ public class NeoForgeInstance(
         localLibraries.AddRange(forgeVersionMeta.Libraries);
 
         // Read Forge Install Profile
-        var rawInstallProfile = await File.ReadAllTextAsync(installerProfilePath);
+        var rawInstallProfile = await File.ReadAllTextAsync(installerProfilePath, cancellationToken);
         var installProfile = JsonConvert.DeserializeObject<ForgeVersionProfile>(rawInstallProfile);
         if (installProfile == null)
             throw new FileNotFoundException("Failed to get the neoforge install profile meta.");
@@ -145,7 +149,7 @@ public class NeoForgeInstance(
                     e.ToString("0.00"));
             };
 
-            await HttpHelper.DownloadFileAsync(libMeta.Downloads.Artifact.Url, libraryPath, libProgress);
+            await HttpHelper.DownloadFileAsync(libMeta.Downloads.Artifact.Url, libraryPath, libProgress, cancellationToken);
         }
 
         // Map and start processors
@@ -171,7 +175,7 @@ public class NeoForgeInstance(
             // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
             if (forgeVersionMeta.Arguments.Game != null)
                 foreach (var arg in forgeVersionMeta.Arguments.GetGameArgs())
-                    _gameArguments.Add(new LaunchArg(arg, 1));
+                    ArgumentBuilder.AddGameArgument(new LaunchArg(arg, 1));
 
             bool handlingParg = false;
             // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
@@ -181,18 +185,18 @@ public class NeoForgeInstance(
                     if (arg == "-p")
                     {
                         handlingParg = true;
-                        _jvmArguments.Add(new LaunchArg(arg, 1));
+                        ArgumentBuilder.AddJvmArgument(new LaunchArg(arg, 1));
                         continue;
                     }            
                     
                     if (handlingParg)
                     {
                         handlingParg = false;
-                        _jvmArguments.Add(new LaunchArg(arg.Replace("${library_directory}", PathDetails.LibrariesDir), 1));
+                        ArgumentBuilder.AddJvmArgument(new LaunchArg(arg.Replace("${library_directory}", PathDetails.LibrariesDir), 1));
                         continue;
                     }
                     
-                    _jvmArguments.Add(new LaunchArg(arg, 1));
+                    ArgumentBuilder.AddJvmArgument(new LaunchArg(arg, 1));
                 }
         }
         

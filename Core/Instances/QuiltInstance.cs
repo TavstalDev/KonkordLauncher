@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Helpers;
+using Tavstal.KonkordLauncher.Core.Helpers.Domain;
+using Tavstal.KonkordLauncher.Core.Helpers.IO;
+using Tavstal.KonkordLauncher.Core.Helpers.Network;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints.Modding;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
@@ -28,9 +30,13 @@ public class QuiltInstance(
     /// Installs the Quilt modded environment asynchronously.
     /// </summary>
     /// <param name="tempDir">The temporary directory used during installation.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the modded data if successful, or null if an error occurs.</returns>
     protected override async Task<ModdedData?> InstallModdedAsync(string tempDir, CancellationToken cancellationToken = default)
     {
+        if (ArgumentBuilder == null)
+            throw new InvalidOperationException($"{nameof(ArgumentBuilder)} is null.");
+        
         _progressReporter?.UpdateStatusTranslated("instance.reading.manifest");
         if (!File.Exists(PathDetails.CustomManifestPath))
         {
@@ -43,12 +49,6 @@ public class QuiltInstance(
         // Create versionDir in the versions folder
         if (!Directory.Exists(quiltVersion.VersionDirectory))
             Directory.CreateDirectory(quiltVersion.VersionDirectory);
-
-        // Check libsizes dir
-        string librarySizeCacheDir = Path.Combine(PathDetails.CacheDir, "libsizes");
-        if (!Directory.Exists(librarySizeCacheDir))
-            Directory.CreateDirectory(librarySizeCacheDir);
-        string librarySizeCachePath = Path.Combine(librarySizeCacheDir, $"{quiltVersion.MinecraftVersion}-quilt-{quiltVersion.CustomVersion}.json");
 
         // Download version json
         FabricVersionMeta? quiltVersionMeta;
@@ -66,35 +66,29 @@ public class QuiltInstance(
             string quiltVersionJsonUrl = string.Format(QuiltEndpoints.LoaderJsonUrl, quiltVersion.MinecraftVersion,
                 quiltVersion.CustomVersion);
 
-            var resultJson = await HttpHelper.GetStringAsync(quiltVersionJsonUrl, progress);
+            var resultJson = await HttpHelper.GetStringAsync(quiltVersionJsonUrl, progress, cancellationToken);
             if (resultJson == null)
                 return null;
                 
-            await File.WriteAllTextAsync(quiltVersion.VersionJsonPath, resultJson);
+            await File.WriteAllTextAsync(quiltVersion.VersionJsonPath, resultJson, cancellationToken);
 
             // Add the libraries
             _progressReporter?.UpdateStatusTranslated("instance.reading.version_json");
             quiltVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(resultJson);
-            int localLibrarySize = 0;
             if (quiltVersionMeta == null)
-            {
-                File.Delete(quiltVersion.VersionJsonPath); // Delete it because this if part won't be executed again if it exists
+            { 
+                 FileSystemHelper.DeleteFile(quiltVersion.VersionJsonPath); // Delete it because this if part won't be executed again if it exists
                 _logger.Error("Quilt version meta is null after deserialization. Invalid JSON format.");
                 return null;
             }
             
             foreach (var lib in quiltVersionMeta.Libraries)
-            {
-                localLibrarySize += lib.Size;
                 localLibraries.Add(new LibraryMeta(lib.Name, new LibraryDownloads(new Artifact(lib.GetPath(), lib.Sha1, lib.Size, lib.GetURL()), null), []));
-            }
-            // Save the version cache
-            await JsonHelper.WriteJsonFileAsync(librarySizeCachePath, localLibrarySize);
         }
         else
         {
             _progressReporter?.UpdateStatusTranslated("instance.reading.version_json");
-            quiltVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(await File.ReadAllTextAsync(quiltVersion.VersionJsonPath));
+            quiltVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(await File.ReadAllTextAsync(quiltVersion.VersionJsonPath, cancellationToken));
             if (quiltVersionMeta == null)
             {
                 _logger.Error("Quilt version meta is null after deserialization. Invalid JSON format.");
@@ -119,44 +113,31 @@ public class QuiltInstance(
             Progress<double> progress = new Progress<double>();
             progress.ProgressChanged += (_, e) =>
             {
-                //_progressReporter?.SetProgress(e);
+                _progressReporter?.ReportProgress(e);
                 _progressReporter?.UpdateStatusTranslated("instance.downloading.loader", "quilt", e.ToString("0.00"));
             };
             _logger.Debug("Downloading quilt loader jar...");
-            await HttpHelper.DownloadFileAsync(string.Format(QuiltEndpoints.LoaderJarUrl, quiltVersion.CustomVersion), loaderJarPath, progress);
+            await HttpHelper.DownloadFileAsync(string.Format(QuiltEndpoints.LoaderJarUrl, quiltVersion.CustomVersion), loaderJarPath, progress, cancellationToken);
         }
         
-        if (!File.Exists(quiltVersion.VersionJarPath))
-            File.Copy(quiltVersion.VanillaJarPath, quiltVersion.VersionJarPath);
 
         ModdedData moddedData = new ModdedData(quiltVersionMeta.MainClass, quiltVersion, localLibraries);
 
         foreach (var arg in quiltVersionMeta.Arguments.GetGameArgs())
-        {
-            if (_gameArguments.Any(x => x.Arg == arg))
-                continue;
-            _gameArguments.Add(new LaunchArg(arg, 1));
-        }
+            ArgumentBuilder.AddGameArgument(new LaunchArg(arg, 1));
         
         foreach (var arg in quiltVersionMeta.Arguments.GetJvmArgs())
         {
-            if (_jvmArguments.Any(x => x.Arg == arg))
-                continue;
-
             // Fixes -DFabricMcEmu arg, without this Quilt does not load and instead the vanilla client will launch
             if (arg.StartsWith("-DFabricMcEmu="))
             {
-                _jvmArguments.Add(new LaunchArg("-DFabricMcEmu=\"net.minecraft.client.main.Main\"", 1));
+                ArgumentBuilder.AddJvmArgument(new LaunchArg("-DFabricMcEmu=\"net.minecraft.client.main.Main\"", 1));
                 continue;
             }
 
-            _jvmArguments.Add(new LaunchArg(arg, 1));
+            ArgumentBuilder.AddJvmArgument(new LaunchArg(arg, 1));
         }
-
-        /*_jvmArguments.Add(new LaunchArg("-DMcEmu=net.minecraft.client.main.Main", 1));
-        _jvmArguments.Add(new LaunchArg("-Dlog4j2.formatMsgNoLookups=true", 1));
-        _jvmArguments.Add(new LaunchArg("-Djava.rmi.server.useCodebaseOnly=true", 1));
-        _jvmArguments.Add(new LaunchArg("-Dcom.sun.jndi.rmi.object.trustURLCodebase=false", 1));*/
+        
         return moddedData;
     }
 }

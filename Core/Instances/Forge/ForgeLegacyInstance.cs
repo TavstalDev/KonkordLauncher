@@ -1,7 +1,8 @@
 ﻿using System.IO.Compression;
 using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Helpers;
+using Tavstal.KonkordLauncher.Core.Helpers.Domain;
+using Tavstal.KonkordLauncher.Core.Helpers.Network;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints.Modding;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
@@ -26,6 +27,9 @@ public class ForgeLegacyInstance(string forgeVersionName,
 
     protected override async Task<ModdedData?> InstallModdedAsync(string tempDir, CancellationToken cancellationToken = default)
     {
+        if (ArgumentBuilder == null)
+            throw new InvalidOperationException($"{nameof(ArgumentBuilder)} is null.");
+        
         if (!File.Exists(PathDetails.CustomManifestPath))
         {
             _logger.Error("Forge manifest file does not exist. Please ensure the manifest is downloaded.");
@@ -58,11 +62,11 @@ public class ForgeLegacyInstance(string forgeVersionName,
        
             await HttpHelper.DownloadFileAsync(
                 string.Format(ForgeEndpoints.InstallerJarUrl, forgeVersionName), installerJarPath,
-                progress);
+                progress, cancellationToken);
        
             // Extract Installer
             _progressReporter?.UpdateStatusTranslated("instance.extracting.installer", "forge");
-            ZipFile.ExtractToDirectory(installerJarPath, installerDir);
+            await ZipFile.ExtractToDirectoryAsync(installerJarPath, installerDir, cancellationToken);
             
             // Move install_profile.json
             var source = Path.Combine(installerDir, "install_profile.json");
@@ -79,7 +83,7 @@ public class ForgeLegacyInstance(string forgeVersionName,
                 string universalDir = Path.Combine(tempDir,
                     $"{forgeVersionName}-universal");
                 if (!Directory.Exists(universalDir))
-                    ZipFile.ExtractToDirectory(universalJarPath, universalDir);
+                    await ZipFile.ExtractToDirectoryAsync(universalJarPath, universalDir, cancellationToken);
 
                 // COPY UNIVERSAL
                 if (!Directory.Exists(forgeUniversalDir))
@@ -99,10 +103,10 @@ public class ForgeLegacyInstance(string forgeVersionName,
         }
         
         // Add Forge Universal Jar to classpath
-        _classPath.Add(forgeUniversalPath);
+        ArgumentBuilder.AddClass(forgeUniversalPath);
 
         // Read Forge Version Meta
-        var rawForgeVersionMeta = await File.ReadAllTextAsync(forgeVersion.VersionJsonPath);
+        var rawForgeVersionMeta = await File.ReadAllTextAsync(forgeVersion.VersionJsonPath, cancellationToken);
         var forgeVersionMeta = JsonConvert.DeserializeObject<ForgeVersionMeta>(rawForgeVersionMeta);
         if (forgeVersionMeta == null)
             throw new FileNotFoundException("Failed to get the forge version meta.");
@@ -134,7 +138,7 @@ public class ForgeLegacyInstance(string forgeVersionName,
         }
 
         // Read Forge Install Profile
-        var rawInstallProfile = await File.ReadAllTextAsync(installerProfilePath);
+        var rawInstallProfile = await File.ReadAllTextAsync(installerProfilePath, cancellationToken);
         var installProfile = JsonConvert.DeserializeObject<ForgeProfile>(rawInstallProfile);
         if (installProfile == null)
             throw new FileNotFoundException("Failed to get the forge install profile meta.");

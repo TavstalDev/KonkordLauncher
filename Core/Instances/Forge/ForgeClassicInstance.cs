@@ -1,7 +1,9 @@
 ﻿using System.IO.Compression;
 using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Helpers;
+using Tavstal.KonkordLauncher.Core.Helpers.Domain;
+using Tavstal.KonkordLauncher.Core.Helpers.IO;
+using Tavstal.KonkordLauncher.Core.Helpers.Network;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints.Modding;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
@@ -27,6 +29,9 @@ public class ForgeClassicInstance(string forgeVersionName,
     
     protected override async Task<ModdedData?> InstallModdedAsync(string tempDir, CancellationToken cancellationToken = default)
     {
+        if (ArgumentBuilder == null)
+            throw new InvalidOperationException($"{nameof(ArgumentBuilder)} is null.");
+        
         if (!File.Exists(PathDetails.CustomManifestPath))
         {
             _logger.Error("Forge manifest file does not exist. Please ensure the manifest is downloaded.");
@@ -82,7 +87,7 @@ public class ForgeClassicInstance(string forgeVersionName,
                 string universalDir = Path.Combine(tempDir,
                     $"{forgeVersionName}-universal");
                 if (!Directory.Exists(universalDir))
-                    ZipFile.ExtractToDirectory(universalJarPath, universalDir);
+                    await ZipFile.ExtractToDirectoryAsync(universalJarPath, universalDir, cancellationToken);
 
                 // COPY UNIVERSAL
                 if (!Directory.Exists(forgeUniversalDir))
@@ -103,10 +108,10 @@ public class ForgeClassicInstance(string forgeVersionName,
         }
         
         // Include Forge Universal Jar Classpath
-        _classPath.Add(forgeUniversalPath);
+        ArgumentBuilder.AddClass(forgeUniversalPath);
         
         // Read Forge Install Profile
-        var rawInstallProfile = await File.ReadAllTextAsync(installerProfilePath);
+        var rawInstallProfile = await File.ReadAllTextAsync(installerProfilePath, cancellationToken);
         var installProfile = JsonConvert.DeserializeObject<ForgeProfile>(rawInstallProfile);
         if (installProfile == null)
             throw new FileNotFoundException("Failed to get the forge install profile meta.");
@@ -114,13 +119,13 @@ public class ForgeClassicInstance(string forgeVersionName,
         // Fix 1.6.1 Forge Version
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (GameDetails.MinecraftVersion == "1.6.1" && !File.Exists(forgeVersion.VersionJsonPath) && installProfile.VersionInfo != null)
-            await File.WriteAllTextAsync(forgeVersion.VersionJsonPath, JsonConvert.SerializeObject(installProfile.VersionInfo));
+            await File.WriteAllTextAsync(forgeVersion.VersionJsonPath, JsonConvert.SerializeObject(installProfile.VersionInfo), cancellationToken);
 
         // Read Forge Version Meta
         string? mainClass = null;
         if (File.Exists(forgeVersion.VersionJsonPath))
         {
-            var rawForgeVersionMeta = await File.ReadAllTextAsync(forgeVersion.VersionJsonPath);
+            var rawForgeVersionMeta = await File.ReadAllTextAsync(forgeVersion.VersionJsonPath, cancellationToken);
             var forgeVersionMeta = JsonConvert.DeserializeObject<ForgeVersionMeta>(rawForgeVersionMeta);
             if (forgeVersionMeta == null)
                 throw new FileNotFoundException("Failed to get the forge version meta.");
@@ -181,7 +186,7 @@ public class ForgeClassicInstance(string forgeVersionName,
                     Directory.CreateDirectory(vanillaExtractDir);
 
                 // Extract vanilla jar
-                ZipFile.ExtractToDirectory(forgeVersion.VanillaJarPath, vanillaExtractDir);
+                await ZipFile.ExtractToDirectoryAsync(forgeVersion.VanillaJarPath, vanillaExtractDir, cancellationToken);
                 var vanillaMetaDir = Path.Combine(vanillaExtractDir, "META-INF");
                 if (Directory.Exists(vanillaMetaDir))
                     FileSystemHelper.DeleteDirectory(vanillaMetaDir);
@@ -190,9 +195,9 @@ public class ForgeClassicInstance(string forgeVersionName,
                         "META-INF directory not found in the vanilla jar. This may indicate an issue with the jar file.");
 
                 // Extract universal jar
-                ZipFile.ExtractToDirectory(forgeUniversalPath, vanillaExtractDir, true);
+                await ZipFile.ExtractToDirectoryAsync(forgeUniversalPath, vanillaExtractDir, true, cancellationToken);
                 string patchedVanillaJarPath = Path.Combine(tempDir, "patched_vanilla.jar");
-                ZipFile.CreateFromDirectory(vanillaExtractDir, patchedVanillaJarPath);
+                await ZipFile.CreateFromDirectoryAsync(vanillaExtractDir, patchedVanillaJarPath, cancellationToken);
 
                 File.Copy(patchedVanillaJarPath, forgeVersion.VersionJarPath);
             }
@@ -224,7 +229,7 @@ public class ForgeClassicInstance(string forgeVersionName,
             }
 
             await using FileStream outFile = new FileStream(libraryTargetPath, FileMode.Create, FileAccess.Write);
-            await stream.CopyToAsync(outFile);
+            await stream.CopyToAsync(outFile, cancellationToken);
         }
        
         return moddedData;

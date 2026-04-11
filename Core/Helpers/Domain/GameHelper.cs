@@ -2,7 +2,7 @@
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Models;
 
-namespace Tavstal.KonkordLauncher.Core.Helpers;
+namespace Tavstal.KonkordLauncher.Core.Helpers.Domain;
 
 public static class GameHelper
 {
@@ -33,6 +33,7 @@ public static class GameHelper
 
         // Construct the version name based on the profile kind
         string versionName = $"{response.MinecraftVersion}";
+        bool isFabric = false;
         switch (kind)
         {
             case EMinecraftKind.NEOFORGE:
@@ -48,23 +49,26 @@ public static class GameHelper
             case EMinecraftKind.FABRIC:
             {
                 versionName = $"{minecraftVersion}-fabric-{customVersion}";
+                isFabric = true;
                 break;
             }
             case EMinecraftKind.QUILT:
             {
                 versionName = $"{minecraftVersion}-quilt-{customVersion}";
+                isFabric = true;
                 break;
             }
         }
 
         // Set the paths for various version-related files and directories
         var versionDir = Path.Combine(versionsDir, versionName);
-        response.VersionDirectory = versionDir;
-        response.VersionJsonPath = Path.Combine(versionDir, $"{versionName}.json");
-        response.VersionJarPath = Path.Combine(versionDir, $"{versionName}.jar");
-
+        
         // Set the path to the vanilla JAR file
         response.VanillaJarPath = Path.Combine(versionsDir, minecraftVersion, $"{minecraftVersion}.jar");
+        
+        response.VersionDirectory = versionDir;
+        response.VersionJsonPath = Path.Combine(versionDir, $"{versionName}.json");
+        response.VersionJarPath = isFabric ? response.VanillaJarPath : Path.Combine(versionDir, $"{versionName}.jar");
 
         // Determine the game directory, using the custom directory if provided
         response.GameDir = string.IsNullOrEmpty(customDirectory)

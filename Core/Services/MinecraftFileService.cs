@@ -1,9 +1,10 @@
-using System.Globalization;
 using System.IO.Compression;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Helpers;
+using Tavstal.KonkordLauncher.Core.Helpers.Domain;
+using Tavstal.KonkordLauncher.Core.Helpers.Network;
+using Tavstal.KonkordLauncher.Core.Helpers.Platform;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
@@ -412,25 +413,35 @@ public static class MinecraftFileService
         progressReporter?.ReportProgress(0);
         progressReporter?.UpdateStatusTranslated("instance.reading.libraries");
         
-        string libraryCacheDir = Path.Combine(cacheDir, "libsizes");
-        Directory.CreateDirectory(libraryCacheDir);
-
-        string librarySizeCacheFilePath = Path.Combine(libraryCacheDir,
-            $"{versionData.MinecraftVersion}-{kind}-{versionData.CustomVersion}.json");
+        string jsonKey = $"{versionData.MinecraftVersion}-{kind}-{versionData.CustomVersion}";
+        string librarySizeCacheFilePath = Path.Combine(cacheDir, "libsizes.json");
+        JObject cacheObject;
+        if (!File.Exists(librarySizeCacheFilePath)) // Create empty cache file if it does not exist
+        {
+            cacheObject = new  JObject();
+            await File.WriteAllTextAsync(librarySizeCacheFilePath, "{}", cancellationToken);
+        }
+        else
+        {
+            string json = await File.ReadAllTextAsync(librarySizeCacheFilePath, cancellationToken);
+            cacheObject = JObject.Parse(json);
+        }
 
         // Calculate or read library size
         long overallLibrarySize;
-        if (!File.Exists(librarySizeCacheFilePath))
+        if (cacheObject.TryGetValue(jsonKey, out var cacheValue))
+        {
+            overallLibrarySize = cacheValue.Value<long>();
+        }
+        else
         {
             overallLibrarySize = mcLibs
                 .Where(lib => lib.GetRulesResult() && lib.Downloads.Artifact != null)
                 .Sum(lib => lib.Downloads.Artifact?.Size ?? 0);
 
-            await File.WriteAllTextAsync(librarySizeCacheFilePath,
-                overallLibrarySize.ToString(CultureInfo.InvariantCulture), cancellationToken);
+            cacheObject[jsonKey] = overallLibrarySize;
+            await File.WriteAllTextAsync(librarySizeCacheFilePath, cacheObject.ToString(), cancellationToken);
         }
-        else
-            overallLibrarySize = long.Parse(await File.ReadAllTextAsync(librarySizeCacheFilePath, cancellationToken), CultureInfo.InvariantCulture);
         
         var semaphore = new SemaphoreSlim(MaxParallelDownloads);
         long downloadedBytes = 0;

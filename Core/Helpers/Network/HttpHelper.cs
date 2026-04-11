@@ -2,9 +2,10 @@
 using System.Net.Http.Json;
 using System.Net.Security;
 using System.Security.Authentication;
+using Tavstal.KonkordLauncher.Core.Helpers.Platform;
 using Tavstal.KonkordLauncher.Core.Models;
 
-namespace Tavstal.KonkordLauncher.Core.Helpers;
+namespace Tavstal.KonkordLauncher.Core.Helpers.Network;
 
 /// <summary>
 /// Provides helper methods for HTTP operations, including GET and POST requests, 

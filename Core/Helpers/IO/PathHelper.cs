@@ -1,4 +1,4 @@
-namespace Tavstal.KonkordLauncher.Core.Helpers;
+namespace Tavstal.KonkordLauncher.Core.Helpers.IO;
 
 /// <summary>
 /// Provides helper methods and properties for managing application paths.

@@ -3,7 +3,7 @@ using MinecraftSkinRender;
 using MinecraftSkinRender.Image;
 using Newtonsoft.Json.Linq;
 using SkiaSharp;
-using Tavstal.KonkordLauncher.Core.Helpers;
+using Tavstal.KonkordLauncher.Core.Helpers.Network;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
 

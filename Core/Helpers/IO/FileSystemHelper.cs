@@ -2,9 +2,10 @@ using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
 using Tavstal.KonkordLauncher.Core.Enums;
+using Tavstal.KonkordLauncher.Core.Helpers.Platform;
 using Tavstal.KonkordLauncher.Core.Models;
 
-namespace Tavstal.KonkordLauncher.Core.Helpers;
+namespace Tavstal.KonkordLauncher.Core.Helpers.IO;
 
 /// <summary>
 /// Provides helper methods for file system operations such as deleting, moving directories, and verifying file hashes.

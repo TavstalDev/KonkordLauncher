@@ -1,6 +1,6 @@
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
-using Tavstal.KonkordLauncher.Core.Helpers;
+using Tavstal.KonkordLauncher.Core.Helpers.Network;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.User;

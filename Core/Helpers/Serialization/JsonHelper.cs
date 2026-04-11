@@ -1,9 +1,10 @@
 ﻿using System.Collections.Concurrent;
 using System.Text;
 using System.Text.Json;
+using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Models;
 
-namespace Tavstal.KonkordLauncher.Core.Helpers;
+namespace Tavstal.KonkordLauncher.Core.Helpers.Serialization;
 
 /// <summary>
 /// Provides helper methods for reading and writing JSON files synchronously and asynchronously.

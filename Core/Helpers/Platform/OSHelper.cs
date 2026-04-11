@@ -4,7 +4,7 @@ using Hardware.Info;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Models;
 
-namespace Tavstal.KonkordLauncher.Core.Helpers;
+namespace Tavstal.KonkordLauncher.Core.Helpers.Platform;
 
 /// <summary>
 /// Provides helper methods for operating system-related functionality.

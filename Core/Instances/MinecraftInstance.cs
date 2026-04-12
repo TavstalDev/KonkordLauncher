@@ -13,6 +13,7 @@ namespace Tavstal.KonkordLauncher.Core.Instances;
 /// <summary>
 /// Represents a Minecraft instance, handling installation, configuration, and launching of the game.
 /// </summary>
+// TODO: Refactor
 public class MinecraftInstance
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MinecraftInstance));

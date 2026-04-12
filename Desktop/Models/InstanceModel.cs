@@ -33,6 +33,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Models;
 /// <summary>
 /// Represents a model for a Minecraft instance, including its properties and behaviors.
 /// </summary>
+// TODO: Refactor
 public partial class InstanceModel : ObservableObject, IProgressReporter
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(InstanceModel));

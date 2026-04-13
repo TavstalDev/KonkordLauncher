@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Tavstal.KonkordLauncher.Core.Enums;
@@ -15,8 +16,8 @@ namespace Tavstal.KonkordLauncher.Core.Services;
 
 public static class MinecraftFileService
 {
-    private static readonly int MaxParallelDownloads = 16;
-    
+    private const int MaxParallelDownloads = 16;
+
     /// <summary>
     /// Downloads a file from a URL, deserializes its content, and saves it locally if it doesn't already exist.
     /// </summary>
@@ -26,6 +27,7 @@ public static class MinecraftFileService
     /// <param name="statusKey">A key used for progress reporting and status messages.</param>
     /// <param name="progressReporter">An optional progress reporter for tracking download progress.</param>
     /// <param name="deserialize">A function to deserialize the file content into the specified type.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>The deserialized object of type <typeparamref name="T"/> or null if the operation fails.</returns>
     private static async Task<T?> DownloadAndSaveFileAsync<T>(string filePath, string url, string statusKey,
         IProgressReporter? progressReporter, Func<string, T?> deserialize, CancellationToken cancellationToken = default)
@@ -64,6 +66,7 @@ public static class MinecraftFileService
     /// <param name="url">The URL from which the file will be downloaded.</param>
     /// <param name="statusKey">A key used for progress reporting and status messages.</param>
     /// <param name="progressReporter">An optional progress reporter for tracking download progress.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A byte array containing the file content or null if the operation fails.</returns>
     private static async Task DownloadAndSaveBinaryFileAsync(string filePath, string url, string statusKey,
         IProgressReporter? progressReporter, CancellationToken cancellationToken = default)
@@ -92,13 +95,14 @@ public static class MinecraftFileService
     /// <param name="versionData">The details of the version to be downloaded.</param>
     /// <param name="minecraftVersion">The Minecraft version metadata.</param>
     /// <param name="progressReporter">An optional progress reporter for tracking download progress.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>The deserialized version metadata or null if the operation fails.</returns>
     public static async Task<VersionMeta?> DownloadVersionAsync(VersionDetails versionData,
         MinecraftVersion minecraftVersion, IProgressReporter? progressReporter = null, CancellationToken cancellationToken = default)
     {
         // JSON
         var versionResult = await DownloadAndSaveFileAsync(
-            versionData.VersionJsonPath,
+            versionData.VanillaJsonPath,
             minecraftVersion.Url,
             "version_json",
             progressReporter,
@@ -108,7 +112,7 @@ public static class MinecraftFileService
 
         // JAR
         await DownloadAndSaveBinaryFileAsync(
-            versionData.VersionJarPath,
+            versionData.VanillaJarPath,
             versionResult.Downloads.Client.Url,
             "version_jar",
             progressReporter, cancellationToken);
@@ -131,6 +135,7 @@ public static class MinecraftFileService
     /// <param name="assetsDir">The directory where the assets will be stored.</param>
     /// <param name="gameDir">The directory where the game files are stored.</param>
     /// <param name="progressReporter">An optional progress reporter for tracking download progress.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     public static async Task DownloadAssetsAsync(VersionMeta versionMeta, string assetsDir, string gameDir,
         IProgressReporter? progressReporter = null, CancellationToken cancellationToken = default)
     {
@@ -345,6 +350,7 @@ public static class MinecraftFileService
     /// <param name="versionDirectory">The directory where the version files are stored.</param>
     /// <param name="gameDir">The directory where the game files are stored.</param>
     /// <param name="progressReporter">An optional progress reporter for tracking download progress.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A launch argument for the logging configuration or null if the operation fails.</returns>
     public static async Task<LaunchArg?> DownloadLoggingAsync(VersionMeta versionMeta, string versionDirectory,
         string gameDir, IProgressReporter? progressReporter = null, CancellationToken cancellationToken = default)
@@ -385,7 +391,7 @@ public static class MinecraftFileService
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (versionMeta.Downloads.ClientMappings == null) return;
 
-        string clientMappinsPath = Path.Combine(versionData.VersionDirectory, "client.txt");
+        string clientMappinsPath = Path.Combine(versionData.VanillaVersionDirectory, "client.txt");
 
         await DownloadAndSaveFileAsync(
             clientMappinsPath,
@@ -393,6 +399,28 @@ public static class MinecraftFileService
             "client_mappings",
             progressReporter,
             json => json); // Deserialize to string
+    }
+    
+    public static async Task<string?> ExtractLaunchWrapperAsync(string libsDir, CancellationToken cancellationToken = default)
+    {
+        string targetDir = Path.Combine(libsDir, "io", "github", "tavstaldev", "launchWrapper");
+        Directory.CreateDirectory(targetDir);
+        
+        string targetAssetName = "launchWrapper-1.0.jar";
+        string targetFile = Path.Combine(targetDir, targetAssetName);
+        if (File.Exists(targetFile))
+            return targetFile;
+        
+        // Load from resources as fallback
+        var assembly = Assembly.GetExecutingAssembly();
+        var stream = assembly.GetManifestResourceStream("Tavstal.KonkordLauncher.Core.Assets.launchWrapper-1.0.jar");
+        if (stream != null)
+        {
+            await using var fileStream = new FileStream(targetFile, FileMode.Create, FileAccess.Write);
+            await stream.CopyToAsync(fileStream, cancellationToken);
+            return targetFile;
+        }
+        return null;
     }
 
     /// <summary>
@@ -405,6 +433,7 @@ public static class MinecraftFileService
     /// <param name="cacheDir">The directory where cached files are stored.</param>
     /// <param name="libsDir">The directory where libraries will be downloaded.</param>
     /// <param name="progressReporter">An optional progress reporter for tracking download progress.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A tuple containing the updated classpath and a list of native libraries.</returns>
     public static async Task<List<string>> DownloadLibrariesAsync(
         EMinecraftKind kind, VersionDetails versionData, List<LibraryMeta> mcLibs,
@@ -513,6 +542,7 @@ public static class MinecraftFileService
     /// <param name="lib">The metadata of the library to be downloaded.</param>
     /// <param name="libsDir">The directory where the library will be saved.</param>
     /// <param name="progressReporter">An optional progress reporter for tracking download progress.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>The file path of the downloaded library.</returns>
     private static async Task<string> DownloadLibraryArtifactAsync(
         LibraryMeta lib, string libsDir, IProgressReporter? progressReporter, CancellationToken cancellationToken = default)
@@ -549,6 +579,7 @@ public static class MinecraftFileService
     /// <param name="libName">The name of the library being downloaded, used for progress reporting.</param>
     /// <param name="nativeDir">The directory where the extracted native files will be stored.</param>
     /// <param name="progressReporter">An optional progress reporter for tracking download progress.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     private static async Task DownloadNativeFileAsync(
         string url, string filePath, string libName, string nativeDir, IProgressReporter? progressReporter, CancellationToken cancellationToken = default)
     {

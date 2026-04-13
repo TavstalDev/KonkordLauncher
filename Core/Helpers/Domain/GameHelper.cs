@@ -1,85 +1,9 @@
 ﻿using System.Text;
-using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Models;
 
 namespace Tavstal.KonkordLauncher.Core.Helpers.Domain;
 
 public static class GameHelper
 {
-    /// <summary>
-    /// Retrieves the version details for a specific Minecraft version based on the provided parameters.
-    /// </summary>
-    /// <param name="versionsDir">The directory where version files are stored.</param>
-    /// <param name="minecraftVersion">The Minecraft version identifier.</param>
-    /// <param name="kind">The kind of profile (e.g., Forge, Fabric, Quilt).</param>
-    /// <param name="customVersion">
-    /// Optional: A custom version identifier. If not provided, the Minecraft version will be used.
-    /// </param>
-    /// <param name="customDirectory">
-    /// Optional: A custom directory for the game files. If not provided, a default directory will be used.
-    /// </param>
-    /// <returns>
-    /// A <see cref="VersionDetails"/> object containing the details of the specified Minecraft version.
-    /// </returns>
-    public static VersionDetails GetVersionDetails(string versionsDir, string minecraftVersion, EMinecraftKind kind,
-        string? customVersion = null, string? customDirectory = null)
-    {
-        // Initialize the response object with the custom and Minecraft version details
-        VersionDetails response = new VersionDetails
-        {
-            CustomVersion = customVersion ?? minecraftVersion,
-            MinecraftVersion = minecraftVersion
-        };
-
-        // Construct the version name based on the profile kind
-        string versionName = $"{response.MinecraftVersion}";
-        bool isFabric = false;
-        switch (kind)
-        {
-            case EMinecraftKind.NEOFORGE:
-            {
-                versionName = $"{minecraftVersion}-neoforge-{customVersion}";
-                break;
-            }
-            case EMinecraftKind.FORGE:
-            {
-                versionName = $"{minecraftVersion}-forge-{customVersion}";
-                break;
-            }
-            case EMinecraftKind.FABRIC:
-            {
-                versionName = $"{minecraftVersion}-fabric-{customVersion}";
-                isFabric = true;
-                break;
-            }
-            case EMinecraftKind.QUILT:
-            {
-                versionName = $"{minecraftVersion}-quilt-{customVersion}";
-                isFabric = true;
-                break;
-            }
-        }
-
-        // Set the paths for various version-related files and directories
-        var versionDir = Path.Combine(versionsDir, versionName);
-        
-        // Set the path to the vanilla JAR file
-        response.VanillaJarPath = Path.Combine(versionsDir, minecraftVersion, $"{minecraftVersion}.jar");
-        
-        response.VersionDirectory = versionDir;
-        response.VersionJsonPath = Path.Combine(versionDir, $"{versionName}.json");
-        response.VersionJarPath = isFabric ? response.VanillaJarPath : Path.Combine(versionDir, $"{versionName}.jar");
-
-        // Determine the game directory, using the custom directory if provided
-        response.GameDir = string.IsNullOrEmpty(customDirectory)
-            ? Path.Combine(versionsDir, versionName)
-            : customDirectory;
-        
-        response.NativesDir = Path.Combine(response.GameDir, "natives");
-
-        // Return the constructed version details
-        return response;
-    }
 
     /// <summary>
     /// Retrieves the UUID (Universally Unique Identifier) of a player based on the provided username.

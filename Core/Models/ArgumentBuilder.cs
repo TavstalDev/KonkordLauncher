@@ -14,7 +14,7 @@ public class ArgumentBuilder
     private readonly List<LaunchArg> _gameArguments = [];
     private readonly Dictionary<string, string> _placeholders = new();
     
-    public bool UseClasspathFile { get; set; } = false;
+    public bool UseClasspathFile { get; set; }
     
     public string? ClasspathFilePath { get; set; }
 
@@ -121,17 +121,8 @@ public class ArgumentBuilder
             _gameArguments.Add(new LaunchArg($"--quickPlayMultiplayer {gameDetails.ServerAddressToJoin}", 98));
     }
     
-    public string Build()
+    public (string jvmArgs, string gameArgs) Build()
     {
-        var arguments = new List<string>();
-        
-        // Jvm Arguments
-        arguments.AddRange(BuildJvmArguments());
-        
-        // Game Arguments
-        arguments.AddRange(BuildGameArguments());
-        
-        string argumentString = string.Join(' ', arguments);
         string classpath;
         // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression - It is more readable this way
         if (OSHelper.GetOperatingSystem() == EOperatingSystem.Windows)
@@ -149,10 +140,15 @@ public class ArgumentBuilder
         else
             _placeholders.Add("${classpath}", QuoteIfNeeded(classpath));
         
+        string jvmArgString = string.Join(' ', BuildJvmArguments());
         foreach (var placeholder in _placeholders)
-            argumentString = argumentString.Replace(placeholder.Key, placeholder.Value);
+            jvmArgString = jvmArgString.Replace(placeholder.Key, placeholder.Value);
         
-        return argumentString;
+        string gameArgString = string.Join(' ', BuildGameArguments());
+        foreach (var placeholder in _placeholders)
+            gameArgString = gameArgString.Replace(placeholder.Key, placeholder.Value);
+        
+        return (jvmArgString, gameArgString);
     }
     
     private IEnumerable<string> BuildJvmArguments()

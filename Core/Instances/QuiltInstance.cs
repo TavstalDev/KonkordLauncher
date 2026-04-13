@@ -1,6 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Helpers.Domain;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Network;
 using Tavstal.KonkordLauncher.Core.Models;
@@ -43,18 +41,15 @@ public class QuiltInstance(
             _logger.Error("Quilt manifest file not found at path: " + PathDetails.CustomManifestPath);
             return null;
         }
-
-        VersionDetails quiltVersion = GameHelper.GetVersionDetails(PathDetails.VersionsDir, MinecraftVersion.Id, EMinecraftKind.QUILT, GameDetails.CustomVersion, GameDetails.CustomGameDirectory);
-
+        
         // Create versionDir in the versions folder
-        if (!Directory.Exists(quiltVersion.VersionDirectory))
-            Directory.CreateDirectory(quiltVersion.VersionDirectory);
+        Directory.CreateDirectory(VersionData.CustomVersionDirectory!);
 
         // Download version json
         FabricVersionMeta? quiltVersionMeta;
         List<LibraryMeta> localLibraries = [];
 
-        if (!File.Exists(quiltVersion.VersionJsonPath))
+        if (!File.Exists(VersionData.CustomJsonPath))
         {
             Progress<double> progress = new Progress<double>();
             progress.ProgressChanged += (_, e) =>
@@ -63,21 +58,21 @@ public class QuiltInstance(
                 _progressReporter?.UpdateStatusTranslated("instance.downloading.version_json", "quilt", e.ToString("0.00"));
             };
 
-            string quiltVersionJsonUrl = string.Format(QuiltEndpoints.LoaderJsonUrl, quiltVersion.MinecraftVersion,
-                quiltVersion.CustomVersion);
+            string quiltVersionJsonUrl = string.Format(QuiltEndpoints.LoaderJsonUrl, VersionData.MinecraftVersion,
+                VersionData.CustomVersion);
 
             var resultJson = await HttpHelper.GetStringAsync(quiltVersionJsonUrl, progress, cancellationToken);
             if (resultJson == null)
                 return null;
                 
-            await File.WriteAllTextAsync(quiltVersion.VersionJsonPath, resultJson, cancellationToken);
+            await File.WriteAllTextAsync(VersionData.CustomJsonPath!, resultJson, cancellationToken);
 
             // Add the libraries
             _progressReporter?.UpdateStatusTranslated("instance.reading.version_json");
             quiltVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(resultJson);
             if (quiltVersionMeta == null)
             { 
-                 FileSystemHelper.DeleteFile(quiltVersion.VersionJsonPath); // Delete it because this if part won't be executed again if it exists
+                 FileSystemHelper.DeleteFile(VersionData.CustomJsonPath!); // Delete it because this if part won't be executed again if it exists
                 _logger.Error("Quilt version meta is null after deserialization. Invalid JSON format.");
                 return null;
             }
@@ -88,7 +83,7 @@ public class QuiltInstance(
         else
         {
             _progressReporter?.UpdateStatusTranslated("instance.reading.version_json");
-            quiltVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(await File.ReadAllTextAsync(quiltVersion.VersionJsonPath, cancellationToken));
+            quiltVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(await File.ReadAllTextAsync(VersionData.CustomJsonPath, cancellationToken));
             if (quiltVersionMeta == null)
             {
                 _logger.Error("Quilt version meta is null after deserialization. Invalid JSON format.");
@@ -103,10 +98,9 @@ public class QuiltInstance(
 
 
         // Download Loader
-        string loaderDirPath = Path.Combine(PathDetails.LibrariesDir, "net", "quiltmc", "quilt-loader", quiltVersion.CustomVersion);
-        string loaderJarPath = Path.Combine(loaderDirPath, $"quilt-loader-{quiltVersion.CustomVersion}.jar");
-        if (!Directory.Exists(loaderDirPath))
-            Directory.CreateDirectory(loaderDirPath);
+        string loaderDirPath = Path.Combine(PathDetails.LibrariesDir, "net", "quiltmc", "quilt-loader", VersionData.CustomVersion!);
+        string loaderJarPath = Path.Combine(loaderDirPath, $"quilt-loader-{VersionData.CustomVersion}.jar");
+        Directory.CreateDirectory(loaderDirPath);
 
         if (!File.Exists(loaderJarPath))
         {
@@ -117,12 +111,10 @@ public class QuiltInstance(
                 _progressReporter?.UpdateStatusTranslated("instance.downloading.loader", "quilt", e.ToString("0.00"));
             };
             _logger.Debug("Downloading quilt loader jar...");
-            await HttpHelper.DownloadFileAsync(string.Format(QuiltEndpoints.LoaderJarUrl, quiltVersion.CustomVersion), loaderJarPath, progress, cancellationToken);
+            await HttpHelper.DownloadFileAsync(string.Format(QuiltEndpoints.LoaderJarUrl, VersionData.CustomVersion), loaderJarPath, progress, cancellationToken);
         }
         
-
-        ModdedData moddedData = new ModdedData(quiltVersionMeta.MainClass, quiltVersion, localLibraries);
-
+        
         foreach (var arg in quiltVersionMeta.Arguments.GetGameArgs())
             ArgumentBuilder.AddGameArgument(new LaunchArg(arg, 1));
         
@@ -138,6 +130,6 @@ public class QuiltInstance(
             ArgumentBuilder.AddJvmArgument(new LaunchArg(arg, 1));
         }
         
-        return moddedData;
+        return new ModdedData(quiltVersionMeta.MainClass, localLibraries);
     }
 }

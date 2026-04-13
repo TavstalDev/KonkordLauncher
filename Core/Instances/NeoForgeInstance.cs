@@ -1,7 +1,5 @@
 using System.IO.Compression;
 using Newtonsoft.Json;
-using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Helpers.Domain;
 using Tavstal.KonkordLauncher.Core.Helpers.Network;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints.Modding;
@@ -35,17 +33,15 @@ public class NeoForgeInstance(
         }
 
         List<LibraryMeta> localLibraries = [];
-        VersionDetails forgeVersion = GameHelper.GetVersionDetails(PathDetails.VersionsDir, MinecraftVersion.Id, EMinecraftKind.NEOFORGE, GameDetails.CustomVersion, GameDetails.CustomGameDirectory);
         
         // Create versionDir in the versions folder
-        if (!Directory.Exists(forgeVersion.VersionDirectory))
-            Directory.CreateDirectory(forgeVersion.VersionDirectory);
+        Directory.CreateDirectory(VersionData.CustomVersionDirectory!);
 
         // Download & Extract Installer
         string installerJarPath = Path.Combine(tempDir, "installer.jar");
         string installerDir = Path.Combine(tempDir, "installer");
-        string installerProfilePath = Path.Combine(forgeVersion.VersionDirectory, "install_profile.json");
-        if (!File.Exists(forgeVersion.VersionJsonPath))
+        string installerProfilePath = Path.Combine(VersionData.CustomVersionDirectory!, "install_profile.json");
+        if (!File.Exists(VersionData.CustomJsonPath))
         {
             Progress<double> progress = new Progress<double>();
             progress.ProgressChanged += (_, e) =>
@@ -55,7 +51,7 @@ public class NeoForgeInstance(
             };
        
             await HttpHelper.DownloadFileAsync(
-                string.Format(NeoForgeEndpoints.InstallerJarUrl, forgeVersion.CustomVersion), installerJarPath,
+                string.Format(NeoForgeEndpoints.InstallerJarUrl, VersionData.CustomVersion), installerJarPath,
                 progress, cancellationToken);
        
             // Extract Installer
@@ -72,7 +68,7 @@ public class NeoForgeInstance(
             // Move version.json
             source = Path.Combine(installerDir, "version.json");
             if (File.Exists(source))
-                File.Move(source, forgeVersion.VersionJsonPath);
+                File.Move(source, VersionData.CustomJsonPath!);
             else
                 _logger.Error("Install version JSON file not found in the neoforge installer directory.");
             
@@ -101,7 +97,7 @@ public class NeoForgeInstance(
         }
         
         // Read Forge Version Meta
-        var rawForgeVersionMeta = await File.ReadAllTextAsync(forgeVersion.VersionJsonPath, cancellationToken);
+        var rawForgeVersionMeta = await File.ReadAllTextAsync(VersionData.CustomJsonPath!, cancellationToken);
         var forgeVersionMeta = JsonConvert.DeserializeObject<ForgeVersionMeta>(rawForgeVersionMeta);
         if (forgeVersionMeta == null)
             throw new FileNotFoundException("Failed to get the neoforge version meta.");
@@ -158,12 +154,12 @@ public class NeoForgeInstance(
             await MapAndStartProcessors(installProfile, installerDir);
         
         // Copy Version Files
-        string jarSourcePath = Path.Combine(installerDir, "maven", "net", "neoforged", "neoforge", $"{forgeVersion.MinecraftVersion}-{forgeVersion.CustomVersion}", 
-            $"neoforge-{forgeVersion.CustomVersion}-universal.jar");
+        string jarSourcePath = Path.Combine(installerDir, "maven", "net", "neoforged", "neoforge", $"{VersionData.MinecraftVersion}-{VersionData.CustomVersion}", 
+            $"neoforge-{VersionData.CustomVersion}-universal.jar");
         _logger.Debug("Source jar path: " + jarSourcePath);
         if (File.Exists(jarSourcePath))
         {
-            string targetJarPath = Path.Combine(forgeVersion.VersionDirectory, $"neoforge-{forgeVersion.MinecraftVersion}-{forgeVersion.CustomVersion}.jar");
+            string targetJarPath = Path.Combine(VersionData.CustomVersionDirectory!, $"neoforge-{VersionData.MinecraftVersion}-{VersionData.CustomVersion}.jar");
             File.Copy(jarSourcePath, targetJarPath);
         }
 
@@ -200,7 +196,6 @@ public class NeoForgeInstance(
                 }
         }
         
-        ModdedData moddedData = new ModdedData(forgeVersionMeta.MainClass, forgeVersion, localLibraries);
-        return moddedData;
+        return new ModdedData(forgeVersionMeta.MainClass, localLibraries);
     }
 }

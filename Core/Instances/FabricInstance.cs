@@ -1,6 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Helpers.Domain;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Network;
 using Tavstal.KonkordLauncher.Core.Models;
@@ -43,18 +41,15 @@ public class FabricInstance(
             _logger.Error("Fabric manifest file not found at path: " + PathDetails.CustomManifestPath);
             return null;
         }
-
-        VersionDetails fabricVersion = GameHelper.GetVersionDetails(PathDetails.VersionsDir, MinecraftVersion.Id, EMinecraftKind.FABRIC, GameDetails.CustomVersion, GameDetails.CustomGameDirectory);
-
+        
         // Create versionDir in the versions folder
-        if (!Directory.Exists(fabricVersion.VersionDirectory))
-            Directory.CreateDirectory(fabricVersion.VersionDirectory);
+        Directory.CreateDirectory(VersionData.CustomVersionDirectory!);
 
         // Download version json
         FabricVersionMeta? fabricVersionMeta;
-        List<LibraryMeta> localLibraries = new List<LibraryMeta>();
+        List<LibraryMeta> localLibraries = [];
 
-        if (!File.Exists(fabricVersion.VersionJsonPath))
+        if (!File.Exists(VersionData.CustomJsonPath))
         {
             Progress<double> progress = new Progress<double>();
             progress.ProgressChanged += (_, e) =>
@@ -63,21 +58,21 @@ public class FabricInstance(
                 _progressReporter?.UpdateStatusTranslated("instance.downloading.version_json", "fabric", e.ToString("0.00"));
             };
 
-            string fabricVersionJsonUrl = string.Format(FabricEndpoints.LoaderJsonUrl, fabricVersion.MinecraftVersion,
-                fabricVersion.CustomVersion);
+            string fabricVersionJsonUrl = string.Format(FabricEndpoints.LoaderJsonUrl, VersionData.MinecraftVersion,
+                VersionData.CustomVersion);
 
             var resultJson = await HttpHelper.GetStringAsync(fabricVersionJsonUrl, progress, cancellationToken);
             if (resultJson == null)
                 return null;
                 
-            await File.WriteAllTextAsync(fabricVersion.VersionJsonPath, resultJson, cancellationToken);
+            await File.WriteAllTextAsync(VersionData.CustomJsonPath!, resultJson, cancellationToken);
 
             // Add the libraries
             _progressReporter?.UpdateStatusTranslated("instance.reading.version_json");
             fabricVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(resultJson);
             if (fabricVersionMeta == null)
             {
-                FileSystemHelper.DeleteFile(fabricVersion.VersionJsonPath); // Delete it because this if part won't be executed again if it exists
+                FileSystemHelper.DeleteFile(VersionData.CustomJsonPath!); // Delete it because this if part won't be executed again if it exists
                 _logger.Error("Fabric version meta is null after deserialization. Invalid JSON format.");
                 return null;
             }
@@ -88,7 +83,7 @@ public class FabricInstance(
         else
         {
             _progressReporter?.UpdateStatusTranslated("instance.reading.version_json");
-            fabricVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(await File.ReadAllTextAsync(fabricVersion.VersionJsonPath, cancellationToken));
+            fabricVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(await File.ReadAllTextAsync(VersionData.CustomJsonPath!, cancellationToken));
             if (fabricVersionMeta == null)
             {
                 _logger.Error("Fabric version meta is null after deserialization. Invalid JSON format.");
@@ -101,10 +96,9 @@ public class FabricInstance(
 
 
         // Download Loader
-        string loaderDirPath = Path.Combine(PathDetails.LibrariesDir, "net", "fabricmc", "fabric-loader", fabricVersion.CustomVersion);
-        string loaderJarPath = Path.Combine(loaderDirPath, $"fabric-loader-{fabricVersion.CustomVersion}.jar");
-        if (!Directory.Exists(loaderDirPath))
-            Directory.CreateDirectory(loaderDirPath);
+        string loaderDirPath = Path.Combine(PathDetails.LibrariesDir, "net", "fabricmc", "fabric-loader", VersionData.CustomVersion!);
+        string loaderJarPath = Path.Combine(loaderDirPath, $"fabric-loader-{VersionData.CustomVersion}.jar");
+        Directory.CreateDirectory(loaderDirPath);
 
         if (!File.Exists(loaderJarPath))
         {
@@ -115,14 +109,9 @@ public class FabricInstance(
                 _progressReporter?.UpdateStatusTranslated("instance.downloading.loader", "fabric", e.ToString("0.00"));
             };
             _logger.Debug("Downloading fabric loader jar...");
-            await HttpHelper.DownloadFileAsync(string.Format(FabricEndpoints.LoaderJarUrl, fabricVersion.CustomVersion), loaderJarPath, progress, cancellationToken);
+            await HttpHelper.DownloadFileAsync(string.Format(FabricEndpoints.LoaderJarUrl, VersionData.CustomVersion), loaderJarPath, progress, cancellationToken);
         }
         
-        if (!File.Exists(fabricVersion.VersionJarPath))
-            File.Copy(fabricVersion.VanillaJarPath, fabricVersion.VersionJarPath);
-
-        ModdedData moddedData = new ModdedData(fabricVersionMeta.MainClass, fabricVersion, localLibraries);
-
         foreach (var arg in fabricVersionMeta.Arguments.GetGameArgs())
             ArgumentBuilder.AddGameArgument(new LaunchArg(arg, 1));
         
@@ -138,6 +127,6 @@ public class FabricInstance(
             ArgumentBuilder.AddJvmArgument(new LaunchArg(arg, 1));
         }
         
-        return moddedData;
+        return new ModdedData(fabricVersionMeta.MainClass, localLibraries);
     }
 }

@@ -1,7 +1,5 @@
 ﻿using System.IO.Compression;
 using Newtonsoft.Json;
-using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Helpers.Domain;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Network;
 using Tavstal.KonkordLauncher.Core.Models;
@@ -37,17 +35,15 @@ public class ForgeModernInstance(
         }
 
         List<LibraryMeta> localLibraries = [];
-        VersionDetails forgeVersion = GameHelper.GetVersionDetails(PathDetails.VersionsDir, MinecraftVersion.Id, EMinecraftKind.FORGE, GameDetails.CustomVersion, GameDetails.CustomGameDirectory);
-        
+
         // Create versionDir in the versions folder
-        if (!Directory.Exists(forgeVersion.VersionDirectory))
-            Directory.CreateDirectory(forgeVersion.VersionDirectory);
+        Directory.CreateDirectory(VersionData.CustomVersionDirectory!);
 
         // Download & Extract Installer
         string installerJarPath = Path.Combine(tempDir, "installer.jar");
         string installerDir = Path.Combine(tempDir, "installer");
-        string installerProfilePath = Path.Combine(forgeVersion.VersionDirectory, "install_profile.json");
-        if (!File.Exists(forgeVersion.VersionJsonPath))
+        string installerProfilePath = Path.Combine(VersionData.CustomVersionDirectory!, "install_profile.json");
+        if (!File.Exists(VersionData.CustomJsonPath))
         {
             Progress<double> progress = new Progress<double>();
             progress.ProgressChanged += (_, e) =>
@@ -57,7 +53,7 @@ public class ForgeModernInstance(
             };
        
             await HttpHelper.DownloadFileAsync(
-                string.Format(ForgeEndpoints.InstallerJarUrl, $"{forgeVersion.MinecraftVersion}-{forgeVersion.CustomVersion}"), installerJarPath,
+                string.Format(ForgeEndpoints.InstallerJarUrl, $"{VersionData.MinecraftVersion}-{VersionData.CustomVersion}"), installerJarPath,
                 progress, cancellationToken);
        
             // Extract Installer
@@ -74,7 +70,7 @@ public class ForgeModernInstance(
             // Move version.json
             source = Path.Combine(installerDir, "version.json");
             if (File.Exists(source))
-                File.Move(source, forgeVersion.VersionJsonPath);
+                File.Move(source, VersionData.CustomJsonPath!);
             else
                 _logger.Error("Install version JSON file not found in the forge installer directory.");
             
@@ -85,7 +81,7 @@ public class ForgeModernInstance(
         }
         
         // Read Forge Version Meta
-        var rawForgeVersionMeta = await File.ReadAllTextAsync(forgeVersion.VersionJsonPath, cancellationToken);
+        var rawForgeVersionMeta = await File.ReadAllTextAsync(VersionData.CustomJsonPath!, cancellationToken);
         var forgeVersionMeta = JsonConvert.DeserializeObject<ForgeVersionMeta>(rawForgeVersionMeta);
         if (forgeVersionMeta == null)
             throw new FileNotFoundException("Failed to get the forge version meta.");
@@ -142,8 +138,8 @@ public class ForgeModernInstance(
             await MapAndStartProcessors(installProfile, installerDir);
         
         // Copy Vanilla Jar
-        if (!File.Exists(forgeVersion.VersionJarPath))
-            File.Copy(forgeVersion.VanillaJarPath, forgeVersion.VersionJarPath);
+        if (!File.Exists(VersionData.CustomJarPath))
+            File.Copy(VersionData.VanillaJarPath, VersionData.CustomJarPath!, true);
 
         // Add launch arguments
         _progressReporter?.UpdateStatusTranslated("instance.building.arguments");
@@ -186,7 +182,6 @@ public class ForgeModernInstance(
             ArgumentBuilder.AddGameArgument(new LaunchArg("--tweakClass net.minecraftforge.fml.common.launcher.FMLTweaker", 1));
         }
         
-        ModdedData moddedData = new ModdedData(forgeVersionMeta.MainClass, forgeVersion, localLibraries);
-        return moddedData;
+        return new ModdedData(forgeVersionMeta.MainClass, localLibraries);
     }
 }

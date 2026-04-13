@@ -22,10 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Assets\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <EmbeddedResource Include="Assets\Fmllib\argo-2.25.jar" />
     <EmbeddedResource Include="Assets\Fmllib\argo-small-3.2.jar" />
     <EmbeddedResource Include="Assets\Fmllib\asm-all-4.0.jar" />

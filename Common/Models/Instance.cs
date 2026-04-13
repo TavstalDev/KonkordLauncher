@@ -45,12 +45,6 @@ public class Instance
         Id = Guid.NewGuid().ToString();
     }
 
-    public string GetGameDirectory(string versionsDir)
-    {
-        VersionDetails version = GameHelper.GetVersionDetails(versionsDir, MinecraftVersion, Kind, CustomVersion, GameDirectory);
-        return version.GameDir;
-    }
-
     public static string GetDefaultJVMArgs()
     {
         return "-XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16M -Djava.net.preferIPv4Stack=true";

@@ -1,7 +1,5 @@
 ﻿using System.IO.Compression;
 using Newtonsoft.Json;
-using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Helpers.Domain;
 using Tavstal.KonkordLauncher.Core.Helpers.Network;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints.Modding;
@@ -37,21 +35,19 @@ public class ForgeLegacyInstance(string forgeVersionName,
         }
 
         List<LibraryMeta> localLibraries = [];
-        VersionDetails forgeVersion = GameHelper.GetVersionDetails(PathDetails.VersionsDir, MinecraftVersion.Id, EMinecraftKind.FORGE, GameDetails.CustomVersion, GameDetails.CustomGameDirectory);
-        
+
         // Create versionDir in the versions folder
-        if (!Directory.Exists(forgeVersion.VersionDirectory))
-            Directory.CreateDirectory(forgeVersion.VersionDirectory);
+        Directory.CreateDirectory(VersionData.CustomVersionDirectory!);
         
         // Download Installer
         string installerJarPath = Path.Combine(tempDir, "installer.jar");
         string installerDir = Path.Combine(tempDir, $"installer-{forgeVersionName}");
-        string installerProfilePath = Path.Combine(forgeVersion.VersionDirectory, "install_profile.json");
+        string installerProfilePath = Path.Combine(VersionData.CustomVersionDirectory!, "install_profile.json");
         string forgeUniversalDir = Path.Combine(PathDetails.LibrariesDir, "net", "minecraftforge", "forge",
             forgeVersionName);
         string forgeUniversalPath = Path.Combine(forgeUniversalDir,
             $"forge-{forgeVersionName}-universal.jar");
-        if (!File.Exists(forgeVersion.VersionJsonPath))
+        if (!File.Exists(VersionData.CustomJsonPath))
         {
             Progress<double> progress = new Progress<double>();
             progress.ProgressChanged += (_, e) =>
@@ -93,8 +89,8 @@ public class ForgeLegacyInstance(string forgeVersionName,
                     File.Copy(universalJarPath, forgeUniversalPath, true);
             
                 // VERSION
-                if (!File.Exists(forgeVersion.VersionJsonPath))
-                    File.Move(Path.Combine(universalDir, "version.json"), forgeVersion.VersionJsonPath, true);
+                if (!File.Exists(VersionData.CustomJsonPath))
+                    File.Move(Path.Combine(universalDir, "version.json"), VersionData.CustomJsonPath!, true);
             }
             else
                 _logger.Warn("Forge universal jar not found in the installer directory. This may indicate an issue with the installer.");
@@ -106,7 +102,7 @@ public class ForgeLegacyInstance(string forgeVersionName,
         ArgumentBuilder.AddClass(forgeUniversalPath);
 
         // Read Forge Version Meta
-        var rawForgeVersionMeta = await File.ReadAllTextAsync(forgeVersion.VersionJsonPath, cancellationToken);
+        var rawForgeVersionMeta = await File.ReadAllTextAsync(VersionData.CustomJsonPath!, cancellationToken);
         var forgeVersionMeta = JsonConvert.DeserializeObject<ForgeVersionMeta>(rawForgeVersionMeta);
         if (forgeVersionMeta == null)
             throw new FileNotFoundException("Failed to get the forge version meta.");
@@ -146,20 +142,22 @@ public class ForgeLegacyInstance(string forgeVersionName,
         _progressReporter?.UpdateStatusTranslated("instance.reading.libraries");
         // Add launch arguments
         _progressReporter?.UpdateStatusTranslated("instance.building.arguments");
+        
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (forgeVersionMeta.MinecraftArguments != null)
         {
             MinecraftVersionMeta.ArgumentsLegacy = forgeVersionMeta.MinecraftArguments;
-        }
-        
-        // Copy vanilla jar
-        if (!File.Exists(forgeVersion.VersionJarPath))
-        {
-            //ReportProgress(0, $"ui_copying_jar", "vanilla");
-            File.Copy(forgeVersion.VanillaJarPath, forgeVersion.VersionJarPath);
+            string[] args =  forgeVersionMeta.MinecraftArguments.Split(' ');
+            int tweakIndex = args.IndexOf("--tweakClass");
+            ArgumentBuilder.AddGameArgument(new LaunchArg($"--tweakClass {args[tweakIndex + 1]}", 1));
         }
 
-        ModdedData moddedData = new ModdedData(forgeVersionMeta.MainClass, forgeVersion, localLibraries);
-        return moddedData;
+        // Copy vanilla jar
+        if (!File.Exists(VersionData.CustomJarPath))
+        {
+            //ReportProgress(0, $"ui_copying_jar", "vanilla");
+            File.Copy(VersionData.VanillaJarPath, VersionData.CustomJarPath!, true);
+        }
+        return new ModdedData(forgeVersionMeta.MainClass, localLibraries);
     }
 }

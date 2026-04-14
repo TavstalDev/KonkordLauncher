@@ -1,7 +1,6 @@
 using System.Diagnostics;
-using System.Security.Cryptography;
-using System.Text;
 using Tavstal.KonkordLauncher.Core.Enums;
+using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Platform;
 using Tavstal.KonkordLauncher.Core.Models;
 
@@ -15,7 +14,7 @@ public static class JavaProcessLauncher
     // Logger instance for the JavaProcessLauncher module
     private static readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(JavaProcessLauncher));
     
-    public static Process? StartJava(string javaPath, string jvmArguments, string gameArguments, string? logsPath = null, string? wrapperCommand = null, Dictionary<string, string>? environmentVariables = null)
+    public static Process? StartJava(string javaPath, string jvmArguments, string gameArguments, string? logsPath = null, string? wrapperCommand = null, Dictionary<string, string>? environmentVariables = null, List<string>? sensitiveDataToReplace = null)
     {
         string finalJavaPath = string.IsNullOrEmpty(javaPath) ? "java" : javaPath;
 
@@ -64,8 +63,22 @@ public static class JavaProcessLauncher
         _logger.Debug("Java: " + finalJavaPath);
         _logger.Debug("FileName: " + psi.FileName);
         _logger.Debug("Arguments: " + psi.Arguments);
-        
 
+        // Handle existing logs file
+        bool shouldHandleLogs = !string.IsNullOrEmpty(logsPath);
+        if (shouldHandleLogs)
+        {
+            string logsDir = Path.GetDirectoryName(logsPath)!;
+            if (File.Exists(logsPath))
+            {
+                var lastWritten = File.GetLastWriteTime(logsPath);
+                string newPath = Path.Combine(logsDir, string.Format(PathHelper.LogsFileFormat, lastWritten));
+                string archivePath = newPath + ".gz";
+                File.Move(logsPath, newPath, true);
+                FileSystemHelper.CompressFile(newPath, archivePath);
+            }
+        }
+        
         var process = Process.Start(psi);
         if (process != null)
         {
@@ -76,6 +89,37 @@ public static class JavaProcessLauncher
             {
                 _logger.Debug($"Java process exited with code: {process.ExitCode}");
             };
+            if (shouldHandleLogs)
+            {
+                CoreLogger jvmLogger = new CoreLogger("Game", false, logsPath);
+                bool replaceSD = sensitiveDataToReplace != null;
+                process.OutputDataReceived += (_, e) =>
+                {
+                    if (string.IsNullOrEmpty(e.Data))
+                        return;
+                    string line = e.Data;
+                    if (replaceSD)
+                        foreach (string s in sensitiveDataToReplace!)
+                            line = line.Replace(s, "*****");
+                    
+                    jvmLogger.Info(line);
+                };
+                process.ErrorDataReceived += (_, e) =>
+                {
+                    if (string.IsNullOrEmpty(e.Data))
+                        return;
+                    string line = e.Data;
+                    if (replaceSD)
+                        foreach (string s in sensitiveDataToReplace!)
+                            line = line.Replace(s, "*****");
+                    jvmLogger.Error(line);
+                };
+                process.Exited += (_, e_) =>
+                {
+                    jvmLogger.Debug("JVM exited with code: " + process.ExitCode);
+                };
+            }
+            
             /*process.OutputDataReceived += (sender, e) => Console.WriteLine("[JAVA-OUT] " + e.Data);
             process.ErrorDataReceived += (sender, e) => Console.WriteLine("[JAVA-ERR] " + e.Data);
             var writer = process.StandardInput;
@@ -166,14 +210,5 @@ public static class JavaProcessLauncher
 
         // Start the process and return the Process object
         return process;
-    }
-    
-    private static string QuoteForProcess(string s)
-    {
-        if (string.IsNullOrEmpty(s))
-            return "\"\"";
-        if (s.Contains(" ") || s.Contains("\""))
-            return $"\"{s.Replace("\"", "\\\"")}\"";
-        return s;
     }
 }

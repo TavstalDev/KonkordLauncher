@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ using Avalonia.Styling;
 using DiscordRPC;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
+using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Views;
@@ -147,6 +149,21 @@ public partial class App : Application
         {
             // Sets the main window to the StartupWindow, passing the application lifetime.
             desktop.MainWindow = new StartupWindow();
+            desktop.ShutdownRequested += (_, _) =>
+            {
+                try
+                {
+                    string logPath = Path.Combine(PathHelper.LauncherLogsDir,
+                        string.Format(PathHelper.LogsFileFormat, CoreLogger.StartTime));
+                    ;
+                    string archivePath = logPath + ".gz";
+                    FileSystemHelper.CompressFile(logPath, archivePath);
+                }
+                catch (Exception)
+                {
+                    // ignored
+                }
+            };
         }
 
         base.OnFrameworkInitializationCompleted();

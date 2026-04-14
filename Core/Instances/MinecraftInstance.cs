@@ -19,9 +19,6 @@ public class MinecraftInstance
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MinecraftInstance));
     private readonly LauncherDetails _launcherDetails;
     private readonly ClientDetails _client;
-    private FileSystemWatcher? _watcher;
-    private readonly Lock _watcherLock = new();
-    private bool _isSanitizingLogFile;
 
     protected GameDetails GameDetails { get; }
     protected PathDetails PathDetails { get; }
@@ -135,6 +132,7 @@ public class MinecraftInstance
                 ArgumentBuilder.ClasspathFilePath = Path.Combine(VersionData.GameDir, "classpath.txt");
             }
 
+            _logger.Debug("Installing modded data if applicable...");
             startTime = DateTime.Now;
             var moddedData = await InstallModdedAsync(tempDir, cancellationToken);
             endTime = DateTime.Now;
@@ -147,6 +145,7 @@ public class MinecraftInstance
             
             Directory.CreateDirectory(VersionData.GameDir);
 
+            _logger.Debug("Downloading dependencies...");
             var libraries = GetCombinedLibraries(moddedData);
             startTime = DateTime.Now;
             await DownloadDependenciesAsync(VersionData, libraries, cancellationToken);
@@ -160,6 +159,7 @@ public class MinecraftInstance
             _progressReporter?.CloseReporter();
             
             // Copy custom natives if specified
+            _logger.Debug("Copying custom native files if specified...");
             startTime = DateTime.Now;
             foreach (string nativePath in PathDetails.CustomNativeFiles)
             {
@@ -177,6 +177,7 @@ public class MinecraftInstance
                var preLaunchProc = JavaProcessLauncher.StartCommand(GameDetails.PreLaunchCommand);
                if (preLaunchProc != null)
                {
+                   _logger.Debug("Executing pre-launch command...");
                    startTime = DateTime.Now;
                    await preLaunchProc.WaitForExitAsync(cancellationToken);
                    endTime = DateTime.Now;
@@ -187,42 +188,17 @@ public class MinecraftInstance
             // Below 1.7 there is no dedicated logs directory
             // so this fixes this issue
             string? logsFilePath = null;
-            try
+            if (!VersionHelper.isNewer(GameDetails.MinecraftVersion, "1.7"))
             {
-                Version minecraftVersion = new Version(GameDetails.MinecraftVersion);
-                Version seven = new Version(1, 7);
-                if (minecraftVersion < seven)
-                {
-                    string logsDir = Path.Combine(VersionData.GameDir, "logs");
-                    if (!Directory.Exists(logsDir))
-                        Directory.CreateDirectory(logsDir);
-                    string latestLogFile = Path.Combine(logsDir, "latest.log");
-                    if (File.Exists(latestLogFile))
-                    {
-                        DateTime lastEditDate = File.GetLastWriteTime(latestLogFile);
-                        File.Move(latestLogFile, Path.Combine(logsDir, $"{lastEditDate:yyyy-MM-dd_HH-mm-ss}.log"),
-                            true);
-                    }
-
-                    logsFilePath = latestLogFile;
-
-                    // Make a file watcher to remove sensitive data from logs
-                    _watcher = new FileSystemWatcher(logsDir, "latest.log")
-                    {
-                        NotifyFilter = NotifyFilters.LastWrite,
-                        EnableRaisingEvents = true
-                    };
-                    _watcher.Changed += HandleFileWatcherChanged;
-                }
-            }
-            catch (Exception)
-            {
-                // Ignore any errors with the log file watcher
+                string logsDir = Path.Combine(VersionData.GameDir, "logs");
+                Directory.CreateDirectory(logsDir);
+                logsFilePath = Path.Combine(logsDir, "latest.log");
             }
 
             // Launch the Minecraft game process with the constructed arguments
+            
             var process = JavaProcessLauncher.StartJava(GameDetails.JavaPath, arguments.jvmArgs, arguments.gameArgs, logsFilePath, GameDetails.WrapperCommand,
-                GameDetails.EnvironmentVariables);
+                GameDetails.EnvironmentVariables,  _client.AccessToken != null ? [ _client.AccessToken ] : null);
             
             // Execute post-exit command if specified
             // Make sure to dispose the file watcher when the game process exits
@@ -231,12 +207,6 @@ public class MinecraftInstance
                 {
                     if (!string.IsNullOrEmpty(GameDetails.PostExitCommand))
                         JavaProcessLauncher.StartCommand(GameDetails.PostExitCommand);
-                    
-                    if (_watcher == null)
-                        return;
-                    
-                    _watcher.Changed -= HandleFileWatcherChanged;
-                    _watcher?.Dispose();
                 };
             
             return process;
@@ -364,60 +334,6 @@ public class MinecraftInstance
     {
         GameDetails.JavaPath = javaPath;
         _logger.Debug($"Java path updated to: {javaPath}");
-    }
-
-    /// <summary>
-    /// Handles changes to the log file being watched by the file system watcher.
-    /// Replaces sensitive information such as the access token and UUID in the log file with masked values.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The event data containing information about the file change.</param>
-    private void HandleFileWatcherChanged(object sender, FileSystemEventArgs e)
-    {
-        // Impossible but the IDE complains
-        if (_watcher == null)
-            return;
-        
-        lock (_watcherLock)
-        {
-            if (_isSanitizingLogFile)
-                return;
-            _isSanitizingLogFile = true;
-        }
-        
-        try
-        {
-            _watcher.EnableRaisingEvents = false;
-            
-            string logsDir = Path.Combine(VersionData.GameDir, "logs");
-            string latestLogFile = Path.Combine(logsDir, "latest.log");
-            if (!File.Exists(latestLogFile))
-            {
-                _logger.Error("Latest log file not found for sanitization.");
-                return;
-            }
-            
-            string[] lines = File.ReadAllLines(latestLogFile);
-            for (int i = 0; i < lines.Length; i++)
-            {
-                if (!string.IsNullOrEmpty(_client.AccessToken) && lines[i].Contains(_client.AccessToken))
-                    lines[i] = lines[i].Replace(_client.AccessToken, "****");
-                
-                if (lines[i].Contains(_client.UUID))
-                    lines[i] = lines[i].Replace(_client.UUID, "****");
-            }
-            File.WriteAllLines(latestLogFile, lines);
-        }
-        catch (IOException)
-        {
-            // File is being used by another process, ignore
-        }
-        finally
-        {
-            lock (_watcherLock)
-                _isSanitizingLogFile = false;
-            _watcher.EnableRaisingEvents = true;
-        }
     }
     #endregion
 }

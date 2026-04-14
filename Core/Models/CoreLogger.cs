@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 
 namespace Tavstal.KonkordLauncher.Core.Models;
@@ -7,23 +8,27 @@ namespace Tavstal.KonkordLauncher.Core.Models;
 /// </summary>
 public class CoreLogger
 {
-    /// <summary>
-    /// The name of the module associated with the logger.
-    /// </summary>
     private readonly string _moduleName;
-    private static readonly Lock _logLock = new();
-    private static readonly Queue<string> _logQueue = new();
-    private static readonly SemaphoreSlim _signal = new(0);
-    private static readonly CancellationTokenSource _logCts = new();
+    private readonly string _filePath;
+    private readonly bool _printLogs;
+    private readonly Lock _logLock = new();
+    private readonly Queue<string> _logQueue = new();
+    private readonly SemaphoreSlim _signal = new(0);
+    private static readonly ConcurrentDictionary<string, SemaphoreSlim> _fileLocks = new();
+    private readonly CancellationTokenSource _logCts = new();
     public static DateTime StartTime { get; } = DateTime.Now;
-
+    
     /// <summary>
     /// Initializes a new instance of the <see cref="CoreLogger"/> class with the specified module name.
     /// </summary>
     /// <param name="moduleName">The name of the module to associate with the logger.</param>
-    public CoreLogger(string moduleName)
+    /// <param name="printLogs">Indicates whether logs should be printed to the console. Default is true.</param>
+    /// <param name="filePath">The optional file path for logging output. If not provided, logs will be written to a default location based on the launcher's logs directory.</param>
+    public CoreLogger(string moduleName, bool printLogs = true, string? filePath = null)
     {
         _moduleName = moduleName;
+        _printLogs = printLogs;
+        _filePath = filePath ?? Path.Combine(PathHelper.LauncherLogsDir, string.Format(PathHelper.LogsFileFormat, StartTime));
         Task.Run(() => ProcessLogQueueAsync(_logCts.Token));
     }
 
@@ -57,23 +62,29 @@ public class CoreLogger
     /// Continuously processes queued log entries and writes them to the log file.
     /// </summary>
     /// <param name="token">Cancellation token used to stop the processing loop.</param>
-    private static async Task ProcessLogQueueAsync(CancellationToken token)
+    private async Task ProcessLogQueueAsync(CancellationToken token = default)
     {
         while (!token.IsCancellationRequested)
         {
             await _signal.WaitAsync(token);
+            
+            var fileLock = _fileLocks.GetOrAdd(_filePath, _ => new SemaphoreSlim(1, 1));
+            await fileLock.WaitAsync(token);
 
             if (_logQueue.TryDequeue(out var logEntry))
             {
                 try
                 {
-                    string logsFilePath = Path.Combine(PathHelper.LauncherLogsDir, string.Format(PathHelper.LogsFileFormat, StartTime));
-                    await File.AppendAllLinesAsync(logsFilePath, [logEntry], token);
+                    await File.AppendAllLinesAsync(_filePath, [logEntry], token);
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"[Logger Error] Logging failed: {ex.Message}");
                     Console.WriteLine($"[Logger Error] Failed log entry: {logEntry}");
+                }
+                finally
+                {
+                    fileLock.Release();
                 }
             }
         }
@@ -87,32 +98,33 @@ public class CoreLogger
     /// <param name="prefix">An optional prefix for the message.</param>
     public void Log(object message, ConsoleColor color = ConsoleColor.White, string prefix = "")
     {
-        lock (_logLock)
+        string text = $"{prefix}{message}";
+        if (!string.IsNullOrEmpty(_moduleName))
+            text = $"[{_moduleName}] {text}";
+
+        if (_printLogs)
         {
-            string text = $"{prefix}{message}";
-            if (!string.IsNullOrEmpty(_moduleName))
-                text = $"[{_moduleName}] {text}";
-
-            try
+            lock (_logLock)
             {
-                Console.ForegroundColor = color;
-                Console.WriteLine(text);
-
-                _logQueue.Enqueue(string.Concat("[", DateTime.Now.ToString("g"), "] ", text));
-                _signal.Release();
-            }
-            catch (Exception ex)
-            {
-                // If console output fails, fallback to Debug.WriteLine
-                System.Diagnostics.Debug.WriteLine($"[Logger Error] Failed to log: {text}");
-                System.Diagnostics.Debug.WriteLine($"[Logger Error] Exception: {ex}");
-            }
-            finally
-            {
-                // Ensure the console color is reset
-                Console.ResetColor();
+                try
+                {
+                    Console.ForegroundColor = color;
+                    Console.WriteLine(text);
+                    Console.ResetColor();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[Logger Console Error] {ex.Message}");
+                }
             }
         }
+        
+        string logEntry = $"[{DateTime.Now:g}] {text}";
+        lock (_logLock)
+        {
+            _logQueue.Enqueue(logEntry);
+        }
+        _signal.Release();
     }
 
     /// <summary>

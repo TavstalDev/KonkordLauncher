@@ -5,6 +5,9 @@ using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 
 namespace Tavstal.KonkordLauncher.Core.Models;
 
+/// <summary>
+/// Builds JVM and game argument strings for launching Minecraft instances.
+/// </summary>
 public class ArgumentBuilder
 {
     private readonly List<string> _classPath = [];
@@ -18,6 +21,12 @@ public class ArgumentBuilder
     
     public string? ClasspathFilePath { get; set; }
 
+    
+    /// <summary>
+    /// Adds a classpath entry to the builder.
+    /// Duplicate entries are ignored.
+    /// </summary>
+    /// <param name="classPath">A single classpath entry to include.</param>
     public void AddClass(string classPath)
     {
         if (_classPath.Contains(classPath))
@@ -25,6 +34,11 @@ public class ArgumentBuilder
         _classPath.Add(classPath);
     }
 
+    /// <summary>
+    /// Adds a JVM argument that will be placed after the pre-classpath JVM args.
+    /// Duplicate argument values (by Arg) are ignored.
+    /// </summary>
+    /// <param name="arg">LaunchArg containing the argument string and priority for ordering.</param>
     public void AddJvmArgument(LaunchArg arg)
     {
         if (_jvmArguments.Any(x => x.Arg == arg.Arg))
@@ -32,6 +46,11 @@ public class ArgumentBuilder
         _jvmArguments.Add(arg);
     }
 
+    /// <summary>
+    /// Adds a JVM argument that should appear before the classpath (e.g., memory flags).
+    /// Duplicate argument values (by Arg) are ignored.
+    /// </summary>
+    /// <param name="arg">LaunchArg containing the argument string and priority for ordering.</param>
     public void AddJvmArgumentBeforeClassPath(LaunchArg arg)
     {
         if (_jvmArgumentsBeforeClassPath.Any(x => x.Arg == arg.Arg))
@@ -39,6 +58,11 @@ public class ArgumentBuilder
         _jvmArgumentsBeforeClassPath.Add(arg);
     }
 
+    /// <summary>
+    /// Adds a game argument (argument passed to the Minecraft process).
+    /// Duplicate arguments (by Arg) are ignored.
+    /// </summary>
+    /// <param name="arg">LaunchArg containing the argument string and priority for ordering.</param>
     public void AddGameArgument(LaunchArg arg)
     {
         if (_gameArguments.Any(x => x.Arg == arg.Arg))
@@ -46,11 +70,34 @@ public class ArgumentBuilder
         _gameArguments.Add(arg);
     }
 
+    /// <summary>
+    /// Adds or updates a placeholder token that will be replaced in the final argument strings.
+    /// Use tokens like "${auth_access_token}" or "${classpath}".
+    /// </summary>
+    /// <param name="key">Placeholder key (e.g. "${auth_access_token}").</param>
+    /// <param name="value">Replacement value for the placeholder.</param>
     public void AddPlaceholder(string key, string value)
     {
         _placeholders[key] = value;
     }
 
+    
+    /// <summary>
+    /// Initializes a new ArgumentBuilder using version metadata and launcher/game/client/path details.
+    /// This constructor prepares default placeholders, memory settings and populates JVM and game arguments
+    /// based on the provided VersionMeta and GameDetails.
+    /// </summary>
+    /// <param name="version">Minecraft version identifier (used for version-specific adjustments).</param>
+    /// <param name="versionName">Readable version name.</param>
+    /// <param name="nativesDir">Directory containing native libraries.</param>
+    /// <param name="gameDir">The instance game directory.</param>
+    /// <param name="assetIndexId">Asset index id used by the version.</param>
+    /// <param name="versionMeta">Version metadata providing JVM/game argument templates.</param>
+    /// <param name="launcherDetails">Information about the launcher (name, version).</param>
+    /// <param name="gameDetails">Per-instance game settings (min/max memory, additional jvm args, server to join).</param>
+    /// <param name="clientDetails">Authenticated client details (tokens, uuid, display name).</param>
+    /// <param name="pathDetails">Resolved path details (assets dir, libraries dir).</param>
+    /// <param name="resolution">Optional resolution to set width/height game args.</param>
     public ArgumentBuilder(string version, string versionName, string nativesDir, string gameDir, string assetIndexId, VersionMeta versionMeta, LauncherDetails launcherDetails, GameDetails gameDetails, ClientDetails clientDetails, PathDetails pathDetails, Resolution? resolution)
     {
         string gameAssetsDir = Path.Combine(pathDetails.AssetsDir, "virtual", "legacy");
@@ -121,6 +168,14 @@ public class ArgumentBuilder
             _gameArguments.Add(new LaunchArg($"--quickPlayMultiplayer {gameDetails.ServerAddressToJoin}", 98));
     }
     
+    /// <summary>
+    /// Builds and returns the final JVM and game argument strings.
+    /// It computes the classpath string (or writes a classpath file), replaces placeholders,
+    /// and orders arguments according to configured priorities.
+    /// </summary>
+    /// <returns>
+    /// A tuple where Item1 is the JVM argument string and Item2 is the game argument string.
+    /// </returns>
     public (string jvmArgs, string gameArgs) Build()
     {
         string classpath;
@@ -151,7 +206,12 @@ public class ArgumentBuilder
         return (jvmArgString, gameArgString);
     }
     
-    private IEnumerable<string> BuildJvmArguments()
+    /// <summary>
+    /// Constructs the ordered list of JVM arguments (pre-classpath then post-classpath).
+    /// Ensures a classpath argument is present as a fallback if none is specified.
+    /// </summary>
+    /// <returns>List of JVM argument strings in the correct order.</returns>
+    private List<string> BuildJvmArguments()
     {
         var jvmArgs = new List<string>();
         
@@ -170,7 +230,12 @@ public class ArgumentBuilder
         return jvmArgs;
     }
     
-    private IEnumerable<string> BuildGameArguments()
+    /// <summary>
+    /// Constructs the ordered and deduplicated list of game argument strings.
+    /// Arguments are ordered by their priority and duplicates are removed.
+    /// </summary>
+    /// <returns>List of game argument strings.</returns>
+    private List<string> BuildGameArguments()
     {
         var gameArgs = new List<string>();
         var gameArguments = _gameArguments.OrderByDescending(x => x.Priority).Select(a => a.Arg);
@@ -185,6 +250,12 @@ public class ArgumentBuilder
         return gameArgs;
     }
     
+    /// <summary>
+    /// Ensures a path or value is wrapped in double quotes if necessary.
+    /// If the supplied string is null or empty the method returns an empty quoted string "\"\"".
+    /// </summary>
+    /// <param name="path">The path or argument value to quote if needed.</param>
+    /// <returns>A quoted string value safe for use in command-line arguments.</returns>
     private static string QuoteIfNeeded(string path)
     {
         if (string.IsNullOrEmpty(path))

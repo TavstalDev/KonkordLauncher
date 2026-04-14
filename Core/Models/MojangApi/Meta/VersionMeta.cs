@@ -112,19 +112,4 @@ public class VersionMeta
             ];
         throw new Exception("Failed to get the game arguments");
     }
-    
-    /// <summary>
-    /// Retrieves the JVM arguments as a single string.
-    /// </summary>
-    /// <returns>A string containing the JVM arguments.</returns>
-    /// <exception cref="Exception">Thrown if no arguments are available.</exception>
-    public string GetJvmArgumentString()
-    {
-        if (ArgumentsNew != null)
-            return ArgumentsNew.GetJvmArgString();
-        if (ArgumentsLegacy != null)
-            return
-                "-Djava.library.path=${natives_directory} -Dminecraft.launcher.brand=${launcher_name} -Dminecraft.launcher.version=${launcher_version}";
-        throw new Exception("Failed to get the game arguments");
-    }
 }

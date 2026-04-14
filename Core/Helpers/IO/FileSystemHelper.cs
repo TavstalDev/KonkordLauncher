@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
 using Tavstal.KonkordLauncher.Core.Enums;
@@ -185,6 +186,37 @@ public static class FileSystemHelper
 
         if (deleteSource)
             DeleteDirectory(sourceDir);
+    }
+
+    /// <summary>
+    /// Compresses a file to the specified destination using GZip compression.
+    /// Optionally deletes the source file after successful compression.
+    /// </summary>
+    /// <param name="source">Full path to the source file to compress.</param>
+    /// <param name="destination">Full path to the destination compressed file to create.</param>
+    /// <param name="deleteSource">If true, the source file will be deleted after compression completes (default: true).</param>
+    /// <returns>
+    /// <c>true</c> when compression succeeded; <c>false</c> if the source file is locked and compression was not attempted.
+    /// </returns>
+    public static bool CompressFile(string source, string destination, bool deleteSource = true)
+    {
+        if (IsFileLocked(source))
+            return false;
+        
+        try
+        {
+            using FileStream sourceStream = new FileStream(source, FileMode.Open, FileAccess.Read);
+            using FileStream targetStream = File.Create(destination);
+            using GZipStream compressionStream = new GZipStream(targetStream, CompressionLevel.Optimal);
+
+            sourceStream.CopyTo(compressionStream);
+            return true;
+        }
+        finally
+        {
+            if (deleteSource)
+                DeleteFile(source);
+        }
     }
     #endregion
     

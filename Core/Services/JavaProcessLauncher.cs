@@ -14,6 +14,25 @@ public static class JavaProcessLauncher
     // Logger instance for the JavaProcessLauncher module
     private static readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(JavaProcessLauncher));
     
+    /// <summary>
+    /// Starts a Java process using the specified java executable and arguments.
+    /// </summary>
+    /// <param name="javaPath">Path to the java executable to use. If null or empty, the system "java" command will be used.</param>
+    /// <param name="jvmArguments">JVM arguments to pass to the Java executable (e.g. "-Xmx2G -Xms1G"). This string should contain any JVM flags required.</param>
+    /// <param name="gameArguments">Game (application) arguments to pass after JVM arguments (e.g. "--username user --version 1.16.5").</param>
+    /// <param name="logsPath">
+    /// Optional path to a log file. If supplied, existing log file at this path will be rotated (moved/archived)
+    /// before starting the process and the launched process' stdout/stderr lines will be written to a logger
+    /// that targets this path. If null or empty, no log rotation or file logging is performed.
+    /// </param>
+    /// <param name="wrapperCommand">
+    /// Optional wrapper command to run the Java command through. If provided, the constructed java command
+    /// string (<c>javaPath + " " + jvmArguments + " " + gameArguments</c>) will be injected into the wrapper:
+    /// - If the wrapper contains the literal <c>"%command%"</c> substring it will be replaced with the constructed command.
+    /// </param>
+    /// <param name="environmentVariables">Optional dictionary of environment variables to set on the started process.</param>
+    /// <param name="sensitiveDataToReplace">Optional list of sensitive substrings (e.g. tokens, passwords) that should be masked in logged output.</param>
+    /// <returns>A <see cref="Process"/> instance representing the started process, or <c>null</c> if the process could not be started.</returns>
     public static Process? StartJava(string javaPath, string jvmArguments, string gameArguments, string? logsPath = null, string? wrapperCommand = null, Dictionary<string, string>? environmentVariables = null, List<string>? sensitiveDataToReplace = null)
     {
         string finalJavaPath = string.IsNullOrEmpty(javaPath) ? "java" : javaPath;
@@ -120,6 +139,7 @@ public static class JavaProcessLauncher
                 };
             }
             
+            // TODO: Implement launch wrapper
             /*process.OutputDataReceived += (sender, e) => Console.WriteLine("[JAVA-OUT] " + e.Data);
             process.ErrorDataReceived += (sender, e) => Console.WriteLine("[JAVA-ERR] " + e.Data);
             var writer = process.StandardInput;

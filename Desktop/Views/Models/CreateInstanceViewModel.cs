@@ -38,7 +38,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
     private CoreLogger _logger = CoreLogger.WithModuleType(typeof(CreateInstanceViewModel));
     private ReverseMarkdown.Converter? _converter = new();
 
-    [ObservableProperty] private ECreateInstanceTab _selectedTab;
+    [ObservableProperty] private ECreateInstanceTab _selectedTab = ECreateInstanceTab.IMPORT;
     
     #region Interactions
     public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
@@ -322,7 +322,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
     #region Common
 
     [RelayCommand]
-    private async Task HandleTabBtn() => await UpdateSelectedTabButton.Handle(SelectedTab);
+    private async Task HandleTabBtn(ECreateInstanceTab tab) => await UpdateSelectedTabButton.Handle(tab);
 
     #endregion
     

@@ -19,22 +19,22 @@
     <SolidColorBrush x:Key="secondary-content" Color="#FFFFFF" />
 
     <SolidColorBrush x:Key="accent" Color="#009689" />
-    <SolidColorBrush x:Key="accent-content" Color="#084d49" />
+    <SolidColorBrush x:Key="accent-content" Color="#001a18" />
 
     <SolidColorBrush x:Key="neutral" Color="#0F1115" />
     <SolidColorBrush x:Key="neutral-content" Color="#FFF" />
 
     <SolidColorBrush x:Key="info" Color="#0EA5E9" />
-    <SolidColorBrush x:Key="info-content" Color="#03263D" />
+    <SolidColorBrush x:Key="info-content" Color="#00141f" />
 
     <SolidColorBrush x:Key="success" Color="#009764" />
-    <SolidColorBrush x:Key="success-content" Color="#004c39" />
+    <SolidColorBrush x:Key="success-content" Color="#001a11" />
 
     <SolidColorBrush x:Key="warning" Color="#fcb700" />
-    <SolidColorBrush x:Key="warning-content" Color="#793205" />
+    <SolidColorBrush x:Key="warning-content" Color="#1a0b00" />
 
     <SolidColorBrush x:Key="error" Color="#ff6266" />
-    <SolidColorBrush x:Key="error-content" Color="#4d0218" />
+    <SolidColorBrush x:Key="error-content" Color="#1a0005" />
 
     <SolidColorBrush x:Key="text-faded" Color="#9CA3AF" />
     <SolidColorBrush x:Key="text-muted" Color="#626773" />

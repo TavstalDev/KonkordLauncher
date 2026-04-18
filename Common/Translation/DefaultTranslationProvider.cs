@@ -189,6 +189,9 @@ public static class DefaultTranslationProvider
         #region Create
 
         {"instance.create.title", "Create Instance"},
+        {"instance.create.category.information", "INFORMATION"},
+        {"instance.create.category.minecraft_version", "MINECRAFT VERSION"},
+        {"instance.create.category.mod_loader", "MOD LOADER"},
         
         {"instance.create.tab.custom", "Custom"},
         {"instance.create.tab.modpacks", "Modpacks"},

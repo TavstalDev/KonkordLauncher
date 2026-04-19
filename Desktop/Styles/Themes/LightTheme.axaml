@@ -1,4 +1,5 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- TODO: Rework the color palette to be more cohesive and less random. -->
     <SolidColorBrush x:Key="base-100" Color="#ffffff" />
     <SolidColorBrush x:Key="base-200" Color="#f8f8f8" />
     <SolidColorBrush x:Key="base-300" Color="#eeeeee" />

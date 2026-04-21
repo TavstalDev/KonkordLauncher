@@ -27,6 +27,7 @@ public static class ManifestHelper
     /// Asynchronously loads the Minecraft version manifest from the specified path.
     /// </summary>
     /// <param name="manifestPath">The file path to the Minecraft manifest.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>The loaded <see cref="VersionManifest"/> or null if loading fails.</returns>
     public static async Task<VersionManifest?> GetMinecraftManifestAsync(string manifestPath, CancellationToken cancellationToken = default)
     {
@@ -52,6 +53,7 @@ public static class ManifestHelper
     /// Asynchronously loads the Fabric mod loader manifests from the specified path.
     /// </summary>
     /// <param name="manifestPath">The file path to the Fabric manifest.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A list of <see cref="IModManifest"/> or null if loading fails.</returns>
     /// <exception cref="InvalidOperationException">Thrown if the loader section is missing in the JSON.</exception>
     public static async Task<List<IModManifest>?> GetFabricManifestAsync(string manifestPath, CancellationToken cancellationToken = default)
@@ -90,6 +92,7 @@ public static class ManifestHelper
     /// Asynchronously loads the Quilt mod loader manifests from the specified path.
     /// </summary>
     /// <param name="manifestPath">The file path to the Quilt manifest.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A list of <see cref="IModManifest"/> or null if loading fails.</returns>
     /// <exception cref="InvalidOperationException">Thrown if the loader section is missing in the JSON.</exception>
     public static async Task<List<IModManifest>?> GetQuiltManifestAsync(string manifestPath, CancellationToken cancellationToken = default)
@@ -128,6 +131,7 @@ public static class ManifestHelper
     /// Asynchronously loads the Forge mod loader manifests from the specified path.
     /// </summary>
     /// <param name="manifestPath">The file path to the Forge manifest.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A list of <see cref="ForgeManifest"/> or null if loading fails.</returns>
     public static async Task<List<ForgeManifest>?> GetForgeManifestAsync(string manifestPath, CancellationToken cancellationToken = default)
     {
@@ -153,6 +157,7 @@ public static class ManifestHelper
     /// Asynchronously loads the NeoForge mod loader manifests from the specified path.
     /// </summary>
     /// <param name="manifestPath">The file path to the NeoForge manifest.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A list of <see cref="ForgeManifest"/> or null if loading fails.</returns>
     public static async Task<List<ForgeManifest>?> GetNeoForgeManifestAsync(string manifestPath, CancellationToken cancellationToken = default)
     {

@@ -117,7 +117,7 @@
                                         <Border Classes="SettingsCategoryBorder">
                                             <Grid RowDefinitions="Auto, Auto">
                                                 <!--  Category Title  -->
-                                                <TextBlock Classes="SettingsCategoryText" Text="INFORMATION" />
+                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.category.information}" />
 
                                                 <!--  Icon, Name & Group  -->
                                                 <Grid
@@ -168,7 +168,7 @@
                                         <Border Grid.Row="1" Classes="SettingsCategoryBorder">
                                             <Grid RowDefinitions="Auto, Auto">
                                                 <!--  Category Title  -->
-                                                <TextBlock Classes="SettingsCategoryText" Text="MINECRAFT VERSION" />
+                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.category.minecraft_version}" />
 
                                                 <!--  Version Selector  -->
                                                 <Grid
@@ -226,7 +226,7 @@
                                         <Border Grid.Row="2" Classes="SettingsCategoryBorder">
                                             <Grid RowDefinitions="Auto, Auto">
                                                 <!--  Category Title  -->
-                                                <TextBlock Classes="SettingsCategoryText" Text="MOD LOADER" />
+                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.category.mod_loader}" />
 
                                                 <Grid
                                                     Grid.Row="1"
@@ -319,8 +319,164 @@
                             </Grid>
 
                             <!--  Modpacks  -->
+                            <Grid RowDefinitions="*, Auto">
+                                <!--  Content  -->
+                                <ScrollViewer Margin="25,0,25,0">
+                                    <Grid Classes="SettingsWrapper" RowDefinitions="Auto, Auto, Auto">
+                                        <!--  Basic Information  -->
+                                        <Border Classes="SettingsCategoryBorder">
+                                            <Grid RowDefinitions="Auto, Auto">
+                                                <!--  Category Title  -->
+                                                <TextBlock Classes="SettingsCategoryText" Text="INFORMATION" />
+
+                                                
+                                            </Grid>
+                                        </Border>
+                                    </Grid>
+                                </ScrollViewer>
+
+                                <!--  Buttons  -->
+                                <Border Grid.Row="1" Classes="InstanceButtonBorder">
+                                    <StackPanel Classes="InstanceButtonWrapper">
+                                        <!--  Cancel Button  -->
+                                        <Button Classes="IconBtn ErrorBtn" Command="{Binding CustomCancelCreateCommand}">
+                                            <WrapPanel Classes="IconBtnWrapper">
+                                                <TextBlock
+                                                    VerticalAlignment="Center"
+                                                    Classes="FontAwesome"
+                                                    Text="&#xf00d;" />
+                                                <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.cancel}" />
+                                            </WrapPanel>
+                                        </Button>
+                                        <!--  Create Instance Button  -->
+                                        <Button
+                                            Classes="IconBtn SuccessBtn">
+                                            <WrapPanel Classes="IconBtnWrapper">
+                                                <TextBlock
+                                                    VerticalAlignment="Center"
+                                                    Classes="FontAwesome"
+                                                    Text="&#xf0c7;" />
+                                                <TextBlock VerticalAlignment="Center" Text="{lang:Translate instance.create.button}" />
+                                            </WrapPanel>
+                                        </Button>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
 
                             <!--  Import  -->
+                            <Grid RowDefinitions="*, Auto">
+                                <!--  Content  -->
+                                <ScrollViewer Margin="25,0,25,0">
+                                    <Grid Classes="SettingsWrapper" RowDefinitions="Auto, Auto, Auto">
+                                        <!--  Import Type  -->
+                                        <Border Classes="SettingsCategoryBorder">
+                                            <Grid RowDefinitions="Auto, Auto">
+                                                <!--  Category Title  -->
+                                                <TextBlock Classes="SettingsCategoryText" Text="IMPORT TYPE" />
+
+                                                <Grid Grid.Row="1" ColumnDefinitions="*, *" ColumnSpacing="10">
+                                                    <Button Name="ImportFromFileTabBtn" 
+                                                            Classes="SuccessBtn" 
+                                                            Command="{Binding ChangeImportTypeCommand}"
+                                                            HorizontalAlignment="Stretch">
+                                                        <Button.CommandParameter>
+                                                            <x:Int32>0</x:Int32>
+                                                        </Button.CommandParameter>
+                                                        <TextBlock VerticalAlignment="Center" TextAlignment="Center" Text="From File" />
+                                                    </Button>
+                                                    <Button Grid.Column="1" Name="ImportFromUrlTabBtn" 
+                                                            Command="{Binding ChangeImportTypeCommand}"
+                                                            HorizontalAlignment="Stretch">
+                                                        <Button.CommandParameter>
+                                                            <x:Int32>1</x:Int32>
+                                                        </Button.CommandParameter>
+                                                        <TextBlock VerticalAlignment="Center" TextAlignment="Center" Text="From URL" />
+                                                    </Button>
+                                                </Grid>
+                                            </Grid>
+                                        </Border>
+                                        
+                                        <!-- Import From File  -->
+                                        <Border Grid.Row="1" Classes="SettingsCategoryBorder" IsVisible="{Binding IsSourceFromFile}">
+                                            <Grid RowDefinitions="Auto, Auto, Auto">
+                                                <!--  Category Title  -->
+                                                <TextBlock Classes="SettingsCategoryText" Text="SELECT FILE" />
+
+                                                <!--  Input  -->
+                                                <Grid Grid.Row="1" Margin="5,0,5,0"
+                                                    ColumnDefinitions="*, Auto">
+                                                    <!--  Input  -->
+                                                    <TextBox
+                                                        Classes="TextInput"
+                                                        Grid.Column="0"
+                                                        Watermark="{lang:Translate common.select.file}" />
+                                                    <!--  Button  -->
+                                                    <Button
+                                                        Classes="IconBtn SuccessBtn"
+                                                        Command="{Binding SelectFileToImportCommand}"
+                                                        Grid.Column="1">
+                                                        <TextBlock Classes="FontAwesome" Text="&#xf56f;" />
+                                                    </Button>
+                                                </Grid>
+                                                <!--  Note  -->
+                                                <TextBlock Grid.Row="2"
+                                                    Opacity="0.5"
+                                                    Margin="5,5,5,0"
+                                                    Text="{lang:Translate instance.create.import.formats}" />
+                                            </Grid>
+                                        </Border>
+                                        
+                                        <!-- Import From URL  -->
+                                        <Border Grid.Row="1" Classes="SettingsCategoryBorder" IsVisible="{Binding !IsSourceFromFile}">
+                                            <Grid RowDefinitions="Auto, Auto, Auto">
+                                                <!--  Category Title  -->
+                                                <TextBlock Classes="SettingsCategoryText" Text="IMPORT FROM URL" />
+
+                                                <!--  Input  -->
+                                                <TextBox
+                                                    Classes="TextInput"
+                                                    Grid.Row="1"
+                                                    Margin="5,0,5,0"
+                                                    Watermark="e.g., https://example.com/my-modpack.mrpack" />
+                                                <!--  Note  -->
+                                                <TextBlock Grid.Row="2"
+                                                    Opacity="0.5"
+                                                    Margin="5,5,5,0"
+                                                    Text="{lang:Translate instance.create.import.formats}" />
+                                            </Grid>
+                                        </Border>
+                                    </Grid>
+                                </ScrollViewer>
+
+                                <!--  Buttons  -->
+                                <Border Grid.Row="1" Classes="InstanceButtonBorder">
+                                    <StackPanel Classes="InstanceButtonWrapper">
+                                        <!--  Cancel Button  -->
+                                        <Button Classes="IconBtn ErrorBtn" Command="{Binding CustomCancelCreateCommand}">
+                                            <WrapPanel Classes="IconBtnWrapper">
+                                                <TextBlock
+                                                    VerticalAlignment="Center"
+                                                    Classes="FontAwesome"
+                                                    Text="&#xf00d;" />
+                                                <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.cancel}" />
+                                            </WrapPanel>
+                                        </Button>
+                                        <!--  Create Instance Button  -->
+                                        <Button
+                                            Classes="IconBtn SuccessBtn"
+                                            Command="{Binding CreateInstanceFromImportCommand}"
+                                            IsEnabled="{Binding HasImportPath}">
+                                            <WrapPanel Classes="IconBtnWrapper">
+                                                <TextBlock
+                                                    VerticalAlignment="Center"
+                                                    Classes="FontAwesome"
+                                                    Text="&#xf0c7;" />
+                                                <TextBlock VerticalAlignment="Center" Text="{lang:Translate instance.create.button}" />
+                                            </WrapPanel>
+                                        </Button>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
                         </Carousel.Items>
                     </Carousel>
                 </Grid>

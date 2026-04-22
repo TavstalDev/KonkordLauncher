@@ -1,11 +1,15 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Platform.Storage;
 using ReactiveUI;
+using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
@@ -19,6 +23,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewModel>
 {
     private Button _selectedTabBtn;
+    private Button _selectedImportTypeBtn;
     
     /// <summary>
     /// Initializes a new instance of the <see cref="CreateInstanceWindow"/> class.
@@ -35,6 +40,7 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
         
         DataContext = new CreateInstanceViewModel();
         _selectedTabBtn = CustomTabBtn;
+        _selectedImportTypeBtn = ImportFromFileTabBtn;
         
         this.WhenActivated(disposables =>
         {
@@ -62,6 +68,12 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             });
+            DataContext.UpdateSelectedImportTypeButton.RegisterHandler(action =>
+            {
+                HandleImportTypeChange(action.Input);
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            });
             DataContext.ShowAlertDialog.RegisterHandler(async action =>
             {
                 AlertWindow alertWindow = new(action.Input.Title, action.Input.Message, action.Input.Type);
@@ -72,6 +84,11 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
             {
                 IconSelectorWindow window = new();
                 var result = await window.ShowDialog<string?>(this);
+                action.SetOutput(result);
+            }).DisposeWith(disposables);
+            DataContext.ShowFileSelector.RegisterHandler(async action =>
+            {
+                string? result = await OpenFilePickerAsync();
                 action.SetOutput(result);
             }).DisposeWith(disposables);
         });
@@ -131,5 +148,55 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
             }
         }
         _selectedTabBtn.Classes.Add("SettingsTabBtnActive");
+    }
+
+    private void HandleImportTypeChange(int index)
+    {
+        if (DataContext is not { } viewModel)
+            return;
+        
+        if (viewModel.SelectedImportSourceIndex  == index)
+            return;
+        
+        viewModel.SelectedImportSourceIndex = index;
+        _selectedImportTypeBtn.Classes.Remove("SuccessBtn");
+        switch (index)
+        {
+            case 0:
+            {
+                _selectedImportTypeBtn = ImportFromFileTabBtn;
+                break;
+            }
+            case 1:
+            {
+                _selectedImportTypeBtn = ImportFromUrlTabBtn;
+                break;
+            }
+        }
+        _selectedImportTypeBtn.Classes.Add("SuccessBtn");
+    }
+    
+    private async Task<string?> OpenFilePickerAsync()
+    {
+        if (VisualRoot is not TopLevel topLevel)
+            return null;
+
+        var storageProvider = topLevel.StorageProvider;
+    
+        var options = new FilePickerOpenOptions
+        {
+            Title = TranslationManager.Translate("common.select.file"),
+            AllowMultiple = false,
+            FileTypeFilter = new List<FilePickerFileType>
+            {
+                new("Archive files")
+                {
+                    Patterns = new List<string> { "*.zip", "*.mrpack", "*.json" }
+                }
+            }
+        };
+        
+        var files = await storageProvider.OpenFilePickerAsync(options);
+        return !files.Any() ? null : files[0].Path.AbsolutePath;
     }
 }

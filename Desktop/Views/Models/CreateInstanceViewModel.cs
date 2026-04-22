@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -35,7 +36,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 
 public partial class CreateInstanceViewModel : KonkordObservableObject
 {
-    private CoreLogger _logger = CoreLogger.WithModuleType(typeof(CreateInstanceViewModel));
+    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(CreateInstanceViewModel));
     private ReverseMarkdown.Converter? _converter = new();
 
     [ObservableProperty] private ECreateInstanceTab _selectedTab = ECreateInstanceTab.IMPORT;
@@ -45,8 +46,10 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
     public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
     public Interaction<ECreateInstanceTab, Unit> UpdateSelectedTabButton { get; } = new();
+    public Interaction<int, Unit> UpdateSelectedImportTypeButton { get; } = new();
     public Interaction<Alert, Unit> ShowAlertDialog { get; } = new();
     public Interaction<Unit, string?> ShowIconSelector { get; } = new();
+    public Interaction<Unit, string?> ShowFileSelector { get; } = new();
     #endregion
 
     #region Custom
@@ -207,9 +210,13 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
     #endregion
 
     #region Import
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsSourceFromFile))] private int _selectedImportSourceIndex;
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsSourceFromFile))] private int _selectedImportSourceIndex = 0;
     
     public bool IsSourceFromFile => SelectedImportSourceIndex == 0;
+
+    [ObservableProperty] private string? _importPath;
+
+    [ObservableProperty] private bool _hasImportPath;
     #endregion
 
     public CreateInstanceViewModel()
@@ -427,5 +434,37 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
 
     #endregion
 
+    #region Import
+
+    [RelayCommand]
+    private async Task ChangeImportType(int index) => await UpdateSelectedImportTypeButton.Handle(index);
+
+    [RelayCommand]
+    private async Task SelectFileToImport()
+    {
+        string? path = await ShowFileSelector.Handle(Unit.Default);
+        if (string.IsNullOrEmpty(path))
+        {
+            HasImportPath = false;
+            return;
+        }
+
+        if (!File.Exists(path))
+        {
+            HasImportPath = false;
+            return;
+        }
+
+        HasImportPath = true;
+        ImportPath = path;
+    }
+
+    [RelayCommand]
+    private async Task CreateInstanceFromImport()
+    {
+        // TODO
+    }
+    #endregion
+    
     #endregion
 }

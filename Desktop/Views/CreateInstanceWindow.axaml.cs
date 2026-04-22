@@ -88,7 +88,8 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
             }).DisposeWith(disposables);
             DataContext.ShowFileSelector.RegisterHandler(async action =>
             {
-                string? result = await OpenFilePickerAsync();
+                string title = TranslationManager.Translate("common.select.file");
+                string? result = await OpenFilePickerAsync(title, ".zip, .mrpack, .json", ["*.zip", "*.mrpack", "*.json"]);
                 action.SetOutput(result);
             }).DisposeWith(disposables);
         });
@@ -174,29 +175,5 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
             }
         }
         _selectedImportTypeBtn.Classes.Add("SuccessBtn");
-    }
-    
-    private async Task<string?> OpenFilePickerAsync()
-    {
-        if (VisualRoot is not TopLevel topLevel)
-            return null;
-
-        var storageProvider = topLevel.StorageProvider;
-    
-        var options = new FilePickerOpenOptions
-        {
-            Title = TranslationManager.Translate("common.select.file"),
-            AllowMultiple = false,
-            FileTypeFilter = new List<FilePickerFileType>
-            {
-                new("Archive files")
-                {
-                    Patterns = new List<string> { "*.zip", "*.mrpack", "*.json" }
-                }
-            }
-        };
-        
-        var files = await storageProvider.OpenFilePickerAsync(options);
-        return !files.Any() ? null : files[0].Path.AbsolutePath;
     }
 }

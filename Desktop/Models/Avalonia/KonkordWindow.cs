@@ -1,8 +1,12 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Platform.Storage;
 using Avalonia.ReactiveUI;
+using Tavstal.KonkordLauncher.Common.Translation;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 
@@ -11,7 +15,7 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
     public new TViewModel? DataContext
     {
         get => (TViewModel?)base.DataContext;
-        init => base.DataContext = value;
+        protected init => base.DataContext = value;
     }
     
     protected override void OnClosing(WindowClosingEventArgs e)
@@ -55,5 +59,54 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
             return;
 
         await topLevel.Clipboard.SetTextAsync(text);
+    }
+    
+    protected async Task<string?> OpenFilePickerAsync(string title, string filterName, string[] patterns)
+    {
+        if (VisualRoot is not TopLevel topLevel)
+            return null;
+
+        var storageProvider = topLevel.StorageProvider;
+    
+        var options = new FilePickerOpenOptions
+        {
+            Title = title,
+            AllowMultiple = false,
+            FileTypeFilter = new List<FilePickerFileType>
+            {
+                new(filterName)
+                {
+                    Patterns = patterns
+                }
+            }
+        };
+        
+        var files = await storageProvider.OpenFilePickerAsync(options);
+        return !files.Any() ? null : files[0].Path.AbsolutePath;
+    }
+    
+    protected async Task<string?> OpenFolderPickerAsync(string title)
+    {
+        if (VisualRoot is not TopLevel topLevel)
+            return null;
+
+        var storageProvider = topLevel.StorageProvider;
+        
+        if (!storageProvider.CanPickFolder)
+            throw new NotSupportedException("No folder was selected.");
+        
+        var options = new FolderPickerOpenOptions
+        {
+            Title = title,
+            AllowMultiple = false
+        };
+        
+        IReadOnlyList<IStorageFolder> folders = await storageProvider.OpenFolderPickerAsync(options);
+        
+        if (!folders.Any())
+            return null;
+        
+        IStorageFolder? selectedFolder = folders.FirstOrDefault();
+        return selectedFolder?.Path.AbsolutePath;
     }
 }

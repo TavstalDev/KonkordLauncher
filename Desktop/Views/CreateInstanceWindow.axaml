@@ -366,108 +366,136 @@
                             <Grid RowDefinitions="*, Auto">
                                 <!--  Content  -->
                                 <ScrollViewer Margin="25,0,25,0">
-                                    <Grid Classes="SettingsWrapper" RowDefinitions="Auto, Auto, Auto">
-                                        <!--  Import Type  -->
-                                        <Border Classes="SettingsCategoryBorder">
-                                            <Grid RowDefinitions="Auto, Auto">
-                                                <!--  Category Title  -->
-                                                <TextBlock Classes="SettingsCategoryText" Text="IMPORT TYPE" />
+                                    <Grid Classes="SettingsWrapper" ColumnDefinitions="*, Auto" ColumnSpacing="20">
+                                        <!-- Input Area -->
+                                        <Grid Classes="SettingsWrapper" RowDefinitions="Auto, Auto, Auto">
+                                            <!--  Import Type  -->
+                                            <Border Classes="SettingsCategoryBorder">
+                                                <Grid RowDefinitions="Auto, Auto">
+                                                    <!--  Category Title  -->
+                                                    <TextBlock Classes="SettingsCategoryText" Text="IMPORT TYPE" />
 
-                                                <Grid
-                                                    Grid.Row="1"
-                                                    ColumnDefinitions="*, *"
-                                                    ColumnSpacing="10">
-                                                    <Button
-                                                        Name="ImportFromFileTabBtn"
-                                                        HorizontalAlignment="Stretch"
-                                                        Classes="SuccessBtn"
-                                                        Command="{Binding ChangeImportTypeCommand}">
-                                                        <Button.CommandParameter>
-                                                            <x:Int32>0</x:Int32>
-                                                        </Button.CommandParameter>
-                                                        <TextBlock
-                                                            VerticalAlignment="Center"
-                                                            Text="From File"
-                                                            TextAlignment="Center" />
-                                                    </Button>
-                                                    <Button
-                                                        Name="ImportFromUrlTabBtn"
-                                                        Grid.Column="1"
-                                                        HorizontalAlignment="Stretch"
-                                                        Command="{Binding ChangeImportTypeCommand}">
-                                                        <Button.CommandParameter>
-                                                            <x:Int32>1</x:Int32>
-                                                        </Button.CommandParameter>
-                                                        <TextBlock
-                                                            VerticalAlignment="Center"
-                                                            Text="From URL"
-                                                            TextAlignment="Center" />
-                                                    </Button>
+                                                    <Grid
+                                                        Grid.Row="1"
+                                                        ColumnDefinitions="*, *"
+                                                        ColumnSpacing="10">
+                                                        <Button
+                                                            Name="ImportFromFileTabBtn"
+                                                            HorizontalAlignment="Stretch"
+                                                            Classes="SuccessBtn"
+                                                            Command="{Binding ChangeImportTypeCommand}">
+                                                            <Button.CommandParameter>
+                                                                <x:Int32>0</x:Int32>
+                                                            </Button.CommandParameter>
+                                                            <TextBlock
+                                                                VerticalAlignment="Center"
+                                                                Text="From File"
+                                                                TextAlignment="Center" />
+                                                        </Button>
+                                                        <Button
+                                                            Name="ImportFromUrlTabBtn"
+                                                            Grid.Column="1"
+                                                            HorizontalAlignment="Stretch"
+                                                            Command="{Binding ChangeImportTypeCommand}">
+                                                            <Button.CommandParameter>
+                                                                <x:Int32>1</x:Int32>
+                                                            </Button.CommandParameter>
+                                                            <TextBlock
+                                                                VerticalAlignment="Center"
+                                                                Text="From URL"
+                                                                TextAlignment="Center" />
+                                                        </Button>
+                                                    </Grid>
                                                 </Grid>
-                                            </Grid>
-                                        </Border>
+                                            </Border>
 
-                                        <!--  Import From File  -->
-                                        <Border
-                                            Grid.Row="1"
-                                            Classes="SettingsCategoryBorder"
-                                            IsVisible="{Binding IsSourceFromFile}">
-                                            <Grid RowDefinitions="Auto, Auto, Auto">
-                                                <!--  Category Title  -->
-                                                <TextBlock Classes="SettingsCategoryText" Text="SELECT FILE" />
+                                            <!--  Import From File  -->
+                                            <Border
+                                                Grid.Row="1"
+                                                Classes="SettingsCategoryBorder"
+                                                IsVisible="{Binding IsSourceFromFile}">
+                                                <Grid RowDefinitions="Auto, Auto, Auto">
+                                                    <!--  Category Title  -->
+                                                    <TextBlock Classes="SettingsCategoryText" Text="SELECT FILE" />
 
-                                                <!--  Input  -->
-                                                <Grid
-                                                    Grid.Row="1"
-                                                    Margin="5,0,5,0"
-                                                    ColumnDefinitions="*, Auto">
+                                                    <!--  Input  -->
+                                                    <Grid
+                                                        Grid.Row="1"
+                                                        Margin="5,0,5,0"
+                                                        ColumnDefinitions="*, Auto">
+                                                        <!--  Input  -->
+                                                        <TextBox
+                                                            Grid.Column="0"
+                                                            Classes="TextInput"
+                                                            IsReadOnly="True"
+                                                            Text="{Binding ImportPath}"
+                                                            Watermark="{lang:Translate common.select.file}" />
+                                                        <!--  Button  -->
+                                                        <Button
+                                                            Grid.Column="1"
+                                                            Classes="IconBtn SuccessBtn"
+                                                            Command="{Binding SelectFileToImportCommand}">
+                                                            <TextBlock Classes="FontAwesome" Text="&#xf56f;" />
+                                                        </Button>
+                                                    </Grid>
+                                                    <!--  Note  -->
+                                                    <TextBlock
+                                                        Grid.Row="2"
+                                                        Margin="5,5,5,0"
+                                                        Opacity="0.5"
+                                                        Text="{lang:Translate instance.create.import.formats}" />
+                                                </Grid>
+                                            </Border>
+
+                                            <!--  Import From URL  -->
+                                            <Border Grid.Row="1"
+                                                Classes="SettingsCategoryBorder"
+                                                IsVisible="{Binding !IsSourceFromFile}">
+                                                <Grid RowDefinitions="Auto, Auto, Auto">
+                                                    <!--  Category Title  -->
+                                                    <TextBlock Classes="SettingsCategoryText" Text="IMPORT FROM URL" />
+
                                                     <!--  Input  -->
                                                     <TextBox
-                                                        Grid.Column="0"
+                                                        Grid.Row="1"
+                                                        Margin="5,0,5,0"
                                                         Classes="TextInput"
-                                                        IsReadOnly="True"
                                                         Text="{Binding ImportPath}"
-                                                        Watermark="{lang:Translate common.select.file}" />
-                                                    <!--  Button  -->
-                                                    <Button
-                                                        Grid.Column="1"
-                                                        Classes="IconBtn SuccessBtn"
-                                                        Command="{Binding SelectFileToImportCommand}">
-                                                        <TextBlock Classes="FontAwesome" Text="&#xf56f;" />
-                                                    </Button>
+                                                        Watermark="e.g., https://example.com/my-modpack.mrpack" />
+                                                    <!--  Note  -->
+                                                    <TextBlock
+                                                        Grid.Row="2"
+                                                        Margin="5,5,5,0"
+                                                        Opacity="0.5"
+                                                        Text="{lang:Translate instance.create.import.formats}" />
                                                 </Grid>
-                                                <!--  Note  -->
-                                                <TextBlock
-                                                    Grid.Row="2"
-                                                    Margin="5,5,5,0"
-                                                    Opacity="0.5"
-                                                    Text="{lang:Translate instance.create.import.formats}" />
-                                            </Grid>
-                                        </Border>
-
-                                        <!--  Import From URL  -->
-                                        <Border
-                                            Grid.Row="1"
-                                            Classes="SettingsCategoryBorder"
-                                            IsVisible="{Binding !IsSourceFromFile}">
-                                            <Grid RowDefinitions="Auto, Auto, Auto">
-                                                <!--  Category Title  -->
-                                                <TextBlock Classes="SettingsCategoryText" Text="IMPORT FROM URL" />
-
-                                                <!--  Input  -->
-                                                <TextBox
-                                                    Grid.Row="1"
-                                                    Margin="5,0,5,0"
-                                                    Classes="TextInput"
-                                                    Text="{Binding ImportPath}"
-                                                    Watermark="e.g., https://example.com/my-modpack.mrpack" />
-                                                <!--  Note  -->
-                                                <TextBlock
-                                                    Grid.Row="2"
-                                                    Margin="5,5,5,0"
-                                                    Opacity="0.5"
-                                                    Text="{lang:Translate instance.create.import.formats}" />
-                                            </Grid>
+                                            </Border>
+                                        </Grid>
+                                        
+                                        <!-- Preview -->
+                                        <Border Grid.Column="1" Classes="SettingsCategoryBorder" Margin="0, 0, 0, 20">
+                                             <Grid RowDefinitions="Auto, Auto, Auto, Auto" RowSpacing="10" MinWidth="200">
+                                                 <!-- Subtitle -->
+                                                 <TextBlock Classes="SettingsCategoryText" Text="INSTANCE INFO" />
+                                                 
+                                                 <!-- Name -->
+                                                 <Grid Grid.Row="1" Margin="5, 0" ColumnDefinitions="Auto, Auto">
+                                                     <TextBlock Opacity="0.5" Text="Name:" />
+                                                     <TextBlock Grid.Column="1" Opacity="0.5" Text="{Binding ImportPreviewName}" />
+                                                 </Grid>
+                                                 
+                                                 <!-- Version -->
+                                                 <Grid Grid.Row="2" Margin="5, 0" ColumnDefinitions="Auto, Auto">
+                                                     <TextBlock Opacity="0.5" Text="Version:" />
+                                                     <TextBlock Grid.Column="1" Opacity="0.5" Text="{Binding ImportPreviewVersion}" />
+                                                 </Grid>
+                                                 
+                                                 <!-- Mod Loader -->
+                                                 <Grid Grid.Row="3" Margin="5, 0" ColumnDefinitions="Auto, Auto">
+                                                     <TextBlock Opacity="0.5" Text="Mod loader:" />
+                                                     <TextBlock Grid.Column="1" Opacity="0.5" Text="{Binding ImportPreviewModLoader}" />
+                                                 </Grid>
+                                             </Grid>
                                         </Border>
                                     </Grid>
                                 </ScrollViewer>

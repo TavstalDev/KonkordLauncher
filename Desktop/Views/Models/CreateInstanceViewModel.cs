@@ -217,6 +217,12 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
     [ObservableProperty] private string? _importPath;
 
     [ObservableProperty] private bool _hasImportPath;
+
+    [ObservableProperty] private string _importPreviewName = "---";
+    
+    [ObservableProperty] private string _importPreviewVersion = "---";
+    
+    [ObservableProperty] private string _importPreviewModLoader = "---";
     #endregion
 
     public CreateInstanceViewModel()

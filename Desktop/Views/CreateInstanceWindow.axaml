@@ -117,7 +117,7 @@
                                         <Border Classes="SettingsCategoryBorder">
                                             <Grid RowDefinitions="Auto, Auto">
                                                 <!--  Category Title  -->
-                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.category.information}" />
+                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.category.information.title}" />
 
                                                 <!--  Icon, Name & Group  -->
                                                 <Grid
@@ -168,7 +168,7 @@
                                         <Border Grid.Row="1" Classes="SettingsCategoryBorder">
                                             <Grid RowDefinitions="Auto, Auto">
                                                 <!--  Category Title  -->
-                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.category.minecraft_version}" />
+                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.category.minecraft.version.title}" />
 
                                                 <!--  Version Selector  -->
                                                 <Grid
@@ -226,7 +226,7 @@
                                         <Border Grid.Row="2" Classes="SettingsCategoryBorder">
                                             <Grid RowDefinitions="Auto, Auto">
                                                 <!--  Category Title  -->
-                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.category.mod_loader}" />
+                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.category.mod_loader.title}" />
 
                                                 <Grid
                                                     Grid.Row="1"
@@ -298,7 +298,10 @@
                                                     VerticalAlignment="Center"
                                                     Classes="FontAwesome"
                                                     Text="&#xf00d;" />
-                                                <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.cancel}" />
+                                                <TextBlock
+                                                    VerticalAlignment="Center"
+                                                    FontWeight="500"
+                                                    Text="{lang:Translate common.cancel}" />
                                             </WrapPanel>
                                         </Button>
                                         <!--  Create Instance Button  -->
@@ -311,7 +314,10 @@
                                                     VerticalAlignment="Center"
                                                     Classes="FontAwesome"
                                                     Text="&#xf0c7;" />
-                                                <TextBlock VerticalAlignment="Center" Text="{lang:Translate instance.create.button}" />
+                                                <TextBlock
+                                                    VerticalAlignment="Center"
+                                                    FontWeight="500"
+                                                    Text="{lang:Translate instance.create.button}" />
                                             </WrapPanel>
                                         </Button>
                                     </StackPanel>
@@ -321,44 +327,248 @@
                             <!--  Modpacks  -->
                             <Grid RowDefinitions="*, Auto">
                                 <!--  Content  -->
-                                <ScrollViewer Margin="25,0,25,0">
-                                    <Grid Classes="SettingsWrapper" RowDefinitions="Auto, Auto, Auto">
-                                        <!--  Basic Information  -->
+                                <ScrollViewer Margin="25,0,25,15">
+                                    <Grid
+                                        Margin="0,0,10,0"
+                                        Classes="SettingsWrapper"
+                                        ColumnDefinitions="180, *">
+                                        <!--  Filters  -->
                                         <Border Classes="SettingsCategoryBorder">
-                                            <Grid RowDefinitions="Auto, Auto">
-                                                <!--  Category Title  -->
-                                                <TextBlock Classes="SettingsCategoryText" Text="INFORMATION" />
+                                            <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto" RowSpacing="10">
+                                                <!--  Search  -->
+                                                <TextBox
+                                                    MinHeight="30"
+                                                    Margin="0"
+                                                    HorizontalAlignment="Stretch"
+                                                    Classes="TextInput"
+                                                    FontSize="12"
+                                                    Watermark="{lang:Translate common.search}" />
 
+                                                <!--  Platform  -->
+                                                <Grid
+                                                    Grid.Row="1"
+                                                    RowDefinitions="Auto, Auto"
+                                                    RowSpacing="8">
+                                                    <!--  Text  -->
+                                                    <TextBlock
+                                                        Classes="TextInput"
+                                                        FontSize="12"
+                                                        Foreground="{DynamicResource text-muted}"
+                                                        Text="Platform" />
+                                                    <!--  Input  -->
+                                                    <ComboBox
+                                                        Grid.Row="1"
+                                                        MinHeight="30"
+                                                        Classes="TextDropdown"
+                                                        FontSize="12"
+                                                        IsEnabled="False"
+                                                        ItemsSource="{Binding AvailableModpackPlatforms}"
+                                                        SelectedItem="{Binding SelectedModpackPlatform}" />
+                                                </Grid>
 
+                                                <!--  ModLoader  -->
+                                                <Grid
+                                                    Grid.Row="2"
+                                                    RowDefinitions="Auto, Auto"
+                                                    RowSpacing="8">
+                                                    <!--  Text  -->
+                                                    <TextBlock
+                                                        Classes="TextInput"
+                                                        FontSize="12"
+                                                        Foreground="{DynamicResource text-muted}"
+                                                        Text="Mod Loader" />
+                                                    <!--  Input  -->
+                                                    <ComboBox
+                                                        Grid.Row="1"
+                                                        MinHeight="30"
+                                                        Classes="TextDropdown"
+                                                        FontSize="12"
+                                                        SelectedIndex="0">
+                                                        <ComboBoxItem Content="NeoForge" />
+                                                        <ComboBoxItem Content="Forge" />
+                                                        <ComboBoxItem Content="Fabric" />
+                                                        <ComboBoxItem Content="Quilt" />
+                                                    </ComboBox>
+                                                </Grid>
+
+                                                <!--  Minecraft Version  -->
+                                                <Grid
+                                                    Grid.Row="3"
+                                                    RowDefinitions="Auto, Auto"
+                                                    RowSpacing="8">
+                                                    <!--  Text  -->
+                                                    <TextBlock
+                                                        Classes="TextInput"
+                                                        FontSize="12"
+                                                        Foreground="{DynamicResource text-muted}"
+                                                        Text="Minecraft Version" />
+                                                    <!--  Input  -->
+                                                    <ComboBox
+                                                        Grid.Row="1"
+                                                        MinHeight="30"
+                                                        Classes="TextDropdown"
+                                                        FontSize="12"
+                                                        SelectedIndex="0">
+                                                        <ComboBoxItem Content="Any" />
+                                                        <ComboBoxItem Content="1.19.2" />
+                                                    </ComboBox>
+                                                </Grid>
+
+                                                <!--  Categories  -->
+                                                <StackPanel Grid.Row="4">
+                                                    <TextBlock
+                                                        FontSize="12"
+                                                        Foreground="{DynamicResource text-muted}"
+                                                        Text="{lang:Translate common.categories}" />
+                                                    <!--  Adventure Checkbox  -->
+                                                    <CheckBox
+                                                        Content="{lang:Translate instance.create.category.adventure}"
+                                                        FontSize="14"
+                                                        Foreground="{DynamicResource text-faded}" />
+                                                    <!--  Challenging Checkbox  -->
+                                                    <CheckBox
+                                                        Content="{lang:Translate instance.create.category.challenging}"
+                                                        FontSize="14"
+                                                        Foreground="{DynamicResource text-faded}" />
+                                                    <!--  Combat Checkbox  -->
+                                                    <CheckBox
+                                                        Content="{lang:Translate instance.create.category.combat}"
+                                                        FontSize="14"
+                                                        Foreground="{DynamicResource text-faded}" />
+                                                    <!--  Kitchen Sink Checkbox  -->
+                                                    <CheckBox
+                                                        Content="{lang:Translate instance.create.category.kitchenSink}"
+                                                        FontSize="14"
+                                                        Foreground="{DynamicResource text-faded}" />
+                                                    <!--  Lightweight Checkbox  -->
+                                                    <CheckBox
+                                                        Content="{lang:Translate instance.create.category.lightweight}"
+                                                        FontSize="14"
+                                                        Foreground="{DynamicResource text-faded}" />
+                                                    <!--  Magic Checkbox  -->
+                                                    <CheckBox
+                                                        Content="{lang:Translate instance.create.category.magic}"
+                                                        FontSize="14"
+                                                        Foreground="{DynamicResource text-faded}" />
+                                                    <!--  Multiplayer Checkbox  -->
+                                                    <CheckBox
+                                                        Content="{lang:Translate instance.create.category.multiplayer}"
+                                                        FontSize="14"
+                                                        Foreground="{DynamicResource text-faded}" />
+                                                    <!--  Optimization Checkbox  -->
+                                                    <CheckBox
+                                                        Content="{lang:Translate instance.create.category.optimization}"
+                                                        FontSize="14"
+                                                        Foreground="{DynamicResource text-faded}" />
+                                                    <!--  Quests Checkbox  -->
+                                                    <CheckBox
+                                                        Content="{lang:Translate instance.create.category.quests}"
+                                                        FontSize="14"
+                                                        Foreground="{DynamicResource text-faded}" />
+                                                    <!--  Technology Checkbox  -->
+                                                    <CheckBox
+                                                        Content="{lang:Translate instance.create.category.technology}"
+                                                        FontSize="14"
+                                                        Foreground="{DynamicResource text-faded}" />
+                                                </StackPanel>
                                             </Grid>
                                         </Border>
+
+                                        <!--  Content  -->
+                                        <Grid
+                                            Grid.Column="1"
+                                            ColumnDefinitions="*, Auto, *"
+                                            ColumnSpacing="10">
+                                            <!--  Modpack List  -->
+                                            <ScrollViewer Grid.Column="0">
+                                                <!--  Content  -->
+                                                <ListBox
+                                                    Background="{DynamicResource base-100}"
+                                                    BorderBrush="{DynamicResource border-two}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="8"
+                                                    ItemsSource="{Binding Modpacks}"
+                                                    SelectedItem="{Binding SelectedModpack}"
+                                                    SelectionMode="Single">
+                                                    <ListBox.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Border Classes="InstanceModCard">
+                                                                <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
+                                                                    <Image Width="35" Source="{Binding Icon}" />
+                                                                    <Grid Grid.Column="1" RowDefinitions="Auto, Auto">
+                                                                        <TextBlock Classes="InstanceModTitle" Text="{Binding Name}" />
+                                                                        <TextBlock
+                                                                            Grid.Row="1"
+                                                                            Classes="InstanceModDescription"
+                                                                            Text="{Binding Description}" />
+                                                                    </Grid>
+                                                                </Grid>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ListBox.ItemTemplate>
+                                                </ListBox>
+                                            </ScrollViewer>
+
+                                            <!--  Grid Splitter  -->
+                                            <GridSplitter Grid.Column="1" Classes="InstanceSplitter" />
+
+                                            <!--  Modpack preview  -->
+                                            <Border
+                                                Grid.Column="2"
+                                                Padding="10,0"
+                                                Classes="SettingsCategoryBorder">
+                                                <HtmlLabel
+                                                    MaxWidth="{Binding $parent[Border].Bounds.Width}"
+                                                    BaseStylesheet="body, p, div, span, h1, h2, h3, ul, ol {                                                            color: white !important;                                                            font-family: sans-serif;                                                            font-size: 12px;                                                            white-space: normal;                                                            word-wrap: break-word;                                                           }"
+                                                    Text="{Binding ModpackPreview}" />
+                                            </Border>
+                                        </Grid>
                                     </Grid>
                                 </ScrollViewer>
 
                                 <!--  Buttons  -->
                                 <Border Grid.Row="1" Classes="InstanceButtonBorder">
-                                    <StackPanel Classes="InstanceButtonWrapper">
-                                        <!--  Cancel Button  -->
-                                        <Button Classes="IconBtn ErrorBtn" Command="{Binding CustomCancelCreateCommand}">
-                                            <WrapPanel Classes="IconBtnWrapper">
-                                                <TextBlock
-                                                    VerticalAlignment="Center"
-                                                    Classes="FontAwesome"
-                                                    Text="&#xf00d;" />
-                                                <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.cancel}" />
-                                            </WrapPanel>
-                                        </Button>
-                                        <!--  Create Instance Button  -->
-                                        <Button Classes="IconBtn SuccessBtn">
-                                            <WrapPanel Classes="IconBtnWrapper">
-                                                <TextBlock
-                                                    VerticalAlignment="Center"
-                                                    Classes="FontAwesome"
-                                                    Text="&#xf0c7;" />
-                                                <TextBlock VerticalAlignment="Center" Text="{lang:Translate instance.create.button}" />
-                                            </WrapPanel>
-                                        </Button>
-                                    </StackPanel>
+                                    <Grid ColumnDefinitions="250, *">
+                                        <!--  Modpack Version  -->
+                                        <ComboBox
+                                            Grid.Column="0"
+                                            VerticalAlignment="Center"
+                                            Classes="TextDropdown"
+                                            ItemsSource="{Binding SelectedModpack.Versions}"
+                                            SelectedIndex="0">
+                                            <ComboBoxItem Content="{lang:Translate instance.create.modpack.select}" />
+                                        </ComboBox>
+
+                                        <!--  Action buttons  -->
+                                        <StackPanel Grid.Column="1" Classes="InstanceButtonWrapper">
+                                            <!--  Cancel Button  -->
+                                            <Button Classes="IconBtn ErrorBtn" Command="{Binding CustomCancelCreateCommand}">
+                                                <WrapPanel Classes="IconBtnWrapper">
+                                                    <TextBlock
+                                                        VerticalAlignment="Center"
+                                                        Classes="FontAwesome"
+                                                        Text="&#xf00d;" />
+                                                    <TextBlock
+                                                        VerticalAlignment="Center"
+                                                        FontWeight="500"
+                                                        Text="{lang:Translate common.cancel}" />
+                                                </WrapPanel>
+                                            </Button>
+                                            <!--  Create Instance Button  -->
+                                            <Button Classes="IconBtn SuccessBtn">
+                                                <WrapPanel Classes="IconBtnWrapper">
+                                                    <TextBlock
+                                                        VerticalAlignment="Center"
+                                                        Classes="FontAwesome"
+                                                        Text="&#xf0c7;" />
+                                                    <TextBlock
+                                                        VerticalAlignment="Center"
+                                                        FontWeight="500"
+                                                        Text="{lang:Translate instance.create.button}" />
+                                                </WrapPanel>
+                                            </Button>
+                                        </StackPanel>
+                                    </Grid>
                                 </Border>
                             </Grid>
 
@@ -366,19 +576,24 @@
                             <Grid RowDefinitions="*, Auto">
                                 <!--  Content  -->
                                 <ScrollViewer Margin="25,0,25,0">
-                                    <Grid Classes="SettingsWrapper" ColumnDefinitions="*, Auto" ColumnSpacing="20">
-                                        <!-- Input Area -->
+                                    <Grid
+                                        Classes="SettingsWrapper"
+                                        ColumnDefinitions="*, Auto"
+                                        ColumnSpacing="20">
+                                        <!--  Input Area  -->
                                         <Grid Classes="SettingsWrapper" RowDefinitions="Auto, Auto, Auto">
                                             <!--  Import Type  -->
                                             <Border Classes="SettingsCategoryBorder">
                                                 <Grid RowDefinitions="Auto, Auto">
                                                     <!--  Category Title  -->
-                                                    <TextBlock Classes="SettingsCategoryText" Text="IMPORT TYPE" />
+                                                    <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.import.type}" />
 
                                                     <Grid
                                                         Grid.Row="1"
                                                         ColumnDefinitions="*, *"
                                                         ColumnSpacing="10">
+
+                                                        <!--  From File Button  -->
                                                         <Button
                                                             Name="ImportFromFileTabBtn"
                                                             HorizontalAlignment="Stretch"
@@ -389,9 +604,11 @@
                                                             </Button.CommandParameter>
                                                             <TextBlock
                                                                 VerticalAlignment="Center"
-                                                                Text="From File"
+                                                                Text="{lang:Translate instance.create.import.source.file}"
                                                                 TextAlignment="Center" />
                                                         </Button>
+
+                                                        <!--  From URL Button  -->
                                                         <Button
                                                             Name="ImportFromUrlTabBtn"
                                                             Grid.Column="1"
@@ -402,7 +619,7 @@
                                                             </Button.CommandParameter>
                                                             <TextBlock
                                                                 VerticalAlignment="Center"
-                                                                Text="From URL"
+                                                                Text="{lang:Translate instance.create.import.source.url}"
                                                                 TextAlignment="Center" />
                                                         </Button>
                                                     </Grid>
@@ -416,7 +633,7 @@
                                                 IsVisible="{Binding IsSourceFromFile}">
                                                 <Grid RowDefinitions="Auto, Auto, Auto">
                                                     <!--  Category Title  -->
-                                                    <TextBlock Classes="SettingsCategoryText" Text="SELECT FILE" />
+                                                    <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.import.select_file.title}" />
 
                                                     <!--  Input  -->
                                                     <Grid
@@ -448,20 +665,22 @@
                                             </Border>
 
                                             <!--  Import From URL  -->
-                                            <Border Grid.Row="1"
+                                            <Border
+                                                Grid.Row="1"
                                                 Classes="SettingsCategoryBorder"
                                                 IsVisible="{Binding !IsSourceFromFile}">
                                                 <Grid RowDefinitions="Auto, Auto, Auto">
                                                     <!--  Category Title  -->
-                                                    <TextBlock Classes="SettingsCategoryText" Text="IMPORT FROM URL" />
+                                                    <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.import.import_from_url.title}" />
 
                                                     <!--  Input  -->
                                                     <TextBox
                                                         Grid.Row="1"
                                                         Margin="5,0,5,0"
                                                         Classes="TextInput"
-                                                        Text="{Binding ImportPath}"
+                                                        Text="{Binding ImportPath, Delay=500}"
                                                         Watermark="e.g., https://example.com/my-modpack.mrpack" />
+
                                                     <!--  Note  -->
                                                     <TextBlock
                                                         Grid.Row="2"
@@ -471,31 +690,55 @@
                                                 </Grid>
                                             </Border>
                                         </Grid>
-                                        
-                                        <!-- Preview -->
-                                        <Border Grid.Column="1" Classes="SettingsCategoryBorder" Margin="0, 0, 0, 20">
-                                             <Grid RowDefinitions="Auto, Auto, Auto, Auto" RowSpacing="10" MinWidth="200">
-                                                 <!-- Subtitle -->
-                                                 <TextBlock Classes="SettingsCategoryText" Text="INSTANCE INFO" />
-                                                 
-                                                 <!-- Name -->
-                                                 <Grid Grid.Row="1" Margin="5, 0" ColumnDefinitions="Auto, Auto">
-                                                     <TextBlock Opacity="0.5" Text="Name:" />
-                                                     <TextBlock Grid.Column="1" Opacity="0.5" Text="{Binding ImportPreviewName}" />
-                                                 </Grid>
-                                                 
-                                                 <!-- Version -->
-                                                 <Grid Grid.Row="2" Margin="5, 0" ColumnDefinitions="Auto, Auto">
-                                                     <TextBlock Opacity="0.5" Text="Version:" />
-                                                     <TextBlock Grid.Column="1" Opacity="0.5" Text="{Binding ImportPreviewVersion}" />
-                                                 </Grid>
-                                                 
-                                                 <!-- Mod Loader -->
-                                                 <Grid Grid.Row="3" Margin="5, 0" ColumnDefinitions="Auto, Auto">
-                                                     <TextBlock Opacity="0.5" Text="Mod loader:" />
-                                                     <TextBlock Grid.Column="1" Opacity="0.5" Text="{Binding ImportPreviewModLoader}" />
-                                                 </Grid>
-                                             </Grid>
+
+                                        <!--  Preview  -->
+                                        <Border
+                                            Grid.Column="1"
+                                            Margin="0,0,0,20"
+                                            Classes="SettingsCategoryBorder">
+                                            <Grid
+                                                MinWidth="200"
+                                                RowDefinitions="Auto, Auto, Auto, Auto"
+                                                RowSpacing="10">
+                                                <!--  Subtitle  -->
+                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.import.preview.title}" />
+
+                                                <!--  Name  -->
+                                                <Grid
+                                                    Grid.Row="1"
+                                                    Margin="5,0"
+                                                    ColumnDefinitions="Auto, Auto">
+                                                    <TextBlock Opacity="0.5" Text="{lang:Translate instance.create.import.preview.name}" />
+                                                    <TextBlock
+                                                        Grid.Column="1"
+                                                        Opacity="0.5"
+                                                        Text="{Binding ImportPreviewName}" />
+                                                </Grid>
+
+                                                <!--  Version  -->
+                                                <Grid
+                                                    Grid.Row="2"
+                                                    Margin="5,0"
+                                                    ColumnDefinitions="Auto, Auto">
+                                                    <TextBlock Opacity="0.5" Text="{lang:Translate instance.create.import.preview.version}" />
+                                                    <TextBlock
+                                                        Grid.Column="1"
+                                                        Opacity="0.5"
+                                                        Text="{Binding ImportPreviewVersion}" />
+                                                </Grid>
+
+                                                <!--  Mod Loader  -->
+                                                <Grid
+                                                    Grid.Row="3"
+                                                    Margin="5,0"
+                                                    ColumnDefinitions="Auto, Auto">
+                                                    <TextBlock Opacity="0.5" Text="{lang:Translate instance.create.import.preview.mod.loader}" />
+                                                    <TextBlock
+                                                        Grid.Column="1"
+                                                        Opacity="0.5"
+                                                        Text="{Binding ImportPreviewModLoader}" />
+                                                </Grid>
+                                            </Grid>
                                         </Border>
                                     </Grid>
                                 </ScrollViewer>
@@ -510,7 +753,10 @@
                                                     VerticalAlignment="Center"
                                                     Classes="FontAwesome"
                                                     Text="&#xf00d;" />
-                                                <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.cancel}" />
+                                                <TextBlock
+                                                    VerticalAlignment="Center"
+                                                    FontWeight="500"
+                                                    Text="{lang:Translate common.cancel}" />
                                             </WrapPanel>
                                         </Button>
                                         <!--  Create Instance Button  -->
@@ -523,7 +769,10 @@
                                                     VerticalAlignment="Center"
                                                     Classes="FontAwesome"
                                                     Text="&#xf0c7;" />
-                                                <TextBlock VerticalAlignment="Center" Text="{lang:Translate instance.create.button}" />
+                                                <TextBlock
+                                                    VerticalAlignment="Center"
+                                                    FontWeight="500"
+                                                    Text="{lang:Translate instance.create.button}" />
                                             </WrapPanel>
                                         </Button>
                                     </StackPanel>

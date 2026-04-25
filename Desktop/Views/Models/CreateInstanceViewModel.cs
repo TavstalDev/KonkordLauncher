@@ -19,7 +19,6 @@ using Tavstal.KonkordLauncher.Common.Models.Config;
 using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
 using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Helpers.Domain;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
@@ -37,9 +36,8 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 public partial class CreateInstanceViewModel : KonkordObservableObject
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(CreateInstanceViewModel));
-    private ReverseMarkdown.Converter? _converter = new();
 
-    [ObservableProperty] private ECreateInstanceTab _selectedTab = ECreateInstanceTab.IMPORT;
+    [ObservableProperty] private ECreateInstanceTab _selectedTab = ECreateInstanceTab.MODPACK;
     
     #region Interactions
     public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
@@ -191,7 +189,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
     
     #region Modpack
 
-    [ObservableProperty] private ObservableCollection<ModPackModel> _modpacks;
+    [ObservableProperty] private ObservableCollection<ModPackModel> _modpacks = new();
     
     [ObservableProperty] private EPlatformType _selectedModpackPlatform = EPlatformType.Modrinth;
     
@@ -205,7 +203,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
         EPlatformType.FTB
     ];
     
-    public string? ModpackPreview => SelectedModpack == null ? _converter?.Convert(@"<p>Select a modpack to see its preview.</p>") : _converter?.Convert(SelectedModpack.RawPage);
+    public string? ModpackPreview => SelectedModpack == null ? "<p>Select a modpack to see its preview.</p>" : SelectedModpack.RawPage;
 
     #endregion
 
@@ -303,7 +301,6 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
         InstanceIconPath = null;
         SearchQuery = string.Empty;
         SelectedMinecraftVersion = null;
-        _converter = null;
         
         ModLoaderSearchQuery = string.Empty;
         SelectedModLoader = null;
@@ -380,6 +377,9 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
     [RelayCommand]
     private async Task CustomCreateAsync()
     {
+        if (SelectedMinecraftVersion == null)
+            return;
+        
         var settings = await LauncherHelper.GetLauncherSettingsAsync();
         var instances = await LauncherHelper.GetInstancesAsync();
         if (instances.Any(x => x.Name == InstanceName))
@@ -395,10 +395,10 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
             Name = InstanceName,
             Kind = ModLoaderType,
             Group = null,
-            MinecraftVersion = SelectedMinecraftVersion?.Id,
+            MinecraftVersion = SelectedMinecraftVersion?.Id!,
             CustomVersion = SelectedModLoader?.Version ?? string.Empty,
             IconPath = InstanceIconPath ?? string.Empty,
-            GameDirectory = System.IO.Path.Combine(settings.Launcher.InstancesDirectoryPath, InstanceName),
+            GameDirectory = Path.Combine(settings.Launcher.InstancesDirectoryPath, InstanceName),
             Config = new InstanceConfig
             {
                 Game = new InstanceGameConfig
@@ -442,6 +442,23 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
 
     #region Import
 
+    partial void OnImportPathChanged(string? value)
+    {
+        if (IsSourceFromFile)
+            return;
+
+        if (Uri.TryCreate(value, UriKind.Absolute, out _))
+        {
+            HasImportPath = true;
+            if (ImportUrlTextChangedCommand.CanExecute(value))
+                ImportUrlTextChangedCommand.Execute(value);
+        }
+        else
+        {
+            HasImportPath = false;
+        }
+    }
+    
     [RelayCommand]
     private async Task ChangeImportType(int index) => await UpdateSelectedImportTypeButton.Handle(index);
 
@@ -463,7 +480,11 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
 
         HasImportPath = true;
         ImportPath = path;
+        await FetchImportPreviewFromFile();
     }
+    
+    [RelayCommand]
+    private async Task ImportUrlTextChanged(string path) => await FetchImportPreviewFromUrl();
 
     [RelayCommand]
     private async Task CreateInstanceFromImport()
@@ -473,4 +494,14 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
     #endregion
     
     #endregion
+
+    private async Task FetchImportPreviewFromFile()
+    {
+        // TODO
+    }
+    
+    private async Task FetchImportPreviewFromUrl()
+    {
+        // TODO
+    }
 }

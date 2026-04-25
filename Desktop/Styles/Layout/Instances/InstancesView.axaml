@@ -148,9 +148,8 @@
     
     <!-- Mod Card -->
     <Style Selector="Border.InstanceModCard">
-        <Setter Property="Background" Value="{DynamicResource base-200}" />
+        <Setter Property="Background" Value="Transparent" />
         <Setter Property="CornerRadius" Value="8" />
-        <Setter Property="Padding" Value="10" />
     </Style>
 
     <!-- Mod Card Title -->
@@ -165,7 +164,7 @@
 
     <!-- Mod Card Description -->
     <Style Selector="TextBlock.InstanceModDescription">
-        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource text-faded}" />
         <Setter Property="TextWrapping" Value="NoWrap" />
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
         <Setter Property="Margin" Value="0, 0, 10, 0" />

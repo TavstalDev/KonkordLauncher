@@ -120,6 +120,10 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
     
     #endregion
 
+    /// <summary>
+    /// Handles switching the visible/create-instance tab and updates the visual state of the tab buttons.
+    /// </summary>
+    /// <param name="tab">The tab to switch to.</param>
     private void HandleTabChange(ECreateInstanceTab tab)
     {
         if (DataContext is not { } viewModel)
@@ -151,6 +155,10 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
         _selectedTabBtn.Classes.Add("SettingsTabBtnActive");
     }
 
+    /// <summary>
+    /// Handles switching the import type selection (file vs. URL) and updates related view model state and visual state.
+    /// </summary>
+    /// <param name="index">The index representing the chosen import source (0 = file, 1 = url).</param>
     private void HandleImportTypeChange(int index)
     {
         if (DataContext is not { } viewModel)
@@ -160,6 +168,8 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
             return;
         
         viewModel.SelectedImportSourceIndex = index;
+        viewModel.HasImportPath = false;
+        viewModel.ImportPath = null;
         _selectedImportTypeBtn.Classes.Remove("SuccessBtn");
         switch (index)
         {

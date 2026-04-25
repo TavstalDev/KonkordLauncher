@@ -189,16 +189,14 @@ public static class DefaultTranslationProvider
         #region Create
 
         {"instance.create.title", "Create Instance"},
-        {"instance.create.category.information", "INFORMATION"},
-        {"instance.create.category.minecraft_version", "MINECRAFT VERSION"},
-        {"instance.create.category.mod_loader", "MOD LOADER"},
+        {"instance.create.category.information.title", "INFORMATION"},
         
         {"instance.create.tab.custom", "Custom"},
         {"instance.create.tab.modpacks", "Modpacks"},
         {"instance.create.tab.import", "Import"},
         {"instance.create.name", "Instance Name"},
         {"instance.create.group", "Group"},
-        {"instance.create.minecraftVersion", "Minecraft Version"},
+        {"instance.create.category.minecraft.version.title", "MINECRAFT VERSION"},
         {"instance.create.table.version", "Version"},
         {"instance.create.table.released", "Released"},
         {"instance.create.table.type", "Type"},
@@ -207,9 +205,8 @@ public static class DefaultTranslationProvider
         {"instance.create.betas", "Betas"},
         {"instance.create.alphas", "Alphas"},
         {"instance.create.experiments", "Experiments" },
-        {"instance.create.modloader", "Mod Loader"},
+        {"instance.create.category.mod_loader.title", "MOD LOADER"},
         {"instance.create.button", "Create Instance"},
-        {"instance.create.subtitle.platform", "Platform"},
         
         {"instance.create.category.adventure", "Adventure"},
         {"instance.create.category.challenging", "Challenging"},
@@ -225,13 +222,20 @@ public static class DefaultTranslationProvider
         {"instance.create.modpack.version", "Pack Version"},
         {"instance.create.modpack.select", "Select a modpack"},
         
+        {"instance.create.import.type", "IMPORT TYPE" },
         {"instance.create.import.description", "Import an instance from a file or URL."},
         {"instance.create.import.source", "Import Source"},
         {"instance.create.import.source.file", "From File"},
         {"instance.create.import.source.url", "From Url"},
-        {"instance.create.import.select.instanceFile", "Select Instance File"},
+        {"instance.create.import.select_type.title", "SELECT TYPE"},
+        {"instance.create.import.select_file.title", "SELECT FILE"},
+        {"instance.create.import.import_from_url.title", "IMPORT FROM URL"},
         {"instance.create.import.formats", "Supported formats: .zip, .mrpack, .json"},
-        {"instance.create.import.select.instanceUrl", "Instance URL"},
+        
+        {"instance.create.import.preview.title", "INSTANCE INFO"},
+        {"instance.create.import.preview.name", "Name:"},
+        {"instance.create.import.preview.version", "Version:"},
+        {"instance.create.import.preview.mod.loader", "Mod loader:"},
         
         #endregion
 

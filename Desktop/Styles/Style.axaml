@@ -49,6 +49,19 @@
 
     </Style>
     
+    <!-- Window Title -->
+    <Style Selector="TextBlock.WindowTitle">
+        <Setter Property="Opacity" Value="0.75" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="300" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
+        <Setter Property="TextAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="IsHitTestVisible" Value="False" />
+        <Setter Property="ClipToBounds" Value="True" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    </Style>
+    
     <!-- Window Button Panel  -->
     <Style Selector="StackPanel.WindowBtnPanel">
         <Setter Property="Margin" Value="0, 12, 12 ,12" />

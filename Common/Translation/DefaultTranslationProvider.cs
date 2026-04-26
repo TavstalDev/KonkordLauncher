@@ -12,7 +12,7 @@ public static class DefaultTranslationProvider
     {
         #region Startup
         
-        {"startup.title", "Starting Konkord Launcher"},
+        {"startup.title", "Konkord Launcher - Starting..."},
         
         {"startup.progress.initializing", "Initializing..."},
         {"startup.validation.dataFolder", "Validating data folder..."},
@@ -188,7 +188,8 @@ public static class DefaultTranslationProvider
 
         #region Create
 
-        {"instance.create.title", "Create Instance"},
+        {"instance.create.title", "KonkordLauncher - New Instance"},
+        {"instance.create.instance.title", "Create Instance"},
         {"instance.create.category.information.title", "INFORMATION"},
         
         {"instance.create.tab.custom", "Custom"},
@@ -245,7 +246,7 @@ public static class DefaultTranslationProvider
 
         #region Edit
 
-        {"instance.edit.window", "Edit Instance"},
+        {"instance.edit.window", "KonkordLauncher - Edit Instance"},
         {"instance.edit.title", "Editing Instance:"},
         
         {"instance.edit.downloadPacks", "Download Packs"},
@@ -262,6 +263,7 @@ public static class DefaultTranslationProvider
         {"instance.edit.tab.screenshots", "Screenshots"},
         {"instance.edit.tab.settings", "Settings"},
         
+        {"instance.edit.log.title", "KonkordLauncher - Logs"},
         {"instance.edit.latestLog", "LATEST LOG"},
         
         {"instance.edit.subTitle.window", "Window"},
@@ -381,7 +383,8 @@ public static class DefaultTranslationProvider
         
         #region Auth
 
-        {"auth.title", "Add New Account"},
+        {"auth.title", "KonkordLauncher - New Account"},
+        {"auth.add.account", "Add New Account"},
         {"auth.tab.microsoft", "Microsoft"},
         {"auth.tab.offline", "Offline"},
         {"auth.tab.custom", "Custom"},
@@ -427,7 +430,7 @@ public static class DefaultTranslationProvider
 
         #region Java
 
-        {"java.title", "Java Selector"},
+        {"java.title", "KonkordLauncher - Java Selector"},
         {"java.select", "Select Java Version"},
         {"java.table.major", "Major"},
         {"java.table.version", "Version"},
@@ -448,7 +451,10 @@ public static class DefaultTranslationProvider
 
         #endregion
         
-        {"iconSelector.title", "Select a Icon"}
+        {"iconSelector.title", "KonkordLauncher - Select a Icon"},
+        {"alert.title", "KonkordLauncher - Alert"},
+        {"input.title", "KonkordLauncher - Input"},
+        {"install.title", "KonkordLauncher - Install"},
     };
 
     /// <summary>

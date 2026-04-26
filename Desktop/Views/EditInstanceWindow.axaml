@@ -3,10 +3,10 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common"
+    xmlns:local="clr-namespace:Tavstal.KonkordLauncher.Desktop"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
-    xmlns:local="clr-namespace:Tavstal.KonkordLauncher.Desktop"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common"
     Title="{lang:Translate instance.edit.window}"
     Width="900"
     Height="500"
@@ -15,1016 +15,298 @@
     d:DesignHeight="500"
     d:DesignWidth="900"
     x:DataType="vm:EditInstanceViewModel"
+    Background="Transparent"
     CanResize="True"
+    CornerRadius="14"
+    ExtendClientAreaChromeHints="NoChrome"
+    ExtendClientAreaToDecorationsHint="True"
     Icon="avares://Desktop/Assets/Images/logo.png"
     ShowInTaskbar="False"
+    SystemDecorations="None"
+    TransparencyLevelHint="Transparent"
+    UseLayoutRounding="True"
+    WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
-<Grid>
-    <!-- Main Window Content  -->
-    <Border Classes="InstanceView">
-        <Grid RowDefinitions="Auto,*">
-            <!--  Title  -->
-            <WrapPanel ItemSpacing="10">
-                <TextBlock
-                    HorizontalAlignment="Left"
-                    Classes="InstanceTitle"
-                    Text="{lang:Translate instance.edit.title}" />
-                <TextBlock
-                    HorizontalAlignment="Left"
-                    Classes="InstanceTitle"
-                    Text="{Binding InstanceName}" />
-            </WrapPanel>
-            <!--  Content  -->
-            <Grid Grid.Row="1">
-                <TabControl
-                    Classes="ModalVerticalTab"
-                    SelectedIndex="0"
-                    TabStripPlacement="Left">
-                    <!--  Logs  -->
-                    <TabItem Classes="ModalVerticalTabItem" Header="{lang:Translate instance.edit.tab.logs}" >
-                        <Border Classes="ModalScrollableWrapper">
-                            <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, *, Auto">
-                                <!--  Title  -->
-                                <TextBlock
-                                    FontSize="20"
-                                    FontWeight="500"
-                                    Text="{lang:Translate instance.edit.latestLog}"
-                                />
-                                <!--  Log content  -->
-                                <Border Grid.Row="1" Classes="GridInnerContent">
-                                    <ScrollViewer Name="LogsScrollViewer" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                                        <TextBlock
-                                            FontFamily="Consolas"
-                                            FontSize="11"
-                                            Opacity="0.8"
-                                            Text="{Binding Logs}"
-                                            TextWrapping="Wrap" />
-                                    </ScrollViewer>
-                                </Border>
-                                <!--  Actions  -->
-                                <Grid
-                                    Grid.Row="2"
-                                    ColumnDefinitions="*, Auto, Auto, Auto"
-                                    ColumnSpacing="5">
-                                    <!--  Search bar  -->
-                                    <TextBox
-                                        Grid.Column="0"
-                                        Classes="TextInput"
-                                        Watermark="{lang:Translate common.search}" />
-                                    <!--  To bottom button  -->
-                                    <Button Grid.Column="1" Classes="IconBtn" Command="{Binding ScrollLogsToEndCommand}">
-                                        <WrapPanel Classes="IconBtnWrapper">
-                                            <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xe4b8;" />
-                                            <TextBlock Text="{lang:Translate common.bottom}" VerticalAlignment="Center" />
-                                        </WrapPanel>
-                                    </Button>
-                                    <!--  Copy button  -->
-                                    <Button Grid.Column="2" Classes="IconBtn" Command="{Binding CopyLogsCommand}">
-                                        <WrapPanel Classes="IconBtnWrapper">
-                                            <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf0c5;" />
-                                            <TextBlock Text="{lang:Translate common.copy}" VerticalAlignment="Center" />
-                                        </WrapPanel>
-                                    </Button>
-                                    <!--  Clear button  -->
-                                    <Button Grid.Column="3" Classes="IconBtn ErrorBtn" Command="{Binding ClearLogsCommand}">
-                                        <WrapPanel Classes="IconBtnWrapper">
-                                            <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf1b8;" />
-                                            <TextBlock Text="{lang:Translate common.clear}" VerticalAlignment="Center" />
-                                        </WrapPanel>
-                                    </Button>
-                                </Grid>
-                            </Grid>
-                        </Border>
-                    </TabItem>
-                    <!--  Mods  -->
-                    <TabItem Classes="ModalVerticalTabItem" Header="{lang:Translate instance.edit.tab.mods}" IsVisible="{Binding !IsVanilla}">
-                        <Border Classes="ModalScrollableWrapper">
-                            <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, *, Auto">
-                                <!--  Title  -->
-                                <TextBlock Classes="ModalGridTitle" Text="{lang:Translate instance.edit.tab.mods}" />
-                                <!--  Content  -->
-                                <Border Grid.Row="1">
-                                    <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
-                                        <DataGrid
-                                            Classes="InstanceMultiTable"
-                                            ItemsSource="{Binding FilteredMods}"
-                                            SelectedItem="{Binding SelectedMod}">
-                                            <DataGrid.Columns>
-                                                <!--  Enabled  -->
-                                                <DataGridCheckBoxColumn
-                                                    Width="Auto"
-                                                    Binding="{Binding IsEnabled}"
-                                                    Header="{lang:Translate instance.edit.table.enabled}"
-                                                    IsReadOnly="False" />
-                                                <!--  Image  -->
-                                                <DataGridTemplateColumn Width="Auto" Header="{lang:Translate instance.edit.table.image}">
-                                                    <DataGridTemplateColumn.CellTemplate>
-                                                        <DataTemplate>
-                                                            <Image
-                                                                Width="32"
-                                                                Height="32"
-                                                                Source="{Binding Icon}"
-                                                                Stretch="UniformToFill" />
-                                                        </DataTemplate>
-                                                    </DataGridTemplateColumn.CellTemplate>
-                                                </DataGridTemplateColumn>
-                                                <!--  Name  -->
-                                                <DataGridTextColumn
-                                                    Width="*"
-                                                    Binding="{Binding Name}"
-                                                    Header="{lang:Translate instance.edit.table.name}" />
-                                                <!--  Version  -->
-                                                <DataGridTextColumn
-                                                    Width="Auto"
-                                                    Binding="{Binding Version}"
-                                                    Header="{lang:Translate instance.edit.table.version}" />
-                                                <!--  Provider  -->
-                                                <DataGridTextColumn
-                                                    Width="Auto"
-                                                    Binding="{Binding Provider}"
-                                                    Header="{lang:Translate instance.edit.table.provider}" />
-                                                <!--  Size  -->
-                                                <DataGridTextColumn
-                                                    Width="Auto"
-                                                    Binding="{Binding FormattedSize}"
-                                                    Header="{lang:Translate instance.edit.table.size}" />
-                                            </DataGrid.Columns>
-                                            <DataGrid.ContextMenu>
-                                                <ContextMenu>
-                                                    <!-- Toggle -->
-                                                    <MenuItem Header="{lang:Translate common.toggle}" 
-                                                              Command="{Binding ModToggleCommand}" 
-                                                              CommandParameter="{Binding SelectedMod}" />
-                                                    <Separator />
-                                                    <!-- Check For Updates  -->
-                                                    <MenuItem Header="{lang:Translate instance.update.check}" 
-                                                              Command="{Binding ModCheckUpdateCommand}" 
-                                                              CommandParameter="{Binding SelectedMod}" />
-                                                    <Separator />
-                                                    <!-- Change Version -->
-                                                    <MenuItem Header="{lang:Translate instance.version.change}" 
-                                                              Command="{Binding ModChangeVersionCommand}" 
-                                                              CommandParameter="{Binding SelectedMod}" />
-                                                    <Separator />
-                                                    <!-- Remove -->
-                                                    <MenuItem Header="{lang:Translate common.remove}" 
-                                                              Command="{Binding ModRemoveCommand}" 
-                                                              CommandParameter="{Binding SelectedMod}" />
-                                                    <Separator />
-                                                    <!-- Download Mods -->
-                                                    <MenuItem Header="{lang:Translate instance.download.mods}" 
-                                                              Command="{Binding ModDownloadCommand}" />
-                                                    <!-- Open Folder -->
-                                                    <MenuItem Header="{lang:Translate common.open.directory}" 
-                                                              Command="{Binding ModOpenDirectoryCommand}" />
-                                                </ContextMenu>
-                                            </DataGrid.ContextMenu>
-                                        </DataGrid>
-                                    </ScrollViewer>
-                                </Border>
-                                <!--  Actions  -->
-                                <Grid
-                                    Grid.Row="2"
-                                    ColumnDefinitions="*, Auto, Auto"
-                                    ColumnSpacing="5">
-                                    <!--  Search bar  -->
-                                    <TextBox
-                                        Grid.Column="0"
-                                        Classes="TextInput"
-                                        Watermark="{lang:Translate common.search}" />
-                                    <!--  Download  -->
-                                    <!-- TODO -->
-                                    <Button Grid.Column="1" Classes="IconBtn" Command="{Binding ModDownloadCommand}" IsEnabled="False">
-                                        <WrapPanel Classes="IconBtnWrapper">
-                                            <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf0ed;" />
-                                            <TextBlock Text="{lang:Translate instance.edit.downloadMods}" VerticalAlignment="Center" />
-                                        </WrapPanel>
-                                    </Button>
-                                    <!--  View Folder  -->
-                                    <Button Grid.Column="2" Classes="IconBtn" Command="{Binding ModOpenDirectoryCommand}">
-                                        <WrapPanel Classes="IconBtnWrapper">
-                                            <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf07c;" />
-                                            <TextBlock Text="{lang:Translate common.open.directory}" VerticalAlignment="Center" />
-                                        </WrapPanel>
-                                    </Button>
-                                </Grid>
-                            </Grid>
-                        </Border>
-                    </TabItem>
-                    <!--  Resource packs  -->
-                    <TabItem Classes="ModalVerticalTabItem" Header="{lang:Translate instance.edit.tab.resourcePacks}">
-                        <Border Classes="ModalScrollableWrapper">
-                            <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, *, Auto">
-                                <!--  Title  -->
-                                <TextBlock Classes="ModalGridTitle" Text="{lang:Translate instance.edit.tab.resourcePacks}" />
-                                <!--  Content  -->
-                                <Border Grid.Row="1">
-                                    <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
-                                        <DataGrid
-                                            Classes="InstanceMultiTable"
-                                            ItemsSource="{Binding FilteredResourcePacks}"
-                                            SelectedItem="{Binding SelectedResourcePack}"
-                                            CellEditEnded="ResourcePacksDataGrid_OnCellEditEnded"
-                                            IsReadOnly="False">
-                                            <DataGrid.Columns>
-                                                <!--  Enabled  -->
-                                                <DataGridCheckBoxColumn
-                                                    Width="Auto"
-                                                    Binding="{Binding IsEnabled, Mode=TwoWay}"
-                                                    Header="{lang:Translate instance.edit.table.enabled}"
-                                                    IsReadOnly="False" />
-                                                <!--  Image  -->
-                                                <DataGridTemplateColumn Width="Auto" Header="{lang:Translate instance.edit.table.image}">
-                                                    <DataGridTemplateColumn.CellTemplate>
-                                                        <DataTemplate>
-                                                            <Image
-                                                                Width="32"
-                                                                Height="32"
-                                                                Source="{Binding Icon}"
-                                                                Stretch="UniformToFill" />
-                                                        </DataTemplate>
-                                                    </DataGridTemplateColumn.CellTemplate>
-                                                </DataGridTemplateColumn>
-                                                <!--  Name  -->
-                                                <DataGridTextColumn
-                                                    Width="Auto"
-                                                    Binding="{Binding Name}"
-                                                    Header="{lang:Translate instance.edit.table.name}"
-                                                    IsReadOnly="True"/>
-                                                <!--  Provider  -->
-                                                <DataGridTextColumn
-                                                    Width="Auto"
-                                                    Binding="{Binding Provider}"
-                                                    Header="{lang:Translate instance.edit.table.provider}"
-                                                    IsReadOnly="True"/>
-                                                <!--  Size  -->
-                                                <DataGridTextColumn
-                                                    Width="Auto"
-                                                    Binding="{Binding FormattedSize}"
-                                                    Header="{lang:Translate instance.edit.table.size}"
-                                                    IsReadOnly="True"/>
-                                            </DataGrid.Columns>
-                                            <DataGrid.ContextMenu>
-                                                <ContextMenu>
-                                                    <!-- Toggle -->
-                                                    <MenuItem Header="{lang:Translate common.toggle}" 
-                                                              Command="{Binding ResourcePackToggleCommand}" 
-                                                              CommandParameter="{Binding SelectedResourcePack}" />
-                                                    <Separator />
-                                                    <!-- Remove  -->
-                                                    <MenuItem Header="{lang:Translate common.remove}" 
-                                                              Command="{Binding ResourcePackRemoveCommand}" 
-                                                              CommandParameter="{Binding SelectedResourcePack}" />
-                                                    <Separator />
-                                                    <!-- Download Packs -->
-                                                    <MenuItem Header="{lang:Translate instance.download.resourcePacks}" 
-                                                              Command="{Binding ResourcePackDownloadCommand}" 
-                                                              CommandParameter="{Binding SelectedResourcePack}" />
-                                                    <!-- Open Folder -->
-                                                    <MenuItem Header="{lang:Translate common.open.directory}" 
-                                                              Command="{Binding ResourcePackOpenDirectoryCommand}" />
-                                                </ContextMenu>
-                                            </DataGrid.ContextMenu>
-                                        </DataGrid>
-                                    </ScrollViewer>
-                                </Border>
-                                <!--  Actions  -->
-                                <Grid
-                                    Grid.Row="2"
-                                    ColumnDefinitions="*, Auto, Auto"
-                                    ColumnSpacing="5">
-                                    <!--  Search bar  -->
-                                    <TextBox
-                                        Grid.Column="0"
-                                        Classes="TextInput"
-                                        Watermark="{lang:Translate common.search}"
-                                        Text="{Binding ResourcePackSearchQuery}"/>
-                                    <!--  Download  -->
-                                    <!-- TODO -->
-                                    <Button Grid.Column="1" Classes="IconBtn" Command="{Binding ResourcePackDownloadCommand}" IsEnabled="False">
-                                        <WrapPanel Classes="IconBtnWrapper">
-                                            <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf0ed;" />
-                                            <TextBlock Text="{lang:Translate instance.edit.downloadPacks}" VerticalAlignment="Center" />
-                                        </WrapPanel>
-                                    </Button>
-                                    <!--  View Folder  -->
-                                    <Button Grid.Column="2" Classes="IconBtn" Command="{Binding ResourcePackOpenDirectoryCommand}">
-                                        <WrapPanel Classes="IconBtnWrapper">
-                                            <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf07c;" />
-                                            <TextBlock Text="{lang:Translate common.open.directory}" VerticalAlignment="Center" />
-                                        </WrapPanel>
-                                    </Button>
-                                </Grid>
-                            </Grid>
-                        </Border>
-                    </TabItem>
-                    <!--  Shader packs  -->
-                    <TabItem Classes="ModalVerticalTabItem" Header="{lang:Translate instance.edit.tab.shaderPacks}" IsVisible="{Binding !IsVanilla}">
-                        <Border Classes="ModalScrollableWrapper">
-                            <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, *, Auto">
-                                <!--  Title  -->
-                                <TextBlock Classes="ModalGridTitle" Text="{lang:Translate instance.edit.tab.shaderPacks}" />
-                                <!--  Content  -->
-                                <Border Grid.Row="1">
-                                    <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
-                                        <DataGrid
-                                            Classes="InstanceMultiTable"
-                                            ItemsSource="{Binding FilteredShaderPacks}"
-                                            SelectedItem="{Binding SelectedShaderPack}">
-                                            <DataGrid.Columns>
-                                                <!--  Enabled  -->
-                                                <DataGridCheckBoxColumn
-                                                    Width="Auto"
-                                                    Binding="{Binding IsEnabled}"
-                                                    Header="{lang:Translate instance.edit.table.enabled}"
-                                                    IsReadOnly="False" />
-                                                <!--  Name  -->
-                                                <DataGridTextColumn
-                                                    Width="*"
-                                                    Binding="{Binding Name}"
-                                                    Header="{lang:Translate instance.edit.table.name}" />
-                                                <!--  Provider  -->
-                                                <DataGridTextColumn
-                                                    Width="Auto"
-                                                    Binding="{Binding Provider}"
-                                                    Header="{lang:Translate instance.edit.table.provider}" />
-                                                <!--  Size  -->
-                                                <DataGridTextColumn
-                                                    Width="Auto"
-                                                    Binding="{Binding FormattedSize}"
-                                                    Header="{lang:Translate instance.edit.table.size}" />
-                                            </DataGrid.Columns>
-                                            <DataGrid.ContextMenu>
-                                                <ContextMenu>
-                                                    <!-- Toggle -->
-                                                    <MenuItem Header="{lang:Translate common.toggle}" 
-                                                              Command="{Binding ShaderToggleCommand}" 
-                                                              CommandParameter="{Binding SelectedShaderPack}" />
-                                                    <Separator />
-                                                    <!-- Remove  -->
-                                                    <MenuItem Header="{lang:Translate common.remove}" 
-                                                              Command="{Binding ShaderRemoveCommand}" 
-                                                              CommandParameter="{Binding SelectedShaderPack}" />
-                                                    <Separator />
-                                                    <!-- Download Packs -->
-                                                    <MenuItem Header="{lang:Translate instance.download.shaders}" 
-                                                              Command="{Binding ShaderDownloadCommand}" />
-                                                    <!-- Open Folder -->
-                                                    <MenuItem Header="{lang:Translate common.open.directory}" 
-                                                              Command="{Binding ShaderOpenDirectoryCommand}" />
-                                                </ContextMenu>
-                                            </DataGrid.ContextMenu>
-                                        </DataGrid>
-                                    </ScrollViewer>
-                                </Border>
-                                <!--  Actions  -->
-                                <Grid
-                                    Grid.Row="2"
-                                    ColumnDefinitions="*, Auto, Auto"
-                                    ColumnSpacing="5">
-                                    <!--  Search bar  -->
-                                    <TextBox
-                                        Grid.Column="0"
-                                        Classes="TextInput"
-                                        Watermark="{lang:Translate common.search}" />
-                                    <!--  Download  -->
-                                    <!-- TODO -->
-                                    <Button Grid.Column="1" Classes="IconBtn" Command="{Binding ShaderDownloadCommand}" IsEnabled="False">
-                                        <WrapPanel Classes="IconBtnWrapper">
-                                            <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf0ed;" />
-                                            <TextBlock Text="{lang:Translate instance.edit.downloadPacks}" VerticalAlignment="Center" />
-                                        </WrapPanel>
-                                    </Button>
-                                    <!--  View Folder  -->
-                                    <Button Grid.Column="2" Classes="IconBtn" Command="{Binding ShaderOpenDirectoryCommand}">
-                                        <WrapPanel Classes="IconBtnWrapper">
-                                            <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf07c;" />
-                                            <TextBlock Text="{lang:Translate common.open.directory}" VerticalAlignment="Center" />
-                                        </WrapPanel>
-                                    </Button>
-                                </Grid>
-                            </Grid>
-                        </Border>
-                    </TabItem>
-                    <!--  Worlds  -->
-                    <TabItem Classes="ModalVerticalTabItem" Header="{lang:Translate instance.edit.tab.worlds}">
-                        <Border Classes="ModalScrollableWrapper">
-                            <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, *">
-                                <!--  Title  -->
-                                <TextBlock Classes="ModalGridTitle" Text="{lang:Translate instance.edit.tab.worlds}" />
-                                <!--  Content  -->
-                                <Border Grid.Row="1">
-                                    <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
-                                        <DataGrid
-                                            Name="WorldsTable"
-                                            Classes="InstanceMultiTable"
-                                            ItemsSource="{Binding Worlds}"
-                                            SelectedItem="{Binding SelectedWorld}"
-                                            CellEditEnded="WorldDataGrid_OnCellEditEnded"
-                                            RowEditEnded="WorldDataGrid_OnRowEditEnded"
-                                            IsReadOnly="False">
-                                            <DataGrid.Columns>
-                                                <!--  Icon & Name  -->
-                                                <DataGridTemplateColumn Width="*" Header="{lang:Translate instance.edit.table.name}">
-                                                    <DataGridTemplateColumn.CellTemplate>
-                                                        <DataTemplate>
-                                                            <StackPanel Orientation="Horizontal" Spacing="5">
-                                                                <Image
-                                                                    Height="48"
-                                                                    MaxWidth="48"
-                                                                    Margin="5"
-                                                                    Source="{Binding Icon}"
-                                                                    Stretch="UniformToFill" />
-                                                                <TextBlock
-                                                                    Margin="0,0,25,0"
-                                                                    VerticalAlignment="Center"
-                                                                    Text="{Binding Name}"
-                                                                    TextAlignment="Center" />
-                                                            </StackPanel>
-                                                        </DataTemplate>
-                                                    </DataGridTemplateColumn.CellTemplate>
-                                                    <DataGridTemplateColumn.CellEditingTemplate>
-                                                        <DataTemplate>
-                                                            <TextBox
-                                                                Margin="5,0,25,0"
-                                                                VerticalAlignment="Center"
-                                                                Text="{Binding Name, Mode=TwoWay}" />
-                                                        </DataTemplate>
-                                                    </DataGridTemplateColumn.CellEditingTemplate>
-                                                </DataGridTemplateColumn>
-                                                <!--  GameMode  -->
-                                                <DataGridTextColumn
-                                                    Width="Auto"
-                                                    Binding="{Binding Gamemode}"
-                                                    Header="{lang:Translate instance.edit.table.gameMode}"
-                                                    IsReadOnly="True"/>
-                                                <!--  Last Played  -->
-                                                <DataGridTextColumn
-                                                    Width="Auto"
-                                                    Binding="{Binding FormattedLastPlayed}"
-                                                    Header="{lang:Translate instance.edit.table.lastPlayed}"
-                                                    IsReadOnly="True"/>
-                                                <!--  Size  -->
-                                                <DataGridTextColumn
-                                                    Width="Auto"
-                                                    Binding="{Binding FormattedSize}"
-                                                    Header="{lang:Translate instance.edit.table.size}"
-                                                    IsReadOnly="True"/>
-                                            </DataGrid.Columns>
-                                            <DataGrid.ContextMenu>
-                                                <ContextMenu>
-                                                    <!-- Duplicate -->
-                                                    <MenuItem Header="{lang:Translate common.duplicate}" 
-                                                              Command="{Binding WorldsDuplicateCommand}" 
-                                                              CommandParameter="{Binding SelectedWorld}" />
-                                                    <!-- Rename  -->
-                                                    <MenuItem Header="{lang:Translate common.rename}" 
-                                                              Command="{Binding WorldsRenameCommand}" 
-                                                              CommandParameter="{Binding SelectedWorld}" />
-                                                    <!-- Delete -->
-                                                    <MenuItem Header="{lang:Translate common.delete}" 
-                                                              Command="{Binding WorldsDeleteCommand}" 
-                                                              CommandParameter="{Binding SelectedWorld}" />
-                                                    <Separator />
-                                                    <!-- Copy Speed -->
-                                                    <MenuItem Header="{lang:Translate instance.edit.copySeed}" 
-                                                              Command="{Binding WorldsCopySeed}" 
-                                                              CommandParameter="{Binding SelectedWorld}" />
-                                                    <!-- Open Folder -->
-                                                    <MenuItem Header="{lang:Translate common.open.directory}" 
-                                                              Command="{Binding WorldsOpenDirectoryCommand}" 
-                                                              CommandParameter="{Binding SelectedWorld}" />
-                                                </ContextMenu>
-                                            </DataGrid.ContextMenu>
-                                        </DataGrid>
-                                    </ScrollViewer>
-                                </Border>
-                            </Grid>
-                        </Border>
-                    </TabItem>
-                    <!--  Servers  -->
-                    <TabItem Classes="ModalVerticalTabItem" Header="{lang:Translate instance.edit.tab.servers}">
-                        <Border Classes="ModalScrollableWrapper">
-                            <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, *, Auto">
-                                <!--  Title  -->
-                                <TextBlock Classes="ModalGridTitle" Text="{lang:Translate instance.edit.tab.servers}" />
-                                <!--  Content  -->
-                                <Border Grid.Row="1">
-                                    <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
-                                        <DataGrid
-                                            Classes="InstanceMultiTable"
-                                            ItemsSource="{Binding Servers}"
-                                            SelectedItem="{Binding SelectedServer}"
-                                            RowEditEnded="ServersDataGrid_OnRowEditEnded"
-                                            IsReadOnly="False">
-                                            <DataGrid.Columns>
-                                                <!--  Icon & Name  -->
-                                                <DataGridTemplateColumn Width="*" Header="{lang:Translate instance.edit.table.name}">
-                                                    <DataGridTemplateColumn.CellTemplate>
-                                                        <DataTemplate>
-                                                            <StackPanel Orientation="Horizontal" Spacing="5">
-                                                                <Image
-                                                                    Height="48"
-                                                                    MaxWidth="48"
-                                                                    Margin="5"
-                                                                    Source="{Binding Image}"
-                                                                    Stretch="UniformToFill" />
-                                                                <TextBlock
-                                                                    Margin="0,0,25,0"
-                                                                    VerticalAlignment="Center"
-                                                                    Text="{Binding Name}"
-                                                                    TextAlignment="Center" />
-                                                            </StackPanel>
-                                                        </DataTemplate>
-                                                    </DataGridTemplateColumn.CellTemplate>
-                                                    <DataGridTemplateColumn.CellEditingTemplate>
-                                                        <DataTemplate>
-                                                            <TextBox
-                                                                Margin="5,0,25,0"
-                                                                VerticalAlignment="Center"
-                                                                Text="{Binding Name, Mode=TwoWay}" />
-                                                        </DataTemplate>
-                                                    </DataGridTemplateColumn.CellEditingTemplate>
-                                                </DataGridTemplateColumn>
-                                                <!--  Address  -->
-                                                <DataGridTextColumn
-                                                    Width="*"
-                                                    Binding="{Binding Ip}"
-                                                    Header="{lang:Translate instance.edit.table.ipAddress}" />
-                                            </DataGrid.Columns>
-                                            <DataGrid.ContextMenu>
-                                                <ContextMenu>
-                                                    <!-- Join -->
-                                                    <MenuItem Header="{lang:Translate instance.edit.joinServer}" 
-                                                              Command="{Binding ServersJoinCommand}" 
-                                                              CommandParameter="{Binding SelectedServer}" />
-                                                    <!-- Remove  -->
-                                                    <MenuItem Header="{lang:Translate common.remove}" 
-                                                              Command="{Binding ServersRemoveCommand}" 
-                                                              CommandParameter="{Binding SelectedServer}" />
-                                                </ContextMenu>
-                                            </DataGrid.ContextMenu>
-                                        </DataGrid>
-                                    </ScrollViewer>
-                                </Border>
-                                <!--  Actions  -->
-                                <Grid
-                                    Grid.Row="2"
-                                    ColumnDefinitions="*, *, Auto"
-                                    ColumnSpacing="5">
-                                    <!--  Name bar  -->
-                                    <TextBox
-                                        Grid.Column="0"
-                                        Classes="TextInput"
-                                        Watermark="Minecraft Server"
-                                        Text="{Binding ServerName}"/>
-                                    <!--  Address bar  -->
-                                    <TextBox
-                                        Grid.Column="1"
-                                        Classes="TextInput"
-                                        Watermark="192.168.1.0:25565"
-                                        Text="{Binding ServerIp}"/>
-                                    <!--  Add  -->
-                                    <Button Grid.Column="2" Classes="IconBtn" Command="{Binding ServerAddCommand}">
-                                        <WrapPanel Classes="IconBtnWrapper">
-                                            <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#x2b;" />
-                                            <TextBlock Text="{lang:Translate common.add}" VerticalAlignment="Center" />
-                                        </WrapPanel>
-                                    </Button>
-                                </Grid>
-                            </Grid>
-                        </Border>
-                    </TabItem>
-                    <!--  Screenshots  -->
-                    <TabItem Classes="ModalVerticalTabItem" Header="{lang:Translate instance.edit.tab.screenshots}">
-                        <Border Classes="ModalScrollableWrapper">
-                            <Grid Classes="ModalScrollableWrapper" RowDefinitions="Auto, *">
-                                <!--  Title  -->
-                                <TextBlock Classes="ModalGridTitle" Text="{lang:Translate instance.edit.tab.screenshots}" />
-                                <!--  Content  -->
-                                <Border Grid.Row="1">
-                                    <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
-                                        <DataGrid
-                                            Name="ScreenshotsTable"
-                                            Classes="InstanceMultiTable"
-                                            ItemsSource="{Binding Screenshots}"
-                                            SelectedItem="{Binding SelectedScreenshot}"
-                                            CellEditEnded="ScreenshotCell_OnEditEnded"
-                                            IsReadOnly="False">
-                                            <DataGrid.Columns>
-                                                <!--  Icon & Name  -->
-                                                <DataGridTemplateColumn Width="*" Header="{lang:Translate instance.edit.table.name}" IsReadOnly="False">
-                                                    <DataGridTemplateColumn.CellTemplate>
-                                                        <DataTemplate>
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <Image
-                                                                    Height="48"
-                                                                    MaxWidth="48"
-                                                                    Margin="5"
-                                                                    Source="{Binding Image}"
-                                                                    Stretch="UniformToFill" />
-                                                                <TextBlock
-                                                                    Margin="5,0,0,0"
-                                                                    VerticalAlignment="Center"
-                                                                    Text="{Binding Name}"
-                                                                    TextAlignment="Center" />
-                                                                <TextBlock
-                                                                    Margin="0,0,25,0"
-                                                                    VerticalAlignment="Center"
-                                                                    Text="{Binding Extension}"
-                                                                    TextAlignment="Center" />
-                                                            </StackPanel>
-                                                        </DataTemplate>
-                                                    </DataGridTemplateColumn.CellTemplate>
-                                                    <DataGridTemplateColumn.CellEditingTemplate>
-                                                        <DataTemplate>
-                                                            <TextBox
-                                                                Margin="5,0,25,0"
-                                                                VerticalAlignment="Center"
-                                                                Text="{Binding Name, Mode=TwoWay}" />
-                                                        </DataTemplate>
-                                                    </DataGridTemplateColumn.CellEditingTemplate>
-                                                </DataGridTemplateColumn>
-                                                <!--  Size  -->
-                                                <DataGridTextColumn
-                                                    Width="Auto"
-                                                    Binding="{Binding FormatedSize}"
-                                                    Header="{lang:Translate instance.edit.table.size}"
-                                                    IsReadOnly="True"/>
-                                            </DataGrid.Columns>
-                                            <DataGrid.ContextMenu>
-                                                <ContextMenu>
-                                                    <!-- Copy -->
-                                                    <MenuItem Header="{lang:Translate common.copy}" 
-                                                              Command="{Binding ScreenshotsCopyCommand}" 
-                                                              CommandParameter="{Binding SelectedScreenshot}" />
-                                                    <!-- Delete  -->
-                                                    <MenuItem Header="{lang:Translate common.delete}" 
-                                                              Command="{Binding ScreenshotsDeleteCommand}" 
-                                                              CommandParameter="{Binding SelectedScreenshot}" />
-                                                    <!-- Rename  -->
-                                                    <MenuItem Header="{lang:Translate common.rename}" 
-                                                              Command="{Binding ScreenshotsRenameCommand}" 
-                                                              CommandParameter="{Binding SelectedScreenshot}" />
-                                                    <!-- Open Directory  -->
-                                                    <MenuItem Header="{lang:Translate common.open.directory}" 
-                                                              Command="{Binding ScreenshotsOpenDirectoryCommand}" 
-                                                              CommandParameter="{Binding SelectedScreenshot}" />
-                                                </ContextMenu>
-                                            </DataGrid.ContextMenu>
-                                        </DataGrid>
-                                    </ScrollViewer>
-                                </Border>
-                            </Grid>
-                        </Border>
-                    </TabItem>
-                    <!--  Settings  -->
-                    <TabItem Classes="ModalVerticalTabItem" Header="{lang:Translate instance.edit.tab.settings}">
-                        <Border Classes="ModalScrollableWrapper" Padding="25">
-                            <TabControl Classes="ModalTab">
-                                <!-- Java Settings  -->
-                                <TabItem Classes="ModalTabItem" Header="{lang:Translate settings.tab.java}">
-                                    <Border Classes="ModalInnerScrollableWrapper">
-                                        <ScrollViewer Classes="ModalScrollViewer">
-                                            <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto" RowSpacing="10">
-                                                 <!-- Minimum Memory -->
-                                                <Grid ColumnDefinitions="Auto, *">
-                                                    <!-- Text -->
-                                                    <TextBlock Classes="NumericInput" Text="{lang:Translate settings.java.minMemory}" />
-                                                    <!-- Input -->
-                                                    <NumericUpDown Grid.Column="1"
-                                                        FormatString="0\ MB"
-                                                        Classes="NumericInput"
-                                                        Increment="1"
-                                                        Minimum="512"
-                                                        Maximum="{Binding InstanceConfig.Java.MaxMemory}"
-                                                        Value="{Binding InstanceConfig.Java.MinMemory}" />
-                                                </Grid>
-                                                <!-- Maximum Memory -->
-                                                <Grid Grid.Row="1" ColumnDefinitions="Auto, *">
-                                                    <!-- Text -->
-                                                    <TextBlock Classes="NumericInput" Text="{lang:Translate settings.java.maxMemory}" />
-                                                    <!-- Input -->
-                                                    <NumericUpDown
-                                                        Grid.Column="1"
-                                                        FormatString="0\ MB"
-                                                        Classes="NumericInput"
-                                                        Increment="1"
-                                                        Minimum="512"
-                                                        Maximum="131072"
-                                                        Value="{Binding InstanceConfig.Java.MaxMemory}" />
-                                                </Grid>
-                                                <!-- Java Path -->
-                                                <Grid Grid.Row="3" ColumnDefinitions="Auto, *, Auto, Auto" RowDefinitions="Auto">
-                                                    <!-- Text -->
-                                                    <TextBlock Classes="TextInput" Text="{lang:Translate settings.java.path}" />
-                                                    <!-- Input -->
-                                                    <TextBox
-                                                        Grid.Column="1"
-                                                        Classes="TextInput"
-                                                        Watermark="{lang:Translate common.select.directory}"
-                                                        Text="{Binding InstanceConfig.Java.DefaultJavaPath}"/>
-                                                    <Button Grid.Column="2" Classes="IconBtn" Click="JavaPathSelect_OnClick">
-                                                        <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
-                                                    </Button>
-                                                    <Button Grid.Column="3" Classes="IconBtn" Command="{Binding JavaPathSelectorCommand}">
-                                                        <TextBlock Classes="FontAwesome" Text="&#xf126;" />
-                                                    </Button>
-                                                </Grid>
-                                                <!-- JVM Arguments -->
-                                                <TextBlock Grid.Row="4" Classes="SettingsCategory" Text="{lang:Translate settings.java.jvmArgs}" />
-                                                <TextBox Grid.Row="5"
-                                                         MaxLines="512"
-                                                         MinHeight="128"
-                                                         TextWrapping="Wrap"
-                                                         Text="{Binding InstanceConfig.Java.JvmArguments}"/>
-                                            </Grid>
-                                        </ScrollViewer>
-                                    </Border>
-                                </TabItem>
-                                <!-- Game Settings  -->
-                                <TabItem Classes="ModalTabItem" Header="{lang:Translate settings.tab.game}">
-                                    <Border Classes="ModalInnerScrollableWrapper">
-                                        <ScrollViewer Classes="ModalScrollViewer">
-                                            <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto" RowSpacing="10">
-                                                <!-- Window Settings  -->
-                                                <TextBlock Classes="SettingsCategory" Text="{lang:Translate instance.edit.subTitle.window}" />
-                                                <!--  Minecraft Maximized  -->
-                                                <CheckBox Grid.Row="1" IsChecked="{Binding InstanceConfig.Game.StartMaximized}">
-                                                    <TextBlock Text="{lang:Translate settings.minecraft.startMaximized}" />
-                                                </CheckBox>
-                                                <!--  Window Width  -->
-                                                <Grid Grid.Row="2" ColumnDefinitions="Auto, *">
-                                                    <!--  Text  -->
-                                                    <TextBlock Classes="NumericInput" Text="{lang:Translate settings.minecraft.windowWidth}" />
-                                                    <!--  Input  -->
-                                                    <NumericUpDown Grid.Column="1"
-                                                        Classes="NumericInput"
-                                                        FormatString="0"
-                                                        Increment="1"
-                                                        Maximum="{x:Static local:App.ScreenWidth}"
-                                                        Minimum="100"
-                                                        Value="{Binding InstanceConfig.Game.WindowWidth, Mode=TwoWay}"
-                                                        IsEnabled="{Binding !InstanceConfig.Game.StartMaximized}" />
-                                                </Grid>
-                                                <!--  Window Height  -->
-                                                <Grid Grid.Row="3" ColumnDefinitions="Auto, *">
-                                                    <!--  Text  -->
-                                                    <TextBlock Classes="NumericInput" Text="{lang:Translate settings.minecraft.windowHeight}" />
-                                                    <!--  Input  -->
-                                                    <NumericUpDown Grid.Column="1"
-                                                        Classes="NumericInput"
-                                                        FormatString="0"
-                                                        Increment="1"
-                                                        Maximum="{x:Static local:App.ScreenHeight}"
-                                                        Minimum="100"
-                                                        Value="{Binding InstanceConfig.Game.WindowHeight, Mode=TwoWay}"
-                                                        IsEnabled="{Binding !InstanceConfig.Game.StartMaximized}" />
-                                                </Grid>
-                                                <!-- Console Settings  -->
-                                                <TextBlock Grid.Row="4" Classes="SettingsCategory" Text="{lang:Translate instance.edit.subTitle.console}" />
-                                                <!--  Show console  -->
-                                                <CheckBox Grid.Row="5" IsChecked="{Binding InstanceConfig.Game.ShowConsoleWhileGameRunning}">
-                                                    <TextBlock Text="{lang:Translate instance.edit.settings.console.showStart}" />
-                                                </CheckBox>
-                                                <!--  Auto close console  -->
-                                                <CheckBox Grid.Row="6" IsChecked="{Binding InstanceConfig.Game.CloseConsoleOnGameExit}">
-                                                    <TextBlock Text="{lang:Translate instance.edit.settings.console.closeExit}" />
-                                                </CheckBox>
-                                                <!-- Show console on crash  -->
-                                                <CheckBox Grid.Row="7" IsChecked="{Binding InstanceConfig.Game.ShowConsoleWhenGameCrashes}">
-                                                    <TextBlock Text="{lang:Translate instance.edit.settings.console.showCrash}" />
-                                                </CheckBox>
-                                                <!-- Performance Settings  -->
-                                                <TextBlock Grid.Row="8" Classes="SettingsCategory" Text="{lang:Translate instance.edit.subTitle.performance}" />
-                                                <!--  Enable Feral GameMode  -->
-                                                <CheckBox Grid.Row="9" IsVisible="{Binding IsLinux}" IsChecked="{Binding InstanceConfig.Game.EnableFeralGameMode}">
-                                                    <TextBlock Text="{lang:Translate settings.misc.enableGameMode}" />
-                                                </CheckBox>
-                                                <!--  Enable MangoHud  -->
-                                                <CheckBox Grid.Row="10" IsVisible="{Binding IsLinux}" IsChecked="{Binding InstanceConfig.Game.EnableMangoHud}">
-                                                    <TextBlock Text="{lang:Translate settings.misc.enableMangoHud}" />
-                                                </CheckBox>
-                                                <!--  Use dedicated GPU  -->
-                                                <CheckBox Grid.Row="11" IsChecked="{Binding InstanceConfig.Game.UseDedicatedGpu}">
-                                                    <TextBlock Text="{lang:Translate settings.misc.useDedicatedGpu}" />
-                                                </CheckBox>
-                                            </Grid>
-                                        </ScrollViewer>
-                                    </Border>
-                                </TabItem>
-                                <!-- Custom Commands Settings  -->
-                                <TabItem Classes="ModalTabItem" Header="{lang:Translate settings.tab.customCommands}">
-                                    <Border Classes="ModalInnerScrollableWrapper">
-                                        <ScrollViewer Classes="ModalScrollViewer">
-                                            <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto" RowSpacing="10">
-                                                <!--  Pre-launch Command  -->
-                                                <Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto">
-                                                    <!--  Text  -->
-                                                    <TextBlock Classes="TextInput" Text="{lang:Translate settings.misc.prelaunchCommand}" />
-                                                    <!--  Input  -->
-                                                    <TextBox Grid.Column="1"
-                                                        Classes="TextInput"
-                                                        Watermark="echo Instance started"
-                                                        Text="{Binding InstanceConfig.Commands.PreLaunchCommand}" />
-                                                </Grid>
-                                                <TextBlock Grid.Row="1" Classes="Muted" Text="{lang:Translate settings.misc.prelaunchCommand.description}" />
-                                                <!--  Wrapper Command  -->
-                                                <Grid Grid.Row="2" ColumnDefinitions="Auto, *" RowDefinitions="Auto">
-                                                    <!--  Text  -->
-                                                    <TextBlock Classes="TextInput" Text="{lang:Translate settings.misc.wrapperCommand}" />
-                                                    <!--  Input  -->
-                                                    <TextBox Grid.Column="1"
-                                                        Classes="TextInput"
-                                                        Watermark="gamemoderun %command%"
-                                                        Text="{Binding InstanceConfig.Commands.WrapperCommand}" />
-                                                </Grid>
-                                                <TextBlock Grid.Row="3" Classes="Muted" Text="{lang:Translate settings.misc.wrapperCommand.description}" />
-                                                <!--  Post-exit Command  -->
-                                                <Grid Grid.Row="4" ColumnDefinitions="Auto, *" RowDefinitions="Auto">
-                                                    <!--  Text  -->
-                                                    <TextBlock Classes="TextInput" Text="{lang:Translate settings.misc.postExitCommand}" />
-                                                    <!--  Input  -->
-                                                    <TextBox Grid.Column="1"
-                                                        Classes="TextInput"
-                                                        Watermark="echo Instance stopped"
-                                                        Text="{Binding InstanceConfig.Commands.PostExitCommand}" />
-                                                </Grid>
-                                                <TextBlock Grid.Row="5" Classes="Muted" Text="{lang:Translate settings.misc.postExitCommand.description}" />
-                                            </Grid>
-                                        </ScrollViewer>
-                                    </Border>
-                                </TabItem>
-                                <!-- Environment Settings  -->
-                                <TabItem Classes="ModalTabItem" Header="{lang:Translate settings.tab.environment}">
-                                    <Border Classes="ModalInnerScrollableWrapper">
-                                        <ScrollViewer Classes="ModalScrollViewer">
-                                            <Grid RowDefinitions="Auto, *, Auto" RowSpacing="10">
-                                                <!--  Enable Env vars -->
-                                                <CheckBox  IsChecked="{Binding InstanceConfig.EnableEnvironment}">
-                                                    <TextBlock Text="{lang:Translate settings.environment.enable}" />
-                                                </CheckBox>
-                                                <!--  Content  -->
-                                                <Border Grid.Row="1">
-                                                    <ScrollViewer Classes="TableScrollViewer">
-                                                        <DataGrid
-                                                            Classes="InstanceMultiTable"
-                                                            IsReadOnly="False"
-                                                            RowEditEnded="EnvironmentDataGrid_OnRowEditEnded"
-                                                            ItemsSource="{Binding InstanceConfig.Environment}"
-                                                            SelectedIndex="{Binding  SelectedEnvironmentVariableIndex}"
-                                                            IsEnabled="{Binding InstanceConfig.EnableEnvironment}">
-                                                            <DataGrid.Columns>
-                                                                <!-- Name  -->
-                                                                <DataGridTextColumn
-                                                                    Width="Auto"
-                                                                    Binding="{Binding Key}"
-                                                                    Header="{lang:Translate settings.environment.name}" />
-                                                                <!-- Value -->
-                                                                <DataGridTextColumn
-                                                                    Width="Auto"
-                                                                    Binding="{Binding Value}"
-                                                                    Header="{lang:Translate settings.environment.value}" />
-                                                            </DataGrid.Columns>
-                                                        </DataGrid>
+    <Grid>
+        <!--  Main Window Content  -->
+        <Border
+            Background="{DynamicResource base-200}"
+            BorderBrush="{DynamicResource border-one}"
+            BorderThickness="1"
+            CornerRadius="14"
+            PointerPressed="DragStart_PointerPressed">
+            <Grid RowDefinitions="Auto, *">
+                <!--  Window Controls  -->
+                <Border HorizontalAlignment="Stretch" PointerPressed="DragStart_PointerPressed">
+                    <StackPanel Classes="WindowBtnPanel">
+                        <!--  MINIMIZE  -->
+                        <Button
+                            Classes="WindowBtn WarningBtn"
+                            Command="{Binding MinimizeWindowCommand}"
+                            ToolTip.Tip="{lang:Translate main.window.minimize}" />
+                        <!--  MAXIMIZE / RESTORE  -->
+                        <Button
+                            Classes="WindowBtn SuccessBtn"
+                            Command="{Binding MaximizeWindowCommand}"
+                            IsEnabled="{Binding $parent[Window].CanResize}"
+                            ToolTip.Tip="{lang:Translate main.window.maximize}" />
+                        <!--  CLOSE  -->
+                        <Button
+                            Classes="WindowBtn ErrorBtn"
+                            Command="{Binding CloseWindowCommand}"
+                            ToolTip.Tip="{lang:Translate main.window.close}" />
+                    </StackPanel>
+                </Border>
+
+                <!--  Main Content  -->
+                <Grid Grid.Row="1" RowDefinitions="Auto, *">
+                    <!--  Title  -->
+                    <WrapPanel
+                        Margin="25,0,25,0"
+                        HorizontalAlignment="Left"
+                        ItemSpacing="10">
+                        <TextBlock
+                            HorizontalAlignment="Left"
+                            Classes="InstanceTitle"
+                            Text="{lang:Translate instance.edit.title}" />
+                        <TextBlock
+                            HorizontalAlignment="Left"
+                            Classes="InstanceTitle"
+                            Text="{Binding InstanceName}" />
+                    </WrapPanel>
+
+                    <Border
+                        Grid.Row="1"
+                        BorderBrush="{DynamicResource border-two}"
+                        BorderThickness="0,1,0,0">
+                        <Grid ColumnDefinitions="Auto, *">
+                            <!--  Tab Buttons  -->
+                            <Border
+                                Padding="0,10,10,10"
+                                BorderBrush="{DynamicResource border-two}"
+                                BorderThickness="0,0,1,0">
+                                <ScrollViewer>
+                                    <Grid
+                                        Margin="25,0,15,0"
+                                        RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto"
+                                        RowSpacing="10">
+                                        <Button HorizontalAlignment="Stretch" Classes="SettingsTabBtn SettingsTabBtnActive">
+                                            <TextBlock Text="{lang:Translate instance.edit.tab.logs}" />
+                                        </Button>
+                                        <Button
+                                            Grid.Row="1"
+                                            HorizontalAlignment="Stretch"
+                                            Classes="SettingsTabBtn">
+                                            <TextBlock Text="{lang:Translate instance.edit.tab.mods}" />
+                                        </Button>
+                                        <Button
+                                            Grid.Row="2"
+                                            HorizontalAlignment="Stretch"
+                                            Classes="SettingsTabBtn">
+                                            <TextBlock Text="{lang:Translate instance.edit.tab.resourcePacks}" />
+                                        </Button>
+                                        <Button
+                                            Grid.Row="3"
+                                            HorizontalAlignment="Stretch"
+                                            Classes="SettingsTabBtn">
+                                            <TextBlock Text="{lang:Translate instance.edit.tab.shaderPacks}" />
+                                        </Button>
+                                        <Button
+                                            Grid.Row="4"
+                                            HorizontalAlignment="Stretch"
+                                            Classes="SettingsTabBtn">
+                                            <TextBlock Text="{lang:Translate instance.edit.tab.worlds}" />
+                                        </Button>
+                                        <Button
+                                            Grid.Row="5"
+                                            HorizontalAlignment="Stretch"
+                                            Classes="SettingsTabBtn">
+                                            <TextBlock Text="{lang:Translate instance.edit.tab.servers}" />
+                                        </Button>
+                                        <Button
+                                            Grid.Row="6"
+                                            HorizontalAlignment="Stretch"
+                                            Classes="SettingsTabBtn">
+                                            <TextBlock Text="{lang:Translate instance.edit.tab.screenshots}" />
+                                        </Button>
+                                        <Button
+                                            Grid.Row="7"
+                                            HorizontalAlignment="Stretch"
+                                            Classes="SettingsTabBtn">
+                                            <TextBlock Text="{lang:Translate instance.edit.tab.settings}" />
+                                        </Button>
+                                    </Grid>
+                                </ScrollViewer>
+                            </Border>
+
+                            <!--  Content  -->
+                            <Carousel Grid.Column="1" Margin="0,15,0,0">
+                                <Carousel.PageTransition>
+                                    <CompositePageTransition>
+                                        <PageSlide Orientation="Vertical" Duration="0:00:00.200" />
+                                    </CompositePageTransition>
+                                </Carousel.PageTransition>
+                                <Carousel.Items>
+                                    <!--  Logs  -->
+                                    <ScrollViewer Margin="25,0,25,25">
+                                        <Border Classes="SettingsCategoryBorder">
+                                            <Grid RowDefinitions="Auto, *, Auto">
+                                                <!--  Title  -->
+                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.edit.latestLog}" />
+
+                                                <!--  Log content  -->
+                                                <Border Grid.Row="1" Classes="GridInnerContent" Margin="0, 0, 0, 15">
+                                                    <ScrollViewer
+                                                        Name="LogsScrollViewer"
+                                                        HorizontalScrollBarVisibility="Disabled"
+                                                        VerticalScrollBarVisibility="Auto">
+                                                        <TextBlock
+                                                            FontFamily="Consolas"
+                                                            FontSize="11"
+                                                            Opacity="0.8"
+                                                            Text="{Binding Logs}"
+                                                            TextWrapping="Wrap" />
                                                     </ScrollViewer>
                                                 </Border>
+                                                
                                                 <!--  Actions  -->
                                                 <Grid
                                                     Grid.Row="2"
-                                                    ColumnDefinitions="Auto, Auto, Auto"
-                                                    ColumnSpacing="5">
-                                                    <!--  Add button  -->
-                                                    <Button Classes="IconBtn" Click="AddEnvironmentRow_OnClick" IsEnabled="{Binding InstanceConfig.EnableEnvironment}">
+                                                    ColumnDefinitions="*, Auto, Auto, Auto"
+                                                    ColumnSpacing="5"
+                                                    Margin="4, 0">
+                                                    <!--  Search bar  -->
+                                                    <TextBox
+                                                        Grid.Column="0"
+                                                        Classes="TextInput"
+                                                        Watermark="{lang:Translate common.search}" />
+                                                    <!--  To bottom button  -->
+                                                    <Button
+                                                        Grid.Column="1"
+                                                        Classes="IconBtn"
+                                                        Command="{Binding ScrollLogsToEndCommand}">
                                                         <WrapPanel Classes="IconBtnWrapper">
-                                                            <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#x2b;" />
-                                                            <TextBlock Text="{lang:Translate common.add}" VerticalAlignment="Center" />
+                                                            <TextBlock
+                                                                VerticalAlignment="Center"
+                                                                Classes="FontAwesome"
+                                                                Text="&#xe4b8;" />
+                                                            <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.bottom}" />
                                                         </WrapPanel>
                                                     </Button>
-                                                    <!--  Remove button  -->
-                                                    <Button Grid.Column="1" Classes="IconBtn" Click="RemoveEnvironmentRow_OnClick" IsEnabled="{Binding CanRemoveEnvironmentVariable}">
+                                                    <!--  Copy button  -->
+                                                    <Button
+                                                        Grid.Column="2"
+                                                        Classes="IconBtn"
+                                                        Command="{Binding CopyLogsCommand}">
                                                         <WrapPanel Classes="IconBtnWrapper">
-                                                            <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf068;" />
-                                                            <TextBlock Text="{lang:Translate common.remove}" VerticalAlignment="Center" />
+                                                            <TextBlock
+                                                                VerticalAlignment="Center"
+                                                                Classes="FontAwesome"
+                                                                Text="&#xf0c5;" />
+                                                            <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.copy}" />
                                                         </WrapPanel>
                                                     </Button>
                                                     <!--  Clear button  -->
-                                                    <Button Grid.Column="2" Classes="IconBtn" Click="ClearEnvironmentTable_OnClick" IsEnabled="{Binding InstanceConfig.EnableEnvironment}">
+                                                    <Button
+                                                        Grid.Column="3"
+                                                        Classes="IconBtn ErrorBtn"
+                                                        Command="{Binding ClearLogsCommand}">
                                                         <WrapPanel Classes="IconBtnWrapper">
-                                                            <TextBlock Classes="FontAwesome" VerticalAlignment="Center" Text="&#xf1f8;" />
-                                                            <TextBlock Text="{lang:Translate common.clear}" VerticalAlignment="Center" />
+                                                            <TextBlock
+                                                                VerticalAlignment="Center"
+                                                                Classes="FontAwesome"
+                                                                Text="&#xf1b8;" />
+                                                            <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.clear}" />
                                                         </WrapPanel>
                                                     </Button>
                                                 </Grid>
                                             </Grid>
-                                        </ScrollViewer>
-                                    </Border>
-                                </TabItem>
-                                <!-- Misc Settings  -->
-                                <TabItem Classes="ModalTabItem" Header="{lang:Translate settings.tab.misc}">
-                                    <Border Classes="ModalInnerScrollableWrapper">
-                                        <ScrollViewer Classes="ModalScrollViewer">
-                                            <Grid RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto" RowSpacing="10">
-                                                <!--  Subtitle  -->
-                                                <TextBlock Classes="SettingsCategory" Text="{lang:Translate settings.misc.subtitle.nativeLibraries}" />
-                                                <!--  Use custom GLFW  -->
-                                                <CheckBox Grid.Row="1" IsChecked="{Binding InstanceConfig.Misc.UseCustomGlfw}">
-                                                    <TextBlock Text="{lang:Translate settings.misc.customGLFW}" />
-                                                </CheckBox>
-                                                <!--  GLFW library path  -->
-                                                <Grid Grid.Row="2" ColumnDefinitions="Auto, *" RowDefinitions="Auto">
-                                                    <!--  Text  -->
-                                                    <TextBlock Classes="TextInput" Text="{lang:Translate settings.misc.pathGLFW}" />
-                                                    <!--  Input  -->
-                                                    <TextBox Grid.Column="1"
-                                                        Classes="TextInput"
-                                                        Text="{Binding InstanceConfig.Misc.CustomGlfwPath}"
-                                                        Watermark="{lang:Translate common.select.file}"
-                                                        IsEnabled="{Binding InstanceConfig.Misc.UseCustomGlfw}"/>
-                                                </Grid>
-                                                <!--  Use custom OpenAL  -->
-                                                <CheckBox Grid.Row="3" IsChecked="{Binding InstanceConfig.Misc.UseCustomOpenAL}">
-                                                    <TextBlock Text="{lang:Translate settings.misc.customOpenAL}" />
-                                                </CheckBox>
-                                                <!--  OpenAL library path  -->
-                                                <Grid Grid.Row="4" ColumnDefinitions="Auto, *" RowDefinitions="Auto">
-                                                    <!--  Text  -->
-                                                    <TextBlock Classes="TextInput" Text="{lang:Translate settings.misc.pathOpenAL}" />
-                                                    <!--  Input  -->
-                                                    <TextBox Grid.Column="1"
-                                                        Classes="TextInput"
-                                                        Text="{Binding InstanceConfig.Misc.CustomOpenALPath}"
-                                                        Watermark="{lang:Translate common.select.file}"
-                                                        IsEnabled="{Binding InstanceConfig.Misc.UseCustomOpenAL}" />
-                                                </Grid>
-                                                <!-- Preference Settings  -->
-                                                <TextBlock Grid.Row="5" Classes="SettingsCategory" Text="{lang:Translate settings.misc.subtitle.preferences}" />
-                                                <!--  Override Account  -->
-                                                <CheckBox Grid.Row="6" IsChecked="{Binding InstanceConfig.Misc.OverrideAccount}">
-                                                    <TextBlock Text="{lang:Translate settings.misc.overrideAccount}" />
-                                                </CheckBox>
-                                                <!--  Account  -->
-                                                <Grid Grid.Row="7" ColumnDefinitions="Auto, *">
-                                                    <!--  Text  -->
-                                                    <TextBlock Classes="TextDropdown" Text="{lang:Translate settings.misc.account}" />
-                                                    <!--  Input  -->
-                                                    <ComboBox Grid.Column="1"
-                                                        Classes="TextDropdown"
-                                                        IsEnabled="{Binding InstanceConfig.Misc.OverrideAccount}"
-                                                        ItemsSource="{Binding Accounts}"
-                                                        SelectionChanged="OverridenAccount_SelectionChanged"
-                                                        SelectedIndex="{Binding OverridenAccountIndex}"
-                                                        DisplayMemberBinding="{Binding DisplayName}">
-                                                    </ComboBox>
-                                                </Grid>
-                                                <!--  Set target server  -->
-                                                <CheckBox Grid.Row="8" IsChecked="{Binding InstanceConfig.Misc.JoinServerOnLaunch}">
-                                                    <TextBlock Text="{lang:Translate settings.misc.serverQuickPlay}" />
-                                                </CheckBox>
-                                                <!--  Server address  -->
-                                                <Grid Grid.Row="9" ColumnDefinitions="Auto, *">
-                                                    <!--  Text  -->
-                                                    <TextBlock Classes="TextDropdown" Text="{lang:Translate settings.misc.serverAddress}" />
-                                                    <!--  Input  -->
-                                                    <TextBox Grid.Column="1"
-                                                        Classes="TextInput"
-                                                        Text="{Binding InstanceConfig.Misc.ServerAddress}"
-                                                        Watermark="192.168.1.0:25565"
-                                                        IsEnabled="{Binding InstanceConfig.Misc.JoinServerOnLaunch}"/>
-                                                </Grid>
-                                            </Grid>
-                                        </ScrollViewer>
-                                    </Border>
-                                </TabItem>
-                            </TabControl>
-                        </Border>
-                    </TabItem>
-                </TabControl>
+                                        </Border>
+                                    </ScrollViewer>
+                                    
+                                    <!-- Mods -->
+                                    
+                                    <!-- Resource Packs -->
+                                    
+                                    <!-- Shader Packs -->
+                                    
+                                    <!-- Worlds -->
+                                    
+                                    <!-- Servers -->
+                                    
+                                    <!-- Screenshots -->
+                                    
+                                    <!-- Settings -->
+                                    
+                                </Carousel.Items>
+                            </Carousel>
+                        </Grid>
+                    </Border>
+                </Grid>
             </Grid>
-        </Grid>
-    </Border>
-    
-    <!-- Resize overlay (8px grips) -->
-    <Grid RowDefinitions="8,*,8" ColumnDefinitions="8,*,8">
-        <!-- Edges -->
-        <Border Grid.Row="0" Grid.Column="1" Background="Transparent" Cursor="TopSide" 
-                Tag="North" PointerPressed="ResizeHandle_PointerPressed"/>
-        <Border Grid.Row="2" Grid.Column="1" Background="Transparent" Cursor="BottomSide"
-                Tag="South" PointerPressed="ResizeHandle_PointerPressed"/>
-        <Border Grid.Row="1" Grid.Column="0" Background="Transparent" Cursor="LeftSide"
-                Tag="West" PointerPressed="ResizeHandle_PointerPressed"/>
-        <Border Grid.Row="1" Grid.Column="2" Background="Transparent" Cursor="RightSide"
-                Tag="East" PointerPressed="ResizeHandle_PointerPressed"/>
+        </Border>
 
-        <!-- Corners -->
-        <Border Grid.Row="0" Grid.Column="0" Background="Transparent" Cursor="TopLeftCorner"
-                Tag="NorthWest" PointerPressed="ResizeHandle_PointerPressed"/>
-        <Border Grid.Row="0" Grid.Column="2" Background="Transparent" Cursor="TopRightCorner"
-                Tag="NorthEast" PointerPressed="ResizeHandle_PointerPressed"/>
-        <Border Grid.Row="2" Grid.Column="0" Background="Transparent" Cursor="BottomLeftCorner"
-                Tag="SouthWest" PointerPressed="ResizeHandle_PointerPressed"/>
-        <Border Grid.Row="2" Grid.Column="2" Background="Transparent" Cursor="BottomRightCorner"
-                Tag="SouthEast" PointerPressed="ResizeHandle_PointerPressed"/>
+        <!--  Resize overlay (8px grips)  -->
+        <Grid ColumnDefinitions="8,*,8" RowDefinitions="8,*,8">
+            <!--  Edges  -->
+            <Border
+                Grid.Row="0"
+                Grid.Column="1"
+                Background="Transparent"
+                Cursor="TopSide"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="North" />
+            <Border
+                Grid.Row="2"
+                Grid.Column="1"
+                Background="Transparent"
+                Cursor="BottomSide"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="South" />
+            <Border
+                Grid.Row="1"
+                Grid.Column="0"
+                Background="Transparent"
+                Cursor="LeftSide"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="West" />
+            <Border
+                Grid.Row="1"
+                Grid.Column="2"
+                Background="Transparent"
+                Cursor="RightSide"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="East" />
+
+            <!--  Corners  -->
+            <Border
+                Grid.Row="0"
+                Grid.Column="0"
+                Background="Transparent"
+                Cursor="TopLeftCorner"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="NorthWest" />
+            <Border
+                Grid.Row="0"
+                Grid.Column="2"
+                Background="Transparent"
+                Cursor="TopRightCorner"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="NorthEast" />
+            <Border
+                Grid.Row="2"
+                Grid.Column="0"
+                Background="Transparent"
+                Cursor="BottomLeftCorner"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="SouthWest" />
+            <Border
+                Grid.Row="2"
+                Grid.Column="2"
+                Background="Transparent"
+                Cursor="BottomRightCorner"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="SouthEast" />
+        </Grid>
     </Grid>
-</Grid>
 </Window>

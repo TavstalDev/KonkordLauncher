@@ -203,7 +203,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
         EPlatformType.FTB
     ];
     
-    public string? ModpackPreview => SelectedModpack == null ? "<p>Select a modpack to see its preview.</p>" : SelectedModpack.RawPage;
+    public string? ModpackPreview => SelectedModpack == null ? "<p>" + TranslationManager.Translate("instance.create.modpack.preview.select") +"</p>" : SelectedModpack.RawPage;
 
     #endregion
 

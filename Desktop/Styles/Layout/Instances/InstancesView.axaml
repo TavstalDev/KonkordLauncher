@@ -6,7 +6,7 @@
     
     <!-- Title Style -->
     <Style Selector="TextBlock.InstanceTitle">
-        <Setter Property="FontSize" Value="24" />
+        <Setter Property="FontSize" Value="20" />
         <Setter Property="FontWeight" Value="600" />
         <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
         <Setter Property="Margin" Value="0, 0, 0, 20" />

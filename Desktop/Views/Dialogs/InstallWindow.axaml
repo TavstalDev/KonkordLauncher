@@ -6,9 +6,9 @@
     xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
-    Title="Installing..."
+    Title="{lang:Translate install.title}"
     Width="400"
-    Height="175"
+    MinHeight="175"
     d:DesignHeight="175"
     d:DesignWidth="400"
     x:DataType="models:InstallViewModel"
@@ -23,6 +23,7 @@
     TransparencyLevelHint="Transparent"
     UseLayoutRounding="True"
     WindowStartupLocation="CenterScreen"
+    SizeToContent="Height"
     mc:Ignorable="d">
     <Border
         Background="{DynamicResource base-200}"
@@ -33,29 +34,35 @@
         <Grid RowDefinitions="Auto, *">
             <!--  Window Controls  -->
             <Border HorizontalAlignment="Stretch" PointerPressed="DragStart_PointerPressed">
-                <StackPanel Classes="WindowBtnPanel">
-                    <!--  MINIMIZE  -->
-                    <Button
-                        Classes="WindowBtn WarningBtn"
-                        Command="{Binding MinimizeWindowCommand}"
-                        ToolTip.Tip="{lang:Translate main.window.minimize}" />
-                    <!--  MAXIMIZE / RESTORE  -->
-                    <Button
-                        Classes="WindowBtn SuccessBtn"
-                        Command="{Binding MaximizeWindowCommand}"
-                        IsEnabled="{Binding $parent[Window].CanResize}"
-                        ToolTip.Tip="{lang:Translate main.window.maximize}" />
-                    <!--  CLOSE  -->
-                    <Button
-                        Classes="WindowBtn ErrorBtn"
-                        Command="{Binding CloseWindowCommand}"
-                        ToolTip.Tip="{lang:Translate main.window.close}" />
-                </StackPanel>
+                <Grid ColumnDefinitions="*, Auto">
+                    <!-- Window Title  -->
+                    <TextBlock Classes="WindowTitle" Text="{Binding $parent[Window].Title}" />
+                        
+                    <!--  Window Buttons  -->
+                    <StackPanel Grid.Column="1" Classes="WindowBtnPanel">
+                        <!--  MINIMIZE  -->
+                        <Button
+                            Classes="WindowBtn WarningBtn"
+                            Command="{Binding MinimizeWindowCommand}"
+                            ToolTip.Tip="{lang:Translate main.window.minimize}" />
+                        <!--  MAXIMIZE / RESTORE  -->
+                        <Button
+                            Classes="WindowBtn SuccessBtn"
+                            Command="{Binding MaximizeWindowCommand}"
+                            IsEnabled="{Binding $parent[Window].CanResize}"
+                            ToolTip.Tip="{lang:Translate main.window.maximize}" />
+                        <!--  CLOSE  -->
+                        <Button
+                            Classes="WindowBtn ErrorBtn"
+                            Command="{Binding CloseWindowCommand}"
+                            ToolTip.Tip="{lang:Translate main.window.close}" />
+                    </StackPanel>
+                </Grid>
             </Border>
             <!--  Main Content  -->
             <Border
                 Grid.Row="1"
-                Padding="20,0,20,35"
+                Padding="20,5,20,35"
                 Classes="ModalView"
                 PointerPressed="DragStart_PointerPressed">
                 <StackPanel Classes="ModalWrapper" Spacing="15">

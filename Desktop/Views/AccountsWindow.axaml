@@ -37,31 +37,37 @@
             <Grid RowDefinitions="Auto, *">
                 <!--  Window Controls  -->
                 <Border HorizontalAlignment="Stretch" PointerPressed="DragStart_PointerPressed">
-                    <StackPanel Classes="WindowBtnPanel">
-                        <!--  MINIMIZE  -->
-                        <Button
-                            Classes="WindowBtn WarningBtn"
-                            Command="{Binding MinimizeWindowCommand}"
-                            ToolTip.Tip="{lang:Translate main.window.minimize}" />
-                        <!--  MAXIMIZE / RESTORE  -->
-                        <Button
-                            Classes="WindowBtn SuccessBtn"
-                            Command="{Binding MaximizeWindowCommand}"
-                            IsEnabled="{Binding $parent[Window].CanResize}"
-                            ToolTip.Tip="{lang:Translate main.window.maximize}" />
-                        <!--  CLOSE  -->
-                        <Button
-                            Classes="WindowBtn ErrorBtn"
-                            Command="{Binding CloseWindowCommand}"
-                            ToolTip.Tip="{lang:Translate main.window.close}" />
-                    </StackPanel>
+                    <Grid ColumnDefinitions="*, Auto">
+                        <!-- Window Title  -->
+                        <TextBlock Classes="WindowTitle" Text="{Binding $parent[Window].Title}" />
+                        
+                        <!--  Window Buttons  -->
+                        <StackPanel Grid.Column="1" Classes="WindowBtnPanel">
+                            <!--  MINIMIZE  -->
+                            <Button
+                                Classes="WindowBtn WarningBtn"
+                                Command="{Binding MinimizeWindowCommand}"
+                                ToolTip.Tip="{lang:Translate main.window.minimize}" />
+                            <!--  MAXIMIZE / RESTORE  -->
+                            <Button
+                                Classes="WindowBtn SuccessBtn"
+                                Command="{Binding MaximizeWindowCommand}"
+                                IsEnabled="{Binding $parent[Window].CanResize}"
+                                ToolTip.Tip="{lang:Translate main.window.maximize}" />
+                            <!--  CLOSE  -->
+                            <Button
+                                Classes="WindowBtn ErrorBtn"
+                                Command="{Binding CloseWindowCommand}"
+                                ToolTip.Tip="{lang:Translate main.window.close}" />
+                        </StackPanel>
+                    </Grid>
                 </Border>
                 <!--  Main Content  -->
                 <StackPanel
                     Grid.Row="1"
-                    Margin="20,0,20,20"
+                    Margin="20,5,20,20"
                     IsVisible="{Binding !IsProcessingLogin}">
-                    <TextBlock Classes="ModalTitle" Text="{lang:Translate auth.title}" />
+                    <TextBlock Classes="ModalTitle" Text="{lang:Translate auth.add.account}" />
                     <TabControl Classes="ModalTab">
                         <!--  Microsoft account login tab  -->
                         <TabItem Classes="ModalTabItem" Header="{lang:Translate auth.tab.microsoft}">

@@ -221,6 +221,10 @@ public static class DefaultTranslationProvider
         
         {"instance.create.modpack.version", "Pack Version"},
         {"instance.create.modpack.select", "Select a modpack"},
+        {"instance.create.modpack.platform", "Platform"},
+        {"instance.create.modpack.mod.loader", "Mod Loader"},
+        {"instance.create.modpack.minecraft.version", "Minecraft Version"},
+        {"instance.create.modpack.preview.select", "Select a modpack to see its preview."},
         
         {"instance.create.import.type", "IMPORT TYPE" },
         {"instance.create.import.description", "Import an instance from a file or URL."},

@@ -169,4 +169,10 @@
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
         <Setter Property="Margin" Value="0, 0, 10, 0" />
     </Style>
+    
+    <!-- Mod Category CheckBox -->
+    <Style Selector="CheckBox.InstanceModCategory">
+        <Setter Property="Foreground" Value="{DynamicResource text-faded}" />
+        <Setter Property="FontSize" Value="13" />
+    </Style>
 </Styles>

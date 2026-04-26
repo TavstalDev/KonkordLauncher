@@ -354,7 +354,7 @@
                                                         Classes="TextInput"
                                                         FontSize="12"
                                                         Foreground="{DynamicResource text-muted}"
-                                                        Text="Platform" />
+                                                        Text="{lang:Translate instance.create.modpack.platform}" />
                                                     <!--  Input  -->
                                                     <ComboBox
                                                         Grid.Row="1"
@@ -376,7 +376,7 @@
                                                         Classes="TextInput"
                                                         FontSize="12"
                                                         Foreground="{DynamicResource text-muted}"
-                                                        Text="Mod Loader" />
+                                                        Text="{lang:Translate instance.create.modpack.mod.loader}" />
                                                     <!--  Input  -->
                                                     <ComboBox
                                                         Grid.Row="1"
@@ -401,7 +401,7 @@
                                                         Classes="TextInput"
                                                         FontSize="12"
                                                         Foreground="{DynamicResource text-muted}"
-                                                        Text="Minecraft Version" />
+                                                        Text="{lang:Translate instance.create.modpack.minecraft.version}" />
                                                     <!--  Input  -->
                                                     <ComboBox
                                                         Grid.Row="1"
@@ -423,53 +423,43 @@
                                                     <!--  Adventure Checkbox  -->
                                                     <CheckBox
                                                         Content="{lang:Translate instance.create.category.adventure}"
-                                                        FontSize="14"
-                                                        Foreground="{DynamicResource text-faded}" />
+                                                        Classes="InstanceModCategory" />
                                                     <!--  Challenging Checkbox  -->
                                                     <CheckBox
                                                         Content="{lang:Translate instance.create.category.challenging}"
-                                                        FontSize="14"
-                                                        Foreground="{DynamicResource text-faded}" />
+                                                        Classes="InstanceModCategory" />
                                                     <!--  Combat Checkbox  -->
                                                     <CheckBox
                                                         Content="{lang:Translate instance.create.category.combat}"
-                                                        FontSize="14"
-                                                        Foreground="{DynamicResource text-faded}" />
+                                                        Classes="InstanceModCategory" />
                                                     <!--  Kitchen Sink Checkbox  -->
                                                     <CheckBox
                                                         Content="{lang:Translate instance.create.category.kitchenSink}"
-                                                        FontSize="14"
-                                                        Foreground="{DynamicResource text-faded}" />
+                                                        Classes="InstanceModCategory" />
                                                     <!--  Lightweight Checkbox  -->
                                                     <CheckBox
                                                         Content="{lang:Translate instance.create.category.lightweight}"
-                                                        FontSize="14"
-                                                        Foreground="{DynamicResource text-faded}" />
+                                                        Classes="InstanceModCategory" />
                                                     <!--  Magic Checkbox  -->
                                                     <CheckBox
                                                         Content="{lang:Translate instance.create.category.magic}"
-                                                        FontSize="14"
-                                                        Foreground="{DynamicResource text-faded}" />
+                                                        Classes="InstanceModCategory" />
                                                     <!--  Multiplayer Checkbox  -->
                                                     <CheckBox
                                                         Content="{lang:Translate instance.create.category.multiplayer}"
-                                                        FontSize="14"
-                                                        Foreground="{DynamicResource text-faded}" />
+                                                        Classes="InstanceModCategory" />
                                                     <!--  Optimization Checkbox  -->
                                                     <CheckBox
                                                         Content="{lang:Translate instance.create.category.optimization}"
-                                                        FontSize="14"
-                                                        Foreground="{DynamicResource text-faded}" />
+                                                        Classes="InstanceModCategory" />
                                                     <!--  Quests Checkbox  -->
                                                     <CheckBox
                                                         Content="{lang:Translate instance.create.category.quests}"
-                                                        FontSize="14"
-                                                        Foreground="{DynamicResource text-faded}" />
+                                                        Classes="InstanceModCategory" />
                                                     <!--  Technology Checkbox  -->
                                                     <CheckBox
                                                         Content="{lang:Translate instance.create.category.technology}"
-                                                        FontSize="14"
-                                                        Foreground="{DynamicResource text-faded}" />
+                                                        Classes="InstanceModCategory" />
                                                 </StackPanel>
                                             </Grid>
                                         </Border>

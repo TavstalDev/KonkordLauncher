@@ -52,7 +52,9 @@ public partial class EditInstanceViewModel : KonkordObservableObject
 
     #region Interactions
 
-    public Interaction<Unit, Unit> CloseWindow { get; } = new();
+    public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
+    public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
+    public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
     public Interaction<Alert, Unit> ShowAlertDialog { get; } = new();
     public Interaction<Unit, JavaVersionModel?> ShowJavaPathSelector { get; } = new();
     public Interaction<string, Unit> SetClipboardText { get; } = new();
@@ -297,6 +299,26 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         SelectedScreenshot?.Image?.Dispose();
         SelectedScreenshot = null;
     }
+    
+    #region Window
+    [RelayCommand]
+    public async Task MinimizeWindow()
+    {
+        await MinimizeWindowInteraction.Handle(Unit.Default);
+    }
+
+    [RelayCommand]
+    public async Task MaximizeWindow()
+    {
+        await MaximizeWindowInteraction.Handle(Unit.Default);
+    }
+
+    [RelayCommand]
+    public async Task CloseWindow()
+    {
+        await CloseWindowInteraction.Handle(Unit.Default);
+    }
+    #endregion
 
     #region Logs
 
@@ -1084,9 +1106,9 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     [RelayCommand]
     private async Task ServersJoinCommand(ServerModel server)
     {
-        // TOOO: Implement server joining logic
+        // TODO: Implement server joining logic
         //await _instance.LaunchAsync(_parentWindow, server.Ip);
-        await CloseWindow.Handle(Unit.Default);
+        await CloseWindowInteraction.Handle(Unit.Default);
     }
 
     /// <summary>

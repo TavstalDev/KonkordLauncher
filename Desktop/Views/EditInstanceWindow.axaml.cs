@@ -56,9 +56,21 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
         DataContext = new EditInstanceViewModel(instanceId);
         this.WhenActivated(disposables =>
         {
-            DataContext.CloseWindow.RegisterHandler(action =>
+            DataContext.MinimizeWindowInteraction.RegisterHandler(action =>
             {
-                this.Close();
+                WindowState = WindowState.Minimized;
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
+            DataContext.MaximizeWindowInteraction.RegisterHandler(action =>
+            {
+                WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
+            DataContext.CloseWindowInteraction.RegisterHandler(action =>
+            {
+                Close();
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             }).DisposeWith(disposables);
@@ -86,19 +98,19 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
             }).DisposeWith(disposables);
             DataContext.BeginScreenshotRename.RegisterHandler(action =>
             {
-                ScreenshotsTable.BeginEdit();
+                //ScreenshotsTable.BeginEdit();
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             }).DisposeWith(disposables);
             DataContext.BeginWorldRename.RegisterHandler(action =>
             {
-                WorldsTable.BeginEdit();
+                //WorldsTable.BeginEdit();
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             }).DisposeWith(disposables);
             DataContext.LogsScrollToEnd.RegisterHandler(action =>
             {
-                LogsScrollViewer.Offset =  new Vector(0, LogsScrollViewer.Extent.Height);
+                //LogsScrollViewer.Offset =  new Vector(0, LogsScrollViewer.Extent.Height);
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             });

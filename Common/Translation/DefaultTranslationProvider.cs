@@ -262,7 +262,7 @@ public static class DefaultTranslationProvider
         {"instance.edit.tab.screenshots", "Screenshots"},
         {"instance.edit.tab.settings", "Settings"},
         
-        {"instance.edit.latestLog", "Latest Log"},
+        {"instance.edit.latestLog", "LATEST LOG"},
         
         {"instance.edit.subTitle.window", "Window"},
         {"instance.edit.subTitle.console", "Console"},

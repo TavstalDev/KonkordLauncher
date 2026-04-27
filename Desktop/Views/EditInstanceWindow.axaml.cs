@@ -16,6 +16,7 @@ using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
+using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
@@ -28,16 +29,14 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceWindow));
+    private Button _selectedInstanceTab;
+    private Button _selectedSettingsTab;
     
     /// <summary>
     /// Initializes a new instance of the <see cref="EditInstanceWindow"/> class.
     /// Sets up the data context with an empty instance ID and initializes components.
     /// </summary>
-    public EditInstanceWindow()
-    {
-        InitializeComponent();
-        DataContext = new EditInstanceViewModel(string.Empty);
-    }
+    public EditInstanceWindow() : this(string.Empty) { }
     
     /// <summary>
     /// Initializes a new instance of the <see cref="EditInstanceWindow"/> class with a specific instance ID.
@@ -54,6 +53,9 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
 #endif
         
         DataContext = new EditInstanceViewModel(instanceId);
+        _selectedInstanceTab = LogsTabBtn;
+        _selectedSettingsTab = JavaSettingsBtn;
+        
         this.WhenActivated(disposables =>
         {
             DataContext.MinimizeWindowInteraction.RegisterHandler(action =>
@@ -74,11 +76,28 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             }).DisposeWith(disposables);
+            DataContext.TabSwitchInteraction.RegisterHandler(action =>
+            {
+                HandleTabSwitch(action.Input);
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
+            DataContext.SettingsTabSwitchInteraction.RegisterHandler(action =>
+            {
+                HandleSettingsTabSwitch(action.Input);
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
             DataContext.ShowAlertDialog.RegisterHandler(async action =>
             {
                 AlertWindow alertWindow = new(action.Input.Title, action.Input.Message, action.Input.Type);
                 await alertWindow.ShowDialog(this);
                 action.SetOutput(Unit.Default);
+            }).DisposeWith(disposables);
+            DataContext.ShowDirPickerInteraction.RegisterHandler(async action =>
+            {
+                var result = await OpenFolderPickerAsync(action.Input);
+                action.SetOutput(result);
             }).DisposeWith(disposables);
             DataContext.ShowJavaPathSelector.RegisterHandler(async action =>
             {
@@ -98,19 +117,19 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
             }).DisposeWith(disposables);
             DataContext.BeginScreenshotRename.RegisterHandler(action =>
             {
-                //ScreenshotsTable.BeginEdit();
+                ScreenshotsTable.BeginEdit();
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             }).DisposeWith(disposables);
             DataContext.BeginWorldRename.RegisterHandler(action =>
             {
-                //WorldsTable.BeginEdit();
+                WorldsTable.BeginEdit();
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             }).DisposeWith(disposables);
             DataContext.LogsScrollToEnd.RegisterHandler(action =>
             {
-                //LogsScrollViewer.Offset =  new Vector(0, LogsScrollViewer.Extent.Height);
+                LogsScrollViewer.Offset =  new Vector(0, LogsScrollViewer.Extent.Height);
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             });
@@ -139,6 +158,106 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
         App.UpdateRPC("Browsing instances...");
     }
 
+    private void HandleTabSwitch(EEditInstanceTab tab)
+    {
+        if (DataContext is not { } viewModel)
+            return;
+        
+        if (viewModel.EditInstanceTab == tab)
+            return;
+
+        viewModel.EditInstanceTab = tab;
+        _selectedInstanceTab.Classes.Remove("SettingsTabBtnActive");
+
+        switch (tab)
+        {
+            case EEditInstanceTab.LOGS:
+            {
+                _selectedInstanceTab = LogsTabBtn;
+                break;
+            }
+            case EEditInstanceTab.MODS:
+            {
+                _selectedInstanceTab = ModsTabBtn;
+                break;
+            }
+            case EEditInstanceTab.RESOURCE_PACKS:
+            {
+                _selectedInstanceTab = ResourcePacksTabBtn;
+                break;
+            }
+            case EEditInstanceTab.SHADER_PACKS:
+            {
+                _selectedInstanceTab = ShaderPacksTabBtn;
+                break;
+            }
+            case EEditInstanceTab.WORLDS:
+            {
+                _selectedInstanceTab = WorldsTabBtn;
+                break;
+            }
+            case EEditInstanceTab.SERVERS:
+            {
+                _selectedInstanceTab = ServersTabBtn;
+                break;
+            }
+            case EEditInstanceTab.SCREENSHOTS:
+            {
+                _selectedInstanceTab = ScreenshotsTabBtn;
+                break;
+            }
+            case EEditInstanceTab.SETTINGS:
+            {
+                _selectedInstanceTab = SettingsTabBtn;
+                break;
+            }
+        }
+
+        _selectedInstanceTab.Classes.Add("SettingsTabBtnActive");
+    }
+
+    private void HandleSettingsTabSwitch(EInstanceSettingsTab tab)
+    {
+        if (DataContext is not { } viewModel)
+            return;
+        
+        if (viewModel.InstanceSettingsTab == tab)
+            return;
+
+        viewModel.InstanceSettingsTab = tab;
+        _selectedSettingsTab.Classes.Remove("SettingsTabBtnActive");
+
+        switch (tab)
+        {
+            case EInstanceSettingsTab.JAVA:
+            {
+                _selectedSettingsTab = JavaSettingsBtn;
+                break;
+            }
+            case EInstanceSettingsTab.GAME:
+            {
+                _selectedSettingsTab = GameSettingsBtn;
+                break;
+            }
+            case EInstanceSettingsTab.CUSTOM_COMMAND:
+            {
+                _selectedSettingsTab = CustomCommandSettingsBtn;
+                break;
+            }
+            case EInstanceSettingsTab.ENVIRONMENT:
+            {
+                _selectedSettingsTab = EnvironmentSettingsBtn;
+                break;
+            }
+            case EInstanceSettingsTab.MISC:
+            {
+                _selectedSettingsTab = MiscSettingsBtn;
+                break;
+            }
+        }
+
+        _selectedSettingsTab.Classes.Add("SettingsTabBtnActive");
+    }
 
     #region Action Handlers
     
@@ -326,82 +445,6 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     }
 
     #endregion
-
-    #endregion
-
-    #region Java Path Selection
-
-    /// <summary>
-    /// Handles the click event for selecting the Java path.
-    /// Opens a folder picker dialog and updates the Java path in the InstanceConfig if a folder is selected.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The event data associated with the click event.</param>
-    private void JavaPathSelect_OnClick(object? sender, RoutedEventArgs e)
-    {
-        if (DataContext == null)
-            return;
-
-        var directoryResult = OpenFolderPickerAsync();
-        directoryResult.ContinueWith(task =>
-        {
-            if (!task.IsCompletedSuccessfully)
-                return;
-
-            if (task.Result is not { } resultPath)
-                return;
-
-            DataContext.InstanceConfig.Java.DefaultJavaPath = resultPath;
-        });
-    }
-
-    /// <summary>
-    /// Opens a folder picker dialog to allow the user to select a folder.
-    /// </summary>
-    /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains the path of the selected folder
-    /// as a string, or null if no folder was selected or if folder picking is not supported.
-    /// </returns>
-    private async Task<string?> OpenFolderPickerAsync()
-    {
-        // Ensure the VisualRoot is a TopLevel object
-        if (VisualRoot is not TopLevel topLevel)
-            return null;
-
-        var storageProvider = topLevel.StorageProvider;
-
-        // Check if folder picking is supported on the current platform
-        if (!storageProvider.CanPickFolder)
-        {
-            _logger.Error("Folder picking is not supported on this platform.");
-            return null;
-        }
-
-        // Configure folder picker options
-        var options = new FolderPickerOpenOptions
-        {
-            Title = TranslationManager.Translate("common.select.directory"),
-            AllowMultiple = false
-        };
-
-        // Open the folder picker dialog
-        IReadOnlyList<IStorageFolder> folders = await storageProvider.OpenFolderPickerAsync(options);
-
-        // Return null if no folders were selected
-        if (!folders.Any())
-            return null;
-
-        // Get the first selected folder
-        IStorageFolder? selectedFolder = folders.FirstOrDefault();
-        if (selectedFolder == null)
-        {
-            _logger.Error("No folder was selected.");
-            return null;
-        }
-
-        // Return the local path of the selected folder
-        return selectedFolder.Path.LocalPath;
-    }
 
     #endregion
 

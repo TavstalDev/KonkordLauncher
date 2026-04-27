@@ -66,38 +66,6 @@ public static class LauncherHelper
     }
 
     /// <summary>
-    /// Retrieves the account data from the configuration file.
-    /// If the file does not exist or is invalid, a new account data configuration is created and saved.
-    /// </summary>
-    /// <returns>The account data as an <see cref="AccountData"/> object.</returns>
-    [Obsolete("This method is synchronous and may cause UI freezes. Use GetAccountDataAsync instead.")]
-    public static AccountData GetAccountData()
-    {
-        if (!File.Exists(PathHelper.LauncherAccountsPath))
-        {
-            AccountData result = new AccountData();
-            JsonHelper.WriteJsonFile(PathHelper.LauncherAccountsPath, result);
-
-            foreach (var account in result.Accounts)
-                account.IsSelected = result.SelectedAccountId == account.Id;
-            return result;
-        }
-
-        var readResult = JsonHelper.ReadJsonFile<AccountData>(PathHelper.LauncherAccountsPath);
-        if (readResult == null)
-        {
-            AccountData result = new AccountData();
-            JsonHelper.WriteJsonFile(PathHelper.LauncherAccountsPath, result);
-            foreach (var account in result.Accounts)
-                account.IsSelected = result.SelectedAccountId == account.Id;
-            return result;
-        }
-        foreach (var account in readResult.Accounts)
-            account.IsSelected = readResult.SelectedAccountId == account.Id;
-        return readResult;
-    }
-
-    /// <summary>
     /// Asynchronously retrieves the account data from the configuration file.
     /// If the file does not exist or is invalid, a new account data configuration is created and saved.
     /// </summary>
@@ -150,7 +118,7 @@ public static class LauncherHelper
         {
             List<Instance> result = [];
             File.Move(PathHelper.LauncherInstancesPath, PathHelper.LauncherInstancesPath + ".bak", true);
-           JsonHelper.WriteJsonFile(PathHelper.LauncherInstancesPath, result);
+            JsonHelper.WriteJsonFile(PathHelper.LauncherInstancesPath, result);
             return result;
         }
         

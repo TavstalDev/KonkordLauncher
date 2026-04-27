@@ -7,6 +7,7 @@
     xmlns:local="clr-namespace:Tavstal.KonkordLauncher.Desktop"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
+    xmlns:enums="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Enums"
     Title="{lang:Translate instance.edit.window}"
     Width="900"
     Height="500"
@@ -86,6 +87,7 @@
                         BorderBrush="{DynamicResource border-two}"
                         BorderThickness="0,1,0,0">
                         <Grid ColumnDefinitions="Auto, *">
+                            
                             <!--  Tab Buttons  -->
                             <Border
                                 Padding="0,10,10,10"
@@ -96,47 +98,75 @@
                                         Margin="25,0,15,0"
                                         RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto"
                                         RowSpacing="10">
-                                        <Button HorizontalAlignment="Stretch" Classes="SettingsTabBtn SettingsTabBtnActive">
+                                        <Button 
+                                            Name="LogsTabBtn"
+                                            Command="{Binding SwitchTabCommand}"
+                                            CommandParameter="{x:Static enums:EEditInstanceTab.LOGS}"
+                                            HorizontalAlignment="Stretch" 
+                                            Classes="SettingsTabBtn SettingsTabBtnActive">
                                             <TextBlock Text="{lang:Translate instance.edit.tab.logs}" />
                                         </Button>
                                         <Button
                                             Grid.Row="1"
+                                            Name="ModsTabBtn"
+                                            Command="{Binding SwitchTabCommand}"
+                                            CommandParameter="{x:Static enums:EEditInstanceTab.MODS}"
+                                            IsVisible="{Binding !IsVanilla}"
                                             HorizontalAlignment="Stretch"
                                             Classes="SettingsTabBtn">
                                             <TextBlock Text="{lang:Translate instance.edit.tab.mods}" />
                                         </Button>
                                         <Button
                                             Grid.Row="2"
+                                            Name="ResourcePacksTabBtn"
+                                            Command="{Binding SwitchTabCommand}"
+                                            CommandParameter="{x:Static enums:EEditInstanceTab.RESOURCE_PACKS}"
                                             HorizontalAlignment="Stretch"
                                             Classes="SettingsTabBtn">
                                             <TextBlock Text="{lang:Translate instance.edit.tab.resourcePacks}" />
                                         </Button>
                                         <Button
                                             Grid.Row="3"
+                                            Name="ShaderPacksTabBtn"
+                                            Command="{Binding SwitchTabCommand}"
+                                            CommandParameter="{x:Static enums:EEditInstanceTab.SHADER_PACKS}"
+                                            IsVisible="{Binding !IsVanilla}"
                                             HorizontalAlignment="Stretch"
                                             Classes="SettingsTabBtn">
                                             <TextBlock Text="{lang:Translate instance.edit.tab.shaderPacks}" />
                                         </Button>
                                         <Button
                                             Grid.Row="4"
+                                            Name="WorldsTabBtn"
+                                            Command="{Binding SwitchTabCommand}"
+                                            CommandParameter="{x:Static enums:EEditInstanceTab.WORLDS}"
                                             HorizontalAlignment="Stretch"
                                             Classes="SettingsTabBtn">
                                             <TextBlock Text="{lang:Translate instance.edit.tab.worlds}" />
                                         </Button>
                                         <Button
                                             Grid.Row="5"
+                                            Name="ServersTabBtn"
+                                            Command="{Binding SwitchTabCommand}"
+                                            CommandParameter="{x:Static enums:EEditInstanceTab.SERVERS}"
                                             HorizontalAlignment="Stretch"
                                             Classes="SettingsTabBtn">
                                             <TextBlock Text="{lang:Translate instance.edit.tab.servers}" />
                                         </Button>
                                         <Button
                                             Grid.Row="6"
+                                            Name="ScreenshotsTabBtn"
+                                            Command="{Binding SwitchTabCommand}"
+                                            CommandParameter="{x:Static enums:EEditInstanceTab.SCREENSHOTS}"
                                             HorizontalAlignment="Stretch"
                                             Classes="SettingsTabBtn">
                                             <TextBlock Text="{lang:Translate instance.edit.tab.screenshots}" />
                                         </Button>
                                         <Button
                                             Grid.Row="7"
+                                            Name="SettingsTabBtn"
+                                            Command="{Binding SwitchTabCommand}"
+                                            CommandParameter="{x:Static enums:EEditInstanceTab.SETTINGS}"
                                             HorizontalAlignment="Stretch"
                                             Classes="SettingsTabBtn">
                                             <TextBlock Text="{lang:Translate instance.edit.tab.settings}" />
@@ -146,13 +176,16 @@
                             </Border>
 
                             <!--  Content  -->
-                            <Carousel Grid.Column="1" Margin="0,15,0,0">
+                            <Carousel Grid.Column="1" 
+                                      Margin="0,15,0,0" 
+                                      SelectedIndex="{Binding EditInstanceTab}">
                                 <Carousel.PageTransition>
                                     <CompositePageTransition>
                                         <PageSlide Orientation="Vertical" Duration="0:00:00.200" />
                                     </CompositePageTransition>
                                 </Carousel.PageTransition>
                                 <Carousel.Items>
+                                    
                                     <!--  Logs  -->
                                     <ScrollViewer Margin="25,0,25,25">
                                         <Border Classes="SettingsCategoryBorder">
@@ -231,18 +264,1202 @@
                                     </ScrollViewer>
                                     
                                     <!-- Mods -->
+                                    <ScrollViewer Margin="25,0,25,25">
+                                        <Border Classes="SettingsCategoryBorder">
+                                            <Grid RowDefinitions="Auto, *, Auto">
+                                                <!--  Title  -->
+                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.edit.tab.mods}" />
+                                                
+                                                <!--  Content  -->
+                                                <Border Grid.Row="1">
+                                                    <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
+                                                        <DataGrid
+                                                            Classes="InstanceMultiTable"
+                                                            ItemsSource="{Binding FilteredMods}"
+                                                            SelectedItem="{Binding SelectedMod}">
+                                                            <DataGrid.Columns>
+                                                                <!--  Enabled  -->
+                                                                <DataGridCheckBoxColumn
+                                                                    Width="Auto"
+                                                                    Binding="{Binding IsEnabled}"
+                                                                    Header="{lang:Translate instance.edit.table.enabled}"
+                                                                    IsReadOnly="False" />
+                                                                <!--  Image  -->
+                                                                <DataGridTemplateColumn Width="Auto" Header="{lang:Translate instance.edit.table.image}">
+                                                                    <DataGridTemplateColumn.CellTemplate>
+                                                                        <DataTemplate>
+                                                                            <Image
+                                                                                Width="32"
+                                                                                Height="32"
+                                                                                Source="{Binding Icon}"
+                                                                                Stretch="UniformToFill" />
+                                                                        </DataTemplate>
+                                                                    </DataGridTemplateColumn.CellTemplate>
+                                                                </DataGridTemplateColumn>
+                                                                <!--  Name  -->
+                                                                <DataGridTextColumn
+                                                                    Width="*"
+                                                                    Binding="{Binding Name}"
+                                                                    Header="{lang:Translate instance.edit.table.name}" />
+                                                                <!--  Version  -->
+                                                                <DataGridTextColumn
+                                                                    Width="Auto"
+                                                                    Binding="{Binding Version}"
+                                                                    Header="{lang:Translate instance.edit.table.version}" />
+                                                                <!--  Provider  -->
+                                                                <DataGridTextColumn
+                                                                    Width="Auto"
+                                                                    Binding="{Binding Provider}"
+                                                                    Header="{lang:Translate instance.edit.table.provider}" />
+                                                                <!--  Size  -->
+                                                                <DataGridTextColumn
+                                                                    Width="Auto"
+                                                                    Binding="{Binding FormattedSize}"
+                                                                    Header="{lang:Translate instance.edit.table.size}" />
+                                                            </DataGrid.Columns>
+                                                            <DataGrid.ContextMenu>
+                                                                <ContextMenu>
+                                                                    <!--  Toggle  -->
+                                                                    <MenuItem
+                                                                        Command="{Binding ModToggleCommand}"
+                                                                        CommandParameter="{Binding SelectedMod}"
+                                                                        Header="{lang:Translate common.toggle}" />
+                                                                    <Separator />
+                                                                    <!--  Check For Updates  -->
+                                                                    <MenuItem
+                                                                        Command="{Binding ModCheckUpdateCommand}"
+                                                                        CommandParameter="{Binding SelectedMod}"
+                                                                        Header="{lang:Translate instance.update.check}" />
+                                                                    <Separator />
+                                                                    <!--  Change Version  -->
+                                                                    <MenuItem
+                                                                        Command="{Binding ModChangeVersionCommand}"
+                                                                        CommandParameter="{Binding SelectedMod}"
+                                                                        Header="{lang:Translate instance.version.change}" />
+                                                                    <Separator />
+                                                                    <!--  Remove  -->
+                                                                    <MenuItem
+                                                                        Command="{Binding ModRemoveCommand}"
+                                                                        CommandParameter="{Binding SelectedMod}"
+                                                                        Header="{lang:Translate common.remove}" />
+                                                                    <Separator />
+                                                                    <!--  Download Mods  -->
+                                                                    <MenuItem Command="{Binding ModDownloadCommand}" Header="{lang:Translate instance.download.mods}" />
+                                                                    <!--  Open Folder  -->
+                                                                    <MenuItem Command="{Binding ModOpenDirectoryCommand}" Header="{lang:Translate common.open.directory}" />
+                                                                </ContextMenu>
+                                                            </DataGrid.ContextMenu>
+                                                        </DataGrid>
+                                                    </ScrollViewer>
+                                                </Border>
+                                                
+                                                <!--  Actions  -->
+                                                <Grid
+                                                    Grid.Row="2"
+                                                    ColumnDefinitions="*, Auto, Auto"
+                                                    ColumnSpacing="5"
+                                                    Margin="4, 10, 4, 0">
+                                                    <!--  Search bar  -->
+                                                    <TextBox
+                                                        Grid.Column="0"
+                                                        Classes="TextInput"
+                                                        Watermark="{lang:Translate common.search}" />
+                                                    <!--  Download  -->
+                                                    <!--  TODO  -->
+                                                    <Button
+                                                        Grid.Column="1"
+                                                        Classes="IconBtn"
+                                                        Command="{Binding ModDownloadCommand}"
+                                                        IsEnabled="False">
+                                                        <WrapPanel Classes="IconBtnWrapper">
+                                                            <TextBlock
+                                                                VerticalAlignment="Center"
+                                                                Classes="FontAwesome"
+                                                                Text="&#xf0ed;" />
+                                                            <TextBlock VerticalAlignment="Center" Text="{lang:Translate instance.edit.downloadMods}" />
+                                                        </WrapPanel>
+                                                    </Button>
+                                                    <!--  View Folder  -->
+                                                    <Button
+                                                        Grid.Column="2"
+                                                        Classes="IconBtn"
+                                                        Command="{Binding ModOpenDirectoryCommand}">
+                                                        <WrapPanel Classes="IconBtnWrapper">
+                                                            <TextBlock
+                                                                VerticalAlignment="Center"
+                                                                Classes="FontAwesome"
+                                                                Text="&#xf07c;" />
+                                                            <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.open.directory}" />
+                                                        </WrapPanel>
+                                                    </Button>
+                                                </Grid>
+                                            </Grid>
+                                        </Border>
+                                    </ScrollViewer>
                                     
                                     <!-- Resource Packs -->
+                                    <ScrollViewer Margin="25,0,25,25">
+                                         <Border Classes="SettingsCategoryBorder">
+                                            <Grid RowDefinitions="Auto, *, Auto">
+                                                <!--  Title  -->
+                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.edit.tab.resourcePacks}" />
+                                                
+                                                <!--  Content  -->
+                                                <Border Grid.Row="1">
+                                                    <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
+                                                        <DataGrid
+                                                            CellEditEnded="ResourcePacksDataGrid_OnCellEditEnded"
+                                                            Classes="InstanceMultiTable"
+                                                            IsReadOnly="False"
+                                                            ItemsSource="{Binding FilteredResourcePacks}"
+                                                            SelectedItem="{Binding SelectedResourcePack}">
+                                                            <DataGrid.Columns>
+                                                                <!--  Enabled  -->
+                                                                <DataGridCheckBoxColumn
+                                                                    Width="Auto"
+                                                                    Binding="{Binding IsEnabled, Mode=TwoWay}"
+                                                                    Header="{lang:Translate instance.edit.table.enabled}"
+                                                                    IsReadOnly="False" />
+                                                                <!--  Image  -->
+                                                                <DataGridTemplateColumn Width="Auto" Header="{lang:Translate instance.edit.table.image}">
+                                                                    <DataGridTemplateColumn.CellTemplate>
+                                                                        <DataTemplate>
+                                                                            <Image
+                                                                                Width="32"
+                                                                                Height="32"
+                                                                                Source="{Binding Icon}"
+                                                                                Stretch="UniformToFill" />
+                                                                        </DataTemplate>
+                                                                    </DataGridTemplateColumn.CellTemplate>
+                                                                </DataGridTemplateColumn>
+                                                                <!--  Name  -->
+                                                                <DataGridTextColumn
+                                                                    Width="Auto"
+                                                                    Binding="{Binding Name}"
+                                                                    Header="{lang:Translate instance.edit.table.name}"
+                                                                    IsReadOnly="True" />
+                                                                <!--  Provider  -->
+                                                                <DataGridTextColumn
+                                                                    Width="Auto"
+                                                                    Binding="{Binding Provider}"
+                                                                    Header="{lang:Translate instance.edit.table.provider}"
+                                                                    IsReadOnly="True" />
+                                                                <!--  Size  -->
+                                                                <DataGridTextColumn
+                                                                    Width="Auto"
+                                                                    Binding="{Binding FormattedSize}"
+                                                                    Header="{lang:Translate instance.edit.table.size}"
+                                                                    IsReadOnly="True" />
+                                                            </DataGrid.Columns>
+                                                            <DataGrid.ContextMenu>
+                                                                <ContextMenu>
+                                                                    <!--  Toggle  -->
+                                                                    <MenuItem
+                                                                        Command="{Binding ResourcePackToggleCommand}"
+                                                                        CommandParameter="{Binding SelectedResourcePack}"
+                                                                        Header="{lang:Translate common.toggle}" />
+                                                                    <Separator />
+                                                                    <!--  Remove  -->
+                                                                    <MenuItem
+                                                                        Command="{Binding ResourcePackRemoveCommand}"
+                                                                        CommandParameter="{Binding SelectedResourcePack}"
+                                                                        Header="{lang:Translate common.remove}" />
+                                                                    <Separator />
+                                                                    <!--  Download Packs  -->
+                                                                    <MenuItem
+                                                                        Command="{Binding ResourcePackDownloadCommand}"
+                                                                        CommandParameter="{Binding SelectedResourcePack}"
+                                                                        Header="{lang:Translate instance.download.resourcePacks}" />
+                                                                    <!--  Open Folder  -->
+                                                                    <MenuItem Command="{Binding ResourcePackOpenDirectoryCommand}" Header="{lang:Translate common.open.directory}" />
+                                                                </ContextMenu>
+                                                            </DataGrid.ContextMenu>
+                                                        </DataGrid>
+                                                    </ScrollViewer>
+                                                </Border>
+                                                
+                                                <!--  Actions  -->
+                                                <Grid
+                                                    Grid.Row="2"
+                                                    ColumnDefinitions="*, Auto, Auto"
+                                                    ColumnSpacing="5"
+                                                    Margin="4, 10, 4, 0">
+                                                    <!--  Search bar  -->
+                                                    <TextBox
+                                                        Grid.Column="0"
+                                                        Classes="TextInput"
+                                                        Text="{Binding ResourcePackSearchQuery}"
+                                                        Watermark="{lang:Translate common.search}" />
+                                                    <!--  Download  -->
+                                                    <!--  TODO  -->
+                                                    <Button
+                                                        Grid.Column="1"
+                                                        Classes="IconBtn"
+                                                        Command="{Binding ResourcePackDownloadCommand}"
+                                                        IsEnabled="False">
+                                                        <WrapPanel Classes="IconBtnWrapper">
+                                                            <TextBlock
+                                                                VerticalAlignment="Center"
+                                                                Classes="FontAwesome"
+                                                                Text="&#xf0ed;" />
+                                                            <TextBlock VerticalAlignment="Center" Text="{lang:Translate instance.edit.downloadPacks}" />
+                                                        </WrapPanel>
+                                                    </Button>
+                                                    <!--  View Folder  -->
+                                                    <Button
+                                                        Grid.Column="2"
+                                                        Classes="IconBtn"
+                                                        Command="{Binding ResourcePackOpenDirectoryCommand}">
+                                                        <WrapPanel Classes="IconBtnWrapper">
+                                                            <TextBlock
+                                                                VerticalAlignment="Center"
+                                                                Classes="FontAwesome"
+                                                                Text="&#xf07c;" />
+                                                            <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.open.directory}" />
+                                                        </WrapPanel>
+                                                    </Button>
+                                                </Grid>
+                                            </Grid>
+                                        </Border>
+                                    </ScrollViewer>
                                     
                                     <!-- Shader Packs -->
+                                    <ScrollViewer Margin="25,0,25,25">
+                                        <Border Classes="SettingsCategoryBorder">
+                                            <Grid RowDefinitions="Auto, *, Auto">
+                                                <!--  Title  -->
+                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.edit.tab.shaderPacks}" />
+                                                
+                                                <!--  Content  -->
+                                                <Border Grid.Row="1">
+                                                    <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
+                                                        <DataGrid
+                                                            Classes="InstanceMultiTable"
+                                                            ItemsSource="{Binding FilteredShaderPacks}"
+                                                            SelectedItem="{Binding SelectedShaderPack}">
+                                                            <DataGrid.Columns>
+                                                                <!--  Enabled  -->
+                                                                <DataGridCheckBoxColumn
+                                                                    Width="Auto"
+                                                                    Binding="{Binding IsEnabled}"
+                                                                    Header="{lang:Translate instance.edit.table.enabled}"
+                                                                    IsReadOnly="False" />
+                                                                <!--  Name  -->
+                                                                <DataGridTextColumn
+                                                                    Width="*"
+                                                                    Binding="{Binding Name}"
+                                                                    Header="{lang:Translate instance.edit.table.name}" />
+                                                                <!--  Provider  -->
+                                                                <DataGridTextColumn
+                                                                    Width="Auto"
+                                                                    Binding="{Binding Provider}"
+                                                                    Header="{lang:Translate instance.edit.table.provider}" />
+                                                                <!--  Size  -->
+                                                                <DataGridTextColumn
+                                                                    Width="Auto"
+                                                                    Binding="{Binding FormattedSize}"
+                                                                    Header="{lang:Translate instance.edit.table.size}" />
+                                                            </DataGrid.Columns>
+                                                            <DataGrid.ContextMenu>
+                                                                <ContextMenu>
+                                                                    <!--  Toggle  -->
+                                                                    <MenuItem
+                                                                        Command="{Binding ShaderToggleCommand}"
+                                                                        CommandParameter="{Binding SelectedShaderPack}"
+                                                                        Header="{lang:Translate common.toggle}" />
+                                                                    <Separator />
+                                                                    <!--  Remove  -->
+                                                                    <MenuItem
+                                                                        Command="{Binding ShaderRemoveCommand}"
+                                                                        CommandParameter="{Binding SelectedShaderPack}"
+                                                                        Header="{lang:Translate common.remove}" />
+                                                                    <Separator />
+                                                                    <!--  Download Packs  -->
+                                                                    <MenuItem Command="{Binding ShaderDownloadCommand}" Header="{lang:Translate instance.download.shaders}" />
+                                                                    <!--  Open Folder  -->
+                                                                    <MenuItem Command="{Binding ShaderOpenDirectoryCommand}" Header="{lang:Translate common.open.directory}" />
+                                                                </ContextMenu>
+                                                            </DataGrid.ContextMenu>
+                                                        </DataGrid>
+                                                    </ScrollViewer>
+                                                </Border>
+                                                
+                                                <!--  Actions  -->
+                                                <Grid
+                                                    Grid.Row="2"
+                                                    ColumnDefinitions="*, Auto, Auto"
+                                                    ColumnSpacing="5"
+                                                    Margin="4, 10, 4, 0">
+                                                    <!--  Search bar  -->
+                                                    <TextBox
+                                                        Grid.Column="0"
+                                                        Classes="TextInput"
+                                                        Watermark="{lang:Translate common.search}" />
+                                                    <!--  Download  -->
+                                                    <!--  TODO  -->
+                                                    <Button
+                                                        Grid.Column="1"
+                                                        Classes="IconBtn"
+                                                        Command="{Binding ShaderDownloadCommand}"
+                                                        IsEnabled="False">
+                                                        <WrapPanel Classes="IconBtnWrapper">
+                                                            <TextBlock
+                                                                VerticalAlignment="Center"
+                                                                Classes="FontAwesome"
+                                                                Text="&#xf0ed;" />
+                                                            <TextBlock VerticalAlignment="Center" Text="{lang:Translate instance.edit.downloadPacks}" />
+                                                        </WrapPanel>
+                                                    </Button>
+                                                    <!--  View Folder  -->
+                                                    <Button
+                                                        Grid.Column="2"
+                                                        Classes="IconBtn"
+                                                        Command="{Binding ShaderOpenDirectoryCommand}">
+                                                        <WrapPanel Classes="IconBtnWrapper">
+                                                            <TextBlock
+                                                                VerticalAlignment="Center"
+                                                                Classes="FontAwesome"
+                                                                Text="&#xf07c;" />
+                                                            <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.open.directory}" />
+                                                        </WrapPanel>
+                                                    </Button>
+                                                </Grid>
+                                            </Grid>
+                                        </Border>
+                                    </ScrollViewer>
                                     
                                     <!-- Worlds -->
+                                    <ScrollViewer Margin="25,0,25,25">
+                                        <Border Classes="SettingsCategoryBorder">
+                                            <Grid RowDefinitions="Auto, *, Auto">
+                                                <!--  Title  -->
+                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.edit.tab.worlds}" />
+                                                
+                                                <!--  Content  -->
+                                                <Border Grid.Row="1">
+                                                    <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
+                                                        <DataGrid
+                                                            Name="WorldsTable"
+                                                            CellEditEnded="WorldDataGrid_OnCellEditEnded"
+                                                            Classes="InstanceMultiTable"
+                                                            IsReadOnly="False"
+                                                            ItemsSource="{Binding Worlds}"
+                                                            RowEditEnded="WorldDataGrid_OnRowEditEnded"
+                                                            SelectedItem="{Binding SelectedWorld}">
+                                                            <DataGrid.Columns>
+                                                                <!--  Icon & Name  -->
+                                                                <DataGridTemplateColumn Width="*" Header="{lang:Translate instance.edit.table.name}">
+                                                                    <DataGridTemplateColumn.CellTemplate>
+                                                                        <DataTemplate>
+                                                                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                                                                <Image
+                                                                                    Height="48"
+                                                                                    MaxWidth="48"
+                                                                                    Margin="5"
+                                                                                    Source="{Binding Icon}"
+                                                                                    Stretch="UniformToFill" />
+                                                                                <TextBlock
+                                                                                    Margin="0,0,25,0"
+                                                                                    VerticalAlignment="Center"
+                                                                                    Text="{Binding Name}"
+                                                                                    TextAlignment="Center" />
+                                                                            </StackPanel>
+                                                                        </DataTemplate>
+                                                                    </DataGridTemplateColumn.CellTemplate>
+                                                                    <DataGridTemplateColumn.CellEditingTemplate>
+                                                                        <DataTemplate>
+                                                                            <TextBox
+                                                                                Margin="5,0,25,0"
+                                                                                VerticalAlignment="Center"
+                                                                                Text="{Binding Name, Mode=TwoWay}" />
+                                                                        </DataTemplate>
+                                                                    </DataGridTemplateColumn.CellEditingTemplate>
+                                                                </DataGridTemplateColumn>
+                                                                <!--  GameMode  -->
+                                                                <DataGridTextColumn
+                                                                    Width="Auto"
+                                                                    Binding="{Binding Gamemode}"
+                                                                    Header="{lang:Translate instance.edit.table.gameMode}"
+                                                                    IsReadOnly="True" />
+                                                                <!--  Last Played  -->
+                                                                <DataGridTextColumn
+                                                                    Width="Auto"
+                                                                    Binding="{Binding FormattedLastPlayed}"
+                                                                    Header="{lang:Translate instance.edit.table.lastPlayed}"
+                                                                    IsReadOnly="True" />
+                                                                <!--  Size  -->
+                                                                <DataGridTextColumn
+                                                                    Width="Auto"
+                                                                    Binding="{Binding FormattedSize}"
+                                                                    Header="{lang:Translate instance.edit.table.size}"
+                                                                    IsReadOnly="True" />
+                                                            </DataGrid.Columns>
+                                                            <DataGrid.ContextMenu>
+                                                                <ContextMenu>
+                                                                    <!--  Duplicate  -->
+                                                                    <MenuItem
+                                                                        Command="{Binding WorldsDuplicateCommand}"
+                                                                        CommandParameter="{Binding SelectedWorld}"
+                                                                        Header="{lang:Translate common.duplicate}" />
+                                                                    <!--  Rename  -->
+                                                                    <MenuItem
+                                                                        Command="{Binding WorldsRenameCommand}"
+                                                                        CommandParameter="{Binding SelectedWorld}"
+                                                                        Header="{lang:Translate common.rename}" />
+                                                                    <!--  Delete  -->
+                                                                    <MenuItem
+                                                                        Command="{Binding WorldsDeleteCommand}"
+                                                                        CommandParameter="{Binding SelectedWorld}"
+                                                                        Header="{lang:Translate common.delete}" />
+                                                                    <Separator />
+                                                                    <!--  Copy Speed  -->
+                                                                    <MenuItem
+                                                                        Command="{Binding WorldsCopySeed}"
+                                                                        CommandParameter="{Binding SelectedWorld}"
+                                                                        Header="{lang:Translate instance.edit.copySeed}" />
+                                                                    <!--  Open Folder  -->
+                                                                    <MenuItem
+                                                                        Command="{Binding WorldsOpenDirectoryCommand}"
+                                                                        CommandParameter="{Binding SelectedWorld}"
+                                                                        Header="{lang:Translate common.open.directory}" />
+                                                                </ContextMenu>
+                                                            </DataGrid.ContextMenu>
+                                                        </DataGrid>
+                                                    </ScrollViewer>
+                                                </Border>
+                                            </Grid>
+                                        </Border>
+                                    </ScrollViewer>
                                     
                                     <!-- Servers -->
+                                    <ScrollViewer Margin="25,0,25,25">
+                                        <Border Classes="SettingsCategoryBorder">
+                                            <Grid RowDefinitions="Auto, *, Auto">
+                                                <!--  Title  -->
+                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.edit.tab.servers}" />
+                                                
+                                                <!--  Content  -->
+                                                <Border Grid.Row="1">
+                                                    <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
+                                                        <DataGrid
+                                                            Classes="InstanceMultiTable"
+                                                            IsReadOnly="False"
+                                                            ItemsSource="{Binding Servers}"
+                                                            RowEditEnded="ServersDataGrid_OnRowEditEnded"
+                                                            SelectedItem="{Binding SelectedServer}">
+                                                            <DataGrid.Columns>
+                                                                <!--  Icon & Name  -->
+                                                                <DataGridTemplateColumn Width="*" Header="{lang:Translate instance.edit.table.name}">
+                                                                    <DataGridTemplateColumn.CellTemplate>
+                                                                        <DataTemplate>
+                                                                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                                                                <Image
+                                                                                    Height="48"
+                                                                                    MaxWidth="48"
+                                                                                    Margin="5"
+                                                                                    Source="{Binding Image}"
+                                                                                    Stretch="UniformToFill" />
+                                                                                <TextBlock
+                                                                                    Margin="0,0,25,0"
+                                                                                    VerticalAlignment="Center"
+                                                                                    Text="{Binding Name}"
+                                                                                    TextAlignment="Center" />
+                                                                            </StackPanel>
+                                                                        </DataTemplate>
+                                                                    </DataGridTemplateColumn.CellTemplate>
+                                                                    <DataGridTemplateColumn.CellEditingTemplate>
+                                                                        <DataTemplate>
+                                                                            <TextBox
+                                                                                Margin="5,0,25,0"
+                                                                                VerticalAlignment="Center"
+                                                                                Text="{Binding Name, Mode=TwoWay}" />
+                                                                        </DataTemplate>
+                                                                    </DataGridTemplateColumn.CellEditingTemplate>
+                                                                </DataGridTemplateColumn>
+                                                                <!--  Address  -->
+                                                                <DataGridTextColumn
+                                                                    Width="*"
+                                                                    Binding="{Binding Ip}"
+                                                                    Header="{lang:Translate instance.edit.table.ipAddress}" />
+                                                            </DataGrid.Columns>
+                                                            <DataGrid.ContextMenu>
+                                                                <ContextMenu>
+                                                                    <!--  Join  -->
+                                                                    <MenuItem
+                                                                        Command="{Binding ServersJoinCommand}"
+                                                                        CommandParameter="{Binding SelectedServer}"
+                                                                        Header="{lang:Translate instance.edit.joinServer}" />
+                                                                    <!--  Remove  -->
+                                                                    <MenuItem
+                                                                        Command="{Binding ServersRemoveCommand}"
+                                                                        CommandParameter="{Binding SelectedServer}"
+                                                                        Header="{lang:Translate common.remove}" />
+                                                                </ContextMenu>
+                                                            </DataGrid.ContextMenu>
+                                                        </DataGrid>
+                                                    </ScrollViewer>
+                                                </Border>
+                                                            
+                                                <!--  Actions  -->
+                                                <Grid
+                                                    Grid.Row="2"
+                                                    ColumnDefinitions="*, *, Auto"
+                                                    ColumnSpacing="5"
+                                                    Margin="4, 10, 4, 0">
+                                                    <!--  Name bar  -->
+                                                    <TextBox
+                                                        Grid.Column="0"
+                                                        Classes="TextInput"
+                                                        Text="{Binding ServerName}"
+                                                        Watermark="Minecraft Server" />
+                                                    <!--  Address bar  -->
+                                                    <TextBox
+                                                        Grid.Column="1"
+                                                        Classes="TextInput"
+                                                        Text="{Binding ServerIp}"
+                                                        Watermark="192.168.1.0:25565" />
+                                                    <!--  Add  -->
+                                                    <Button
+                                                        Grid.Column="2"
+                                                        Classes="IconBtn"
+                                                        Command="{Binding ServerAddCommand}">
+                                                        <WrapPanel Classes="IconBtnWrapper">
+                                                            <TextBlock
+                                                                VerticalAlignment="Center"
+                                                                Classes="FontAwesome"
+                                                                Text="&#x2b;" />
+                                                            <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.add}" />
+                                                        </WrapPanel>
+                                                    </Button>
+                                                </Grid>
+                                            </Grid>
+                                        </Border>
+                                    </ScrollViewer>
                                     
                                     <!-- Screenshots -->
+                                    <ScrollViewer Margin="25,0,25,25">
+                                        <Border Classes="SettingsCategoryBorder">
+                                            <Grid RowDefinitions="Auto, *, Auto">
+                                                <!--  Title  -->
+                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.edit.tab.screenshots}" />
+                                                
+                                                <!--  Content  -->
+                                                <Border Grid.Row="1">
+                                                    <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
+                                                        <DataGrid
+                                                            Name="ScreenshotsTable"
+                                                            CellEditEnded="ScreenshotCell_OnEditEnded"
+                                                            Classes="InstanceMultiTable"
+                                                            IsReadOnly="False"
+                                                            ItemsSource="{Binding Screenshots}"
+                                                            SelectedItem="{Binding SelectedScreenshot}">
+                                                            <DataGrid.Columns>
+                                                                <!--  Icon & Name  -->
+                                                                <DataGridTemplateColumn
+                                                                    Width="*"
+                                                                    Header="{lang:Translate instance.edit.table.name}"
+                                                                    IsReadOnly="False">
+                                                                    <DataGridTemplateColumn.CellTemplate>
+                                                                        <DataTemplate>
+                                                                            <StackPanel Orientation="Horizontal">
+                                                                                <Image
+                                                                                    Height="48"
+                                                                                    MaxWidth="48"
+                                                                                    Margin="5"
+                                                                                    Source="{Binding Image}"
+                                                                                    Stretch="UniformToFill" />
+                                                                                <TextBlock
+                                                                                    Margin="5,0,0,0"
+                                                                                    VerticalAlignment="Center"
+                                                                                    Text="{Binding Name}"
+                                                                                    TextAlignment="Center" />
+                                                                                <TextBlock
+                                                                                    Margin="0,0,25,0"
+                                                                                    VerticalAlignment="Center"
+                                                                                    Text="{Binding Extension}"
+                                                                                    TextAlignment="Center" />
+                                                                            </StackPanel>
+                                                                        </DataTemplate>
+                                                                    </DataGridTemplateColumn.CellTemplate>
+                                                                    <DataGridTemplateColumn.CellEditingTemplate>
+                                                                        <DataTemplate>
+                                                                            <TextBox
+                                                                                Margin="5,0,25,0"
+                                                                                VerticalAlignment="Center"
+                                                                                Text="{Binding Name, Mode=TwoWay}" />
+                                                                        </DataTemplate>
+                                                                    </DataGridTemplateColumn.CellEditingTemplate>
+                                                                </DataGridTemplateColumn>
+                                                                <!--  Size  -->
+                                                                <DataGridTextColumn
+                                                                    Width="Auto"
+                                                                    Binding="{Binding FormatedSize}"
+                                                                    Header="{lang:Translate instance.edit.table.size}"
+                                                                    IsReadOnly="True" />
+                                                            </DataGrid.Columns>
+                                                            <DataGrid.ContextMenu>
+                                                                <ContextMenu>
+                                                                    <!--  Copy  -->
+                                                                    <MenuItem
+                                                                        Command="{Binding ScreenshotsCopyCommand}"
+                                                                        CommandParameter="{Binding SelectedScreenshot}"
+                                                                        Header="{lang:Translate common.copy}" />
+                                                                    <!--  Delete  -->
+                                                                    <MenuItem
+                                                                        Command="{Binding ScreenshotsDeleteCommand}"
+                                                                        CommandParameter="{Binding SelectedScreenshot}"
+                                                                        Header="{lang:Translate common.delete}" />
+                                                                    <!--  Rename  -->
+                                                                    <MenuItem
+                                                                        Command="{Binding ScreenshotsRenameCommand}"
+                                                                        CommandParameter="{Binding SelectedScreenshot}"
+                                                                        Header="{lang:Translate common.rename}" />
+                                                                    <!--  Open Directory  -->
+                                                                    <MenuItem
+                                                                        Command="{Binding ScreenshotsOpenDirectoryCommand}"
+                                                                        CommandParameter="{Binding SelectedScreenshot}"
+                                                                        Header="{lang:Translate common.open.directory}" />
+                                                                </ContextMenu>
+                                                            </DataGrid.ContextMenu>
+                                                        </DataGrid>
+                                                    </ScrollViewer>
+                                                </Border>
+                                            </Grid>
+                                        </Border>
+                                    </ScrollViewer>
                                     
                                     <!-- Settings -->
+                                    <ScrollViewer Margin="25,0,25,25">
+                                        <Grid RowDefinitions="Auto, *">
+                                            <!--  Settings Buttons  -->
+                                            <Border Classes="SettingsTabBorder">
+                                                <WrapPanel Classes="SettingsTabWrapper">
+                                                    <Button
+                                                        Name="JavaSettingsBtn"
+                                                        Classes="SettingsTabBtn SettingsTabBtnActive"
+                                                        Command="{Binding SwitchSettingsTabCommand}"
+                                                        CommandParameter="{x:Static enums:EInstanceSettingsTab.JAVA}">
+                                                        <TextBlock Text="{lang:Translate settings.tab.java}" />
+                                                    </Button>
+                                                    <Button
+                                                        Name="GameSettingsBtn"
+                                                        Classes="SettingsTabBtn"
+                                                        Command="{Binding SwitchSettingsTabCommand}"
+                                                        CommandParameter="{x:Static enums:EInstanceSettingsTab.GAME}">
+                                                        <TextBlock Text="{lang:Translate settings.tab.game}" />
+                                                    </Button>
+                                                    <Button
+                                                        Name="CustomCommandSettingsBtn"
+                                                        Classes="SettingsTabBtn"
+                                                        Command="{Binding SwitchSettingsTabCommand}"
+                                                        CommandParameter="{x:Static enums:EInstanceSettingsTab.CUSTOM_COMMAND}">
+                                                        <TextBlock Text="{lang:Translate settings.tab.customCommands}" />
+                                                    </Button>
+                                                    <Button
+                                                        Name="EnvironmentSettingsBtn"
+                                                        Classes="SettingsTabBtn"
+                                                        Command="{Binding SwitchSettingsTabCommand}"
+                                                        CommandParameter="{x:Static enums:EInstanceSettingsTab.ENVIRONMENT}">
+                                                        <TextBlock Text="{lang:Translate settings.tab.environment}" />
+                                                    </Button>
+                                                    <Button
+                                                        Name="MiscSettingsBtn"
+                                                        Classes="SettingsTabBtn"
+                                                        Command="{Binding SwitchSettingsTabCommand}"
+                                                        CommandParameter="{x:Static enums:EInstanceSettingsTab.MISC}">
+                                                        <TextBlock Text="{lang:Translate settings.tab.misc}" />
+                                                    </Button>
+                                                </WrapPanel>
+                                            </Border>
+
+                                            <!--  Settings Content  -->
+                                            <Carousel
+                                                Grid.Row="1"
+                                                Margin="0,15,0,0"
+                                                SelectedIndex="{Binding InstanceSettingsTab}">
+                                                <Carousel.PageTransition>
+                                                    <CompositePageTransition>
+                                                        <PageSlide Orientation="Vertical" Duration="0:00:00.200" />
+                                                    </CompositePageTransition>
+                                                </Carousel.PageTransition>
+                                                <Carousel.Items>
+                                                    <!--  Java  -->
+                                                    <ScrollViewer>
+                                                        <StackPanel Classes="SettingsWrapper">
+                                                            <!--  General Category  -->
+                                                            <Border Classes="SettingsCategoryBorder">
+                                                                <StackPanel>
+                                                                    <!--  Category Title  -->
+                                                                    <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.launcher.subtitle.general}" />
+
+                                                                    <!--  Minimum Memory  -->
+                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.java.minMemory}" />
+                                                                        <NumericUpDown
+                                                                            Grid.Column="1"
+                                                                            Classes="NumericInput"
+                                                                            FormatString="0\ MB"
+                                                                            Increment="128"
+                                                                            Maximum="{Binding InstanceConfig.Java.MaxMemory}"
+                                                                            Minimum="512"
+                                                                            Value="{Binding InstanceConfig.Java.MinMemory, Mode=TwoWay}" />
+                                                                    </Grid>
+
+                                                                    <!--  Maximum Memory  -->
+                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.java.maxMemory}" />
+                                                                        <NumericUpDown
+                                                                            Grid.Column="1"
+                                                                            Classes="NumericInput"
+                                                                            FormatString="0\ MB"
+                                                                            Increment="128"
+                                                                            Maximum="131072"
+                                                                            Minimum="512"
+                                                                            Value="{Binding InstanceConfig.Java.MaxMemory, Mode=TwoWay}" />
+                                                                    </Grid>
+
+                                                                    <!--  PermGen  -->
+                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.java.permaGen}" />
+                                                                        <NumericUpDown
+                                                                            Grid.Column="1"
+                                                                            Classes="NumericInput"
+                                                                            FormatString="0\ MB"
+                                                                            Increment="128"
+                                                                            Maximum="1024"
+                                                                            Minimum="8"
+                                                                            Value="{Binding InstanceConfig.Java.PermaGen, Mode=TwoWay}" />
+                                                                    </Grid>
+
+                                                                    <!--  Java Path  -->
+                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 350, Auto">
+                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.java.path}" />
+                                                                        <TextBox
+                                                                            Grid.Column="1"
+                                                                            Classes="TextInput"
+                                                                            Text="{Binding InstanceConfig.Java.DefaultJavaPath, Mode=TwoWay}"
+                                                                            Watermark="{lang:Translate common.select.directory}" />
+                                                                        <StackPanel
+                                                                            Grid.Column="2"
+                                                                            Orientation="Horizontal"
+                                                                            Spacing="5">
+                                                                            <Button
+                                                                                Classes="IconBtn"
+                                                                                Command="{Binding JavaDirSelectCommand}"
+                                                                                CommandParameter="9">
+                                                                                <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                                                            </Button>
+                                                                            <Button Classes="IconBtn" Command="{Binding JavaPathSelectorCommand}">
+                                                                                <TextBlock Classes="FontAwesome" Text="&#xf126;" />
+                                                                            </Button>
+                                                                        </StackPanel>
+                                                                    </Grid>
+                                                                </StackPanel>
+                                                            </Border>
+
+                                                            <!--  JVM Arguments  Category  -->
+                                                            <Border Classes="SettingsCategoryBorder">
+                                                                <StackPanel Spacing="10">
+                                                                    <!--  Category Title  -->
+                                                                    <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.java.jvmArgs}" />
+
+                                                                    <!--  Input  -->
+                                                                    <TextBox
+                                                                        MinHeight="128"
+                                                                        MaxLines="512"
+                                                                        Text="{Binding InstanceConfig.Java.JvmArguments, Mode=TwoWay}"
+                                                                        TextWrapping="Wrap" />
+                                                                </StackPanel>
+                                                            </Border>
+                                                        </StackPanel>
+                                                    </ScrollViewer>
+
+                                                    <!--  Game  -->
+                                                    <ScrollViewer>
+                                                        <StackPanel Classes="SettingsWrapper">
+                                                            <!-- Window -->
+                                                            <Border Classes="SettingsCategoryBorder">
+                                                                <StackPanel>
+                                                                    <!--  Category Title  -->
+                                                                    <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.edit.subTitle.window}" />
+                                                                    
+                                                                    <!--  Start Maximized  -->
+                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.minecraft.startMaximized}" />
+                                                                        <ToggleSwitch
+                                                                            Grid.Column="1"
+                                                                            Classes="SettingsSwitch"
+                                                                            IsChecked="{Binding InstanceConfig.Game.StartMaximized, Mode=TwoWay}" />
+                                                                    </Grid>
+                                                                    
+                                                                    <!--  Window Width  -->
+                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.minecraft.windowWidth}" />
+                                                                        <NumericUpDown
+                                                                            Grid.Column="1"
+                                                                            Classes="NumericInput"
+                                                                            FormatString="0"
+                                                                            Increment="10"
+                                                                            IsEnabled="{Binding !InstanceConfig.Game.StartMaximized}"
+                                                                            Maximum="{x:Static local:App.ScreenWidth}"
+                                                                            Minimum="100"
+                                                                            Value="{Binding InstanceConfig.Game.WindowWidth, Mode=TwoWay}" />
+                                                                    </Grid>
+
+                                                                    <!--  Window Height  -->
+                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.minecraft.windowHeight}" />
+                                                                        <NumericUpDown
+                                                                            Grid.Column="1"
+                                                                            Classes="NumericInput"
+                                                                            FormatString="0"
+                                                                            Increment="10"
+                                                                            IsEnabled="{Binding !InstanceConfig.Game.StartMaximized}"
+                                                                            Maximum="{x:Static local:App.ScreenHeight}"
+                                                                            Minimum="100"
+                                                                            Value="{Binding InstanceConfig.Game.WindowHeight, Mode=TwoWay}" />
+                                                                    </Grid>
+                                                                </StackPanel>
+                                                            </Border>
+                                                            
+                                                            <!-- Console -->
+                                                            <Border Classes="SettingsCategoryBorder">
+                                                                <StackPanel>
+                                                                    <!--  Category Title  -->
+                                                                    <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.edit.subTitle.console}" />
+                                                                    
+                                                                    <!--  Show console  -->
+                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate instance.edit.settings.console.showStart}" />
+                                                                        <ToggleSwitch
+                                                                            Grid.Column="1"
+                                                                            Classes="SettingsSwitch"
+                                                                            IsChecked="{Binding InstanceConfig.Game.ShowConsoleWhileGameRunning, Mode=TwoWay}" />
+                                                                    </Grid>
+                                                                    
+                                                                    <!--  Auto close console  -->
+                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate instance.edit.settings.console.closeExit}" />
+                                                                        <ToggleSwitch
+                                                                            Grid.Column="1"
+                                                                            Classes="SettingsSwitch"
+                                                                            IsChecked="{Binding InstanceConfig.Game.CloseConsoleOnGameExit, Mode=TwoWay}" />
+                                                                    </Grid>
+                                                                    
+                                                                    <!--  Show console on crash  -->
+                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate instance.edit.settings.console.showCrash}" />
+                                                                        <ToggleSwitch
+                                                                            Grid.Column="1"
+                                                                            Classes="SettingsSwitch"
+                                                                            IsChecked="{Binding InstanceConfig.Game.ShowConsoleWhenGameCrashes, Mode=TwoWay}" />
+                                                                    </Grid>
+                                                                    
+                                                                </StackPanel>
+                                                            </Border>
+                                                            
+                                                            <!-- Performance -->
+                                                            <Border Classes="SettingsCategoryBorder">
+                                                                <StackPanel>
+                                                                    <!--  Category Title  -->
+                                                                    <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.edit.subTitle.performance}" />
+                                                                    
+                                                                    <!--  Enable Feral GameMode  -->
+                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.enableGameMode}" />
+                                                                        <ToggleSwitch
+                                                                            Grid.Column="1"
+                                                                            Classes="SettingsSwitch"
+                                                                            IsChecked="{Binding InstanceConfig.Game.EnableFeralGameMode, Mode=TwoWay}" 
+                                                                            IsVisible="{Binding IsLinux}"/>
+                                                                    </Grid>
+                                                                    
+                                                                    <!-- Enable MangoHud -->
+                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.enableMangoHud}" />
+                                                                        <ToggleSwitch
+                                                                            Grid.Column="1"
+                                                                            Classes="SettingsSwitch"
+                                                                            IsChecked="{Binding InstanceConfig.Game.EnableMangoHud, Mode=TwoWay}"
+                                                                            IsVisible="{Binding IsLinux}" />
+                                                                    </Grid>
+                                                                    
+                                                                    <!--  Use dedicated GPU  -->
+                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.useDedicatedGpu}" />
+                                                                        <ToggleSwitch
+                                                                            Grid.Column="1"
+                                                                            Classes="SettingsSwitch"
+                                                                            IsChecked="{Binding InstanceConfig.Game.UseDedicatedGpu, Mode=TwoWay}" />
+                                                                    </Grid>
+                                                                </StackPanel>
+                                                            </Border>
+                                                        </StackPanel>
+                                                    </ScrollViewer>
+                                                    
+                                                    <!-- Custom Commands  -->
+                                                    <ScrollViewer>
+                                                        <StackPanel Classes="SettingsWrapper">
+                                                            <Border Classes="SettingsCategoryBorder">
+                                                                <StackPanel>
+                                                                    <!--  Category Title  -->
+                                                                    <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.misc.subtitle.customCommands}" />
+                                                                    
+                                                                     <!--  Pre-launch Command  -->
+                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
+                                                                        <StackPanel MaxWidth="200" HorizontalAlignment="Left">
+                                                                            <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.prelaunchCommand}" />
+                                                                            <TextBlock
+                                                                                Classes="SettingsDescription"
+                                                                                Text="{lang:Translate settings.misc.prelaunchCommand.description}"
+                                                                                TextWrapping="Wrap" />
+                                                                        </StackPanel>
+                                                                        <TextBox
+                                                                            Grid.Column="1"
+                                                                            Classes="TextInput"
+                                                                            Text="{Binding InstanceConfig.Commands.PreLaunchCommand, Mode=TwoWay}" />
+                                                                    </Grid>
+
+                                                                    <!--  Wrapper Command  -->
+                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
+                                                                        <StackPanel MaxWidth="200" HorizontalAlignment="Left">
+                                                                            <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.wrapperCommand}" />
+                                                                            <TextBlock
+                                                                                Classes="SettingsDescription"
+                                                                                Text="{lang:Translate settings.misc.wrapperCommand.description}"
+                                                                                TextWrapping="Wrap" />
+                                                                        </StackPanel>
+                                                                        <TextBox
+                                                                            Grid.Column="1"
+                                                                            Classes="TextInput"
+                                                                            Text="{Binding InstanceConfig.Commands.WrapperCommand, Mode=TwoWay}" />
+                                                                    </Grid>
+
+                                                                    <!--  Post-exit Command  -->
+                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
+                                                                        <StackPanel MaxWidth="200" HorizontalAlignment="Left">
+                                                                            <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.postExitCommand}" />
+                                                                            <TextBlock
+                                                                                Classes="SettingsDescription"
+                                                                                Text="{lang:Translate settings.misc.postExitCommand.description}"
+                                                                                TextWrapping="Wrap" />
+                                                                        </StackPanel>
+                                                                        <TextBox
+                                                                            Grid.Column="1"
+                                                                            Classes="TextInput"
+                                                                            Text="{Binding InstanceConfig.Commands.PostExitCommand, Mode=TwoWay}" />
+                                                                    </Grid>
+                                                                </StackPanel>
+                                                            </Border>
+                                                        </StackPanel>
+                                                    </ScrollViewer>
+                                                    
+                                                    <!-- Environment Variables  -->
+                                                    <ScrollViewer>
+                                                        <Border Classes="SettingsCategoryBorder">
+                                                            <Grid RowDefinitions="Auto, Auto, *, Auto">
+                                                                    <!--  Category Title  -->
+                                                                    <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.environment.subtitle}" />
+                                                                    
+                                                                    <!--  Enable  -->
+                                                                    <Grid Grid.Row="1" Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.environment.enable}" />
+                                                                        <ToggleSwitch
+                                                                            Grid.Column="1"
+                                                                            Classes="SettingsSwitch"
+                                                                            IsChecked="{Binding InstanceConfig.EnableEnvironment, Mode=TwoWay}" />
+                                                                    </Grid>
+                                                                    
+                                                                    <!--  Content  -->
+                                                                    <Border Grid.Row="2">
+                                                                        <ScrollViewer Classes="TableScrollViewer">
+                                                                            <DataGrid
+                                                                                Classes="InstanceMultiTable"
+                                                                                IsEnabled="{Binding InstanceConfig.EnableEnvironment}"
+                                                                                IsReadOnly="False"
+                                                                                ItemsSource="{Binding InstanceConfig.Environment}"
+                                                                                RowEditEnded="EnvironmentDataGrid_OnRowEditEnded"
+                                                                                SelectedIndex="{Binding SelectedEnvironmentVariableIndex}">
+                                                                                <DataGrid.Columns>
+                                                                                    <!--  Name  -->
+                                                                                    <DataGridTextColumn
+                                                                                        Width="Auto"
+                                                                                        Binding="{Binding Key}"
+                                                                                        Header="{lang:Translate settings.environment.name}" />
+                                                                                    <!--  Value  -->
+                                                                                    <DataGridTextColumn
+                                                                                        Width="Auto"
+                                                                                        Binding="{Binding Value}"
+                                                                                        Header="{lang:Translate settings.environment.value}" />
+                                                                                </DataGrid.Columns>
+                                                                            </DataGrid>
+                                                                        </ScrollViewer>
+                                                                    </Border>
+                                                                    
+                                                                    <!--  Actions  -->
+                                                                    <Grid
+                                                                        Grid.Row="3"
+                                                                        ColumnDefinitions="Auto, Auto, Auto"
+                                                                        ColumnSpacing="5"
+                                                                        Margin="4, 10, 4, 0">
+                                                                        <!--  Add button  -->
+                                                                        <Button
+                                                                            Classes="IconBtn"
+                                                                            Click="AddEnvironmentRow_OnClick"
+                                                                            IsEnabled="{Binding InstanceConfig.EnableEnvironment}">
+                                                                            <WrapPanel Classes="IconBtnWrapper">
+                                                                                <TextBlock
+                                                                                    VerticalAlignment="Center"
+                                                                                    Classes="FontAwesome"
+                                                                                    Text="&#x2b;" />
+                                                                                <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.add}" />
+                                                                            </WrapPanel>
+                                                                        </Button>
+                                                                        <!--  Remove button  -->
+                                                                        <Button
+                                                                            Grid.Column="1"
+                                                                            Classes="IconBtn"
+                                                                            Click="RemoveEnvironmentRow_OnClick"
+                                                                            IsEnabled="{Binding CanRemoveEnvironmentVariable}">
+                                                                            <WrapPanel Classes="IconBtnWrapper">
+                                                                                <TextBlock
+                                                                                    VerticalAlignment="Center"
+                                                                                    Classes="FontAwesome"
+                                                                                    Text="&#xf068;" />
+                                                                                <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.remove}" />
+                                                                            </WrapPanel>
+                                                                        </Button>
+                                                                        <!--  Clear button  -->
+                                                                        <Button
+                                                                            Grid.Column="2"
+                                                                            Classes="IconBtn"
+                                                                            Click="ClearEnvironmentTable_OnClick"
+                                                                            IsEnabled="{Binding InstanceConfig.EnableEnvironment}">
+                                                                            <WrapPanel Classes="IconBtnWrapper">
+                                                                                <TextBlock
+                                                                                    VerticalAlignment="Center"
+                                                                                    Classes="FontAwesome"
+                                                                                    Text="&#xf1f8;" />
+                                                                                <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.clear}" />
+                                                                            </WrapPanel>
+                                                                        </Button>
+                                                                    </Grid>
+                                                            </Grid>
+                                                        </Border>
+                                                    </ScrollViewer>
+                                                            
+                                                    <!--  Misc  -->
+                                                    <ScrollViewer>
+                                                        <StackPanel Classes="SettingsWrapper">
+                                                            
+                                                            <!-- Native Libraries  -->
+                                                            <Border Classes="SettingsCategoryBorder">
+                                                                <StackPanel>
+                                                                    <!--  Category Title  -->
+                                                                    <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.misc.subtitle.nativeLibraries}" />
+                                                                    
+                                                                    <!--  Use custom GLFW  -->
+                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.customGLFW}" />
+                                                                        <ToggleSwitch
+                                                                            Grid.Column="1"
+                                                                            Classes="SettingsSwitch"
+                                                                            IsChecked="{Binding InstanceConfig.Misc.UseCustomGlfw, Mode=TwoWay}" />
+                                                                    </Grid>
+
+                                                                    <!--  GLFW library path  -->
+                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
+                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.pathGLFW}" />
+                                                                        <TextBox
+                                                                            Grid.Column="1"
+                                                                            Classes="TextInput"
+                                                                            IsEnabled="{Binding InstanceConfig.Misc.UseCustomGlfw}"
+                                                                            Text="{Binding InstanceConfig.Misc.CustomGlfwPath, Mode=TwoWay}"
+                                                                            Watermark="{lang:Translate common.select.file}" />
+                                                                    </Grid>
+
+                                                                    <!--  Use custom OpenAL  -->
+                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.customOpenAL}" />
+                                                                        <ToggleSwitch
+                                                                            Grid.Column="1"
+                                                                            Classes="SettingsSwitch"
+                                                                            IsChecked="{Binding InstanceConfig.Misc.UseCustomOpenAL, Mode=TwoWay}" />
+                                                                    </Grid>
+
+                                                                    <!--  OpenAL library path  -->
+                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
+                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.pathOpenAL}" />
+                                                                        <TextBox
+                                                                            Grid.Column="1"
+                                                                            Classes="TextInput"
+                                                                            IsEnabled="{Binding InstanceConfig.Misc.UseCustomOpenAL}"
+                                                                            Text="{Binding InstanceConfig.Misc.CustomOpenALPath, Mode=TwoWay}"
+                                                                            Watermark="{lang:Translate common.select.file}" />
+                                                                    </Grid>
+                                                                </StackPanel>
+                                                            </Border>
+                                                            
+                                                            <!-- Preferences -->
+                                                            <Border Classes="SettingsCategoryBorder">
+                                                                <StackPanel>
+                                                                    <!--  Category Title  -->
+                                                                    <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.misc.subtitle.preferences}" />
+
+                                                                    <!--  Override Account  -->
+                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.overrideAccount}" />
+                                                                        <ToggleSwitch
+                                                                            Grid.Column="1"
+                                                                            Classes="SettingsSwitch"
+                                                                            IsChecked="{Binding InstanceConfig.Misc.OverrideAccount, Mode=TwoWay}" />
+                                                                    </Grid>
+                                                                    
+                                                                    <!--  Account  -->
+                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
+                                                                        <!--  Text  -->
+                                                                        <TextBlock Classes="TextDropdown" Text="{lang:Translate settings.misc.account}" />
+                                                                        <!--  Input  -->
+                                                                        <ComboBox
+                                                                            Grid.Column="1"
+                                                                            Classes="TextDropdown"
+                                                                            Margin="0, 0, 5, 0"
+                                                                            DisplayMemberBinding="{Binding DisplayName}"
+                                                                            IsEnabled="{Binding InstanceConfig.Misc.OverrideAccount}"
+                                                                            ItemsSource="{Binding Accounts}"
+                                                                            SelectedIndex="{Binding OverridenAccountIndex}"
+                                                                            SelectionChanged="OverridenAccount_SelectionChanged" />
+                                                                    </Grid>
+                                                                    
+                                                                    <!--  Set target server  -->
+                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.serverQuickPlay}" />
+                                                                        <ToggleSwitch
+                                                                            Grid.Column="1"
+                                                                            Classes="SettingsSwitch"
+                                                                            IsChecked="{Binding InstanceConfig.Misc.JoinServerOnLaunch, Mode=TwoWay}" />
+                                                                    </Grid>
+                                                                    
+                                                                    <!--  Server address  -->
+                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
+                                                                        <!--  Text  -->
+                                                                        <TextBlock Classes="TextDropdown" Text="{lang:Translate settings.misc.serverAddress}" />
+                                                                        <!--  Input  -->
+                                                                        <TextBox
+                                                                            Grid.Column="1"
+                                                                            Classes="TextInput"
+                                                                            IsEnabled="{Binding InstanceConfig.Misc.JoinServerOnLaunch}"
+                                                                            Text="{Binding InstanceConfig.Misc.ServerAddress}"
+                                                                            Watermark="192.168.1.0:25565" />
+                                                                    </Grid>
+                                                                </StackPanel>
+                                                            </Border>
+                                                        </StackPanel>
+                                                    </ScrollViewer>
+                                                </Carousel.Items>
+                                            </Carousel>
+                                        </Grid>
+                                    </ScrollViewer>
                                     
                                 </Carousel.Items>
                             </Carousel>

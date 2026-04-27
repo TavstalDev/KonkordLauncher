@@ -23,7 +23,13 @@ public static class JsonHelper
     private const int _maxRetries = 5;
     private static readonly TimeSpan _retryDelay = TimeSpan.FromMilliseconds(75);
     
-    
+    /// <summary>
+    /// Writes an object to a file as JSON using an atomic write pattern with retries.
+    /// </summary>
+    /// <typeparam name="T">Type of the object to serialize to JSON.</typeparam>
+    /// <param name="path">Destination file path. If necessary the parent directory will be created.</param>
+    /// <param name="obj">Object to serialize and write.</param>
+    /// <returns><c>true</c> if the file was written successfully; otherwise <c>false</c>.</returns>
     public static bool WriteJsonFile<T>(string path, T obj)
     {
         try
@@ -64,6 +70,17 @@ public static class JsonHelper
         }
     }
     
+    /// <summary>
+    /// Asynchronously writes an object as formatted JSON to <paramref name="path"/> using an atomic write strategy
+    /// and a per-path semaphore to prevent concurrent writers to the same file.
+    /// </summary>
+    /// <typeparam name="T">Type of the object to serialize to JSON.</typeparam>
+    /// <param name="path">Destination file path.</param>
+    /// <param name="obj">The object to serialize and write.</param>
+    /// <param name="cancellationToken">Token used to request cancellation of the operation.</param>
+    /// <returns>
+    /// A task that resolves to <c>true</c> when the file was written successfully; <c>false</c> otherwise.
+    /// </returns>
     public static async Task<bool> WriteJsonFileAsync<T>(string path, T obj, CancellationToken cancellationToken = default)
     {
         var fileLock = GetFileLock(path);
@@ -128,8 +145,14 @@ public static class JsonHelper
     {
         try
         {
-            using var stream = File.OpenRead(path);
-            var local = JsonSerializer.Deserialize<T>(stream);
+            byte[] buffer;
+            using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                buffer = new byte[stream.Length];
+                stream.ReadExactly(buffer, 0, (int)stream.Length);
+            }
+            using var ms = new MemoryStream(buffer);
+            var local = JsonSerializer.Deserialize<T>(ms);
             return local;
         }
         catch (Exception ex)
@@ -145,13 +168,20 @@ public static class JsonHelper
     /// </summary>
     /// <typeparam name="T">The type of the object to deserialize.</typeparam>
     /// <param name="path">The file path to read the JSON content from.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>The deserialized object, or default if an error occurs.</returns>
     public static async Task<T?> ReadJsonFileAsync<T>(string path, CancellationToken cancellationToken = default)
     {
         try
         {
-            await using var stream = File.OpenRead(path);
-            var local = await JsonSerializer.DeserializeAsync<T>(stream, cancellationToken: cancellationToken);
+            byte[] buffer;
+            await using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                buffer = new byte[stream.Length];
+                await stream.ReadExactlyAsync(buffer, 0, (int)stream.Length, cancellationToken);
+            }
+            using var ms = new MemoryStream(buffer);
+            var local = await JsonSerializer.DeserializeAsync<T>(ms, cancellationToken: cancellationToken);
             return local;
         }
         catch (Exception ex)
@@ -162,12 +192,23 @@ public static class JsonHelper
         }
     }
     
+    /// <summary>
+    /// Returns a semaphore used to synchronize file access for the provided path.
+    /// </summary>
+    /// <param name="path">A file path (can be relative or absolute) for which a lock is required.</param>
+    /// <returns>
+    /// A <see cref="SemaphoreSlim"/> instance that callers can await on to mutually-exclude access to the specified path.
+    /// </returns>
     private static SemaphoreSlim GetFileLock(string path)
     {
         string fullPath = Path.GetFullPath(path);
         return _fileLocks.GetOrAdd(fullPath, _ => new SemaphoreSlim(1, 1));
     }
 
+    /// <summary>
+    /// Ensures that the directory portion of the supplied path exists by creating it if necessary.
+    /// </summary>
+    /// <param name="path">A file path (or directory path). If a file path is supplied, its parent directory will be ensured.</param>
     private static void CreateDirectory(string path)
     {
         var dir = Path.GetDirectoryName(path);
@@ -175,6 +216,11 @@ public static class JsonHelper
             Directory.CreateDirectory(dir);
     }
 
+    /// <summary>
+    /// Produces a temporary path that is suitable for writing an atomic temporary file next to the target path.
+    /// </summary>
+    /// <param name="path">The target file path for which a temporary sibling path should be generated.</param>
+    /// <returns>A new, likely-unused file path in the same directory as <paramref name="path"/> (or based on <paramref name="path"/> if no directory is present).</returns>
     private static string GetTempPath(string path)
     {
         string? dir = Path.GetDirectoryName(path);

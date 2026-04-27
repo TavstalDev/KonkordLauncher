@@ -266,9 +266,9 @@ public static class DefaultTranslationProvider
         {"instance.edit.log.title", "KonkordLauncher - Logs"},
         {"instance.edit.latestLog", "LATEST LOG"},
         
-        {"instance.edit.subTitle.window", "Window"},
-        {"instance.edit.subTitle.console", "Console"},
-        {"instance.edit.subTitle.performance", "Performance"},
+        {"instance.edit.subTitle.window", "WINDOW"},
+        {"instance.edit.subTitle.console", "CONSOLE"},
+        {"instance.edit.subTitle.performance", "PERFORMANCE"},
         
         {"instance.edit.settings.console.showStart", "Show console while minecraft is running"},
         {"instance.edit.settings.console.closeExit", "Close console when minecraft quits"},
@@ -347,11 +347,12 @@ public static class DefaultTranslationProvider
         {"settings.misc.enableGameMode", "Enable Feral GameMode"},
         {"settings.misc.useDedicatedGpu", "Use dedicated GPU"},
         
+        {"settings.environment.subtitle", "ENVIRONMENT"},
         {"settings.environment.enable", "Enable Environment Variables"},
         {"settings.environment.name", "Name"},
         {"settings.environment.value", "Value"},
         
-        {"settings.misc.subtitle.preferences", "Preferences"},
+        {"settings.misc.subtitle.preferences", "PREFERENCES"},
         {"settings.misc.overrideAccount", "Override default account"},
         {"settings.misc.account", "Account"},
         {"settings.misc.serverQuickPlay", "Set server address to join on launch"},

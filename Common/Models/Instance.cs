@@ -1,9 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Helpers;
-using Tavstal.KonkordLauncher.Core.Helpers.Domain;
-using Tavstal.KonkordLauncher.Core.Models;
 
 namespace Tavstal.KonkordLauncher.Common.Models;
 

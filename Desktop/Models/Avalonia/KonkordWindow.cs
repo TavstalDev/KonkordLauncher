@@ -6,7 +6,6 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Platform.Storage;
 using Avalonia.ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Translation;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 

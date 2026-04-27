@@ -227,7 +227,6 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
 
         viewModel.CurrentPageIndex = sidebarType;
         _selectedSideBarButton.Classes.Remove("SideBarActiveBtn");
-        //_selectedButton.Classes.Add("SecondaryBtn");
 
         switch (sidebarType)
         {
@@ -262,7 +261,7 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
                 break;
             }
         }
-        //_selectedButton.Classes.Remove("SecondaryBtn");
+
         _selectedSideBarButton.Classes.Add("SideBarActiveBtn");
     }
     

@@ -645,6 +645,7 @@
                                     <Grid Margin="20,20,20,0" RowDefinitions="Auto, Auto, *">
                                         <!--  Title  -->
                                         <TextBlock Classes="MainContentTitle" Text="{lang:Translate main.page.settings.title}" />
+                                        
                                         <!--  Settings Buttons  -->
                                         <Border Grid.Row="1" Classes="SettingsTabBorder">
                                             <WrapPanel Classes="SettingsTabWrapper">

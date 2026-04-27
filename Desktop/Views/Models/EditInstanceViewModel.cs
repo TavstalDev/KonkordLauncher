@@ -21,6 +21,7 @@ using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Config;
 using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
+using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
@@ -32,6 +33,7 @@ using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Config.Instance;
+using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
@@ -42,10 +44,10 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 /// </summary>
 public partial class EditInstanceViewModel : KonkordObservableObject
 {
-    private readonly bool _isInitialized;
     private readonly string _instanceId;
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceViewModel));
     private bool _isClosing;
+    private bool _isInitialized;
 
     public bool IsLinux => OSHelper.GetOperatingSystem() == EOperatingSystem.Linux;
     public List<Account> Accounts { get; set; }
@@ -55,8 +57,11 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
     public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
+    public Interaction<EEditInstanceTab, Unit> TabSwitchInteraction { get; } = new();
+    public Interaction<EInstanceSettingsTab, Unit> SettingsTabSwitchInteraction { get; } = new();
     public Interaction<Alert, Unit> ShowAlertDialog { get; } = new();
     public Interaction<Unit, JavaVersionModel?> ShowJavaPathSelector { get; } = new();
+    public Interaction<string, string?> ShowDirPickerInteraction { get; } = new();
     public Interaction<string, Unit> SetClipboardText { get; } = new();
     public Interaction<ScreenshotModel, Unit> SetClipboardImage { get; } = new();
     public Interaction<Unit, Unit> BeginWorldRename { get; } = new();
@@ -67,6 +72,8 @@ public partial class EditInstanceViewModel : KonkordObservableObject
 
     #region Observable Properties
 
+    [ObservableProperty] private EEditInstanceTab _editInstanceTab;
+    [ObservableProperty] private EInstanceSettingsTab _instanceSettingsTab;
     [ObservableProperty] private string _instanceName;
     [ObservableProperty] private string? _gameDirectory;
     [ObservableProperty] private bool _isVanilla;
@@ -75,17 +82,17 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     [ObservableProperty] private string _serverIp;
 
     private readonly SourceCache<ModModel, Guid> _modsCache = new(x => x.Id);
-    public ReadOnlyObservableCollection<ModModel> FilteredMods { get; }
+    public ReadOnlyObservableCollection<ModModel> FilteredMods { get; private set; }
     [ObservableProperty] private ModModel? _selectedMod;
     [ObservableProperty] private string? _modSearchQuery = string.Empty;
 
     private readonly SourceCache<ResourcePackModel, Guid> _resourcePackCache = new(x => x.Id);
-    public ReadOnlyObservableCollection<ResourcePackModel> FilteredResourcePacks { get; }
+    public ReadOnlyObservableCollection<ResourcePackModel> FilteredResourcePacks { get; private set; }
     [ObservableProperty] private ResourcePackModel? _selectedResourcePack;
     [ObservableProperty] private string? _resourcePackSearchQuery = string.Empty;
 
     private readonly SourceCache<ShaderPackModel, Guid> _shaderPackCache = new(x => x.Id);
-    public ReadOnlyObservableCollection<ShaderPackModel> FilteredShaderPacks { get; }
+    public ReadOnlyObservableCollection<ShaderPackModel> FilteredShaderPacks { get; private set; }
     [ObservableProperty] private ShaderPackModel? _selectedShaderPack;
     [ObservableProperty] private string? _shaderPackSearchQuery = string.Empty;
 
@@ -124,110 +131,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         }
 
         _instanceId = instanceId;
-        var instances = LauncherHelper.GetInstances();
-        var currentInstance = instances.FirstOrDefault(x => x.Id == _instanceId);
-        if (currentInstance == null)
-        {
-            _logger.Error($"Instance with ID '{_instanceId}' not found.");
-            throw new KeyNotFoundException($"Instance with ID '{_instanceId}' not found.");
-        }
-
-        _instanceName = currentInstance.Name;
-        _isVanilla = currentInstance.Kind == EMinecraftKind.VANILLA;
-        _gameDirectory = currentInstance.GameDirectory;
-        _instanceConfig = new InstanceConfigModel(currentInstance.Config);
-        _isInitialized = true;
-        Accounts = LauncherHelper.GetAccountData().Accounts;
-        SubscribeToConfigChildren(_instanceConfig);
-        if (!string.IsNullOrEmpty(_instanceConfig.Misc.AccountId))
-            OverridenAccountIndex = Accounts.FindIndex(x => x.Id == _instanceConfig.Misc.AccountId);
-
-        // Logging setup
-        GlobalEvents.OnInstanceLogged += OnInstanceLogged;
-        Logs = GlobalEvents.GetInstanceLogs(_instanceId);
-        if (!string.IsNullOrEmpty(Logs))
-            Dispatcher.UIThread.Invoke(async () => await LogsScrollToEnd.Handle(Unit.Default));
-
-        #region Mods
-        if (!_isVanilla)
-        {
-            var mods = this.WhenAnyValue(x => x.ModSearchQuery)
-                .Select(query =>
-                {
-                    if (string.IsNullOrWhiteSpace(query))
-                        return (Func<ModModel, bool>)(_ => true); // No filter
-                    return (Func<ModModel, bool>)(mod =>
-                        mod.Name.Contains(query, StringComparison.OrdinalIgnoreCase));
-                });
-
-            var modSubscription = _modsCache.Connect()
-                .Filter(mods)
-                .Bind(out var filteredMods)
-                .Subscribe();
-
-            Disposables.Add(modSubscription);
-            FilteredMods = filteredMods;
-
-            RefreshMods();
-        }
-        #endregion
-        
-        #region Resource Packs
-
-        // Set up a reactive filter for the ResourcePackSearchQuery property.
-        // The filter updates dynamically based on the search query, matching resource packs whose names contain the query string (case-insensitive).
-        var resourcePack = this.WhenAnyValue(x => x.ResourcePackSearchQuery)
-            .Select(query =>
-            {
-                if (string.IsNullOrWhiteSpace(query))
-                    return (Func<ResourcePackModel, bool>)(_ => true); // No filter
-                return (Func<ResourcePackModel, bool>)(pack =>
-                    pack.Name.Contains(query, StringComparison.OrdinalIgnoreCase));
-            });
-
-        // Connect the resource pack cache to the reactive filter.
-        // Apply the filter and bind the resulting filtered collection to the FilteredResourcePacks property.
-        // Subscribe to changes in the cache to keep the filtered collection up-to-date.
-        var resourcePackSubscription = _resourcePackCache.Connect()
-            .Filter(resourcePack)
-            .Bind(out var filteredResourcePacks)
-            .Subscribe();
-
-        Disposables.Add(resourcePackSubscription);
-
-        FilteredResourcePacks = filteredResourcePacks;
-        RefreshResourcePacks();
-
-        #endregion
-
-        #region Shader Packs
-
-        if (!_isVanilla)
-        {
-            var shaderPacks = this.WhenAnyValue(x => x.ShaderPackSearchQuery)
-                .Select(query =>
-                {
-                    if (string.IsNullOrWhiteSpace(query))
-                        return (Func<ShaderPackModel, bool>)(_ => true); // No filter
-                    return (Func<ShaderPackModel, bool>)(pack =>
-                        pack.Name.Contains(query, StringComparison.OrdinalIgnoreCase));
-                });
-
-            var shaderPackSubscription = _shaderPackCache.Connect()
-                .Filter(shaderPacks)
-                .Bind(out var filteredShaderPacks)
-                .Subscribe();
-
-            Disposables.Add(shaderPackSubscription);
-            FilteredShaderPacks = filteredShaderPacks;
-
-            RefreshShaderPacks();
-        }
-        #endregion
-        
-        RefreshWorlds();
-        RefreshServers();
-        RefreshScreenshots();
+        Dispatcher.UIThread.Invoke(async () => await InitAsync());
     }
 
     /// <summary>
@@ -299,6 +203,116 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         SelectedScreenshot?.Image?.Dispose();
         SelectedScreenshot = null;
     }
+
+    private async Task InitAsync()
+    {
+        var instances = await LauncherHelper.GetInstancesAsync();
+        var currentInstance = instances.FirstOrDefault(x => x.Id == _instanceId);
+        if (currentInstance == null)
+        {
+            _logger.Error($"Instance with ID '{_instanceId}' not found.");
+            throw new KeyNotFoundException($"Instance with ID '{_instanceId}' not found.");
+        }
+
+        InstanceName = currentInstance.Name;
+        IsVanilla = currentInstance.Kind == EMinecraftKind.VANILLA;
+        GameDirectory = currentInstance.GameDirectory;
+        InstanceConfig = new InstanceConfigModel(currentInstance.Config);
+        _isInitialized = true;
+        Accounts = (await LauncherHelper.GetAccountDataAsync()).Accounts;
+        //SubscribeToConfigChildren(InstanceConfig);
+        if (!string.IsNullOrEmpty(InstanceConfig.Misc.AccountId))
+            OverridenAccountIndex = Accounts.FindIndex(x => x.Id == InstanceConfig.Misc.AccountId);
+
+        // Logging setup
+        GlobalEvents.OnInstanceLogged += OnInstanceLogged;
+        Logs = GlobalEvents.GetInstanceLogs(_instanceId);
+        if (!string.IsNullOrEmpty(Logs))
+            await LogsScrollToEnd.Handle(Unit.Default);
+
+        #region Mods
+        if (!IsVanilla)
+        {
+            var mods = this.WhenAnyValue(x => x.ModSearchQuery)
+                .Select(query =>
+                {
+                    if (string.IsNullOrWhiteSpace(query))
+                        return (Func<ModModel, bool>)(_ => true); // No filter
+                    return (Func<ModModel, bool>)(mod =>
+                        mod.Name.Contains(query, StringComparison.OrdinalIgnoreCase));
+                });
+
+            var modSubscription = _modsCache.Connect()
+                .Filter(mods)
+                .Bind(out var filteredMods)
+                .Subscribe();
+
+            Disposables.Add(modSubscription);
+            FilteredMods = filteredMods;
+
+            RefreshMods();
+        }
+        #endregion
+        
+        #region Resource Packs
+
+        // Set up a reactive filter for the ResourcePackSearchQuery property.
+        // The filter updates dynamically based on the search query, matching resource packs whose names contain the query string (case-insensitive).
+        var resourcePack = this.WhenAnyValue(x => x.ResourcePackSearchQuery)
+            .Select(query =>
+            {
+                if (string.IsNullOrWhiteSpace(query))
+                    return (Func<ResourcePackModel, bool>)(_ => true); // No filter
+                return (Func<ResourcePackModel, bool>)(pack =>
+                    pack.Name.Contains(query, StringComparison.OrdinalIgnoreCase));
+            });
+
+        // Connect the resource pack cache to the reactive filter.
+        // Apply the filter and bind the resulting filtered collection to the FilteredResourcePacks property.
+        // Subscribe to changes in the cache to keep the filtered collection up-to-date.
+        var resourcePackSubscription = _resourcePackCache.Connect()
+            .Filter(resourcePack)
+            .Bind(out var filteredResourcePacks)
+            .Subscribe();
+
+        Disposables.Add(resourcePackSubscription);
+
+        FilteredResourcePacks = filteredResourcePacks;
+        RefreshResourcePacks();
+
+        #endregion
+
+        #region Shader Packs
+
+        if (!IsVanilla)
+        {
+            var shaderPacks = this.WhenAnyValue(x => x.ShaderPackSearchQuery)
+                .Select(query =>
+                {
+                    if (string.IsNullOrWhiteSpace(query))
+                        return (Func<ShaderPackModel, bool>)(_ => true); // No filter
+                    return (Func<ShaderPackModel, bool>)(pack =>
+                        pack.Name.Contains(query, StringComparison.OrdinalIgnoreCase));
+                });
+
+            var shaderPackSubscription = _shaderPackCache.Connect()
+                .Filter(shaderPacks)
+                .Bind(out var filteredShaderPacks)
+                .Subscribe();
+
+            Disposables.Add(shaderPackSubscription);
+            FilteredShaderPacks = filteredShaderPacks;
+
+            RefreshShaderPacks();
+        }
+        #endregion
+        
+        RefreshWorlds();
+        RefreshServers();
+        RefreshScreenshots();
+    }
+
+    #region Common
     
     #region Window
     [RelayCommand]
@@ -320,6 +334,11 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     }
     #endregion
 
+    [RelayCommand]
+    private async Task SwitchTab(EEditInstanceTab tab) => await TabSwitchInteraction.Handle(tab);
+
+    #endregion
+    
     #region Logs
 
     /// <summary>
@@ -1314,6 +1333,19 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     
     #region Commands
 
+    [RelayCommand]
+    private async Task SwitchSettingsTab(EInstanceSettingsTab tab) => await SettingsTabSwitchInteraction.Handle(tab);
+
+    [RelayCommand]
+    private async Task JavaDirSelect()
+    {
+        var result = await ShowDirPickerInteraction.Handle(TranslationManager.Translate("common.select.directory"));
+        if (string.IsNullOrEmpty(result) || !Directory.Exists(result))
+            return;
+        
+        InstanceConfig.Java.DefaultJavaPath = Path.Combine(result, OSHelper.GetOperatingSystem() == EOperatingSystem.Windows ? "javaw.exe" : "java");
+    }
+    
     [RelayCommand]
     private async Task JavaPathSelector()
     {

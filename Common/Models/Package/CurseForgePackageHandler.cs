@@ -1,0 +1,43 @@
+using Tavstal.KonkordLauncher.Core.Models;
+
+namespace Tavstal.KonkordLauncher.Common.Models.Package;
+
+public class CurseForgePackageHandler: IInstancePackageHandler
+{
+    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(CurseForgePackageHandler));
+    /*
+     * ARCHIVE LAYOUT:
+     * overrides - containing the game directory
+     * manifest.json - info about downloaded content from curseforge
+     * modlist.html - list of mods in a raw html list
+     */
+    
+    public async Task<Instance?> ImportAsync(string sourcePath, IProgress<double>? progress = null, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+
+            return null;
+        }
+        catch (Exception ex)
+        {
+            _logger.Error($"Failed to import curse forge package: {ex}");
+            return null;
+        }
+    }
+
+    public async Task<bool> ExportAsync(Instance instance, string targetPath, IProgress<double>? progress = null,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.Error($"Failed to export curse forge package: {ex}");
+            return false;
+        }
+    }
+}

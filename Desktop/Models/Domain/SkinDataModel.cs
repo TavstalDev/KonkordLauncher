@@ -3,7 +3,7 @@ using Avalonia.Media.Imaging;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
 
-namespace Tavstal.KonkordLauncher.Desktop.Models;
+namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
 
 public class SkinDataModel : IDisposable
 {

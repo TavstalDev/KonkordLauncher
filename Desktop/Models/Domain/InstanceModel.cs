@@ -27,7 +27,7 @@ using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
-namespace Tavstal.KonkordLauncher.Desktop.Models;
+namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
 
 /// <summary>
 /// Represents a model for a Minecraft instance, including its properties and behaviors.
@@ -472,7 +472,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
                 App.UpdateRPC("Browsing instances...");
                 if (settings.Minecraft.CloseLauncherOnGameExit)
                 {
-                    Dispatcher.UIThread.Invoke(async () =>
+                    Dispatcher.UIThread.Invoke<Task>(async () =>
                     {
                         if (ConfigModel.Game.ShowConsoleWhenGameCrashes && GameProcess?.ExitCode != 0)
                         {

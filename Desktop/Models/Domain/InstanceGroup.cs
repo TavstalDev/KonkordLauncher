@@ -1,6 +1,6 @@
 using System.Collections.ObjectModel;
 
-namespace Tavstal.KonkordLauncher.Desktop.Models;
+namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
 
 public class InstanceGroup
 {

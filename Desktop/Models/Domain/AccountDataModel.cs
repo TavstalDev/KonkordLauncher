@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Core.Models;
 
-namespace Tavstal.KonkordLauncher.Desktop.Models;
+namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
 
 /// <summary>
 /// Represents the data model for account management, including selected account ID and a collection of accounts.

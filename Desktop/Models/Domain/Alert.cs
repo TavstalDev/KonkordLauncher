@@ -1,6 +1,6 @@
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 
-namespace Tavstal.KonkordLauncher.Desktop.Models;
+namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
 
 /// <summary>
 /// Represents an alert with a title, message, and type.

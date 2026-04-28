@@ -1,14 +1,4 @@
 <Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-
-    <Style Selector="TabControl.AboutTab">
-        <Setter Property="Margin" Value="5" />
-        <Setter Property="Padding" Value="0" />
-    </Style>
-
-    <Style Selector="TabItem.AboutTabItem">
-        <Setter Property="FontSize" Value="18" />
-        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
-    </Style>
     
     <Style Selector="Grid.AboutWrapper">
         <Setter Property="HorizontalAlignment" Value="Stretch" />

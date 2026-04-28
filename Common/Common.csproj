@@ -28,6 +28,7 @@
 
     <ItemGroup>
       <PackageReference Include="Markdig" Version="0.44.0" />
+      <PackageReference Include="Modrinth.Net" Version="3.7.2" />
     </ItemGroup>
 
 </Project>

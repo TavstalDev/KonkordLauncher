@@ -459,12 +459,13 @@ public partial class MainViewModel : KonkordObservableObject
     }
 
     /// <summary>
-    /// Exports the specified Minecraft instance in the Konkord format asynchronously.
+    /// Exports the provided instance in PrismLauncher format to a user-selected folder.
     /// </summary>
-    /// <param name="instance">The instance model representing the Minecraft instance to export.</param>
-    ///  <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <param name="instance">The instance to export. If <c>null</c>, the method does nothing.</param>
+    /// <param name="cancellationToken">Cancellation token forwarded to the export operation.</param>
+    /// <returns>A task that completes when the export operation finishes (or is canceled).</returns>
     [RelayCommand]
-    private async Task ExportNativeInstance(InstanceModel? instance, CancellationToken cancellationToken = default)
+    private async Task ExportPrismInstance(InstanceModel? instance, CancellationToken cancellationToken = default)
     {
         if (instance == null)
             return;
@@ -473,10 +474,11 @@ public partial class MainViewModel : KonkordObservableObject
         if (string.IsNullOrEmpty(directoryResult))
             return;
 
-        string exportPath = Path.Combine(directoryResult, instance.Name + "-konkord.zip");
-        await InstanceHelper.ExportAsync(instance.getInstance(), exportPath, EInstanceProvider.Konkord, cancellationToken);
-    }
+        string exportPath = Path.Combine(directoryResult, instance.Name + "-prism.zip");
 
+        await InstanceHelper.ExportAsync(instance.getInstance(), exportPath, EInstanceProvider.PrismLauncher, cancellationToken);
+    }
+    
     /// <summary>
     /// Exports the specified Minecraft instance in the Modrinth format asynchronously.
     /// </summary>

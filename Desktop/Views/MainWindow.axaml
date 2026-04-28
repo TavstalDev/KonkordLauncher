@@ -221,9 +221,9 @@
                                             </DataTemplate>
                                         </MenuItem.HeaderTemplate>
                                         <MenuItem
-                                            Command="{Binding $parent[Window].DataContext.ExportNativeInstanceCommand}"
+                                            Command="{Binding $parent[Window].DataContext.ExportPrismInstanceCommand}"
                                             CommandParameter="{Binding .}"
-                                            Header="Konkord Launcher" />
+                                            Header="PrismLauncher" />
                                         <MenuItem
                                             Command="{Binding $parent[Window].DataContext.ExportModrinthInstanceCommand}"
                                             CommandParameter="{Binding .}"

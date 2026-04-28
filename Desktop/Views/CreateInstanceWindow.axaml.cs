@@ -4,6 +4,8 @@ using System.Reactive.Disposables;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Threading;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
@@ -181,5 +183,45 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
             }
         }
         _selectedImportTypeBtn.Classes.Add("SuccessBtn");
+    }
+
+    private void ScrollViewer_OnScrollChanged(object? sender, ScrollChangedEventArgs e)
+    {
+        if (DataContext is not { } viewModel)
+            return;
+        
+        if (!viewModel.ModpackAllowScrollbarRefresh)
+            return;
+        
+        if (sender is ScrollViewer scrollViewer)
+        {
+            double verticalOffset = scrollViewer.Offset.Y;
+            double maxVerticalOffset = scrollViewer.Extent.Height - scrollViewer.Viewport.Height;
+
+            if (maxVerticalOffset < 0 || Math.Abs(verticalOffset - maxVerticalOffset) < 0.1)
+                Dispatcher.UIThread.Invoke(async () => await viewModel.RefreshModpacksAsync());
+        }
+    }
+
+    private void ModPackCategory_OnIsCheckedChanged(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not { } viewModel)
+            return;
+        
+        if (!viewModel.ModpackAllowScrollbarRefresh)
+            return;
+        
+        Dispatcher.UIThread.Invoke(async () =>  await viewModel.RefreshModpacksAsync(true));
+    }
+
+    private void ModPackFilter_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (DataContext is not { } viewModel)
+            return;
+        
+        if (!viewModel.ModpackAllowScrollbarRefresh)
+            return;
+        
+        Dispatcher.UIThread.Invoke(async () =>  await viewModel.RefreshModpacksAsync(true));
     }
 }

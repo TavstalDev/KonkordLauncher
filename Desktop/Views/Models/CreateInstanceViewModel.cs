@@ -8,6 +8,7 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DynamicData;
@@ -189,8 +190,28 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
     #endregion
     
     #region Modpack
-
+    
+    [ObservableProperty] private bool _modpackAllowScrollbarRefresh = false;
     [ObservableProperty] private ObservableCollection<ModPackModel> _modpacks = new();
+    public ObservableCollection<string> ModpackVersionFilterSource { get; } = new();
+    [ObservableProperty] private int _modpackVersionFilterIndex = -1;
+    
+    [ObservableProperty] private string _modpackSearchQuery = string.Empty;
+
+    [ObservableProperty] private EModLoader _modpackModLoader = EModLoader.NONE;
+    
+    [ObservableProperty] private string? _modpackMinecraftVersion;
+
+    [ObservableProperty] private bool _modpackCategoryAdventure;
+    [ObservableProperty] private bool _modpackCategoryChallenging;
+    [ObservableProperty] private bool _modpackCategoryCombat;
+    [ObservableProperty] private bool _modpackCategoryKitchenSink;
+    [ObservableProperty] private bool _modpackCategoryLightweight;
+    [ObservableProperty] private bool _modpackCategoryMagic;
+    [ObservableProperty] private bool _modpackCategoryMultiplayer;
+    [ObservableProperty] private bool _modpackCategoryOptimization;
+    [ObservableProperty] private bool _modpackCategoryQuests;
+    [ObservableProperty] private bool _modpackCategoryTechnology;
     
     [ObservableProperty] private EPlatformType _selectedModpackPlatform = EPlatformType.Modrinth;
     
@@ -280,6 +301,8 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
                 innerCache.AddOrUpdate(version);
             _selectedMinecraftVersion = innerCache.Items.FirstOrDefault();
         });
+        
+        Dispatcher.UIThread.Invoke(async () => await InitAsync());
     }
 
     /// <summary>
@@ -306,6 +329,81 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
         ModLoaderSearchQuery = string.Empty;
         SelectedModLoader = null;
         ModLoaderVersionResult.Clear();
+    }
+
+    private async Task InitAsync()
+    {
+        var settings = await LauncherHelper.GetLauncherSettingsAsync();
+        var versionManifest = await ManifestHelper.GetMinecraftManifestAsync(settings.Launcher.GetVanillaManifestPath());
+        if (versionManifest == null)
+            throw new Exception("Failed to load Minecraft version manifest.");
+        
+        ModpackVersionFilterSource.Add("Any");
+        ModpackVersionFilterIndex = 0;
+        foreach (var version in versionManifest.Versions)
+        {
+            if (version.Type != "release")
+                continue;
+            ModpackVersionFilterSource.Add(version.Id);
+        }
+
+        var response = await ModrinthHelper.SearchModpacksAsync();
+        if (response == null)
+            throw new Exception("Modrinth search failed.");
+
+        var tasks = response.Hits.Select(ModPackModel.FromModrinthProjectAsync);
+        
+        var results = await Task.WhenAll(tasks);
+        
+        foreach (var model in results)
+            Modpacks.Add(model);
+
+        ModpackAllowScrollbarRefresh = true;
+    }
+    
+    public async Task RefreshModpacksAsync(bool resetSearch = false)
+    {
+        ModpackAllowScrollbarRefresh = false;
+        string? version = ModpackMinecraftVersion is null or "Any" ? null : ModpackMinecraftVersion;
+
+        List<string> categories = [];
+        if (ModpackModLoader != EModLoader.NONE)
+            categories.Add(ModpackModLoader.ToString().ToLower());
+        if (ModpackCategoryAdventure)
+            categories.Add("adventure");
+        if (ModpackCategoryChallenging)
+            categories.Add("challenging");
+        if (ModpackCategoryCombat)
+            categories.Add("combat");
+        if (ModpackCategoryKitchenSink)
+            categories.Add("kitchen_sink");
+        if (ModpackCategoryLightweight)
+            categories.Add("lightweight");
+        if (ModpackCategoryMagic)
+            categories.Add("magic");
+        if (ModpackCategoryMultiplayer)
+            categories.Add("multiplayer");
+        if (ModpackCategoryOptimization)
+            categories.Add("optimization");
+        if (ModpackCategoryQuests)
+            categories.Add("quests");
+        if (ModpackCategoryTechnology)
+            categories.Add("technology");
+        
+        var response = await ModrinthHelper.SearchModpacksAsync(ModpackSearchQuery, version, categories, Modpacks.Count);
+        if (response == null)
+            throw new Exception("Modrinth search failed.");
+
+        var tasks = response.Hits.Select(ModPackModel.FromModrinthProjectAsync);
+        
+        var results = await Task.WhenAll(tasks);
+        
+        if (resetSearch)
+            Modpacks.Clear();
+        foreach (var model in results)
+            Modpacks.Add(model);
+        
+        ModpackAllowScrollbarRefresh = true;
     }
     
     #region Commands
@@ -441,6 +539,23 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
 
     #endregion
 
+    #region Modpack
+
+    partial void OnModpackSearchQueryChanged(string value)
+    {
+        if (!ModpackAllowScrollbarRefresh)
+            return;
+        
+        Dispatcher.UIThread.Invoke(async () => await RefreshModpacksAsync(true));
+    }
+
+    partial void OnSelectedModpackChanged(ModPackModel? value)
+    {
+        
+    }
+
+    #endregion
+    
     #region Import
 
     partial void OnImportPathChanged(string? value)

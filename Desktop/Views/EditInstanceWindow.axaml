@@ -191,7 +191,7 @@
                                         <Border Classes="SettingsCategoryBorder">
                                             <Grid RowDefinitions="Auto, *, Auto">
                                                 <!--  Title  -->
-                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.edit.latestLog}" />
+                                                <TextBlock Classes="SettingsCategoryText" Margin="5, 5, 5, 10" Text="{lang:Translate instance.edit.latestLog}" />
 
                                                 <!--  Log content  -->
                                                 <Border Grid.Row="1" Classes="GridInnerContent" Margin="0, 0, 0, 15">
@@ -268,7 +268,7 @@
                                         <Border Classes="SettingsCategoryBorder">
                                             <Grid RowDefinitions="Auto, *, Auto">
                                                 <!--  Title  -->
-                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.edit.tab.mods}" />
+                                                <TextBlock Classes="SettingsCategoryText" Margin="5, 5, 5, 10" Text="{lang:Translate instance.edit.subTitle.mods}" />
                                                 
                                                 <!--  Content  -->
                                                 <Border Grid.Row="1">
@@ -402,7 +402,7 @@
                                          <Border Classes="SettingsCategoryBorder">
                                             <Grid RowDefinitions="Auto, *, Auto">
                                                 <!--  Title  -->
-                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.edit.tab.resourcePacks}" />
+                                                <TextBlock Classes="SettingsCategoryText" Margin="5, 5, 5, 10" Text="{lang:Translate instance.edit.subTitle.resourcePacks}" />
                                                 
                                                 <!--  Content  -->
                                                 <Border Grid.Row="1">
@@ -528,7 +528,7 @@
                                         <Border Classes="SettingsCategoryBorder">
                                             <Grid RowDefinitions="Auto, *, Auto">
                                                 <!--  Title  -->
-                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.edit.tab.shaderPacks}" />
+                                                <TextBlock Classes="SettingsCategoryText" Margin="5, 5, 5, 10" Text="{lang:Translate instance.edit.subTitle.shaderPacks}" />
                                                 
                                                 <!--  Content  -->
                                                 <Border Grid.Row="1">
@@ -633,7 +633,7 @@
                                         <Border Classes="SettingsCategoryBorder">
                                             <Grid RowDefinitions="Auto, *, Auto">
                                                 <!--  Title  -->
-                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.edit.tab.worlds}" />
+                                                <TextBlock Classes="SettingsCategoryText" Margin="5, 5, 5, 10" Text="{lang:Translate instance.edit.subTitle.worlds}" />
                                                 
                                                 <!--  Content  -->
                                                 <Border Grid.Row="1">
@@ -736,7 +736,7 @@
                                         <Border Classes="SettingsCategoryBorder">
                                             <Grid RowDefinitions="Auto, *, Auto">
                                                 <!--  Title  -->
-                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.edit.tab.servers}" />
+                                                <TextBlock Classes="SettingsCategoryText" Margin="5, 5, 5, 10" Text="{lang:Translate instance.edit.subTitle.servers}" />
                                                 
                                                 <!--  Content  -->
                                                 <Border Grid.Row="1">
@@ -841,7 +841,7 @@
                                         <Border Classes="SettingsCategoryBorder">
                                             <Grid RowDefinitions="Auto, *, Auto">
                                                 <!--  Title  -->
-                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.edit.tab.screenshots}" />
+                                                <TextBlock Classes="SettingsCategoryText" Margin="5, 5, 5, 10" Text="{lang:Translate instance.edit.subTitle.screenshots}" />
                                                 
                                                 <!--  Content  -->
                                                 <Border Grid.Row="1">

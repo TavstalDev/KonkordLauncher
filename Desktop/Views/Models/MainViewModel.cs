@@ -33,8 +33,12 @@ using Tavstal.KonkordLauncher.Core.Services;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Config.Launcher;
+using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
+using AccountDataModel = Tavstal.KonkordLauncher.Desktop.Models.Domain.AccountDataModel;
 using ImageHelper = Tavstal.KonkordLauncher.Desktop.Helpers.ImageHelper;
+using InstanceModel = Tavstal.KonkordLauncher.Desktop.Models.Domain.InstanceModel;
+using JavaVersionModel = Tavstal.KonkordLauncher.Desktop.Models.Domain.JavaVersionModel;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 
@@ -69,11 +73,13 @@ public partial class MainViewModel : KonkordObservableObject
     public Interaction<string, string?> ShowTextInputDialog { get; } = new();
     public Interaction<Unit, string?> ShowIconSelectorDialog { get; } = new();
     public Interaction<ESettingsTab, Unit> UpdateSettingsTabButton { get; } = new();
+    public Interaction<EAboutTab, Unit> SwitchAboutTabInteraction { get; } = new();
     #endregion
     
     [ObservableProperty] private bool _isLoading;
     [ObservableProperty] private ESidebarType _currentPageIndex = ESidebarType.Play;
     [ObservableProperty] private ESettingsTab _currentSettingsTab = ESettingsTab.LAUNCHER;
+    [ObservableProperty] private EAboutTab _currentAboutTab = EAboutTab.ABOUT;
     public ObservableCollection<InstanceGroup> InstanceGroups { get; } = new();
     public ObservableCollection<PatchNote> Patches { get; } = new();
 
@@ -1343,5 +1349,12 @@ public partial class MainViewModel : KonkordObservableObject
             IsAccountSkinProcessing = false;
         }
     }
+    #endregion
+
+    #region About
+
+    [RelayCommand]
+    private async Task SwitchAboutTab(EAboutTab tab) => await SwitchAboutTabInteraction.Handle(tab);
+
     #endregion
 }

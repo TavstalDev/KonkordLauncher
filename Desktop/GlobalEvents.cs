@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Tavstal.KonkordLauncher.Common.Models;
 
-namespace Tavstal.KonkordLauncher.Desktop.Models;
+namespace Tavstal.KonkordLauncher.Desktop;
 
 public static class GlobalEvents
 {

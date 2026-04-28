@@ -16,6 +16,7 @@ using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using Button = Avalonia.Controls.Button;
+using JavaVersionModel = Tavstal.KonkordLauncher.Desktop.Models.Domain.JavaVersionModel;
 using MainViewModel = Tavstal.KonkordLauncher.Desktop.Views.Models.MainViewModel;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views;
@@ -28,6 +29,7 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
     private readonly Dictionary<string, InstanceLogsWindow> _logWindows = new(); 
     private Button _selectedSideBarButton;
     private Button _selectedSettingsTabButton;
+    private Button _selectedAboutTabButton;
     
     public MainWindow()
     {
@@ -39,6 +41,7 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
         
         _selectedSideBarButton = PlaySideBtn;
         _selectedSettingsTabButton = LauncherSettingsBtn;
+        _selectedAboutTabButton = AboutInfoBtn;
         
         DataContext = new MainViewModel();
         this.WhenActivated(disposables =>
@@ -145,6 +148,12 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
             DataContext.UpdateSettingsTabButton.RegisterHandler(action =>
             {
                 HandleSettingsTabChange(action.Input);
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            });
+            DataContext.SwitchAboutTabInteraction.RegisterHandler(action =>
+            {
+                HandleAboutTabChange(action.Input);
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             });
@@ -298,6 +307,37 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
             }
         }
         _selectedSettingsTabButton.Classes.Add("SettingsTabBtnActive");
+    }
+
+    private void HandleAboutTabChange(EAboutTab tabType)
+    {
+        if (DataContext is not { } viewModel)
+            return;
+        
+        if (viewModel.CurrentAboutTab == tabType)
+            return;
+
+        viewModel.CurrentAboutTab = tabType;
+        _selectedAboutTabButton.Classes.Remove("SettingsTabBtnActive");
+        switch (tabType)
+        {
+            case EAboutTab.ABOUT:
+            {
+                _selectedAboutTabButton = AboutInfoBtn;
+                break;
+            }
+            case EAboutTab.CREDITS:
+            {
+                _selectedAboutTabButton = CreditsInfoBtn;
+                break;
+            }
+            case EAboutTab.LICENSE:
+            {
+                _selectedAboutTabButton = LicenseInfoBtn;
+                break;
+            }
+        }
+        _selectedAboutTabButton.Classes.Add("SettingsTabBtnActive");
     }
     
     /// <summary>

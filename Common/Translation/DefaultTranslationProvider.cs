@@ -269,6 +269,13 @@ public static class DefaultTranslationProvider
         {"instance.edit.subTitle.window", "WINDOW"},
         {"instance.edit.subTitle.console", "CONSOLE"},
         {"instance.edit.subTitle.performance", "PERFORMANCE"},
+        {"instance.edit.subTitle.mods", "MODS"},
+        {"instance.edit.subTitle.resourcePacks", "RESOURCE PACKS"},
+        {"instance.edit.subTitle.shaderPacks", "SHADER PACKS"},
+        {"instance.edit.subTitle.worlds", "WORLDS"},
+        {"instance.edit.subTitle.servers", "SERVERS"},
+        {"instance.edit.subTitle.screenshots", "SCREENSHOTS"},
+        {"instance.edit.subTitle.settings", "SETTINGS"},
         
         {"instance.edit.settings.console.showStart", "Show console while minecraft is running"},
         {"instance.edit.settings.console.closeExit", "Close console when minecraft quits"},

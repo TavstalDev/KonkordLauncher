@@ -22,33 +22,31 @@ public partial class JavaSelectorWindow : KonkordWindow<JavaSelectorViewModel>
     {
         InitializeComponent();
 
+        DataContext = new JavaSelectorViewModel();
+        
         if (Design.IsDesignMode)
-            DataContext = new JavaSelectorViewModel();
-        else
+            return;
+        
+        this.WhenActivated(disposables =>
         {
-            var settings = LauncherHelper.GetLauncherSettings();
-            DataContext = new JavaSelectorViewModel(settings.Launcher.JavaDirectoryPath);
-            this.WhenActivated(disposables =>
+            DataContext.MinimizeWindowInteraction.RegisterHandler(action =>
             {
-                DataContext.MinimizeWindowInteraction.RegisterHandler(action =>
-                {
-                    WindowState = WindowState.Minimized;
-                    action.SetOutput(Unit.Default);
-                    return Task.CompletedTask;
-                }).DisposeWith(disposables);
-                DataContext.MaximizeWindowInteraction.RegisterHandler(action =>
-                {
-                    WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
-                    action.SetOutput(Unit.Default);
-                    return Task.CompletedTask;
-                }).DisposeWith(disposables);
-                DataContext.CloseWindowInteraction.RegisterHandler(action =>
-                {
-                    Close(action.Input);
-                    action.SetOutput(Unit.Default);
-                    return Task.CompletedTask;
-                }).DisposeWith(disposables);
-            });
-        }
+                WindowState = WindowState.Minimized;
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
+            DataContext.MaximizeWindowInteraction.RegisterHandler(action =>
+            {
+                WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
+            DataContext.CloseWindowInteraction.RegisterHandler(action =>
+            {
+                Close(action.Input);
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
+        });
     }
 }

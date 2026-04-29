@@ -27,13 +27,23 @@ public partial class JavaSelectorViewModel : ObservableObject
     public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
     public Interaction<JavaVersionModel?, Unit> CloseWindowInteraction { get; } = new();
     
-    public JavaSelectorViewModel(string? customJavaDirectory = null)
+    public JavaSelectorViewModel()
     {
         Versions = [];
         SelectedJavaVersion = null;
+
+        _ = InitAsync();
+    }
+
+    /// <summary>
+    /// Loads the current launcher configuration, discovers installed Java runtimes in the configured
+    /// Java directory, and populates <see cref="Versions"/> with the detected installations.
+    /// </summary>
+    private async Task InitAsync()
+    {
+        var settings = await LauncherHelper.GetLauncherSettingsAsync();
         
-        // Load available Java versions
-        var versions = JavaHelper.LocateJavaInstallations(customJavaDirectory);
+        var versions = JavaHelper.LocateJavaInstallations(settings.Launcher.JavaDirectoryPath);
         foreach (var version in versions)
             Versions.Add(new JavaVersionModel(version));
     }

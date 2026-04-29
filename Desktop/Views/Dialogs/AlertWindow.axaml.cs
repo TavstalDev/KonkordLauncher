@@ -69,6 +69,11 @@ public partial class AlertWindow : KonkordWindow<AlertViewModel>
         });
     }
 
+    /// <summary>
+    /// Handles the window loaded event and applies the alert color to the icon based on the current
+    /// alert type.
+    /// </summary>
+    /// <param name="e">The event data for the loaded event.</param>
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);

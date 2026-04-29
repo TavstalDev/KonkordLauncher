@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -27,7 +28,6 @@ using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
-using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
@@ -88,7 +88,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
     
     #region Vanilla
     private readonly SourceCache<MinecraftVersion, string> _minecraftVersionCache = new(x => x.Id);
-    public ReadOnlyObservableCollection<MinecraftVersion> MinecraftVersions { get; }
+    public ReadOnlyObservableCollection<MinecraftVersion> MinecraftVersions { get; private set; }
     [ObservableProperty] private string _searchQuery = string.Empty;
 
     [ObservableProperty] private bool _showReleases = true;
@@ -101,91 +101,30 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
 
     [ObservableProperty] private bool _showExperiments;
     
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(ModLoaderVersionResult))] [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))] private MinecraftVersion? _selectedMinecraftVersion;
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))] private MinecraftVersion? _selectedMinecraftVersion;
     #endregion
     #region  Mod Loader
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(ModLoaderVersionResult))] private string _modLoaderSearchQuery = string.Empty;
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(ModLoaderVersionResult))] [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))] private EMinecraftKind _modLoaderType = EMinecraftKind.VANILLA;
+    [ObservableProperty] private string _modLoaderSearchQuery = string.Empty;
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))] private EMinecraftKind _modLoaderType = EMinecraftKind.VANILLA;
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))] private IModManifest? _selectedModLoader;
+
+    private readonly SourceCache<IModManifest, string> _modLoaderVersionCache = new(x => x.Version);
+    public ReadOnlyObservableCollection<IModManifest> ModLoaderVersionResult { get; private set; } = new([]);
     
-    /// <summary>
-    /// Gets a filtered list of available mod loader versions based on the selected mod loader type,
-    /// the currently selected Minecraft version, and the mod loader search query.
-    /// For each mod loader type (NeoForge, Forge, Fabric, Quilt), retrieves the corresponding manifest,
-    /// filters by the selected Minecraft version and search query, and returns the matching results.
-    /// Returns an empty list for Vanilla or if no matching versions are found.
-    /// </summary>
-    public List<IModManifest> ModLoaderVersionResult
-    {
-        get
+    private static readonly IComparer<IModManifest> ModVersionComparer = 
+        Comparer<IModManifest>.Create((x, y) => 
         {
-            if (SelectedMinecraftVersion == null)
-                return [];
-            
-            List<IModManifest> result = [];
-            switch (ModLoaderType)
-            {
-                case EMinecraftKind.VANILLA:
-                    break;
-                case EMinecraftKind.NEOFORGE:
-                {
-                    var data = ManifestHelper.GetNeoForgeManifest();
-                    if (data == null)
-                        return [];
-                    foreach (var version in data)
-                    {
-                        if (version.GameVersion != SelectedMinecraftVersion.Id)
-                            continue;
-                        
-                        if (!string.IsNullOrEmpty(ModLoaderSearchQuery) || !version.Version.StartsWith(ModLoaderSearchQuery))
-                            continue;
-                        
-                        result.Add(version);
-                    }
-                    break;
-                }
-                case EMinecraftKind.FORGE:
-                {
-                    var data = ManifestHelper.GetForgeManifest();
-                    if (data == null)
-                        return [];
-                    foreach (var version in data)
-                    {
-                        if (version.GameVersion != SelectedMinecraftVersion.Id)
-                            continue;
-                        
-                        if (!string.IsNullOrEmpty(ModLoaderSearchQuery) || !version.Version.StartsWith(ModLoaderSearchQuery))
-                            continue;
-                        
-                        result.Add(version);
-                    }
-                    break;
-                }
-                case EMinecraftKind.FABRIC:
-                {
-                    result = ManifestHelper.GetFabricManifest()!;
-                    if (result == null)
-                        return [];
-                    
-                    if (!string.IsNullOrEmpty(ModLoaderSearchQuery))
-                        result = result.FindAll(x => x.Version.StartsWith(ModLoaderSearchQuery));
-                    break;
-                }
-                case EMinecraftKind.QUILT:
-                {
-                    result = ManifestHelper.GetQuiltManifest()!;
-                    if (result == null)
-                        return [];
-                    
-                    if (!string.IsNullOrEmpty(ModLoaderSearchQuery))
-                        result = result.FindAll(x => x.Version.StartsWith(ModLoaderSearchQuery));
-                    break;
-                }
+            // Descending sort: compare y to x instead of x to y
+            return Parse(y.Version).CompareTo(Parse(x.Version));
+
+            Version Parse(string v) {
+                if (string.IsNullOrEmpty(v)) return new Version(0, 0, 0);
+                // Split once for both '+' and '-' metadata
+                var clean = v.Split(['+', '-'], StringSplitOptions.RemoveEmptyEntries)[0];
+                return Version.TryParse(clean, out var parsed) ? parsed : new Version(0, 0, 0);
             }
-            
-            return result;
-        }
-    }
+        });
+    
     #endregion
     #endregion
     
@@ -198,7 +137,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
     
     [ObservableProperty] private string _modpackSearchQuery = string.Empty;
 
-    [ObservableProperty] private EModLoader _modpackModLoader = EModLoader.NONE;
+    [ObservableProperty] private EMinecraftKind _modpackModLoader = EMinecraftKind.VANILLA;
     
     [ObservableProperty] private string? _modpackMinecraftVersion;
 
@@ -247,12 +186,116 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
 
     public CreateInstanceViewModel()
     {
-        _instanceIcon = ImageHelper.Load("avares://Desktop/Assets/Icons/dirt.png").Result;
         if (Design.IsDesignMode)
+        {
+            _instanceIcon = ImageHelper.Load("avares://Desktop/Assets/Icons/dirt.png").Result;
             return;
+        }
         
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+        _minecraftVersionCache = new SourceCache<MinecraftVersion, string>(x => x.Id);
+
+        SetupPipeline();
+        _ = InitAsync();
+    }
+
+    /// <summary>
+    /// Releases the resources used by the CreateInstanceViewModel and performs cleanup operations.
+    /// </summary>
+    /// <param name="disposing">
+    /// A boolean value indicating whether the method is being called directly or indirectly by a finalizer.
+    /// If true, the method has been called directly or indirectly by a user's code. Managed and unmanaged resources can be disposed.
+    /// If false, the method has been called by the runtime from inside the finalizer, and only unmanaged resources can be disposed.
+    /// </param>
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+        _minecraftVersionCache.Clear();
+        _minecraftVersionCache.Dispose();
+        _modLoaderVersionCache.Clear();
+        _modLoaderVersionCache.Dispose();
+        InstanceName = string.Empty;
+        InstanceGroup = string.Empty;
+        InstanceIcon?.Dispose();
+        InstanceIcon = null;
+        InstanceIconPath = null;
+        SearchQuery = string.Empty;
+        SelectedMinecraftVersion = null;
+        
+        ModLoaderSearchQuery = string.Empty;
+        SelectedModLoader = null;
+    }
+
+    private async Task InitAsync()
+    {
+        await Task.Yield();
+        
+        var settings = await Task.Run(() => LauncherHelper.GetLauncherSettingsAsync());
+        var manifestPath = settings.Launcher.GetVanillaManifestPath();
+        var versionManifest = await Task.Run(() => ManifestHelper.GetMinecraftManifestAsync(manifestPath));
+
+        if (versionManifest == null)
+            throw new Exception("Failed to load Minecraft version manifest.");
+        
+        List<IModManifest>? fabricManifestCache= await ManifestHelper.GetFabricManifestAsync(settings.Launcher.GetFabricManifestPath());
+        List<IModManifest>? forgeManifestCache= await ManifestHelper.GetForgeManifestAsync(settings.Launcher.GetForgeManifestPath());
+        List<IModManifest>? neoForgeManifestCache= await ManifestHelper.GetNeoForgeManifestAsync(settings.Launcher.GetNeoForgeManifestPath());
+        List<IModManifest>? quiltManifestCache = await ManifestHelper.GetQuiltManifestAsync(settings.Launcher.GetQuiltManifestPath());
+        
+        _minecraftVersionCache.Edit(innerCache =>
+        {
+            innerCache.Clear();
+            innerCache.AddOrUpdate(versionManifest.Versions);
+        });
+        
+        // Populate ModLoader cache
+        _modLoaderVersionCache.Edit(innerCache =>
+        {
+            innerCache.Clear();
+            if (neoForgeManifestCache != null)
+                innerCache.AddOrUpdate(neoForgeManifestCache);
+            if (forgeManifestCache != null)
+                innerCache.AddOrUpdate(forgeManifestCache);
+            if (fabricManifestCache != null)
+                innerCache.AddOrUpdate(fabricManifestCache);
+            if (quiltManifestCache != null)
+                innerCache.AddOrUpdate(quiltManifestCache);
+        });
+        
+        var icon = await Task.Run(() => ImageHelper.Load("avares://Desktop/Assets/Icons/dirt.png"));
+        Dispatcher.UIThread.Post(() =>
+        {
+            InstanceIcon = icon;
+            SelectedMinecraftVersion = MinecraftVersions.FirstOrDefault();
+            ModpackVersionFilterSource.Add("Any");
+            ModpackVersionFilterIndex = 0;
+        });
+
+        /*foreach (var version in versionManifest.Versions)
+        {
+            if (version.Type != "release")
+                continue;
+            ModpackVersionFilterSource.Add(version.Id);
+        }
+
+        var response = await ModrinthHelper.SearchModpacksAsync();
+        if (response == null)
+            throw new Exception("Modrinth search failed.");
+
+        var tasks = response.Hits.Select(ModPackModel.FromModrinthProjectAsync);
+        
+        var results = await Task.WhenAll(tasks);
+        
+        foreach (var model in results)
+            Modpacks.Add(model);
+
+        ModpackAllowScrollbarRefresh = true;*/
+    }
+
+    private void SetupPipeline()
+    {
         var search = this.WhenAnyValue(x => x.SearchQuery)
-            .Throttle(TimeSpan.FromMilliseconds(150), RxApp.MainThreadScheduler);
+            .Throttle(TimeSpan.FromMilliseconds(150), TaskPoolScheduler.Default);
         
         var toggles = this.WhenAnyValue(
             x => x.ShowReleases,
@@ -282,83 +325,73 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
             _minecraftVersionCache
                 .Connect()
                 .Filter(filter)
-                .Sort(
-                    SortExpressionComparer<MinecraftVersion>.Descending(x => x.ReleaseTime)
-                )
-                .Bind(out var filteredCollection)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
+                .SortAndBind(out var filteredCollection, SortExpressionComparer<MinecraftVersion>.Descending(x => x.ReleaseTime))
                 .Subscribe(
                     _ => { },
-                    ex => _logger.Error("DynamicData pipeline crashed: " + ex)
+                    ex => _logger.Error($"Version pipeline crashed: {ex}")
                 );
+
         Disposables.Add(bindingSubscription);
         MinecraftVersions = filteredCollection;
-        _minecraftVersionCache.Edit(innerCache =>
-        {
-            var vanillaManifest = ManifestHelper.GetMinecraftManifest();
-            if (vanillaManifest == null)
-                throw new InvalidOperationException("Minecraft manifest is not available.");
-            foreach (var version in vanillaManifest.Versions)
-                innerCache.AddOrUpdate(version);
-            _selectedMinecraftVersion = innerCache.Items.FirstOrDefault();
-        });
         
-        Dispatcher.UIThread.Invoke(async () => await InitAsync());
-    }
+        // Setup ModLoader version filtering pipeline
+        var modLoaderFilter = this.WhenAnyValue(
+                x => x.ModLoaderType,
+                x => x.SelectedMinecraftVersion,
+                x => x.ModLoaderSearchQuery
+            )
+            .Throttle(TimeSpan.FromMilliseconds(100), TaskPoolScheduler.Default)
+            .Select(_ =>
+            {
+                if (SelectedMinecraftVersion == null)
+                    return (Func<IModManifest, bool>)(_ => false);
 
-    /// <summary>
-    /// Releases the resources used by the CreateInstanceViewModel and performs cleanup operations.
-    /// </summary>
-    /// <param name="disposing">
-    /// A boolean value indicating whether the method is being called directly or indirectly by a finalizer.
-    /// If true, the method has been called directly or indirectly by a user's code. Managed and unmanaged resources can be disposed.
-    /// If false, the method has been called by the runtime from inside the finalizer, and only unmanaged resources can be disposed.
-    /// </param>
-    protected override void Dispose(bool disposing)
-    {
-        base.Dispose(disposing);
-        _minecraftVersionCache.Clear();
-        _minecraftVersionCache.Dispose();
-        InstanceName = string.Empty;
-        InstanceGroup = string.Empty;
-        InstanceIcon?.Dispose();
-        InstanceIcon = null;
-        InstanceIconPath = null;
-        SearchQuery = string.Empty;
-        SelectedMinecraftVersion = null;
+                var selectedVersion = SelectedMinecraftVersion.Id;
+                var searchQuery = ModLoaderSearchQuery;
+                var modLoaderType = ModLoaderType;
+
+                return (Func<IModManifest, bool>)(manifest =>
+                {
+                    // Return empty if no mod loader is selected or the mod loader type does not match
+                    if (modLoaderType == EMinecraftKind.VANILLA || modLoaderType != manifest.LoaderKind)
+                        return false;
+
+                    // Filter by mod loader type
+                    switch (modLoaderType)
+                    {
+                        case EMinecraftKind.NEOFORGE:
+                        case EMinecraftKind.FORGE:
+                            if (manifest.GameVersion != selectedVersion)
+                                return false;
+                            break;
+                        case EMinecraftKind.FABRIC:
+                        case EMinecraftKind.QUILT:
+                            break;
+                        default:
+                            return false;
+                    }
+
+                    // Filter by search query
+                    if (!string.IsNullOrEmpty(searchQuery) && !manifest.Version.StartsWith(searchQuery))
+                        return false;
+
+                    return true;
+                });
+            });
         
-        ModLoaderSearchQuery = string.Empty;
-        SelectedModLoader = null;
-        ModLoaderVersionResult.Clear();
-    }
+        var modLoaderSubscription = _modLoaderVersionCache
+            .Connect()
+            .Filter(modLoaderFilter)
+            .ObserveOn(RxSchedulers.MainThreadScheduler)
+            .SortAndBind(out var filteredModLoaders, ModVersionComparer)
+            .Subscribe(
+                _ => { },
+                ex => _logger.Error($"ModLoader pipeline crashed: {ex}")
+            );
 
-    private async Task InitAsync()
-    {
-        var settings = await LauncherHelper.GetLauncherSettingsAsync();
-        var versionManifest = await ManifestHelper.GetMinecraftManifestAsync(settings.Launcher.GetVanillaManifestPath());
-        if (versionManifest == null)
-            throw new Exception("Failed to load Minecraft version manifest.");
-        
-        ModpackVersionFilterSource.Add("Any");
-        ModpackVersionFilterIndex = 0;
-        foreach (var version in versionManifest.Versions)
-        {
-            if (version.Type != "release")
-                continue;
-            ModpackVersionFilterSource.Add(version.Id);
-        }
-
-        var response = await ModrinthHelper.SearchModpacksAsync();
-        if (response == null)
-            throw new Exception("Modrinth search failed.");
-
-        var tasks = response.Hits.Select(ModPackModel.FromModrinthProjectAsync);
-        
-        var results = await Task.WhenAll(tasks);
-        
-        foreach (var model in results)
-            Modpacks.Add(model);
-
-        ModpackAllowScrollbarRefresh = true;
+        Disposables.Add(modLoaderSubscription);
+        ModLoaderVersionResult = filteredModLoaders;
     }
     
     public async Task RefreshModpacksAsync(bool resetSearch = false)
@@ -367,7 +400,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
         string? version = ModpackMinecraftVersion is null or "Any" ? null : ModpackMinecraftVersion;
 
         List<string> categories = [];
-        if (ModpackModLoader != EModLoader.NONE)
+        if (ModpackModLoader != EMinecraftKind.VANILLA)
             categories.Add(ModpackModLoader.ToString().ToLower());
         if (ModpackCategoryAdventure)
             categories.Add("adventure");

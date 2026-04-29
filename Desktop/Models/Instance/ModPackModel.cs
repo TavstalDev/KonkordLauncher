@@ -41,7 +41,7 @@ public class ModPackModel
                 Description = project.Description ?? "Unknown description",
                 Icon = await iconTask,
                 RawPage = rawPage,
-                Versions = new ObservableCollection<string>(project.Versions),
+                Versions = new ObservableCollection<string>(projectData?.Versions ?? []),
                 Tags = new ObservableCollection<string>(project.Categories)
             };
         });

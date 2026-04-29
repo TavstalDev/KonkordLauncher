@@ -4,8 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Input.Platform;
 using Avalonia.Platform.Storage;
-using Avalonia.ReactiveUI;
+using ReactiveUI.Avalonia;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 

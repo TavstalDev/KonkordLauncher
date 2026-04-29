@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -7,6 +8,7 @@ using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Platform.Storage;
 using ReactiveUI.Avalonia;
+using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 
@@ -59,6 +61,30 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
             return;
 
         await topLevel.Clipboard.SetTextAsync(text);
+    }
+    
+    public async Task SetClipboardImageAsync(ScreenshotModel screenshot)
+    {
+        if (screenshot.Image == null)
+            return;
+
+        var topLevel = GetTopLevel(this);
+        if (topLevel == null)
+            return;
+        
+        var clipboard = topLevel.Clipboard;
+        if (clipboard == null)
+            return;
+
+        using var ms = new MemoryStream();
+        screenshot.Image.Save(ms);
+
+        var fileFormat = DataFormat.CreateBytesApplicationFormat("image/png");
+        var item = DataTransferItem.Create(fileFormat, ms.ToArray());
+
+        var transfer = new DataTransfer();
+        transfer.Add(item);
+        await clipboard.SetDataAsync(transfer);
     }
     
     protected async Task<string?> OpenFilePickerAsync(string title, string filterName, string[] patterns)

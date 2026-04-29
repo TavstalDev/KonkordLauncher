@@ -147,6 +147,7 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     {
         base.OnClosed(e);
         App.UpdateRPC("Browsing instances...");
+        GlobalEvents.InvokeInstancesChanged();
     }
 
     /// <summary>
@@ -368,39 +369,6 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     #endregion
     
     #region Screenshots
-    /// <summary>
-    /// Copies the provided screenshot image to the system clipboard as a PNG.
-    /// </summary>
-    /// <param name="screenshot">
-    /// The screenshot model containing the image to copy to the clipboard.
-    /// If the image is null, the operation is aborted.
-    /// </param>
-    public async Task SetClipboardImageAsync(ScreenshotModel screenshot)
-    {
-        if (screenshot.Image == null)
-            return;
-
-        var topLevel = GetTopLevel(this);
-        if (topLevel == null)
-            return;
-        
-        var clipboard = topLevel.Clipboard;
-        if (clipboard == null)
-        {
-            _logger.Error("Clipboard is not available. Cannot set clipboard image.");
-            return;
-        }
-
-        using var ms = new MemoryStream();
-        screenshot.Image.Save(ms);
-
-        var fileFormat = DataFormat.CreateBytesApplicationFormat("image/png");
-        var item = DataTransferItem.Create(fileFormat, ms.ToArray());
-
-        var transfer = new DataTransfer();
-        transfer.Add(item);
-        await clipboard.SetDataAsync(transfer);
-    }
     
     /// <summary>
     /// Handles the event when editing of a screenshot cell is completed in the DataGrid.
@@ -483,13 +451,7 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     /// </summary>
     /// <param name="sender">The source of the event, typically a button.</param>
     /// <param name="e">The event data associated with the click event.</param>
-    private void AddEnvironmentRow_OnClick(object? sender, RoutedEventArgs e)
-    {
-        if (DataContext == null)
-            return;
-
-        DataContext.InstanceConfig.Environment.Add(new("ENV_VAR", "env_value"));
-    }
+    private void AddEnvironmentRow_OnClick(object? sender, RoutedEventArgs e) => DataContext?.InstanceConfig.Environment.Add(new("ENV_VAR", "env_value"));
 
     /// <summary>
     /// Handles the click event for removing the selected environment variable row from the Environment DataGrid.
@@ -518,13 +480,7 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     /// </summary>
     /// <param name="sender">The source of the event, typically a button.</param>
     /// <param name="e">The event data associated with the click event.</param>
-    private void ClearEnvironmentTable_OnClick(object? sender, RoutedEventArgs e)
-    {
-        if (DataContext == null)
-            return;
-
-        DataContext.InstanceConfig.Environment.Clear();
-    }
+    private void ClearEnvironmentTable_OnClick(object? sender, RoutedEventArgs e) => DataContext?.InstanceConfig.Environment.Clear();
 
     #endregion
 }

@@ -25,6 +25,7 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
     // This window should not use KonkordWindow as long as it can only be opened once.
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MainWindow));
     private readonly Dictionary<string, InstanceLogsWindow> _logWindows = new(); 
+    private readonly Dictionary<string, EditInstanceWindow> _openEditWindows = new();
     private Button _selectedSideBarButton;
     private Button _selectedSettingsTabButton;
     private Button _selectedAboutTabButton;
@@ -58,68 +59,76 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             }).DisposeWith(disposables);
-            DataContext.UpdateSidebarButton.RegisterHandler(action =>
+            DataContext.SwitchSidebarBtnInteraction.RegisterHandler(action =>
             {
                 HandleSidebarChange(action.Input);
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             }).DisposeWith(disposables);
-            DataContext.OpenFolderPicker.RegisterHandler(async action =>
+            DataContext.OpenFolderPickerInteraction.RegisterHandler(async action =>
             {
-                var result = await OpenFolderPickerAsync();
+                var result = await OpenFolderPickerAsync(TranslationManager.Translate("common.select.directory"));
                 action.SetOutput(result);
             }).DisposeWith(disposables);
-            DataContext.OpenImagePicker.RegisterHandler(async action =>
+            DataContext.OpenImagePickerInteraction.RegisterHandler(async action =>
             {
-                var result = await OpenImagePickerAsync();
+                var result = await OpenFilePickerAsync(TranslationManager.Translate("common.select.file"), "PNGs", ["*.png"]);
                 action.SetOutput(result);
             }).DisposeWith(disposables);
-            DataContext.ShowAlertDialog.RegisterHandler(async action =>
+            DataContext.ShowAlertDialogInteraction.RegisterHandler(async action =>
             {
                 AlertWindow alertWindow = new(action.Input.Title, action.Input.Message, action.Input.Type);
                 await alertWindow.ShowDialog(this);
                 action.SetOutput(Unit.Default);
             }).DisposeWith(disposables);
-            DataContext.ShowConfirmDialog.RegisterHandler(async action =>
+            DataContext.ShowConfirmDialogInteraction.RegisterHandler(async action =>
             {
                 AlertWindow alertWindow = new(action.Input.Title, action.Input.Message, action.Input.Type);
                 var result = await alertWindow.ShowDialog<bool>(this);
                 action.SetOutput(result);
             }).DisposeWith(disposables);
-            DataContext.ShowInstanceCreationDialog.RegisterHandler(async action =>
+            DataContext.ShowInstanceCreationDialogInteraction.RegisterHandler(async action =>
             {
                 await new CreateInstanceWindow().ShowDialog(this);
                 action.SetOutput(Unit.Default);
             }).DisposeWith(disposables);
-            DataContext.ShowInstanceEditDialog.RegisterHandler(async action =>
+            DataContext.ShowInstanceEditDialogInteraction.RegisterHandler(async action =>
             {
-                EditInstanceWindow editInstanceWindow = new EditInstanceWindow(action.Input);
-                var result = await editInstanceWindow.ShowDialog<bool>(this);
                 action.SetOutput(Unit.Default);
-                if (!result)
+                string instanceId = action.Input;
+                if (_openEditWindows.TryGetValue(instanceId, out var window))
+                {
+                    window.Activate();
+                    if (window.WindowState == WindowState.Minimized)
+                        window.WindowState = WindowState.Normal;
                     return;
-                GlobalEvents.InvokeInstancesChanged();
+                }
+                EditInstanceWindow editInstanceWindow = new EditInstanceWindow(instanceId);
+                editInstanceWindow.Show(this);
+                _openEditWindows.Add(instanceId, editInstanceWindow);
+                editInstanceWindow.Closed += (_, _) => _openEditWindows.Remove(instanceId);
             }).DisposeWith(disposables);
-            DataContext.ShowAccountsDialog.RegisterHandler(async action =>
+            DataContext.ShowAccountsDialogInteraction.RegisterHandler(async action =>
             {
                 var dialog = new AccountsWindow();
                 await dialog.ShowDialog(this);
                 action.SetOutput(Unit.Default);
             }).DisposeWith(disposables);
-            DataContext.ShowJavaSelectorDialog.RegisterHandler(async action =>
+            DataContext.ShowJavaSelectorDialogInteraction.RegisterHandler(async action =>
             {
                 var window = new JavaSelectorWindow();
                 var javaVersion = await window.ShowDialog<JavaVersionModel>(this);
                 action.SetOutput(javaVersion);
             }).DisposeWith(disposables);
-            DataContext.ShowLogsWindow.RegisterHandler(action =>
+            DataContext.ShowLogsWindowInteraction.RegisterHandler(action =>
             {
-                var window = new InstanceLogsWindow(action.Input);
+                string instanceId = action.Input;
+                var window = new InstanceLogsWindow(instanceId);
                 window.Show();
-                _logWindows[action.Input] = window;
+                _logWindows[instanceId] = window;
                 action.SetOutput(Unit.Default);
             });
-            DataContext.CloseLogsWindow.RegisterHandler(action =>
+            DataContext.CloseLogsWindowInteraction.RegisterHandler(action =>
             {
                 var window = _logWindows.GetValueOrDefault(action.Input);
                 window?.Close();
@@ -127,25 +136,25 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
                     _logWindows.Remove(action.Input);
                 action.SetOutput(Unit.Default);
             });
-            DataContext.ShowTextInputDialog.RegisterHandler(async action =>
+            DataContext.ShowTextInputDialogInteraction.RegisterHandler(async action =>
             {
                 var dialog = new InputWindow(action.Input);
                 var result = await dialog.ShowDialog<string?>(this);
                 action.SetOutput(result);
             });
-            DataContext.ShowIconSelectorDialog.RegisterHandler(async action =>
+            DataContext.ShowIconSelectorDialogInteraction.RegisterHandler(async action =>
             {
                 var dialog = new IconSelectorWindow();
                 var result = await dialog.ShowDialog<string?>(this);
                 action.SetOutput(result);
             });
-            DataContext.UpdateSettingsTabButton.RegisterHandler(action =>
+            DataContext.UpdateSettingsTabButtonInteraction.RegisterHandler(action =>
             {
                 HandleSettingsTabChange(action.Input);
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             });
-            DataContext.SwitchAboutTabInteraction.RegisterHandler(action =>
+            DataContext.SwitchAboutTabInteractionInteraction.RegisterHandler(action =>
             {
                 HandleAboutTabChange(action.Input);
                 action.SetOutput(Unit.Default);
@@ -161,15 +170,6 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
             throw new InvalidOperationException("No primary screen found."); // Ensure there is a primary screen
         var screenSize = screen.Bounds.Size;
         App.SetScreenSize(screenSize);
-
-
-        /*if (App.IsUpToDate == null)
-            VersionLabel.Content = TranslationManager.Translate("main.sidebar.version.update.none");
-        else
-            VersionLabel.Content = App.IsUpToDate.Value ? 
-                TranslationManager.Translate("main.sidebar.version.update.none")
-                :
-                TranslationManager.Translate("main.sidebar.version.update.available");*/
     }
     
     #region Events
@@ -209,7 +209,7 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
         if (sender is not ComboBox { SelectedItem: Language selectedLanguage })
             return;
         
-        viewModel.CoreConfig.Launcher.Language = selectedLanguage.TwoLetterCode;
+        viewModel.Config.CoreConfig.Launcher.Language = selectedLanguage.TwoLetterCode;
     }
     #endregion
 
@@ -267,6 +267,11 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
         _selectedSideBarButton.Classes.Add("SideBarActiveBtn");
     }
     
+    /// <summary>
+    /// Updates the active settings tab in the main window and synchronizes the corresponding
+    /// tab button's visual state.
+    /// </summary>
+    /// <param name="tabType">The settings tab to switch to.</param>
     private void HandleSettingsTabChange(ESettingsTab tabType)
     {
         if (DataContext is not { } viewModel)
@@ -303,6 +308,11 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
         _selectedSettingsTabButton.Classes.Add("SettingsTabBtnActive");
     }
 
+    /// <summary>
+    /// Updates the active tab in the About section and synchronizes the corresponding
+    /// tab button's visual state.
+    /// </summary>
+    /// <param name="tabType">The about tab to switch to.</param>
     private void HandleAboutTabChange(EAboutTab tabType)
     {
         if (DataContext is not { } viewModel)
@@ -332,93 +342,5 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
             }
         }
         _selectedAboutTabButton.Classes.Add("SettingsTabBtnActive");
-    }
-    
-    /// <summary>
-    /// Opens a file picker dialog to allow the user to select an image file.
-    /// </summary>
-    /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains the 
-    /// absolute path of the selected image file as a string, or null if no file was selected 
-    /// or if folder picking is not supported.
-    /// </returns>
-    private async Task<string?> OpenImagePickerAsync()
-    {
-        // Ensure the VisualRoot is a TopLevel object
-        if (VisualRoot is not TopLevel topLevel)
-            return null;
-
-        var storageProvider = topLevel.StorageProvider;
-
-        // Check if folder picking is supported on the current platform
-        if (!storageProvider.CanPickFolder)
-        {
-            _logger.Error("Folder picking is not supported on this platform.");
-            return null;
-        }
-    
-        var options = new FilePickerOpenOptions
-        {
-            Title = TranslationManager.Translate("common.select.file"),
-            AllowMultiple = false,
-            FileTypeFilter = new List<FilePickerFileType>
-            {
-                new("PNG Images")
-                {
-                    Patterns = new List<string> { "*.png" }
-                }
-            }
-        };
-        
-        var files = await storageProvider.OpenFilePickerAsync(options);
-        return !files.Any() ? null : files[0].Path.AbsolutePath;
-    }
-
-    /// <summary>
-    /// Opens a folder picker dialog to allow the user to select a folder.
-    /// </summary>
-    /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains the path of the selected folder
-    /// as a string, or null if no folder was selected or if folder picking is not supported.
-    /// </returns>
-    private async Task<string?> OpenFolderPickerAsync()
-    {
-        // Ensure the VisualRoot is a TopLevel object
-        if (VisualRoot is not TopLevel topLevel)
-            return null;
-
-        var storageProvider = topLevel.StorageProvider;
-
-        // Check if folder picking is supported on the current platform
-        if (!storageProvider.CanPickFolder)
-        {
-            _logger.Error("Folder picking is not supported on this platform.");
-            return null;
-        }
-    
-        // Configure folder picker options
-        var options = new FolderPickerOpenOptions
-        {
-            Title = TranslationManager.Translate("common.select.directory"),
-            AllowMultiple = false
-        };
-
-        // Open the folder picker dialog
-        IReadOnlyList<IStorageFolder> folders = await storageProvider.OpenFolderPickerAsync(options);
-
-        // Return null if no folders were selected
-        if (!folders.Any())
-            return null;
-    
-        // Get the first selected folder
-        IStorageFolder? selectedFolder = folders.FirstOrDefault();
-        if (selectedFolder == null)
-        {
-            _logger.Error("No folder was selected.");
-            return null;
-        }
-    
-        // Return the local path of the selected folder
-        return selectedFolder.Path.LocalPath;
     }
 }

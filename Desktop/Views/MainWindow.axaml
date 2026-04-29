@@ -8,7 +8,6 @@
     xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common"
     xmlns:local="clr-namespace:Tavstal.KonkordLauncher.Desktop"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models"
     xmlns:models1="clr-namespace:Tavstal.KonkordLauncher.Common.Models;assembly=Common"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
     xmlns:domain="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Domain"
@@ -58,7 +57,7 @@
                             MaxWidth="32"
                             HorizontalContentAlignment="Center"
                             Classes="IconBtn PrimaryBtn"
-                            Command="{Binding $parent[Window].DataContext.LaunchInstanceCommand}"
+                            Command="{Binding $parent[Window].DataContext.Instances.LaunchInstanceCommand}"
                             CommandParameter="{Binding .}"
                             IsVisible="{Binding !IsGameRunning}">
                             <TextBlock
@@ -72,7 +71,7 @@
                             MaxWidth="32"
                             HorizontalContentAlignment="Center"
                             Classes="IconBtn ErrorBtn"
-                            Command="{Binding $parent[Window].DataContext.StopInstanceCommand}"
+                            Command="{Binding $parent[Window].DataContext.Instances.StopInstanceCommand}"
                             CommandParameter="{Binding .}"
                             IsVisible="{Binding IsGameRunning}">
                             <TextBlock
@@ -85,7 +84,7 @@
                             Width="34"
                             MaxWidth="34"
                             Classes="IconBtn AccentAltBtn"
-                            Command="{Binding $parent[Window].DataContext.EditInstanceCommand}"
+                            Command="{Binding $parent[Window].DataContext.Instances.EditInstanceCommand}"
                             CommandParameter="{Binding .}">
                             <TextBlock
                                 Padding="4,0"
@@ -103,7 +102,7 @@
                                     <MenuItem Header="{Binding Name}" IsEnabled="False" />
                                     <!--  Launch Btn  -->
                                     <MenuItem
-                                        Command="{Binding $parent[Window].DataContext.LaunchInstanceCommand}"
+                                        Command="{Binding $parent[Window].DataContext.Instances.LaunchInstanceCommand}"
                                         CommandParameter="{Binding .}"
                                         IsVisible="{Binding !IsGameRunning}">
                                         <MenuItem.HeaderTemplate>
@@ -120,7 +119,7 @@
                                     </MenuItem>
                                     <!--  Stop Btn  -->
                                     <MenuItem
-                                        Command="{Binding $parent[Window].DataContext.StopInstanceCommand}"
+                                        Command="{Binding $parent[Window].DataContext.Instances.StopInstanceCommand}"
                                         CommandParameter="{Binding .}"
                                         IsVisible="{Binding IsGameRunning}">
                                         <MenuItem.HeaderTemplate>
@@ -136,7 +135,7 @@
                                         </MenuItem.HeaderTemplate>
                                     </MenuItem>
                                     <!--  Logs Btn  -->
-                                    <MenuItem Command="{Binding $parent[Window].DataContext.ViewInstanceLogsCommand}" CommandParameter="{Binding .}">
+                                    <MenuItem Command="{Binding $parent[Window].DataContext.Instances.ViewInstanceLogsCommand}" CommandParameter="{Binding .}">
                                         <MenuItem.HeaderTemplate>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
@@ -151,7 +150,7 @@
                                     </MenuItem>
                                     <Separator />
                                     <!--  Rename Btn  -->
-                                    <MenuItem Command="{Binding $parent[Window].DataContext.RenameInstanceCommand}" CommandParameter="{Binding .}">
+                                    <MenuItem Command="{Binding $parent[Window].DataContext.Instances.RenameInstanceCommand}" CommandParameter="{Binding .}">
                                         <MenuItem.HeaderTemplate>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
@@ -165,7 +164,7 @@
                                         </MenuItem.HeaderTemplate>
                                     </MenuItem>
                                     <!--  Change Icon Btn  -->
-                                    <MenuItem Command="{Binding $parent[Window].DataContext.ChangeInstanceIconCommand}" CommandParameter="{Binding .}">
+                                    <MenuItem Command="{Binding $parent[Window].DataContext.Instances.ChangeInstanceIconCommand}" CommandParameter="{Binding .}">
                                         <MenuItem.HeaderTemplate>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
@@ -179,7 +178,7 @@
                                         </MenuItem.HeaderTemplate>
                                     </MenuItem>
                                     <!--  Change Group Btn  -->
-                                    <MenuItem Command="{Binding $parent[Window].DataContext.ChangeInstanceGroupCommand}" CommandParameter="{Binding .}">
+                                    <MenuItem Command="{Binding $parent[Window].DataContext.Instances.ChangeInstanceGroupCommand}" CommandParameter="{Binding .}">
                                         <MenuItem.HeaderTemplate>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
@@ -194,7 +193,7 @@
                                     </MenuItem>
                                     <Separator />
                                     <!--  Open Folder Btn  -->
-                                    <MenuItem Command="{Binding $parent[Window].DataContext.OpenInstanceDirCommand}" CommandParameter="{Binding .}">
+                                    <MenuItem Command="{Binding $parent[Window].DataContext.Instances.OpenInstanceDirCommand}" CommandParameter="{Binding .}">
                                         <MenuItem.HeaderTemplate>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
@@ -221,21 +220,21 @@
                                             </DataTemplate>
                                         </MenuItem.HeaderTemplate>
                                         <MenuItem
-                                            Command="{Binding $parent[Window].DataContext.ExportPrismInstanceCommand}"
+                                            Command="{Binding $parent[Window].DataContext.Instances.ExportPrismInstanceCommand}"
                                             CommandParameter="{Binding .}"
                                             Header="PrismLauncher" />
                                         <MenuItem
-                                            Command="{Binding $parent[Window].DataContext.ExportModrinthInstanceCommand}"
+                                            Command="{Binding $parent[Window].DataContext.Instances.ExportModrinthInstanceCommand}"
                                             CommandParameter="{Binding .}"
                                             Header="Modrinth" />
                                         <MenuItem
-                                            Command="{Binding $parent[Window].DataContext.ExportCurseForgeInstanceCommand}"
+                                            Command="{Binding $parent[Window].DataContext.Instances.ExportCurseForgeInstanceCommand}"
                                             CommandParameter="{Binding .}"
                                             Header="CurseForge" />
                                     </MenuItem>
                                     <Separator />
                                     <!--  Delete Btn  -->
-                                    <MenuItem Command="{Binding $parent[Window].DataContext.DeleteInstanceCommand}" CommandParameter="{Binding .}">
+                                    <MenuItem Command="{Binding $parent[Window].DataContext.Instances.DeleteInstanceCommand}" CommandParameter="{Binding .}">
                                         <MenuItem.HeaderTemplate>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
@@ -303,21 +302,21 @@
                     <WrapPanel Grid.Column="1" Classes="AccountsCardWrapper">
                         <Button
                             Classes="IconBtn SuccessBtn"
-                            Command="{Binding $parent[Window].DataContext.SelectAccountBtnCommand}"
+                            Command="{Binding $parent[Window].DataContext.Accounts.SelectAccountBtnCommand}"
                             CommandParameter="{Binding Id}"
                             IsVisible="{Binding !IsSelected}">
                             <TextBlock Classes="FontAwesome" Text="&#xf00c;" />
                         </Button>
                         <Button
                             Classes="IconBtn WarningBtn"
-                            Command="{Binding $parent[Window].DataContext.RefreshAccountBtnCommand}"
+                            Command="{Binding $parent[Window].DataContext.Accounts.RefreshAccountBtnCommand}"
                             CommandParameter="{Binding .}"
                             IsVisible="{Binding CanExpire}">
                             <TextBlock Classes="FontAwesome" Text="&#xf2f9;" />
                         </Button>
                         <Button
                             Classes="IconBtn ErrorBtn"
-                            Command="{Binding $parent[Window].DataContext.RemoveAccountBtnCommand}"
+                            Command="{Binding $parent[Window].DataContext.Accounts.RemoveAccountBtnCommand}"
                             CommandParameter="{Binding .}">
                             <TextBlock Classes="FontAwesome" Text="&#xf1f8;" />
                         </Button>
@@ -330,7 +329,7 @@
             <Border Classes="SkinBorder" Classes.selected="{Binding IsSelected}">
                 <Button
                     Classes="SkinBtn"
-                    Command="{Binding $parent[Window].DataContext.SkinSelectCommand}"
+                    Command="{Binding $parent[Window].DataContext.Accounts.SkinSelectCommand}"
                     CommandParameter="{Binding .}">
                     <Viewbox Classes="SkinViewBox">
                         <Image Classes="SkinPreview" Source="{Binding Image}" />
@@ -343,7 +342,7 @@
             <Border Classes="SkinBorder" Classes.selected="{Binding IsSelected}">
                 <Button
                     Classes="SkinBtn"
-                    Command="{Binding $parent[Window].DataContext.CapeSelectCommand}"
+                    Command="{Binding $parent[Window].DataContext.Accounts.CapeSelectCommand}"
                     CommandParameter="{Binding .}"
                     ToolTip.Tip="{Binding Alias}">
                     <Viewbox MaxHeight="70" Classes="SkinViewBox">
@@ -425,7 +424,7 @@
                                 Classes="SidebarBtn"
                                 Command="{Binding HandleSidebarBtnCommand}"
                                 CommandParameter="{x:Static enums:ESidebarType.Skins}"
-                                IsEnabled="{Binding IsMojangAccount}">
+                                IsEnabled="{Binding Accounts.IsMojangAccount}">
                                 <WrapPanel Classes="IconBtnWrapper">
                                     <TextBlock
                                         VerticalAlignment="Center"
@@ -477,7 +476,7 @@
                                     Margin="10"
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
-                                    Source="{Binding AccountAvatar}" />
+                                    Source="{Binding Accounts.AccountAvatar}" />
                                 <StackPanel
                                     Grid.Column="1"
                                     Margin="5"
@@ -493,7 +492,7 @@
                                         FontSize="12"
                                         FontWeight="SemiBold"
                                         Foreground="{DynamicResource base-content}"
-                                        Text="{Binding AccountName}" />
+                                        Text="{Binding Accounts.AccountName}" />
                                 </StackPanel>
                             </Grid>
                         </Border>
@@ -556,19 +555,19 @@
                                             <Button
                                                 Grid.Column="1"
                                                 Classes="IconBtn PrimaryBtn"
-                                                Command="{Binding AddInstanceBtnCommand}">
+                                                Command="{Binding Instances.AddInstanceBtnCommand}">
                                                 <TextBlock Classes="FontAwesome" Text="&#x2b;" />
                                             </Button>
                                         </Grid>
                                         <!--  No instances text  -->
                                         <TextBlock
                                             Grid.Row="1"
-                                            IsVisible="{Binding !HasInstances}"
+                                            IsVisible="{Binding !Instances.HasInstances}"
                                             Text="{lang:Translate main.page.play.empty}" />
                                         <!--  Instances on Play Page  -->
                                         <Grid Grid.Row="1">
                                             <ScrollViewer Padding="0,0,15,0">
-                                                <ItemsControl ItemsSource="{Binding InstanceGroups}">
+                                                <ItemsControl ItemsSource="{Binding Instances.InstanceGroups}">
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate>
                                                             <Expander
@@ -628,16 +627,16 @@
                                             <Button
                                                 Grid.Column="1"
                                                 Classes="IconBtn PrimaryBtn"
-                                                Command="{Binding AddAccountBtnCommand}">
+                                                Command="{Binding Accounts.AddAccountBtnCommand}">
                                                 <TextBlock Classes="FontAwesome" Text="&#xf234;" />
                                             </Button>
                                         </Grid>
                                         <!--  No accounts text  -->
-                                        <TextBlock IsVisible="{Binding !AccountData.HasAccounts}" Text="{lang:Translate main.page.accounts.empty}" />
+                                        <TextBlock IsVisible="{Binding !Accounts.AccountData.HasAccounts}" Text="{lang:Translate main.page.accounts.empty}" />
                                         <!--  Accounts Grid  -->
                                         <Grid>
                                             <ScrollViewer>
-                                                <ItemsControl ItemsSource="{Binding AccountData.Accounts}">
+                                                <ItemsControl ItemsSource="{Binding Accounts.AccountData.Accounts}">
                                                     <ItemsControl.ItemsPanel>
                                                         <ItemsPanelTemplate>
                                                             <UniformGrid Classes="AccountsPageWrapper" Columns="2" />
@@ -659,28 +658,28 @@
                                                 <Button
                                                     Name="LauncherSettingsBtn"
                                                     Classes="SettingsTabBtn SettingsTabBtnActive"
-                                                    Command="{Binding HandleSettingsBtnCommand}"
+                                                    Command="{Binding Config.HandleSettingsBtnCommand}"
                                                     CommandParameter="{x:Static enums:ESettingsTab.LAUNCHER}">
                                                     <TextBlock Text="{lang:Translate settings.tab.launcher}" />
                                                 </Button>
                                                 <Button
                                                     Name="MinecraftSettingsBtn"
                                                     Classes="SettingsTabBtn"
-                                                    Command="{Binding HandleSettingsBtnCommand}"
+                                                    Command="{Binding Config.HandleSettingsBtnCommand}"
                                                     CommandParameter="{x:Static enums:ESettingsTab.MINECRAFT}">
                                                     <TextBlock Text="{lang:Translate settings.tab.minecraft}" />
                                                 </Button>
                                                 <Button
                                                     Name="JavaSettingsBtn"
                                                     Classes="SettingsTabBtn"
-                                                    Command="{Binding HandleSettingsBtnCommand}"
+                                                    Command="{Binding Config.HandleSettingsBtnCommand}"
                                                     CommandParameter="{x:Static enums:ESettingsTab.JAVA}">
                                                     <TextBlock Text="{lang:Translate settings.tab.java}" />
                                                 </Button>
                                                 <Button
                                                     Name="MiscSettingsBtn"
                                                     Classes="SettingsTabBtn"
-                                                    Command="{Binding HandleSettingsBtnCommand}"
+                                                    Command="{Binding Config.HandleSettingsBtnCommand}"
                                                     CommandParameter="{x:Static enums:ESettingsTab.MISC}">
                                                     <TextBlock Text="{lang:Translate settings.tab.misc}" />
                                                 </Button>
@@ -713,7 +712,7 @@
                                                                     <ToggleSwitch
                                                                         Grid.Column="1"
                                                                         Classes="SettingsSwitch"
-                                                                        IsChecked="{Binding CoreConfig.Launcher.EnableAutomaticUpdates, Mode=TwoWay}" />
+                                                                        IsChecked="{Binding Config.CoreConfig.Launcher.EnableAutomaticUpdates, Mode=TwoWay}" />
                                                                 </Grid>
 
                                                                 <!--  Update Interval  -->
@@ -724,10 +723,10 @@
                                                                         Classes="NumericInput"
                                                                         FormatString="0\h"
                                                                         Increment="1"
-                                                                        IsEnabled="{Binding CoreConfig.Launcher.EnableAutomaticUpdates}"
+                                                                        IsEnabled="{Binding Config.CoreConfig.Launcher.EnableAutomaticUpdates}"
                                                                         Maximum="8760"
                                                                         Minimum="1"
-                                                                        Value="{Binding CoreConfig.Launcher.UpdateInterval, Mode=TwoWay}" />
+                                                                        Value="{Binding Config.CoreConfig.Launcher.UpdateInterval, Mode=TwoWay}" />
                                                                 </Grid>
 
                                                                 <!--  Language  -->
@@ -736,7 +735,7 @@
                                                                     <ComboBox
                                                                         Grid.Column="1"
                                                                         Classes="TextDropdown"
-                                                                        ItemsSource="{Binding CoreConfig.AvailableLanguages}"
+                                                                        ItemsSource="{Binding Config.CoreConfig.AvailableLanguages}"
                                                                         SelectedIndex="0"
                                                                         SelectionChanged="Language_OnSelected">
                                                                         <ComboBox.ItemTemplate>
@@ -755,7 +754,7 @@
                                                                     <ComboBox
                                                                         Grid.Column="1"
                                                                         Classes="TextDropdown"
-                                                                        SelectedIndex="{Binding CoreConfig.Launcher.Theme, Mode=TwoWay}">
+                                                                        SelectedIndex="{Binding Config.CoreConfig.Launcher.Theme, Mode=TwoWay}">
                                                                         <ComboBoxItem Content="Light" />
                                                                         <ComboBoxItem Content="Dark" />
                                                                     </ComboBox>
@@ -775,12 +774,12 @@
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
-                                                                        Text="{Binding CoreConfig.Launcher.AssetsDirectoryPath, Mode=TwoWay}"
+                                                                        Text="{Binding Config.CoreConfig.Launcher.AssetsDirectoryPath, Mode=TwoWay}"
                                                                         PlaceholderText="{lang:Translate common.select.directory}" />
                                                                     <Button
                                                                         Grid.Column="2"
                                                                         Classes="IconBtn"
-                                                                        Command="{Binding ConfigDirSelectCommand}"
+                                                                        Command="{Binding Config.ConfigDirSelectCommand}"
                                                                         CommandParameter="0">
                                                                         <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
                                                                     </Button>
@@ -792,12 +791,12 @@
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
-                                                                        Text="{Binding CoreConfig.Launcher.CacheDirectoryPath, Mode=TwoWay}"
+                                                                        Text="{Binding Config.CoreConfig.Launcher.CacheDirectoryPath, Mode=TwoWay}"
                                                                         PlaceholderText="{lang:Translate common.select.directory}" />
                                                                     <Button
                                                                         Grid.Column="2"
                                                                         Classes="IconBtn"
-                                                                        Command="{Binding ConfigDirSelectCommand}"
+                                                                        Command="{Binding Config.ConfigDirSelectCommand}"
                                                                         CommandParameter="1">
                                                                         <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
                                                                     </Button>
@@ -809,12 +808,12 @@
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
-                                                                        Text="{Binding CoreConfig.Launcher.IconsDirectoryPath, Mode=TwoWay}"
+                                                                        Text="{Binding Config.CoreConfig.Launcher.IconsDirectoryPath, Mode=TwoWay}"
                                                                         PlaceholderText="{lang:Translate common.select.directory}" />
                                                                     <Button
                                                                         Grid.Column="2"
                                                                         Classes="IconBtn"
-                                                                        Command="{Binding ConfigDirSelectCommand}"
+                                                                        Command="{Binding Config.ConfigDirSelectCommand}"
                                                                         CommandParameter="3">
                                                                         <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
                                                                     </Button>
@@ -826,12 +825,12 @@
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
-                                                                        Text="{Binding CoreConfig.Launcher.InstancesDirectoryPath, Mode=TwoWay}"
+                                                                        Text="{Binding Config.CoreConfig.Launcher.InstancesDirectoryPath, Mode=TwoWay}"
                                                                         PlaceholderText="{lang:Translate common.select.directory}" />
                                                                     <Button
                                                                         Grid.Column="2"
                                                                         Classes="IconBtn"
-                                                                        Command="{Binding ConfigDirSelectCommand}"
+                                                                        Command="{Binding Config.ConfigDirSelectCommand}"
                                                                         CommandParameter="2">
                                                                         <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
                                                                     </Button>
@@ -843,12 +842,12 @@
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
-                                                                        Text="{Binding CoreConfig.Launcher.JavaDirectoryPath, Mode=TwoWay}"
+                                                                        Text="{Binding Config.CoreConfig.Launcher.JavaDirectoryPath, Mode=TwoWay}"
                                                                         PlaceholderText="{lang:Translate common.select.directory}" />
                                                                     <Button
                                                                         Grid.Column="2"
                                                                         Classes="IconBtn"
-                                                                        Command="{Binding ConfigDirSelectCommand}"
+                                                                        Command="{Binding Config.ConfigDirSelectCommand}"
                                                                         CommandParameter="4">
                                                                         <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
                                                                     </Button>
@@ -860,12 +859,12 @@
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
-                                                                        Text="{Binding CoreConfig.Launcher.LibrariesDirectoryPath, Mode=TwoWay}"
+                                                                        Text="{Binding Config.CoreConfig.Launcher.LibrariesDirectoryPath, Mode=TwoWay}"
                                                                         PlaceholderText="{lang:Translate common.select.directory}" />
                                                                     <Button
                                                                         Grid.Column="2"
                                                                         Classes="IconBtn"
-                                                                        Command="{Binding ConfigDirSelectCommand}"
+                                                                        Command="{Binding Config.ConfigDirSelectCommand}"
                                                                         CommandParameter="5">
                                                                         <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
                                                                     </Button>
@@ -877,12 +876,12 @@
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
-                                                                        Text="{Binding CoreConfig.Launcher.ManifestsDirectoryPath, Mode=TwoWay}"
+                                                                        Text="{Binding Config.CoreConfig.Launcher.ManifestsDirectoryPath, Mode=TwoWay}"
                                                                         PlaceholderText="{lang:Translate common.select.directory}" />
                                                                     <Button
                                                                         Grid.Column="2"
                                                                         Classes="IconBtn"
-                                                                        Command="{Binding ConfigDirSelectCommand}"
+                                                                        Command="{Binding Config.ConfigDirSelectCommand}"
                                                                         CommandParameter="6">
                                                                         <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
                                                                     </Button>
@@ -894,12 +893,12 @@
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
-                                                                        Text="{Binding CoreConfig.Launcher.TranslationsDirectoryPath, Mode=TwoWay}"
+                                                                        Text="{Binding Config.CoreConfig.Launcher.TranslationsDirectoryPath, Mode=TwoWay}"
                                                                         PlaceholderText="{lang:Translate common.select.directory}" />
                                                                     <Button
                                                                         Grid.Column="2"
                                                                         Classes="IconBtn"
-                                                                        Command="{Binding ConfigDirSelectCommand}"
+                                                                        Command="{Binding Config.ConfigDirSelectCommand}"
                                                                         CommandParameter="7">
                                                                         <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
                                                                     </Button>
@@ -911,12 +910,12 @@
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
-                                                                        Text="{Binding CoreConfig.Launcher.VersionsDirectoryPath, Mode=TwoWay}"
+                                                                        Text="{Binding Config.CoreConfig.Launcher.VersionsDirectoryPath, Mode=TwoWay}"
                                                                         PlaceholderText="{lang:Translate common.select.directory}" />
                                                                     <Button
                                                                         Grid.Column="2"
                                                                         Classes="IconBtn"
-                                                                        Command="{Binding ConfigDirSelectCommand}"
+                                                                        Command="{Binding Config.ConfigDirSelectCommand}"
                                                                         CommandParameter="8">
                                                                         <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
                                                                     </Button>
@@ -941,7 +940,7 @@
                                                                     <ToggleSwitch
                                                                         Grid.Column="1"
                                                                         Classes="SettingsSwitch"
-                                                                        IsChecked="{Binding CoreConfig.Minecraft.StartMaximized, Mode=TwoWay}" />
+                                                                        IsChecked="{Binding Config.CoreConfig.Minecraft.StartMaximized, Mode=TwoWay}" />
                                                                 </Grid>
 
                                                                 <!--  Window Width  -->
@@ -952,10 +951,10 @@
                                                                         Classes="NumericInput"
                                                                         FormatString="0"
                                                                         Increment="10"
-                                                                        IsEnabled="{Binding !CoreConfig.Minecraft.StartMaximized}"
+                                                                        IsEnabled="{Binding !Config.CoreConfig.Minecraft.StartMaximized}"
                                                                         Maximum="{x:Static local:App.ScreenWidth}"
                                                                         Minimum="100"
-                                                                        Value="{Binding CoreConfig.Minecraft.WindowWidth, Mode=TwoWay}" />
+                                                                        Value="{Binding Config.CoreConfig.Minecraft.WindowWidth, Mode=TwoWay}" />
                                                                 </Grid>
 
                                                                 <!--  Window Height  -->
@@ -966,10 +965,10 @@
                                                                         Classes="NumericInput"
                                                                         FormatString="0"
                                                                         Increment="10"
-                                                                        IsEnabled="{Binding !CoreConfig.Minecraft.StartMaximized}"
+                                                                        IsEnabled="{Binding !Config.CoreConfig.Minecraft.StartMaximized}"
                                                                         Maximum="{x:Static local:App.ScreenHeight}"
                                                                         Minimum="100"
-                                                                        Value="{Binding CoreConfig.Minecraft.WindowHeight, Mode=TwoWay}" />
+                                                                        Value="{Binding Config.CoreConfig.Minecraft.WindowHeight, Mode=TwoWay}" />
                                                                 </Grid>
 
                                                                 <!--  Close Launcher after game opens  -->
@@ -978,7 +977,7 @@
                                                                     <ToggleSwitch
                                                                         Grid.Column="1"
                                                                         Classes="SettingsSwitch"
-                                                                        IsChecked="{Binding CoreConfig.Minecraft.CloseLauncherOnGameStart, Mode=TwoWay}" />
+                                                                        IsChecked="{Binding Config.CoreConfig.Minecraft.CloseLauncherOnGameStart, Mode=TwoWay}" />
                                                                 </Grid>
 
                                                                 <!--  Close Launcher after game closes  -->
@@ -987,7 +986,7 @@
                                                                     <ToggleSwitch
                                                                         Grid.Column="1"
                                                                         Classes="SettingsSwitch"
-                                                                        IsChecked="{Binding CoreConfig.Minecraft.CloseLauncherOnGameExit, Mode=TwoWay}" />
+                                                                        IsChecked="{Binding Config.CoreConfig.Minecraft.CloseLauncherOnGameExit, Mode=TwoWay}" />
                                                                 </Grid>
                                                             </StackPanel>
                                                         </Border>
@@ -1012,9 +1011,9 @@
                                                                         Classes="NumericInput"
                                                                         FormatString="0\ MB"
                                                                         Increment="128"
-                                                                        Maximum="{Binding CoreConfig.Java.MaxMemory}"
+                                                                        Maximum="{Binding Config.CoreConfig.Java.MaxMemory}"
                                                                         Minimum="512"
-                                                                        Value="{Binding CoreConfig.Java.MinMemory, Mode=TwoWay}" />
+                                                                        Value="{Binding Config.CoreConfig.Java.MinMemory, Mode=TwoWay}" />
                                                                 </Grid>
 
                                                                 <!--  Maximum Memory  -->
@@ -1027,7 +1026,7 @@
                                                                         Increment="128"
                                                                         Maximum="131072"
                                                                         Minimum="512"
-                                                                        Value="{Binding CoreConfig.Java.MaxMemory, Mode=TwoWay}" />
+                                                                        Value="{Binding Config.CoreConfig.Java.MaxMemory, Mode=TwoWay}" />
                                                                 </Grid>
 
                                                                 <!--  PermGen  -->
@@ -1040,7 +1039,7 @@
                                                                         Increment="128"
                                                                         Maximum="1024"
                                                                         Minimum="8"
-                                                                        Value="{Binding CoreConfig.Java.PermaGen, Mode=TwoWay}" />
+                                                                        Value="{Binding Config.CoreConfig.Java.PermaGen, Mode=TwoWay}" />
                                                                 </Grid>
 
                                                                 <!--  Java Path  -->
@@ -1049,7 +1048,7 @@
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
-                                                                        Text="{Binding CoreConfig.Java.DefaultJavaPath, Mode=TwoWay}"
+                                                                        Text="{Binding Config.CoreConfig.Java.DefaultJavaPath, Mode=TwoWay}"
                                                                         PlaceholderText="{lang:Translate common.select.directory}" />
                                                                     <StackPanel
                                                                         Grid.Column="2"
@@ -1057,11 +1056,11 @@
                                                                         Spacing="5">
                                                                         <Button
                                                                             Classes="IconBtn"
-                                                                            Command="{Binding ConfigDirSelectCommand}"
+                                                                            Command="{Binding Config.ConfigDirSelectCommand}"
                                                                             CommandParameter="9">
                                                                             <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
                                                                         </Button>
-                                                                        <Button Classes="IconBtn" Command="{Binding JavaPathSelectorCommand}">
+                                                                        <Button Classes="IconBtn" Command="{Binding Config.JavaPathSelectorCommand}">
                                                                             <TextBlock Classes="FontAwesome" Text="&#xf126;" />
                                                                         </Button>
                                                                     </StackPanel>
@@ -1079,7 +1078,7 @@
                                                                 <TextBox
                                                                     MinHeight="128"
                                                                     MaxLines="512"
-                                                                    Text="{Binding CoreConfig.Java.JvmArguments, Mode=TwoWay}"
+                                                                    Text="{Binding Config.CoreConfig.Java.JvmArguments, Mode=TwoWay}"
                                                                     TextWrapping="Wrap" />
                                                             </StackPanel>
                                                         </Border>
@@ -1107,7 +1106,7 @@
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
-                                                                        Text="{Binding CoreConfig.Misc.PreLaunchCommand, Mode=TwoWay}" />
+                                                                        Text="{Binding Config.CoreConfig.Misc.PreLaunchCommand, Mode=TwoWay}" />
                                                                 </Grid>
 
                                                                 <!--  Wrapper Command  -->
@@ -1122,7 +1121,7 @@
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
-                                                                        Text="{Binding CoreConfig.Misc.WrapperCommand, Mode=TwoWay}" />
+                                                                        Text="{Binding Config.CoreConfig.Misc.WrapperCommand, Mode=TwoWay}" />
                                                                 </Grid>
 
                                                                 <!--  Post-exit Command  -->
@@ -1137,7 +1136,7 @@
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
-                                                                        Text="{Binding CoreConfig.Misc.PostExitCommand, Mode=TwoWay}" />
+                                                                        Text="{Binding Config.CoreConfig.Misc.PostExitCommand, Mode=TwoWay}" />
                                                                 </Grid>
 
                                                             </StackPanel>
@@ -1155,7 +1154,7 @@
                                                                     <ToggleSwitch
                                                                         Grid.Column="1"
                                                                         Classes="SettingsSwitch"
-                                                                        IsChecked="{Binding CoreConfig.Misc.UseCustomGlfw, Mode=TwoWay}" />
+                                                                        IsChecked="{Binding Config.CoreConfig.Misc.UseCustomGlfw, Mode=TwoWay}" />
                                                                 </Grid>
 
                                                                 <!--  GLFW library path  -->
@@ -1164,8 +1163,8 @@
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
-                                                                        IsEnabled="{Binding CoreConfig.Misc.UseCustomGlfw}"
-                                                                        Text="{Binding CoreConfig.Misc.CustomGlfwPath, Mode=TwoWay}"
+                                                                        IsEnabled="{Binding Config.CoreConfig.Misc.UseCustomGlfw}"
+                                                                        Text="{Binding Config.CoreConfig.Misc.CustomGlfwPath, Mode=TwoWay}"
                                                                         PlaceholderText="{lang:Translate common.select.file}" />
                                                                 </Grid>
 
@@ -1175,7 +1174,7 @@
                                                                     <ToggleSwitch
                                                                         Grid.Column="1"
                                                                         Classes="SettingsSwitch"
-                                                                        IsChecked="{Binding CoreConfig.Misc.UseCustomOpenAl, Mode=TwoWay}" />
+                                                                        IsChecked="{Binding Config.CoreConfig.Misc.UseCustomOpenAl, Mode=TwoWay}" />
                                                                 </Grid>
 
                                                                 <!--  OpenAL library path  -->
@@ -1184,8 +1183,8 @@
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
-                                                                        IsEnabled="{Binding CoreConfig.Misc.UseCustomOpenAl}"
-                                                                        Text="{Binding CoreConfig.Misc.CustomOpenAlPath, Mode=TwoWay}"
+                                                                        IsEnabled="{Binding Config.CoreConfig.Misc.UseCustomOpenAl}"
+                                                                        Text="{Binding Config.CoreConfig.Misc.CustomOpenAlPath, Mode=TwoWay}"
                                                                         PlaceholderText="{lang:Translate common.select.file}" />
                                                                 </Grid>
                                                             </StackPanel>
@@ -1203,7 +1202,7 @@
                                                                     <ToggleSwitch
                                                                         Grid.Column="1"
                                                                         Classes="SettingsSwitch"
-                                                                        IsChecked="{Binding CoreConfig.Misc.EnableFeralGameMode, Mode=TwoWay}"
+                                                                        IsChecked="{Binding Config.CoreConfig.Misc.EnableFeralGameMode, Mode=TwoWay}"
                                                                         IsEnabled="{Binding IsLinux}" />
                                                                 </Grid>
 
@@ -1213,7 +1212,7 @@
                                                                     <ToggleSwitch
                                                                         Grid.Column="1"
                                                                         Classes="SettingsSwitch"
-                                                                        IsChecked="{Binding CoreConfig.Misc.EnableMangoHud, Mode=TwoWay}"
+                                                                        IsChecked="{Binding Config.CoreConfig.Misc.EnableMangoHud, Mode=TwoWay}"
                                                                         IsEnabled="{Binding IsLinux}" />
                                                                 </Grid>
 
@@ -1223,7 +1222,7 @@
                                                                     <ToggleSwitch
                                                                         Grid.Column="1"
                                                                         Classes="SettingsSwitch"
-                                                                        IsChecked="{Binding CoreConfig.Misc.UseDedicatedGpu, Mode=TwoWay}" />
+                                                                        IsChecked="{Binding Config.CoreConfig.Misc.UseDedicatedGpu, Mode=TwoWay}" />
                                                                 </Grid>
                                                             </StackPanel>
                                                         </Border>
@@ -1310,17 +1309,17 @@
                                                         <!--  Version  -->
                                                         <WrapPanel Grid.Row="5" Classes="AboutVersionWrapper">
                                                             <TextBlock Classes="CreditText" Text="{lang:Translate about.version}" />
-                                                            <TextBlock Classes="CreditText" Text="{Binding Version}" />
+                                                            <TextBlock Classes="CreditText" Text="{Binding About.Version}" />
                                                         </WrapPanel>
                                                         <!--  Build Date  -->
                                                         <WrapPanel Grid.Row="6" Classes="AboutVersionWrapper">
                                                             <TextBlock Classes="CreditText" Text="{lang:Translate about.buildDate}" />
-                                                            <TextBlock Classes="CreditText" Text="{Binding BuildDate}" />
+                                                            <TextBlock Classes="CreditText" Text="{Binding About.BuildDate}" />
                                                         </WrapPanel>
                                                         <!--  Branch  -->
                                                         <WrapPanel Grid.Row="7" Classes="AboutVersionWrapper">
                                                             <TextBlock Classes="CreditText" Text="{lang:Translate about.branch}" />
-                                                            <TextBlock Classes="CreditText" Text="{Binding Branch}" />
+                                                            <TextBlock Classes="CreditText" Text="{Binding About.Branch}" />
                                                         </WrapPanel>
                                                     </Grid>
                                                 </ScrollViewer>
@@ -1422,7 +1421,7 @@
                                                 
                                                 <!-- License -->
                                                 <ScrollViewer Classes="LicenseScrollViewer">
-                                                    <TextBlock Classes="LicenseText" Text="{Binding License}" />
+                                                    <TextBlock Classes="LicenseText" Text="{Binding About.License}" />
                                                 </ScrollViewer>
                                                 
                                             </Carousel.Items>
@@ -1453,7 +1452,7 @@
                                                         <TextBlock Classes="Muted" Text="{lang:Translate main.page.skins.preview}" />
                                                         <!--  Options  -->
                                                         <Viewbox MaxHeight="280" Classes="SkinViewBox">
-                                                            <Image Classes="SkinPreview" Source="{Binding AccountSkinPreview}" />
+                                                            <Image Classes="SkinPreview" Source="{Binding Accounts.AccountSkinPreview}" />
                                                         </Viewbox>
                                                     </StackPanel>
                                                 </Border>
@@ -1470,20 +1469,20 @@
                                                             <!--  Wide Model  -->
                                                             <Button
                                                                 Classes="SkinModelBtn"
-                                                                Classes.selected="{Binding IsAccountHasWideModel}"
-                                                                Command="{Binding ModelSelectCommand}"
+                                                                Classes.selected="{Binding Accounts.IsAccountHasWideModel}"
+                                                                Command="{Binding Accounts.ModelSelectCommand}"
                                                                 CommandParameter="classic"
-                                                                IsEnabled="{Binding !IsAccountSkinProcessing}">
+                                                                IsEnabled="{Binding !Accounts.IsAccountSkinProcessing}">
                                                                 <TextBlock Foreground="{DynamicResource base-content}" Text="{lang:Translate main.page.skins.model.wide}" />
                                                             </Button>
                                                             <!--  Slim Model  -->
                                                             <Button
                                                                 Grid.Column="1"
                                                                 Classes="SkinModelBtn"
-                                                                Classes.selected="{Binding !IsAccountHasWideModel}"
-                                                                Command="{Binding ModelSelectCommand}"
+                                                                Classes.selected="{Binding !Accounts.IsAccountHasWideModel}"
+                                                                Command="{Binding Accounts.ModelSelectCommand}"
                                                                 CommandParameter="slim"
-                                                                IsEnabled="{Binding !IsAccountSkinProcessing}">
+                                                                IsEnabled="{Binding !Accounts.IsAccountSkinProcessing}">
                                                                 <TextBlock Foreground="{DynamicResource base-content}" Text="{lang:Translate main.page.skins.model.slim}" />
                                                             </Button>
                                                         </Grid>
@@ -1506,13 +1505,13 @@
                                                                 <Button
                                                                     Grid.Column="1"
                                                                     Classes="IconBtn PrimaryBtn"
-                                                                    Command="{Binding SkinUploadCommand}"
-                                                                    IsEnabled="{Binding !IsAccountSkinProcessing}">
+                                                                    Command="{Binding Accounts.SkinUploadCommand}"
+                                                                    IsEnabled="{Binding !Accounts.IsAccountSkinProcessing}">
                                                                     <TextBlock Classes="FontAwesome" Text="&#xf093;" />
                                                                 </Button>
                                                             </Grid>
                                                             <!--  Options  -->
-                                                            <ItemsControl ItemsSource="{Binding Skins}">
+                                                            <ItemsControl ItemsSource="{Binding Accounts.Skins}">
                                                                 <ItemsControl.ItemsPanel>
                                                                     <ItemsPanelTemplate>
                                                                         <WrapPanel ItemSpacing="10" LineSpacing="10" />
@@ -1530,7 +1529,7 @@
                                                             <!--  Title  -->
                                                             <TextBlock Classes="Muted" Text="{lang:Translate main.page.skins.capes}" />
                                                             <!--  Options  -->
-                                                            <ItemsControl HorizontalAlignment="Center" ItemsSource="{Binding Capes}">
+                                                            <ItemsControl HorizontalAlignment="Center" ItemsSource="{Binding Accounts.Capes}">
                                                                 <ItemsControl.ItemsPanel>
                                                                     <ItemsPanelTemplate>
                                                                         <WrapPanel

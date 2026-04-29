@@ -122,6 +122,10 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
     
     #endregion
 
+    /// <summary>
+    /// Performs the full startup initialization sequence for the launcher.
+    /// </summary>
+    /// <param name="cancellationToken">A token used to cancel startup work if initialization is aborted.</param>
     private async Task InitAsync(CancellationToken cancellationToken = default)
     {
         var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
@@ -133,7 +137,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
         UpdateStatusTranslated("startup.validation.dataFolder");
         await Task.Delay(_stepDelay, cancellationToken);
         bool shouldGenerateIcons = !Directory.Exists(settings.Launcher.IconsDirectoryPath);
-        if (!ValidationHelper.ValidateDataFolder())
+        if (!await ValidationHelper.ValidateDataFolderAsync())
         {
             UpdateStatusTranslated("startup.validation.dataFolderFailed");
             return;
@@ -236,6 +240,12 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
         });
     }
 
+    /// <summary>
+    /// Ensures that the required Java runtimes are present in the launcher Java directory,
+    /// downloads any missing versions, and updates executable permissions on non-Windows systems.
+    /// </summary>
+    /// <param name="settings">The launcher configuration containing the Java directory path.</param>
+    /// <param name="cancellationToken">A token used to cancel Java download operations and related asynchronous work.</param>
     private async Task ValidateJavaAsync(CoreConfig settings, CancellationToken cancellationToken = default)
     {
         UpdateStatusTranslated("startup.validation.java");
@@ -285,6 +295,16 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
         JavaHelper.LocateJavaInstallations(settings.Launcher.JavaDirectoryPath, true);
     }
 
+    /// <summary>
+    /// Validates and refreshes local cache files used during startup, including GitHub release metadata
+    /// and cached skin/cape assets for accounts.
+    /// </summary>
+    /// <param name="settings">The launcher configuration containing cache paths and refresh timing information.</param>
+    /// <param name="cancellationToken">A token used to cancel network requests and background cache refresh operations.</param>
+    /// <returns>
+    /// A task that resolves to <c>true</c> if the GitHub cache was refreshed during this run;
+    /// otherwise, <c>false</c>.
+    /// </returns>
     private async Task<bool> ValidateCachesAsync(CoreConfig settings, CancellationToken cancellationToken = default)
     {
         // Refresh github cache
@@ -333,6 +353,19 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
         return shouldRefreshCache;
     }
 
+    /// <summary>
+    /// Checks for application updates using Velopack and, unless <paramref name="justCheck"/> is <c>true</c>,
+    /// downloads and applies the update before restarting the application.
+    /// </summary>
+    /// <param name="justCheck">
+    /// If <c>true</c>, the method only checks whether an update is available and returns <c>true</c> if one exists.
+    /// If <c>false</c>, the update is downloaded and applied automatically.
+    /// </param>
+    /// <param name="cancellationToken">A token used to cancel the update download operation.</param>
+    /// <returns>
+    /// <c>true</c> if an update is available (and optionally applied); otherwise, <c>false</c>.
+    /// Returns <c>false</c> when running in portable/dev mode, when no update is available, or when an error occurs.
+    /// </returns>
     private async Task<bool> CheckUpdateAsync(bool justCheck = false, CancellationToken cancellationToken = default)
     {
         try

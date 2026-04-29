@@ -26,7 +26,7 @@ public static class ValidationHelper
     /// Validates the existence of required data folders and creates them if they do not exist.
     /// </summary>
     /// <returns>True if all required folders are validated or created successfully, otherwise false.</returns>
-    public static bool ValidateDataFolder()
+    public static async Task<bool> ValidateDataFolderAsync()
     {
         try
         {
@@ -41,7 +41,7 @@ public static class ValidationHelper
                 Directory.CreateDirectory(PathHelper.ApplicationDir);
             
             // Note: Also creates the config file if it does not exist
-            var settings = LauncherHelper.GetLauncherSettings();
+            var settings = await LauncherHelper.GetLauncherSettingsAsync();
             
             if (!Directory.Exists(settings.Launcher.InstancesDirectoryPath))
                 Directory.CreateDirectory(settings.Launcher.InstancesDirectoryPath);
@@ -137,9 +137,8 @@ public static class ValidationHelper
     /// Validates and updates various manifests required by the launcher, such as Vanilla, Fabric, Forge, NeoForge, and Quilt.
     /// Downloads the manifests if they are missing or outdated.
     /// </summary>
-    /// <param name="progressReporter">
-    /// An optional progress reporter to report the download progress of the manifests.
-    /// </param>
+    /// <param name="progressReporter">An optional progress reporter to report the download progress of the manifests.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     public static async Task<bool> ValidateManifests(IProgressReporter? progressReporter = null, CancellationToken cancellationToken = default)
     {
         try

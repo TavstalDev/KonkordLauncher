@@ -1,3 +1,5 @@
+using Tavstal.KonkordLauncher.Core.Enums;
+
 namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders;
 
 /// <summary>
@@ -14,4 +16,9 @@ public interface IModManifest
     /// Gets or sets the game version associated with the mod loader.
     /// </summary>
     string GameVersion { get; set; }
+    
+    /// <summary>
+    /// Gets the kind of mod loader this manifest represents.
+    /// </summary>
+    EMinecraftKind LoaderKind { get; }
 }

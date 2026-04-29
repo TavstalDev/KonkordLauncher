@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Newtonsoft.Json;
+using Tavstal.KonkordLauncher.Core.Enums;
 
 namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
 
@@ -9,18 +10,18 @@ namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
 /// </summary>
 public class ForgeManifest : IModManifest
 {
-    /// <summary>
-    /// Gets or sets the version of the Forge mod loader.
-    /// </summary>
-    [JsonProperty("version"), JsonPropertyName("version")]
-    public string Version { get; set; }
-
-    /// <summary>
-    /// Gets or sets the game version associated with this Forge manifest.
-    /// </summary>
+    /// <inheritdoc/>
     [JsonProperty("gameVersion"), JsonPropertyName("gameVersion")]
     public string GameVersion { get; set; }
 
+    /// <inheritdoc/>
+    [JsonProperty("version"), JsonPropertyName("version")]
+    public string Version { get; set; }
+    
+    /// <inheritdoc/>
+    [System.Text.Json.Serialization.JsonIgnore, Newtonsoft.Json.JsonIgnore]
+    public EMinecraftKind LoaderKind { get;  } = EMinecraftKind.FORGE;
+    
     /// <summary>
     /// Initializes a new instance of the <see cref="ForgeManifest"/> class with default values.
     /// </summary>

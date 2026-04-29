@@ -3,6 +3,8 @@ using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Fabric;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
+using Tavstal.KonkordLauncher.Core.Models.ModLoaders.NeoForge;
+using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Quilt;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 
 namespace Tavstal.KonkordLauncher.Core.Helpers.Domain;
@@ -110,7 +112,7 @@ public static class ManifestHelper
         _quiltManifest = [];
         foreach (var mapping in mappings)
         {
-            _quiltManifest.Add(new FabricManifest(mapping.Value<string>("version")!));
+            _quiltManifest.Add(new QuiltManifest(mapping.Value<string>("version")!));
         }
 
         return _quiltManifest;
@@ -119,13 +121,13 @@ public static class ManifestHelper
     /// <summary>
     /// Stores the Forge mod loader manifests.
     /// </summary>
-    private static List<ForgeManifest>? _forgeManifest;
+    private static List<IModManifest>? _forgeManifest;
 
     /// <summary>
     /// Retrieves the cached Forge mod loader manifests.
     /// </summary>
     /// <returns>A list of <see cref="ForgeManifest"/> or null if not loaded.</returns>
-    public static List<ForgeManifest>? GetForgeManifest() => _forgeManifest;
+    public static List<IModManifest>? GetForgeManifest() => _forgeManifest;
 
     /// <summary>
     /// Asynchronously loads the Forge mod loader manifests from the specified path.
@@ -133,25 +135,32 @@ public static class ManifestHelper
     /// <param name="manifestPath">The file path to the Forge manifest.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A list of <see cref="ForgeManifest"/> or null if loading fails.</returns>
-    public static async Task<List<ForgeManifest>?> GetForgeManifestAsync(string manifestPath, CancellationToken cancellationToken = default)
+    public static async Task<List<IModManifest>?> GetForgeManifestAsync(string manifestPath, CancellationToken cancellationToken = default)
     {
         if (_forgeManifest != null)
             return _forgeManifest;
 
-        _forgeManifest = await JsonHelper.ReadJsonFileAsync<List<ForgeManifest>>(manifestPath, cancellationToken);
+        _forgeManifest = [];
+        var localManifests = await JsonHelper.ReadJsonFileAsync<List<ForgeManifest>>(manifestPath, cancellationToken);
+        if (localManifests == null)
+            throw new  InvalidOperationException("Forge manifest loader not found in the JSON.");
+        
+        foreach (var manifest in localManifests)
+            _forgeManifest.Add(manifest);
+        
         return _forgeManifest;
     }
 
     /// <summary>
     /// Stores the NeoForge mod loader manifests.
     /// </summary>
-    private static List<ForgeManifest>? _neoForgeManifest;
+    private static List<IModManifest>? _neoForgeManifest;
 
     /// <summary>
     /// Retrieves the cached NeoForge mod loader manifests.
     /// </summary>
     /// <returns>A list of <see cref="ForgeManifest"/> or null if not loaded.</returns>
-    public static List<ForgeManifest>? GetNeoForgeManifest() => _neoForgeManifest;
+    public static List<IModManifest>? GetNeoForgeManifest() => _neoForgeManifest;
 
     /// <summary>
     /// Asynchronously loads the NeoForge mod loader manifests from the specified path.
@@ -159,12 +168,19 @@ public static class ManifestHelper
     /// <param name="manifestPath">The file path to the NeoForge manifest.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A list of <see cref="ForgeManifest"/> or null if loading fails.</returns>
-    public static async Task<List<ForgeManifest>?> GetNeoForgeManifestAsync(string manifestPath, CancellationToken cancellationToken = default)
+    public static async Task<List<IModManifest>?> GetNeoForgeManifestAsync(string manifestPath, CancellationToken cancellationToken = default)
     {
         if (_neoForgeManifest != null)
             return _neoForgeManifest;
 
-        _neoForgeManifest = await JsonHelper.ReadJsonFileAsync<List<ForgeManifest>>(manifestPath, cancellationToken);
+        _neoForgeManifest = [];
+        var localManifests = await JsonHelper.ReadJsonFileAsync<List<NeoForgeManifest>>(manifestPath, cancellationToken);
+        if (localManifests == null)
+            throw new  InvalidOperationException("Neo forge manifest loader not found in the JSON.");
+        
+        foreach (var manifest in localManifests)
+            _neoForgeManifest.Add(manifest);
+        
         return _neoForgeManifest;
     }
 }

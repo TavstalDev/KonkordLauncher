@@ -2,13 +2,13 @@ using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Core.Enums;
 
-namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Fabric;
+namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Quilt;
 
 /// <summary>
-/// Represents the manifest for a Fabric mod loader, containing details about the game version
+/// Represents the manifest for a Quilt mod loader, containing details about the game version
 /// and the mod loader version.
 /// </summary>
-public class FabricManifest : IModManifest
+public class QuiltManifest : IModManifest
 {
     /// <inheritdoc/>
     [JsonProperty("gameVersion"), JsonPropertyName("gameVersion")]
@@ -20,18 +20,18 @@ public class FabricManifest : IModManifest
     
     /// <inheritdoc/>
     [System.Text.Json.Serialization.JsonIgnore, Newtonsoft.Json.JsonIgnore]
-    public EMinecraftKind LoaderKind { get;  } = EMinecraftKind.FABRIC;
+    public EMinecraftKind LoaderKind { get;  } = EMinecraftKind.QUILT;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="FabricManifest"/> class with default values.
+    /// Initializes a new instance of the <see cref="QuiltManifest"/> class with default values.
     /// </summary>
-    public FabricManifest() {}
+    public QuiltManifest() {}
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="FabricManifest"/> class with a specified version.
+    /// Initializes a new instance of the <see cref="QuiltManifest"/> class with a specified version.
     /// </summary>
-    /// <param name="version">The version of the Fabric mod loader.</param>
-    public FabricManifest(string version)
+    /// <param name="version">The version of the Quilt mod loader.</param>
+    public QuiltManifest(string version)
     {
         GameVersion = string.Empty;
         Version = version;

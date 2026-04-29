@@ -1,5 +1,5 @@
 using System.Reactive;
-using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -23,11 +23,6 @@ public partial class InstanceLogsWindow : KonkordWindow<InstanceLogsViewModel>
     public InstanceLogsWindow(string instanceId)
     {
         InitializeComponent();
-        
-#if DEBUG
-        // Attaches Avalonia Dev Tools for debugging purposes.
-        this.AttachDevTools();
-#endif
         
         DataContext = new InstanceLogsViewModel(instanceId);
         this.WhenActivated(disposables =>

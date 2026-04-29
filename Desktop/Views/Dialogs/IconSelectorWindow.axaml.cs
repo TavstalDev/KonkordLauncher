@@ -2,9 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using ReactiveUI;
@@ -30,11 +29,6 @@ public partial class IconSelectorWindow : KonkordWindow<IconSelectorViewModel>
     public IconSelectorWindow()
     {
         InitializeComponent();
-
-#if DEBUG
-        // Attaches Avalonia Dev Tools for debugging purposes.
-        this.AttachDevTools();
-#endif
 
         DataContext = new IconSelectorViewModel();
         this.WhenActivated(disposables =>

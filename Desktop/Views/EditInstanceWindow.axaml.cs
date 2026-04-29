@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.Reactive;
-using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -10,7 +10,6 @@ using Avalonia.Interactivity;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
 using Tavstal.KonkordLauncher.Core.Models;
-using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
@@ -43,11 +42,6 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     public EditInstanceWindow(string instanceId)
     {
         InitializeComponent();
-        
-#if DEBUG
-        // Attaches Avalonia Dev Tools for debugging purposes.
-        this.AttachDevTools();
-#endif
         
         DataContext = new EditInstanceViewModel(instanceId);
         _selectedInstanceTab = LogsTabBtn;
@@ -155,6 +149,10 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
         App.UpdateRPC("Browsing instances...");
     }
 
+    /// <summary>
+    /// Switches the active main tab in the Edit Instance window and updates the visual state of the tab buttons.
+    /// </summary>
+    /// <param name="tab">The target tab to switch to. Must be one of the values from the <see cref="EEditInstanceTab"/> enum.</param>
     private void HandleTabSwitch(EEditInstanceTab tab)
     {
         if (DataContext is not { } viewModel)
@@ -213,6 +211,11 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
         _selectedInstanceTab.Classes.Add("SettingsTabBtnActive");
     }
 
+    /// <summary>
+    /// Switches the active settings sub-tab in the Instance Settings section and updates the visual state
+    /// of the settings tab buttons.
+    /// </summary>
+    /// <param name="tab">The target settings tab to switch to. Must be one of the values from the <see cref="EInstanceSettingsTab"/> enum.</param>
     private void HandleSettingsTabSwitch(EInstanceSettingsTab tab)
     {
         if (DataContext is not { } viewModel)
@@ -378,15 +381,25 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
             return;
 
         var topLevel = GetTopLevel(this);
-        if (topLevel?.Clipboard == null)
+        if (topLevel == null)
             return;
+        
+        var clipboard = topLevel.Clipboard;
+        if (clipboard == null)
+        {
+            _logger.Error("Clipboard is not available. Cannot set clipboard image.");
+            return;
+        }
 
         using var ms = new MemoryStream();
         screenshot.Image.Save(ms);
-        var dataObject = new DataObject();
-        dataObject.Set("image/png", ms.ToArray());
 
-        await topLevel.Clipboard.SetDataObjectAsync(dataObject);
+        var fileFormat = DataFormat.CreateBytesApplicationFormat("image/png");
+        var item = DataTransferItem.Create(fileFormat, ms.ToArray());
+
+        var transfer = new DataTransfer();
+        transfer.Add(item);
+        await clipboard.SetDataAsync(transfer);
     }
     
     /// <summary>

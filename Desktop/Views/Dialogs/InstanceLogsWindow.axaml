@@ -15,11 +15,11 @@
     Background="Transparent"
     CanResize="True"
     CornerRadius="14"
-    ExtendClientAreaChromeHints="NoChrome"
+    
     ExtendClientAreaToDecorationsHint="True"
     Icon="avares://Desktop/Assets/Images/logo.png"
     ShowInTaskbar="True"
-    SystemDecorations="None"
+    WindowDecorations="None"
     TransparencyLevelHint="Transparent"
     UseLayoutRounding="True"
     WindowStartupLocation="CenterScreen"
@@ -107,7 +107,7 @@
                             <TextBox
                                 Grid.Column="0"
                                 Classes="TextInput"
-                                Watermark="{lang:Translate common.search}" />
+                                PlaceholderText="{lang:Translate common.search}" />
                             <!--  To bottom button  -->
                             <Button
                                 Grid.Column="1"

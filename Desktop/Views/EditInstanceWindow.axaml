@@ -19,11 +19,11 @@
     Background="Transparent"
     CanResize="True"
     CornerRadius="14"
-    ExtendClientAreaChromeHints="NoChrome"
+    
     ExtendClientAreaToDecorationsHint="True"
     Icon="avares://Desktop/Assets/Images/logo.png"
     ShowInTaskbar="False"
-    SystemDecorations="None"
+    WindowDecorations="None"
     TransparencyLevelHint="Transparent"
     UseLayoutRounding="True"
     WindowStartupLocation="CenterScreen"
@@ -218,7 +218,7 @@
                                                     <TextBox
                                                         Grid.Column="0"
                                                         Classes="TextInput"
-                                                        Watermark="{lang:Translate common.search}" />
+                                                        PlaceholderText="{lang:Translate common.search}" />
                                                     <!--  To bottom button  -->
                                                     <Button
                                                         Grid.Column="1"
@@ -363,7 +363,7 @@
                                                     <TextBox
                                                         Grid.Column="0"
                                                         Classes="TextInput"
-                                                        Watermark="{lang:Translate common.search}" />
+                                                        PlaceholderText="{lang:Translate common.search}" />
                                                     <!--  Download  -->
                                                     <!--  TODO  -->
                                                     <Button
@@ -489,7 +489,7 @@
                                                         Grid.Column="0"
                                                         Classes="TextInput"
                                                         Text="{Binding ResourcePackSearchQuery}"
-                                                        Watermark="{lang:Translate common.search}" />
+                                                        PlaceholderText="{lang:Translate common.search}" />
                                                     <!--  Download  -->
                                                     <!--  TODO  -->
                                                     <Button
@@ -594,7 +594,7 @@
                                                     <TextBox
                                                         Grid.Column="0"
                                                         Classes="TextInput"
-                                                        Watermark="{lang:Translate common.search}" />
+                                                        PlaceholderText="{lang:Translate common.search}" />
                                                     <!--  Download  -->
                                                     <!--  TODO  -->
                                                     <Button
@@ -811,13 +811,13 @@
                                                         Grid.Column="0"
                                                         Classes="TextInput"
                                                         Text="{Binding ServerName}"
-                                                        Watermark="Minecraft Server" />
+                                                        PlaceholderText="Minecraft Server" />
                                                     <!--  Address bar  -->
                                                     <TextBox
                                                         Grid.Column="1"
                                                         Classes="TextInput"
                                                         Text="{Binding ServerIp}"
-                                                        Watermark="192.168.1.0:25565" />
+                                                        PlaceholderText="192.168.1.0:25565" />
                                                     <!--  Add  -->
                                                     <Button
                                                         Grid.Column="2"
@@ -1038,7 +1038,7 @@
                                                                             Grid.Column="1"
                                                                             Classes="TextInput"
                                                                             Text="{Binding InstanceConfig.Java.DefaultJavaPath, Mode=TwoWay}"
-                                                                            Watermark="{lang:Translate common.select.directory}" />
+                                                                            PlaceholderText="{lang:Translate common.select.directory}" />
                                                                         <StackPanel
                                                                             Grid.Column="2"
                                                                             Orientation="Horizontal"
@@ -1375,7 +1375,7 @@
                                                                             Classes="TextInput"
                                                                             IsEnabled="{Binding InstanceConfig.Misc.UseCustomGlfw}"
                                                                             Text="{Binding InstanceConfig.Misc.CustomGlfwPath, Mode=TwoWay}"
-                                                                            Watermark="{lang:Translate common.select.file}" />
+                                                                            PlaceholderText="{lang:Translate common.select.file}" />
                                                                     </Grid>
 
                                                                     <!--  Use custom OpenAL  -->
@@ -1395,7 +1395,7 @@
                                                                             Classes="TextInput"
                                                                             IsEnabled="{Binding InstanceConfig.Misc.UseCustomOpenAL}"
                                                                             Text="{Binding InstanceConfig.Misc.CustomOpenALPath, Mode=TwoWay}"
-                                                                            Watermark="{lang:Translate common.select.file}" />
+                                                                            PlaceholderText="{lang:Translate common.select.file}" />
                                                                     </Grid>
                                                                 </StackPanel>
                                                             </Border>
@@ -1450,7 +1450,7 @@
                                                                             Classes="TextInput"
                                                                             IsEnabled="{Binding InstanceConfig.Misc.JoinServerOnLaunch}"
                                                                             Text="{Binding InstanceConfig.Misc.ServerAddress}"
-                                                                            Watermark="192.168.1.0:25565" />
+                                                                            PlaceholderText="192.168.1.0:25565" />
                                                                     </Grid>
                                                                 </StackPanel>
                                                             </Border>

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -60,11 +60,6 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
     public StartupWindow()
     {
         InitializeComponent();
-        
-#if DEBUG
-        // Attaches Avalonia Dev Tools for debugging purposes.
-        this.AttachDevTools();
-#endif
         
         DataContext = new StartupViewModel();
         this.WhenActivated(disposables =>

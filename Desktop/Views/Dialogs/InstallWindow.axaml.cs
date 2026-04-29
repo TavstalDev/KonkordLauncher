@@ -1,7 +1,6 @@
 using System.Reactive;
-using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Threading;
 using ReactiveUI;
@@ -24,11 +23,6 @@ public partial class InstallWindow : KonkordWindow<InstallViewModel>, IProgressR
     public InstallWindow()
     {
         InitializeComponent();
-
-#if DEBUG
-        // Attaches Avalonia Dev Tools for debugging purposes in debug mode.
-        this.AttachDevTools();
-#endif
 
         // Sets the data context of the window to an instance of the InstallViewModel.
         DataContext = new InstallViewModel();

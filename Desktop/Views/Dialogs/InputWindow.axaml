@@ -14,12 +14,12 @@
     Background="Transparent"
     CanResize="False"
     CornerRadius="14"
-    ExtendClientAreaChromeHints="NoChrome"
+    
     ExtendClientAreaToDecorationsHint="True"
     Icon="avares://Desktop/Assets/Images/logo.png"
     ShowInTaskbar="True"
     SizeToContent="Height"
-    SystemDecorations="None"
+    WindowDecorations="None"
     TransparencyLevelHint="Transparent"
     UseLayoutRounding="True"
     WindowStartupLocation="CenterScreen"
@@ -82,7 +82,7 @@
                         HorizontalAlignment="Stretch"
                         Classes="TextInput"
                         Text="{Binding InputText}"
-                        Watermark="" />
+                        PlaceholderText="" />
                 </Grid>
                 <!--  Buttons  -->
                 <WrapPanel Grid.Row="1" Classes="AlertButtonWrapper">

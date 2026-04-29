@@ -1,10 +1,10 @@
 ﻿using System;
 using System.IO;
 using Avalonia;
-using Avalonia.ReactiveUI;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using ReactiveUI.Avalonia;
 using Tavstal.KonkordLauncher.Core.Encryption;
 using Velopack;
 
@@ -53,5 +53,5 @@ class Program
             .UsePlatformDetect()
             .WithInterFont()
             .LogToTrace()
-            .UseReactiveUI();
+            .UseReactiveUI(_ => { });
 }

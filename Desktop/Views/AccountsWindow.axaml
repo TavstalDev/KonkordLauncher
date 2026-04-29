@@ -16,12 +16,12 @@
     Background="Transparent"
     CanResize="False"
     CornerRadius="14"
-    ExtendClientAreaChromeHints="NoChrome"
+    
     ExtendClientAreaToDecorationsHint="True"
     Icon="avares://Desktop/Assets/Images/logo.png"
     ShowInTaskbar="False"
     SizeToContent="Height"
-    SystemDecorations="None"
+    WindowDecorations="None"
     TransparencyLevelHint="Transparent"
     UseLayoutRounding="True"
     WindowStartupLocation="CenterScreen"
@@ -202,7 +202,7 @@
                                         Classes="AccountsModalInput"
                                         MaxLength="16"
                                         Text="{Binding OfflineUsername}"
-                                        Watermark="steve" />
+                                        PlaceholderText="steve" />
                                     <!--  Offline login button  -->
                                     <Button
                                         HorizontalAlignment="Center"

@@ -1,7 +1,6 @@
 using System.Reactive;
-using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media;
@@ -38,11 +37,6 @@ public partial class AlertWindow : KonkordWindow<AlertViewModel>
     public AlertWindow(string title, string message, EAlertType type)
     {
         InitializeComponent();
-
-#if DEBUG
-        // Attaches Avalonia Dev Tools for debugging purposes.
-        this.AttachDevTools();
-#endif
 
         if (Design.IsDesignMode)
         {

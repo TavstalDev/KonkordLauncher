@@ -1,7 +1,6 @@
 using System.Reactive;
-using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Controls;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
@@ -35,11 +34,6 @@ public partial class InputWindow : KonkordWindow<InputViewModel>
     public InputWindow(string title)
     {
         InitializeComponent();
-
-#if DEBUG
-        // Attaches Avalonia Dev Tools for debugging purposes.
-        this.AttachDevTools();
-#endif
 
         if (Design.IsDesignMode)
         {

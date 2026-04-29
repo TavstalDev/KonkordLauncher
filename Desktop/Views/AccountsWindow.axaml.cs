@@ -1,9 +1,8 @@
 using System;
 using System.Reactive;
-using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Threading;
 using ReactiveUI;
@@ -30,11 +29,6 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
     public AccountsWindow()
     {
         InitializeComponent();
-
-#if DEBUG
-        // Attaches Avalonia Dev Tools for debugging purposes.
-        this.AttachDevTools();
-#endif
 
         DataContext = new AccountsViewModel(this);
 

@@ -21,11 +21,11 @@
     Background="Transparent"
     CanResize="True"
     CornerRadius="14"
-    ExtendClientAreaChromeHints="NoChrome"
+    
     ExtendClientAreaToDecorationsHint="True"
     Icon="avares://Desktop/Assets/Images/logo.png"
     ShowInTaskbar="True"
-    SystemDecorations="None"
+    WindowDecorations="None"
     TransparencyLevelHint="Transparent"
     UseLayoutRounding="True"
     WindowStartupLocation="CenterScreen"
@@ -776,7 +776,7 @@
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
                                                                         Text="{Binding CoreConfig.Launcher.AssetsDirectoryPath, Mode=TwoWay}"
-                                                                        Watermark="{lang:Translate common.select.directory}" />
+                                                                        PlaceholderText="{lang:Translate common.select.directory}" />
                                                                     <Button
                                                                         Grid.Column="2"
                                                                         Classes="IconBtn"
@@ -793,7 +793,7 @@
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
                                                                         Text="{Binding CoreConfig.Launcher.CacheDirectoryPath, Mode=TwoWay}"
-                                                                        Watermark="{lang:Translate common.select.directory}" />
+                                                                        PlaceholderText="{lang:Translate common.select.directory}" />
                                                                     <Button
                                                                         Grid.Column="2"
                                                                         Classes="IconBtn"
@@ -810,7 +810,7 @@
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
                                                                         Text="{Binding CoreConfig.Launcher.IconsDirectoryPath, Mode=TwoWay}"
-                                                                        Watermark="{lang:Translate common.select.directory}" />
+                                                                        PlaceholderText="{lang:Translate common.select.directory}" />
                                                                     <Button
                                                                         Grid.Column="2"
                                                                         Classes="IconBtn"
@@ -827,7 +827,7 @@
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
                                                                         Text="{Binding CoreConfig.Launcher.InstancesDirectoryPath, Mode=TwoWay}"
-                                                                        Watermark="{lang:Translate common.select.directory}" />
+                                                                        PlaceholderText="{lang:Translate common.select.directory}" />
                                                                     <Button
                                                                         Grid.Column="2"
                                                                         Classes="IconBtn"
@@ -844,7 +844,7 @@
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
                                                                         Text="{Binding CoreConfig.Launcher.JavaDirectoryPath, Mode=TwoWay}"
-                                                                        Watermark="{lang:Translate common.select.directory}" />
+                                                                        PlaceholderText="{lang:Translate common.select.directory}" />
                                                                     <Button
                                                                         Grid.Column="2"
                                                                         Classes="IconBtn"
@@ -861,7 +861,7 @@
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
                                                                         Text="{Binding CoreConfig.Launcher.LibrariesDirectoryPath, Mode=TwoWay}"
-                                                                        Watermark="{lang:Translate common.select.directory}" />
+                                                                        PlaceholderText="{lang:Translate common.select.directory}" />
                                                                     <Button
                                                                         Grid.Column="2"
                                                                         Classes="IconBtn"
@@ -878,7 +878,7 @@
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
                                                                         Text="{Binding CoreConfig.Launcher.ManifestsDirectoryPath, Mode=TwoWay}"
-                                                                        Watermark="{lang:Translate common.select.directory}" />
+                                                                        PlaceholderText="{lang:Translate common.select.directory}" />
                                                                     <Button
                                                                         Grid.Column="2"
                                                                         Classes="IconBtn"
@@ -895,7 +895,7 @@
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
                                                                         Text="{Binding CoreConfig.Launcher.TranslationsDirectoryPath, Mode=TwoWay}"
-                                                                        Watermark="{lang:Translate common.select.directory}" />
+                                                                        PlaceholderText="{lang:Translate common.select.directory}" />
                                                                     <Button
                                                                         Grid.Column="2"
                                                                         Classes="IconBtn"
@@ -912,7 +912,7 @@
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
                                                                         Text="{Binding CoreConfig.Launcher.VersionsDirectoryPath, Mode=TwoWay}"
-                                                                        Watermark="{lang:Translate common.select.directory}" />
+                                                                        PlaceholderText="{lang:Translate common.select.directory}" />
                                                                     <Button
                                                                         Grid.Column="2"
                                                                         Classes="IconBtn"
@@ -1050,7 +1050,7 @@
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
                                                                         Text="{Binding CoreConfig.Java.DefaultJavaPath, Mode=TwoWay}"
-                                                                        Watermark="{lang:Translate common.select.directory}" />
+                                                                        PlaceholderText="{lang:Translate common.select.directory}" />
                                                                     <StackPanel
                                                                         Grid.Column="2"
                                                                         Orientation="Horizontal"
@@ -1166,7 +1166,7 @@
                                                                         Classes="TextInput"
                                                                         IsEnabled="{Binding CoreConfig.Misc.UseCustomGlfw}"
                                                                         Text="{Binding CoreConfig.Misc.CustomGlfwPath, Mode=TwoWay}"
-                                                                        Watermark="{lang:Translate common.select.file}" />
+                                                                        PlaceholderText="{lang:Translate common.select.file}" />
                                                                 </Grid>
 
                                                                 <!--  Use custom OpenAL  -->
@@ -1186,7 +1186,7 @@
                                                                         Classes="TextInput"
                                                                         IsEnabled="{Binding CoreConfig.Misc.UseCustomOpenAl}"
                                                                         Text="{Binding CoreConfig.Misc.CustomOpenAlPath, Mode=TwoWay}"
-                                                                        Watermark="{lang:Translate common.select.file}" />
+                                                                        PlaceholderText="{lang:Translate common.select.file}" />
                                                                 </Grid>
                                                             </StackPanel>
                                                         </Border>

@@ -1,13 +1,13 @@
 using System;
 using System.Reactive;
-using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Translation;
+using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
@@ -20,9 +20,10 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 /// </summary>
 public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewModel>
 {
+    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(CreateInstanceWindow));
     private Button _selectedTabBtn;
     private Button _selectedImportTypeBtn;
-    
+
     /// <summary>
     /// Initializes a new instance of the <see cref="CreateInstanceWindow"/> class.
     /// Sets up the data context, initializes components, and registers reactive handlers.
@@ -30,11 +31,6 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
     public CreateInstanceWindow()
     {
         InitializeComponent();
-
-#if DEBUG
-        // Attaches Avalonia Dev Tools for debugging purposes.
-        this.AttachDevTools();
-#endif
         
         DataContext = new CreateInstanceViewModel();
         _selectedTabBtn = CustomTabBtn;
@@ -102,7 +98,7 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
     protected override void OnOpened(EventArgs e)
     {
         base.OnOpened(e);
-        App.UpdateRPC("Creating instance...");
+        _ = Task.Run(() => App.UpdateRPC("Creating instance..."));
     }
 
     /// <summary>
@@ -113,7 +109,7 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
     protected override void OnClosed(EventArgs e)
     {
         base.OnClosed(e);
-        App.UpdateRPC("Browsing instances...");
+        _ = Task.Run(() => App.UpdateRPC("Browsing instances..."));
     }
     
     #endregion

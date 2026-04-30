@@ -137,8 +137,8 @@
                                                     ColumnDefinitions="100,*,*"
                                                     ColumnSpacing="20">
                                                     <!--  Icon  -->
-                                                    <Button Command="{Binding CustomIconSelectorCommand}">
-                                                        <Image Classes="InstanceIcon" Source="{Binding InstanceIcon}" />
+                                                    <Button Command="{Binding Custom.CustomIconSelectorCommand}">
+                                                        <Image Classes="InstanceIcon" Source="{Binding Custom.InstanceIcon}" />
                                                     </Button>
                                                     <!--  Name  -->
                                                     <Grid
@@ -152,7 +152,7 @@
                                                         <TextBox
                                                             Grid.Row="1"
                                                             Classes="TextInput"
-                                                            Text="{Binding InstanceName, UpdateSourceTrigger=PropertyChanged}"
+                                                            Text="{Binding Custom.InstanceName, UpdateSourceTrigger=PropertyChanged}"
                                                             PlaceholderText="My Instance" />
                                                     </Grid>
                                                     <!--  Group  -->
@@ -195,8 +195,8 @@
                                                         Classes="InstanceTable"
                                                         RowBackground="Transparent"   
                                                         GridLinesVisibility="None"
-                                                        ItemsSource="{Binding MinecraftVersions}"
-                                                        SelectedItem="{Binding SelectedMinecraftVersion, Mode=TwoWay}">
+                                                        ItemsSource="{Binding Custom.MinecraftVersions}"
+                                                        SelectedItem="{Binding Custom.SelectedMinecraftVersion, Mode=TwoWay}">
                                                         <DataGrid.Columns>
                                                             <DataGridTextColumn
                                                                 Width="*"
@@ -215,20 +215,20 @@
                                                     <!--  Version Options  -->
                                                     <StackPanel Grid.Column="1" MaxWidth="175">
                                                         <!--  Release  -->
-                                                        <CheckBox Content="{lang:Translate instance.create.releases}" IsChecked="{Binding ShowReleases, Mode=TwoWay}" />
+                                                        <CheckBox Content="{lang:Translate instance.create.releases}" IsChecked="{Binding Custom.ShowReleases, Mode=TwoWay}" />
                                                         <!--  Snapshot  -->
-                                                        <CheckBox Content="{lang:Translate instance.create.snapshots}" IsChecked="{Binding ShowSnapshots, Mode=TwoWay}" />
+                                                        <CheckBox Content="{lang:Translate instance.create.snapshots}" IsChecked="{Binding Custom.ShowSnapshots, Mode=TwoWay}" />
                                                         <!--  Beta  -->
-                                                        <CheckBox Content="{lang:Translate instance.create.betas}" IsChecked="{Binding ShowBetas, Mode=TwoWay}" />
+                                                        <CheckBox Content="{lang:Translate instance.create.betas}" IsChecked="{Binding Custom.ShowBetas, Mode=TwoWay}" />
                                                         <!--  Alpha  -->
-                                                        <CheckBox Content="{lang:Translate instance.create.alphas}" IsChecked="{Binding ShowAlphas, Mode=TwoWay}" />
+                                                        <CheckBox Content="{lang:Translate instance.create.alphas}" IsChecked="{Binding Custom.ShowAlphas, Mode=TwoWay}" />
                                                         <!--  Experiment  -->
-                                                        <CheckBox Content="{lang:Translate instance.create.experiments}" IsChecked="{Binding ShowExperiments, Mode=TwoWay}" />
+                                                        <CheckBox Content="{lang:Translate instance.create.experiments}" IsChecked="{Binding Custom.ShowExperiments, Mode=TwoWay}" />
 
                                                         <!--  Search Box  -->
                                                         <TextBox
                                                             Classes="InstanceSearch"
-                                                            Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                                                            Text="{Binding Custom.SearchQuery, UpdateSourceTrigger=PropertyChanged}"
                                                             PlaceholderText="{lang:Translate common.search}" />
                                                     </StackPanel>
                                                 </Grid>
@@ -253,8 +253,8 @@
                                                         Classes="InstanceTable"
                                                         RowBackground="Transparent"   
                                                         GridLinesVisibility="None"
-                                                        ItemsSource="{Binding ModLoaderVersionResult}"
-                                                        SelectedItem="{Binding SelectedModLoader}">
+                                                        ItemsSource="{Binding Custom.ModLoaderVersionResult}"
+                                                        SelectedItem="{Binding Custom.SelectedModLoader}">
                                                         <DataGrid.Columns>
                                                             <DataGridTextColumn
                                                                 Width="*"
@@ -266,35 +266,35 @@
                                                     <StackPanel Grid.Column="1" MaxWidth="175">
                                                         <!--  None  -->
                                                         <RadioButton
-                                                            Command="{Binding CustomModLoaderTypeCommand}"
+                                                            Command="{Binding Custom.CustomModLoaderTypeCommand}"
                                                             CommandParameter="{x:Static enumsc:EMinecraftKind.VANILLA}"
                                                             Content="{lang:Translate common.none}"
                                                             IsChecked="True" />
                                                         <!--  NeoForge  -->
                                                         <RadioButton
-                                                            Command="{Binding CustomModLoaderTypeCommand}"
+                                                            Command="{Binding Custom.CustomModLoaderTypeCommand}"
                                                             CommandParameter="{x:Static enumsc:EMinecraftKind.NEOFORGE}"
                                                             Content="NeoForge" />
                                                         <!--  Forge  -->
                                                         <RadioButton
-                                                            Command="{Binding CustomModLoaderTypeCommand}"
+                                                            Command="{Binding Custom.CustomModLoaderTypeCommand}"
                                                             CommandParameter="{x:Static enumsc:EMinecraftKind.FORGE}"
                                                             Content="Forge" />
                                                         <!--  Fabric  -->
                                                         <RadioButton
-                                                            Command="{Binding CustomModLoaderTypeCommand}"
+                                                            Command="{Binding Custom.CustomModLoaderTypeCommand}"
                                                             CommandParameter="{x:Static enumsc:EMinecraftKind.FABRIC}"
                                                             Content="Fabric" />
                                                         <!--  Quilt  -->
                                                         <RadioButton
-                                                            Command="{Binding CustomModLoaderTypeCommand}"
+                                                            Command="{Binding Custom.CustomModLoaderTypeCommand}"
                                                             CommandParameter="{x:Static enumsc:EMinecraftKind.QUILT}"
                                                             Content="Quilt" />
 
                                                         <!--  Search Box  -->
                                                         <TextBox
                                                             Classes="InstanceSearch"
-                                                            Text="{Binding ModLoaderSearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                                                            Text="{Binding Custom.ModLoaderSearchQuery, UpdateSourceTrigger=PropertyChanged}"
                                                             PlaceholderText="{lang:Translate common.search}" />
                                                     </StackPanel>
                                                 </Grid>
@@ -307,7 +307,7 @@
                                 <Border Grid.Row="1" Classes="InstanceButtonBorder">
                                     <StackPanel Classes="InstanceButtonWrapper">
                                         <!--  Cancel Button  -->
-                                        <Button Classes="IconBtn ErrorBtn" Command="{Binding CustomCancelCreateCommand}">
+                                        <Button Classes="IconBtn ErrorBtn" Command="{Binding Custom.CustomCancelCreateCommand}">
                                             <WrapPanel Classes="IconBtnWrapper">
                                                 <TextBlock
                                                     VerticalAlignment="Center"
@@ -322,8 +322,8 @@
                                         <!--  Create Instance Button  -->
                                         <Button
                                             Classes="IconBtn SuccessBtn"
-                                            Command="{Binding CustomCreateCommand}"
-                                            IsEnabled="{Binding CanCreateCustomInstance}">
+                                            Command="{Binding Custom.CustomCreateCommand}"
+                                            IsEnabled="{Binding Custom.CanCreateCustomInstance}">
                                             <WrapPanel Classes="IconBtnWrapper">
                                                 <TextBlock
                                                     VerticalAlignment="Center"
@@ -358,8 +358,8 @@
                                                     Classes="TextInput"
                                                     FontSize="12"
                                                     PlaceholderText="{lang:Translate common.search}"
-                                                    Text="{Binding ModpackSearchQuery, Delay=500}" 
-                                                    IsReadOnly="{Binding !ModpackAllowScrollbarRefresh}"/>
+                                                    Text="{Binding Modpack.SearchQuery, Delay=500}" 
+                                                    IsReadOnly="{Binding !Modpack.AllowScrollbarRefresh}"/>
 
                                                 <!--  Platform  -->
                                                 <Grid
@@ -379,9 +379,9 @@
                                                         Classes="TextDropdown"
                                                         FontSize="12"
                                                         IsEnabled="False"
-                                                        IsHitTestVisible="{Binding ModpackAllowScrollbarRefresh}"
-                                                        ItemsSource="{Binding AvailableModpackPlatforms}"
-                                                        SelectedItem="{Binding SelectedModpackPlatform}"
+                                                        IsHitTestVisible="{Binding Modpack.AllowScrollbarRefresh}"
+                                                        ItemsSource="{Binding Modpack.AvailablePlatforms}"
+                                                        SelectedItem="{Binding Modpack.SelectedPlatform}"
                                                         SelectionChanged="ModPackFilter_OnSelectionChanged"/>
                                                 </Grid>
 
@@ -403,9 +403,9 @@
                                                         Classes="TextDropdown"
                                                         FontSize="12"
                                                         SelectedIndex="0"
-                                                        SelectedValue="{Binding ModpackModLoader}"
+                                                        SelectedValue="{Binding Modpack.ModLoader}"
                                                         SelectionChanged="ModPackFilter_OnSelectionChanged"
-                                                        IsHitTestVisible="{Binding ModpackAllowScrollbarRefresh}">
+                                                        IsHitTestVisible="{Binding Modpack.AllowScrollbarRefresh}">
                                                         <ComboBoxItem Content="Any" />
                                                         <ComboBoxItem Content="NeoForge" />
                                                         <ComboBoxItem Content="Forge" />
@@ -431,11 +431,11 @@
                                                         MinHeight="30"
                                                         Classes="TextDropdown"
                                                         FontSize="12"
-                                                        SelectedIndex="{Binding ModpackVersionFilterIndex}"
-                                                        SelectedValue="{Binding ModpackMinecraftVersion}"
+                                                        SelectedIndex="{Binding Modpack.VersionFilterIndex}"
+                                                        SelectedValue="{Binding Modpack.MinecraftVersion}"
                                                         SelectionChanged="ModPackFilter_OnSelectionChanged"
-                                                        IsHitTestVisible="{Binding ModpackAllowScrollbarRefresh}"
-                                                        ItemsSource="{Binding ModpackVersionFilterSource}" />
+                                                        IsHitTestVisible="{Binding Modpack.AllowScrollbarRefresh}"
+                                                        ItemsSource="{Binding Modpack.VersionFilterSource}" />
                                                 </Grid>
 
                                                 <!--  Categories  -->
@@ -449,72 +449,72 @@
                                                     <CheckBox
                                                         Content="{lang:Translate instance.create.category.adventure}"
                                                         Classes="InstanceModCategory" 
-                                                        IsChecked="{Binding ModpackCategoryAdventure}"
+                                                        IsChecked="{Binding Modpack.CategoryAdventure}"
                                                         IsCheckedChanged="ModPackCategory_OnIsCheckedChanged"
-                                                        IsHitTestVisible="{Binding ModpackAllowScrollbarRefresh}"/>
+                                                        IsHitTestVisible="{Binding Modpack.AllowScrollbarRefresh}"/>
                                                     <!--  Challenging Checkbox  -->
                                                     <CheckBox
                                                         Content="{lang:Translate instance.create.category.challenging}"
                                                         Classes="InstanceModCategory"
-                                                        IsChecked="{Binding ModpackCategoryChallenging}"
+                                                        IsChecked="{Binding Modpack.CategoryChallenging}"
                                                         IsCheckedChanged="ModPackCategory_OnIsCheckedChanged" 
-                                                        IsHitTestVisible="{Binding ModpackAllowScrollbarRefresh}"/>
+                                                        IsHitTestVisible="{Binding Modpack.AllowScrollbarRefresh}"/>
                                                     <!--  Combat Checkbox  -->
                                                     <CheckBox
                                                         Content="{lang:Translate instance.create.category.combat}"
                                                         Classes="InstanceModCategory" 
-                                                        IsChecked="{Binding ModpackCategoryCombat}"
+                                                        IsChecked="{Binding Modpack.CategoryCombat}"
                                                         IsCheckedChanged="ModPackCategory_OnIsCheckedChanged"
-                                                        IsHitTestVisible="{Binding ModpackAllowScrollbarRefresh}"/>
+                                                        IsHitTestVisible="{Binding Modpack.AllowScrollbarRefresh}"/>
                                                     <!--  Kitchen Sink Checkbox  -->
                                                     <CheckBox
                                                         Content="{lang:Translate instance.create.category.kitchenSink}"
                                                         Classes="InstanceModCategory" 
-                                                        IsChecked="{Binding ModpackCategoryKitchenSink}"
+                                                        IsChecked="{Binding Modpack.CategoryKitchenSink}"
                                                         IsCheckedChanged="ModPackCategory_OnIsCheckedChanged"
-                                                        IsHitTestVisible="{Binding ModpackAllowScrollbarRefresh}"/>
+                                                        IsHitTestVisible="{Binding Modpack.AllowScrollbarRefresh}"/>
                                                     <!--  Lightweight Checkbox  -->
                                                     <CheckBox
                                                         Content="{lang:Translate instance.create.category.lightweight}"
                                                         Classes="InstanceModCategory" 
-                                                        IsChecked="{Binding ModpackCategoryLightweight}"
+                                                        IsChecked="{Binding Modpack.CategoryLightweight}"
                                                         IsCheckedChanged="ModPackCategory_OnIsCheckedChanged"
-                                                        IsHitTestVisible="{Binding ModpackAllowScrollbarRefresh}"/>
+                                                        IsHitTestVisible="{Binding Modpack.AllowScrollbarRefresh}"/>
                                                     <!--  Magic Checkbox  -->
                                                     <CheckBox
                                                         Content="{lang:Translate instance.create.category.magic}"
                                                         Classes="InstanceModCategory" 
-                                                        IsChecked="{Binding ModpackCategoryMagic}"
+                                                        IsChecked="{Binding Modpack.CategoryMagic}"
                                                         IsCheckedChanged="ModPackCategory_OnIsCheckedChanged"
-                                                        IsHitTestVisible="{Binding ModpackAllowScrollbarRefresh}"/>
+                                                        IsHitTestVisible="{Binding Modpack.AllowScrollbarRefresh}"/>
                                                     <!--  Multiplayer Checkbox  -->
                                                     <CheckBox
                                                         Content="{lang:Translate instance.create.category.multiplayer}"
                                                         Classes="InstanceModCategory" 
-                                                        IsChecked="{Binding ModpackCategoryMultiplayer}"
+                                                        IsChecked="{Binding Modpack.CategoryMultiplayer}"
                                                         IsCheckedChanged="ModPackCategory_OnIsCheckedChanged"
-                                                        IsHitTestVisible="{Binding ModpackAllowScrollbarRefresh}"/>
+                                                        IsHitTestVisible="{Binding Modpack.AllowScrollbarRefresh}"/>
                                                     <!--  Optimization Checkbox  -->
                                                     <CheckBox
                                                         Content="{lang:Translate instance.create.category.optimization}"
                                                         Classes="InstanceModCategory" 
-                                                        IsChecked="{Binding ModpackCategoryOptimization}"
+                                                        IsChecked="{Binding Modpack.CategoryOptimization}"
                                                         IsCheckedChanged="ModPackCategory_OnIsCheckedChanged"
-                                                        IsHitTestVisible="{Binding ModpackAllowScrollbarRefresh}"/>
+                                                        IsHitTestVisible="{Binding Modpack.AllowScrollbarRefresh}"/>
                                                     <!--  Quests Checkbox  -->
                                                     <CheckBox
                                                         Content="{lang:Translate instance.create.category.quests}"
                                                         Classes="InstanceModCategory" 
-                                                        IsChecked="{Binding ModpackCategoryQuests}"
+                                                        IsChecked="{Binding Modpack.CategoryQuests}"
                                                         IsCheckedChanged="ModPackCategory_OnIsCheckedChanged"
-                                                        IsHitTestVisible="{Binding ModpackAllowScrollbarRefresh}"/>
+                                                        IsHitTestVisible="{Binding Modpack.AllowScrollbarRefresh}"/>
                                                     <!--  Technology Checkbox  -->
                                                     <CheckBox
                                                         Content="{lang:Translate instance.create.category.technology}"
                                                         Classes="InstanceModCategory" 
-                                                        IsChecked="{Binding ModpackCategoryTechnology}"
+                                                        IsChecked="{Binding Modpack.CategoryTechnology}"
                                                         IsCheckedChanged="ModPackCategory_OnIsCheckedChanged"
-                                                        IsHitTestVisible="{Binding ModpackAllowScrollbarRefresh}"/>
+                                                        IsHitTestVisible="{Binding Modpack.AllowScrollbarRefresh}"/>
                                                 </StackPanel>
                                             </Grid>
                                             </ScrollViewer>
@@ -535,10 +535,10 @@
                                                         <ListBox
                                                             Margin="0, 0, 10, 0"
                                                             Background="Transparent"
-                                                            ItemsSource="{Binding Modpacks}"
-                                                            SelectedItem="{Binding SelectedModpack}"
+                                                            ItemsSource="{Binding Modpack.Modpacks}"
+                                                            SelectedItem="{Binding Modpack.SelectedModpack}"
                                                             SelectionMode="Single"
-                                                            Opacity="{Binding ModpackAllowScrollbarRefresh, Converter={StaticResource BoolToOpacityConverter}}">
+                                                            Opacity="{Binding Modpack.AllowScrollbarRefresh, Converter={StaticResource BoolToOpacityConverter}}">
                                                             <ListBox.ItemTemplate>
                                                                 <DataTemplate>
                                                                     <Border Classes="InstanceModCard">
@@ -561,7 +561,7 @@
                                                     <avalonia:LoadingIndicator
                                                         Height="150"
                                                         Foreground="{DynamicResource primary-content}"
-                                                        IsActive="{Binding !ModpackAllowScrollbarRefresh}"
+                                                        IsActive="{Binding !Modpack.AllowScrollbarRefresh}"
                                                         Mode="Arc"
                                                         SpeedRatio="1.2"
                                                         VerticalAlignment="Center"/>
@@ -581,7 +581,7 @@
                                                     Margin="0, 0, 10, 0"
                                                     MaxWidth="{Binding $parent[Border].Bounds.Width}"
                                                     BaseStylesheet="body, p, div, span, h1, h2, h3, ul, ol {                                                            color: white !important;                                                            font-family: sans-serif;                                                            font-size: 12px;                                                            white-space: normal;                                                            word-wrap: break-word;                                                           }"
-                                                    Text="{Binding ModpackPreview}" />
+                                                    Text="{Binding Modpack.ModpackPreview}" />
                                                 </ScrollViewer>
                                             </Border>
                                         </Grid>
@@ -595,14 +595,14 @@
                                             Grid.Column="0"
                                             VerticalAlignment="Center"
                                             Classes="TextDropdown"
-                                            ItemsSource="{Binding SelectedModpack.Versions}"
+                                            ItemsSource="{Binding Modpack.SelectedModpack.Versions}"
                                             PlaceholderText="{lang:Translate instance.create.modpack.select}"
                                             SelectedIndex="0" />
 
                                         <!--  Action buttons  -->
                                         <StackPanel Grid.Column="1" Classes="InstanceButtonWrapper">
                                             <!--  Cancel Button  -->
-                                            <Button Classes="IconBtn ErrorBtn" Command="{Binding CustomCancelCreateCommand}">
+                                            <Button Classes="IconBtn ErrorBtn" Command="{Binding Custom.CustomCancelCreateCommand}">
                                                 <WrapPanel Classes="IconBtnWrapper">
                                                     <TextBlock
                                                         VerticalAlignment="Center"
@@ -658,7 +658,7 @@
                                                             Name="ImportFromFileTabBtn"
                                                             HorizontalAlignment="Stretch"
                                                             Classes="SuccessBtn"
-                                                            Command="{Binding ChangeImportTypeCommand}">
+                                                            Command="{Binding Import.ChangeImportTypeCommand}">
                                                             <Button.CommandParameter>
                                                                 <x:Int32>0</x:Int32>
                                                             </Button.CommandParameter>
@@ -673,7 +673,7 @@
                                                             Name="ImportFromUrlTabBtn"
                                                             Grid.Column="1"
                                                             HorizontalAlignment="Stretch"
-                                                            Command="{Binding ChangeImportTypeCommand}">
+                                                            Command="{Binding Import.ChangeImportTypeCommand}">
                                                             <Button.CommandParameter>
                                                                 <x:Int32>1</x:Int32>
                                                             </Button.CommandParameter>
@@ -690,7 +690,7 @@
                                             <Border
                                                 Grid.Row="1"
                                                 Classes="SettingsCategoryBorder"
-                                                IsVisible="{Binding IsSourceFromFile}">
+                                                IsVisible="{Binding Import.IsSourceFromFile}">
                                                 <Grid RowDefinitions="Auto, Auto, Auto">
                                                     <!--  Category Title  -->
                                                     <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.import.select_file.title}" />
@@ -705,13 +705,13 @@
                                                             Grid.Column="0"
                                                             Classes="TextInput"
                                                             IsReadOnly="True"
-                                                            Text="{Binding ImportPath}"
+                                                            Text="{Binding Import.ImportPath}"
                                                             PlaceholderText="{lang:Translate common.select.file}" />
                                                         <!--  Button  -->
                                                         <Button
                                                             Grid.Column="1"
                                                             Classes="IconBtn SuccessBtn"
-                                                            Command="{Binding SelectFileToImportCommand}">
+                                                            Command="{Binding Import.SelectFileToImportCommand}">
                                                             <TextBlock Classes="FontAwesome" Text="&#xf56f;" />
                                                         </Button>
                                                     </Grid>
@@ -728,7 +728,7 @@
                                             <Border
                                                 Grid.Row="1"
                                                 Classes="SettingsCategoryBorder"
-                                                IsVisible="{Binding !IsSourceFromFile}">
+                                                IsVisible="{Binding !Import.IsSourceFromFile}">
                                                 <Grid RowDefinitions="Auto, Auto, Auto">
                                                     <!--  Category Title  -->
                                                     <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.import.import_from_url.title}" />
@@ -738,7 +738,7 @@
                                                         Grid.Row="1"
                                                         Margin="5,0,5,0"
                                                         Classes="TextInput"
-                                                        Text="{Binding ImportPath, Delay=500}"
+                                                        Text="{Binding Import.ImportPath, Delay=500}"
                                                         PlaceholderText="e.g., https://example.com/my-modpack.mrpack" />
 
                                                     <!--  Note  -->
@@ -772,7 +772,7 @@
                                                     <TextBlock
                                                         Grid.Column="1"
                                                         Opacity="0.5"
-                                                        Text="{Binding ImportPreviewName}" />
+                                                        Text="{Binding Import.ImportPreviewName}" />
                                                 </Grid>
 
                                                 <!--  Version  -->
@@ -784,7 +784,7 @@
                                                     <TextBlock
                                                         Grid.Column="1"
                                                         Opacity="0.5"
-                                                        Text="{Binding ImportPreviewVersion}" />
+                                                        Text="{Binding Import.ImportPreviewVersion}" />
                                                 </Grid>
 
                                                 <!--  Mod Loader  -->
@@ -796,7 +796,7 @@
                                                     <TextBlock
                                                         Grid.Column="1"
                                                         Opacity="0.5"
-                                                        Text="{Binding ImportPreviewModLoader}" />
+                                                        Text="{Binding Import.ImportPreviewModLoader}" />
                                                 </Grid>
                                             </Grid>
                                         </Border>
@@ -807,7 +807,7 @@
                                 <Border Grid.Row="1" Classes="InstanceButtonBorder">
                                     <StackPanel Classes="InstanceButtonWrapper">
                                         <!--  Cancel Button  -->
-                                        <Button Classes="IconBtn ErrorBtn" Command="{Binding CustomCancelCreateCommand}">
+                                        <Button Classes="IconBtn ErrorBtn" Command="{Binding Custom.CustomCancelCreateCommand}">
                                             <WrapPanel Classes="IconBtnWrapper">
                                                 <TextBlock
                                                     VerticalAlignment="Center"
@@ -822,8 +822,8 @@
                                         <!--  Create Instance Button  -->
                                         <Button
                                             Classes="IconBtn SuccessBtn"
-                                            Command="{Binding CreateInstanceFromImportCommand}"
-                                            IsEnabled="{Binding HasImportPath}">
+                                            Command="{Binding Import.CreateInstanceFromImportCommand}"
+                                            IsEnabled="{Binding Import.HasImportPath}">
                                             <WrapPanel Classes="IconBtnWrapper">
                                                 <TextBlock
                                                     VerticalAlignment="Center"

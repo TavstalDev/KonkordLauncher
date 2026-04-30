@@ -56,31 +56,31 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             }).DisposeWith(disposables);
-            DataContext.UpdateSelectedTabButton.RegisterHandler(action =>
+            DataContext.SwitchTabInteraction.RegisterHandler(action =>
             {
                 HandleTabChange(action.Input);
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             });
-            DataContext.UpdateSelectedImportTypeButton.RegisterHandler(action =>
+            DataContext.SwitchImportTabInteraction.RegisterHandler(action =>
             {
                 HandleImportTypeChange(action.Input);
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             });
-            DataContext.ShowAlertDialog.RegisterHandler(async action =>
+            DataContext.ShowAlertDialogInteraction.RegisterHandler(async action =>
             {
                 AlertWindow alertWindow = new(action.Input.Title, action.Input.Message, action.Input.Type);
                 await alertWindow.ShowDialog(this);
                 action.SetOutput(Unit.Default);
             }).DisposeWith(disposables);
-            DataContext.ShowIconSelector.RegisterHandler(async action =>
+            DataContext.ShowIconSelectorInteraction.RegisterHandler(async action =>
             {
                 IconSelectorWindow window = new();
                 var result = await window.ShowDialog<string?>(this);
                 action.SetOutput(result);
             }).DisposeWith(disposables);
-            DataContext.ShowFileSelector.RegisterHandler(async action =>
+            DataContext.ShowFileSelectorInteraction.RegisterHandler(async action =>
             {
                 string title = TranslationManager.Translate("common.select.file");
                 string? result = await OpenFilePickerAsync(title, ".zip, .mrpack, .json", ["*.zip", "*.mrpack", "*.json"]);
@@ -110,6 +110,64 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
     {
         base.OnClosed(e);
         _ = Task.Run(() => App.UpdateRPC("Browsing instances..."));
+    }
+    
+    /// <summary>
+    /// Handles scroll changes for the modpack list ScrollViewer and triggers loading more modpacks when the user
+    /// scrolls near the bottom (infinite-scroll behavior).
+    /// </summary>
+    /// <param name="sender">The event sender. Expected to be an <see cref="Avalonia.Controls.ScrollViewer"/> instance that raised the event.</param>
+    /// <param name="e">Event data for the scroll change (unused by this implementation).</param>
+    private void ScrollViewer_OnScrollChanged(object? sender, ScrollChangedEventArgs e)
+    {
+        if (DataContext is not { } viewModel)
+            return;
+        
+        if (!viewModel.Modpack.AllowScrollbarRefresh)
+            return;
+        
+        if (sender is ScrollViewer scrollViewer)
+        {
+            double verticalOffset = scrollViewer.Offset.Y;
+            double maxVerticalOffset = scrollViewer.Extent.Height - scrollViewer.Viewport.Height;
+
+            if (maxVerticalOffset < 0 || Math.Abs(verticalOffset - maxVerticalOffset) < 0.1)
+                Dispatcher.UIThread.Invoke(async () => await viewModel.Modpack.RefreshModpacksAsync());
+        }
+    }
+
+    /// <summary>
+    /// Handler invoked when a modpack category checkbox changes state (checked/unchecked).
+    /// Triggers a full refresh of modpacks with the new category filters applied.
+    /// </summary>
+    /// <param name="sender">The control that raised the event (not used by this implementation).</param>
+    /// <param name="e">Event args for the routed event (not used).</param>
+    private void ModPackCategory_OnIsCheckedChanged(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not { } viewModel)
+            return;
+        
+        if (!viewModel.Modpack.AllowScrollbarRefresh)
+            return;
+        
+        Dispatcher.UIThread.Invoke(async () =>  await viewModel.Modpack.RefreshModpacksAsync(true));
+    }
+
+    /// <summary>
+    /// Handler invoked when the modpack version/filter selection changes (e.g. ComboBox selection).
+    /// Triggers a full refresh of modpacks to apply the newly selected filters.
+    /// </summary>
+    /// <param name="sender">The control that raised the event (expected to be a selector control).</param>
+    /// <param name="e">Selection changed event data (not used in the handler).</param>
+    private void ModPackFilter_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (DataContext is not { } viewModel)
+            return;
+        
+        if (!viewModel.Modpack.AllowScrollbarRefresh)
+            return;
+        
+        Dispatcher.UIThread.Invoke(async () =>  await viewModel.Modpack.RefreshModpacksAsync(true));
     }
     
     #endregion
@@ -158,12 +216,12 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
         if (DataContext is not { } viewModel)
             return;
         
-        if (viewModel.SelectedImportSourceIndex  == index)
+        if (viewModel.Import.SelectedImportSourceIndex  == index)
             return;
         
-        viewModel.SelectedImportSourceIndex = index;
-        viewModel.HasImportPath = false;
-        viewModel.ImportPath = null;
+        viewModel.Import.SelectedImportSourceIndex = index;
+        viewModel.Import.HasImportPath = false;
+        viewModel.Import.ImportPath = null;
         _selectedImportTypeBtn.Classes.Remove("SuccessBtn");
         switch (index)
         {
@@ -179,45 +237,5 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
             }
         }
         _selectedImportTypeBtn.Classes.Add("SuccessBtn");
-    }
-
-    private void ScrollViewer_OnScrollChanged(object? sender, ScrollChangedEventArgs e)
-    {
-        if (DataContext is not { } viewModel)
-            return;
-        
-        if (!viewModel.ModpackAllowScrollbarRefresh)
-            return;
-        
-        if (sender is ScrollViewer scrollViewer)
-        {
-            double verticalOffset = scrollViewer.Offset.Y;
-            double maxVerticalOffset = scrollViewer.Extent.Height - scrollViewer.Viewport.Height;
-
-            if (maxVerticalOffset < 0 || Math.Abs(verticalOffset - maxVerticalOffset) < 0.1)
-                Dispatcher.UIThread.Invoke(async () => await viewModel.RefreshModpacksAsync());
-        }
-    }
-
-    private void ModPackCategory_OnIsCheckedChanged(object? sender, RoutedEventArgs e)
-    {
-        if (DataContext is not { } viewModel)
-            return;
-        
-        if (!viewModel.ModpackAllowScrollbarRefresh)
-            return;
-        
-        Dispatcher.UIThread.Invoke(async () =>  await viewModel.RefreshModpacksAsync(true));
-    }
-
-    private void ModPackFilter_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
-    {
-        if (DataContext is not { } viewModel)
-            return;
-        
-        if (!viewModel.ModpackAllowScrollbarRefresh)
-            return;
-        
-        Dispatcher.UIThread.Invoke(async () =>  await viewModel.RefreshModpacksAsync(true));
     }
 }

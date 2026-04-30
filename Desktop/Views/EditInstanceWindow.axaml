@@ -275,8 +275,8 @@
                                                     <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
                                                         <DataGrid
                                                             Classes="InstanceMultiTable"
-                                                            ItemsSource="{Binding FilteredMods}"
-                                                            SelectedItem="{Binding SelectedMod}">
+                                                            ItemsSource="{Binding Mods.FilteredMods}"
+                                                            SelectedItem="{Binding Mods.SelectedMod}">
                                                             <DataGrid.Columns>
                                                                 <!--  Enabled  -->
                                                                 <DataGridCheckBoxColumn
@@ -321,32 +321,32 @@
                                                                 <ContextMenu>
                                                                     <!--  Toggle  -->
                                                                     <MenuItem
-                                                                        Command="{Binding ModToggleCommand}"
-                                                                        CommandParameter="{Binding SelectedMod}"
+                                                                        Command="{Binding Mods.ModToggleCommand}"
+                                                                        CommandParameter="{Binding Mods.SelectedMod}"
                                                                         Header="{lang:Translate common.toggle}" />
                                                                     <Separator />
                                                                     <!--  Check For Updates  -->
                                                                     <MenuItem
-                                                                        Command="{Binding ModCheckUpdateCommand}"
-                                                                        CommandParameter="{Binding SelectedMod}"
+                                                                        Command="{Binding Mods.ModCheckUpdateCommand}"
+                                                                        CommandParameter="{Binding Mods.SelectedMod}"
                                                                         Header="{lang:Translate instance.update.check}" />
                                                                     <Separator />
                                                                     <!--  Change Version  -->
                                                                     <MenuItem
-                                                                        Command="{Binding ModChangeVersionCommand}"
-                                                                        CommandParameter="{Binding SelectedMod}"
+                                                                        Command="{Binding Mods.ModChangeVersionCommand}"
+                                                                        CommandParameter="{Binding Mods.SelectedMod}"
                                                                         Header="{lang:Translate instance.version.change}" />
                                                                     <Separator />
                                                                     <!--  Remove  -->
                                                                     <MenuItem
-                                                                        Command="{Binding ModRemoveCommand}"
-                                                                        CommandParameter="{Binding SelectedMod}"
+                                                                        Command="{Binding Mods.ModRemoveCommand}"
+                                                                        CommandParameter="{Binding Mods.SelectedMod}"
                                                                         Header="{lang:Translate common.remove}" />
                                                                     <Separator />
                                                                     <!--  Download Mods  -->
-                                                                    <MenuItem Command="{Binding ModDownloadCommand}" Header="{lang:Translate instance.download.mods}" />
+                                                                    <MenuItem Command="{Binding Mods.ModDownloadCommand}" Header="{lang:Translate instance.download.mods}" />
                                                                     <!--  Open Folder  -->
-                                                                    <MenuItem Command="{Binding ModOpenDirectoryCommand}" Header="{lang:Translate common.open.directory}" />
+                                                                    <MenuItem Command="{Binding Mods.ModOpenDirectoryCommand}" Header="{lang:Translate common.open.directory}" />
                                                                 </ContextMenu>
                                                             </DataGrid.ContextMenu>
                                                         </DataGrid>
@@ -369,7 +369,7 @@
                                                     <Button
                                                         Grid.Column="1"
                                                         Classes="IconBtn"
-                                                        Command="{Binding ModDownloadCommand}"
+                                                        Command="{Binding Mods.ModDownloadCommand}"
                                                         IsEnabled="False">
                                                         <WrapPanel Classes="IconBtnWrapper">
                                                             <TextBlock
@@ -383,7 +383,7 @@
                                                     <Button
                                                         Grid.Column="2"
                                                         Classes="IconBtn"
-                                                        Command="{Binding ModOpenDirectoryCommand}">
+                                                        Command="{Binding Mods.ModOpenDirectoryCommand}">
                                                         <WrapPanel Classes="IconBtnWrapper">
                                                             <TextBlock
                                                                 VerticalAlignment="Center"
@@ -411,8 +411,8 @@
                                                             CellEditEnded="ResourcePacksDataGrid_OnCellEditEnded"
                                                             Classes="InstanceMultiTable"
                                                             IsReadOnly="False"
-                                                            ItemsSource="{Binding FilteredResourcePacks}"
-                                                            SelectedItem="{Binding SelectedResourcePack}">
+                                                            ItemsSource="{Binding ResourcePacks.FilteredResourcePacks}"
+                                                            SelectedItem="{Binding ResourcePacks.SelectedResourcePack}">
                                                             <DataGrid.Columns>
                                                                 <!--  Enabled  -->
                                                                 <DataGridCheckBoxColumn
@@ -455,23 +455,23 @@
                                                                 <ContextMenu>
                                                                     <!--  Toggle  -->
                                                                     <MenuItem
-                                                                        Command="{Binding ResourcePackToggleCommand}"
-                                                                        CommandParameter="{Binding SelectedResourcePack}"
+                                                                        Command="{Binding ResourcePacks.ResourcePackToggleCommand}"
+                                                                        CommandParameter="{Binding ResourcePacks.SelectedResourcePack}"
                                                                         Header="{lang:Translate common.toggle}" />
                                                                     <Separator />
                                                                     <!--  Remove  -->
                                                                     <MenuItem
-                                                                        Command="{Binding ResourcePackRemoveCommand}"
-                                                                        CommandParameter="{Binding SelectedResourcePack}"
+                                                                        Command="{Binding ResourcePacks.ResourcePackRemoveCommand}"
+                                                                        CommandParameter="{Binding ResourcePacks.SelectedResourcePack}"
                                                                         Header="{lang:Translate common.remove}" />
                                                                     <Separator />
                                                                     <!--  Download Packs  -->
                                                                     <MenuItem
-                                                                        Command="{Binding ResourcePackDownloadCommand}"
-                                                                        CommandParameter="{Binding SelectedResourcePack}"
+                                                                        Command="{Binding ResourcePacks.ResourcePackDownloadCommand}"
+                                                                        CommandParameter="{Binding ResourcePacks.SelectedResourcePack}"
                                                                         Header="{lang:Translate instance.download.resourcePacks}" />
                                                                     <!--  Open Folder  -->
-                                                                    <MenuItem Command="{Binding ResourcePackOpenDirectoryCommand}" Header="{lang:Translate common.open.directory}" />
+                                                                    <MenuItem Command="{Binding ResourcePacks.ResourcePackOpenDirectoryCommand}" Header="{lang:Translate common.open.directory}" />
                                                                 </ContextMenu>
                                                             </DataGrid.ContextMenu>
                                                         </DataGrid>
@@ -488,14 +488,14 @@
                                                     <TextBox
                                                         Grid.Column="0"
                                                         Classes="TextInput"
-                                                        Text="{Binding ResourcePackSearchQuery}"
+                                                        Text="{Binding ResourcePacks.ResourcePackSearchQuery}"
                                                         PlaceholderText="{lang:Translate common.search}" />
                                                     <!--  Download  -->
                                                     <!--  TODO  -->
                                                     <Button
                                                         Grid.Column="1"
                                                         Classes="IconBtn"
-                                                        Command="{Binding ResourcePackDownloadCommand}"
+                                                        Command="{Binding ResourcePacks.ResourcePackDownloadCommand}"
                                                         IsEnabled="False">
                                                         <WrapPanel Classes="IconBtnWrapper">
                                                             <TextBlock
@@ -509,7 +509,7 @@
                                                     <Button
                                                         Grid.Column="2"
                                                         Classes="IconBtn"
-                                                        Command="{Binding ResourcePackOpenDirectoryCommand}">
+                                                        Command="{Binding ResourcePacks.ResourcePackOpenDirectoryCommand}">
                                                         <WrapPanel Classes="IconBtnWrapper">
                                                             <TextBlock
                                                                 VerticalAlignment="Center"
@@ -535,8 +535,8 @@
                                                     <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
                                                         <DataGrid
                                                             Classes="InstanceMultiTable"
-                                                            ItemsSource="{Binding FilteredShaderPacks}"
-                                                            SelectedItem="{Binding SelectedShaderPack}">
+                                                            ItemsSource="{Binding ShaderPacks.FilteredShaderPacks}"
+                                                            SelectedItem="{Binding ShaderPacks.SelectedShaderPack}">
                                                             <DataGrid.Columns>
                                                                 <!--  Enabled  -->
                                                                 <DataGridCheckBoxColumn
@@ -564,20 +564,20 @@
                                                                 <ContextMenu>
                                                                     <!--  Toggle  -->
                                                                     <MenuItem
-                                                                        Command="{Binding ShaderToggleCommand}"
-                                                                        CommandParameter="{Binding SelectedShaderPack}"
+                                                                        Command="{Binding ShaderPacks.ShaderToggleCommand}"
+                                                                        CommandParameter="{Binding ShaderPacks.SelectedShaderPack}"
                                                                         Header="{lang:Translate common.toggle}" />
                                                                     <Separator />
                                                                     <!--  Remove  -->
                                                                     <MenuItem
-                                                                        Command="{Binding ShaderRemoveCommand}"
-                                                                        CommandParameter="{Binding SelectedShaderPack}"
+                                                                        Command="{Binding ShaderPacks.ShaderRemoveCommand}"
+                                                                        CommandParameter="{Binding ShaderPacks.SelectedShaderPack}"
                                                                         Header="{lang:Translate common.remove}" />
                                                                     <Separator />
                                                                     <!--  Download Packs  -->
-                                                                    <MenuItem Command="{Binding ShaderDownloadCommand}" Header="{lang:Translate instance.download.shaders}" />
+                                                                    <MenuItem Command="{Binding ShaderPacks.ShaderDownloadCommand}" Header="{lang:Translate instance.download.shaders}" />
                                                                     <!--  Open Folder  -->
-                                                                    <MenuItem Command="{Binding ShaderOpenDirectoryCommand}" Header="{lang:Translate common.open.directory}" />
+                                                                    <MenuItem Command="{Binding ShaderPacks.ShaderOpenDirectoryCommand}" Header="{lang:Translate common.open.directory}" />
                                                                 </ContextMenu>
                                                             </DataGrid.ContextMenu>
                                                         </DataGrid>
@@ -600,7 +600,7 @@
                                                     <Button
                                                         Grid.Column="1"
                                                         Classes="IconBtn"
-                                                        Command="{Binding ShaderDownloadCommand}"
+                                                        Command="{Binding ShaderPacks.ShaderDownloadCommand}"
                                                         IsEnabled="False">
                                                         <WrapPanel Classes="IconBtnWrapper">
                                                             <TextBlock
@@ -614,7 +614,7 @@
                                                     <Button
                                                         Grid.Column="2"
                                                         Classes="IconBtn"
-                                                        Command="{Binding ShaderOpenDirectoryCommand}">
+                                                        Command="{Binding ShaderPacks.ShaderOpenDirectoryCommand}">
                                                         <WrapPanel Classes="IconBtnWrapper">
                                                             <TextBlock
                                                                 VerticalAlignment="Center"
@@ -643,9 +643,9 @@
                                                             CellEditEnded="WorldDataGrid_OnCellEditEnded"
                                                             Classes="InstanceMultiTable"
                                                             IsReadOnly="False"
-                                                            ItemsSource="{Binding Worlds}"
+                                                            ItemsSource="{Binding Worlds.Worlds}"
                                                             RowEditEnded="WorldDataGrid_OnRowEditEnded"
-                                                            SelectedItem="{Binding SelectedWorld}">
+                                                            SelectedItem="{Binding Worlds.SelectedWorld}">
                                                             <DataGrid.Columns>
                                                                 <!--  Icon & Name  -->
                                                                 <DataGridTemplateColumn Width="*" Header="{lang:Translate instance.edit.table.name}">
@@ -698,29 +698,29 @@
                                                                 <ContextMenu>
                                                                     <!--  Duplicate  -->
                                                                     <MenuItem
-                                                                        Command="{Binding WorldsDuplicateCommand}"
-                                                                        CommandParameter="{Binding SelectedWorld}"
+                                                                        Command="{Binding Worlds.WorldsDuplicateCommand}"
+                                                                        CommandParameter="{Binding Worlds.SelectedWorld}"
                                                                         Header="{lang:Translate common.duplicate}" />
                                                                     <!--  Rename  -->
                                                                     <MenuItem
-                                                                        Command="{Binding WorldsRenameCommand}"
-                                                                        CommandParameter="{Binding SelectedWorld}"
+                                                                        Command="{Binding Worlds.WorldsRenameCommand}"
+                                                                        CommandParameter="{Binding Worlds.SelectedWorld}"
                                                                         Header="{lang:Translate common.rename}" />
                                                                     <!--  Delete  -->
                                                                     <MenuItem
-                                                                        Command="{Binding WorldsDeleteCommand}"
-                                                                        CommandParameter="{Binding SelectedWorld}"
+                                                                        Command="{Binding Worlds.WorldsDeleteCommand}"
+                                                                        CommandParameter="{Binding Worlds.SelectedWorld}"
                                                                         Header="{lang:Translate common.delete}" />
                                                                     <Separator />
                                                                     <!--  Copy Speed  -->
                                                                     <MenuItem
-                                                                        Command="{Binding WorldsCopySeed}"
-                                                                        CommandParameter="{Binding SelectedWorld}"
+                                                                        Command="{Binding Worlds.WorldsCopySeed}"
+                                                                        CommandParameter="{Binding Worlds.SelectedWorld}"
                                                                         Header="{lang:Translate instance.edit.copySeed}" />
                                                                     <!--  Open Folder  -->
                                                                     <MenuItem
-                                                                        Command="{Binding WorldsOpenDirectoryCommand}"
-                                                                        CommandParameter="{Binding SelectedWorld}"
+                                                                        Command="{Binding Worlds.WorldsOpenDirectoryCommand}"
+                                                                        CommandParameter="{Binding Worlds.SelectedWorld}"
                                                                         Header="{lang:Translate common.open.directory}" />
                                                                 </ContextMenu>
                                                             </DataGrid.ContextMenu>
@@ -744,9 +744,9 @@
                                                         <DataGrid
                                                             Classes="InstanceMultiTable"
                                                             IsReadOnly="False"
-                                                            ItemsSource="{Binding Servers}"
+                                                            ItemsSource="{Binding Servers.Servers}"
                                                             RowEditEnded="ServersDataGrid_OnRowEditEnded"
-                                                            SelectedItem="{Binding SelectedServer}">
+                                                            SelectedItem="{Binding Servers.SelectedServer}">
                                                             <DataGrid.Columns>
                                                                 <!--  Icon & Name  -->
                                                                 <DataGridTemplateColumn Width="*" Header="{lang:Translate instance.edit.table.name}">
@@ -786,13 +786,13 @@
                                                                 <ContextMenu>
                                                                     <!--  Join  -->
                                                                     <MenuItem
-                                                                        Command="{Binding ServersJoinCommand}"
-                                                                        CommandParameter="{Binding SelectedServer}"
+                                                                        Command="{Binding Servers.ServersJoinCommand}"
+                                                                        CommandParameter="{Binding Servers.SelectedServer}"
                                                                         Header="{lang:Translate instance.edit.joinServer}" />
                                                                     <!--  Remove  -->
                                                                     <MenuItem
-                                                                        Command="{Binding ServersRemoveCommand}"
-                                                                        CommandParameter="{Binding SelectedServer}"
+                                                                        Command="{Binding Servers.ServersRemoveCommand}"
+                                                                        CommandParameter="{Binding Servers.SelectedServer}"
                                                                         Header="{lang:Translate common.remove}" />
                                                                 </ContextMenu>
                                                             </DataGrid.ContextMenu>
@@ -810,19 +810,19 @@
                                                     <TextBox
                                                         Grid.Column="0"
                                                         Classes="TextInput"
-                                                        Text="{Binding ServerName}"
+                                                        Text="{Binding Servers.ServerName}"
                                                         PlaceholderText="Minecraft Server" />
                                                     <!--  Address bar  -->
                                                     <TextBox
                                                         Grid.Column="1"
                                                         Classes="TextInput"
-                                                        Text="{Binding ServerIp}"
+                                                        Text="{Binding Servers.ServerIp}"
                                                         PlaceholderText="192.168.1.0:25565" />
                                                     <!--  Add  -->
                                                     <Button
                                                         Grid.Column="2"
                                                         Classes="IconBtn"
-                                                        Command="{Binding ServerAddCommand}">
+                                                        Command="{Binding Servers.ServerAddCommand}">
                                                         <WrapPanel Classes="IconBtnWrapper">
                                                             <TextBlock
                                                                 VerticalAlignment="Center"
@@ -851,8 +851,8 @@
                                                             CellEditEnded="ScreenshotCell_OnEditEnded"
                                                             Classes="InstanceMultiTable"
                                                             IsReadOnly="False"
-                                                            ItemsSource="{Binding Screenshots}"
-                                                            SelectedItem="{Binding SelectedScreenshot}">
+                                                            ItemsSource="{Binding Screenshots.Screenshots}"
+                                                            SelectedItem="{Binding Screenshots.SelectedScreenshot}">
                                                             <DataGrid.Columns>
                                                                 <!--  Icon & Name  -->
                                                                 <DataGridTemplateColumn
@@ -901,23 +901,23 @@
                                                                 <ContextMenu>
                                                                     <!--  Copy  -->
                                                                     <MenuItem
-                                                                        Command="{Binding ScreenshotsCopyCommand}"
-                                                                        CommandParameter="{Binding SelectedScreenshot}"
+                                                                        Command="{Binding Screenshots.ScreenshotsCopyCommand}"
+                                                                        CommandParameter="{Binding Screenshots.SelectedScreenshot}"
                                                                         Header="{lang:Translate common.copy}" />
                                                                     <!--  Delete  -->
                                                                     <MenuItem
-                                                                        Command="{Binding ScreenshotsDeleteCommand}"
-                                                                        CommandParameter="{Binding SelectedScreenshot}"
+                                                                        Command="{Binding Screenshots.ScreenshotsDeleteCommand}"
+                                                                        CommandParameter="{Binding Screenshots.SelectedScreenshot}"
                                                                         Header="{lang:Translate common.delete}" />
                                                                     <!--  Rename  -->
                                                                     <MenuItem
-                                                                        Command="{Binding ScreenshotsRenameCommand}"
-                                                                        CommandParameter="{Binding SelectedScreenshot}"
+                                                                        Command="{Binding Screenshots.ScreenshotsRenameCommand}"
+                                                                        CommandParameter="{Binding Screenshots.SelectedScreenshot}"
                                                                         Header="{lang:Translate common.rename}" />
                                                                     <!--  Open Directory  -->
                                                                     <MenuItem
-                                                                        Command="{Binding ScreenshotsOpenDirectoryCommand}"
-                                                                        CommandParameter="{Binding SelectedScreenshot}"
+                                                                        Command="{Binding Screenshots.ScreenshotsOpenDirectoryCommand}"
+                                                                        CommandParameter="{Binding Screenshots.SelectedScreenshot}"
                                                                         Header="{lang:Translate common.open.directory}" />
                                                                 </ContextMenu>
                                                             </DataGrid.ContextMenu>
@@ -937,35 +937,35 @@
                                                     <Button
                                                         Name="JavaSettingsBtn"
                                                         Classes="SettingsTabBtn SettingsTabBtnActive"
-                                                        Command="{Binding SwitchSettingsTabCommand}"
+                                                        Command="{Binding Settings.SwitchSettingsTabCommand}"
                                                         CommandParameter="{x:Static enums:EInstanceSettingsTab.JAVA}">
                                                         <TextBlock Text="{lang:Translate settings.tab.java}" />
                                                     </Button>
                                                     <Button
                                                         Name="GameSettingsBtn"
                                                         Classes="SettingsTabBtn"
-                                                        Command="{Binding SwitchSettingsTabCommand}"
+                                                        Command="{Binding Settings.SwitchSettingsTabCommand}"
                                                         CommandParameter="{x:Static enums:EInstanceSettingsTab.GAME}">
                                                         <TextBlock Text="{lang:Translate settings.tab.game}" />
                                                     </Button>
                                                     <Button
                                                         Name="CustomCommandSettingsBtn"
                                                         Classes="SettingsTabBtn"
-                                                        Command="{Binding SwitchSettingsTabCommand}"
+                                                        Command="{Binding Settings.SwitchSettingsTabCommand}"
                                                         CommandParameter="{x:Static enums:EInstanceSettingsTab.CUSTOM_COMMAND}">
                                                         <TextBlock Text="{lang:Translate settings.tab.customCommands}" />
                                                     </Button>
                                                     <Button
                                                         Name="EnvironmentSettingsBtn"
                                                         Classes="SettingsTabBtn"
-                                                        Command="{Binding SwitchSettingsTabCommand}"
+                                                        Command="{Binding Settings.SwitchSettingsTabCommand}"
                                                         CommandParameter="{x:Static enums:EInstanceSettingsTab.ENVIRONMENT}">
                                                         <TextBlock Text="{lang:Translate settings.tab.environment}" />
                                                     </Button>
                                                     <Button
                                                         Name="MiscSettingsBtn"
                                                         Classes="SettingsTabBtn"
-                                                        Command="{Binding SwitchSettingsTabCommand}"
+                                                        Command="{Binding Settings.SwitchSettingsTabCommand}"
                                                         CommandParameter="{x:Static enums:EInstanceSettingsTab.MISC}">
                                                         <TextBlock Text="{lang:Translate settings.tab.misc}" />
                                                     </Button>
@@ -1000,9 +1000,9 @@
                                                                             Classes="NumericInput"
                                                                             FormatString="0\ MB"
                                                                             Increment="128"
-                                                                            Maximum="{Binding InstanceConfig.Java.MaxMemory}"
+                                                                            Maximum="{Binding Settings.InstanceConfig.Java.MaxMemory}"
                                                                             Minimum="512"
-                                                                            Value="{Binding InstanceConfig.Java.MinMemory, Mode=TwoWay}" />
+                                                                            Value="{Binding Settings.InstanceConfig.Java.MinMemory, Mode=TwoWay}" />
                                                                     </Grid>
 
                                                                     <!--  Maximum Memory  -->
@@ -1015,7 +1015,7 @@
                                                                             Increment="128"
                                                                             Maximum="131072"
                                                                             Minimum="512"
-                                                                            Value="{Binding InstanceConfig.Java.MaxMemory, Mode=TwoWay}" />
+                                                                            Value="{Binding Settings.InstanceConfig.Java.MaxMemory, Mode=TwoWay}" />
                                                                     </Grid>
 
                                                                     <!--  PermGen  -->
@@ -1028,7 +1028,7 @@
                                                                             Increment="128"
                                                                             Maximum="1024"
                                                                             Minimum="8"
-                                                                            Value="{Binding InstanceConfig.Java.PermaGen, Mode=TwoWay}" />
+                                                                            Value="{Binding Settings.InstanceConfig.Java.PermaGen, Mode=TwoWay}" />
                                                                     </Grid>
 
                                                                     <!--  Java Path  -->
@@ -1037,7 +1037,7 @@
                                                                         <TextBox
                                                                             Grid.Column="1"
                                                                             Classes="TextInput"
-                                                                            Text="{Binding InstanceConfig.Java.DefaultJavaPath, Mode=TwoWay}"
+                                                                            Text="{Binding Settings.InstanceConfig.Java.DefaultJavaPath, Mode=TwoWay}"
                                                                             PlaceholderText="{lang:Translate common.select.directory}" />
                                                                         <StackPanel
                                                                             Grid.Column="2"
@@ -1045,11 +1045,11 @@
                                                                             Spacing="5">
                                                                             <Button
                                                                                 Classes="IconBtn"
-                                                                                Command="{Binding JavaDirSelectCommand}"
+                                                                                Command="{Binding Settings.JavaDirSelectCommand}"
                                                                                 CommandParameter="9">
                                                                                 <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
                                                                             </Button>
-                                                                            <Button Classes="IconBtn" Command="{Binding JavaPathSelectorCommand}">
+                                                                            <Button Classes="IconBtn" Command="{Binding Settings.JavaPathSelectorCommand}">
                                                                                 <TextBlock Classes="FontAwesome" Text="&#xf126;" />
                                                                             </Button>
                                                                         </StackPanel>
@@ -1067,7 +1067,7 @@
                                                                     <TextBox
                                                                         MinHeight="128"
                                                                         MaxLines="512"
-                                                                        Text="{Binding InstanceConfig.Java.JvmArguments, Mode=TwoWay}"
+                                                                        Text="{Binding Settings.InstanceConfig.Java.JvmArguments, Mode=TwoWay}"
                                                                         TextWrapping="Wrap" />
                                                                 </StackPanel>
                                                             </Border>
@@ -1089,7 +1089,7 @@
                                                                         <ToggleSwitch
                                                                             Grid.Column="1"
                                                                             Classes="SettingsSwitch"
-                                                                            IsChecked="{Binding InstanceConfig.Game.StartMaximized, Mode=TwoWay}" />
+                                                                            IsChecked="{Binding Settings.InstanceConfig.Game.StartMaximized, Mode=TwoWay}" />
                                                                     </Grid>
                                                                     
                                                                     <!--  Window Width  -->
@@ -1100,10 +1100,10 @@
                                                                             Classes="NumericInput"
                                                                             FormatString="0"
                                                                             Increment="10"
-                                                                            IsEnabled="{Binding !InstanceConfig.Game.StartMaximized}"
+                                                                            IsEnabled="{Binding !Settings.InstanceConfig.Game.StartMaximized}"
                                                                             Maximum="{x:Static local:App.ScreenWidth}"
                                                                             Minimum="100"
-                                                                            Value="{Binding InstanceConfig.Game.WindowWidth, Mode=TwoWay}" />
+                                                                            Value="{Binding Settings.InstanceConfig.Game.WindowWidth, Mode=TwoWay}" />
                                                                     </Grid>
 
                                                                     <!--  Window Height  -->
@@ -1114,10 +1114,10 @@
                                                                             Classes="NumericInput"
                                                                             FormatString="0"
                                                                             Increment="10"
-                                                                            IsEnabled="{Binding !InstanceConfig.Game.StartMaximized}"
+                                                                            IsEnabled="{Binding !Settings.InstanceConfig.Game.StartMaximized}"
                                                                             Maximum="{x:Static local:App.ScreenHeight}"
                                                                             Minimum="100"
-                                                                            Value="{Binding InstanceConfig.Game.WindowHeight, Mode=TwoWay}" />
+                                                                            Value="{Binding Settings.InstanceConfig.Game.WindowHeight, Mode=TwoWay}" />
                                                                     </Grid>
                                                                 </StackPanel>
                                                             </Border>
@@ -1134,7 +1134,7 @@
                                                                         <ToggleSwitch
                                                                             Grid.Column="1"
                                                                             Classes="SettingsSwitch"
-                                                                            IsChecked="{Binding InstanceConfig.Game.ShowConsoleWhileGameRunning, Mode=TwoWay}" />
+                                                                            IsChecked="{Binding Settings.InstanceConfig.Game.ShowConsoleWhileGameRunning, Mode=TwoWay}" />
                                                                     </Grid>
                                                                     
                                                                     <!--  Auto close console  -->
@@ -1143,7 +1143,7 @@
                                                                         <ToggleSwitch
                                                                             Grid.Column="1"
                                                                             Classes="SettingsSwitch"
-                                                                            IsChecked="{Binding InstanceConfig.Game.CloseConsoleOnGameExit, Mode=TwoWay}" />
+                                                                            IsChecked="{Binding Settings.InstanceConfig.Game.CloseConsoleOnGameExit, Mode=TwoWay}" />
                                                                     </Grid>
                                                                     
                                                                     <!--  Show console on crash  -->
@@ -1152,7 +1152,7 @@
                                                                         <ToggleSwitch
                                                                             Grid.Column="1"
                                                                             Classes="SettingsSwitch"
-                                                                            IsChecked="{Binding InstanceConfig.Game.ShowConsoleWhenGameCrashes, Mode=TwoWay}" />
+                                                                            IsChecked="{Binding Settings.InstanceConfig.Game.ShowConsoleWhenGameCrashes, Mode=TwoWay}" />
                                                                     </Grid>
                                                                     
                                                                 </StackPanel>
@@ -1170,7 +1170,7 @@
                                                                         <ToggleSwitch
                                                                             Grid.Column="1"
                                                                             Classes="SettingsSwitch"
-                                                                            IsChecked="{Binding InstanceConfig.Game.EnableFeralGameMode, Mode=TwoWay}" 
+                                                                            IsChecked="{Binding Settings.InstanceConfig.Game.EnableFeralGameMode, Mode=TwoWay}" 
                                                                             IsVisible="{Binding IsLinux}"/>
                                                                     </Grid>
                                                                     
@@ -1180,7 +1180,7 @@
                                                                         <ToggleSwitch
                                                                             Grid.Column="1"
                                                                             Classes="SettingsSwitch"
-                                                                            IsChecked="{Binding InstanceConfig.Game.EnableMangoHud, Mode=TwoWay}"
+                                                                            IsChecked="{Binding Settings.InstanceConfig.Game.EnableMangoHud, Mode=TwoWay}"
                                                                             IsVisible="{Binding IsLinux}" />
                                                                     </Grid>
                                                                     
@@ -1190,7 +1190,7 @@
                                                                         <ToggleSwitch
                                                                             Grid.Column="1"
                                                                             Classes="SettingsSwitch"
-                                                                            IsChecked="{Binding InstanceConfig.Game.UseDedicatedGpu, Mode=TwoWay}" />
+                                                                            IsChecked="{Binding Settings.InstanceConfig.Game.UseDedicatedGpu, Mode=TwoWay}" />
                                                                     </Grid>
                                                                 </StackPanel>
                                                             </Border>
@@ -1217,7 +1217,7 @@
                                                                         <TextBox
                                                                             Grid.Column="1"
                                                                             Classes="TextInput"
-                                                                            Text="{Binding InstanceConfig.Commands.PreLaunchCommand, Mode=TwoWay}" />
+                                                                            Text="{Binding Settings.InstanceConfig.Commands.PreLaunchCommand, Mode=TwoWay}" />
                                                                     </Grid>
 
                                                                     <!--  Wrapper Command  -->
@@ -1232,7 +1232,7 @@
                                                                         <TextBox
                                                                             Grid.Column="1"
                                                                             Classes="TextInput"
-                                                                            Text="{Binding InstanceConfig.Commands.WrapperCommand, Mode=TwoWay}" />
+                                                                            Text="{Binding Settings.InstanceConfig.Commands.WrapperCommand, Mode=TwoWay}" />
                                                                     </Grid>
 
                                                                     <!--  Post-exit Command  -->
@@ -1247,7 +1247,7 @@
                                                                         <TextBox
                                                                             Grid.Column="1"
                                                                             Classes="TextInput"
-                                                                            Text="{Binding InstanceConfig.Commands.PostExitCommand, Mode=TwoWay}" />
+                                                                            Text="{Binding Settings.InstanceConfig.Commands.PostExitCommand, Mode=TwoWay}" />
                                                                     </Grid>
                                                                 </StackPanel>
                                                             </Border>
@@ -1267,7 +1267,7 @@
                                                                         <ToggleSwitch
                                                                             Grid.Column="1"
                                                                             Classes="SettingsSwitch"
-                                                                            IsChecked="{Binding InstanceConfig.EnableEnvironment, Mode=TwoWay}" />
+                                                                            IsChecked="{Binding Settings.InstanceConfig.EnableEnvironment, Mode=TwoWay}" />
                                                                     </Grid>
                                                                     
                                                                     <!--  Content  -->
@@ -1275,11 +1275,11 @@
                                                                         <ScrollViewer Classes="TableScrollViewer">
                                                                             <DataGrid
                                                                                 Classes="InstanceMultiTable"
-                                                                                IsEnabled="{Binding InstanceConfig.EnableEnvironment}"
+                                                                                IsEnabled="{Binding Settings.InstanceConfig.EnableEnvironment}"
                                                                                 IsReadOnly="False"
-                                                                                ItemsSource="{Binding InstanceConfig.Environment}"
+                                                                                ItemsSource="{Binding Settings.InstanceConfig.Environment}"
                                                                                 RowEditEnded="EnvironmentDataGrid_OnRowEditEnded"
-                                                                                SelectedIndex="{Binding SelectedEnvironmentVariableIndex}">
+                                                                                SelectedIndex="{Binding Settings.SelectedEnvironmentVariableIndex}">
                                                                                 <DataGrid.Columns>
                                                                                     <!--  Name  -->
                                                                                     <DataGridTextColumn
@@ -1306,7 +1306,7 @@
                                                                         <Button
                                                                             Classes="IconBtn"
                                                                             Click="AddEnvironmentRow_OnClick"
-                                                                            IsEnabled="{Binding InstanceConfig.EnableEnvironment}">
+                                                                            IsEnabled="{Binding Settings.InstanceConfig.EnableEnvironment}">
                                                                             <WrapPanel Classes="IconBtnWrapper">
                                                                                 <TextBlock
                                                                                     VerticalAlignment="Center"
@@ -1320,7 +1320,7 @@
                                                                             Grid.Column="1"
                                                                             Classes="IconBtn"
                                                                             Click="RemoveEnvironmentRow_OnClick"
-                                                                            IsEnabled="{Binding CanRemoveEnvironmentVariable}">
+                                                                            IsEnabled="{Binding Settings.CanRemoveEnvironmentVariable}">
                                                                             <WrapPanel Classes="IconBtnWrapper">
                                                                                 <TextBlock
                                                                                     VerticalAlignment="Center"
@@ -1334,7 +1334,7 @@
                                                                             Grid.Column="2"
                                                                             Classes="IconBtn"
                                                                             Click="ClearEnvironmentTable_OnClick"
-                                                                            IsEnabled="{Binding InstanceConfig.EnableEnvironment}">
+                                                                            IsEnabled="{Binding Settings.InstanceConfig.EnableEnvironment}">
                                                                             <WrapPanel Classes="IconBtnWrapper">
                                                                                 <TextBlock
                                                                                     VerticalAlignment="Center"
@@ -1364,7 +1364,7 @@
                                                                         <ToggleSwitch
                                                                             Grid.Column="1"
                                                                             Classes="SettingsSwitch"
-                                                                            IsChecked="{Binding InstanceConfig.Misc.UseCustomGlfw, Mode=TwoWay}" />
+                                                                            IsChecked="{Binding Settings.InstanceConfig.Misc.UseCustomGlfw, Mode=TwoWay}" />
                                                                     </Grid>
 
                                                                     <!--  GLFW library path  -->
@@ -1373,8 +1373,8 @@
                                                                         <TextBox
                                                                             Grid.Column="1"
                                                                             Classes="TextInput"
-                                                                            IsEnabled="{Binding InstanceConfig.Misc.UseCustomGlfw}"
-                                                                            Text="{Binding InstanceConfig.Misc.CustomGlfwPath, Mode=TwoWay}"
+                                                                            IsEnabled="{Binding Settings.InstanceConfig.Misc.UseCustomGlfw}"
+                                                                            Text="{Binding Settings.InstanceConfig.Misc.CustomGlfwPath, Mode=TwoWay}"
                                                                             PlaceholderText="{lang:Translate common.select.file}" />
                                                                     </Grid>
 
@@ -1384,7 +1384,7 @@
                                                                         <ToggleSwitch
                                                                             Grid.Column="1"
                                                                             Classes="SettingsSwitch"
-                                                                            IsChecked="{Binding InstanceConfig.Misc.UseCustomOpenAL, Mode=TwoWay}" />
+                                                                            IsChecked="{Binding Settings.InstanceConfig.Misc.UseCustomOpenAL, Mode=TwoWay}" />
                                                                     </Grid>
 
                                                                     <!--  OpenAL library path  -->
@@ -1393,8 +1393,8 @@
                                                                         <TextBox
                                                                             Grid.Column="1"
                                                                             Classes="TextInput"
-                                                                            IsEnabled="{Binding InstanceConfig.Misc.UseCustomOpenAL}"
-                                                                            Text="{Binding InstanceConfig.Misc.CustomOpenALPath, Mode=TwoWay}"
+                                                                            IsEnabled="{Binding Settings.InstanceConfig.Misc.UseCustomOpenAL}"
+                                                                            Text="{Binding Settings.InstanceConfig.Misc.CustomOpenALPath, Mode=TwoWay}"
                                                                             PlaceholderText="{lang:Translate common.select.file}" />
                                                                     </Grid>
                                                                 </StackPanel>
@@ -1412,7 +1412,7 @@
                                                                         <ToggleSwitch
                                                                             Grid.Column="1"
                                                                             Classes="SettingsSwitch"
-                                                                            IsChecked="{Binding InstanceConfig.Misc.OverrideAccount, Mode=TwoWay}" />
+                                                                            IsChecked="{Binding Settings.InstanceConfig.Misc.OverrideAccount, Mode=TwoWay}" />
                                                                     </Grid>
                                                                     
                                                                     <!--  Account  -->
@@ -1425,9 +1425,9 @@
                                                                             Classes="TextDropdown"
                                                                             Margin="0, 0, 5, 0"
                                                                             DisplayMemberBinding="{Binding DisplayName}"
-                                                                            IsEnabled="{Binding InstanceConfig.Misc.OverrideAccount}"
+                                                                            IsEnabled="{Binding Settings.InstanceConfig.Misc.OverrideAccount}"
                                                                             ItemsSource="{Binding Accounts}"
-                                                                            SelectedIndex="{Binding OverridenAccountIndex}"
+                                                                            SelectedIndex="{Binding Settings.OverridenAccountIndex}"
                                                                             SelectionChanged="OverridenAccount_SelectionChanged" />
                                                                     </Grid>
                                                                     
@@ -1437,7 +1437,7 @@
                                                                         <ToggleSwitch
                                                                             Grid.Column="1"
                                                                             Classes="SettingsSwitch"
-                                                                            IsChecked="{Binding InstanceConfig.Misc.JoinServerOnLaunch, Mode=TwoWay}" />
+                                                                            IsChecked="{Binding Settings.InstanceConfig.Misc.JoinServerOnLaunch, Mode=TwoWay}" />
                                                                     </Grid>
                                                                     
                                                                     <!--  Server address  -->
@@ -1448,8 +1448,8 @@
                                                                         <TextBox
                                                                             Grid.Column="1"
                                                                             Classes="TextInput"
-                                                                            IsEnabled="{Binding InstanceConfig.Misc.JoinServerOnLaunch}"
-                                                                            Text="{Binding InstanceConfig.Misc.ServerAddress}"
+                                                                            IsEnabled="{Binding Settings.InstanceConfig.Misc.JoinServerOnLaunch}"
+                                                                            Text="{Binding Settings.InstanceConfig.Misc.ServerAddress}"
                                                                             PlaceholderText="192.168.1.0:25565" />
                                                                     </Grid>
                                                                 </StackPanel>

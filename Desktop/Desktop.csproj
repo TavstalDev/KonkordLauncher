@@ -103,9 +103,4 @@
         <EmbeddedResource Include="Assets\Icons\**\*" />
         <EmbeddedResource Include="Assets\Fmllib\**\*" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Views\Models\CreateInstance\" />
-      <Folder Include="Views\Models\EditInstance\" />
-    </ItemGroup>
 </Project>

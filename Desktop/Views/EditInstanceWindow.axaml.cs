@@ -274,7 +274,7 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
             return;
 
         if (sender is ComboBox { SelectedItem: Account selectedAccount })
-            DataContext.InstanceConfig.Misc.AccountId = selectedAccount.Id;
+            DataContext.Settings.InstanceConfig.Misc.AccountId = selectedAccount.Id;
     }
     #endregion
     
@@ -298,7 +298,7 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
             return;
     
         _logger.Debug("ResourcePack row updated. Saving...");
-        DataContext.SaveResourcePacks();
+        DataContext.ResourcePacks.SaveResourcePacks();
     }
 
     #endregion
@@ -321,7 +321,7 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
             return;
         
         _logger.Debug("World row updated. Saving...");
-        DataContext.SaveWorlds();
+        DataContext.Worlds.SaveWorlds();
     }
     
     /// <summary>
@@ -340,7 +340,7 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
             return;
         
         _logger.Debug("World row updated. Saving...");
-        DataContext.SaveWorlds();
+        DataContext.Worlds.SaveWorlds();
     }
 
     #endregion
@@ -363,7 +363,7 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
             return;
         
         _logger.Debug("Server row updated. Saving servers...");
-        DataContext.SaveServers();
+        DataContext.Servers.SaveServers();
     }
     
     #endregion
@@ -442,7 +442,7 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
         if (e.Row.DataContext is not EnvironmentVariable environmentItem)
             return;
 
-        DataContext.InstanceConfig.Environment[e.Row.Index] = environmentItem;
+        DataContext.Settings.InstanceConfig.Environment[e.Row.Index] = environmentItem;
     }
 
     /// <summary>
@@ -451,7 +451,7 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     /// </summary>
     /// <param name="sender">The source of the event, typically a button.</param>
     /// <param name="e">The event data associated with the click event.</param>
-    private void AddEnvironmentRow_OnClick(object? sender, RoutedEventArgs e) => DataContext?.InstanceConfig.Environment.Add(new("ENV_VAR", "env_value"));
+    private void AddEnvironmentRow_OnClick(object? sender, RoutedEventArgs e) => DataContext?.Settings.InstanceConfig.Environment.Add(new("ENV_VAR", "env_value"));
 
     /// <summary>
     /// Handles the click event for removing the selected environment variable row from the Environment DataGrid.
@@ -464,14 +464,14 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
         if (DataContext == null)
             return;
 
-        if (DataContext.SelectedEnvironmentVariableIndex is null or < 0)
+        if (DataContext.Settings.SelectedEnvironmentVariableIndex is null or < 0)
             return;
 
-        var index = DataContext.SelectedEnvironmentVariableIndex.Value;
-        if (index >= DataContext.InstanceConfig.Environment.Count)
+        var index = DataContext.Settings.SelectedEnvironmentVariableIndex.Value;
+        if (index >= DataContext.Settings.InstanceConfig.Environment.Count)
             return;
 
-        DataContext.InstanceConfig.Environment.RemoveAt(index);
+        DataContext.Settings.InstanceConfig.Environment.RemoveAt(index);
     }
 
     /// <summary>
@@ -480,7 +480,7 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     /// </summary>
     /// <param name="sender">The source of the event, typically a button.</param>
     /// <param name="e">The event data associated with the click event.</param>
-    private void ClearEnvironmentTable_OnClick(object? sender, RoutedEventArgs e) => DataContext?.InstanceConfig.Environment.Clear();
+    private void ClearEnvironmentTable_OnClick(object? sender, RoutedEventArgs e) => DataContext?.Settings.InstanceConfig.Environment.Clear();
 
     #endregion
 }

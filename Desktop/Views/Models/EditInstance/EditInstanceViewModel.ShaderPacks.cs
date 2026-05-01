@@ -73,7 +73,7 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
     /// </summary>
     /// <param name="shader">The shader pack to toggle.</param>
     [RelayCommand]
-    private void ShaderToggleCommand(ShaderPackModel shader)
+    private void Toggle(ShaderPackModel shader)
     {
         shader.IsEnabled = !shader.IsEnabled;
         SaveShaderPacks();
@@ -84,7 +84,7 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
     /// </summary>
     /// <param name="shader">The shader pack to remove.</param>
     [RelayCommand]
-    private void ShaderRemoveCommand(ShaderPackModel shader)
+    private void Remove(ShaderPackModel shader)
     {
         if (!File.Exists(shader.Path))
             return;
@@ -94,7 +94,7 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
     }
 
     [RelayCommand]
-    private void ShaderDownloadCommand()
+    private void Download()
     {
         // TODO: Implement shader download logic
     }
@@ -103,7 +103,7 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
     /// Opens the directory containing the shader packs in the file explorer.
     /// </summary>
     [RelayCommand]
-    private void ShaderOpenDirectoryCommand()
+    private void OpenDir()
     {
         if (_parent.GameDirectory == null)
             return;

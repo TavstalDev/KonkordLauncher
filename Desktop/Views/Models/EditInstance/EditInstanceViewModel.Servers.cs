@@ -56,7 +56,7 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
     /// </summary>
     /// <param name="server">The server to join.</param>
     [RelayCommand]
-    private async Task ServersJoinCommand(ServerModel server)
+    private async Task Join(ServerModel server)
     {
         // TODO: Implement server joining logic
         //await _instance.LaunchAsync(_parentWindow, server.Ip);
@@ -67,7 +67,7 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
     /// Adds a new server to the list of servers if both the server name and IP address are provided.
     /// </summary>
     [RelayCommand]
-    private void ServerAddCommand()
+    private void Add()
     {
         if (string.IsNullOrEmpty(ServerName) || string.IsNullOrEmpty(ServerIp))
             return;
@@ -80,7 +80,7 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
     /// </summary>
     /// <param name="server">The server to remove.</param>
     [RelayCommand]
-    private void ServersRemoveCommand(ServerModel server)
+    private void Remove(ServerModel server)
     {
         if (Servers.Contains(server))
             Servers.Remove(server);

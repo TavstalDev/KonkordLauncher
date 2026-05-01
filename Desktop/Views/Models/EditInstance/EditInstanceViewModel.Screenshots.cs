@@ -49,14 +49,14 @@ public partial class EditInstanceViewModel_Screenshots  : KonkordObservableObjec
     /// </summary>
     /// <param name="screenshot">The screenshot to copy to the clipboard.</param>
     [RelayCommand]
-    private async Task ScreenshotsCopyCommand(ScreenshotModel screenshot) => await _parent.SetClipboardImage.Handle(screenshot);
+    private async Task CopyToClipboard(ScreenshotModel screenshot) => await _parent.SetClipboardImage.Handle(screenshot);
 
     /// <summary>
     /// Deletes the specified screenshot file from the file system and refreshes the screenshot list.
     /// </summary>
     /// <param name="screenshot">The screenshot to delete.</param>
     [RelayCommand]
-    private void ScreenshotsDeleteCommand(ScreenshotModel screenshot)
+    private void Delete(ScreenshotModel screenshot)
     {
         if (!File.Exists(screenshot.Path))
             return;
@@ -70,14 +70,14 @@ public partial class EditInstanceViewModel_Screenshots  : KonkordObservableObjec
     /// </summary>
     /// <param name="screenshot">The screenshot to rename.</param>
     [RelayCommand]
-    private async Task ScreenshotsRenameCommand(ScreenshotModel screenshot) => await _parent.BeginScreenshotRename.Handle(Unit.Default);
+    private async Task Rename(ScreenshotModel screenshot) => await _parent.BeginScreenshotRename.Handle(Unit.Default);
 
     /// <summary>
     /// Opens the directory containing the screenshots in the file explorer.
     /// </summary>
     /// <param name="screenshot">The screenshot whose directory to open.</param>
     [RelayCommand]
-    private void ScreenshotsOpenDirectoryCommand(ScreenshotModel screenshot)
+    private void OpenDir(ScreenshotModel screenshot)
     {
         if (string.IsNullOrEmpty(_parent.GameDirectory))
             return;

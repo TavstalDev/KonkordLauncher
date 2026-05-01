@@ -79,7 +79,7 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
     /// </summary>
     /// <param name="resourcePack">The resource pack to toggle.</param>
     [RelayCommand]
-    public void ResourcePackToggle(ResourcePackModel resourcePack)
+    public void Toggle(ResourcePackModel resourcePack)
     {
         resourcePack.IsEnabled = !resourcePack.IsEnabled;
         SaveResourcePacks();
@@ -90,7 +90,7 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
     /// </summary>
     /// <param name="resourcePack">The resource pack to remove.</param>
     [RelayCommand]
-    public void ResourcePackRemove(ResourcePackModel resourcePack)
+    public void Remove(ResourcePackModel resourcePack)
     {
         if (!File.Exists(resourcePack.Path))
             return;
@@ -100,7 +100,7 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
     }
 
     [RelayCommand]
-    public void ResourcePackDownload(ResourcePackModel resourcePack)
+    public void Download(ResourcePackModel resourcePack)
     {
         // TODO: Implement resource pack download logic
     }
@@ -109,7 +109,7 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
     /// Opens the directory containing the resource packs in the file explorer.
     /// </summary>
     [RelayCommand]
-    public void ResourcePackOpenDirectory()
+    public void OpenDir()
     {
         if (_parent.GameDirectory == null)
             return;

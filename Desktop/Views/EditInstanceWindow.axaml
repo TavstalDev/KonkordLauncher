@@ -321,30 +321,30 @@
                                                                 <ContextMenu>
                                                                     <!--  Toggle  -->
                                                                     <MenuItem
-                                                                        Command="{Binding Mods.ModToggleCommand}"
+                                                                        Command="{Binding Mods.ToggleCommand}"
                                                                         CommandParameter="{Binding Mods.SelectedMod}"
                                                                         Header="{lang:Translate common.toggle}" />
                                                                     <Separator />
                                                                     <!--  Check For Updates  -->
                                                                     <MenuItem
-                                                                        Command="{Binding Mods.ModCheckUpdateCommand}"
+                                                                        Command="{Binding Mods.CheckUpdateCommand}"
                                                                         CommandParameter="{Binding Mods.SelectedMod}"
                                                                         Header="{lang:Translate instance.update.check}" />
                                                                     <Separator />
                                                                     <!--  Change Version  -->
                                                                     <MenuItem
-                                                                        Command="{Binding Mods.ModChangeVersionCommand}"
+                                                                        Command="{Binding Mods.ChangeVersionCommand}"
                                                                         CommandParameter="{Binding Mods.SelectedMod}"
                                                                         Header="{lang:Translate instance.version.change}" />
                                                                     <Separator />
                                                                     <!--  Remove  -->
                                                                     <MenuItem
-                                                                        Command="{Binding Mods.ModRemoveCommand}"
+                                                                        Command="{Binding Mods.RemoveCommand}"
                                                                         CommandParameter="{Binding Mods.SelectedMod}"
                                                                         Header="{lang:Translate common.remove}" />
                                                                     <Separator />
                                                                     <!--  Download Mods  -->
-                                                                    <MenuItem Command="{Binding Mods.ModDownloadCommand}" Header="{lang:Translate instance.download.mods}" />
+                                                                    <MenuItem Command="{Binding Mods.DownloadCommand}" Header="{lang:Translate instance.download.mods}" />
                                                                     <!--  Open Folder  -->
                                                                     <MenuItem Command="{Binding Mods.ModOpenDirectoryCommand}" Header="{lang:Translate common.open.directory}" />
                                                                 </ContextMenu>
@@ -369,7 +369,7 @@
                                                     <Button
                                                         Grid.Column="1"
                                                         Classes="IconBtn"
-                                                        Command="{Binding Mods.ModDownloadCommand}"
+                                                        Command="{Binding Mods.DownloadCommand}"
                                                         IsEnabled="False">
                                                         <WrapPanel Classes="IconBtnWrapper">
                                                             <TextBlock
@@ -455,23 +455,23 @@
                                                                 <ContextMenu>
                                                                     <!--  Toggle  -->
                                                                     <MenuItem
-                                                                        Command="{Binding ResourcePacks.ResourcePackToggleCommand}"
+                                                                        Command="{Binding ResourcePacks.ToggleCommand}"
                                                                         CommandParameter="{Binding ResourcePacks.SelectedResourcePack}"
                                                                         Header="{lang:Translate common.toggle}" />
                                                                     <Separator />
                                                                     <!--  Remove  -->
                                                                     <MenuItem
-                                                                        Command="{Binding ResourcePacks.ResourcePackRemoveCommand}"
+                                                                        Command="{Binding ResourcePacks.RemoveCommand}"
                                                                         CommandParameter="{Binding ResourcePacks.SelectedResourcePack}"
                                                                         Header="{lang:Translate common.remove}" />
                                                                     <Separator />
                                                                     <!--  Download Packs  -->
                                                                     <MenuItem
-                                                                        Command="{Binding ResourcePacks.ResourcePackDownloadCommand}"
+                                                                        Command="{Binding ResourcePacks.DownloadCommand}"
                                                                         CommandParameter="{Binding ResourcePacks.SelectedResourcePack}"
                                                                         Header="{lang:Translate instance.download.resourcePacks}" />
                                                                     <!--  Open Folder  -->
-                                                                    <MenuItem Command="{Binding ResourcePacks.ResourcePackOpenDirectoryCommand}" Header="{lang:Translate common.open.directory}" />
+                                                                    <MenuItem Command="{Binding ResourcePacks.OpenDirCommand}" Header="{lang:Translate common.open.directory}" />
                                                                 </ContextMenu>
                                                             </DataGrid.ContextMenu>
                                                         </DataGrid>
@@ -495,7 +495,7 @@
                                                     <Button
                                                         Grid.Column="1"
                                                         Classes="IconBtn"
-                                                        Command="{Binding ResourcePacks.ResourcePackDownloadCommand}"
+                                                        Command="{Binding ResourcePacks.DownloadCommand}"
                                                         IsEnabled="False">
                                                         <WrapPanel Classes="IconBtnWrapper">
                                                             <TextBlock
@@ -509,7 +509,7 @@
                                                     <Button
                                                         Grid.Column="2"
                                                         Classes="IconBtn"
-                                                        Command="{Binding ResourcePacks.ResourcePackOpenDirectoryCommand}">
+                                                        Command="{Binding ResourcePacks.OpenDirCommand}">
                                                         <WrapPanel Classes="IconBtnWrapper">
                                                             <TextBlock
                                                                 VerticalAlignment="Center"
@@ -564,20 +564,20 @@
                                                                 <ContextMenu>
                                                                     <!--  Toggle  -->
                                                                     <MenuItem
-                                                                        Command="{Binding ShaderPacks.ShaderToggleCommand}"
+                                                                        Command="{Binding ShaderPacks.Toggle}"
                                                                         CommandParameter="{Binding ShaderPacks.SelectedShaderPack}"
                                                                         Header="{lang:Translate common.toggle}" />
                                                                     <Separator />
                                                                     <!--  Remove  -->
                                                                     <MenuItem
-                                                                        Command="{Binding ShaderPacks.ShaderRemoveCommand}"
+                                                                        Command="{Binding ShaderPacks.Remove}"
                                                                         CommandParameter="{Binding ShaderPacks.SelectedShaderPack}"
                                                                         Header="{lang:Translate common.remove}" />
                                                                     <Separator />
                                                                     <!--  Download Packs  -->
-                                                                    <MenuItem Command="{Binding ShaderPacks.ShaderDownloadCommand}" Header="{lang:Translate instance.download.shaders}" />
+                                                                    <MenuItem Command="{Binding ShaderPacks.Download}" Header="{lang:Translate instance.download.shaders}" />
                                                                     <!--  Open Folder  -->
-                                                                    <MenuItem Command="{Binding ShaderPacks.ShaderOpenDirectoryCommand}" Header="{lang:Translate common.open.directory}" />
+                                                                    <MenuItem Command="{Binding ShaderPacks.OpenDir}" Header="{lang:Translate common.open.directory}" />
                                                                 </ContextMenu>
                                                             </DataGrid.ContextMenu>
                                                         </DataGrid>
@@ -600,7 +600,7 @@
                                                     <Button
                                                         Grid.Column="1"
                                                         Classes="IconBtn"
-                                                        Command="{Binding ShaderPacks.ShaderDownloadCommand}"
+                                                        Command="{Binding ShaderPacks.Download}"
                                                         IsEnabled="False">
                                                         <WrapPanel Classes="IconBtnWrapper">
                                                             <TextBlock
@@ -614,7 +614,7 @@
                                                     <Button
                                                         Grid.Column="2"
                                                         Classes="IconBtn"
-                                                        Command="{Binding ShaderPacks.ShaderOpenDirectoryCommand}">
+                                                        Command="{Binding ShaderPacks.OpenDir}">
                                                         <WrapPanel Classes="IconBtnWrapper">
                                                             <TextBlock
                                                                 VerticalAlignment="Center"
@@ -698,28 +698,28 @@
                                                                 <ContextMenu>
                                                                     <!--  Duplicate  -->
                                                                     <MenuItem
-                                                                        Command="{Binding Worlds.WorldsDuplicateCommand}"
+                                                                        Command="{Binding Worlds.Duplicate}"
                                                                         CommandParameter="{Binding Worlds.SelectedWorld}"
                                                                         Header="{lang:Translate common.duplicate}" />
                                                                     <!--  Rename  -->
                                                                     <MenuItem
-                                                                        Command="{Binding Worlds.WorldsRenameCommand}"
+                                                                        Command="{Binding Worlds.Rename}"
                                                                         CommandParameter="{Binding Worlds.SelectedWorld}"
                                                                         Header="{lang:Translate common.rename}" />
                                                                     <!--  Delete  -->
                                                                     <MenuItem
-                                                                        Command="{Binding Worlds.WorldsDeleteCommand}"
+                                                                        Command="{Binding Worlds.Delete}"
                                                                         CommandParameter="{Binding Worlds.SelectedWorld}"
                                                                         Header="{lang:Translate common.delete}" />
                                                                     <Separator />
                                                                     <!--  Copy Speed  -->
                                                                     <MenuItem
-                                                                        Command="{Binding Worlds.WorldsCopySeed}"
+                                                                        Command="{Binding Worlds.CopySeed}"
                                                                         CommandParameter="{Binding Worlds.SelectedWorld}"
                                                                         Header="{lang:Translate instance.edit.copySeed}" />
                                                                     <!--  Open Folder  -->
                                                                     <MenuItem
-                                                                        Command="{Binding Worlds.WorldsOpenDirectoryCommand}"
+                                                                        Command="{Binding Worlds.OpenDir}"
                                                                         CommandParameter="{Binding Worlds.SelectedWorld}"
                                                                         Header="{lang:Translate common.open.directory}" />
                                                                 </ContextMenu>
@@ -786,12 +786,12 @@
                                                                 <ContextMenu>
                                                                     <!--  Join  -->
                                                                     <MenuItem
-                                                                        Command="{Binding Servers.ServersJoinCommand}"
+                                                                        Command="{Binding Servers.Join}"
                                                                         CommandParameter="{Binding Servers.SelectedServer}"
                                                                         Header="{lang:Translate instance.edit.joinServer}" />
                                                                     <!--  Remove  -->
                                                                     <MenuItem
-                                                                        Command="{Binding Servers.ServersRemoveCommand}"
+                                                                        Command="{Binding Servers.Remove}"
                                                                         CommandParameter="{Binding Servers.SelectedServer}"
                                                                         Header="{lang:Translate common.remove}" />
                                                                 </ContextMenu>
@@ -822,7 +822,7 @@
                                                     <Button
                                                         Grid.Column="2"
                                                         Classes="IconBtn"
-                                                        Command="{Binding Servers.ServerAddCommand}">
+                                                        Command="{Binding Servers.Add}">
                                                         <WrapPanel Classes="IconBtnWrapper">
                                                             <TextBlock
                                                                 VerticalAlignment="Center"
@@ -901,22 +901,22 @@
                                                                 <ContextMenu>
                                                                     <!--  Copy  -->
                                                                     <MenuItem
-                                                                        Command="{Binding Screenshots.ScreenshotsCopyCommand}"
+                                                                        Command="{Binding Screenshots.CopyToClipboard}"
                                                                         CommandParameter="{Binding Screenshots.SelectedScreenshot}"
                                                                         Header="{lang:Translate common.copy}" />
                                                                     <!--  Delete  -->
                                                                     <MenuItem
-                                                                        Command="{Binding Screenshots.ScreenshotsDeleteCommand}"
+                                                                        Command="{Binding Screenshots.Delete}"
                                                                         CommandParameter="{Binding Screenshots.SelectedScreenshot}"
                                                                         Header="{lang:Translate common.delete}" />
                                                                     <!--  Rename  -->
                                                                     <MenuItem
-                                                                        Command="{Binding Screenshots.ScreenshotsRenameCommand}"
+                                                                        Command="{Binding Screenshots.Rename}"
                                                                         CommandParameter="{Binding Screenshots.SelectedScreenshot}"
                                                                         Header="{lang:Translate common.rename}" />
                                                                     <!--  Open Directory  -->
                                                                     <MenuItem
-                                                                        Command="{Binding Screenshots.ScreenshotsOpenDirectoryCommand}"
+                                                                        Command="{Binding Screenshots.OpenDir}"
                                                                         CommandParameter="{Binding Screenshots.SelectedScreenshot}"
                                                                         Header="{lang:Translate common.open.directory}" />
                                                                 </ContextMenu>

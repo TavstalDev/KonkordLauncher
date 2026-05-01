@@ -73,20 +73,20 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
     /// </summary>
     /// <param name="mod">The mod to toggle.</param>
     [RelayCommand]
-    public void ModToggle(ModModel mod)
+    public void Toggle(ModModel mod)
     {
         mod.IsEnabled = !mod.IsEnabled;
         SaveMods();
     }
 
     [RelayCommand]
-    public void ModCheckUpdate(ModModel mod)
+    public void CheckUpdate(ModModel mod)
     {
         // TODO: Implement mod update check logic
     }
 
     [RelayCommand]
-    public void ModChangeVersion(ModModel mod)
+    public void ChangeVersion(ModModel mod)
     {
         // TODO: Implement mod version change logic
     }
@@ -96,7 +96,7 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
     /// </summary>
     /// <param name="mod">The mod to remove.</param>
     [RelayCommand]
-    public void ModRemove(ModModel mod)
+    public void Remove(ModModel mod)
     {
         if (!File.Exists(mod.Path))
             return;
@@ -106,7 +106,7 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
     }
 
     [RelayCommand]
-    public void ModDownload()
+    public void Download()
     {
         // TODO: Implement mod download logic
     }

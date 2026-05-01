@@ -58,9 +58,9 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
     /// </summary>
     /// <param name="world">The world to duplicate.</param>
     [RelayCommand]
-    private void WorldsDuplicateCommand(WorldModel world)
+    private async Task Duplicate(WorldModel world)
     {
-        DuplicateWorld(world);
+        await DuplicateWorldAsync(world);
         RefreshWorlds();
     }
 
@@ -70,7 +70,7 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
     /// </summary>
     /// <param name="world">The world to rename.</param>
     [RelayCommand]
-    private async Task WorldsRenameCommand(WorldModel world) => await _parent.BeginWorldRename.Handle(Unit.Default);
+    private async Task Rename(WorldModel world) => await _parent.BeginWorldRename.Handle(Unit.Default);
 
     /// <summary>
     /// Deletes the specified Minecraft world by removing its directory from the file system
@@ -78,7 +78,7 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
     /// </summary>
     /// <param name="world">The world to delete.</param>
     [RelayCommand]
-    private void WorldsDeleteCommand(WorldModel world)
+    private void Delete(WorldModel world)
     {
         FileSystemHelper.DeleteDirectory(world.Path);
         RefreshWorlds();
@@ -89,14 +89,14 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
     /// </summary>
     /// <param name="world">The world whose seed is to be copied.</param>
     [RelayCommand]
-    private async Task WorldsCopySeed(WorldModel world) => await _parent.SetClipboardText.Handle(world.Seed.ToString());
+    private async Task CopySeed(WorldModel world) => await _parent.SetClipboardText.Handle(world.Seed.ToString());
 
     /// <summary>
     /// Opens the directory of the specified Minecraft world in the file explorer.
     /// </summary>
     /// <param name="world">The world whose directory is to be opened.</param>
     [RelayCommand]
-    private void WorldsOpenDirectoryCommand(WorldModel world)
+    private void OpenDir(WorldModel world)
     {
         if (!Directory.Exists(world.Path))
             return;
@@ -111,7 +111,8 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
     /// Generates a unique name for the duplicated world and updates the "LevelName" tag in the `level.dat` file.
     /// </summary>
     /// <param name="world">The world to duplicate.</param>
-    public void DuplicateWorld(WorldModel world)
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    public async Task DuplicateWorldAsync(WorldModel world, CancellationToken cancellationToken = default)
     {
         _logger.Debug("Saving worlds...");
         if (_parent.GameDirectory == null)
@@ -145,10 +146,10 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
             FileSystemHelper.MoveDirectory(world.Path, newPath, true, false);
             
             string levelDatPath = Path.Combine(newPath, "level.dat");
-            using var inputStream = File.OpenRead(levelDatPath);
-            using var gzip = new GZipStream(inputStream, CompressionMode.Decompress);
+            await using var inputStream = File.OpenRead(levelDatPath);
+            await using var gzip = new GZipStream(inputStream, CompressionMode.Decompress);
             using var mem = new MemoryStream();
-            gzip.CopyTo(mem);
+            await gzip.CopyToAsync(mem, cancellationToken);
             mem.Seek(0, SeekOrigin.Begin);
             var worldData = NbtConvert.ParseNbtStream(mem);
             inputStream.Close(); // Close the input stream to avoid file lock issues
@@ -185,10 +186,10 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
             dataTag.Remove("LevelName"); // dataTag[] uses .Add, so the old one should be removed
             dataTag["LevelName"] = new NbtStringTag(newName);
 
-            using var outputStream = new NbtWriter().CreateNbtStream(worldData);
-            using var fileOutputStream = File.Create(levelDatPath);
+            await using var outputStream = new NbtWriter().CreateNbtStream(worldData);
+            await using var fileOutputStream = File.Create(levelDatPath);
             outputStream.Seek(0, SeekOrigin.Begin);
-            outputStream.CopyTo(fileOutputStream);
+            await outputStream.CopyToAsync(fileOutputStream, cancellationToken);
             fileOutputStream.Close();
         }
         catch (Exception ex)

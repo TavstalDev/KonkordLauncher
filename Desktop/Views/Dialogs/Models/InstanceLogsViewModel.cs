@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
@@ -50,7 +51,17 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
             return;
 
         _instanceId = instanceId;
-        var instances = LauncherHelper.GetInstances();
+        _ = InitAsync();
+    }
+
+    /// <summary>
+    /// Asynchronously initializes log-related state for the instance identified by <c>_instanceId</c>.
+    /// </summary>
+    /// <param name="cancellationToken">An optional token to cancel the initialization process.</param>
+    /// <returns>A task that completes when initialization is finished.</returns>
+    private async Task InitAsync(CancellationToken cancellationToken = default)
+    {
+        var instances = await LauncherHelper.GetInstancesAsync(cancellationToken);
         var currentInstance = instances.FirstOrDefault(x => x.Id == _instanceId);
         if (currentInstance == null)
         {
@@ -58,14 +69,14 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
             throw new KeyNotFoundException($"Instance with ID '{_instanceId}' not found.");
         }
 
-        _instanceName = currentInstance.Name;
-        _gameDirectory = currentInstance.GameDirectory;
+        InstanceName = currentInstance.Name;
+        GameDirectory = currentInstance.GameDirectory;
 
         // Logging setup
         GlobalEvents.OnInstanceLogged += OnInstanceLogged;
         Logs = GlobalEvents.GetInstanceLogs(_instanceId);
         if (!string.IsNullOrEmpty(Logs))
-            Dispatcher.UIThread.Invoke(async () => await LogsScrollToEnd.Handle(Unit.Default));
+            await Dispatcher.UIThread.Invoke(async () => await LogsScrollToEnd.Handle(Unit.Default));
     }
 
     /// <summary>

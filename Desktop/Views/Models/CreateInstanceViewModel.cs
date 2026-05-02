@@ -3,6 +3,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ReactiveUI;
@@ -41,6 +42,9 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
         Custom = new CreateInstanceViewModel_Custom(this);
         Modpack = new CreateInstanceViewModel_Modpack(this);
         Import = new CreateInstanceViewModel_Import(this);
+        
+        if (Design.IsDesignMode)
+            return;
 
         SetupPipeline();
         _ = InitAsync();

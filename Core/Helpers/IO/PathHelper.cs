@@ -63,6 +63,11 @@ public static class PathHelper
     public static readonly string JavaMirrorsPath = Path.Combine(ApplicationDir, "java-mirrors.json");
     
     /// <summary>
+    /// Gets the full file system path to the launcher's meta cache file.
+    /// </summary>
+    public static readonly string MetaCachePath = Path.Combine(ApplicationDir, "metacache.json");
+    
+    /// <summary>
     /// Gets the path to the launcher logs directory.
     /// </summary>
     public static readonly string LauncherLogsDir = Path.Combine(ApplicationDir, "logs");

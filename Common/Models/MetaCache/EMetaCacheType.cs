@@ -4,13 +4,9 @@ public enum EMetaCacheType
 {
     IMAGE = 0,
     
-    MOD = 1,
+    SEARCH_RESULT = 1,
     
-    RESOURCE_PACK = 2,
+    PROJECT = 2,
     
-    SHADER_PACK = 3,
-    
-    MODPACK = 4,
-    
-    SEARCH_RESULT = 5
+    VERSION = 3
 }

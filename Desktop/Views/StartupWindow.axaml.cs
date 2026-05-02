@@ -194,6 +194,9 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
 
         // Validate Java
         await ValidateJavaAsync(settings, cancellationToken);
+        
+        // Initialize MetaCache
+        await MetaCacheHelper.InitAsync(cancellationToken);
 
         // Refresh GitHub Cache & Skins Cache
         bool shouldRefreshCache = await ValidateCachesAsync(settings, cancellationToken);

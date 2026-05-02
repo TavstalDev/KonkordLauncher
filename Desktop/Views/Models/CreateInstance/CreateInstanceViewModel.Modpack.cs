@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Enums;
@@ -46,6 +47,8 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
     [ObservableProperty] private EPlatformType _selectedPlatform = EPlatformType.Modrinth;
     
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(ModpackPreview))] private ModPackModel? _selectedModpack;
+    [ObservableProperty] private int _selectedModpackVersionIndex ;
+    [ObservableProperty] private bool _canCreateInstance = false;
     
     public List<EPlatformType> AvailablePlatforms =>
     [
@@ -80,6 +83,8 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
     
     public async Task InitAsync(VersionManifest versionManifest, CancellationToken cancellationToken = default)
     {
+        VersionFilterSource.Add("Any");
+        VersionFilterIndex = 0;
         foreach (var version in versionManifest.Versions)
         {
             if (version.Type != "release")
@@ -87,11 +92,28 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
             VersionFilterSource.Add(version.Id);
         }
 
-        var response = await ModrinthHelper.SearchModpacksAsync(token: cancellationToken);
+        var response = await MetaCacheHelper.SearchModpacksAsync(cancellationToken: cancellationToken);
         if (response == null)
             throw new Exception("Modrinth search failed.");
 
-        var tasks = response.Hits.Select(ModPackModel.FromModrinthProjectAsync);
+        var projectIds = response.Hits.Select(h => h.ProjectId).ToList();
+        var projects = await MetaCacheHelper.GetProjectsAsync(projectIds, cancellationToken);
+        
+        var versionIds = projects.SelectMany(p => p.Versions).Distinct().ToList();
+        var versions = await MetaCacheHelper.GetVersionsAsync(versionIds, cancellationToken);
+        
+        var versionDict = versions.ToDictionary(v => v.Id);
+        
+        var tasks = projects.Select(project =>
+        {
+            var projectVersions = project.Versions
+                .Where(versionDict.ContainsKey)
+                .Select(id => versionDict[id])
+                .OrderByDescending(v => v.DatePublished)
+                .ToList();
+            
+            return ModPackModel.FromModrinthProjectAsync(project, projectVersions);
+        });
 
         var results = await Task.WhenAll(tasks);
 
@@ -99,15 +121,15 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
             Modpacks.Add(model);
 
         AllowScrollbarRefresh = true;
-        
-        Dispatcher.UIThread.Post(() =>
-        {
-            VersionFilterSource.Add("Any");
-            VersionFilterIndex = 0;
-        });
     }
     
     #region Commands
+
+    [RelayCommand]
+    private async Task CreateInstance()
+    {
+        // TODO
+    }
 
     partial void OnSearchQueryChanged(string value)
     {
@@ -119,12 +141,17 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
 
     partial void OnSelectedModpackChanged(ModPackModel? value)
     {
-        
+        CanCreateInstance = value != null; // TODO: Also check for custom instance name
+        Dispatcher.UIThread.Invoke(async () =>
+        {
+            await Task.Delay(50); // Minimal delay, otherwise it will always be -1
+            SelectedModpackVersionIndex = value == null ? -1 : 0;
+        });
     }
 
     #endregion
     
-    public async Task RefreshModpacksAsync(bool resetSearch = false)
+    public async Task RefreshModpacksAsync(bool resetSearch = false, CancellationToken cancellationToken = default)
     {
         AllowScrollbarRefresh = false;
         string? version = MinecraftVersion is null or "Any" ? null : MinecraftVersion;
@@ -153,16 +180,38 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         if (CategoryTechnology)
             categories.Add("technology");
         
-        var response = await ModrinthHelper.SearchModpacksAsync(SearchQuery, version, categories, Modpacks.Count);
+        var response = await MetaCacheHelper.SearchModpacksAsync(SearchQuery, version, categories, resetSearch ? 0 : Modpacks.Count, cancellationToken);
         if (response == null)
             throw new Exception("Modrinth search failed.");
 
-        var tasks = response.Hits.Select(ModPackModel.FromModrinthProjectAsync);
+        var projectIds = response.Hits.Select(h => h.ProjectId).ToList();
+        var projects = await MetaCacheHelper.GetProjectsAsync(projectIds, cancellationToken);
+        
+        var versionIds = projects.SelectMany(p => p.Versions).Distinct().ToList();
+        var versions = await MetaCacheHelper.GetVersionsAsync(versionIds, cancellationToken);
+        
+        var versionDict = versions.ToDictionary(v => v.Id);
+        
+        var tasks = projects.Select(project =>
+        {
+            var projectVersions = project.Versions
+                .Where(versionDict.ContainsKey)
+                .Select(id => versionDict[id])
+                .OrderByDescending(v => v.DatePublished)
+                .ToList();
+            
+            return ModPackModel.FromModrinthProjectAsync(project, projectVersions);
+        });
         
         var results = await Task.WhenAll(tasks);
-        
+
         if (resetSearch)
+        {
+            var modpacksCopy = Modpacks;
             Modpacks.Clear();
+            foreach  (var modpack in modpacksCopy)
+                modpack.Icon?.Dispose();
+        }
         foreach (var model in results)
             Modpacks.Add(model);
         

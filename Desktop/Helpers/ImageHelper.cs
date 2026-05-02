@@ -13,6 +13,8 @@ namespace Tavstal.KonkordLauncher.Desktop.Helpers;
 /// </summary>
 public static class ImageHelper
 {
+    private static readonly HttpClient _httpClient = new();
+    
     /// <summary>
     /// Loads an image from the specified file path or URI.
     /// </summary>
@@ -49,10 +51,9 @@ public static class ImageHelper
     /// <returns>A <see cref="Bitmap"/> object if the image is successfully downloaded and loaded; otherwise, null.</returns>
     public static async Task<Bitmap?> LoadFromWeb(Uri url)
     {
-        using var httpClient = new HttpClient();
         try
         {
-            var response = await httpClient.GetAsync(url);
+            var response = await _httpClient.GetAsync(url);
             response.EnsureSuccessStatusCode();
             var data = await response.Content.ReadAsByteArrayAsync();
             return new Bitmap(new MemoryStream(data));

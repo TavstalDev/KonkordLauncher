@@ -2,6 +2,7 @@ using Modrinth;
 using Modrinth.Models;
 using Modrinth.Models.Enums.Project;
 using Tavstal.KonkordLauncher.Core.Models;
+using Version = Modrinth.Models.Version;
 
 namespace Tavstal.KonkordLauncher.Common.Helpers;
 
@@ -17,7 +18,7 @@ public static class ModrinthHelper
     
     private static readonly ModrinthClient _client = new (_config);
 
-    public static async Task<SearchResponse?> SearchModsAsync(string? query = null, string? version = null, List<string>? categories = null, int offset = 0, CancellationToken token = default)
+    public static async Task<SearchResponse?> SearchModsAsync(string? query = null, string? version = null, List<string>? categories = null, int offset = 0, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -33,7 +34,7 @@ public static class ModrinthHelper
             }
             facets.Add(Facet.ProjectType(ProjectType.Mod));
             
-            return await _client.Project.SearchAsync(query ?? string.Empty, facets: facets, offset: offset, limit: 25, cancellationToken: token);
+            return await _client.Project.SearchAsync(query ?? string.Empty, facets: facets, offset: offset, limit: 25, cancellationToken: cancellationToken);
         }
         catch (Exception ex)
         {
@@ -42,7 +43,7 @@ public static class ModrinthHelper
         }
     }
     
-    public static async Task<SearchResponse?> SearchModpacksAsync(string? query = null, string? version = null, List<string>? categories = null, int offset = 0, CancellationToken token = default)
+    public static async Task<SearchResponse?> SearchModpacksAsync(string? query = null, string? version = null, List<string>? categories = null, int offset = 0, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -58,7 +59,7 @@ public static class ModrinthHelper
             }
             facets.Add(Facet.ProjectType(ProjectType.Modpack));
             
-            return await _client.Project.SearchAsync(query ?? string.Empty, facets: facets, offset: offset, limit: 25, cancellationToken: token);
+            return await _client.Project.SearchAsync(query ?? string.Empty, facets: facets, offset: offset, limit: 25, cancellationToken: cancellationToken);
         }
         catch (Exception ex)
         {
@@ -67,7 +68,7 @@ public static class ModrinthHelper
         }
     }
     
-    public static async Task<SearchResponse?> SearchResourcePackAsync(string? query = null, string? version = null, List<string>? categories = null, int offset = 0, CancellationToken token = default)
+    public static async Task<SearchResponse?> SearchResourcePackAsync(string? query = null, string? version = null, List<string>? categories = null, int offset = 0, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -83,7 +84,7 @@ public static class ModrinthHelper
             }
             facets.Add(Facet.ProjectType(ProjectType.Resourcepack));
             
-            return await _client.Project.SearchAsync(query ?? string.Empty, facets: facets, offset: offset, limit: 25, cancellationToken: token);
+            return await _client.Project.SearchAsync(query ?? string.Empty, facets: facets, offset: offset, limit: 25, cancellationToken: cancellationToken);
         }
         catch (Exception ex)
         {
@@ -92,7 +93,7 @@ public static class ModrinthHelper
         }
     }
     
-    public static async Task<SearchResponse?> SearchShaderPacksAsync(string? query = null, string? version = null, List<string>? categories = null, int offset = 0, CancellationToken token = default)
+    public static async Task<SearchResponse?> SearchShaderPacksAsync(string? query = null, string? version = null, List<string>? categories = null, int offset = 0, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -108,7 +109,7 @@ public static class ModrinthHelper
             }
             facets.Add(Facet.ProjectType(ProjectType.Shader));
             
-            return await _client.Project.SearchAsync(query ?? string.Empty, facets: facets, offset: offset, limit: 25, cancellationToken: token);
+            return await _client.Project.SearchAsync(query ?? string.Empty, facets: facets, offset: offset, limit: 25, cancellationToken: cancellationToken);
         }
         catch (Exception ex)
         {
@@ -117,16 +118,42 @@ public static class ModrinthHelper
         }
     }
 
-    public static async Task<Project?> GetProjectAsync(string id, CancellationToken token = default)
+    public static async Task<Project?> GetProjectAsync(string id, CancellationToken cancellationToken = default)
     {
         try
         {
-            return await _client.Project.GetAsync(id, token);
+            return await _client.Project.GetAsync(id, cancellationToken);
         }
         catch (Exception ex)
         {
             _logger.Error($"Failed to get project from modrinth: {ex}");
             return null;
+        }
+    }
+    
+    public static async Task<Project[]> GetProjectsAsync(List<string> ids, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            return await _client.Project.GetMultipleAsync(ids, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.Error($"Failed to get projects from modrinth: {ex}");
+            return [];
+        }
+    }
+
+    public static async Task<Version[]> GetVersionsAsync(List<string> ids, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            return await _client.Version.GetMultipleAsync(ids, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.Error($"Failed to get versions from modrinth: {ex}");
+            return [];
         }
     }
 }

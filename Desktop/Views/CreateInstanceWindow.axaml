@@ -597,7 +597,13 @@
                                             Classes="TextDropdown"
                                             ItemsSource="{Binding Modpack.SelectedModpack.Versions}"
                                             PlaceholderText="{lang:Translate instance.create.modpack.select}"
-                                            SelectedIndex="0" />
+                                            SelectedIndex="{Binding Modpack.SelectedModpackVersionIndex}">
+                                            <ComboBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Name}" />
+                                                </DataTemplate>
+                                            </ComboBox.ItemTemplate>
+                                        </ComboBox>
 
                                         <!--  Action buttons  -->
                                         <StackPanel Grid.Column="1" Classes="InstanceButtonWrapper">
@@ -615,7 +621,9 @@
                                                 </WrapPanel>
                                             </Button>
                                             <!--  Create Instance Button  -->
-                                            <Button Classes="IconBtn SuccessBtn">
+                                            <Button Classes="IconBtn SuccessBtn" 
+                                                    IsEnabled="{Binding Modpack.CanCreateInstance}"
+                                                    Command="{Binding Modpack.CreateInstanceCommand}">
                                                 <WrapPanel Classes="IconBtnWrapper">
                                                     <TextBlock
                                                         VerticalAlignment="Center"

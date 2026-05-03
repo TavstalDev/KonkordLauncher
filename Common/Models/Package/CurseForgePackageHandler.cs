@@ -12,7 +12,7 @@ public class CurseForgePackageHandler: IInstancePackageHandler
      * modlist.html - list of mods in a raw html list
      */
     
-    public async Task<Instance?> ImportAsync(string sourcePath, IProgress<double>? progress = null, CancellationToken cancellationToken = default)
+    public async Task<Instance?> ImportAsync(string sourcePath, Resolution resolution, string? customName = null, string? customGroup = null, IProgressReporter? progress = null, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -26,7 +26,7 @@ public class CurseForgePackageHandler: IInstancePackageHandler
         }
     }
 
-    public async Task<bool> ExportAsync(Instance instance, string targetPath, IProgress<double>? progress = null,
+    public async Task<bool> ExportAsync(Instance instance, string targetPath, IProgressReporter? progress = null,
         CancellationToken cancellationToken = default)
     {
         try

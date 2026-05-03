@@ -22,6 +22,7 @@ public partial class AlertViewModel : KonkordObservableObject
     public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
     public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
+    public Interaction<Unit, Unit> ClickYesInteraction { get; } = new();
 
     public AlertViewModel(string title, string message, EAlertType type)
     {
@@ -60,21 +61,15 @@ public partial class AlertViewModel : KonkordObservableObject
     
     #region Window Commands
     [RelayCommand]
-    public async Task MinimizeWindow()
-    {
-        await MinimizeWindowInteraction.Handle(Unit.Default);
-    }
+    public async Task MinimizeWindow() => await MinimizeWindowInteraction.Handle(Unit.Default);
 
     [RelayCommand]
-    public async Task MaximizeWindow()
-    {
-        await MaximizeWindowInteraction.Handle(Unit.Default);
-    }
+    public async Task MaximizeWindow() => await MaximizeWindowInteraction.Handle(Unit.Default);
 
     [RelayCommand]
-    public async Task CloseWindow()
-    {
-        await CloseWindowInteraction.Handle(Unit.Default);
-    }
+    public async Task CloseWindow() => await CloseWindowInteraction.Handle(Unit.Default);
+
+    [RelayCommand]
+    public async Task YesButtonClick() => await ClickYesInteraction.Handle(Unit.Default);
     #endregion
 }

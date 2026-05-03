@@ -66,6 +66,12 @@ public partial class AlertWindow : KonkordWindow<AlertViewModel>
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             }).DisposeWith(disposables);
+            DataContext.ClickYesInteraction.RegisterHandler(action =>
+            {
+                Close(true);
+                action.SetOutput(Unit.Default);
+                return Task.CompletedTask;
+            }).DisposeWith(disposables);
         });
     }
 

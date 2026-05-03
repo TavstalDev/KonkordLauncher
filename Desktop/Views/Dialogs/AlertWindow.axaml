@@ -91,7 +91,7 @@
                     <Button
                         Padding="10,5"
                         Classes="IconBtn PrimaryBtn"
-                        Command="{Binding CloseWindowCommand}"
+                        Command="{Binding YesButtonClickCommand}"
                         CommandParameter="{StaticResource True}">
                         <WrapPanel Classes="IconBtnWrapper">
                             <TextBlock

@@ -81,7 +81,13 @@ public static class JavaProcessLauncher
         _logger.Debug("Starting Java process with arguments:");
         _logger.Debug("Java: " + finalJavaPath);
         _logger.Debug("FileName: " + psi.FileName);
-        _logger.Debug("Arguments: " + psi.Arguments);
+        string argumentsToPrint = psi.Arguments;
+        if (sensitiveDataToReplace != null)
+        {
+            foreach (var sen in sensitiveDataToReplace)
+                argumentsToPrint = argumentsToPrint.Replace(sen, "*****");
+        }
+        _logger.Debug("Arguments: " + argumentsToPrint);
 
         // Handle existing logs file
         bool shouldHandleLogs = !string.IsNullOrEmpty(logsPath);

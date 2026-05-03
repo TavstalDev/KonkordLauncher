@@ -263,27 +263,6 @@ public partial class MainViewModel_Instances : KonkordObservableObject
 
         FileSystemHelper.OpenFolderInFileExplorer(instance.GameDirectory);
     }
-
-    /// <summary>
-    /// Exports the provided instance in PrismLauncher format to a user-selected folder.
-    /// </summary>
-    /// <param name="instance">The instance to export. If <c>null</c>, the method does nothing.</param>
-    /// <param name="cancellationToken">Cancellation token forwarded to the export operation.</param>
-    /// <returns>A task that completes when the export operation finishes (or is canceled).</returns>
-    [RelayCommand]
-    private async Task ExportPrismInstance(InstanceModel? instance, CancellationToken cancellationToken = default)
-    {
-        if (instance == null)
-            return;
-
-        var directoryResult = await _parent.OpenFolderPickerInteraction.Handle(Unit.Default);
-        if (string.IsNullOrEmpty(directoryResult))
-            return;
-
-        string exportPath = Path.Combine(directoryResult, instance.Name + "-prism.zip");
-
-        await InstanceHelper.ExportAsync(instance.getInstance(), exportPath, EInstanceProvider.PrismLauncher, cancellationToken);
-    }
     
     /// <summary>
     /// Exports the specified Minecraft instance in the Modrinth format asynchronously.

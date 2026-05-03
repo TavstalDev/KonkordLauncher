@@ -220,10 +220,6 @@
                                             </DataTemplate>
                                         </MenuItem.HeaderTemplate>
                                         <MenuItem
-                                            Command="{Binding $parent[Window].DataContext.Instances.ExportPrismInstanceCommand}"
-                                            CommandParameter="{Binding .}"
-                                            Header="PrismLauncher" />
-                                        <MenuItem
                                             Command="{Binding $parent[Window].DataContext.Instances.ExportModrinthInstanceCommand}"
                                             CommandParameter="{Binding .}"
                                             Header="Modrinth" />

@@ -4,6 +4,7 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ReactiveUI;
@@ -13,18 +14,19 @@ using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
+using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using Tavstal.KonkordLauncher.Desktop.Views.Models.CreateInstance;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 
-public partial class CreateInstanceViewModel : KonkordObservableObject
+public partial class CreateInstanceViewModel : KonkordObservableObject, IProgressReporter
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(CreateInstanceViewModel));
     public CreateInstanceViewModel_Custom Custom { get;  }
     public CreateInstanceViewModel_Modpack Modpack { get;  }
     public CreateInstanceViewModel_Import Import { get;  }
 
-    [ObservableProperty] private ECreateInstanceTab _selectedTab = ECreateInstanceTab.MODPACK;
+    [ObservableProperty] private ECreateInstanceTab _selectedTab = ECreateInstanceTab.CUSTOM;
     
     #region Interactions
     public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
@@ -120,5 +122,86 @@ public partial class CreateInstanceViewModel : KonkordObservableObject
     [RelayCommand]
     private async Task HandleTabBtn(ECreateInstanceTab tab) => await SwitchTabInteraction.Handle(tab);
     
+    #endregion
+
+    #region Progress Reporter
+    private InstallWindow? _installWindow;
+
+    /// <summary>
+    /// Sets the progress value for the installation window. If the window is not open, it will be shown.
+    /// </summary>
+    /// <param name="progress">The progress value to set, typically between 0.0 and 1.0.</param>
+    public void ReportProgress(double progress)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (_installWindow == null)
+                OpenReporter();
+
+            _installWindow?.ReportProgress(progress);
+        });
+    }
+
+    /// <summary>
+    /// Sets the status message for the installation window. If the window is not open, it will be shown.
+    /// </summary>
+    /// <param name="status">The status message to display.</param>
+    public void UpdateStatus(string status)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (_installWindow == null)
+                OpenReporter();
+
+            _installWindow?.UpdateStatus(status);
+        });
+    }
+
+    /// <summary>
+    /// Sets a translated status message for the installation window. If the window is not open, it will be shown.
+    /// </summary>
+    /// <param name="key">The translation key for the status message.</param>
+    /// <param name="args">Optional arguments to format the translated message.</param>
+    public void UpdateStatusTranslated(string key, params object[]? args)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (_installWindow == null)
+                OpenReporter();
+
+            _installWindow?.UpdateStatusTranslated(key, args);
+        });
+    }
+
+    /// <summary>
+    /// Displays the installation window as a modal dialog. If the window is already open, this method does nothing.
+    /// </summary>
+    public void OpenReporter()
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (_installWindow != null)
+                return;
+
+            _installWindow = new InstallWindow();
+            _installWindow.Show();
+        });
+    }
+
+    /// <summary>
+    /// Hides the installation window if it is currently open.
+    /// </summary>
+    public void CloseReporter()
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (_installWindow == null)
+                return;
+
+            _installWindow.Close();
+            _installWindow = null;
+        });
+    }
+
     #endregion
 }

@@ -589,7 +589,7 @@
 
                                 <!--  Buttons  -->
                                 <Border Grid.Row="1" Classes="InstanceButtonBorder">
-                                    <Grid ColumnDefinitions="250, *">
+                                    <Grid ColumnDefinitions="250, 200, *" ColumnSpacing="10">
                                         <!--  Modpack Version  -->
                                         <ComboBox
                                             Grid.Column="0"
@@ -604,9 +604,16 @@
                                                 </DataTemplate>
                                             </ComboBox.ItemTemplate>
                                         </ComboBox>
+                                        
+                                        <!-- Instance Name -->
+                                        <TextBox
+                                            Grid.Column="1"
+                                            Classes="TextInput"
+                                            Text="{Binding Modpack.InstanceName, UpdateSourceTrigger=PropertyChanged}"
+                                            PlaceholderText="My Instance Name" />
 
                                         <!--  Action buttons  -->
-                                        <StackPanel Grid.Column="1" Classes="InstanceButtonWrapper">
+                                        <StackPanel Grid.Column="2" Classes="InstanceButtonWrapper">
                                             <!--  Cancel Button  -->
                                             <Button Classes="IconBtn ErrorBtn" Command="{Binding Custom.CustomCancelCreateCommand}">
                                                 <WrapPanel Classes="IconBtnWrapper">

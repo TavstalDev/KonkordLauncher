@@ -175,6 +175,8 @@ public static class DefaultTranslationProvider
         {"instance.download.resourcePacks", "Download resource packs"},
         {"instance.download.mods", "Download mods"},
         
+        {"instance.download.file", "Downloading {0} {1}%..."},
+        
         {"instance.view.logs", "View Logs"},
         {"instance.change.group", "Change Group"},
         {"instance.change.icon", "Change Icon"},

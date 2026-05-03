@@ -165,7 +165,7 @@ public static class MicrosoftAuthService
             };
             var requestContent = new FormUrlEncodedContent(requestParams);
 
-            HttpClient client = HttpHelper.GetHttpClient();
+            HttpClient client = HttpHelper.CreateHttpClient();
             var response = await client.PostAsync(requestUrl, requestContent, cancellationToken).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -232,7 +232,7 @@ public static class MicrosoftAuthService
 
             var formContent = new FormUrlEncodedContent(parameters);
 
-            HttpClient client = HttpHelper.GetHttpClient();
+            HttpClient client = HttpHelper.CreateHttpClient();
             var result = await client.PostAsync(MicrosoftEndpoints.MicrosoftDeviceUrl, formContent, cancellationToken);
             
             var rawJson = await result.Content.ReadAsStringAsync(cancellationToken);
@@ -268,7 +268,7 @@ public static class MicrosoftAuthService
 
             var formContent = new FormUrlEncodedContent(parameters);
 
-            HttpClient client = HttpHelper.GetHttpClient();
+            HttpClient client = HttpHelper.CreateHttpClient();
             var response = await client.PostAsync(MicrosoftEndpoints.MicrosoftDeviceTokenUrl, formContent, cancellationToken);
             
             var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
@@ -323,7 +323,7 @@ public static class MicrosoftAuthService
                 "application/json"
                 );
 
-            HttpClient client = HttpHelper.GetHttpClient();
+            HttpClient client = HttpHelper.CreateHttpClient();
             var result = await client.PostAsync(MicrosoftEndpoints.XboxAuthUrl, reqContent, cancellationToken).ConfigureAwait(false);
             
             JObject resultObj = JObject.Parse(await result.Content.ReadAsStringAsync(cancellationToken));
@@ -375,7 +375,7 @@ public static class MicrosoftAuthService
                 "application/json"
             );
 
-            HttpClient client = HttpHelper.GetHttpClient();
+            HttpClient client = HttpHelper.CreateHttpClient();
             var result = await client.PostAsync(MicrosoftEndpoints.XboxXstsUrl, reqContent, cancellationToken).ConfigureAwait(false);
 
             var rawJson = await result.Content.ReadAsStringAsync(cancellationToken);
@@ -459,7 +459,7 @@ public static class MicrosoftAuthService
                 "application/json"
             );
 
-            HttpClient client = HttpHelper.GetHttpClient();
+            HttpClient client = HttpHelper.CreateHttpClient();
             var result = await client.PostAsync(MicrosoftEndpoints.MinecraftAuthUrl, reqContent, cancellationToken).ConfigureAwait(false);
             
             JObject resultObj = JObject.Parse(await result.Content.ReadAsStringAsync(cancellationToken));
@@ -503,7 +503,7 @@ public static class MicrosoftAuthService
         {
             _progressReporter?.UpdateStatusTranslated("auth.minecraft.ownership");
             
-            HttpClient client = HttpHelper.GetHttpClient();
+            HttpClient client = HttpHelper.CreateHttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", mcToken);
             var result = await client.GetAsync(MicrosoftEndpoints.MinecraftOwnershipUrl, cancellationToken);
 
@@ -548,7 +548,7 @@ public static class MicrosoftAuthService
         {
             _progressReporter?.UpdateStatusTranslated("auth.minecraft.profile");
             
-            HttpClient client = HttpHelper.GetHttpClient();
+            HttpClient client = HttpHelper.CreateHttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", mcToken);
             var result = await client.GetAsync(MicrosoftEndpoints.MinecraftProfileUrl, cancellationToken);
 
@@ -619,7 +619,7 @@ public static class MicrosoftAuthService
             };
             var requestContent = new FormUrlEncodedContent(requestParams);
 
-            HttpClient client = HttpHelper.GetHttpClient();
+            HttpClient client = HttpHelper.CreateHttpClient();
             var response = await client.PostAsync(requestUrl, requestContent, cancellationToken).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)

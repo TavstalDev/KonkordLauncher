@@ -16,6 +16,8 @@ public static class ForgeInstance
     {
         Version minecraftVersion = new Version(gameDetails.MinecraftVersion);
 
+        // TODO: Fix 1.17 - 1.20.3, For some reason these versions crash
+        
         string mcVer = gameDetails.MinecraftVersion;
         string forgeVer = gameDetails.CustomVersion!;
         return (minecraftVersion.Major, minecraftVersion.Minor) switch

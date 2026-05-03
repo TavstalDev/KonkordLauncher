@@ -102,7 +102,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     /// <summary>
     /// Gets or sets a value indicating whether the game is currently running.
     /// </summary>
-    [ObservableProperty] private bool _isGameRunning;
+    public bool IsGameRunning => GameProcess is { HasExited: false };
     
     /// <summary>
     /// Gets the icon of the instance as a bitmap. If the icon path is not set, a default icon is used.
@@ -169,14 +169,12 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
 
         GameProcess.Exited += (_, _) =>
         {
-            IsGameRunning = false;
-            GameProcess = null;
+            Dispatcher.UIThread.Post(() => GameProcess = null);
         };
 
         GameProcess.Disposed += (_, _) =>
         {
-            IsGameRunning = false;
-            GameProcess = null;
+            Dispatcher.UIThread.Post(() => GameProcess = null);
         };
 
         if (string.IsNullOrEmpty(GameDirectory))
@@ -452,7 +450,6 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             }
 
             GameProcess = process;
-            IsGameRunning = true;
             AttachProcessEvent();
             App.ClearRPC();
 

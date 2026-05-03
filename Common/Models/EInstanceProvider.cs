@@ -6,17 +6,12 @@ namespace Tavstal.KonkordLauncher.Common.Models;
 public enum EInstanceProvider
 {
     /// <summary>
-    /// The Prism Launcher instance provider.
-    /// </summary>
-    PrismLauncher = 0,
-
-    /// <summary>
     /// The Modrinth instance provider.
     /// </summary>
-    Modrinth = 1,
+    Modrinth = 0,
 
     /// <summary>
     /// The CurseForge instance provider.
     /// </summary>
-    CurseForge = 2
+    CurseForge = 1
 }

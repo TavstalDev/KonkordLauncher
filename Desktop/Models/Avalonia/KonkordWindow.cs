@@ -8,12 +8,15 @@ using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Platform.Storage;
 using ReactiveUI.Avalonia;
+using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 
 public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> where TViewModel : class
 {
+    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(KonkordWindow<TViewModel>));
+    
     public new TViewModel? DataContext
     {
         get => (TViewModel?)base.DataContext;
@@ -58,7 +61,10 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
         
         var topLevel = GetTopLevel(this);
         if (topLevel?.Clipboard == null)
+        {
+            _logger.Error("Unable to set clipboard text: TopLevel or Clipboard is null.");
             return;
+        }
 
         await topLevel.Clipboard.SetTextAsync(text);
     }
@@ -70,7 +76,10 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
 
         var topLevel = GetTopLevel(this);
         if (topLevel == null)
+        {
+            _logger.Error("Unable to set clipboard image: TopLevel is null.");
             return;
+        }
         
         var clipboard = topLevel.Clipboard;
         if (clipboard == null)
@@ -89,32 +98,48 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
     
     protected async Task<string?> OpenFilePickerAsync(string title, string filterName, string[] patterns)
     {
-        if (VisualRoot is not TopLevel topLevel)
-            return null;
-
-        var storageProvider = topLevel.StorageProvider;
-    
-        var options = new FilePickerOpenOptions
+        try
         {
-            Title = title,
-            AllowMultiple = false,
-            FileTypeFilter = new List<FilePickerFileType>
+            var topLevel = GetTopLevel(this);
+            if (topLevel == null)
             {
-                new(filterName)
-                {
-                    Patterns = patterns
-                }
+                _logger.Error("Unable to open file picker: TopLevel is null.");
+                return null;
             }
-        };
-        
-        var files = await storageProvider.OpenFilePickerAsync(options);
-        return !files.Any() ? null : files[0].Path.AbsolutePath;
+
+            var storageProvider = topLevel.StorageProvider;
+
+            var options = new FilePickerOpenOptions
+            {
+                Title = title,
+                AllowMultiple = false,
+                FileTypeFilter = new List<FilePickerFileType>
+                {
+                    new(filterName)
+                    {
+                        Patterns = patterns
+                    }
+                }
+            };
+
+            var files = await storageProvider.OpenFilePickerAsync(options);
+            return !files.Any() ? null : files[0].TryGetLocalPath();
+        }
+        catch (Exception ex)
+        {
+            _logger.Error($"Error opening file picker: {ex}");
+            return null;
+        }
     }
     
     protected async Task<string?> OpenFolderPickerAsync(string title)
     {
-        if (VisualRoot is not TopLevel topLevel)
+        var topLevel = GetTopLevel(this);
+        if (topLevel == null)
+        {
+            _logger.Error("Unable to open folder picker: TopLevel is null.");
             return null;
+        }
 
         var storageProvider = topLevel.StorageProvider;
         
@@ -133,6 +158,6 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
             return null;
         
         IStorageFolder? selectedFolder = folders.FirstOrDefault();
-        return selectedFolder?.Path.AbsolutePath;
+        return selectedFolder?.TryGetLocalPath();
     }
 }

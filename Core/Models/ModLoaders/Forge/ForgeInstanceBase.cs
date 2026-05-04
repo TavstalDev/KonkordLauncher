@@ -73,7 +73,9 @@ public abstract class ForgeInstanceBase(
         // Adds additional required mappings.
         dataMapping.Add("SIDE", "client");
         dataMapping.Add("MINECRAFT_JAR", minecraftJar);
-        dataMapping.Add("INSTALLER", Path.Combine(installDir, "installer.jar"));
+        
+        string parentDir = Path.GetDirectoryName(installDir)!;
+        dataMapping.Add("INSTALLER", Path.Combine(parentDir, "installer.jar"));
 
         return dataMapping;
     }
@@ -99,7 +101,9 @@ public abstract class ForgeInstanceBase(
             {
                 // Skips server-side processors.
                 JArray? sides = item["sides"] as JArray;
-                if (sides?.FirstOrDefault() == null || sides.FirstOrDefault()?.ToString() == "client") //skip server side
+                bool isServerOnly = sides is { Count: > 0 }
+                                    && sides.All(s => s.ToString() == "server");
+                if (!isServerOnly)
                     await StartProcessor(item, mapData);
             }
             // Updates the progress reporter with the current progress.

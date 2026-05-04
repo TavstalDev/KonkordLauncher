@@ -4,8 +4,28 @@ using Tavstal.KonkordLauncher.Core.Models.Installer;
 
 namespace Tavstal.KonkordLauncher.Core.Instances;
 
+/// <summary>
+/// Factory and helpers for creating Forge-specific <see cref="MinecraftInstance"/> implementations.
+/// </summary>
 public static class ForgeInstance
 {
+    /// <summary>
+    /// Create a configured <see cref="MinecraftInstance"/> for the given Forge build.
+    /// </summary>
+    /// <param name="gameDetails">Gameplay and version information such as the Minecraft version and custom version.</param>
+    /// <param name="pathDetails">Paths used by the instance (libraries, versions, assets, etc.).</param>
+    /// <param name="launcherDetails">Information about the launcher (branding, version, etc.).</param>
+    /// <param name="clientDetails">Client-specific details (user agent, client settings).</param>
+    /// <param name="resolution">Optional screen resolution to use when launching the game.</param>
+    /// <param name="progressReporter">Optional progress reporter used during instance creation/install operations.</param>
+    /// <returns>
+    /// A concrete <see cref="MinecraftInstance"/> appropriate for the combination of Minecraft and Forge versions.
+    /// The returned instance will be one of:
+    /// <br/>- <see cref="ForgeEarlyInstance"/> for very old (pre-1.3/1.5 era) builds,
+    /// <br/>- <see cref="ForgeClassicInstance"/> for older classic builds (1.5 - 1.9 era),
+    /// <br/>- <see cref="ForgeLegacyInstance"/> for legacy 1.6 - 1.12 era builds,
+    /// <br/>- <see cref="ForgeModernInstance"/> for modern Forge versions (1.12.2+).
+    /// </returns>
     public static MinecraftInstance GetForgeInstance(
         GameDetails gameDetails,
         PathDetails pathDetails,
@@ -15,8 +35,6 @@ public static class ForgeInstance
         IProgressReporter? progressReporter = null)
     {
         Version minecraftVersion = new Version(gameDetails.MinecraftVersion);
-
-        // TODO: Fix 1.17 - 1.20.3, For some reason these versions crash
         
         string mcVer = gameDetails.MinecraftVersion;
         string forgeVer = gameDetails.CustomVersion!;
@@ -89,11 +107,23 @@ public static class ForgeInstance
         };
     }
     
-    // Contains old Forge libraries for version 1.5.2
-    // Fixes forge compatibility issues
+    /// <summary>
+    /// Returns a list of legacy Forge support libraries for very old Minecraft versions (used to fix compatibility issues).
+    /// </summary>
+    /// <param name="minecraftVersion">The Minecraft version string to match against (e.g. "1.5.2").</param>
+    /// <param name="path">
+    /// Optional base path prefix for the returned library entries. Defaults to the embedded asset path
+    /// <c>"Tavstal.KonkordLauncher.Core.Assets.Fmllib."</c>. Each returned entry is the concatenation of this
+    /// prefix and the actual library filename.
+    /// </param>
+    /// <returns>
+    /// A list of string library identifiers (path + filename) appropriate for the given Minecraft version.
+    /// </returns>
     public static List<string> GetLegacyLibraries(string minecraftVersion, string path = "Tavstal.KonkordLauncher.Core.Assets.Fmllib.")
     {
         Version mcVersion = new Version(minecraftVersion);
+        if (mcVersion.Major != 1)
+            return [];
         
         return (mcVersion.Minor, mcVersion.Build) switch
         {

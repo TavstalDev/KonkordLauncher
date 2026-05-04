@@ -10,12 +10,14 @@ namespace Tavstal.KonkordLauncher.Core.Models;
 /// </summary>
 public class ArgumentBuilder
 {
+    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(ArgumentBuilder));
     private readonly List<string> _classPath = [];
     public List<string> ClassPath => _classPath;
     private readonly List<LaunchArg> _jvmArguments = [];
     private readonly List<LaunchArg> _jvmArgumentsBeforeClassPath = [];
     private readonly List<LaunchArg> _gameArguments = [];
     private readonly Dictionary<string, string> _placeholders = new();
+    private readonly string _classPathSeparator = OSHelper.GetOperatingSystem() == EOperatingSystem.Windows ? ";" : ":";
     
     public bool UseClasspathFile { get; set; }
     
@@ -41,8 +43,6 @@ public class ArgumentBuilder
     /// <param name="arg">LaunchArg containing the argument string and priority for ordering.</param>
     public void AddJvmArgument(LaunchArg arg)
     {
-        if (_jvmArguments.Any(x => x.Arg == arg.Arg))
-            return;
         _jvmArguments.Add(arg);
     }
 
@@ -53,8 +53,6 @@ public class ArgumentBuilder
     /// <param name="arg">LaunchArg containing the argument string and priority for ordering.</param>
     public void AddJvmArgumentBeforeClassPath(LaunchArg arg)
     {
-        if (_jvmArgumentsBeforeClassPath.Any(x => x.Arg == arg.Arg))
-            return;
         _jvmArgumentsBeforeClassPath.Add(arg);
     }
 
@@ -115,7 +113,7 @@ public class ArgumentBuilder
             { "${game_directory}", QuoteIfNeeded(gameDir ) },
             { "${game_assets}", QuoteIfNeeded(gameAssetsDir) },
             { "${assets_root}", QuoteIfNeeded(pathDetails.AssetsDir) },
-            { "${library_directory}", QuoteIfNeeded(pathDetails.LibrariesDir) },
+            { "${library_directory}", pathDetails.LibrariesDir },
             { "${assets_index_name}", assetIndexId },
             { "${auth_uuid}", clientDetails.UUID },
             { "${auth_player_name}", clientDetails.DisplayName },
@@ -124,7 +122,8 @@ public class ArgumentBuilder
             { "${clientid}",clientDetails.ClientId },
             { "${auth_xuid}", clientDetails.Xuid },
             { "${user_type}", userType },
-            { "${user_properties}", "{}" }
+            { "${user_properties}", "{}" },
+            { "${classpath_separator}", _classPathSeparator }
         };
 
         foreach (var replacement in replacements)
@@ -178,12 +177,9 @@ public class ArgumentBuilder
     /// </returns>
     public (string jvmArgs, string gameArgs) Build()
     {
-        string classpath;
-        // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression - It is more readable this way
+        string classpath = string.Join(_classPathSeparator, _classPath);
         if (OSHelper.GetOperatingSystem() == EOperatingSystem.Windows)
-            classpath = string.Join(";", _classPath).Replace(@"\", @"\\");
-        else
-            classpath = string.Join(":", _classPath);
+            classpath = classpath.Replace(@"\", @"\\");
 
         if (UseClasspathFile)
         {

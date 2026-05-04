@@ -46,6 +46,13 @@ public class JavaMirrorConfig
                 // arm
                 ""
             ),
+            // Java 16
+            new JavaMirrorArchitecture(
+                // x86_64
+                "https://github.com/adoptium/temurin16-binaries/releases/download/jdk-16.0.2%2B7/OpenJDK16U-jdk_x64_windows_hotspot_16.0.2_7.zip",
+                // arm
+                ""
+            ),
             // Java 17
             new JavaMirrorArchitecture(
                 // x86_64
@@ -83,6 +90,13 @@ public class JavaMirrorConfig
                 // arm
                 "https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u462-b08/OpenJDK8U-jdk_aarch64_linux_hotspot_8u462b08.tar.gz"
             ),
+            // Java 16
+            new JavaMirrorArchitecture(
+                // x86_64
+                "https://github.com/adoptium/temurin16-binaries/releases/download/jdk-16.0.2%2B7/OpenJDK16U-jdk_x64_linux_hotspot_16.0.2_7.tar.gz",
+                // arm
+                "https://github.com/adoptium/temurin16-binaries/releases/download/jdk-16.0.2%2B7/OpenJDK16U-jdk_aarch64_linux_hotspot_16.0.2_7.tar.gz"
+            ),
             // Java 17
             new JavaMirrorArchitecture(
                 // x86_64
@@ -117,6 +131,13 @@ public class JavaMirrorConfig
             new JavaMirrorArchitecture(
                 // x86_64
                 "https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u462-b08/OpenJDK8U-jdk_x64_mac_hotspot_8u462b08.tar.gz",
+                // arm
+                ""
+            ),
+            // Java 16
+            new JavaMirrorArchitecture(
+                // x86_64
+                "https://github.com/adoptium/temurin16-binaries/releases/download/jdk-16.0.2%2B7/OpenJDK16U-jdk_x64_mac_hotspot_16.0.2_7.tar.gz",
                 // arm
                 ""
             ),

@@ -19,6 +19,12 @@ public class JavaMirrorJdks
     /// </summary>
     [JsonProperty("java_8"), JsonPropertyName("java_8")]
     public JavaMirrorArchitecture Jdk8 { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the Java mirror for JDK 16.
+    /// </summary>
+    [JsonProperty("java_16"), JsonPropertyName("java_16")]
+    public JavaMirrorArchitecture Jdk16 { get; set; }
 
     /// <summary>
     /// Gets or sets the Java mirror for JDK 17.
@@ -45,6 +51,7 @@ public class JavaMirrorJdks
     {
         Jdk7 = new JavaMirrorArchitecture();
         Jdk8 = new JavaMirrorArchitecture();
+        Jdk16 = new JavaMirrorArchitecture();
         Jdk17 = new JavaMirrorArchitecture();
         Jdk21 = new JavaMirrorArchitecture();
         Jdk25 = new JavaMirrorArchitecture();
@@ -55,13 +62,15 @@ public class JavaMirrorJdks
     /// </summary>
     /// <param name="jdk7">The Java mirror for JDK 7.</param>
     /// <param name="jdk8">The Java mirror for JDK 8.</param>
+    /// <param name="jdk16">The Java mirror for JDK 16.</param>
     /// <param name="jdk17">The Java mirror for JDK 17.</param>
     /// <param name="jdk21">The Java mirror for JDK 21.</param>
     /// <param name="jdk25">The Java mirror for JDK 25.</param>
-    public JavaMirrorJdks(JavaMirrorArchitecture jdk7, JavaMirrorArchitecture jdk8, JavaMirrorArchitecture jdk17, JavaMirrorArchitecture jdk21, JavaMirrorArchitecture jdk25)
+    public JavaMirrorJdks(JavaMirrorArchitecture jdk7, JavaMirrorArchitecture jdk8, JavaMirrorArchitecture jdk16, JavaMirrorArchitecture jdk17, JavaMirrorArchitecture jdk21, JavaMirrorArchitecture jdk25)
     {
         Jdk7 = jdk7;
         Jdk8 = jdk8;
+        Jdk16 = jdk16;
         Jdk17 = jdk17;
         Jdk21 = jdk21;
         Jdk25 = jdk25;

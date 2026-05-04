@@ -110,9 +110,39 @@ public static class JavaProcessLauncher
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
             process.EnableRaisingEvents = true;
+            process.ErrorDataReceived += (_, e) =>
+            {
+                _logger.Error($"[JVM Process Error] {e.Data}");
+            };
             process.Exited += (_, _) =>
             {
-                _logger.Debug($"Java process exited with code: {process.ExitCode}");
+                switch (process.ExitCode)
+                {
+                    case 0:
+                        _logger.Info($"[JVM Process Exit] {process.ExitCode} - Clean exit");
+                        break;
+                    case 1:
+                        _logger.Error($"[JVM Process Exit] {process.ExitCode} - JVM error (bad arguments, missing class, crash)");
+                        break;
+                    case -1:
+                        _logger.Warn($"[JVM Process Exit] {process.ExitCode} - Forced exit / OutOfMemoryError");
+                        break;
+                    case 130:
+                        _logger.Warn($"[JVM Process Exit] {process.ExitCode} - Terminated by user (SIGINT/Ctrl+C)");
+                        break;
+                    case 137:
+                        _logger.Error($"[JVM Process Exit] {process.ExitCode} - Killed by OS (OOM killer or SIGKILL)");
+                        break;
+                    case 139:
+                        _logger.Error($"[JVM Process Exit] {process.ExitCode} - Segmentation fault (native crash)");
+                        break;
+                    default:
+                        if (process.ExitCode > 0)
+                            _logger.Error($"[JVM Process Exit] {process.ExitCode} - Abnormal exit");
+                        else
+                            _logger.Warn($"[JVM Process Exit] {process.ExitCode} - Unknown exit");
+                        break;
+                }
             };
             if (shouldHandleLogs)
             {
@@ -138,10 +168,6 @@ public static class JavaProcessLauncher
                         foreach (string s in sensitiveDataToReplace!)
                             line = line.Replace(s, "*****");
                     jvmLogger.Error(line);
-                };
-                process.Exited += (_, e_) =>
-                {
-                    jvmLogger.Debug("JVM exited with code: " + process.ExitCode);
                 };
             }
             

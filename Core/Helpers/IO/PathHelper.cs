@@ -71,6 +71,16 @@ public static class PathHelper
     /// Gets the path to the launcher logs directory.
     /// </summary>
     public static readonly string LauncherLogsDir = Path.Combine(ApplicationDir, "logs");
+
+    /// <summary>
+    /// Gets the path to the temporary directory used by the launcher.
+    /// </summary>
+    public static readonly string TempDir = Path.Combine(Path.GetTempPath(), "konkordlauncher");
+    
+    /// <summary>
+    /// The filename used for the most recent (active) log file produced by the launcher or an instance.
+    /// </summary>
+    public static readonly string LatestLog = "latest.log";
     
     /// <summary>
     /// Specifies the format for log file names, where `{0}` is replaced with the log name.

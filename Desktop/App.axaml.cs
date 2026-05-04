@@ -144,29 +144,30 @@ public partial class App : Application
     /// </summary>
     public override void OnFrameworkInitializationCompleted()
     {
+        // Archive existing log before starting a new session
+        try
+        {
+            string logPath = Path.Combine(PathHelper.LauncherLogsDir, PathHelper.LatestLog);
+            if (File.Exists(logPath))
+            {
+                var lastModified = File.GetLastWriteTime(logPath);
+                string archivePath = Path.Combine(PathHelper.LauncherLogsDir, string.Format(PathHelper.LogsFileFormat, lastModified) + ".gz");
+                FileSystemHelper.CompressFile(logPath, archivePath);
+            }
+        }
+        catch (Exception)
+        {
+            // ignored
+        }
+        
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             // Sets the main window to the StartupWindow, passing the application lifetime.
             desktop.MainWindow = new StartupWindow();
 #if DEBUG
-            // This is the new method name
+            // This is the new alternative of attaching developer tools
             this.AttachDeveloperTools(); 
 #endif
-            desktop.ShutdownRequested += (_, _) =>
-            {
-                try
-                {
-                    string logPath = Path.Combine(PathHelper.LauncherLogsDir,
-                        string.Format(PathHelper.LogsFileFormat, CoreLogger.StartTime));
-                    ;
-                    string archivePath = logPath + ".gz";
-                    FileSystemHelper.CompressFile(logPath, archivePath);
-                }
-                catch (Exception)
-                {
-                    // ignored
-                }
-            };
         }
 
         base.OnFrameworkInitializationCompleted();

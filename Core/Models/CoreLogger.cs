@@ -28,7 +28,7 @@ public class CoreLogger
     {
         _moduleName = moduleName;
         _printLogs = printLogs;
-        _filePath = filePath ?? Path.Combine(PathHelper.LauncherLogsDir, string.Format(PathHelper.LogsFileFormat, StartTime));
+        _filePath = filePath ?? Path.Combine(PathHelper.LauncherLogsDir, PathHelper.LatestLog);
         Task.Run(() => ProcessLogQueueAsync(_logCts.Token));
     }
 

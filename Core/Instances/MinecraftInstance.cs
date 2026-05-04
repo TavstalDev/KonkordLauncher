@@ -100,7 +100,7 @@ public class MinecraftInstance
     /// <returns>A <see cref="Process"/> object representing the launched game, or null if the process fails.</returns>
     public async Task<Process?> StartAsync(CancellationToken cancellationToken = default)
     {
-        string tempDir = Path.Combine(Path.GetTempPath(), "konkordlauncher_" + Path.GetRandomFileName());
+        string tempDir = Path.Combine(PathHelper.TempDir, Path.GetRandomFileName());
         Directory.CreateDirectory(tempDir);
         Directory.CreateDirectory(VersionData.VanillaVersionDirectory);
 

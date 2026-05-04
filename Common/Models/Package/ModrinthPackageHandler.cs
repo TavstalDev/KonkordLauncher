@@ -63,7 +63,7 @@ public class ModrinthPackageHandler: IInstancePackageHandler
                 }
             };
             
-            string tempDir = Path.Combine(Path.GetTempPath(), "konkordlauncher", "import");
+            string tempDir = Path.Combine(PathHelper.TempDir, "import");
             try
             {
                 Directory.CreateDirectory(tempDir);

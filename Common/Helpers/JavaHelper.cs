@@ -114,7 +114,7 @@ public static class JavaHelper
                 return false;
             }
 
-            string tempDir = Path.Combine(Path.GetTempPath(), "konkordlauncher", "java");
+            string tempDir = Path.Combine(PathHelper.TempDir, "java");
             try
             {
                 Directory.CreateDirectory(tempDir);

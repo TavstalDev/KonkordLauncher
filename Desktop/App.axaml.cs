@@ -119,6 +119,8 @@ public partial class App : Application
             var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
             ApplyTheme(settings.Launcher.Theme);
             
+            Directory.CreateDirectory(PathHelper.TempDir);
+            
             _rpcClient = new DiscordRpcClient("1178002101561995416");
             _rpcClient.Initialize();
             _rpcClient.SetPresence(new RichPresence
@@ -168,6 +170,18 @@ public partial class App : Application
             // This is the new alternative of attaching developer tools
             this.AttachDeveloperTools(); 
 #endif
+            
+            desktop.ShutdownRequested += (_, _) =>
+            {
+                try
+                {
+                    FileSystemHelper.DeleteDirectory(PathHelper.TempDir);
+                }
+                catch (Exception)
+                {
+                    // ignored
+                }
+            };
         }
 
         base.OnFrameworkInitializationCompleted();

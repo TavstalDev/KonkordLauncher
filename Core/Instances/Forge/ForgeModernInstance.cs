@@ -182,6 +182,8 @@ public class ForgeModernInstance(
             ArgumentBuilder.AddGameArgument(new LaunchArg("--tweakClass net.minecraftforge.fml.common.launcher.FMLTweaker", 1));
         }
         
+        ArgumentBuilder.AddJvmArgumentBeforeClassPath(new LaunchArg($"-DlibraryDirectory={PathDetails.LibrariesDir}", 1));
+        
         return new ModdedData(forgeVersionMeta.MainClass, localLibraries);
     }
 }

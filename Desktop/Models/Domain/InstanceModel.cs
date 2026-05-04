@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
@@ -440,7 +441,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             if (gameInstance == null)
                 return;
             
-            gameInstance.OnSetupDefaultJava += meta => Dispatcher.UIThread.Invoke(() => SetupDefaultJavaPath(gameInstance, meta, settings, showAlertDialog));
+            gameInstance.OnSetupDefaultJava += meta => Dispatcher.UIThread.Invoke(async () => await SetupDefaultJavaPathAsync(gameInstance, meta, settings, showAlertDialog));
 
             var process = await gameInstance.StartAsync();
             if (process == null)
@@ -502,12 +503,13 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     /// <param name="showAlertDialog">
     /// An interaction to display an alert dialog in case the required Java version is not found.
     /// </param>
-    private void SetupDefaultJavaPath(MinecraftInstance gameInstance, VersionMeta? meta, CoreConfig settings, Interaction<Alert, Unit> showAlertDialog)
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    private async Task SetupDefaultJavaPathAsync(MinecraftInstance gameInstance, VersionMeta? meta, CoreConfig settings, Interaction<Alert, Unit> showAlertDialog, CancellationToken cancellationToken = default)
     {
         try
         {
             string defaultJavaPath = settings.Java.JavaPath;
-            var instances = LauncherHelper.GetInstances();
+            var instances = await LauncherHelper.GetInstancesAsync(cancellationToken);
             var instanceIndex = instances.FindIndex(x => x.Id == Id);
 
             if (meta == null)
@@ -523,11 +525,11 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             {
                 if (IsGameRunning && GameProcess != null)
                     GameProcess.Kill();
-
-                showAlertDialog.Handle(new Alert(
+                
+                await showAlertDialog.Handle(new Alert(
                     TranslationManager.Translate("instance.java.notfound.title", meta.JavaVersionMeta.MajorVersion),
                     TranslationManager.Translate("instance.java.notfound.message", meta.JavaVersionMeta.MajorVersion),
-                    EAlertType.Warning)).Wait();
+                    EAlertType.Warning));
                 return;
             }
 

@@ -52,7 +52,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
     
     private const int _maxParallelDownloads = 16;
 
-    private readonly int[] _javaVersionsToDownload = [8, 17, 21, 25];
+    private readonly int[] _javaVersionsToDownload = [8, 16, 17, 21, 25];
 
     /// <summary>
     /// Initializes a new instance of the <see cref="StartupWindow"/> class with default settings.

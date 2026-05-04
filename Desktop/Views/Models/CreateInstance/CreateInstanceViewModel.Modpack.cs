@@ -166,7 +166,7 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
             return;
         }
         
-        string tempDir = Path.Combine(Path.GetTempPath(), "konkordlauncher", "modpacks");
+        string tempDir = Path.Combine(PathHelper.TempDir, "modpacks");
         Directory.CreateDirectory(tempDir);
         try
         {
@@ -180,7 +180,7 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
             
             await HttpHelper.DownloadFileAsync(file.Url, tempPath, prog);
             
-            var res = new Resolution()
+            var res = new Resolution
             {
                 X = (uint)(0.40 * App.ScreenSize.Width),
                 Y = (uint)(0.45 * App.ScreenSize.Height)

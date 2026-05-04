@@ -71,23 +71,19 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
     private async Task SelectFileToImport()
     {
         string? path = await _parent.ShowFileSelectorInteraction.Handle(Unit.Default);
-        _logger.Warn($"File selected for import: {path}");
         if (string.IsNullOrEmpty(path))
         {
             HasImportPath = false;
             return;
         }
-
-        _logger.Warn($"File exists?: {path}");
+        
         if (!File.Exists(path))
         {
             HasImportPath = false;
             return;
         }
         
-        _logger.Warn($"File exists check passed for: {path}");
         string extension = Path.GetExtension(path);
-        _logger.Warn($"Selected file for import: {path} with extension {extension}");
         if (!(extension == ".zip" || extension == ".mrpack"))
         {
             HasImportPath = false;
@@ -149,6 +145,17 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
 
     private async Task ImportFromUrlAsync(CancellationToken cancellationToken = default)
     {
+        if (string.IsNullOrEmpty(ImportPath))
+        {
+            _logger.Warn("Invalid import path specified.");
+            await _parent.ShowAlertDialogInteraction.Handle(new Alert(
+                TranslationManager.Translate("instance.create.modpack.error.invalid_path.title"),
+                TranslationManager.Translate("instance.create.modpack.error.invalid_path.message"),
+                EAlertType.Error
+            ));
+            return;
+        }
+
         
     }
     

@@ -172,28 +172,12 @@ public class NeoForgeInstance(
             if (forgeVersionMeta.Arguments.Game != null)
                 foreach (var arg in forgeVersionMeta.Arguments.GetGameArgs())
                     ArgumentBuilder.AddGameArgument(new LaunchArg(arg, 1));
-
-            bool handlingParg = false;
+            
             // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
             if (forgeVersionMeta.Arguments.Jvm != null)
                 foreach (var arg in forgeVersionMeta.Arguments.GetJvmArgs())
-                {
-                    if (arg == "-p")
-                    {
-                        handlingParg = true;
-                        ArgumentBuilder.AddJvmArgument(new LaunchArg(arg, 1));
-                        continue;
-                    }            
-                    
-                    if (handlingParg)
-                    {
-                        handlingParg = false;
-                        ArgumentBuilder.AddJvmArgument(new LaunchArg(arg.Replace("${library_directory}", PathDetails.LibrariesDir), 1));
-                        continue;
-                    }
-                    
                     ArgumentBuilder.AddJvmArgument(new LaunchArg(arg, 1));
-                }
+            
         }
         
         return new ModdedData(forgeVersionMeta.MainClass, localLibraries);

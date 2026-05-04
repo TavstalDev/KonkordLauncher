@@ -151,8 +151,12 @@ public class MinecraftInstance
             await DownloadDependenciesAsync(VersionData, libraries, cancellationToken);
             endTime = DateTime.Now;
             _logger.Info($"Dependencies downloaded in {(endTime - startTime).TotalMilliseconds}ms.");
-            
-            ArgumentBuilder.AddClass(moddedData != null ? VersionData.CustomJarPath! : VersionData.VanillaJarPath);
+
+            // Fix for Forge: 1.17.x-1.20.3 unable to launch issue
+            if (GameDetails.Kind != EMinecraftKind.FORGE ||
+                VersionHelper.isNewer(VersionData.MinecraftVersion, "1.20.3") ||
+                !VersionHelper.isNewer(VersionData.MinecraftVersion, "1.16.5"))
+                ArgumentBuilder.AddClass(moddedData != null ? VersionData.CustomJarPath! : VersionData.VanillaJarPath);
 
             var arguments = ArgumentBuilder.Build();
             await Task.Delay(250, cancellationToken); // Ensure the progress reporter has time to update before launching

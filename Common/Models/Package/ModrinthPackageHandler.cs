@@ -24,8 +24,11 @@ public class ModrinthPackageHandler: IInstancePackageHandler
     {
         try
         {
-            if (!File.Exists(sourcePath) ||  Path.GetExtension(sourcePath) != ".mrpack")
+            if (!File.Exists(sourcePath) || Path.GetExtension(sourcePath) != ".mrpack")
+            {
+                _logger.Error("Source path does not exist or is not a .mrpack file");
                 return null;
+            }
 
             var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
             var instances = await LauncherHelper.GetInstancesAsync(cancellationToken);

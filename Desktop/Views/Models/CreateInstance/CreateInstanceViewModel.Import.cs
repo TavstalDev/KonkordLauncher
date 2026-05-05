@@ -9,6 +9,8 @@ using CommunityToolkit.Mvvm.Input;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Translation;
+using Tavstal.KonkordLauncher.Core.Helpers.IO;
+using Tavstal.KonkordLauncher.Core.Helpers.Network;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
@@ -114,14 +116,14 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
         {
             _logger.Warn("Invalid import path specified.");
             await _parent.ShowAlertDialogInteraction.Handle(new Alert(
-                TranslationManager.Translate("instance.create.modpack.error.invalid_path.title"),
-                TranslationManager.Translate("instance.create.modpack.error.invalid_path.message"),
+                TranslationManager.Translate("instance.create.import.error.invalid_path.title"),
+                TranslationManager.Translate("instance.create.import.error.invalid_path.message"),
                 EAlertType.Error
             ));
             return;
         }
         
-        var res = new Resolution()
+        var res = new Resolution
         {
             X = (uint)(0.40 * App.ScreenSize.Width),
             Y = (uint)(0.45 * App.ScreenSize.Height)
@@ -134,10 +136,10 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
         }
         else
         {
-            _logger.Warn("Failed to import instance from modpack file.");
+            _logger.Warn("Failed to import instance from file.");
             await _parent.ShowAlertDialogInteraction.Handle(new Alert(
-                TranslationManager.Translate("instance.create.modpack.error.import_failed.title"),
-                TranslationManager.Translate("instance.create.modpack.error.import_failed.message"),
+                TranslationManager.Translate("instance.create.import.error.import_failed.title"),
+                TranslationManager.Translate("instance.create.import.error.import_failed.message"),
                 EAlertType.Error
             ));
         }
@@ -149,14 +151,67 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
         {
             _logger.Warn("Invalid import path specified.");
             await _parent.ShowAlertDialogInteraction.Handle(new Alert(
-                TranslationManager.Translate("instance.create.modpack.error.invalid_path.title"),
-                TranslationManager.Translate("instance.create.modpack.error.invalid_path.message"),
+                TranslationManager.Translate("instance.create.import.error.invalid_path.title"),
+                TranslationManager.Translate("instance.create.import.error.invalid_path.message"),
                 EAlertType.Error
             ));
             return;
         }
 
+        if (!Uri.TryCreate(ImportPath, UriKind.Absolute, out var uri))
+            return;
+        string fileName = Path.GetFileName(uri.LocalPath);
         
+        
+        string tempPath = Path.Combine(PathHelper.TempDir, fileName);
+        try
+        {
+            _parent.OpenReporter();
+            IProgress<double> progress = new Progress<double>(p =>
+            {
+                _parent.ReportProgress(p);
+                _parent.UpdateStatusTranslated("instance.download.file", "instance", p.ToString("0.00"));
+            });
+
+            await HttpHelper.DownloadFileAsync(ImportPath, tempPath, progress, cancellationToken);
+            _parent.CloseReporter();
+
+            var res = new Resolution
+            {
+                X = (uint)(0.40 * App.ScreenSize.Width),
+                Y = (uint)(0.45 * App.ScreenSize.Height)
+            };
+            if (await InstanceHelper.ImportAsync(tempPath, EInstanceProvider.Modrinth, res, null, null, _parent,
+                    cancellationToken) != null)
+            {
+                _parent.CloseReporter();
+                GlobalEvents.InvokeInstancesChanged();
+                await _parent.CloseWindowInteraction.Handle(Unit.Default);
+            }
+            else
+            {
+                _logger.Warn("Failed to import instance from url.");
+                await _parent.ShowAlertDialogInteraction.Handle(new Alert(
+                    TranslationManager.Translate("instance.create.import.error.import_failed.title"),
+                    TranslationManager.Translate("instance.create.import.error.import_failed.message"),
+                    EAlertType.Error
+                ));
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.Error($"Failed to import instance from URL: {ex}");
+            await _parent.ShowAlertDialogInteraction.Handle(new Alert(
+                TranslationManager.Translate("instance.create.import.error.import_failed.title"),
+                TranslationManager.Translate("instance.create.import.error.import_failed.message"),
+                EAlertType.Error
+            ));
+        }
+        finally
+        {
+            if (File.Exists(tempPath))
+                FileSystemHelper.DeleteFile(tempPath);
+        }
     }
     
     private async Task FetchImportPreviewFromFile()

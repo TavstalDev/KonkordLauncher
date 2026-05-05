@@ -244,6 +244,13 @@ public static class DefaultTranslationProvider
         {"instance.create.import.preview.version", "Version:"},
         {"instance.create.import.preview.mod.loader", "Mod loader:"},
         
+        {"instance.create.import.error.invalid_path.title", "Invalid Import Path"},
+        {"instance.create.import.error.invalid_path.message", "The selected file does not exist or is not a valid format. Please select a valid .zip or .mrpack file."},
+        {"instance.create.import.failed.title", "Import Failed"},
+        {"instance.create.import.failed.message", "Failed to import the instance. Please check the file and try again."},
+        {"instance.create.import.error.import_failed.title", "Import Error"},
+        {"instance.create.import.error.import_failed.message", "An error occurred while importing from the URL. Please check the URL and try again."},
+        
         #endregion
 
         #region Edit

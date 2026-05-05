@@ -112,6 +112,8 @@ public static class JavaProcessLauncher
             process.EnableRaisingEvents = true;
             process.ErrorDataReceived += (_, e) =>
             {
+                if (string.IsNullOrEmpty(e.Data))
+                    return;
                 _logger.Error($"[JVM Process Error] {e.Data}");
             };
             process.Exited += (_, _) =>

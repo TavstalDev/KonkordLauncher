@@ -82,7 +82,6 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IProgres
         
         await Custom.InitAsync(settings, versionManifest, cancellationToken);
         await Modpack.InitAsync(versionManifest, cancellationToken);
-        await Import.InitAsync(cancellationToken);
     }
 
     /// <summary>
@@ -92,7 +91,6 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IProgres
     {
         Custom.SetupPipeline();
         Modpack.SetupPipeline();
-        Import.SetupPipeline();
     }
     
     #region Commands

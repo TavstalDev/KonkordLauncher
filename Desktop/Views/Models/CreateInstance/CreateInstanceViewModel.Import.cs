@@ -37,16 +37,6 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
         _parent = parent;
     }
     
-    public void SetupPipeline()
-    {
-        
-    }
-    
-    public async Task InitAsync(CancellationToken cancellationToken = default)
-    {
-        
-    }
-    
     #region Commands
 
     partial void OnImportPathChanged(string? value)

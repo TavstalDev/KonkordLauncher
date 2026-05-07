@@ -21,24 +21,28 @@
 ## TODO
 - [ ] Enchance README
 - [x] Cleanup translations
-- [ ] Add Modrinth support
+- [x] Add Modrinth support
 - [ ] Add CurseForge support
 - - This requires a server-side API due to CurseForge API limitations, so since I have no resources to host a server 24/7 with good network connection, this will be implemented later.
 - [ ] CurseForge API server-side implementation
-- [ ] Implement instance creation with modpacks
-- [ ] Implement instance import/export
+- [x] Implement instance creation with modpacks
+- [x] Implement instance import/export
 - [x] Implement better token encryption for Linux & MacOS
-- [x] Remove sensitive data from log files before 1.7
+- [x] Remove sensitive data from log files before 1.7https://satisfactory.wiki.gg/wiki/Hard_Drive#Scanning
 - [x] Implement a more robust way to install old forge libraries
 - [x] Implement automatic updates for the launcher
   - [ ] Test the updater on Windows, Linux and MacOS
 - [x] Implement patch notes
 - [x] Implement skin selection
 - - [ ] Implement 3D skin preview (this is a big task and will be implemented later)
-- [ ] Resize instance creation window, the whole window should be changed, feels to big
-- [ ] Resize instance edit settings, it feels too big
+- [x] Resize instance creation window, the whole window should be changed, feels to big
+- [x] Resize instance edit settings, it feels too big
 - [ ] Fix java version selection width, it should be scrollable but not like now
 - [ ] Fix light theme
+- [ ] Implement Modrinth
+- - [ ] Mod download and installation
+- - [ ] Resource pack download and installation
+- - [ ] Shader pack download and installation
 
 ## Description
 KonkordLauncher is a free and open-source Minecraft launcher written in C# using .NET 9 and Avalonia UI. It is designed to be lightweight, fast, and user-friendly, providing a seamless experience for launching and managing Minecraft instances.

@@ -70,7 +70,7 @@ public partial class IconSelectorViewModel : KonkordObservableObject
     private async Task InitAsync(CancellationToken cancellationToken = default)
     {
         // Load available icons
-        var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
+        var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken);
         var icons = Directory.GetFiles(settings.Launcher.IconsDirectoryPath);
         foreach (var iconPath in icons)
         {

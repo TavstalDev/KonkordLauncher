@@ -74,7 +74,7 @@ public static class MetaCacheHelper
             response.EnsureSuccessStatusCode();
             var data = await response.Content.ReadAsByteArrayAsync(cancellationToken);
             
-            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
+            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken);
             var cacheDir = settings.Launcher.CacheDirectoryPath;
             Directory.CreateDirectory(cacheDir);
             string imagesDir = Path.Combine(cacheDir, "images");
@@ -116,7 +116,7 @@ public static class MetaCacheHelper
             var response = await ModrinthHelper.GetProjectAsync(id, cancellationToken);
             if (response != null)
             {
-                var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
+                var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken);
                 var cacheDir = settings.Launcher.CacheDirectoryPath;
                 Directory.CreateDirectory(cacheDir);
                 string projectDir = Path.Combine(cacheDir, "projects");
@@ -175,7 +175,7 @@ public static class MetaCacheHelper
 
             _ = Task.Run(async () =>
             {
-                var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
+                var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken);
                 var cacheDir = settings.Launcher.CacheDirectoryPath;
                 Directory.CreateDirectory(cacheDir);
                 string projectDir = Path.Combine(cacheDir, "projects");
@@ -243,7 +243,7 @@ public static class MetaCacheHelper
 
             _ = Task.Run(async () =>
             {
-                var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
+                var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken);
                 var cacheDir = settings.Launcher.CacheDirectoryPath;
                 Directory.CreateDirectory(cacheDir);
                 string projectDir = Path.Combine(cacheDir, "versions");
@@ -303,7 +303,7 @@ public static class MetaCacheHelper
             var response = await ModrinthHelper.SearchModpacksAsync(query, version, categories, offset, cancellationToken);
             if (response != null)
             {
-                var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
+                var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken);
                 var cacheDir = settings.Launcher.CacheDirectoryPath;
                 Directory.CreateDirectory(cacheDir);
                 string searchDir = Path.Combine(cacheDir, "searchs");

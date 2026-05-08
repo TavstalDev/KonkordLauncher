@@ -283,7 +283,7 @@ public partial class AccountsViewModel : KonkordObservableObject
         accountData.Accounts.Add(account);
         await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData, cancellationToken);
         GlobalEvents.InvokeAccountsChanged();
-        var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
+        var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken);
         await SkinService.FetchOfflineSkins(settings.Launcher.CacheDirectoryPath, id, OfflineUsername, cancellationToken);
         
         await CloseWindowInteraction.Handle(Unit.Default);

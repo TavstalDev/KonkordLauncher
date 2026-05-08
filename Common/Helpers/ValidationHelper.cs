@@ -140,7 +140,7 @@ public static class ValidationHelper
         try
         {
             var httpClient = HttpHelper.GetHttpClient();
-            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
+            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken);
             bool refreshManifests = DateTime.Now > settings.CacheRefreshDate;
             
             // Vanilla

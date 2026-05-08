@@ -128,7 +128,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
     /// <param name="cancellationToken">A token used to cancel startup work if initialization is aborted.</param>
     private async Task InitAsync(CancellationToken cancellationToken = default)
     {
-        var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
+        var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken);
 
         // Set initial status
         UpdateStatusTranslated("startup.progress.initializing");

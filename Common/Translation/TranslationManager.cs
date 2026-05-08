@@ -49,7 +49,7 @@ public static class TranslationManager
         {
             progressReporter?.UpdateStatus("Initializing translations...");
             _initialized = true;
-            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
+            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken);
 
             progressReporter?.UpdateStatus("Reading current translations...");
             string locale = settings.Launcher.Language;
@@ -132,7 +132,7 @@ public static class TranslationManager
     {
         try
         {
-            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
+            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken);
             string localePath = Path.Combine(settings.Launcher.TranslationsDirectoryPath, $"{language}.json");
             if (File.Exists(localePath))
                 return true;

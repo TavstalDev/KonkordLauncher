@@ -73,7 +73,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IProgres
     {
         await Task.Yield();
         
-        var settings = await Task.Run(() => LauncherHelper.GetLauncherSettingsAsync(cancellationToken), cancellationToken);
+        var settings = await Task.Run(() => LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken), cancellationToken);
         var manifestPath = settings.Launcher.GetVanillaManifestPath();
         var versionManifest = await Task.Run(() => ManifestHelper.GetMinecraftManifestAsync(manifestPath, cancellationToken), cancellationToken);
 

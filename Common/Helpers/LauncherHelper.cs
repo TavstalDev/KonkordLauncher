@@ -3,6 +3,7 @@ using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Config;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
+using Tavstal.KonkordLauncher.Core.Models;
 
 namespace Tavstal.KonkordLauncher.Common.Helpers;
 
@@ -42,12 +43,20 @@ public static class LauncherHelper
     /// Asynchronously retrieves the launcher settings from the configuration file.
     /// If the file does not exist or is invalid, a new configuration is created and saved.
     /// </summary>
+    /// <param name="screenResolution">An optional screen resolution to set in the configuration if a new one is created.</param>
+    /// <param name="cancellationToken">Optional <see cref="CancellationToken"/> that can be used by callers to cancel the asynchronous operation.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the launcher settings as a <see cref="CoreConfig"/> object.</returns>
-    public static async Task<CoreConfig> GetLauncherSettingsAsync(CancellationToken cancellationToken = default)
+    public static async Task<CoreConfig> GetLauncherSettingsAsync(Resolution? screenResolution = null, CancellationToken cancellationToken = default)
     {
         if (!File.Exists(PathHelper.LauncherConfigPath))
         {
             CoreConfig result = new CoreConfig();
+            if (screenResolution != null)
+            {
+                result.Minecraft.WindowWidth = screenResolution.X;
+                result.Minecraft.WindowHeight = screenResolution.Y;
+            }
+
             await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherConfigPath, result, cancellationToken);
             return result;
         }
@@ -56,6 +65,11 @@ public static class LauncherHelper
         if (readResult == null)
         {
             CoreConfig result = new CoreConfig();
+            if (screenResolution != null)
+            {
+                result.Minecraft.WindowWidth = screenResolution.X;
+                result.Minecraft.WindowHeight = screenResolution.Y;
+            }
             File.Move(PathHelper.LauncherConfigPath, PathHelper.LauncherConfigPath + ".bak", true);
             await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherConfigPath, result, cancellationToken);
             return result;

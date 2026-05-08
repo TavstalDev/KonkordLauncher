@@ -112,7 +112,7 @@ public partial class MainViewModel : KonkordObservableObject
         IsLoading = true;
         try
         {
-            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
+            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken);
             NextUpdate = settings.Launcher.NextUpdateCheck;
             NextCacheRefresh = settings.CacheRefreshDate;
             var accountData = await LauncherHelper.GetAccountDataAsync(cancellationToken);

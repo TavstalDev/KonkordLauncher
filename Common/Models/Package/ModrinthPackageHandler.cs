@@ -30,7 +30,7 @@ public class ModrinthPackageHandler: IInstancePackageHandler
                 return null;
             }
 
-            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
+            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken);
             var instances = await LauncherHelper.GetInstancesAsync(cancellationToken);
             Instance result = new Instance
             {

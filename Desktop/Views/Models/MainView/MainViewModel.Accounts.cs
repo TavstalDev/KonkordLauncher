@@ -204,7 +204,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
                 return;
 
             string skinId = Guid.NewGuid().ToString();
-            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
+            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken);
             string skinDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins", SelectedAccount.Id, skinId);
             if (!Directory.Exists(skinDir))
                 Directory.CreateDirectory(skinDir);
@@ -255,7 +255,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             if (SelectedAccount == null)
                 return;
             
-            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
+            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken);
             string skinPath = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins", SelectedAccount.Id, model.Id, "texture.png");
             if (!File.Exists(skinPath))
             {
@@ -479,7 +479,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         SelectedAccount = selectedAccount;
         if (SelectedAccount?.MojangProfile != null)
         {
-            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
+            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken);
             string skinsDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins");
             string capesDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "capes");
 
@@ -557,7 +557,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
     private async Task UpdateSelectedAccountAvatarAsync(CancellationToken cancellationToken = default)
     {
         AccountAvatar?.Dispose();
-        var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken);
+        var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken);
         string skinsDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins");
         string? avatarPath;
         if (SelectedAccount != null)

@@ -30,12 +30,16 @@ public partial class App : Application
     #region Screen Size
     private static PixelSize _screenSize = new(1920, 1080);
     public static PixelSize ScreenSize => _screenSize;
+    private static Resolution _screenResolution = new(1920, 1080);
+    public static Resolution ScreenResolution => _screenResolution;
     
     public static decimal ScreenWidth => _screenSize.Width;
     public static decimal ScreenHeight => _screenSize.Height;
     public static void SetScreenSize(PixelSize screenSize)
     {
         _screenSize = screenSize;
+        _screenResolution.X = (uint)(0.40 * screenSize.Width); 
+        _screenResolution.Y = (uint)(0.45 * screenSize.Height);
     }
     #endregion
 

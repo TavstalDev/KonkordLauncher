@@ -113,12 +113,7 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
             return;
         }
         
-        var res = new Resolution
-        {
-            X = (uint)(0.40 * App.ScreenSize.Width),
-            Y = (uint)(0.45 * App.ScreenSize.Height)
-        };
-        if (await InstanceHelper.ImportAsync(ImportPath, EInstanceProvider.Modrinth, res, null, null, _parent, cancellationToken) != null)
+        if (await InstanceHelper.ImportAsync(ImportPath, EInstanceProvider.Modrinth, App.ScreenResolution, null, null, _parent, cancellationToken) != null)
         {
             _parent.CloseReporter();
             GlobalEvents.InvokeInstancesChanged();
@@ -165,13 +160,8 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
 
             await HttpHelper.DownloadFileAsync(ImportPath, tempPath, progress, cancellationToken);
             _parent.CloseReporter();
-
-            var res = new Resolution
-            {
-                X = (uint)(0.40 * App.ScreenSize.Width),
-                Y = (uint)(0.45 * App.ScreenSize.Height)
-            };
-            if (await InstanceHelper.ImportAsync(tempPath, EInstanceProvider.Modrinth, res, null, null, _parent,
+            
+            if (await InstanceHelper.ImportAsync(tempPath, EInstanceProvider.Modrinth, App.ScreenResolution, null, null, _parent,
                     cancellationToken) != null)
             {
                 _parent.CloseReporter();

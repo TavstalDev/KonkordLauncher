@@ -180,14 +180,8 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
             
             await HttpHelper.DownloadFileAsync(file.Url, tempPath, prog);
             
-            var res = new Resolution
-            {
-                X = (uint)(0.40 * App.ScreenSize.Width),
-                Y = (uint)(0.45 * App.ScreenSize.Height)
-            };
-            
             _parent.CloseReporter();
-            if (await InstanceHelper.ImportAsync(tempPath, EInstanceProvider.Modrinth, res, InstanceName, null, _parent) != null)
+            if (await InstanceHelper.ImportAsync(tempPath, EInstanceProvider.Modrinth, App.ScreenResolution, InstanceName, null, _parent) != null)
             {
                 _parent.CloseReporter();
                 GlobalEvents.InvokeInstancesChanged();

@@ -4,6 +4,7 @@ using Tavstal.KonkordLauncher.Core.Helpers.Network;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints.Modding;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
+using Tavstal.KonkordLauncher.Core.Models.Instance;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Fabric;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta.Library;

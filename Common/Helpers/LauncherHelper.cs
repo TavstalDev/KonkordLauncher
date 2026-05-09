@@ -3,7 +3,7 @@ using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Config;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
-using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Core.Models.Instance;
 
 namespace Tavstal.KonkordLauncher.Common.Helpers;
 
@@ -12,33 +12,6 @@ namespace Tavstal.KonkordLauncher.Common.Helpers;
 /// </summary>
 public static class LauncherHelper
 {
-    /// <summary>
-    /// Retrieves the launcher settings from the configuration file.
-    /// If the file does not exist or is invalid, a new configuration is created and saved.
-    /// </summary>
-    /// <returns>The launcher settings as a <see cref="CoreConfig"/> object.</returns>
-    [Obsolete("This method is synchronous and may cause UI freezes. Use GetLauncherSettingsAsync instead.")]
-    public static CoreConfig GetLauncherSettings()
-    {
-        if (!File.Exists(PathHelper.LauncherConfigPath))
-        {
-            CoreConfig result = new CoreConfig();
-            JsonHelper.WriteJsonFile(PathHelper.LauncherConfigPath, result);
-            return result;
-        }
-
-        var readResult = JsonHelper.ReadJsonFile<CoreConfig>(PathHelper.LauncherConfigPath);
-        if (readResult == null)
-        {
-            CoreConfig result = new CoreConfig();
-            File.Move(PathHelper.LauncherConfigPath, PathHelper.LauncherConfigPath + ".bak", true);
-            JsonHelper.WriteJsonFile(PathHelper.LauncherConfigPath, result);
-            return result;
-        }
-
-        return readResult;
-    }
-
     /// <summary>
     /// Asynchronously retrieves the launcher settings from the configuration file.
     /// If the file does not exist or is invalid, a new configuration is created and saved.
@@ -169,6 +142,7 @@ public static class LauncherHelper
     /// If the file does not exist, an empty list is returned.
     /// </summary>
     /// <param name="cacheDir">The directory where the GitHub cache file is located.</param>
+    /// <param name="cancellationToken">Optional <see cref="CancellationToken"/> that can be used by callers to cancel the asynchronous operation.</param>
     /// <returns>A list of <see cref="PatchNote"/> objects containing the patch notes.</returns>
     public static async Task<List<PatchNote>> GetPatchNotesAsync(string cacheDir, CancellationToken cancellationToken = default)
     {

@@ -1,4 +1,4 @@
-﻿namespace Tavstal.KonkordLauncher.Core.Models;
+﻿namespace Tavstal.KonkordLauncher.Core.Models.Instance;
 
 /// <summary>
 /// Represents the details of a specific version of the Minecraft launcher.

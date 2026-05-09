@@ -1,4 +1,5 @@
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Core.Models.Instance;
 
 namespace Tavstal.KonkordLauncher.Common.Models.Package;
 

@@ -4,6 +4,7 @@ using Tavstal.KonkordLauncher.Core.Helpers.Domain;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Instances;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
+using Tavstal.KonkordLauncher.Core.Models.Instance;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Modern;
 
 namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;

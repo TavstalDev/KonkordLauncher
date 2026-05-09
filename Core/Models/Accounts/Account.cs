@@ -4,7 +4,7 @@ using Tavstal.KonkordLauncher.Core.Encryption;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
 
-namespace Tavstal.KonkordLauncher.Core.Models;
+namespace Tavstal.KonkordLauncher.Core.Models.Accounts;
 
 /// <summary>
 /// Represents an account with properties such as ID, UUID, display name, account type, 

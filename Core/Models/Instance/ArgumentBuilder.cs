@@ -3,7 +3,7 @@ using Tavstal.KonkordLauncher.Core.Helpers.Platform;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 
-namespace Tavstal.KonkordLauncher.Core.Models;
+namespace Tavstal.KonkordLauncher.Core.Models.Instance;
 
 /// <summary>
 /// Builds JVM and game argument strings for launching Minecraft instances.

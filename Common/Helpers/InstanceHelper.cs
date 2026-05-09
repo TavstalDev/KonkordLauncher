@@ -1,6 +1,7 @@
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Package;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Core.Models.Instance;
 
 namespace Tavstal.KonkordLauncher.Common.Helpers;
 

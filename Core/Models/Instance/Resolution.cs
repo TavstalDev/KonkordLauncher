@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
-namespace Tavstal.KonkordLauncher.Core.Models;
+namespace Tavstal.KonkordLauncher.Core.Models.Instance;
 
 /// <summary>
 /// Represents the resolution of a display or window, defined by its width (X) and height (Y).

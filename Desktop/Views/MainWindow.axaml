@@ -11,6 +11,7 @@
     xmlns:models1="clr-namespace:Tavstal.KonkordLauncher.Common.Models;assembly=Common"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
     xmlns:domain="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Domain"
+    xmlns:accounts="clr-namespace:Tavstal.KonkordLauncher.Core.Models.Accounts;assembly=Core"
     Title="{lang:Translate main.title}"
     Width="950"
     Height="600"
@@ -285,7 +286,7 @@
             </Border>
         </DataTemplate>
         <!--  Account Card  -->
-        <DataTemplate DataType="core:Account">
+        <DataTemplate DataType="accounts:Account">
             <Border Classes="AccountsCard" Classes.selected="{Binding IsSelected}">
                 <Grid ColumnDefinitions="*, Auto">
                     <!--  Name & Type  -->

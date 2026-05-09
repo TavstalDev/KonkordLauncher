@@ -8,17 +8,14 @@ using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Network;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Core.Models.Instance;
 
 namespace Tavstal.KonkordLauncher.Common.Models.Package;
 
 public class ModrinthPackageHandler: IInstancePackageHandler
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(ModrinthPackageHandler));
-    /*
-     * ARCHIVE LAYOUT:
-     *  overrides - containing the game directory 
-     *  modrinth.index.json - info about downloaded content from modrinth
-     */
+    
     
     public async Task<Instance?> ImportAsync(string sourcePath, Resolution resolution, string? customName = null, string? customGroup = null, IProgressReporter? progress = null, CancellationToken cancellationToken = default)
     {
@@ -96,26 +93,26 @@ public class ModrinthPackageHandler: IInstancePackageHandler
                     return null;
                 }
                 
-                result.MinecraftVersion = dependenices["minecraft"]?.ToString();
+                result.MinecraftVersion = dependenices["minecraft"]?.ToString()!;
                 if (dependenices["fabric-loader"] != null)
                 {
                     result.Kind = EMinecraftKind.FABRIC;
-                    result.CustomVersion = dependenices["fabric-loader"]?.ToString();
+                    result.CustomVersion = dependenices["fabric-loader"]?.ToString()!;
                 } 
                 else if (dependenices["forge"] != null)
                 {
                     result.Kind = EMinecraftKind.FORGE;
-                    result.CustomVersion = dependenices["forge"]?.ToString();
+                    result.CustomVersion = dependenices["forge"]?.ToString()!;
                 }
                 else if (dependenices["neoforge"] != null)
                 {
                     result.Kind = EMinecraftKind.NEOFORGE;
-                    result.CustomVersion = dependenices["neoforge"]?.ToString();
+                    result.CustomVersion = dependenices["neoforge"]?.ToString()!;
                 }
                 else if (dependenices["quilt-loader"] != null)
                 {
                     result.Kind = EMinecraftKind.QUILT;
-                    result.CustomVersion = dependenices["quilt-loader"]?.ToString();
+                    result.CustomVersion = dependenices["quilt-loader"]?.ToString()!;
                 }
 
                 result.GameDirectory = Path.Combine(settings.Launcher.InstancesDirectoryPath, result.Name);
@@ -199,7 +196,7 @@ public class ModrinthPackageHandler: IInstancePackageHandler
     {
         try
         {
-
+            // TODO
             return true;
         }
         catch (Exception ex)

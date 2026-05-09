@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 using SkiaSharp;
 using Tavstal.KonkordLauncher.Core.Helpers.Network;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Core.Models.Accounts;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
 
 namespace Tavstal.KonkordLauncher.Core.Services;

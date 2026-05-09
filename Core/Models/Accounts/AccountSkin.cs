@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
-namespace Tavstal.KonkordLauncher.Core.Models;
+namespace Tavstal.KonkordLauncher.Core.Models.Accounts;
 
 /// <summary>
 /// Represents an account skin with associated properties such as ID, model, cape ID, and Mojang ID.

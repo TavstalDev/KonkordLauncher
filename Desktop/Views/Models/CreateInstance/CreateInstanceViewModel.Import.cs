@@ -145,9 +145,8 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
 
         if (!Uri.TryCreate(ImportPath, UriKind.Absolute, out var uri))
             return;
+        
         string fileName = Path.GetFileName(uri.LocalPath);
-        
-        
         string tempPath = Path.Combine(PathHelper.TempDir, fileName);
         try
         {

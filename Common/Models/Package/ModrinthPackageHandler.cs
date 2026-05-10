@@ -117,6 +117,8 @@ public class ModrinthPackageHandler: IInstancePackageHandler
 
                 result.GameDirectory = Path.Combine(settings.Launcher.InstancesDirectoryPath, result.Name);
                 Directory.CreateDirectory(result.GameDirectory);
+                string resourceFile = result.GetResourceConfigPath();
+                List<InstanceResource> resources = [];
                 
                 // Copy overrides
                 string overridesDir = Path.Combine(tempDir, "overrides");
@@ -148,12 +150,33 @@ public class ModrinthPackageHandler: IInstancePackageHandler
                     }
                     
                     string finalPath = Path.Combine(result.GameDirectory, path);
+                    string fileName =  Path.GetFileName(finalPath);
                     string? directory = Path.GetDirectoryName(finalPath);
                     
                     var prog = new Progress<double>(p =>
                     {
                         progress?.ReportProgress(p);
                         progress?.UpdateStatusTranslated("instance.download.file", path, p.ToString("0.00"));
+                    });
+                    
+                    EResourceType resourceType = EResourceType.RESOURCE_PACK;
+                    if (path.StartsWith("mods"))
+                        resourceType = EResourceType.MOD;
+                    else if (path.StartsWith("shader"))
+                        resourceType = EResourceType.SHADER_PACK;
+                    
+                    resources.Add(new InstanceResource
+                    {
+                        Name = fileName,
+                        Path = path,
+                        Url = url,
+                        Type = resourceType,
+                        Platform = EPlatformType.Modrinth,
+                        FileSize = f["size"]?.ToObject<long>() ?? 0,
+                        Sha1 = f["hashes"]?["sha1"]?.ToString() ?? string.Empty,
+                        Sha512 = f["hashes"]?["sha512"]?.ToString() ?? string.Empty,
+                        Client = f["env"]?["client"]?.ToString() ?? string.Empty,
+                        Server = f["env"]?["server"]?.ToString() ?? string.Empty,
                     });
 
                     return Task.Run(async () =>
@@ -165,12 +188,14 @@ public class ModrinthPackageHandler: IInstancePackageHandler
                         await HttpHelper.DownloadFileAsync(url, finalPath, prog, cancellationToken);
                     }, cancellationToken);
                 });
-                
+
                 if (tasks != null)
                     await Task.WhenAll(tasks);
-                
+
                 instances.Add(result);
                 await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances, cancellationToken);
+                if (resources.Count > 0)
+                    await JsonHelper.WriteJsonFileAsync(resourceFile, resources, cancellationToken);
             }
             catch (Exception ex)
             {

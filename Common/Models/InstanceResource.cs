@@ -22,5 +22,5 @@ public class InstanceResource
     
     public EResourceType Type { get; set; }
     
-    public int FileSize { get; set; }
+    public long FileSize { get; set; }
 }

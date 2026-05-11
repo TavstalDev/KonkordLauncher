@@ -47,20 +47,22 @@ public static class InstanceHelper
     /// <param name="instance">The instance to export (domain model).</param>
     /// <param name="targetPath">Destination file path for the exported package (e.g. /path/to/out.zip).</param>
     /// <param name="provider">Which provider/format to use for the export (Modrinth, CurseForge).</param>
+    /// <param name="exportVersion">Version to set in the exported package's metadata (if supported by provider).</param>
+    /// <param name="summary">Summary/description to set in the exported package's metadata (if supported by provider).</param>
     /// <param name="cancellationToken">Token used to cancel the export operation.</param>
     /// <returns>A task that completes when the export has finished.</returns>
-    public static async Task ExportAsync(Instance instance, string targetPath, EInstanceProvider provider, CancellationToken cancellationToken = default)
+    public static async Task ExportAsync(Instance instance, string targetPath, EInstanceProvider provider, string exportVersion = "1.0.0", string summary = "", CancellationToken cancellationToken = default)
     {
         switch (provider)
         {
             case EInstanceProvider.Modrinth:
             {
-                await _modrinthHandler.ExportAsync(instance, targetPath, null, cancellationToken);
+                await _modrinthHandler.ExportAsync(instance, targetPath, exportVersion, summary, null, cancellationToken);
                 break;
             }
             case EInstanceProvider.CurseForge:
             {
-                await _curseForgeHandler.ExportAsync(instance, targetPath, null, cancellationToken);
+                await _curseForgeHandler.ExportAsync(instance, targetPath, exportVersion, summary, null, cancellationToken);
                 break;
             }
         }

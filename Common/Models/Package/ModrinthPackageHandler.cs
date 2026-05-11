@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models.Config;
 using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
+using Tavstal.KonkordLauncher.Common.Models.Package.Modrinth;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Network;
@@ -216,18 +217,57 @@ public class ModrinthPackageHandler: IInstancePackageHandler
         }
     }
 
-    public async Task<bool> ExportAsync(Instance instance, string targetPath, IProgressReporter? progress = null,
+    public async Task<bool> ExportAsync(Instance instance, string targetPath, string exportVersion = "1.0.0", string summary = "", IProgressReporter? progress = null,
         CancellationToken cancellationToken = default)
     {
+        string tmpDir = Path.Combine(PathHelper.TempDir, Path.GetTempFileName());
+        Directory.CreateDirectory(tmpDir);
         try
-        {
-            // TODO
+        {   
+            string indexJson = Path.Combine(tmpDir, "modrinth.index.json");
+            string overridesDir = Path.Combine(tmpDir, "overrides");
+            Directory.CreateDirectory(overridesDir);
+
+            ModrinthPackageIndex packageIndex = new()
+            {
+                Name = instance.Name,
+                VersionId = exportVersion,
+                Summary = summary,
+                Dependencies =
+                {
+                    ["minecraft"] = instance.MinecraftVersion
+                }
+            };
+            if (!string.IsNullOrEmpty(instance.CustomVersion))
+            {
+                switch (instance.Kind)
+                {
+                    case EMinecraftKind.FABRIC:
+                        packageIndex.Dependencies["fabric-loader"] = instance.CustomVersion;
+                        break;
+                    case EMinecraftKind.FORGE:
+                        packageIndex.Dependencies["forge"] = instance.CustomVersion;
+                        break;
+                    case EMinecraftKind.NEOFORGE:
+                        packageIndex.Dependencies["neoforge"] = instance.CustomVersion;
+                        break;
+                    case EMinecraftKind.QUILT:
+                        packageIndex.Dependencies["quilt-loader"] = instance.CustomVersion;
+                        break;
+                }
+            }
+
+
             return true;
         }
         catch (Exception ex)
         {
             _logger.Error($"Failed to export modrinth package: {ex}");
             return false;
+        }
+        finally
+        {
+            FileSystemHelper.DeleteDirectory(tmpDir);
         }
     }
 }

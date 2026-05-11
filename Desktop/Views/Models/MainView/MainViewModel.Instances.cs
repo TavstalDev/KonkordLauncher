@@ -281,7 +281,8 @@ public partial class MainViewModel_Instances : KonkordObservableObject
 
         string exportPath = Path.Combine(directoryResult, instance.Name + "-modrinth.mrpack");
 
-        await InstanceHelper.ExportAsync(instance.getInstance(), exportPath, EInstanceProvider.Modrinth, cancellationToken);
+        // TODO: Add export window
+        await InstanceHelper.ExportAsync(instance.getInstance(), exportPath, EInstanceProvider.Modrinth, "1.0.0", "", cancellationToken);
     }
 
     /// <summary>
@@ -301,7 +302,8 @@ public partial class MainViewModel_Instances : KonkordObservableObject
 
         string exportPath = Path.Combine(directoryResult, instance.Name + "-curseforge.zip");
 
-        await InstanceHelper.ExportAsync(instance.getInstance(), exportPath, EInstanceProvider.CurseForge, cancellationToken);
+        // TODO: Add export window
+        await InstanceHelper.ExportAsync(instance.getInstance(), exportPath, EInstanceProvider.CurseForge, "1.0.0", "", cancellationToken);
     }
 
     /// <summary>

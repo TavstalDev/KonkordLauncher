@@ -14,6 +14,28 @@
         <Setter Property="TextAlignment" Value="Center" />
     </Style>
     
+    <!-- Title Border -->
+    <Style Selector="Border.ModalTitleBorder">
+        <Setter Property="BorderBrush" Value="{DynamicResource border-one}" />
+        <Setter Property="BorderThickness" Value="0, 0, 0, 1" />
+        <Setter Property="Padding" Value="20, 0, 20, 20" />
+    </Style>
+    <Style Selector="Border.ModalTitleBorder > StackPanel">
+        <Setter Property="Spacing" Value="5" />
+    </Style>
+    <Style Selector="Border.ModalTitleBorder > TextBlock, Border.ModalTitleBorder > StackPanel > TextBlock">
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontWeight" Value="500" />
+        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
+    </Style>
+    <Style Selector="TextBlock.ModalSubTitle">
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="400" />
+        <Setter Property="Foreground" Value="{DynamicResource text-faded}" />
+    </Style>
+    
     <!-- Tab Style -->
     <Style Selector="TabControl.ModalTab">
         <Setter Property="CornerRadius" Value="8" />

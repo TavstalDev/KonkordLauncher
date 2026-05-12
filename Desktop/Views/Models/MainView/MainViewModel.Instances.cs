@@ -275,14 +275,14 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         if (instance == null)
             return;
 
-        var directoryResult = await _parent.OpenFolderPickerInteraction.Handle(Unit.Default);
+        /*var directoryResult = await _parent.OpenFolderPickerInteraction.Handle(Unit.Default);
         if (string.IsNullOrEmpty(directoryResult))
             return;
 
         string exportPath = Path.Combine(directoryResult, instance.Name + "-modrinth.mrpack");
-
-        // TODO: Add export window
-        await InstanceHelper.ExportAsync(instance.getInstance(), exportPath, EInstanceProvider.Modrinth, "1.0.0", "", cancellationToken);
+        
+        await InstanceHelper.ExportAsync(instance.getInstance(), exportPath, EInstanceProvider.Modrinth, "1.0.0", "", cancellationToken);*/
+        await _parent.ExportModrinthInstanceInteraction.Handle(instance.getInstance());
     }
 
     /// <summary>
@@ -296,14 +296,14 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         if (instance == null)
             return;
 
-        var directoryResult = await _parent.OpenFolderPickerInteraction.Handle(Unit.Default);
+        /*var directoryResult = await _parent.OpenFolderPickerInteraction.Handle(Unit.Default);
         if (string.IsNullOrEmpty(directoryResult))
             return;
 
         string exportPath = Path.Combine(directoryResult, instance.Name + "-curseforge.zip");
-
-        // TODO: Add export window
-        await InstanceHelper.ExportAsync(instance.getInstance(), exportPath, EInstanceProvider.CurseForge, "1.0.0", "", cancellationToken);
+        
+        await InstanceHelper.ExportAsync(instance.getInstance(), exportPath, EInstanceProvider.CurseForge, "1.0.0", "", cancellationToken);*/
+        await _parent.ExportCurseForgeInstanceInteraction.Handle(instance.getInstance());
     }
 
     /// <summary>

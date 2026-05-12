@@ -127,7 +127,7 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
                 window.Show();
                 _logWindows[instanceId] = window;
                 action.SetOutput(Unit.Default);
-            });
+            }).DisposeWith(disposables);
             DataContext.CloseLogsWindowInteraction.RegisterHandler(action =>
             {
                 var window = _logWindows.GetValueOrDefault(action.Input);
@@ -135,31 +135,45 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
                 if (window != null)
                     _logWindows.Remove(action.Input);
                 action.SetOutput(Unit.Default);
-            });
+            }).DisposeWith(disposables);
             DataContext.ShowTextInputDialogInteraction.RegisterHandler(async action =>
             {
                 var dialog = new InputWindow(action.Input);
                 var result = await dialog.ShowDialog<string?>(this);
                 action.SetOutput(result);
-            });
+            }).DisposeWith(disposables);
             DataContext.ShowIconSelectorDialogInteraction.RegisterHandler(async action =>
             {
                 var dialog = new IconSelectorWindow();
                 var result = await dialog.ShowDialog<string?>(this);
                 action.SetOutput(result);
-            });
+            }).DisposeWith(disposables);
             DataContext.UpdateSettingsTabButtonInteraction.RegisterHandler(action =>
             {
                 HandleSettingsTabChange(action.Input);
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
-            });
+            }).DisposeWith(disposables);
             DataContext.SwitchAboutTabInteractionInteraction.RegisterHandler(action =>
             {
                 HandleAboutTabChange(action.Input);
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
-            });
+            }).DisposeWith(disposables);
+            DataContext.ExportModrinthInstanceInteraction.RegisterHandler(async action =>
+            {
+                var instance = action.Input;
+                ExportWindow exportWindow = new ExportWindow(instance, EInstanceProvider.Modrinth);
+                await exportWindow.ShowDialog(this);
+                action.SetOutput(Unit.Default);
+            }).DisposeWith(disposables);
+            DataContext.ExportCurseForgeInstanceInteraction.RegisterHandler(async action =>
+            {
+                var instance = action.Input;
+                ExportWindow exportWindow = new ExportWindow(instance, EInstanceProvider.CurseForge);
+                await exportWindow.ShowDialog(this);
+                action.SetOutput(Unit.Default);
+            }).DisposeWith(disposables);
         });
         
         if (Design.IsDesignMode)

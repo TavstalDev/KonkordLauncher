@@ -77,6 +77,8 @@ public partial class MainViewModel : KonkordObservableObject
     public Interaction<Unit, string?> ShowIconSelectorDialogInteraction { get; } = new();
     public Interaction<ESettingsTab, Unit> UpdateSettingsTabButtonInteraction { get; } = new();
     public Interaction<EAboutTab, Unit> SwitchAboutTabInteractionInteraction { get; } = new();
+    public Interaction<Instance, Unit> ExportModrinthInstanceInteraction { get; } = new();
+    public Interaction<Instance, Unit> ExportCurseForgeInstanceInteraction { get; } = new();
     #endregion
     
     [ObservableProperty] private bool _isLoading;

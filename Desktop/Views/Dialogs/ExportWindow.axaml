@@ -1,0 +1,312 @@
+<Window
+    x:Class="Tavstal.KonkordLauncher.Desktop.Views.Dialogs.ExportWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
+    xmlns:converters="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Avalonia.Converters"
+    xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models"
+    xmlns:avalonia="clr-namespace:LoadingIndicators.Avalonia;assembly=LoadingIndicators.Avalonia"
+    Title="KonkordLauncher - Export Instance"
+    Width="600"
+    Height="500"
+    MinWidth="600"
+    MinHeight="500"
+    d:DesignHeight="500"
+    d:DesignWidth="600"
+    x:DataType="vm:ExportViewModel"
+    Background="Transparent"
+    CanResize="True"
+    CornerRadius="14"
+    ExtendClientAreaToDecorationsHint="True"
+    Icon="avares://Desktop/Assets/Images/logo.png"
+    ShowInTaskbar="False"
+    WindowDecorations="None"
+    TransparencyLevelHint="Transparent"
+    UseLayoutRounding="True"
+    WindowStartupLocation="CenterScreen"
+    mc:Ignorable="d">
+
+    <Window.Resources>
+        <converters:FileIconConverter x:Key="FileIconConverter" />
+    </Window.Resources>
+    
+    <Grid>
+        <!--  Main window body  -->
+        <Border
+            Background="{DynamicResource base-200}"
+            BorderBrush="{DynamicResource border-one}"
+            BorderThickness="1"
+            CornerRadius="14"
+            PointerPressed="DragStart_PointerPressed">
+            <Grid RowDefinitions="Auto, *">
+                <!--  Window Controls  -->
+                <Border HorizontalAlignment="Stretch" PointerPressed="DragStart_PointerPressed">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <!-- Window Title  -->
+                        <TextBlock Classes="WindowTitle" Text="{Binding $parent[Window].Title}" />
+                        
+                        <!--  Window Buttons  -->
+                        <StackPanel Grid.Column="1" Classes="WindowBtnPanel">
+                            <!--  MINIMIZE  -->
+                            <Button
+                                Classes="WindowBtn WarningBtn"
+                                Command="{Binding MinimizeWindowCommand}"
+                                ToolTip.Tip="{lang:Translate main.window.minimize}" />
+                            <!--  MAXIMIZE / RESTORE  -->
+                            <Button
+                                Classes="WindowBtn SuccessBtn"
+                                Command="{Binding MaximizeWindowCommand}"
+                                IsEnabled="{Binding $parent[Window].CanResize}"
+                                ToolTip.Tip="{lang:Translate main.window.maximize}" />
+                            <!--  CLOSE  -->
+                            <Button
+                                Classes="WindowBtn ErrorBtn"
+                                Command="{Binding CloseWindowCommand}"
+                                ToolTip.Tip="{lang:Translate main.window.close}" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+                
+                <!--  Main Content  -->
+                <Grid Grid.Row="1" RowDefinitions="Auto, *">
+                    <!--  Title  -->
+                    <Border Classes="ModalTitleBorder">
+                        <StackPanel>
+                            <TextBlock Text="Export Instance" />
+                            <TextBlock Classes="ModalSubTitle" Text="Create a distributable package with selected files and metadata."></TextBlock>
+                        </StackPanel>
+                    </Border>
+                    
+                    <Grid Grid.Row="1" RowDefinitions="*, Auto">
+                        <!-- Content -->
+                        <ScrollViewer Margin="25,20,25,0">
+                            <Grid Classes="SettingsWrapper" RowDefinitions="Auto, Auto, Auto">
+                                <!--  Basic Information  -->
+                                <Border Classes="SettingsCategoryBorder">
+                                    <Grid RowDefinitions="Auto, Auto, Auto">
+                                        <!--  Category Title  -->
+                                        <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.category.information.title}" />
+
+                                        <!--  Name & Version  -->
+                                        <Grid
+                                            Grid.Row="1"
+                                            Margin="5"
+                                            ColumnDefinitions="*,*"
+                                            ColumnSpacing="20">
+                                            
+                                            <!--  Name  -->
+                                            <Grid
+                                                Grid.Column="0"
+                                                VerticalAlignment="Center"
+                                                RowDefinitions="Auto, Auto"
+                                                RowSpacing="8">
+                                                <!--  Text  -->
+                                                <TextBlock Classes="TextInput" Text="Name" />
+                                                <!--  Input  -->
+                                                <TextBox
+                                                    Grid.Row="1"
+                                                    Classes="TextInput"
+                                                    Text="{Binding InstanceName}"
+                                                    PlaceholderText="My Instance" />
+                                            </Grid>
+                                            
+                                            <!--  Version  -->
+                                            <Grid
+                                                Grid.Column="1"
+                                                VerticalAlignment="Center"
+                                                RowDefinitions="Auto, Auto"
+                                                RowSpacing="8">
+                                                <!--  Text  -->
+                                                <TextBlock Classes="TextInput" Text="Version" />
+                                                <!--  Input  -->
+                                                <TextBox
+                                                    Grid.Row="1"
+                                                    Classes="TextInput"
+                                                    Text="{Binding InstanceVersion}"
+                                                    PlaceholderText="1.0.0" />
+                                            </Grid>
+                                        </Grid>
+                                        
+                                        <!-- Summary -->
+                                        <Grid Grid.Row="2"
+                                            VerticalAlignment="Center"
+                                            RowDefinitions="Auto, Auto"
+                                            RowSpacing="8"
+                                            Margin="5">
+                                            <!--  Text  -->
+                                            <TextBlock Classes="TextInput" Text="Summary" />
+                                            <!--  Input  -->
+                                            <TextBox Grid.Row="1"
+                                                MinHeight="128"
+                                                MaxLines="512"
+                                                Text="{Binding InstanceSummary}"
+                                                TextWrapping="Wrap" />
+                                        </Grid>
+                                    </Grid>
+                                </Border>
+                                
+                                <!-- Content selection  -->
+                                <Border Grid.Row="1" Classes="SettingsCategoryBorder">
+                                    <Grid RowDefinitions="Auto, Auto, Auto">
+                                        <!--  Category Title  -->
+                                        <TextBlock Classes="SettingsCategoryText" Text="EXPORT SELECTION" />
+                                        
+                                        <!-- Loading Indicator -->
+                                        <avalonia:LoadingIndicator Grid.Row="1"
+                                                                   Height="120"
+                                                                   Foreground="{DynamicResource primary-content}"
+                                                                   IsVisible="{Binding !IsInitialized}"
+                                                                   IsActive="{Binding !IsInitialized}"
+                                                                   Mode="Arc"
+                                                                   SpeedRatio="1.2"
+                                                                   VerticalAlignment="Center"/>
+                                        
+                                        <!-- Tree View -->
+                                        <TreeView Grid.Row="1" IsVisible="{Binding IsInitialized}" ItemsSource="{Binding Items}" Margin="0, 10">
+
+                                            <TreeView.ItemTemplate>
+
+                                                <TreeDataTemplate
+                                                    x:DataType="models:FileNode"
+                                                    ItemsSource="{Binding Children}">
+
+                                                    <StackPanel Orientation="Horizontal" Spacing="6">
+
+                                                        <!-- Checkbox -->
+                                                        <CheckBox IsChecked="{Binding IsChecked}" />
+
+                                                        <!-- Folder/File Icon -->
+                                                        <TextBlock Classes="FontAwesome">
+                                                            <TextBlock.Text>
+                                                                <MultiBinding Converter="{StaticResource FileIconConverter}">
+                                                                    <Binding Path="IsDirectory"/>
+                                                                    <Binding Path="Path"/>
+                                                                </MultiBinding>
+                                                            </TextBlock.Text>
+                                                        </TextBlock>
+
+                                                        <!-- Name -->
+                                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+
+                                                    </StackPanel>
+                                                </TreeDataTemplate>
+                                            </TreeView.ItemTemplate>
+                                        </TreeView>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </ScrollViewer>
+                        
+                        <!-- Bottom Wrapper -->
+                        <Border Grid.Row="1" Classes="InstanceButtonBorder">
+                            <Grid ColumnDefinitions="*, Auto">
+                                
+                                <!-- Size Estimate -->
+                                
+                                
+                                <!-- Buttons -->
+                                <StackPanel Grid.Column="1" Classes="InstanceButtonWrapper">
+                                    <!--  Cancel Button  -->
+                                    <Button Classes="IconBtn ErrorBtn" Command="{Binding CloseWindowCommand}">
+                                        <WrapPanel Classes="IconBtnWrapper">
+                                            <TextBlock
+                                                VerticalAlignment="Center"
+                                                Classes="FontAwesome"
+                                                Text="&#xf00d;" />
+                                            <TextBlock
+                                                VerticalAlignment="Center"
+                                                FontWeight="500"
+                                                Text="{lang:Translate common.cancel}" />
+                                        </WrapPanel>
+                                    </Button>
+                                 
+                                    <!--  Export Button  -->
+                                    <Button
+                                        Classes="IconBtn SuccessBtn"
+                                        Command="{Binding ContinueExportCommand}">
+                                        <WrapPanel Classes="IconBtnWrapper">
+                                            <TextBlock
+                                                VerticalAlignment="Center"
+                                                Classes="FontAwesome"
+                                                Text="&#xf0c7;" />
+                                            <TextBlock
+                                                VerticalAlignment="Center"
+                                                FontWeight="500"
+                                                Text="Continue" />
+                                        </WrapPanel>
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!--  Resize overlay (8px grips)  -->
+        <Grid ColumnDefinitions="8,*,8" RowDefinitions="8,*,8">
+            <!--  Edges  -->
+            <Border
+                Grid.Row="0"
+                Grid.Column="1"
+                Background="Transparent"
+                Cursor="TopSide"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="North" />
+            <Border
+                Grid.Row="2"
+                Grid.Column="1"
+                Background="Transparent"
+                Cursor="BottomSide"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="South" />
+            <Border
+                Grid.Row="1"
+                Grid.Column="0"
+                Background="Transparent"
+                Cursor="LeftSide"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="West" />
+            <Border
+                Grid.Row="1"
+                Grid.Column="2"
+                Background="Transparent"
+                Cursor="RightSide"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="East" />
+
+            <!--  Corners  -->
+            <Border
+                Grid.Row="0"
+                Grid.Column="0"
+                Background="Transparent"
+                Cursor="TopLeftCorner"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="NorthWest" />
+            <Border
+                Grid.Row="0"
+                Grid.Column="2"
+                Background="Transparent"
+                Cursor="TopRightCorner"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="NorthEast" />
+            <Border
+                Grid.Row="2"
+                Grid.Column="0"
+                Background="Transparent"
+                Cursor="BottomLeftCorner"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="SouthWest" />
+            <Border
+                Grid.Row="2"
+                Grid.Column="2"
+                Background="Transparent"
+                Cursor="BottomRightCorner"
+                PointerPressed="ResizeHandle_PointerPressed"
+                Tag="SouthEast" />
+        </Grid>
+    </Grid>
+</Window>

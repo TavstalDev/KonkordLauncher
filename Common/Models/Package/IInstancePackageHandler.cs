@@ -18,5 +18,5 @@ public interface IInstancePackageHandler
     /// Export the supplied Instance to a target path (e.g. .zip, .mrpack).
     /// Returns true on success; false on failure.
     /// </summary>
-    Task<bool> ExportAsync(Instance instance, string targetPath, string exportVersion = "1.0.0", string summary = "", IProgressReporter? progress = null, CancellationToken cancellationToken = default);
+    Task<bool> ExportAsync(Instance instance, List<FileNode> fileNodes, string targetPath, string exportVersion = "1.0.0", string summary = "", IProgressReporter? progress = null, CancellationToken cancellationToken = default);
 }

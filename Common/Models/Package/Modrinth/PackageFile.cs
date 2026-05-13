@@ -9,13 +9,13 @@ public class PackageFile
     public string Path { get; set; }
     
     [JsonProperty("hashes"), JsonPropertyName("hashes")]
-    public Dictionary<string, string> Hashes { get; set; }
-    
+    public Dictionary<string, string> Hashes { get; set; } = new();
+
     [JsonProperty("env"), JsonPropertyName("env")]
-    public Dictionary<string, string> Env { get; set; }
-    
+    public Dictionary<string, string> Env { get; set; } = new();
+
     [JsonProperty("downloads"), JsonPropertyName("downloads")]
-    public List<string> Downloads { get; set; }
+    public List<string> Downloads { get; set; } = [];
     
     [JsonProperty("fileSize"), JsonPropertyName("fileSize")]
     public long FileSize { get; set; }

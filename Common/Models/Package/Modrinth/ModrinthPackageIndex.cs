@@ -19,11 +19,11 @@ public class ModrinthPackageIndex
     
     [JsonProperty("summary"), JsonPropertyName("summary")]
     public string Summary { get; set; }
-    
+
     [JsonProperty("dependencies"), JsonPropertyName("dependencies")]
-    public Dictionary<string, string> Dependencies { get; set; }
-    
+    public Dictionary<string, string> Dependencies { get; set; } = new();
+
     [JsonProperty("files"), JsonPropertyName("files")]
-    public List<PackageFile> Files { get; set; }
-    
+    public List<PackageFile> Files { get; set; } = [];
+
 }

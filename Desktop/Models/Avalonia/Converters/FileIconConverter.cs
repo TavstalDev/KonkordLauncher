@@ -6,8 +6,19 @@ using Avalonia.Data.Converters;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Avalonia.Converters;
 
+/// <summary>
+/// Converts file metadata into a FontAwesome-style icon glyph for display in the UI.
+/// </summary>
 public class FileIconConverter : IMultiValueConverter
 {
+    /// <summary>
+    /// Converts the supplied values into a glyph string representing the file type.
+    /// </summary>
+    /// <param name="values">Input values from the binding expression.</param>
+    /// <param name="targetType">The expected target type of the binding result.</param>
+    /// <param name="parameter">Optional converter parameter; not used.</param>
+    /// <param name="culture">Culture information; not used.</param>
+    /// <returns>A string containing a glyph code for the appropriate icon.</returns>
     public object? Convert(IList<object?> values,
         Type targetType,
         object? parameter,

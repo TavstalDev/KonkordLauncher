@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
@@ -125,19 +126,22 @@ public partial class App : Application
             ApplyTheme(settings.Launcher.Theme);
             
             Directory.CreateDirectory(PathHelper.TempDir);
-            
-            _rpcClient = new DiscordRpcClient("1178002101561995416");
-            _rpcClient.Initialize();
-            _rpcClient.SetPresence(new RichPresence
+
+            if (!Design.IsDesignMode)
             {
-                Details = "Starting...",
-                Timestamps = Timestamps.Now,
-                Assets = new Assets
+                _rpcClient = new DiscordRpcClient("1178002101561995416");
+                _rpcClient.Initialize();
+                _rpcClient.SetPresence(new RichPresence
                 {
-                    LargeImageKey = "logo",
-                    LargeImageText = "Konkord Launcher",
-                }
-            });
+                    Details = "Starting...",
+                    Timestamps = Timestamps.Now,
+                    Assets = new Assets
+                    {
+                        LargeImageKey = "logo",
+                        LargeImageText = "Konkord Launcher",
+                    }
+                });
+            }
         }
         catch
         {
@@ -231,6 +235,9 @@ public partial class App : Application
     {
         try
         {
+            if (Design.IsDesignMode)
+                return;
+            
             // Check if the Discord RPC client is initialized and not disposed.
             if (_rpcClient == null || _rpcClient.IsDisposed)
             {
@@ -260,6 +267,9 @@ public partial class App : Application
     {
         try
         {
+            if (Design.IsDesignMode)
+                return;
+            
             // Check if the Discord RPC client is initialized and not disposed.
             if (_rpcClient == null || _rpcClient.IsDisposed)
             {

@@ -6,6 +6,7 @@ using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
+using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
@@ -40,6 +41,17 @@ public partial class ExportWindow : KonkordWindow<ExportViewModel>
                 Close();
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
+            }).DisposeWith(disposables);
+            DataContext.OpenFolderPickerInteraction.RegisterHandler(async action =>
+            {
+                var result = await OpenFolderPickerAsync(TranslationManager.Translate("common.select.directory"));
+                action.SetOutput(result);
+            }).DisposeWith(disposables);
+            DataContext.ShowAlertDialogInteraction.RegisterHandler(async action =>
+            {
+                AlertWindow alertWindow = new(action.Input.Title, action.Input.Message, action.Input.Type);
+                await alertWindow.ShowDialog(this);
+                action.SetOutput(Unit.Default);
             }).DisposeWith(disposables);
         });
     }

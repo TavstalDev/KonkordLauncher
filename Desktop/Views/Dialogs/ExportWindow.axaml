@@ -170,7 +170,7 @@
                                             <TreeView.ItemTemplate>
 
                                                 <TreeDataTemplate
-                                                    x:DataType="models:FileNode"
+                                                    x:DataType="models:ObservableFileNode"
                                                     ItemsSource="{Binding Children}">
 
                                                     <StackPanel Orientation="Horizontal" Spacing="6">

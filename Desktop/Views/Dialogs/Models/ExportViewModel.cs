@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
@@ -8,10 +10,14 @@ using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ReactiveUI;
+using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
+using Tavstal.KonkordLauncher.Common.Models.Package;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
+using Tavstal.KonkordLauncher.Desktop.Models.Domain;
+using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
@@ -29,12 +35,14 @@ public partial class ExportViewModel : KonkordObservableObject
     public partial string InstanceVersion { get; set; }
     [ObservableProperty]
     public partial string InstanceSummary { get; set; }
-    public ObservableCollection<FileNode> Items { get; } = new();
+    public ObservableCollection<ObservableFileNode> Items { get; } = new();
     
     #region Interactions
     public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
     public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
+    public Interaction<Unit, string?> OpenFolderPickerInteraction { get; } = new();
+    public Interaction<Alert, Unit> ShowAlertDialogInteraction { get; } = new();
     #endregion
 
     public ExportViewModel(Instance? instance, EInstanceProvider provider)
@@ -44,33 +52,33 @@ public partial class ExportViewModel : KonkordObservableObject
         {
             Items =
             [
-                new FileNode("config", "config", true)
+                new ObservableFileNode("config", "config", true)
                 {
                     Children = [ 
-                        new FileNode("modA", "modA", true)
+                        new ObservableFileNode("modA", "modA", true)
                         {
                             Children = [ 
-                                new FileNode("modASubConfig.json", "modASubConfig.json", false)
+                                new ObservableFileNode("modASubConfig.json", "modASubConfig.json", false)
                             ]
                         },
-                        new FileNode("modA.json", "modA.json", false),
-                        new FileNode("modB.json", "modB.json", false),
-                        new FileNode("modC.json", "modC.json", false)
+                        new ObservableFileNode("modA.json", "modA.json", false),
+                        new ObservableFileNode("modB.json", "modB.json", false),
+                        new ObservableFileNode("modC.json", "modC.json", false)
                     ]
                 },
-                new FileNode("mods", "mods", true)
+                new ObservableFileNode("mods", "mods", true)
                 {
                     Children = [
-                        new FileNode("modA.jar", "modA.jar", false),
-                        new FileNode("modB.jar", "modB.jar", false),
-                        new FileNode("modC.jar", "modC.jar", false)
+                        new ObservableFileNode("modA.jar", "modA.jar", false),
+                        new ObservableFileNode("modB.jar", "modB.jar", false),
+                        new ObservableFileNode("modC.jar", "modC.jar", false)
                     ]
                 },
-                new FileNode("resourcepacks", "resourcepacks", true),
-                new FileNode("shaderpacks", "shaderpacks", true),
-                new FileNode("commands_history.txt", "commands_history.txt", false),
-                new FileNode("options.txt", "options.txt", false),
-                new FileNode("servers.dat", "server.dat", false)
+                new ObservableFileNode("resourcepacks", "resourcepacks", true),
+                new ObservableFileNode("shaderpacks", "shaderpacks", true),
+                new ObservableFileNode("commands_history.txt", "commands_history.txt", false),
+                new ObservableFileNode("options.txt", "options.txt", false),
+                new ObservableFileNode("servers.dat", "server.dat", false)
             ];
             return;
         }
@@ -90,19 +98,32 @@ public partial class ExportViewModel : KonkordObservableObject
         // Can't export empty instance
         if (string.IsNullOrEmpty(instanceDir) || !Directory.Exists(instanceDir))
             return;
+
+        ObservableCollection<ObservableFileNode> localItems = [];
         
         var directoryInfo = new DirectoryInfo(instanceDir);
         foreach (var subDir in directoryInfo.GetDirectories("*", SearchOption.TopDirectoryOnly))
         {
-            var node = FileNode.FromDirectory(subDir.FullName);
-            Items.Add(node);
+            var node = ObservableFileNode.FromDirectory(subDir.FullName);
+            if (subDir.FullName.EndsWith("config"))
+                node.IsChecked = true;
+            localItems.Add(node);
         }
 
         foreach (var file in directoryInfo.GetFiles("*", SearchOption.TopDirectoryOnly))
-            Items.Add(new FileNode(file.Name, file.FullName, false));
+        {
+            var node = new ObservableFileNode(file.Name, file.FullName, false);
+            if (file.FullName.EndsWith("options.txt") || file.FullName.EndsWith("servers.dat"))
+                node.IsChecked = true;
+            localItems.Add(node);
+        }
         
+        localItems.OrderByDescending(x => x.IsDirectory).ThenBy(x => x.Name).ToList().ForEach(x =>
+        {
+            Items.Add(x);
+        });
+
         IsInitialized = true;
-        _logger.Info("Finished loading instance files for export.");
     }
     
     #region Commands
@@ -128,7 +149,54 @@ public partial class ExportViewModel : KonkordObservableObject
     [RelayCommand]
     public async Task ContinueExport()
     {
-        // TODO
+        if (string.IsNullOrEmpty(InstanceName) || string.IsNullOrEmpty(InstanceVersion))
+        {
+            await ShowAlertDialogInteraction.Handle(new Alert("Error", "Instance name and version cannot be empty. Please provide valid values for both fields.", EAlertType.Error));
+            return;
+        }
+
+        var directoryResult = await OpenFolderPickerInteraction.Handle(Unit.Default);
+        if (string.IsNullOrEmpty(directoryResult))
+        {
+            // TODO: Translate
+            await ShowAlertDialogInteraction.Handle(new Alert("Error", "No directory selected. Please select a directory to export the instance.", EAlertType.Error));
+            return;
+        }
+
+        string exportPath;
+        switch (Provider)
+        {
+            case EInstanceProvider.CurseForge:
+            {
+                exportPath = Path.Combine(directoryResult, $"{InstanceName}-{InstanceVersion}.zip");
+                break;
+            }
+            default:
+            {
+                exportPath = Path.Combine(directoryResult, $"{InstanceName}-{InstanceVersion}.mrpack");
+                break;
+            }
+        }
+        
+        if (File.Exists(exportPath))
+        {
+            // TODO: Translate
+            await ShowAlertDialogInteraction.Handle(new Alert("Error", "File already exists. Please select a different directory or change the instance name/version to avoid conflicts.", EAlertType.Error));
+            return;
+        }
+        
+        List<FileNode> selectedFiles = ObservableFileNode.ToFileNodes(Items.ToList());
+        if (!await InstanceHelper.ExportAsync(Instance, selectedFiles, exportPath, Provider, InstanceVersion,
+                InstanceSummary))
+        {
+            // TODO: Translate
+            await ShowAlertDialogInteraction.Handle(new Alert("Error", "Failed to export instance. Please try again.", EAlertType.Error));
+            return;
+        }
+        
+        // TODO: Translate
+        await ShowAlertDialogInteraction.Handle(new Alert("Success", $"Instance exported successfully to {exportPath}.", EAlertType.Success));
+        await CloseWindowInteraction.Handle(Unit.Default);
     }
 
     #endregion

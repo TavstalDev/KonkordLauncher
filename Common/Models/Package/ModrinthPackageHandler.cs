@@ -217,10 +217,20 @@ public class ModrinthPackageHandler: IInstancePackageHandler
         }
     }
 
-    public async Task<bool> ExportAsync(Instance instance, string targetPath, string exportVersion = "1.0.0", string summary = "", IProgressReporter? progress = null,
+    public async Task<bool> ExportAsync(Instance instance, List<FileNode> fileNodes, string targetPath, string exportVersion = "1.0.0", string summary = "", IProgressReporter? progress = null,
         CancellationToken cancellationToken = default)
     {
-        string tmpDir = Path.Combine(PathHelper.TempDir, Path.GetTempFileName());
+        string resourceFile = instance.GetResourceConfigPath();
+        List<InstanceResource> resources = [];
+        List<FileNode> localNodes = fileNodes;
+        if (File.Exists(resourceFile))
+        {
+            var res = await JsonHelper.ReadJsonFileAsync<List<InstanceResource>>(resourceFile, cancellationToken);
+            if (res != null)
+                resources = res;
+        }
+        
+        string tmpDir = Path.Combine(PathHelper.TempDir, Path.GetRandomFileName());
         Directory.CreateDirectory(tmpDir);
         try
         {   
@@ -238,6 +248,7 @@ public class ModrinthPackageHandler: IInstancePackageHandler
                     ["minecraft"] = instance.MinecraftVersion
                 }
             };
+            
             if (!string.IsNullOrEmpty(instance.CustomVersion))
             {
                 switch (instance.Kind)
@@ -257,7 +268,40 @@ public class ModrinthPackageHandler: IInstancePackageHandler
                 }
             }
 
+            foreach (var resource in resources)
+            {
+                // Remove the resource file node from localNodes to avoid copying it to overrides
+                var localNode = localNodes.Find(x => !x.IsDirectory && x.Path.EndsWith(resource.Path));
+                if (localNode != null)
+                    localNodes.Remove(localNode);
+                
+                packageIndex.Files.Add(new PackageFile
+                {
+                    Path = resource.Path,
+                    Downloads = [resource.Url],
+                    FileSize = resource.FileSize,
+                    Hashes =
+                    {
+                        ["sha1"] = resource.Sha1,
+                        ["sha512"] = resource.Sha512
+                    },
+                    Env =
+                    {
+                        ["client"] = resource.Client,
+                        ["server"] = resource.Server
+                    }
+                });
+            }
 
+            // Copy overrides
+            foreach (var node in localNodes)
+                await CopyNodeToOverridesAsync(overridesDir, instance.GameDirectory!, node);
+            
+            // Write package index
+            await JsonHelper.WriteJsonFileAsync(indexJson, packageIndex, cancellationToken);
+            
+            await ZipFile.CreateFromDirectoryAsync(tmpDir, targetPath, CompressionLevel.Optimal, false, cancellationToken);
+            _logger.Debug($"Exported modrinth package to {targetPath}");
             return true;
         }
         catch (Exception ex)
@@ -269,5 +313,24 @@ public class ModrinthPackageHandler: IInstancePackageHandler
         {
             FileSystemHelper.DeleteDirectory(tmpDir);
         }
+    }
+
+    private async Task CopyNodeToOverridesAsync(string overridesDir, string gameDir, FileNode fileNode)
+    {
+        string relativePath = fileNode.Path.Replace(gameDir + Path.DirectorySeparatorChar, "");
+        string overridePath = Path.Combine(overridesDir, relativePath);
+
+        if (fileNode.IsDirectory)
+        {
+            Directory.CreateDirectory(overridePath);
+            foreach (var child in fileNode.Children)
+                await CopyNodeToOverridesAsync(overridesDir, gameDir, child);
+            return;
+        }
+        
+        string? parentDir = Path.GetDirectoryName(overridePath);
+        if (!string.IsNullOrEmpty(parentDir))
+            Directory.CreateDirectory(parentDir);
+        File.Copy(fileNode.Path, overridePath, true);
     }
 }

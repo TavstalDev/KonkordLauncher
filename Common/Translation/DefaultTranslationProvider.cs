@@ -47,6 +47,7 @@ public static class DefaultTranslationProvider
         #endregion
 
         #region Main
+        
         {"main.title", "Konkord Launcher"},
         {"main.subtitle", "Ready for Adventure?"},
         {"main.window.minimize", "Minimize"},
@@ -118,6 +119,9 @@ public static class DefaultTranslationProvider
         {"common.launch", "Launch"},
         {"common.stop", "Stop"},
         {"common.export", "Export"},
+        {"common.error", "Error"},
+        {"common.warning", "Warning"},
+        {"common.success", "Success"},
         
         {"common.time.pass.minute", "{0} minutes ago"},
         {"common.time.pass.hour", "{0} hours ago"},
@@ -303,6 +307,24 @@ public static class DefaultTranslationProvider
         {"instance.edit.table.gameMode", "GameMode"},
         {"instance.edit.table.ipAddress", "IP Address"},
         
+        #endregion
+
+        #region Exporting
+
+        {"instance.export.window", "KonkordLauncher - Export Instance"},
+        {"instance.export.title", "Export Instance"},
+        {"instance.export.subtitle", "Create a distributable package with selected files and metadata."},
+        {"instance.export.name", "Name"},
+        {"instance.export.version", "Version"},
+        {"instance.export.summary", "Summary"},
+        {"instance.export.selection.title", "EXPORT SELECTION"},
+        {"instance.export.progress", "Exporting..."},
+        {"instance.export.alert.empty.name.or.version", "Instance name and version cannot be empty. Please provide valid values for both fields."},
+        {"instance.export.alert.no.directory", "No directory selected. Please select a directory to export the instance."},
+        {"instance.export.alert.file.exists", "File already exists. Please select a different directory or change the instance name/version to avoid conflicts."},
+        {"instance.export.alert.error", "Failed to export instance. Please try again."},
+        {"instance.export.alert.success", "Instance exported successfully to {0}."},
+
         #endregion
         
         #endregion

@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -13,6 +12,7 @@ using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Package;
+using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
@@ -21,6 +21,9 @@ using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
+/// <summary>
+/// ViewModel for the export instance dialog.
+/// </summary>
 public partial class ExportViewModel : KonkordObservableObject
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(ExportViewModel));
@@ -29,6 +32,8 @@ public partial class ExportViewModel : KonkordObservableObject
     
     [ObservableProperty]
     public partial bool IsInitialized { get; set; }
+    [ObservableProperty]
+    public partial bool IsExporting { get; set; }
     [ObservableProperty]
     public partial string InstanceName { get; set; }
     [ObservableProperty]
@@ -45,6 +50,11 @@ public partial class ExportViewModel : KonkordObservableObject
     public Interaction<Alert, Unit> ShowAlertDialogInteraction { get; } = new();
     #endregion
 
+    /// <summary>
+    /// Creates a new instance of <see cref="ExportViewModel"/>.
+    /// </summary>
+    /// <param name="instance">The instance to export; if null or in design mode, the ViewModel will populate sample data.</param>
+    /// <param name="provider">The instance provider which influences export format (e.g. CurseForge).</param>
     public ExportViewModel(Instance? instance, EInstanceProvider provider)
     {
         Provider = provider;
@@ -82,14 +92,19 @@ public partial class ExportViewModel : KonkordObservableObject
             ];
             return;
         }
-
+        
         Instance = instance;
         InstanceName = instance.Name;
         InstanceVersion = "1.0.0";
         _ = InitAsync();
     }
     
-    private async Task InitAsync(CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Asynchronously initializes the ViewModel by scanning the instance directory for files and folders.
+    /// Populates <see cref="Items"/> with <see cref="ObservableFileNode"/> entries.
+    /// </summary>
+    /// <returns>A task that completes when initialization is done.</returns>
+    private async Task InitAsync()
     {
         await Task.Yield();
         
@@ -146,20 +161,22 @@ public partial class ExportViewModel : KonkordObservableObject
     [RelayCommand]
     public async Task CloseWindow() => await CloseWindowInteraction.Handle(Unit.Default);
 
+    /// <summary>
+    /// Continues the export process after the user confirmed the selection.
+    /// </summary>
     [RelayCommand]
     public async Task ContinueExport()
     {
         if (string.IsNullOrEmpty(InstanceName) || string.IsNullOrEmpty(InstanceVersion))
         {
-            await ShowAlertDialogInteraction.Handle(new Alert("Error", "Instance name and version cannot be empty. Please provide valid values for both fields.", EAlertType.Error));
+            await ShowAlertDialogInteraction.Handle(new Alert(TranslationManager.Translate("common.error"), TranslationManager.Translate("instance.export.alert.empty.name.or.version"), EAlertType.Error));
             return;
         }
 
         var directoryResult = await OpenFolderPickerInteraction.Handle(Unit.Default);
         if (string.IsNullOrEmpty(directoryResult))
         {
-            // TODO: Translate
-            await ShowAlertDialogInteraction.Handle(new Alert("Error", "No directory selected. Please select a directory to export the instance.", EAlertType.Error));
+            await ShowAlertDialogInteraction.Handle(new Alert(TranslationManager.Translate("common.error"), TranslationManager.Translate("instance.export.alert.no.directory"), EAlertType.Error));
             return;
         }
 
@@ -180,22 +197,22 @@ public partial class ExportViewModel : KonkordObservableObject
         
         if (File.Exists(exportPath))
         {
-            // TODO: Translate
-            await ShowAlertDialogInteraction.Handle(new Alert("Error", "File already exists. Please select a different directory or change the instance name/version to avoid conflicts.", EAlertType.Error));
+            await ShowAlertDialogInteraction.Handle(new Alert(TranslationManager.Translate("common.error"), TranslationManager.Translate("instance.export.alert.file.exists"), EAlertType.Error));
             return;
         }
-        
+
+        IsExporting = true;
         List<FileNode> selectedFiles = ObservableFileNode.ToFileNodes(Items.ToList());
         if (!await InstanceHelper.ExportAsync(Instance, selectedFiles, exportPath, Provider, InstanceVersion,
                 InstanceSummary))
         {
-            // TODO: Translate
-            await ShowAlertDialogInteraction.Handle(new Alert("Error", "Failed to export instance. Please try again.", EAlertType.Error));
+            IsExporting = false;
+            await ShowAlertDialogInteraction.Handle(new Alert(TranslationManager.Translate("common.error"), TranslationManager.Translate("instance.export.alert.error"), EAlertType.Error));
             return;
         }
+        IsExporting = false;
         
-        // TODO: Translate
-        await ShowAlertDialogInteraction.Handle(new Alert("Success", $"Instance exported successfully to {exportPath}.", EAlertType.Success));
+        await ShowAlertDialogInteraction.Handle(new Alert(TranslationManager.Translate("common.success"), TranslationManager.Translate("instance.export.alert.success", exportPath), EAlertType.Success));
         await CloseWindowInteraction.Handle(Unit.Default);
     }
 

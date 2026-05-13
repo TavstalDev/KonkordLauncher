@@ -1,9 +1,7 @@
 using System.Reactive;
 using System.Reactive.Disposables.Fluent;
-using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
-using CommunityToolkit.Mvvm.ComponentModel;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Translation;
@@ -12,10 +10,22 @@ using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
+/// <summary>
+/// Window used to present the export instance dialog.
+/// </summary>
 public partial class ExportWindow : KonkordWindow<ExportViewModel>
 {
+    /// <summary>
+    /// Default ctor that initializes the window for preview/design use.
+    /// </summary>
     public ExportWindow() : this(null, EInstanceProvider.Modrinth) { }
     
+    /// <summary>
+    /// Creates a new <see cref="ExportWindow"/> bound to the provided <see cref="Instance"/> and provider.
+    /// Sets up activation handlers that connect ViewModel interactions to actual UI behavior.
+    /// </summary>
+    /// <param name="instance">The instance to export (maybe null for design-time).</param>
+    /// <param name="provider">The provider which influences export format (e.g. CurseForge or Modrinth).</param>
     public ExportWindow(Instance? instance, EInstanceProvider provider)
     {
         InitializeComponent();

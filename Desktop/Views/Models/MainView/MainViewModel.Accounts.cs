@@ -267,8 +267,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             MojangProfile? profile = await MojangSkinService.UploadSkin(SelectedAccount.GetAccessToken(), model.Variant, skinPath, cancellationToken);
             if (profile == null)
             {
-                // TODO: Translate
-                await _parent.ShowAlertDialogInteraction.Handle(new Alert("Error", "Failed to upload skin. Please try again later.", EAlertType.Error));
+                await _parent.ShowAlertDialogInteraction.Handle(new Alert(TranslationManager.Translate("common.error"), TranslationManager.Translate("main.page.skins.alert.error"), EAlertType.Error));
                 return;
             }
 
@@ -278,8 +277,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
                 profile = await MojangSkinService.ShowCape(SelectedAccount.GetAccessToken(), newSkin.CapeId, cancellationToken);
                 if (profile == null)
                 {
-                    // TODO: Translate
-                    await _parent.ShowAlertDialogInteraction.Handle(new Alert("Error", "Failed to change cape. Please try again later.", EAlertType.Error));
+                    await _parent.ShowAlertDialogInteraction.Handle(new Alert(TranslationManager.Translate("common.error"), TranslationManager.Translate("main.page.skins.alert.cape.change"), EAlertType.Error));
                     return;
                 }
             }
@@ -334,8 +332,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             
             if (result == null)
             {
-                // TODO: Translate
-                await _parent.ShowAlertDialogInteraction.Handle(new Alert("Error", "Failed to change cape.", EAlertType.Error));
+                await _parent.ShowAlertDialogInteraction.Handle(new Alert(TranslationManager.Translate("common.error"), TranslationManager.Translate("main.page.skins.alert.cape.change"), EAlertType.Error));
                 foreach (CapeDataModel cape in Capes.ToList())
                 {
                     int index = Capes.IndexOf(cape);
@@ -368,8 +365,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         catch (Exception ex)
         {
             _logger.Error("Error while selecting cape: " + ex);
-            // TODO: Translate
-            await _parent.ShowAlertDialogInteraction.Handle(new Alert("Error", "Unexpected error happened while selecting the cape.", EAlertType.Error));
+            await _parent.ShowAlertDialogInteraction.Handle(new Alert(TranslationManager.Translate("common.error"), TranslationManager.Translate("main.page.skins.alert.cape.unexpected"), EAlertType.Error));
         }
         finally
         {
@@ -414,8 +410,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             MojangProfile? result = await MojangSkinService.ChangeSkin(SelectedAccount.GetAccessToken(), model, skin.Url, cancellationToken);
             if (result == null)
             {
-                // TODO: Translate
-                await _parent.ShowAlertDialogInteraction.Handle(new Alert("Error", "Failed to change model.", EAlertType.Error));
+                await _parent.ShowAlertDialogInteraction.Handle(new Alert(TranslationManager.Translate("common.error"), TranslationManager.Translate("main.page.skins.alert.model.change"), EAlertType.Error));
                 return;
             }
 
@@ -430,8 +425,30 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             AccountData.Accounts[accountIndex] = SelectedAccount;
             IsAccountHasWideModel = newValue;
             SelectedSkin.Model = model;
+
             
-            // TODO: Update Preview
+            /*
+             The preview should be updated here, but until it is 2D there is not much point in updating it since there is barely any changes that are visible.
+             
+             
+            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken);
+            string skinsDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins");
+            // Get the new model image
+            string path = Path.Combine(skinsDir, SelectedAccount.Id, skin.Id, "preview.png");
+            Bitmap? img;
+            try
+            {
+                img = new Bitmap(path);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error("Failed to load skin image: " + ex);
+                return;
+            }
+
+            var oldSkin = AccountSkinPreview;
+            AccountSkinPreview = img;
+            oldSkin?.Dispose();*/
         }
         catch (Exception ex)
         {

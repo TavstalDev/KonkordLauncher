@@ -1,30 +1,4 @@
 <Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-
-    <!-- SideBar Button  -->
-    <Style Selector="Button.SidebarBtn">
-        <Setter Property="Height" Value="40" />
-        <Setter Property="FontSize" Value="18" />
-        <Setter Property="HorizontalAlignment" Value="Stretch" />
-        <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="HorizontalContentAlignment" Value="Left" />
-        <Setter Property="Padding" Value="4" />
-        <Setter Property="Margin" Value="0, 0, 0, 10" />
-        <Setter Property="Opacity" Value="0.6" />
-        <Setter Property="CornerRadius" Value="8" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="Cursor" Value="Hand" />
-    </Style>
-    <!-- SideBar Button Hover  -->
-    <Style Selector="Button.SidebarBtn:pointerover /template/ ContentPresenter">
-        <Setter Property="Opacity" Value="0.9" />
-        <Setter Property="Cursor" Value="Hand" />
-    </Style>
-    <!-- SideBar Button Active  -->
-    <Style Selector="Button.SidebarBtn:pressed /template/ ContentPresenter">
-        <Setter Property="Opacity" Value="1.0" />
-        <Setter Property="Cursor" Value="Hand" />
-    </Style>
-    
     <!--  Window Button  -->
     <Style Selector="Button.WindowBtn">
         <Setter Property="Width" Value="13"/>
@@ -104,19 +78,48 @@
     <Style Selector="Button, HyperlinkButton.DefaultBtn">
         <Setter Property="Background" Value="{DynamicResource default}" />
         <Setter Property="BorderBrush" Value="{DynamicResource default-border}" />
-        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource default-content}" />
     </Style>
     <!-- Default Button Hover  -->
     <Style Selector="Button:pointerover /template/ ContentPresenter, HyperlinkButton.DefaultBtn:pointerover /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource default}" />
         <Setter Property="BorderBrush" Value="{DynamicResource default-border}" />
-        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource default-content}" />
     </Style>
     <!-- Default Button Active  -->
     <Style Selector="Button:pressed /template/ ContentPresenter, HyperlinkButton.DefaultBtn:pressed /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource default}" />
         <Setter Property="BorderBrush" Value="{DynamicResource default-border}" />
-        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource default-content}" />
+    </Style>
+    
+    <!-- SideBar Button  -->
+    <Style Selector="Button.SidebarBtn">
+        <Setter Property="Height" Value="40" />
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="Padding" Value="4" />
+        <Setter Property="Margin" Value="0, 0, 0, 10" />
+        <Setter Property="Opacity" Value="0.6" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Background" Value="{DynamicResource base-100}" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
+    </Style>
+    <!-- SideBar Button Hover  -->
+    <Style Selector="Button.SidebarBtn:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource base-100}" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
+        <Setter Property="Opacity" Value="0.9" />
+    </Style>
+    <!-- SideBar Button Active  -->
+    <Style Selector="Button.SidebarBtn:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource base-100}" />
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
+        <Setter Property="Opacity" Value="1.0" />
     </Style>
     
     <!--  SideBarActive Button  -->

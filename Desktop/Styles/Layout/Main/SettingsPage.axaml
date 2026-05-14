@@ -42,19 +42,19 @@
         <Setter Property="CornerRadius" Value="8" />
         <Setter Property="Background" Value="{DynamicResource default}" />
         <Setter Property="BorderBrush" Value="{DynamicResource default-border}" />
-        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource default-content}" />
     </Style>
     <!-- Tab Active Button Hover  -->
     <Style Selector="Button.SettingsTabBtnActive:pointerover /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource default}" />
         <Setter Property="BorderBrush" Value="{DynamicResource default-border}" />
-        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource default-content}" />
     </Style>
     <!-- Tab Active Button Active  -->
     <Style Selector="Button.SettingsTabBtnActive:pressed /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource default}" />
         <Setter Property="BorderBrush" Value="{DynamicResource default-border}" />
-        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource default-content}" />
     </Style>
     <!-- Tab Active Button Text  -->
     <Style Selector="Button.SettingsTabBtnActive > TextBlock">

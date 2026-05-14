@@ -8,7 +8,7 @@
     <Style Selector="TextBlock.ModalTitle">
         <Setter Property="FontSize" Value="24" />
         <Setter Property="FontWeight" Value="600" />
-        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource default-content}" />
         <Setter Property="Margin" Value="0, 0, 0, 25" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="TextAlignment" Value="Center" />
@@ -18,7 +18,7 @@
     <Style Selector="Border.ModalTitleBorder">
         <Setter Property="BorderBrush" Value="{DynamicResource border-one}" />
         <Setter Property="BorderThickness" Value="0, 0, 0, 1" />
-        <Setter Property="Padding" Value="20, 0, 20, 20" />
+        <Setter Property="Padding" Value="20, 10, 20, 20" />
     </Style>
     <Style Selector="Border.ModalTitleBorder > StackPanel">
         <Setter Property="Spacing" Value="5" />
@@ -27,13 +27,14 @@
         <Setter Property="HorizontalAlignment" Value="Left" />
         <Setter Property="FontSize" Value="20" />
         <Setter Property="FontWeight" Value="500" />
-        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource default-content}" />
     </Style>
     <Style Selector="TextBlock.ModalSubTitle">
         <Setter Property="HorizontalAlignment" Value="Left" />
         <Setter Property="FontSize" Value="14" />
         <Setter Property="FontWeight" Value="400" />
         <Setter Property="Foreground" Value="{DynamicResource text-faded}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
     </Style>
     
     <!-- Tab Style -->
@@ -177,7 +178,7 @@
     <Style Selector="TextBlock.ModalGridTitle">
         <Setter Property="FontSize" Value="20" />
         <Setter Property="FontWeight" Value="500" />
-        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource default-content}" />
     </Style>
     
     <!-- Grid Inner Content -->

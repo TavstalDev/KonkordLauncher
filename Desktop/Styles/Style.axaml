@@ -83,19 +83,36 @@
         <Setter Property="Margin" Value="10, 5" />
     </Style>
     
+    <!-- Divider Left -->
     <Style Selector="Border.DividerLeft">
         <Setter Property="Margin" Value="0,0,10,0" />
         <Setter Property="Background" Value="#555" />
     </Style>
     
+    <!-- Divider Right -->
     <Style Selector="Border.DividerRight">
         <Setter Property="Margin" Value="10,0,0,0" />
         <Setter Property="Background" Value="#555" />
     </Style>
     
+    <!-- Divider Text  -->
     <Style Selector="TextBlock.Divider">
         <Setter Property="FontWeight" Value="Bold" />
         <Setter Property="Foreground" Value="{DynamicResource base-content}" />
         <Setter Property="Opacity" Value="0.75" />
+    </Style>
+    
+    <!-- DataGrid Row Selected Style -->
+    <Style Selector="DataGridRow:selected /template/ Rectangle">
+        <Setter Property="Fill" Value="{DynamicResource primary}"/>
+    </Style> 
+    
+    <!-- ListBox Item Selected Style -->
+    <Style Selector="ListBoxItem /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Foreground" Value="{DynamicResource base-content}"/>
+    </Style>
+    <Style Selector="ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource primary}"/>
+        <Setter Property="Foreground" Value="{DynamicResource primary-content}"/>
     </Style>
 </Styles>

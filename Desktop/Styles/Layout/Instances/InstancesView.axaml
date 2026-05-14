@@ -8,7 +8,7 @@
     <Style Selector="TextBlock.InstanceTitle">
         <Setter Property="FontSize" Value="20" />
         <Setter Property="FontWeight" Value="600" />
-        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource default-content}" />
         <Setter Property="Margin" Value="0, 0, 0, 20" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="TextAlignment" Value="Center" />
@@ -142,7 +142,7 @@
     <Style Selector="TextBlock.InstanceButtonText">
         <Setter Property="FontSize" Value="15" />
         <Setter Property="FontWeight" Value="600" />
-        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource default-content}" />
         <Setter Property="Padding" Value="5" />
     </Style>
     
@@ -156,7 +156,6 @@
     <Style Selector="TextBlock.InstanceModTitle">
         <Setter Property="FontSize" Value="15" />
         <Setter Property="FontWeight" Value="500" />
-        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
         <Setter Property="TextWrapping" Value="NoWrap" />
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
         <Setter Property="Margin" Value="0, 0, 10, 0" />
@@ -164,7 +163,7 @@
 
     <!-- Mod Card Description -->
     <Style Selector="TextBlock.InstanceModDescription">
-        <Setter Property="Foreground" Value="{DynamicResource text-faded}" />
+        <Setter Property="Opacity" Value="0.6" />
         <Setter Property="TextWrapping" Value="NoWrap" />
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
         <Setter Property="Margin" Value="0, 0, 10, 0" />

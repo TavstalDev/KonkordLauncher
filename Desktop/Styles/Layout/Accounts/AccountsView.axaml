@@ -54,7 +54,7 @@
     
     <!-- Progress Text -->
     <Style Selector="TextBlock.AccountsModalProgressText">
-        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
+        <Setter Property="Foreground" Value="{DynamicResource default-content}" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="TextAlignment" Value="Center" />
         <Setter Property="Margin" Value="30, 0, 30, 10" />

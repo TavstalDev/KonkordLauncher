@@ -17,13 +17,12 @@
     Background="Transparent"
     CanResize="False"
     CornerRadius="14"
-    
     ExtendClientAreaToDecorationsHint="True"
     Icon="avares://Desktop/Assets/Images/logo.png"
     ShowInTaskbar="True"
-    WindowDecorations="None"
     TransparencyLevelHint="Transparent"
     UseLayoutRounding="True"
+    WindowDecorations="None"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
     <Grid>
@@ -38,9 +37,9 @@
                 <!--  Window Controls  -->
                 <Border HorizontalAlignment="Stretch" PointerPressed="DragStart_PointerPressed">
                     <Grid ColumnDefinitions="*, Auto">
-                        <!-- Window Title  -->
+                        <!--  Window Title  -->
                         <TextBlock Classes="WindowTitle" Text="{Binding $parent[Window].Title}" />
-                        
+
                         <!--  Window Buttons  -->
                         <StackPanel Grid.Column="1" Classes="WindowBtnPanel">
                             <!--  MINIMIZE  -->
@@ -62,15 +61,22 @@
                         </StackPanel>
                     </Grid>
                 </Border>
+
                 <!--  Main Content  -->
-                <Grid
-                    Grid.Row="1"
-                    Margin="20, 15, 20, 20"
-                    RowDefinitions="Auto, *, Auto">
-                    <TextBlock Classes="ModalTitle" Text="{lang:Translate java.select}" />
+                <Grid Grid.Row="1" RowDefinitions="Auto, *, Auto">
+
+                    <!--  Title  -->
+                    <Border Classes="ModalTitleBorder">
+                        <StackPanel>
+                            <TextBlock Text="{lang:Translate java.select}" />
+                            <TextBlock Classes="ModalSubTitle" Text="{lang:Translate java.select.subtitle}" />
+                        </StackPanel>
+                    </Border>
+
+                    <!--  Content  -->
                     <ScrollViewer
                         Grid.Row="1"
-                        Margin="0,0,0,20"
+                        Margin="20,15,20,0"
                         Classes="TableScrollViewer">
                         <DataGrid
                             Name="VersionTable"
@@ -102,39 +108,44 @@
                             </DataGrid.Columns>
                         </DataGrid>
                     </ScrollViewer>
-                    <WrapPanel
-                        Grid.Row="2"
-                        HorizontalAlignment="Center"
-                        ItemSpacing="5">
-                        <!--  Ok Button  -->
-                        <Button
-                            MinWidth="90"
-                            Classes="IconBtn"
-                            Command="{Binding SelectedBtnCommand}"
-                            IsEnabled="{Binding HasSelectedJavaVersion}">
-                            <WrapPanel Classes="IconBtnWrapper">
-                                <TextBlock
-                                    VerticalAlignment="Center"
-                                    Classes="FontAwesome"
-                                    Text="&#xf00c;" />
-                                <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.ok}" />
-                            </WrapPanel>
 
-                        </Button>
-                        <!--  Cancel Button  -->
-                        <Button
-                            MinWidth="90"
-                            Classes="IconBtn"
-                            Command="{Binding CancelBtnCommand}">
-                            <WrapPanel Classes="IconBtnWrapper">
-                                <TextBlock
-                                    VerticalAlignment="Center"
-                                    Classes="FontAwesome"
-                                    Text="&#xf00d;" />
-                                <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.cancel}" />
-                            </WrapPanel>
-                        </Button>
-                    </WrapPanel>
+                    <!--  Buttons  -->
+                    <Border Grid.Row="2" Classes="InstanceButtonBorder">
+                        <!--  Buttons  -->
+                        <StackPanel HorizontalAlignment="Center" Classes="InstanceButtonWrapper">
+
+                            <!--  Ok Button  -->
+                            <Button
+                                Classes="IconBtn SuccessBtn"
+                                Command="{Binding SelectedBtnCommand}"
+                                IsEnabled="{Binding HasSelectedJavaVersion}">
+                                <WrapPanel Classes="IconBtnWrapper">
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        Classes="FontAwesome"
+                                        Text="&#xf00c;" />
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        FontWeight="500"
+                                        Text="{lang:Translate common.ok}" />
+                                </WrapPanel>
+                            </Button>
+
+                            <!--  Cancel Button  -->
+                            <Button Classes="IconBtn ErrorBtn" Command="{Binding CancelBtnCommand}">
+                                <WrapPanel Classes="IconBtnWrapper">
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        Classes="FontAwesome"
+                                        Text="&#xf00d;" />
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        FontWeight="500"
+                                        Text="{lang:Translate common.cancel}" />
+                                </WrapPanel>
+                            </Button>
+                        </StackPanel>
+                    </Border>
                 </Grid>
             </Grid>
         </Border>

@@ -15,15 +15,14 @@
     Background="Transparent"
     CanResize="False"
     CornerRadius="14"
-    
     ExtendClientAreaToDecorationsHint="True"
     Icon="avares://Desktop/Assets/Images/logo.png"
     ShowInTaskbar="True"
-    WindowDecorations="None"
+    SizeToContent="Height"
     TransparencyLevelHint="Transparent"
     UseLayoutRounding="True"
+    WindowDecorations="None"
     WindowStartupLocation="CenterScreen"
-    SizeToContent="Height"
     mc:Ignorable="d">
     <Border
         Background="{DynamicResource base-200}"
@@ -35,9 +34,9 @@
             <!--  Window Controls  -->
             <Border HorizontalAlignment="Stretch" PointerPressed="DragStart_PointerPressed">
                 <Grid ColumnDefinitions="*, Auto">
-                    <!-- Window Title  -->
+                    <!--  Window Title  -->
                     <TextBlock Classes="WindowTitle" Text="{Binding $parent[Window].Title}" />
-                        
+
                     <!--  Window Buttons  -->
                     <StackPanel Grid.Column="1" Classes="WindowBtnPanel">
                         <!--  MINIMIZE  -->

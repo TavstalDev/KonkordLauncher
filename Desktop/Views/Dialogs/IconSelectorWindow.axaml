@@ -6,7 +6,7 @@
     xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
-    Title="{lang:Translate iconSelector.title}"
+    Title="{lang:Translate iconSelector.window}"
     Width="500"
     Height="410"
     MinWidth="500"
@@ -62,12 +62,22 @@
                         </StackPanel>
                     </Grid>
                 </Border>
+                
                 <!--  Main Content  -->
                 <Grid
                     Grid.Row="1"
-                    Margin="20"
                     RowDefinitions="Auto, *, Auto">
-                    <ScrollViewer Grid.Row="1" Margin="0,0,0,20">
+                    
+                    <!--  Title  -->
+                    <Border Classes="ModalTitleBorder">
+                        <StackPanel>
+                            <TextBlock Text="{lang:Translate iconSelector.title}" />
+                            <TextBlock Classes="ModalSubTitle" Text="{lang:Translate iconSelector.subtitle}" />
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Icons -->
+                    <ScrollViewer Grid.Row="1" Margin="20,10,20,0">
                         <ListBox ItemsSource="{Binding Icons}" SelectedItem="{Binding SelectedIcon}">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -93,8 +103,10 @@
                             </ListBox.ItemTemplate>
                         </ListBox>
                     </ScrollViewer>
-                    <Grid
-                        Grid.Row="2"
+                    
+                    <!-- Bottom Wrapper -->
+                    <Border Grid.Row="2" Classes="InstanceButtonBorder">
+                        <Grid
                         HorizontalAlignment="Stretch"
                         ColumnDefinitions="*, Auto">
                         <WrapPanel Grid.Column="0" ItemSpacing="5">
@@ -147,6 +159,7 @@
                             </Button>
                         </WrapPanel>
                     </Grid>
+                    </Border>
                 </Grid>
             </Grid>
         </Border>

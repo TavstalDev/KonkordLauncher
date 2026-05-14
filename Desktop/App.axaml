@@ -32,11 +32,16 @@
         </ResourceDictionary>
     </Application.Resources>
     <Application.Styles>
+        <!-- Fluent Theme  -->
         <FluentTheme />
         <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
 
+        <!--  Global Styles  -->
+        <StyleInclude Source="Styles/Style.axaml" />
+        
         <!--  Controls  -->
         <StyleInclude Source="Styles/Controls/Buttons.axaml"  />
+        <StyleInclude Source="Styles/Controls/CheckBoxes.axaml" />
         <StyleInclude Source="Styles/Controls/Navigation.axaml" />
         <StyleInclude Source="Styles/Controls/TextBoxes.axaml" />
 
@@ -56,8 +61,5 @@
         <StyleInclude Source="Styles/Layout/Instances/InstancesView.axaml" />
         <StyleInclude Source="Styles/Layout/StartupView.axaml" />
         <StyleInclude Source="Styles/Layout/InstallView.axaml" />
-
-        <!--  Global Styles  -->
-        <StyleInclude Source="Styles/Style.axaml" />
     </Application.Styles>
 </Application>

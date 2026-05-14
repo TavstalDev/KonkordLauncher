@@ -1,25 +1,27 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <!-- TODO: Rework the color palette to be more cohesive and less random. -->
     <SolidColorBrush x:Key="base-100" Color="#ffffff" />
-    <SolidColorBrush x:Key="base-200" Color="#f8f8f8" />
-    <SolidColorBrush x:Key="base-300" Color="#eeeeee" />
+    <SolidColorBrush x:Key="base-200" Color="#ebedef" />
+    <SolidColorBrush x:Key="base-300" Color="#dfe2e6" />
     <SolidColorBrush x:Key="base-content" Color="#18181b" />
     <SolidColorBrush x:Key="base-overlay" Color="#B3000000" />
-    <SolidColorBrush x:Key="border-one" Color="#555" />
-    <SolidColorBrush x:Key="border-two" Color="#666666" />
+    
+    <SolidColorBrush x:Key="border-one" Color="#d1d5db" />
+    <SolidColorBrush x:Key="border-two" Color="#9ca3af" />
 
-    <SolidColorBrush x:Key="default" Color="#5e5e5e" />
-    <SolidColorBrush x:Key="default-border" Color="#232323" />
+    <SolidColorBrush x:Key="default" Color="#f3f4f6" />
+    <SolidColorBrush x:Key="default-border" Color="#d1d5db" />
+    <SolidColorBrush x:Key="default-content" Color="#18181b" />
 
     <SolidColorBrush x:Key="primary" Color="#008033" />
     <SolidColorBrush x:Key="primary-border" Color="#00481D" />
-    <SolidColorBrush x:Key="primary-content" Color="#FFFFFF" />
-    <SolidColorBrush x:Key="secondary" Color="#374151" />
-    <SolidColorBrush x:Key="secondary-border" Color="#262d38" />
+    <SolidColorBrush x:Key="primary-content" Color="#ffffff" />
+    
+    <SolidColorBrush x:Key="secondary" Color="#4b5563" /> 
+    <SolidColorBrush x:Key="secondary-border" Color="#374151" />
     <SolidColorBrush x:Key="secondary-content" Color="#FFFFFF" />
 
     <SolidColorBrush x:Key="accent" Color="#00d3bb" />
-    <SolidColorBrush x:Key="accent-content" Color="#084d49" />
+    <SolidColorBrush x:Key="accent-content" Color="#022c26" />
 
     <SolidColorBrush x:Key="neutral" Color="#09090b" />
     <SolidColorBrush x:Key="neutral-content" Color="#FFFFFF" />
@@ -28,14 +30,23 @@
     <SolidColorBrush x:Key="info-content" Color="#042e49" />
 
     <SolidColorBrush x:Key="success" Color="#00d390" />
-    <SolidColorBrush x:Key="success-content" Color="#004c39" />
-
+    <SolidColorBrush x:Key="success-content" Color="#002d20" />
+    
     <SolidColorBrush x:Key="warning" Color="#fcb700" />
-    <SolidColorBrush x:Key="warning-content" Color="#793205" />
-
+    <SolidColorBrush x:Key="warning-content" Color="#4d2100" />
+    
     <SolidColorBrush x:Key="error" Color="#ff637d" />
     <SolidColorBrush x:Key="error-content" Color="#4d0218" />
 
-    <SolidColorBrush x:Key="text-faded" Color="#9CA3AF" />
-    <SolidColorBrush x:Key="text-muted" Color="#626773" />
+    <SolidColorBrush x:Key="text-faded" Color="#6b7280" />
+    <SolidColorBrush x:Key="text-muted" Color="#374151" />
+    
+    <x:String x:Key="HtmlBaseStyle">
+        body, p, div, span, h1, h2, h3, ul, ol {
+        color: #18181b !important;
+        font-family: sans-serif;
+        white-space: normal;
+        word-wrap: break-word;
+        }
+    </x:String>
 </ResourceDictionary>

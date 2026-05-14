@@ -84,6 +84,10 @@ public static class DefaultTranslationProvider
         {"main.page.skins.model.slim", "Slim"},
         {"main.page.skins.skins", "SKINS"},
         {"main.page.skins.capes", "CAPES"},
+        {"main.page.skins.alert.error", "Failed to upload skin. Please try again later."},
+        {"main.page.skins.alert.cape.change", "Failed to change cape. Please try again later."},
+        {"main.page.skins.alert.cape.unexpected", "Unexpected error happened while selecting the cape."},
+        {"main.page.skins.alert.model.change", "Failed to change model. Please try again later."},
         
         {"main.page.settings.title", "Settings"},
         
@@ -471,6 +475,7 @@ public static class DefaultTranslationProvider
 
         {"java.title", "KonkordLauncher - Java Selector"},
         {"java.select", "Select Java Version"},
+        {"java.select.subtitle", "Select a Java version to use for launching an instance."},
         {"java.table.major", "Major"},
         {"java.table.version", "Version"},
         {"java.table.architecture", "Architecture"},
@@ -490,7 +495,9 @@ public static class DefaultTranslationProvider
 
         #endregion
         
-        {"iconSelector.title", "KonkordLauncher - Select a Icon"},
+        {"iconSelector.window", "KonkordLauncher - Icon Selector"},
+        {"iconSelector.title", "Select a Icon"},
+        {"iconSelector.subtitle", "Select a icon for an instance."},
         {"alert.title", "KonkordLauncher - Alert"},
         {"input.title", "KonkordLauncher - Input"},
         {"install.title", "KonkordLauncher - Install"},

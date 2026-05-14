@@ -266,7 +266,7 @@
                     <HtmlLabel
                         Grid.Row="1"
                         MaxWidth="{Binding $parent[Grid].Bounds.Width}"
-                        BaseStylesheet="body, p, div, span, h1, h2, h3, ul, ol {                          color: white !important;                          font-family: sans-serif;                          white-space: normal;                          word-wrap: break-word;                         }"
+                        BaseStylesheet="{DynamicResource HtmlBaseStyle}"
                         Text="{Binding Content}" />
 
                     <!--  Read More Button  -->

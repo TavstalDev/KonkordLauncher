@@ -548,6 +548,7 @@ public static class FileSystemHelper
             using var sha = SHA1.Create();
             byte[] hashBytes = await sha.ComputeHashAsync(stream);
             string fileHash = Convert.ToHexStringLower(hashBytes);
+            stream.Position = 0;
             return fileHash;
         }
         catch (Exception ex)

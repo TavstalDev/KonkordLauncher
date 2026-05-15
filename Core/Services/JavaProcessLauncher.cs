@@ -223,7 +223,7 @@ public static class JavaProcessLauncher
     public static Process? StartCommand(string command, Dictionary<string, string>? environmentVariables = null)
     {
         // Configure the process start information
-        var psi = new ProcessStartInfo()
+        var psi = new ProcessStartInfo
         {
             UseShellExecute = false,
             RedirectStandardError = true,

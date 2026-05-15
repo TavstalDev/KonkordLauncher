@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using Avalonia.Data.Converters;
 
@@ -32,9 +33,9 @@ public class BoolToOpacityConverter : IValueConverter
     /// <param name="targetType">The source binding type.</param>
     /// <param name="parameter">Optional converter parameter; not used.</param>
     /// <param name="culture">Culture information; not used.</param>
-    /// <exception cref="NotImplementedException">Always thrown because this converter is one-way only.</exception>
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        throw new NotImplementedException();
+        Debug.WriteLine("BoolToOpacityConverter does not support ConvertBack.");
+        return null;
     }
 }

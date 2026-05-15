@@ -127,7 +127,7 @@ public static class MinecraftFileService
         // Create default JavaVersionMeta if null
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (versionResult.JavaVersionMeta == null)
-            versionResult.JavaVersionMeta = new JavaVersionMeta()
+            versionResult.JavaVersionMeta = new JavaVersionMeta
             {
                 MajorVersion = 8
             };

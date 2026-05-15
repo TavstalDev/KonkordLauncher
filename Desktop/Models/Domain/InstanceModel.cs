@@ -34,7 +34,6 @@ namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
 /// <summary>
 /// Represents a model for a Minecraft instance, including its properties and behaviors.
 /// </summary>
-// TODO: Refactor
 public partial class InstanceModel : ObservableObject, IProgressReporter
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(InstanceModel));
@@ -236,11 +235,22 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         _watcher.Created += OnLogFileChanged;
         _watcher.Error += (_, e) =>
         {
-            _logger.Error("Watcher error: " + e.GetException().Message);
+            _logger.Error("Watcher error: " + e.GetException());
         };
     }
 
-
+    /// <summary>
+    /// Launches this Minecraft instance.
+    /// </summary>
+    /// <param name="showLogsWindow">
+    /// Interaction used to request showing the logs/console window for this instance. The view-model
+    /// will call <c>Handle</c> on this interaction when it wants the UI to open the logs' dialog.
+    /// </param>
+    /// <param name="closeLogsWindow">Interaction used to request closing the logs/console window for this instance.</param>
+    /// <param name="closeWindow">Interaction used to request closing the launcher main window (used when the launcher is configured to close on game start/exit).</param>
+    /// <param name="showAlertDialog">Interaction used to show an alert dialog to the user (e.g. when no account is selected or Java is missing).</param>
+    /// <param name="serverAddress">Optional server address to connect to on launch.</param>
+    /// <returns>A task that completes when the launch sequence has finished (not when the game exits).</returns>
     public async Task LaunchAsync(Interaction<string, Unit> showLogsWindow, Interaction<string, Unit> closeLogsWindow, Interaction<Unit, Unit> closeWindow, Interaction<Alert, Unit> showAlertDialog, string? serverAddress = null)
     {
         _lastReadPosition = 0;
@@ -533,9 +543,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     /// <param name="gameInstance">The Minecraft instance for which the Java path is being set up.</param>
     /// <param name="meta">The metadata containing the required Java version information.</param>
     /// <param name="settings">The core configuration settings of the launcher.</param>
-    /// <param name="showAlertDialog">
-    /// An interaction to display an alert dialog in case the required Java version is not found.
-    /// </param>
+    /// <param name="showAlertDialog">An interaction to display an alert dialog in case the required Java version is not found.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     private async Task SetupDefaultJavaPathAsync(MinecraftInstance gameInstance, VersionMeta? meta, CoreConfig settings, Interaction<Alert, Unit> showAlertDialog, CancellationToken cancellationToken = default)
     {

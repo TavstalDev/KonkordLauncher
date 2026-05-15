@@ -21,7 +21,7 @@ public class ProfileIcon
 
     #region Static Values
     [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
-    public static readonly List<ProfileIcon> Icons = new List<ProfileIcon>()
+    public static readonly List<ProfileIcon> Icons = new List<ProfileIcon>
     {
         new ProfileIcon("Stone", "/assets/images/blocks/1_Stone.png"),
         new ProfileIcon("Grass", "/assets/images/blocks/2_Grass.png"),

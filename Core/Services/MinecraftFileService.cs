@@ -1,9 +1,11 @@
+using System.Collections.Concurrent;
 using System.IO.Compression;
 using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.Domain;
+using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Network;
 using Tavstal.KonkordLauncher.Core.Helpers.Platform;
 using Tavstal.KonkordLauncher.Core.Models;
@@ -15,8 +17,12 @@ using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 
 namespace Tavstal.KonkordLauncher.Core.Services;
 
+/// <summary>
+/// Provides file-related services for preparing and maintaining Minecraft runtime data.
+/// </summary>
 public static class MinecraftFileService
 {
+    private static readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MinecraftFileService));
     private const int MaxParallelDownloads = 16;
 
     /// <summary>
@@ -402,6 +408,15 @@ public static class MinecraftFileService
             json => json); // Deserialize to string
     }
     
+    /// <summary>
+    /// Ensures that the bundled launch wrapper JAR exists in the local libraries' directory.
+    /// </summary>
+    /// <param name="libsDir">Root path to the local libraries' directory.</param>
+    /// <param name="cancellationToken">Token used to cancel asynchronous copy operation when extracting from resources.</param>
+    /// <returns>
+    /// Full path to the extracted/existing <c>launchWrapper-1.0.jar</c>, or <c>null</c> if the embedded resource
+    /// could not be found.
+    /// </returns>
     public static async Task<string?> ExtractLaunchWrapperAsync(string libsDir, CancellationToken cancellationToken = default)
     {
         string targetDir = Path.Combine(libsDir, "io", "github", "tavstaldev", "launchWrapper");
@@ -409,19 +424,23 @@ public static class MinecraftFileService
         
         string targetAssetName = "launchWrapper-1.0.jar";
         string targetFile = Path.Combine(targetDir, targetAssetName);
-        if (File.Exists(targetFile))
-            return targetFile;
-        
-        // Load from resources as fallback
         var assembly = Assembly.GetExecutingAssembly();
         var stream = assembly.GetManifestResourceStream("Tavstal.KonkordLauncher.Core.Assets.launchWrapper-1.0.jar");
-        if (stream != null)
+        if (stream == null)
+            throw new Exception("Failed to find embedded resource: Tavstal.KonkordLauncher.Core.Assets.launchWrapper-1.0.jar");
+        
+        if (File.Exists(targetFile))
         {
-            await using var fileStream = new FileStream(targetFile, FileMode.Create, FileAccess.Write);
-            await stream.CopyToAsync(fileStream, cancellationToken);
-            return targetFile;
+            string? existingHash = await FileSystemHelper.GetFileHashAsync(targetFile);
+            string? expectedHash = await FileSystemHelper.GetFileHashAsync(stream);
+            if (existingHash == expectedHash && expectedHash != null)
+                return targetFile;
+            FileSystemHelper.DeleteFile(targetFile);
         }
-        return null;
+        
+        await using var fileStream = new FileStream(targetFile, FileMode.Create, FileAccess.Write);
+        await stream.CopyToAsync(fileStream, cancellationToken);
+        return targetFile;
     }
 
     /// <summary>
@@ -442,7 +461,8 @@ public static class MinecraftFileService
     {
         progressReporter?.ReportProgress(0);
         progressReporter?.UpdateStatusTranslated("instance.reading.libraries");
-        
+
+        var safeClassPath = new ConcurrentBag<string>(classPath);
         string jsonKey = $"{versionData.MinecraftVersion}-{kind}-{versionData.CustomVersion}";
         string librarySizeCacheFilePath = Path.Combine(cacheDir, "libsizes.json");
         JObject cacheObject;
@@ -510,8 +530,8 @@ public static class MinecraftFileService
                         var libFilePath = await DownloadLibraryArtifactAsync(lib, libsDir, progressReporter, cancellationToken);
                         Interlocked.Add(ref downloadedBytes, lib.Downloads.Artifact.Size);
                         
-                        if (!string.IsNullOrEmpty(libFilePath) && !classPath.Contains(libFilePath))
-                            classPath.Add(libFilePath);
+                        if (!string.IsNullOrEmpty(libFilePath) && !safeClassPath.Contains(libFilePath))
+                            safeClassPath.Add(libFilePath);
                     }
             
                     if (lib.Downloads.Classifiers != null)
@@ -521,8 +541,8 @@ public static class MinecraftFileService
                         await DownloadNativeFileAsync(classifier.Url, libJarFilePath, lib.Name, versionData.NativesDir, progressReporter, cancellationToken);
                         Interlocked.Add(ref downloadedBytes, classifier.Size);
                         
-                        if (!string.IsNullOrEmpty(libJarFilePath) && !classPath.Contains(libJarFilePath))
-                            classPath.Add(libJarFilePath);
+                        if (!string.IsNullOrEmpty(libJarFilePath) && !safeClassPath.Contains(libJarFilePath))
+                            safeClassPath.Add(libJarFilePath);
                     }
                 }
                 finally
@@ -534,7 +554,7 @@ public static class MinecraftFileService
             tasks.Add(t);
         }
         await Task.WhenAll(tasks);
-        return classPath;
+        return safeClassPath.ToList();
     }
 
     /// <summary>
@@ -612,23 +632,32 @@ public static class MinecraftFileService
     private static void ExtractNativeFiles(string libFilePath, string nativeDir)
     {
         string tempDir = Path.Combine(nativeDir, Path.GetRandomFileName());
-        ZipFile.ExtractToDirectory(libFilePath, tempDir, true);
-
-        string searchPattern = "*.so";
-        if (OSHelper.GetOperatingSystem() == EOperatingSystem.Windows)
-            searchPattern = "*.dll";
-        
-        foreach (var file in Directory.GetFiles(tempDir, searchPattern, SearchOption.AllDirectories))
+        try
         {
-            if ((Environment.Is64BitOperatingSystem && file.Contains("32")) ||
-                (!Environment.Is64BitOperatingSystem && !file.Contains("32")))
-                continue;
+            ZipFile.ExtractToDirectory(libFilePath, tempDir, true);
 
-            string destFile = Path.Combine(nativeDir, Path.GetFileName(file));
-            if (!File.Exists(destFile))
-                File.Move(file, destFile);
+            string searchPattern = "*.so";
+            if (OSHelper.GetOperatingSystem() == EOperatingSystem.Windows)
+                searchPattern = "*.dll";
+
+            foreach (var file in Directory.GetFiles(tempDir, searchPattern, SearchOption.AllDirectories))
+            {
+                if ((Environment.Is64BitOperatingSystem && file.Contains("32")) ||
+                    (!Environment.Is64BitOperatingSystem && !file.Contains("32")))
+                    continue;
+
+                string destFile = Path.Combine(nativeDir, Path.GetFileName(file));
+                if (!File.Exists(destFile))
+                    File.Move(file, destFile, true);
+            }
         }
-
-        Directory.Delete(tempDir, true);
+        catch (Exception ex)
+        {
+            _logger.Error($"Failed to extract native files from {libFilePath}: {ex}");
+        }
+        finally
+        {
+            FileSystemHelper.DeleteDirectory(tempDir);
+        }
     }
 }

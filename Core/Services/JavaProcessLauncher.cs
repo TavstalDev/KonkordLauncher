@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Platform;
@@ -20,6 +21,7 @@ public static class JavaProcessLauncher
     /// <param name="javaPath">Path to the java executable to use. If null or empty, the system "java" command will be used.</param>
     /// <param name="jvmArguments">JVM arguments to pass to the Java executable (e.g. "-Xmx2G -Xms1G"). This string should contain any JVM flags required.</param>
     /// <param name="gameArguments">Game (application) arguments to pass after JVM arguments (e.g. "--username user --version 1.16.5").</param>
+    /// <param name="kind">The kind of Minecraft instance being launched.</param>
     /// <param name="logsPath">
     /// Optional path to a log file. If supplied, existing log file at this path will be rotated (moved/archived)
     /// before starting the process and the launched process' stdout/stderr lines will be written to a logger
@@ -33,14 +35,31 @@ public static class JavaProcessLauncher
     /// <param name="environmentVariables">Optional dictionary of environment variables to set on the started process.</param>
     /// <param name="sensitiveDataToReplace">Optional list of sensitive substrings (e.g. tokens, passwords) that should be masked in logged output.</param>
     /// <returns>A <see cref="Process"/> instance representing the started process, or <c>null</c> if the process could not be started.</returns>
-    public static Process? StartJava(string javaPath, string jvmArguments, string gameArguments, string? logsPath = null, string? wrapperCommand = null, Dictionary<string, string>? environmentVariables = null, List<string>? sensitiveDataToReplace = null)
+    public static Process? StartJava(string javaPath, string jvmArguments, string gameArguments, EMinecraftKind kind, string? logsPath = null, string? wrapperCommand = null, Dictionary<string, string>? environmentVariables = null, List<string>? sensitiveDataToReplace = null)
     {
         string finalJavaPath = string.IsNullOrEmpty(javaPath) ? "java" : javaPath;
+        string args;
+        bool useWrapper = false;
+        switch (kind)
+        {
+            case EMinecraftKind.NEOFORGE:
+            case EMinecraftKind.FORGE:
+            {
+                args = jvmArguments + " " + gameArguments;
+                break;
+            }
+            default:
+            {
+                args = jvmArguments;
+                useWrapper = true;
+                break;
+            }
+        }
 
         ProcessStartInfo psi;
         if (!string.IsNullOrEmpty(wrapperCommand))
         {
-            string cmdstr = finalJavaPath + " " + jvmArguments + " " + gameArguments;
+            string cmdstr = finalJavaPath + " " + args;
             if (wrapperCommand.Contains("%command%"))
                 wrapperCommand = wrapperCommand.Replace("%command%", cmdstr);
             else
@@ -62,7 +81,7 @@ public static class JavaProcessLauncher
             psi = new ProcessStartInfo
             {
                 FileName = finalJavaPath,
-                Arguments = jvmArguments + " " + gameArguments,
+                Arguments = args,
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -172,17 +191,19 @@ public static class JavaProcessLauncher
                     jvmLogger.Error(line);
                 };
             }
-            
-            // TODO: Implement launch wrapper
-            /*process.OutputDataReceived += (sender, e) => Console.WriteLine("[JAVA-OUT] " + e.Data);
-            process.ErrorDataReceived += (sender, e) => Console.WriteLine("[JAVA-ERR] " + e.Data);
-            var writer = process.StandardInput;
-            string[] gameArgs = gameArguments.Split(' ');
-            writer.WriteLine(gameArgs[0]); // Write the main class or jar file first
-            _logger.Info("Main class: " + gameArgs[0]);
-            writer.WriteLine(Convert.ToBase64String(Encoding.UTF8.GetBytes(gameArgs.Skip(1).Aggregate((a, b) => a + " " + b)))); // Write the rest of the arguments as a single line
-            writer.Flush();
-            writer.Close();*/
+
+            if (useWrapper)
+            {
+                var writer = process.StandardInput;
+                string[] gameArgs = gameArguments.Split(' ');
+                writer.WriteLine(gameArgs[0]); // Write the main class
+                writer.WriteLine(
+                    Convert.ToBase64String(
+                        Encoding.UTF8.GetBytes(gameArgs.Skip(1)
+                            .Aggregate((a, b) => a + " " + b)))); // Write the rest of the arguments as a single line
+                writer.Flush();
+                writer.Close();
+            }
         }
 
         // Start the process and return the Process object
@@ -243,14 +264,14 @@ public static class JavaProcessLauncher
         {
             process.EnableRaisingEvents = true;
 #if DEBUG
-            process.OutputDataReceived += (sender, e) =>
+            process.OutputDataReceived += (_, e) =>
             {
                 if (!string.IsNullOrEmpty(e.Data))
                 {
                     _logger.Debug($"Custom command: {e.Data}");
                 }
             };
-            process.ErrorDataReceived += (sender, e) =>
+            process.ErrorDataReceived += (_, e) =>
             {
                 if (!string.IsNullOrEmpty(e.Data))
                 {

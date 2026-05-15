@@ -14,7 +14,6 @@ namespace Tavstal.KonkordLauncher.Core.Instances;
 /// <summary>
 /// Represents a Minecraft instance, handling installation, configuration, and launching of the game.
 /// </summary>
-// TODO: Refactor
 public class MinecraftInstance
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MinecraftInstance));
@@ -202,7 +201,7 @@ public class MinecraftInstance
 
             // Launch the Minecraft game process with the constructed arguments
             
-            var process = JavaProcessLauncher.StartJava(GameDetails.JavaPath, arguments.jvmArgs, arguments.gameArgs, logsFilePath, GameDetails.WrapperCommand,
+            var process = JavaProcessLauncher.StartJava(GameDetails.JavaPath, arguments.jvmArgs, arguments.gameArgs, GameDetails.Kind, logsFilePath, GameDetails.WrapperCommand,
                 GameDetails.EnvironmentVariables,  _client is { IsOffline: false, AccessToken: not null } ? [ _client.AccessToken ] : null);
             
             // Execute post-exit command if specified
@@ -281,10 +280,14 @@ public class MinecraftInstance
         foreach (var cp in classPath)
             ArgumentBuilder.AddClass(cp);
 
-        /*string? result = await MinecraftFileService.ExtractLaunchWrapperAsync(PathDetails.LibrariesDir, cancellationToken);
-        if (!string.IsNullOrEmpty(result))
-            ArgumentBuilder.AddClass(result);
-        ArgumentBuilder.AddJvmArgument(new LaunchArg("io.github.tavstaldev.launchWrapper.Launch", 1));*/
+        if (GameDetails.Kind is not (EMinecraftKind.FORGE or EMinecraftKind.NEOFORGE))
+        {
+            string? result =
+                await MinecraftFileService.ExtractLaunchWrapperAsync(PathDetails.LibrariesDir, cancellationToken);
+            if (!string.IsNullOrEmpty(result))
+                ArgumentBuilder.AddClass(result);
+            ArgumentBuilder.AddJvmArgument(new LaunchArg("io.github.tavstaldev.launchWrapper.Launch", 2));
+        }
     }
 
     /// <summary>

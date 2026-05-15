@@ -186,7 +186,7 @@ public class ArgumentBuilder
             if (string.IsNullOrEmpty(ClasspathFilePath))
                 ClasspathFilePath = Path.Combine(Path.GetTempPath(), "konkordlauncher_classpath.txt");
             File.WriteAllText(ClasspathFilePath, classpath);
-            _placeholders.Add("${classpath}", $"\"@{ClasspathFilePath}\"");
+            _placeholders.Add("${classpath}", $"@\"{ClasspathFilePath}\"");
         }
         else
             _placeholders.Add("${classpath}", QuoteIfNeeded(classpath));
@@ -214,15 +214,16 @@ public class ArgumentBuilder
         var argsToAdd = _jvmArgumentsBeforeClassPath.OrderByDescending(x => x.Priority).Select(a => a.Arg);
         foreach (var arg in argsToAdd)
             jvmArgs.Add(arg);
-        
 
-        argsToAdd = _jvmArguments.OrderByDescending(x => x.Priority).Select(a => a.Arg);
+        argsToAdd = _jvmArguments.OrderByDescending(x => x.Priority).Select(a => a.Arg).ToList();
+        
+        // Classpath fallback
+        if (!argsToAdd.Any(x => x.Contains("-cp")) && !jvmArgs.Any(x => x.Contains("-cp")))
+            jvmArgs.Add("-cp ${classpath}");
+        
         foreach (var arg in argsToAdd)
             jvmArgs.Add(arg);
         
-        // Classpath fallback
-        if (!jvmArgs.Any(x => x.Contains("-cp")))
-            jvmArgs.Add("-cp ${classpath}");
         return jvmArgs;
     }
     

@@ -34,6 +34,7 @@
     <EmbeddedResource Include="Assets\Fmllib\guava-12.0.1.jar" />
     <EmbeddedResource Include="Assets\Fmllib\guava-14.0-rc3.jar" />
     <EmbeddedResource Include="Assets\Fmllib\scala-library.jar" />
+    <EmbeddedResource Include="Assets\launchWrapper-1.0.jar" />
   </ItemGroup>
 
 </Project>

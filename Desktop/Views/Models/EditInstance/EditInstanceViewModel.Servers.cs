@@ -58,8 +58,7 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
     [RelayCommand]
     private async Task Join(ServerModel server)
     {
-        // TODO: Implement server joining logic
-        //await _instance.LaunchAsync(_parentWindow, server.Ip);
+        // TODO: await _parent.Instance.LaunchAsync(_parent, server.Ip);
         await _parent.CloseWindowInteraction.Handle(Unit.Default);
     }
 

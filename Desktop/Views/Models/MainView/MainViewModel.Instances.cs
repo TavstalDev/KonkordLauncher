@@ -29,7 +29,6 @@ public partial class MainViewModel_Instances : KonkordObservableObject
     private readonly MainViewModel _parent;
     
     public ObservableCollection<InstanceGroup> InstanceGroups { get; } = new();
-    
     [ObservableProperty] private bool _hasInstances;
     
     /// <summary>
@@ -170,7 +169,7 @@ public partial class MainViewModel_Instances : KonkordObservableObject
     {
         if (instance == null)
             return;
-        await _parent.ShowInstanceEditDialogInteraction.Handle(instance.Id);
+        await _parent.ShowInstanceEditDialogInteraction.Handle(instance);
     }
 
     /// <summary>

@@ -11,6 +11,7 @@ using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Accounts;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
+using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
@@ -33,19 +34,19 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     /// Initializes a new instance of the <see cref="EditInstanceWindow"/> class.
     /// Sets up the data context with an empty instance ID and initializes components.
     /// </summary>
-    public EditInstanceWindow() : this(string.Empty) { }
+    public EditInstanceWindow() : this(null!) { }
     
     /// <summary>
     /// Initializes a new instance of the <see cref="EditInstanceWindow"/> class with a specific instance ID.
     /// Sets up the data context, initializes components, and registers reactive handlers.
     /// </summary>
-    /// <param name="instanceId">The ID of the instance to be edited.</param>
-    public EditInstanceWindow(string instanceId)
+    /// <param name="instance">The instance model to be edited in this window.</param>
+    public EditInstanceWindow(InstanceModel instance)
     {
-        _instanceId = instanceId;
+        _instanceId = Design.IsDesignMode ? string.Empty : instance.Id;
         InitializeComponent();
         
-        DataContext = new EditInstanceViewModel(instanceId);
+        DataContext = new EditInstanceViewModel(instance);
         _selectedInstanceTab = LogsTabBtn;
         _selectedSettingsTab = JavaSettingsBtn;
         

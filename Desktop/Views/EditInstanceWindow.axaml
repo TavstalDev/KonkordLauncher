@@ -365,12 +365,10 @@
                                                         Classes="TextInput"
                                                         PlaceholderText="{lang:Translate common.search}" />
                                                     <!--  Download  -->
-                                                    <!--  TODO  -->
                                                     <Button
                                                         Grid.Column="1"
                                                         Classes="IconBtn"
-                                                        Command="{Binding Mods.DownloadCommand}"
-                                                        IsEnabled="False">
+                                                        Command="{Binding Mods.DownloadCommand}">
                                                         <WrapPanel Classes="IconBtnWrapper">
                                                             <TextBlock
                                                                 VerticalAlignment="Center"
@@ -491,12 +489,10 @@
                                                         Text="{Binding ResourcePacks.ResourcePackSearchQuery}"
                                                         PlaceholderText="{lang:Translate common.search}" />
                                                     <!--  Download  -->
-                                                    <!--  TODO  -->
                                                     <Button
                                                         Grid.Column="1"
                                                         Classes="IconBtn"
-                                                        Command="{Binding ResourcePacks.DownloadCommand}"
-                                                        IsEnabled="False">
+                                                        Command="{Binding ResourcePacks.DownloadCommand}">
                                                         <WrapPanel Classes="IconBtnWrapper">
                                                             <TextBlock
                                                                 VerticalAlignment="Center"
@@ -596,12 +592,10 @@
                                                         Classes="TextInput"
                                                         PlaceholderText="{lang:Translate common.search}" />
                                                     <!--  Download  -->
-                                                    <!--  TODO  -->
                                                     <Button
                                                         Grid.Column="1"
                                                         Classes="IconBtn"
-                                                        Command="{Binding ShaderPacks.Download}"
-                                                        IsEnabled="False">
+                                                        Command="{Binding ShaderPacks.DownloadCommand}">
                                                         <WrapPanel Classes="IconBtnWrapper">
                                                             <TextBlock
                                                                 VerticalAlignment="Center"

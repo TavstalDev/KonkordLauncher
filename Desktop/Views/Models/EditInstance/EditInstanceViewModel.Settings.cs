@@ -192,7 +192,7 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
         Instance? instanceToSave = null;
         foreach (var instance in instances)
         {
-            if (instance.Id == _parent.InstanceId)
+            if (instance.Id == _parent.Instance.Id)
             {
                 instanceToSave = instance;
                 break;
@@ -208,9 +208,9 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
             .Select(x => new EnvironmentVariable(x.Key, x.Value))
             .ToList();
 
-        instanceToSave.Config = new InstanceConfig()
+        instanceToSave.Config = new InstanceConfig
         {
-            Java = new JavaConfig()
+            Java = new JavaConfig
             {
                 MinMemory = newValue.Java.MinMemory,
                 MaxMemory = newValue.Java.MaxMemory,
@@ -218,7 +218,7 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
                 JavaPath = newValue.Java.DefaultJavaPath,
                 JvmArguments = newValue.Java.JvmArguments
             },
-            Game = new InstanceGameConfig()
+            Game = new InstanceGameConfig
             {
                 StartMaximized = newValue.Game.StartMaximized,
                 WindowHeight = newValue.Game.WindowHeight,
@@ -230,7 +230,7 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
                 EnableMangoHud = newValue.Game.EnableMangoHud,
                 UseDedicatedGpu = newValue.Game.UseDedicatedGpu,
             },
-            Commands = new InstanceCommandsConfig()
+            Commands = new InstanceCommandsConfig
             {
                 PreLaunchCommand = newValue.Commands.PreLaunchCommand,
                 WrapperCommand = newValue.Commands.WrapperCommand,
@@ -238,7 +238,7 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
             },
             EnableEnvironment = newValue.EnableEnvironment,
             Environment = environmentVariables,
-            Misc = new InstanceMiscConfig()
+            Misc = new InstanceMiscConfig
             {
                 UseCustomGlfw = newValue.Misc.UseCustomGlfw,
                 CustomGlfwPath = newValue.Misc.CustomGlfwPath,
@@ -253,6 +253,6 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
         instances[index] = instanceToSave;
 
         JsonHelper.WriteJsonFile(PathHelper.LauncherInstancesPath, instances);
-        GlobalEvents.InvokeInstanceUpdated(_parent.InstanceId);
+        GlobalEvents.InvokeInstanceUpdated(_parent.Instance.Id);
     }
 }

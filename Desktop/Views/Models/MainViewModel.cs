@@ -46,7 +46,7 @@ public partial class MainViewModel : KonkordObservableObject
     public Interaction<Unit, string?> OpenFolderPickerInteraction { get; } = new();
     public Interaction<Unit, string?> OpenImagePickerInteraction { get; } = new();
     public Interaction<Unit, Unit> ShowInstanceCreationDialogInteraction { get; } = new();
-    public Interaction<string, Unit> ShowInstanceEditDialogInteraction { get; } = new();
+    public Interaction<InstanceModel, Unit> ShowInstanceEditDialogInteraction { get; } = new();
     public Interaction<Unit, Unit> ShowAccountsDialogInteraction { get; } = new();
     public Interaction<Unit, JavaVersionModel> ShowJavaSelectorDialogInteraction { get; } = new();
     public Interaction<string, Unit> ShowLogsWindowInteraction { get; } = new();

@@ -29,7 +29,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 /// </summary>
 public partial class EditInstanceViewModel : KonkordObservableObject
 {
-    public readonly string InstanceId;
+    public readonly InstanceModel Instance;
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceViewModel));
     public bool IsClosing;
     public bool IsInitialized;
@@ -76,13 +76,13 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     /// <summary>
     /// Initializes a new instance of the <see cref="EditInstanceViewModel"/> class.
     /// </summary>
-    /// <param name="instanceId">The unique identifier of the instance to edit.</param>
-    public EditInstanceViewModel(string instanceId)
+    /// <param name="instance">The instance model representing the Minecraft instance to be edited.</param>
+    public EditInstanceViewModel(InstanceModel instance)
     {
         if (Design.IsDesignMode)
             return;
 
-        InstanceId = instanceId;
+        Instance = instance;
         Mods = new EditInstanceViewModel_Mods(this);
         ResourcePacks = new EditInstanceViewModel_ResourcePacks(this);
         Screenshots = new EditInstanceViewModel_Screenshots(this);
@@ -101,7 +101,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     /// <param name="logMessage">The log message to be handled.</param>
     private void OnInstanceLogged(string instanceId, string logMessage)
     {
-        if (instanceId != InstanceId)
+        if (instanceId != Instance.Id)
             return;
 
         Logs += logMessage;
@@ -130,20 +130,18 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         Logs = string.Empty;
     }
 
+    /// <summary>
+    /// Asynchronously initializes the view-model for the edit-instance UI.
+    /// </summary>
+    /// <param name="cancellationToken">A token to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous initialization operation.</returns>
     private async Task InitAsync(CancellationToken cancellationToken = default)
     {
-        var instances = await LauncherHelper.GetInstancesAsync(cancellationToken);
-        var currentInstance = instances.FirstOrDefault(x => x.Id == InstanceId);
         var accountData = await LauncherHelper.GetAccountDataAsync(cancellationToken);
-        if (currentInstance == null)
-        {
-            _logger.Error($"Instance with ID '{InstanceId}' not found.");
-            throw new KeyNotFoundException($"Instance with ID '{InstanceId}' not found.");
-        }
 
-        InstanceName = currentInstance.Name;
-        IsVanilla = currentInstance.Kind == EMinecraftKind.VANILLA;
-        GameDirectory = currentInstance.GameDirectory;
+        InstanceName = Instance.Name;
+        IsVanilla = Instance.Kind == EMinecraftKind.VANILLA;
+        GameDirectory = Instance.GameDirectory;
 
         IsInitialized = true;
         Accounts = accountData.Accounts;
@@ -151,7 +149,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
 
         // Logging setup
         GlobalEvents.OnInstanceLogged += OnInstanceLogged;
-        Logs = GlobalEvents.GetInstanceLogs(InstanceId);
+        Logs = GlobalEvents.GetInstanceLogs(Instance.Id);
         if (!string.IsNullOrEmpty(Logs))
             await LogsScrollToEnd.Handle(Unit.Default);
         
@@ -159,7 +157,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         await ResourcePacks.InitAsync(cancellationToken);
         await Screenshots.InitAsync(cancellationToken);
         await Servers.InitAsync(cancellationToken);
-        await Settings.InitAsync(currentInstance.Config, cancellationToken);
+        await Settings.InitAsync(Instance.ConfigModel, cancellationToken);
         await ShaderPacks.InitAsync(cancellationToken);
         await Worlds.InitAsync(cancellationToken);
     }
@@ -167,25 +165,34 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     #region Common
     
     #region Window
+    
+    /// <summary>
+    /// Requests the window to minimize by invoking the <see cref="MinimizeWindowInteraction"/> interaction.
+    /// </summary>
+    /// <returns>A task that completes when the minimize request has been handled.</returns>
     [RelayCommand]
-    public async Task MinimizeWindow()
-    {
-        await MinimizeWindowInteraction.Handle(Unit.Default);
-    }
+    public async Task MinimizeWindow() => await MinimizeWindowInteraction.Handle(Unit.Default);
 
+    /// <summary>
+    /// Requests the window to toggle maximize/restore by invoking the <see cref="MaximizeWindowInteraction"/> interaction.
+    /// </summary>
+    /// <returns>A task that completes when the maximize/restore request has been handled.</returns>
     [RelayCommand]
-    public async Task MaximizeWindow()
-    {
-        await MaximizeWindowInteraction.Handle(Unit.Default);
-    }
+    public async Task MaximizeWindow() => await MaximizeWindowInteraction.Handle(Unit.Default);
 
+    /// <summary>
+    /// Requests the window to close by invoking the <see cref="CloseWindowInteraction"/> interaction.
+    /// </summary>
+    /// <returns>A task that completes when the close request has been handled.</returns>
     [RelayCommand]
-    public async Task CloseWindow()
-    {
-        await CloseWindowInteraction.Handle(Unit.Default);
-    }
+    public async Task CloseWindow() => await CloseWindowInteraction.Handle(Unit.Default);
     #endregion
 
+    /// <summary>
+    /// Requests a tab switch inside the edit-instance UI by invoking the <see cref="TabSwitchInteraction"/> interaction.
+    /// </summary>
+    /// <param name="tab">The target tab to switch to.</param>
+    /// <returns>A task that completes when the tab switch request has been handled.</returns>
     [RelayCommand]
     private async Task SwitchTab(EEditInstanceTab tab) => await TabSwitchInteraction.Handle(tab);
 
@@ -212,7 +219,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     private void ClearLogs()
     {
         Logs = string.Empty;
-        GlobalEvents.CleareInstanceLogs(InstanceId);
+        GlobalEvents.CleareInstanceLogs(Instance.Id);
     }
 
     #endregion

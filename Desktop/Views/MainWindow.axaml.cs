@@ -9,6 +9,7 @@ using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
+using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using Button = Avalonia.Controls.Button;
@@ -93,18 +94,18 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
             DataContext.ShowInstanceEditDialogInteraction.RegisterHandler(async action =>
             {
                 action.SetOutput(Unit.Default);
-                string instanceId = action.Input;
-                if (_openEditWindows.TryGetValue(instanceId, out var window))
+                InstanceModel instance = action.Input;
+                if (_openEditWindows.TryGetValue(instance.Id, out var window))
                 {
                     window.Activate();
                     if (window.WindowState == WindowState.Minimized)
                         window.WindowState = WindowState.Normal;
                     return;
                 }
-                EditInstanceWindow editInstanceWindow = new EditInstanceWindow(instanceId);
+                EditInstanceWindow editInstanceWindow = new EditInstanceWindow(instance);
                 editInstanceWindow.Show(this);
-                _openEditWindows.Add(instanceId, editInstanceWindow);
-                editInstanceWindow.Closed += (_, _) => _openEditWindows.Remove(instanceId);
+                _openEditWindows.Add(instance.Id, editInstanceWindow);
+                editInstanceWindow.Closed += (_, _) => _openEditWindows.Remove(instance.Id);
             }).DisposeWith(disposables);
             DataContext.ShowAccountsDialogInteraction.RegisterHandler(async action =>
             {

@@ -104,7 +104,8 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     /// <summary>
     /// Gets or sets a value indicating whether the game is currently running.
     /// </summary>
-    public bool IsGameRunning => GameProcess is { HasExited: false };
+    [ObservableProperty]
+    public partial bool IsGameRunning { get; set; }
     
     /// <summary>
     /// Gets the icon of the instance as a bitmap. If the icon path is not set, a default icon is used.
@@ -162,6 +163,28 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     }
 
     /// <summary>
+    /// Updates this view-model instance from a common instance data model.
+    /// </summary>
+    /// <param name="newData">
+    /// The source instance data to copy from. The update is only applied when the IDs match.
+    /// </param>
+    public void UpdateDetails(Common.Models.Instance newData)
+    {
+        if (newData.Id != Id)
+            return;
+        
+        Name = newData.Name;
+        Group = newData.Group;
+        IconPath = newData.IconPath;
+        MinecraftVersion = newData.MinecraftVersion;
+        CustomVersion = newData.CustomVersion;
+        Type = newData.Type;
+        Kind = newData.Kind;
+        GameDirectory = newData.GameDirectory;
+        ConfigModel = newData.Config;
+    }
+
+    /// <summary>
     /// Attaches event handlers to the game process to handle its exit and disposal events.
     /// </summary>
     public void AttachProcessEvent()
@@ -171,12 +194,22 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
 
         GameProcess.Exited += (_, _) =>
         {
-            Dispatcher.UIThread.Post(() => GameProcess = null);
+            Dispatcher.UIThread.Post(() =>
+            {
+                _logger.Info($"The instance has exited.");
+                GameProcess = null;
+                IsGameRunning = false;
+            });
         };
 
         GameProcess.Disposed += (_, _) =>
         {
-            Dispatcher.UIThread.Post(() => GameProcess = null);
+            Dispatcher.UIThread.Post(() =>
+            {
+                _logger.Info($"The instance process has been disposed.");
+                GameProcess = null;
+                IsGameRunning = false;
+            });
         };
 
         if (string.IsNullOrEmpty(GameDirectory))
@@ -191,11 +224,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             _watcher.Renamed -= OnLogFileChanged;
         }
         
-        if (!Directory.Exists(logsDir))
-        {
-            _logger.Warn($"Logs directory does not exist: {logsDir}. Creating it.");
-            Directory.CreateDirectory(logsDir);
-        }
+        Directory.CreateDirectory(logsDir);
         
         _watcher = new FileSystemWatcher
         {
@@ -486,6 +515,9 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
                     });
                 }
             };
+            _logger.Info($"Launched the  with PID {process.Id} - Running ? {!process.HasExited}");
+            IsGameRunning = !process.HasExited;
+            _logger.Info($"IsGameRunning set to {IsGameRunning}");
         }
         catch (Exception ex)
         {
@@ -568,7 +600,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             instances[instanceIndex].Config.Java.JavaPath = javaPath;
             JsonHelper.WriteJsonFile(PathHelper.LauncherInstancesPath, instances);
         }
-        GlobalEvents.InvokeInstancesChanged();
+        GlobalEvents.InvokeInstanceUpdated(instances[instanceIndex].Id);
     }
 
     /// <summary>

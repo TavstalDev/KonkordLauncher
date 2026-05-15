@@ -47,25 +47,71 @@ public static class GlobalEvents
     }
     #endregion
 
-    #region Instances Changed Event
-    /// <summary>
-    /// Delegate for handling events when the instances data changes.
-    /// </summary>
-    public delegate void InstancesChangedEventHandler();
+    #region Instance Added Event
 
     /// <summary>
-    /// Event triggered when the instances data is changed.
-    /// Subscribers can listen to this event to be notified of changes in instances.
+    /// Delegate used for subscribers that want to react when a new instance is created.
     /// </summary>
-    public static event InstancesChangedEventHandler? OnInstancesChanged;
+    /// <param name="instanceId">The ID of the instance that was added.</param>
+    public delegate void InstanceAddedEventHandler(string instanceId);
 
     /// <summary>
-    /// Invokes the <see cref="OnInstancesChanged"/> event to notify subscribers of changes in the instances data.
+    /// Raised when an instance is added to the launcher.
+    /// Subscribers typically refresh instance lists or UI groups when this event fires.
     /// </summary>
-    public static void InvokeInstancesChanged()
-    {
-        OnInstancesChanged?.Invoke();
-    }
+    public static event InstanceAddedEventHandler? OnInstanceAdded;
+
+    /// <summary>
+    /// Invokes the <see cref="OnInstanceAdded"/> event with the specified instance ID.
+    /// </summary>
+    /// <param name="instanceId">The ID of the newly added instance.</param>
+    public static void InvokeInstanceAdded(string instanceId) => OnInstanceAdded?.Invoke(instanceId);
+
+
+    #endregion
+
+    #region Instance Updated Event
+
+    /// <summary>
+    /// Delegate used for subscribers that want to react when an existing instance is updated.
+    /// </summary>
+    /// <param name="instanceId">The ID of the instance that was updated.</param>
+    public delegate void InstanceUpdatedEventHandler(string instanceId);
+
+    /// <summary>
+    /// Raised when an instance is updated.
+    /// Subscribers can refresh displayed metadata, icons, groups, or other UI state.
+    /// </summary>
+    public static event InstanceUpdatedEventHandler? OnInstanceUpdated;
+
+    /// <summary>
+    /// Invokes the <see cref="OnInstanceUpdated"/> event with the specified instance ID.
+    /// </summary>
+    /// <param name="instanceId">The ID of the updated instance.</param>
+    public static void InvokeInstanceUpdated(string instanceId) => OnInstanceUpdated?.Invoke(instanceId);
+
+    #endregion
+    
+    #region Instance Removed Event
+
+    /// <summary>
+    /// Delegate used for subscribers that want to react when an instance is removed.
+    /// </summary>
+    /// <param name="instanceId">The ID of the instance that was removed.</param>
+    public delegate void InstanceRemovedEventHandler(string instanceId);
+
+    /// <summary>
+    /// Raised when an instance is removed from the launcher.
+    /// Subscribers should remove the instance from any in-memory collections or UI lists.
+    /// </summary>
+    public static event InstanceRemovedEventHandler? OnInstanceRemoved;
+
+    /// <summary>
+    /// Invokes the <see cref="OnInstanceRemoved"/> event with the specified instance ID.
+    /// </summary>
+    /// <param name="instanceId">The ID of the removed instance.</param>
+    public static void InvokeInstanceRemoved(string instanceId) => OnInstanceRemoved?.Invoke(instanceId);
+    
     #endregion
 
     #region Instance Logged Event

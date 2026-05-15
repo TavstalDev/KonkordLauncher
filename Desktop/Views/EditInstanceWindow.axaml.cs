@@ -25,6 +25,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceWindow));
+    private readonly string _instanceId;
     private Button _selectedInstanceTab;
     private Button _selectedSettingsTab;
     
@@ -41,6 +42,7 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     /// <param name="instanceId">The ID of the instance to be edited.</param>
     public EditInstanceWindow(string instanceId)
     {
+        _instanceId = instanceId;
         InitializeComponent();
         
         DataContext = new EditInstanceViewModel(instanceId);
@@ -147,7 +149,7 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     {
         base.OnClosed(e);
         App.UpdateRPC("Browsing instances...");
-        GlobalEvents.InvokeInstancesChanged();
+        GlobalEvents.InvokeInstanceUpdated(_instanceId);
     }
 
     /// <summary>

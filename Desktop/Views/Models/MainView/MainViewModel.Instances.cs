@@ -39,6 +39,9 @@ public partial class MainViewModel_Instances : KonkordObservableObject
     public MainViewModel_Instances(MainViewModel parent)
     {
         _parent = parent;
+        GlobalEvents.OnInstanceAdded += OnInstanceAdded;
+        GlobalEvents.OnInstanceUpdated += OnInstanceUpdated;
+        GlobalEvents.OnInstanceRemoved += OnInstanceRemoved;
     }
     
     /// <summary>
@@ -49,7 +52,36 @@ public partial class MainViewModel_Instances : KonkordObservableObject
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
-        GlobalEvents.OnInstancesChanged -= OnInstancesChanged;
+        GlobalEvents.OnInstanceAdded -= OnInstanceAdded;
+        GlobalEvents.OnInstanceUpdated -= OnInstanceUpdated;
+        GlobalEvents.OnInstanceRemoved -= OnInstanceRemoved;
+    }
+    
+    /// <summary>
+    /// Handles the global "instance added" event by kicking off asynchronous creation handling.
+    /// </summary>
+    /// <param name="instanceId">The ID of the instance that was added.</param>
+    private void OnInstanceAdded(string instanceId)
+    {
+        _ =  HandleInstanceCreatedAsync(instanceId);
+    }
+
+    /// <summary>
+    /// Handles the global "instance updated" event by kicking off asynchronous update handling.
+    /// </summary>
+    /// <param name="instanceId">The ID of the instance that was updated.</param>
+    private void OnInstanceUpdated(string instanceId)
+    {
+        _ =  HandleInstanceUpdatedAsync(instanceId);
+    }
+
+    /// <summary>
+    /// Handles the global "instance removed" event by kicking off asynchronous removal handling.
+    /// </summary>
+    /// <param name="instanceId">The ID of the instance that was removed.</param>
+    private void OnInstanceRemoved(string instanceId)
+    {
+        _ = HandleInstanceRemovedAsync(instanceId);
     }
 
     /// <summary>
@@ -84,8 +116,6 @@ public partial class MainViewModel_Instances : KonkordObservableObject
             InstanceGroups.Add(group);
 
         HasInstances = InstanceGroups.Count > 0;
-        
-        GlobalEvents.OnInstancesChanged += OnInstancesChanged;
     }
     
     #region Commands
@@ -188,7 +218,7 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         targetInstance.Name = result;
         instances[index] = targetInstance;
         await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances, cancellationToken);
-        GlobalEvents.InvokeInstancesChanged();
+        GlobalEvents.InvokeInstanceUpdated(targetInstance.Id);
     }
 
     /// <summary>
@@ -216,7 +246,7 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         targetInstance.IconPath = result;
         instances[index] = targetInstance;
         await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances, cancellationToken);
-        GlobalEvents.InvokeInstancesChanged();
+        GlobalEvents.InvokeInstanceUpdated(targetInstance.Id);
     }
 
     /// <summary>
@@ -244,7 +274,7 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         targetInstance.Group = result;
         instances[index] = targetInstance;
         await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances, cancellationToken);
-        GlobalEvents.InvokeInstancesChanged();
+        GlobalEvents.InvokeInstanceUpdated(targetInstance.Id);
     }
 
     /// <summary>
@@ -273,14 +303,7 @@ public partial class MainViewModel_Instances : KonkordObservableObject
     {
         if (instance == null)
             return;
-
-        /*var directoryResult = await _parent.OpenFolderPickerInteraction.Handle(Unit.Default);
-        if (string.IsNullOrEmpty(directoryResult))
-            return;
-
-        string exportPath = Path.Combine(directoryResult, instance.Name + "-modrinth.mrpack");
         
-        await InstanceHelper.ExportAsync(instance.getInstance(), exportPath, EInstanceProvider.Modrinth, "1.0.0", "", cancellationToken);*/
         await _parent.ExportModrinthInstanceInteraction.Handle(instance.getInstance());
     }
 
@@ -294,14 +317,7 @@ public partial class MainViewModel_Instances : KonkordObservableObject
     {
         if (instance == null)
             return;
-
-        /*var directoryResult = await _parent.OpenFolderPickerInteraction.Handle(Unit.Default);
-        if (string.IsNullOrEmpty(directoryResult))
-            return;
-
-        string exportPath = Path.Combine(directoryResult, instance.Name + "-curseforge.zip");
         
-        await InstanceHelper.ExportAsync(instance.getInstance(), exportPath, EInstanceProvider.CurseForge, "1.0.0", "", cancellationToken);*/
         await _parent.ExportCurseForgeInstanceInteraction.Handle(instance.getInstance());
     }
 
@@ -336,55 +352,135 @@ public partial class MainViewModel_Instances : KonkordObservableObject
             FileSystemHelper.DeleteDirectory(targetInstance.GameDirectory);
         instances.Remove(targetInstance);
         await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances, cancellationToken);
-        GlobalEvents.InvokeInstancesChanged();
+        GlobalEvents.InvokeInstanceRemoved(targetInstance.Id);
     }
 
     #endregion
-    
-    /// <summary>
-    /// Event handler invoked when the global instances collection has changed.
-    /// This method logs the event and triggers a background refresh of the view-model's
-    /// instance groups by calling <see cref="HandleInstancesChangedAsync(CancellationToken)"/>.
-    /// </summary>
-    private void OnInstancesChanged()
-    {
-        _logger.Debug("Instances data changed. Updating instances collection.");
-        _ = HandleInstancesChangedAsync();
-    }
 
     /// <summary>
-    /// Reloads the list of instances from disk (via <see cref="LauncherHelper.GetInstancesAsync(CancellationToken)"/>),
-    /// groups them by their configured group name (falling back to an "uncategorized" translation),
-    /// rebuilds the in-memory <see cref="InstanceGroups"/> collection used by the UI, and updates
-    /// the <see cref="HasInstances"/> flag.
+    /// Handles an instance creation event by loading the newly created instance from disk
+    /// and inserting it into the correct <see cref="InstanceGroup"/> in the UI collection.
     /// </summary>
-    /// <param name="cancellationToken">Token to observe for cancellation of the refresh operation.</param>
-    /// <returns>A <see cref="Task"/> that completes when the instance grouping and UI collection update finish.</returns>
-    private async Task HandleInstancesChangedAsync(CancellationToken cancellationToken = default)
+    /// <param name="instanceId">The ID of the newly created instance.</param>
+    /// <param name="cancellationToken">Token used to cancel the disk read operation.</param>
+    private async Task HandleInstanceCreatedAsync(string instanceId, CancellationToken cancellationToken = default)
     {
         var instances = await LauncherHelper.GetInstancesAsync(cancellationToken);
-        var instanceGroups = new Dictionary<string, InstanceGroup>();
+        var targetInstance = instances.FirstOrDefault(i => i.Id == instanceId);
+        if (targetInstance == null)
+            return;
+
         string uncategorized = TranslationManager.Translate("main.page.play.uncategorized");
-        foreach (var instance in instances)
+        var groupName = targetInstance.Group ?? uncategorized;
+        
+        var existingGroup = InstanceGroups.FirstOrDefault(x => x.GroupName == groupName);
+        if (existingGroup == null)
         {
-            string key = instance.Group ?? string.Empty;
-            if (instanceGroups.ContainsKey(key))
-            {
-                instanceGroups[key].Instances.Add(new InstanceModel(instance));
-            }
-            else
-            {
-                var groupName = instance.Group ?? uncategorized;
-                var newGroup = new InstanceGroup(groupName);
-                newGroup.Instances.Add(new InstanceModel(instance));
-                instanceGroups.Add(key, newGroup);
-            }
+            var newGroup = new InstanceGroup(groupName);
+            newGroup.Instances.Add(new InstanceModel(targetInstance));
+            InstanceGroups.Add(newGroup);
+            HasInstances = InstanceGroups.Count > 0;
+            return;
         }
 
-        InstanceGroups.Clear();
-        foreach (var group in instanceGroups.Values)
-            InstanceGroups.Add(group);
+        existingGroup.Instances.Add(new InstanceModel(targetInstance));
+    }
+    
+    /// <summary>
+    /// Handles an instance update event by refreshing the existing item in the UI collection
+    /// and moving it to a different group when needed.
+    /// </summary>
+    /// <param name="instanceId">The ID of the updated instance.</param>
+    /// <param name="cancellationToken">Token used to cancel the disk read operation.</param>
+    private async Task HandleInstanceUpdatedAsync(string instanceId, CancellationToken cancellationToken = default)
+    {
+        var instances = await LauncherHelper.GetInstancesAsync(cancellationToken);
+        var targetInstance = instances.FirstOrDefault(i => i.Id == instanceId);
+        if (targetInstance == null)
+            return;
+        
+        bool found = false;
+        InstanceGroup? oldGroup = null;
+        InstanceModel? instanceToUpdate = null;
+        foreach (var group in InstanceGroups)
+        {
+            foreach (var instance in group.Instances.ToList())
+            {
+                if (instance.Id != instanceId)
+                    continue;
 
+                bool shouldUpdateGroup = instance.Group != targetInstance.Group;
+                oldGroup = group;
+                instance.UpdateDetails(targetInstance);
+                if (shouldUpdateGroup)
+                    instanceToUpdate = instance;
+
+                found = true;
+                break;
+            }
+            
+            if (found)
+                break;
+        }
+
+        if (instanceToUpdate == null || oldGroup == null)
+            return;
+        
+        oldGroup.Instances.Remove(instanceToUpdate);
+        if (oldGroup.Instances.Count == 0)            
+            InstanceGroups.Remove(oldGroup);
+        
+        string uncategorized = TranslationManager.Translate("main.page.play.uncategorized");
+        var groupName = targetInstance.Group ?? uncategorized;
+        var newGroup = InstanceGroups.FirstOrDefault(x => x.GroupName == groupName);
+        if (newGroup == null)
+        {
+            newGroup = new InstanceGroup(groupName);
+            newGroup.Instances.Add(instanceToUpdate);
+            InstanceGroups.Add(newGroup);
+            HasInstances = InstanceGroups.Count > 0;
+            return;
+        }
+        
+        newGroup.Instances.Add(instanceToUpdate);
+    }
+    
+    /// <summary>
+    /// Handles an instance removal event by removing the corresponding item from the
+    /// appropriate group and removing empty groups from the UI collection.
+    /// </summary>
+    /// <param name="instanceId">The ID of the removed instance.</param>
+    /// <param name="cancellationToken">Unused cancellation token (present for signature consistency).</param>
+    /// <returns>A completed task.</returns>
+    private Task HandleInstanceRemovedAsync(string instanceId, CancellationToken cancellationToken = default)
+    {
+        bool found = false;
+        InstanceModel? instanceToRemove = null;
+        InstanceGroup? targetGroup = null;
+        foreach (var group in InstanceGroups)
+        {
+            foreach (var instance in group.Instances)
+            {
+                if (instance.Id != instanceId)
+                    continue;
+                targetGroup = group;
+                instanceToRemove = instance;
+                found = true;
+                break;
+            }
+
+            if (found)
+                break;
+        }
+        
+        if (instanceToRemove == null || targetGroup == null)
+            return Task.CompletedTask;
+        
+        targetGroup.Instances.Remove(instanceToRemove);
+        if (targetGroup.Instances.Count == 0)
+            InstanceGroups.Remove(targetGroup);
+        
         HasInstances = InstanceGroups.Count > 0;
+        return Task.CompletedTask;
     }
 }

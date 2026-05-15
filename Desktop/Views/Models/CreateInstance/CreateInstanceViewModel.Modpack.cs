@@ -135,14 +135,14 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
     #region Commands
 
     [RelayCommand]
-    private async Task CreateInstance()
+    private async Task CreateInstance(CancellationToken cancellationToken = default)
     {
         var modpack = SelectedModpack;
         if (modpack == null || SelectedModpackVersionIndex == -1)
             return;
 
         var selectedVersion = modpack.Versions[SelectedModpackVersionIndex];
-        var instances = await LauncherHelper.GetInstancesAsync();
+        var instances = await LauncherHelper.GetInstancesAsync(cancellationToken);
 
         if (instances.Any(x => x.Name == InstanceName))
         {
@@ -177,13 +177,14 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
                 _parent?.UpdateStatusTranslated("instance.download.file", file.FileName, p.ToString("0.00"));
             });
             
-            await HttpHelper.DownloadFileAsync(file.Url, tempPath, prog);
+            await HttpHelper.DownloadFileAsync(file.Url, tempPath, prog, cancellationToken);
             
             _parent.CloseReporter();
-            if (await InstanceHelper.ImportAsync(tempPath, EInstanceProvider.Modrinth, App.ScreenResolution, InstanceName, null, _parent) != null)
+            if (await InstanceHelper.ImportAsync(tempPath, EInstanceProvider.Modrinth, App.ScreenResolution, InstanceName, null, _parent, cancellationToken) != null)
             {
                 _parent.CloseReporter();
-                GlobalEvents.InvokeInstancesChanged();
+                instances = await LauncherHelper.GetInstancesAsync(cancellationToken);
+                GlobalEvents.InvokeInstanceAdded(instances.Last().Id);
                 await _parent.CloseWindowInteraction.Handle(Unit.Default);
             }
             else

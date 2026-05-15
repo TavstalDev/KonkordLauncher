@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
@@ -116,7 +117,8 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
         if (await InstanceHelper.ImportAsync(ImportPath, EInstanceProvider.Modrinth, App.ScreenResolution, null, null, _parent, cancellationToken) != null)
         {
             _parent.CloseReporter();
-            GlobalEvents.InvokeInstancesChanged();
+            var instances = await LauncherHelper.GetInstancesAsync(cancellationToken);
+            GlobalEvents.InvokeInstanceAdded(instances.Last().Id);
             await _parent.CloseWindowInteraction.Handle(Unit.Default);
         }
         else
@@ -164,7 +166,8 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
                     cancellationToken) != null)
             {
                 _parent.CloseReporter();
-                GlobalEvents.InvokeInstancesChanged();
+                var instances = await LauncherHelper.GetInstancesAsync(cancellationToken);
+                GlobalEvents.InvokeInstanceAdded(instances.Last().Id);
                 await _parent.CloseWindowInteraction.Handle(Unit.Default);
             }
             else

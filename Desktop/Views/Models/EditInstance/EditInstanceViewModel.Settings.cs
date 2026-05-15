@@ -253,6 +253,6 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
         instances[index] = instanceToSave;
 
         JsonHelper.WriteJsonFile(PathHelper.LauncherInstancesPath, instances);
-        GlobalEvents.InvokeInstancesChanged();
+        GlobalEvents.InvokeInstanceUpdated(_parent.InstanceId);
     }
 }

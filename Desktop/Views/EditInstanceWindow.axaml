@@ -3,11 +3,11 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:enums="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Enums"
     xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common"
     xmlns:local="clr-namespace:Tavstal.KonkordLauncher.Desktop"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
-    xmlns:enums="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Enums"
     Title="{lang:Translate instance.edit.window}"
     Width="900"
     Height="500"
@@ -19,13 +19,12 @@
     Background="Transparent"
     CanResize="True"
     CornerRadius="14"
-    
     ExtendClientAreaToDecorationsHint="True"
     Icon="avares://Desktop/Assets/Images/logo.png"
     ShowInTaskbar="False"
-    WindowDecorations="None"
     TransparencyLevelHint="Transparent"
     UseLayoutRounding="True"
+    WindowDecorations="None"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
     <Grid>
@@ -40,9 +39,9 @@
                 <!--  Window Controls  -->
                 <Border HorizontalAlignment="Stretch" PointerPressed="DragStart_PointerPressed">
                     <Grid ColumnDefinitions="*, Auto">
-                        <!-- Window Title  -->
+                        <!--  Window Title  -->
                         <TextBlock Classes="WindowTitle" Text="{Binding $parent[Window].Title}" />
-                        
+
                         <!--  Window Buttons  -->
                         <StackPanel Grid.Column="1" Classes="WindowBtnPanel">
                             <!--  MINIMIZE  -->
@@ -87,7 +86,7 @@
                         BorderBrush="{DynamicResource border-two}"
                         BorderThickness="0,1,0,0">
                         <Grid ColumnDefinitions="Auto, *">
-                            
+
                             <!--  Tab Buttons  -->
                             <Border
                                 Padding="0,10,10,10"
@@ -98,77 +97,77 @@
                                         Margin="25,0,15,0"
                                         RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto"
                                         RowSpacing="10">
-                                        <Button 
+                                        <Button
                                             Name="LogsTabBtn"
+                                            HorizontalAlignment="Stretch"
+                                            Classes="SettingsTabBtn SettingsTabBtnActive"
                                             Command="{Binding SwitchTabCommand}"
-                                            CommandParameter="{x:Static enums:EEditInstanceTab.LOGS}"
-                                            HorizontalAlignment="Stretch" 
-                                            Classes="SettingsTabBtn SettingsTabBtnActive">
+                                            CommandParameter="{x:Static enums:EEditInstanceTab.LOGS}">
                                             <TextBlock Text="{lang:Translate instance.edit.tab.logs}" />
                                         </Button>
                                         <Button
-                                            Grid.Row="1"
                                             Name="ModsTabBtn"
+                                            Grid.Row="1"
+                                            HorizontalAlignment="Stretch"
+                                            Classes="SettingsTabBtn"
                                             Command="{Binding SwitchTabCommand}"
                                             CommandParameter="{x:Static enums:EEditInstanceTab.MODS}"
-                                            IsVisible="{Binding !IsVanilla}"
-                                            HorizontalAlignment="Stretch"
-                                            Classes="SettingsTabBtn">
+                                            IsVisible="{Binding !IsVanilla}">
                                             <TextBlock Text="{lang:Translate instance.edit.tab.mods}" />
                                         </Button>
                                         <Button
-                                            Grid.Row="2"
                                             Name="ResourcePacksTabBtn"
-                                            Command="{Binding SwitchTabCommand}"
-                                            CommandParameter="{x:Static enums:EEditInstanceTab.RESOURCE_PACKS}"
+                                            Grid.Row="2"
                                             HorizontalAlignment="Stretch"
-                                            Classes="SettingsTabBtn">
+                                            Classes="SettingsTabBtn"
+                                            Command="{Binding SwitchTabCommand}"
+                                            CommandParameter="{x:Static enums:EEditInstanceTab.RESOURCE_PACKS}">
                                             <TextBlock Text="{lang:Translate instance.edit.tab.resourcePacks}" />
                                         </Button>
                                         <Button
-                                            Grid.Row="3"
                                             Name="ShaderPacksTabBtn"
+                                            Grid.Row="3"
+                                            HorizontalAlignment="Stretch"
+                                            Classes="SettingsTabBtn"
                                             Command="{Binding SwitchTabCommand}"
                                             CommandParameter="{x:Static enums:EEditInstanceTab.SHADER_PACKS}"
-                                            IsVisible="{Binding !IsVanilla}"
-                                            HorizontalAlignment="Stretch"
-                                            Classes="SettingsTabBtn">
+                                            IsVisible="{Binding !IsVanilla}">
                                             <TextBlock Text="{lang:Translate instance.edit.tab.shaderPacks}" />
                                         </Button>
                                         <Button
-                                            Grid.Row="4"
                                             Name="WorldsTabBtn"
-                                            Command="{Binding SwitchTabCommand}"
-                                            CommandParameter="{x:Static enums:EEditInstanceTab.WORLDS}"
+                                            Grid.Row="4"
                                             HorizontalAlignment="Stretch"
-                                            Classes="SettingsTabBtn">
+                                            Classes="SettingsTabBtn"
+                                            Command="{Binding SwitchTabCommand}"
+                                            CommandParameter="{x:Static enums:EEditInstanceTab.WORLDS}">
                                             <TextBlock Text="{lang:Translate instance.edit.tab.worlds}" />
                                         </Button>
                                         <Button
-                                            Grid.Row="5"
                                             Name="ServersTabBtn"
-                                            Command="{Binding SwitchTabCommand}"
-                                            CommandParameter="{x:Static enums:EEditInstanceTab.SERVERS}"
+                                            Grid.Row="5"
                                             HorizontalAlignment="Stretch"
-                                            Classes="SettingsTabBtn">
+                                            Classes="SettingsTabBtn"
+                                            Command="{Binding SwitchTabCommand}"
+                                            CommandParameter="{x:Static enums:EEditInstanceTab.SERVERS}">
                                             <TextBlock Text="{lang:Translate instance.edit.tab.servers}" />
                                         </Button>
                                         <Button
-                                            Grid.Row="6"
                                             Name="ScreenshotsTabBtn"
-                                            Command="{Binding SwitchTabCommand}"
-                                            CommandParameter="{x:Static enums:EEditInstanceTab.SCREENSHOTS}"
+                                            Grid.Row="6"
                                             HorizontalAlignment="Stretch"
-                                            Classes="SettingsTabBtn">
+                                            Classes="SettingsTabBtn"
+                                            Command="{Binding SwitchTabCommand}"
+                                            CommandParameter="{x:Static enums:EEditInstanceTab.SCREENSHOTS}">
                                             <TextBlock Text="{lang:Translate instance.edit.tab.screenshots}" />
                                         </Button>
                                         <Button
-                                            Grid.Row="7"
                                             Name="SettingsTabBtn"
-                                            Command="{Binding SwitchTabCommand}"
-                                            CommandParameter="{x:Static enums:EEditInstanceTab.SETTINGS}"
+                                            Grid.Row="7"
                                             HorizontalAlignment="Stretch"
-                                            Classes="SettingsTabBtn">
+                                            Classes="SettingsTabBtn"
+                                            Command="{Binding SwitchTabCommand}"
+                                            CommandParameter="{x:Static enums:EEditInstanceTab.SETTINGS}">
                                             <TextBlock Text="{lang:Translate instance.edit.tab.settings}" />
                                         </Button>
                                     </Grid>
@@ -176,25 +175,32 @@
                             </Border>
 
                             <!--  Content  -->
-                            <Carousel Grid.Column="1" 
-                                      Margin="0,15,0,0" 
-                                      SelectedIndex="{Binding EditInstanceTab}">
+                            <Carousel
+                                Grid.Column="1"
+                                Margin="0,15,0,0"
+                                SelectedIndex="{Binding EditInstanceTab}">
                                 <Carousel.PageTransition>
                                     <CompositePageTransition>
                                         <PageSlide Orientation="Vertical" Duration="0:00:00.200" />
                                     </CompositePageTransition>
                                 </Carousel.PageTransition>
                                 <Carousel.Items>
-                                    
+
                                     <!--  Logs  -->
                                     <ScrollViewer Margin="25,0,25,25">
                                         <Border Classes="SettingsCategoryBorder">
                                             <Grid RowDefinitions="Auto, *, Auto">
                                                 <!--  Title  -->
-                                                <TextBlock Classes="SettingsCategoryText" Margin="5, 5, 5, 10" Text="{lang:Translate instance.edit.latestLog}" />
+                                                <TextBlock
+                                                    Margin="5,5,5,10"
+                                                    Classes="SettingsCategoryText"
+                                                    Text="{lang:Translate instance.edit.latestLog}" />
 
                                                 <!--  Log content  -->
-                                                <Border Grid.Row="1" Classes="GridInnerContent" Margin="0, 0, 0, 15">
+                                                <Border
+                                                    Grid.Row="1"
+                                                    Margin="0,0,0,15"
+                                                    Classes="GridInnerContent">
                                                     <ScrollViewer
                                                         Name="LogsScrollViewer"
                                                         HorizontalScrollBarVisibility="Disabled"
@@ -207,13 +213,13 @@
                                                             TextWrapping="Wrap" />
                                                     </ScrollViewer>
                                                 </Border>
-                                                
+
                                                 <!--  Actions  -->
                                                 <Grid
                                                     Grid.Row="2"
+                                                    Margin="4,0"
                                                     ColumnDefinitions="*, Auto, Auto, Auto"
-                                                    ColumnSpacing="5"
-                                                    Margin="4, 0">
+                                                    ColumnSpacing="5">
                                                     <!--  Search bar  -->
                                                     <TextBox
                                                         Grid.Column="0"
@@ -262,14 +268,17 @@
                                             </Grid>
                                         </Border>
                                     </ScrollViewer>
-                                    
-                                    <!-- Mods -->
+
+                                    <!--  Mods  -->
                                     <ScrollViewer Margin="25,0,25,25">
                                         <Border Classes="SettingsCategoryBorder">
                                             <Grid RowDefinitions="Auto, *, Auto">
                                                 <!--  Title  -->
-                                                <TextBlock Classes="SettingsCategoryText" Margin="5, 5, 5, 10" Text="{lang:Translate instance.edit.subTitle.mods}" />
-                                                
+                                                <TextBlock
+                                                    Margin="5,5,5,10"
+                                                    Classes="SettingsCategoryText"
+                                                    Text="{lang:Translate instance.edit.subTitle.mods}" />
+
                                                 <!--  Content  -->
                                                 <Border Grid.Row="1">
                                                     <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
@@ -352,13 +361,13 @@
                                                         </DataGrid>
                                                     </ScrollViewer>
                                                 </Border>
-                                                
+
                                                 <!--  Actions  -->
                                                 <Grid
                                                     Grid.Row="2"
+                                                    Margin="4,10,4,0"
                                                     ColumnDefinitions="*, Auto, Auto"
-                                                    ColumnSpacing="5"
-                                                    Margin="4, 10, 4, 0">
+                                                    ColumnSpacing="5">
                                                     <!--  Search bar  -->
                                                     <TextBox
                                                         Grid.Column="0"
@@ -394,14 +403,17 @@
                                             </Grid>
                                         </Border>
                                     </ScrollViewer>
-                                    
-                                    <!-- Resource Packs -->
+
+                                    <!--  Resource Packs  -->
                                     <ScrollViewer Margin="25,0,25,25">
-                                         <Border Classes="SettingsCategoryBorder">
+                                        <Border Classes="SettingsCategoryBorder">
                                             <Grid RowDefinitions="Auto, *, Auto">
                                                 <!--  Title  -->
-                                                <TextBlock Classes="SettingsCategoryText" Margin="5, 5, 5, 10" Text="{lang:Translate instance.edit.subTitle.resourcePacks}" />
-                                                
+                                                <TextBlock
+                                                    Margin="5,5,5,10"
+                                                    Classes="SettingsCategoryText"
+                                                    Text="{lang:Translate instance.edit.subTitle.resourcePacks}" />
+
                                                 <!--  Content  -->
                                                 <Border Grid.Row="1">
                                                     <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
@@ -475,19 +487,19 @@
                                                         </DataGrid>
                                                     </ScrollViewer>
                                                 </Border>
-                                                
+
                                                 <!--  Actions  -->
                                                 <Grid
                                                     Grid.Row="2"
+                                                    Margin="4,10,4,0"
                                                     ColumnDefinitions="*, Auto, Auto"
-                                                    ColumnSpacing="5"
-                                                    Margin="4, 10, 4, 0">
+                                                    ColumnSpacing="5">
                                                     <!--  Search bar  -->
                                                     <TextBox
                                                         Grid.Column="0"
                                                         Classes="TextInput"
-                                                        Text="{Binding ResourcePacks.ResourcePackSearchQuery}"
-                                                        PlaceholderText="{lang:Translate common.search}" />
+                                                        PlaceholderText="{lang:Translate common.search}"
+                                                        Text="{Binding ResourcePacks.ResourcePackSearchQuery}" />
                                                     <!--  Download  -->
                                                     <Button
                                                         Grid.Column="1"
@@ -518,14 +530,17 @@
                                             </Grid>
                                         </Border>
                                     </ScrollViewer>
-                                    
-                                    <!-- Shader Packs -->
+
+                                    <!--  Shader Packs  -->
                                     <ScrollViewer Margin="25,0,25,25">
                                         <Border Classes="SettingsCategoryBorder">
                                             <Grid RowDefinitions="Auto, *, Auto">
                                                 <!--  Title  -->
-                                                <TextBlock Classes="SettingsCategoryText" Margin="5, 5, 5, 10" Text="{lang:Translate instance.edit.subTitle.shaderPacks}" />
-                                                
+                                                <TextBlock
+                                                    Margin="5,5,5,10"
+                                                    Classes="SettingsCategoryText"
+                                                    Text="{lang:Translate instance.edit.subTitle.shaderPacks}" />
+
                                                 <!--  Content  -->
                                                 <Border Grid.Row="1">
                                                     <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
@@ -579,13 +594,13 @@
                                                         </DataGrid>
                                                     </ScrollViewer>
                                                 </Border>
-                                                
+
                                                 <!--  Actions  -->
                                                 <Grid
                                                     Grid.Row="2"
+                                                    Margin="4,10,4,0"
                                                     ColumnDefinitions="*, Auto, Auto"
-                                                    ColumnSpacing="5"
-                                                    Margin="4, 10, 4, 0">
+                                                    ColumnSpacing="5">
                                                     <!--  Search bar  -->
                                                     <TextBox
                                                         Grid.Column="0"
@@ -621,14 +636,17 @@
                                             </Grid>
                                         </Border>
                                     </ScrollViewer>
-                                    
-                                    <!-- Worlds -->
+
+                                    <!--  Worlds  -->
                                     <ScrollViewer Margin="25,0,25,25">
                                         <Border Classes="SettingsCategoryBorder">
                                             <Grid RowDefinitions="Auto, *, Auto">
                                                 <!--  Title  -->
-                                                <TextBlock Classes="SettingsCategoryText" Margin="5, 5, 5, 10" Text="{lang:Translate instance.edit.subTitle.worlds}" />
-                                                
+                                                <TextBlock
+                                                    Margin="5,5,5,10"
+                                                    Classes="SettingsCategoryText"
+                                                    Text="{lang:Translate instance.edit.subTitle.worlds}" />
+
                                                 <!--  Content  -->
                                                 <Border Grid.Row="1">
                                                     <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
@@ -724,14 +742,17 @@
                                             </Grid>
                                         </Border>
                                     </ScrollViewer>
-                                    
-                                    <!-- Servers -->
+
+                                    <!--  Servers  -->
                                     <ScrollViewer Margin="25,0,25,25">
                                         <Border Classes="SettingsCategoryBorder">
                                             <Grid RowDefinitions="Auto, *, Auto">
                                                 <!--  Title  -->
-                                                <TextBlock Classes="SettingsCategoryText" Margin="5, 5, 5, 10" Text="{lang:Translate instance.edit.subTitle.servers}" />
-                                                
+                                                <TextBlock
+                                                    Margin="5,5,5,10"
+                                                    Classes="SettingsCategoryText"
+                                                    Text="{lang:Translate instance.edit.subTitle.servers}" />
+
                                                 <!--  Content  -->
                                                 <Border Grid.Row="1">
                                                     <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
@@ -793,25 +814,25 @@
                                                         </DataGrid>
                                                     </ScrollViewer>
                                                 </Border>
-                                                            
+
                                                 <!--  Actions  -->
                                                 <Grid
                                                     Grid.Row="2"
+                                                    Margin="4,10,4,0"
                                                     ColumnDefinitions="*, *, Auto"
-                                                    ColumnSpacing="5"
-                                                    Margin="4, 10, 4, 0">
+                                                    ColumnSpacing="5">
                                                     <!--  Name bar  -->
                                                     <TextBox
                                                         Grid.Column="0"
                                                         Classes="TextInput"
-                                                        Text="{Binding Servers.ServerName}"
-                                                        PlaceholderText="Minecraft Server" />
+                                                        PlaceholderText="Minecraft Server"
+                                                        Text="{Binding Servers.ServerName}" />
                                                     <!--  Address bar  -->
                                                     <TextBox
                                                         Grid.Column="1"
                                                         Classes="TextInput"
-                                                        Text="{Binding Servers.ServerIp}"
-                                                        PlaceholderText="192.168.1.0:25565" />
+                                                        PlaceholderText="192.168.1.0:25565"
+                                                        Text="{Binding Servers.ServerIp}" />
                                                     <!--  Add  -->
                                                     <Button
                                                         Grid.Column="2"
@@ -829,14 +850,17 @@
                                             </Grid>
                                         </Border>
                                     </ScrollViewer>
-                                    
-                                    <!-- Screenshots -->
+
+                                    <!--  Screenshots  -->
                                     <ScrollViewer Margin="25,0,25,25">
                                         <Border Classes="SettingsCategoryBorder">
                                             <Grid RowDefinitions="Auto, *, Auto">
                                                 <!--  Title  -->
-                                                <TextBlock Classes="SettingsCategoryText" Margin="5, 5, 5, 10" Text="{lang:Translate instance.edit.subTitle.screenshots}" />
-                                                
+                                                <TextBlock
+                                                    Margin="5,5,5,10"
+                                                    Classes="SettingsCategoryText"
+                                                    Text="{lang:Translate instance.edit.subTitle.screenshots}" />
+
                                                 <!--  Content  -->
                                                 <Border Grid.Row="1">
                                                     <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
@@ -921,540 +945,541 @@
                                             </Grid>
                                         </Border>
                                     </ScrollViewer>
-                                    
-                                    <!-- Settings -->
-                                    <ScrollViewer Margin="25,0,25,25">
-                                        <Grid RowDefinitions="Auto, *">
-                                            <!--  Settings Buttons  -->
-                                            <Border Classes="SettingsTabBorder">
-                                                <WrapPanel Classes="SettingsTabWrapper">
-                                                    <Button
-                                                        Name="JavaSettingsBtn"
-                                                        Classes="SettingsTabBtn SettingsTabBtnActive"
-                                                        Command="{Binding Settings.SwitchSettingsTabCommand}"
-                                                        CommandParameter="{x:Static enums:EInstanceSettingsTab.JAVA}">
-                                                        <TextBlock Text="{lang:Translate settings.tab.java}" />
-                                                    </Button>
-                                                    <Button
-                                                        Name="GameSettingsBtn"
-                                                        Classes="SettingsTabBtn"
-                                                        Command="{Binding Settings.SwitchSettingsTabCommand}"
-                                                        CommandParameter="{x:Static enums:EInstanceSettingsTab.GAME}">
-                                                        <TextBlock Text="{lang:Translate settings.tab.game}" />
-                                                    </Button>
-                                                    <Button
-                                                        Name="CustomCommandSettingsBtn"
-                                                        Classes="SettingsTabBtn"
-                                                        Command="{Binding Settings.SwitchSettingsTabCommand}"
-                                                        CommandParameter="{x:Static enums:EInstanceSettingsTab.CUSTOM_COMMAND}">
-                                                        <TextBlock Text="{lang:Translate settings.tab.customCommands}" />
-                                                    </Button>
-                                                    <Button
-                                                        Name="EnvironmentSettingsBtn"
-                                                        Classes="SettingsTabBtn"
-                                                        Command="{Binding Settings.SwitchSettingsTabCommand}"
-                                                        CommandParameter="{x:Static enums:EInstanceSettingsTab.ENVIRONMENT}">
-                                                        <TextBlock Text="{lang:Translate settings.tab.environment}" />
-                                                    </Button>
-                                                    <Button
-                                                        Name="MiscSettingsBtn"
-                                                        Classes="SettingsTabBtn"
-                                                        Command="{Binding Settings.SwitchSettingsTabCommand}"
-                                                        CommandParameter="{x:Static enums:EInstanceSettingsTab.MISC}">
-                                                        <TextBlock Text="{lang:Translate settings.tab.misc}" />
-                                                    </Button>
-                                                </WrapPanel>
-                                            </Border>
 
-                                            <!--  Settings Content  -->
-                                            <Carousel
-                                                Grid.Row="1"
-                                                Margin="0,15,0,0"
-                                                SelectedIndex="{Binding InstanceSettingsTab}">
-                                                <Carousel.PageTransition>
-                                                    <CompositePageTransition>
-                                                        <PageSlide Orientation="Vertical" Duration="0:00:00.200" />
-                                                    </CompositePageTransition>
-                                                </Carousel.PageTransition>
-                                                <Carousel.Items>
-                                                    <!--  Java  -->
-                                                    <ScrollViewer>
-                                                        <StackPanel Classes="SettingsWrapper">
-                                                            <!--  General Category  -->
-                                                            <Border Classes="SettingsCategoryBorder">
-                                                                <StackPanel>
-                                                                    <!--  Category Title  -->
-                                                                    <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.launcher.subtitle.general}" />
+                                    <!--  Settings  -->
+                                    <Grid Margin="25,0,25,25" RowDefinitions="Auto, *">
+                                        <!--  Settings Buttons  -->
+                                        <Border Classes="SettingsTabBorder">
+                                            <WrapPanel Classes="SettingsTabWrapper">
+                                                <Button
+                                                    Name="JavaSettingsBtn"
+                                                    Classes="SettingsTabBtn SettingsTabBtnActive"
+                                                    Command="{Binding Settings.SwitchSettingsTabCommand}"
+                                                    CommandParameter="{x:Static enums:EInstanceSettingsTab.JAVA}">
+                                                    <TextBlock Text="{lang:Translate settings.tab.java}" />
+                                                </Button>
+                                                <Button
+                                                    Name="GameSettingsBtn"
+                                                    Classes="SettingsTabBtn"
+                                                    Command="{Binding Settings.SwitchSettingsTabCommand}"
+                                                    CommandParameter="{x:Static enums:EInstanceSettingsTab.GAME}">
+                                                    <TextBlock Text="{lang:Translate settings.tab.game}" />
+                                                </Button>
+                                                <Button
+                                                    Name="CustomCommandSettingsBtn"
+                                                    Classes="SettingsTabBtn"
+                                                    Command="{Binding Settings.SwitchSettingsTabCommand}"
+                                                    CommandParameter="{x:Static enums:EInstanceSettingsTab.CUSTOM_COMMAND}">
+                                                    <TextBlock Text="{lang:Translate settings.tab.customCommands}" />
+                                                </Button>
+                                                <Button
+                                                    Name="EnvironmentSettingsBtn"
+                                                    Classes="SettingsTabBtn"
+                                                    Command="{Binding Settings.SwitchSettingsTabCommand}"
+                                                    CommandParameter="{x:Static enums:EInstanceSettingsTab.ENVIRONMENT}">
+                                                    <TextBlock Text="{lang:Translate settings.tab.environment}" />
+                                                </Button>
+                                                <Button
+                                                    Name="MiscSettingsBtn"
+                                                    Classes="SettingsTabBtn"
+                                                    Command="{Binding Settings.SwitchSettingsTabCommand}"
+                                                    CommandParameter="{x:Static enums:EInstanceSettingsTab.MISC}">
+                                                    <TextBlock Text="{lang:Translate settings.tab.misc}" />
+                                                </Button>
+                                            </WrapPanel>
+                                        </Border>
 
-                                                                    <!--  Minimum Memory  -->
-                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.java.minMemory}" />
-                                                                        <NumericUpDown
-                                                                            Grid.Column="1"
-                                                                            Classes="NumericInput"
-                                                                            FormatString="0\ MB"
-                                                                            Increment="128"
-                                                                            Maximum="{Binding Settings.InstanceConfig.Java.MaxMemory}"
-                                                                            Minimum="512"
-                                                                            Value="{Binding Settings.InstanceConfig.Java.MinMemory, Mode=TwoWay}" />
-                                                                    </Grid>
+                                        <!--  Settings Content  -->
+                                        <Carousel
+                                            Grid.Row="1"
+                                            Margin="0,15,0,0"
+                                            SelectedIndex="{Binding InstanceSettingsTab}">
+                                            <Carousel.PageTransition>
+                                                <CompositePageTransition>
+                                                    <PageSlide Orientation="Vertical" Duration="0:00:00.200" />
+                                                </CompositePageTransition>
+                                            </Carousel.PageTransition>
+                                            <Carousel.Items>
+                                                <!--  Java  -->
+                                                <ScrollViewer Padding="0,0,15,0">
+                                                    <StackPanel Classes="SettingsWrapper">
+                                                        <!--  General Category  -->
+                                                        <Border Classes="SettingsCategoryBorder">
+                                                            <StackPanel>
+                                                                <!--  Category Title  -->
+                                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.launcher.subtitle.general}" />
 
-                                                                    <!--  Maximum Memory  -->
-                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.java.maxMemory}" />
-                                                                        <NumericUpDown
-                                                                            Grid.Column="1"
-                                                                            Classes="NumericInput"
-                                                                            FormatString="0\ MB"
-                                                                            Increment="128"
-                                                                            Maximum="131072"
-                                                                            Minimum="512"
-                                                                            Value="{Binding Settings.InstanceConfig.Java.MaxMemory, Mode=TwoWay}" />
-                                                                    </Grid>
+                                                                <!--  Minimum Memory  -->
+                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.java.minMemory}" />
+                                                                    <NumericUpDown
+                                                                        Grid.Column="1"
+                                                                        Classes="NumericInput"
+                                                                        FormatString="0\ MB"
+                                                                        Increment="128"
+                                                                        Maximum="{Binding Settings.InstanceConfig.Java.MaxMemory}"
+                                                                        Minimum="512"
+                                                                        Value="{Binding Settings.InstanceConfig.Java.MinMemory, Mode=TwoWay}" />
+                                                                </Grid>
 
-                                                                    <!--  PermGen  -->
-                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.java.permaGen}" />
-                                                                        <NumericUpDown
-                                                                            Grid.Column="1"
-                                                                            Classes="NumericInput"
-                                                                            FormatString="0\ MB"
-                                                                            Increment="128"
-                                                                            Maximum="1024"
-                                                                            Minimum="8"
-                                                                            Value="{Binding Settings.InstanceConfig.Java.PermaGen, Mode=TwoWay}" />
-                                                                    </Grid>
+                                                                <!--  Maximum Memory  -->
+                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.java.maxMemory}" />
+                                                                    <NumericUpDown
+                                                                        Grid.Column="1"
+                                                                        Classes="NumericInput"
+                                                                        FormatString="0\ MB"
+                                                                        Increment="128"
+                                                                        Maximum="131072"
+                                                                        Minimum="512"
+                                                                        Value="{Binding Settings.InstanceConfig.Java.MaxMemory, Mode=TwoWay}" />
+                                                                </Grid>
 
-                                                                    <!--  Java Path  -->
-                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 350, Auto">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.java.path}" />
-                                                                        <TextBox
-                                                                            Grid.Column="1"
-                                                                            Classes="TextInput"
-                                                                            Text="{Binding Settings.InstanceConfig.Java.DefaultJavaPath, Mode=TwoWay}"
-                                                                            PlaceholderText="{lang:Translate common.select.directory}" />
-                                                                        <StackPanel
-                                                                            Grid.Column="2"
-                                                                            Orientation="Horizontal"
-                                                                            Spacing="5">
-                                                                            <Button
-                                                                                Classes="IconBtn"
-                                                                                Command="{Binding Settings.JavaDirSelectCommand}"
-                                                                                CommandParameter="9">
-                                                                                <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
-                                                                            </Button>
-                                                                            <Button Classes="IconBtn" Command="{Binding Settings.JavaPathSelectorCommand}">
-                                                                                <TextBlock Classes="FontAwesome" Text="&#xf126;" />
-                                                                            </Button>
-                                                                        </StackPanel>
-                                                                    </Grid>
-                                                                </StackPanel>
+                                                                <!--  PermGen  -->
+                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.java.permaGen}" />
+                                                                    <NumericUpDown
+                                                                        Grid.Column="1"
+                                                                        Classes="NumericInput"
+                                                                        FormatString="0\ MB"
+                                                                        Increment="128"
+                                                                        Maximum="1024"
+                                                                        Minimum="8"
+                                                                        Value="{Binding Settings.InstanceConfig.Java.PermaGen, Mode=TwoWay}" />
+                                                                </Grid>
+
+                                                                <!--  Java Path  -->
+                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 350, Auto">
+                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.java.path}" />
+                                                                    <TextBox
+                                                                        Grid.Column="1"
+                                                                        Classes="TextInput"
+                                                                        PlaceholderText="{lang:Translate common.select.directory}"
+                                                                        Text="{Binding Settings.InstanceConfig.Java.DefaultJavaPath, Mode=TwoWay}" />
+                                                                    <StackPanel
+                                                                        Grid.Column="2"
+                                                                        Orientation="Horizontal"
+                                                                        Spacing="5">
+                                                                        <Button
+                                                                            Classes="IconBtn"
+                                                                            Command="{Binding Settings.JavaDirSelectCommand}"
+                                                                            CommandParameter="9">
+                                                                            <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                                                        </Button>
+                                                                        <Button Classes="IconBtn" Command="{Binding Settings.JavaPathSelectorCommand}">
+                                                                            <TextBlock Classes="FontAwesome" Text="&#xf126;" />
+                                                                        </Button>
+                                                                    </StackPanel>
+                                                                </Grid>
+                                                            </StackPanel>
+                                                        </Border>
+
+                                                        <!--  JVM Arguments  Category  -->
+                                                        <Border Classes="SettingsCategoryBorder">
+                                                            <StackPanel Spacing="10">
+                                                                <!--  Category Title  -->
+                                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.java.jvmArgs}" />
+
+                                                                <!--  Input  -->
+                                                                <TextBox
+                                                                    MinHeight="128"
+                                                                    MaxLines="512"
+                                                                    Text="{Binding Settings.InstanceConfig.Java.JvmArguments, Mode=TwoWay}"
+                                                                    TextWrapping="Wrap" />
+                                                            </StackPanel>
+                                                        </Border>
+                                                    </StackPanel>
+                                                </ScrollViewer>
+
+                                                <!--  Game  -->
+                                                <ScrollViewer Padding="0,0,15,0">
+                                                    <StackPanel Classes="SettingsWrapper">
+                                                        <!--  Window  -->
+                                                        <Border Classes="SettingsCategoryBorder">
+                                                            <StackPanel>
+                                                                <!--  Category Title  -->
+                                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.edit.subTitle.window}" />
+
+                                                                <!--  Start Maximized  -->
+                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.minecraft.startMaximized}" />
+                                                                    <ToggleSwitch
+                                                                        Grid.Column="1"
+                                                                        Classes="SettingsSwitch"
+                                                                        IsChecked="{Binding Settings.InstanceConfig.Game.StartMaximized, Mode=TwoWay}" />
+                                                                </Grid>
+
+                                                                <!--  Window Width  -->
+                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.minecraft.windowWidth}" />
+                                                                    <NumericUpDown
+                                                                        Grid.Column="1"
+                                                                        Classes="NumericInput"
+                                                                        FormatString="0"
+                                                                        Increment="10"
+                                                                        IsEnabled="{Binding !Settings.InstanceConfig.Game.StartMaximized}"
+                                                                        Maximum="{x:Static local:App.ScreenWidth}"
+                                                                        Minimum="100"
+                                                                        Value="{Binding Settings.InstanceConfig.Game.WindowWidth, Mode=TwoWay}" />
+                                                                </Grid>
+
+                                                                <!--  Window Height  -->
+                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.minecraft.windowHeight}" />
+                                                                    <NumericUpDown
+                                                                        Grid.Column="1"
+                                                                        Classes="NumericInput"
+                                                                        FormatString="0"
+                                                                        Increment="10"
+                                                                        IsEnabled="{Binding !Settings.InstanceConfig.Game.StartMaximized}"
+                                                                        Maximum="{x:Static local:App.ScreenHeight}"
+                                                                        Minimum="100"
+                                                                        Value="{Binding Settings.InstanceConfig.Game.WindowHeight, Mode=TwoWay}" />
+                                                                </Grid>
+                                                            </StackPanel>
+                                                        </Border>
+
+                                                        <!--  Console  -->
+                                                        <Border Classes="SettingsCategoryBorder">
+                                                            <StackPanel>
+                                                                <!--  Category Title  -->
+                                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.edit.subTitle.console}" />
+
+                                                                <!--  Show console  -->
+                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate instance.edit.settings.console.showStart}" />
+                                                                    <ToggleSwitch
+                                                                        Grid.Column="1"
+                                                                        Classes="SettingsSwitch"
+                                                                        IsChecked="{Binding Settings.InstanceConfig.Game.ShowConsoleWhileGameRunning, Mode=TwoWay}" />
+                                                                </Grid>
+
+                                                                <!--  Auto close console  -->
+                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate instance.edit.settings.console.closeExit}" />
+                                                                    <ToggleSwitch
+                                                                        Grid.Column="1"
+                                                                        Classes="SettingsSwitch"
+                                                                        IsChecked="{Binding Settings.InstanceConfig.Game.CloseConsoleOnGameExit, Mode=TwoWay}" />
+                                                                </Grid>
+
+                                                                <!--  Show console on crash  -->
+                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate instance.edit.settings.console.showCrash}" />
+                                                                    <ToggleSwitch
+                                                                        Grid.Column="1"
+                                                                        Classes="SettingsSwitch"
+                                                                        IsChecked="{Binding Settings.InstanceConfig.Game.ShowConsoleWhenGameCrashes, Mode=TwoWay}" />
+                                                                </Grid>
+
+                                                            </StackPanel>
+                                                        </Border>
+
+                                                        <!--  Performance  -->
+                                                        <Border Classes="SettingsCategoryBorder">
+                                                            <StackPanel>
+                                                                <!--  Category Title  -->
+                                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.edit.subTitle.performance}" />
+
+                                                                <!--  Enable Feral GameMode  -->
+                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.enableGameMode}" />
+                                                                    <ToggleSwitch
+                                                                        Grid.Column="1"
+                                                                        Classes="SettingsSwitch"
+                                                                        IsChecked="{Binding Settings.InstanceConfig.Game.EnableFeralGameMode, Mode=TwoWay}"
+                                                                        IsVisible="{Binding IsLinux}" />
+                                                                </Grid>
+
+                                                                <!--  Enable MangoHud  -->
+                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.enableMangoHud}" />
+                                                                    <ToggleSwitch
+                                                                        Grid.Column="1"
+                                                                        Classes="SettingsSwitch"
+                                                                        IsChecked="{Binding Settings.InstanceConfig.Game.EnableMangoHud, Mode=TwoWay}"
+                                                                        IsVisible="{Binding IsLinux}" />
+                                                                </Grid>
+
+                                                                <!--  Use dedicated GPU  -->
+                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.useDedicatedGpu}" />
+                                                                    <ToggleSwitch
+                                                                        Grid.Column="1"
+                                                                        Classes="SettingsSwitch"
+                                                                        IsChecked="{Binding Settings.InstanceConfig.Game.UseDedicatedGpu, Mode=TwoWay}" />
+                                                                </Grid>
+                                                            </StackPanel>
+                                                        </Border>
+                                                    </StackPanel>
+                                                </ScrollViewer>
+
+                                                <!--  Custom Commands  -->
+                                                <ScrollViewer Padding="0,0,15,0">
+                                                    <StackPanel Classes="SettingsWrapper">
+                                                        <Border Classes="SettingsCategoryBorder">
+                                                            <StackPanel>
+                                                                <!--  Category Title  -->
+                                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.misc.subtitle.customCommands}" />
+
+                                                                <!--  Pre-launch Command  -->
+                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
+                                                                    <StackPanel MaxWidth="200" HorizontalAlignment="Left">
+                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.prelaunchCommand}" />
+                                                                        <TextBlock
+                                                                            Classes="SettingsDescription"
+                                                                            Text="{lang:Translate settings.misc.prelaunchCommand.description}"
+                                                                            TextWrapping="Wrap" />
+                                                                    </StackPanel>
+                                                                    <TextBox
+                                                                        Grid.Column="1"
+                                                                        Classes="TextInput"
+                                                                        Text="{Binding Settings.InstanceConfig.Commands.PreLaunchCommand, Mode=TwoWay}" />
+                                                                </Grid>
+
+                                                                <!--  Wrapper Command  -->
+                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
+                                                                    <StackPanel MaxWidth="200" HorizontalAlignment="Left">
+                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.wrapperCommand}" />
+                                                                        <TextBlock
+                                                                            Classes="SettingsDescription"
+                                                                            Text="{lang:Translate settings.misc.wrapperCommand.description}"
+                                                                            TextWrapping="Wrap" />
+                                                                    </StackPanel>
+                                                                    <TextBox
+                                                                        Grid.Column="1"
+                                                                        Classes="TextInput"
+                                                                        Text="{Binding Settings.InstanceConfig.Commands.WrapperCommand, Mode=TwoWay}" />
+                                                                </Grid>
+
+                                                                <!--  Post-exit Command  -->
+                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
+                                                                    <StackPanel MaxWidth="200" HorizontalAlignment="Left">
+                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.postExitCommand}" />
+                                                                        <TextBlock
+                                                                            Classes="SettingsDescription"
+                                                                            Text="{lang:Translate settings.misc.postExitCommand.description}"
+                                                                            TextWrapping="Wrap" />
+                                                                    </StackPanel>
+                                                                    <TextBox
+                                                                        Grid.Column="1"
+                                                                        Classes="TextInput"
+                                                                        Text="{Binding Settings.InstanceConfig.Commands.PostExitCommand, Mode=TwoWay}" />
+                                                                </Grid>
+                                                            </StackPanel>
+                                                        </Border>
+                                                    </StackPanel>
+                                                </ScrollViewer>
+
+                                                <!--  Environment Variables  -->
+                                                <ScrollViewer Padding="0,0,15,0">
+                                                    <Border Classes="SettingsCategoryBorder">
+                                                        <Grid RowDefinitions="Auto, Auto, *, Auto">
+                                                            <!--  Category Title  -->
+                                                            <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.environment.subtitle}" />
+
+                                                            <!--  Enable  -->
+                                                            <Grid
+                                                                Grid.Row="1"
+                                                                Classes="SettingsContentGrid"
+                                                                ColumnDefinitions="*, 150">
+                                                                <TextBlock Classes="SettingsName" Text="{lang:Translate settings.environment.enable}" />
+                                                                <ToggleSwitch
+                                                                    Grid.Column="1"
+                                                                    Classes="SettingsSwitch"
+                                                                    IsChecked="{Binding Settings.InstanceConfig.EnableEnvironment, Mode=TwoWay}" />
+                                                            </Grid>
+
+                                                            <!--  Content  -->
+                                                            <Border Grid.Row="2">
+                                                                <ScrollViewer Classes="TableScrollViewer">
+                                                                    <DataGrid
+                                                                        Classes="InstanceMultiTable"
+                                                                        IsEnabled="{Binding Settings.InstanceConfig.EnableEnvironment}"
+                                                                        IsReadOnly="False"
+                                                                        ItemsSource="{Binding Settings.InstanceConfig.Environment}"
+                                                                        RowEditEnded="EnvironmentDataGrid_OnRowEditEnded"
+                                                                        SelectedIndex="{Binding Settings.SelectedEnvironmentVariableIndex}">
+                                                                        <DataGrid.Columns>
+                                                                            <!--  Name  -->
+                                                                            <DataGridTextColumn
+                                                                                Width="Auto"
+                                                                                Binding="{Binding Key}"
+                                                                                Header="{lang:Translate settings.environment.name}" />
+                                                                            <!--  Value  -->
+                                                                            <DataGridTextColumn
+                                                                                Width="Auto"
+                                                                                Binding="{Binding Value}"
+                                                                                Header="{lang:Translate settings.environment.value}" />
+                                                                        </DataGrid.Columns>
+                                                                    </DataGrid>
+                                                                </ScrollViewer>
                                                             </Border>
 
-                                                            <!--  JVM Arguments  Category  -->
-                                                            <Border Classes="SettingsCategoryBorder">
-                                                                <StackPanel Spacing="10">
-                                                                    <!--  Category Title  -->
-                                                                    <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.java.jvmArgs}" />
+                                                            <!--  Actions  -->
+                                                            <Grid
+                                                                Grid.Row="3"
+                                                                Margin="4,10,4,0"
+                                                                ColumnDefinitions="Auto, Auto, Auto"
+                                                                ColumnSpacing="5">
+                                                                <!--  Add button  -->
+                                                                <Button
+                                                                    Classes="IconBtn"
+                                                                    Click="AddEnvironmentRow_OnClick"
+                                                                    IsEnabled="{Binding Settings.InstanceConfig.EnableEnvironment}">
+                                                                    <WrapPanel Classes="IconBtnWrapper">
+                                                                        <TextBlock
+                                                                            VerticalAlignment="Center"
+                                                                            Classes="FontAwesome"
+                                                                            Text="&#x2b;" />
+                                                                        <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.add}" />
+                                                                    </WrapPanel>
+                                                                </Button>
+                                                                <!--  Remove button  -->
+                                                                <Button
+                                                                    Grid.Column="1"
+                                                                    Classes="IconBtn"
+                                                                    Click="RemoveEnvironmentRow_OnClick"
+                                                                    IsEnabled="{Binding Settings.CanRemoveEnvironmentVariable}">
+                                                                    <WrapPanel Classes="IconBtnWrapper">
+                                                                        <TextBlock
+                                                                            VerticalAlignment="Center"
+                                                                            Classes="FontAwesome"
+                                                                            Text="&#xf068;" />
+                                                                        <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.remove}" />
+                                                                    </WrapPanel>
+                                                                </Button>
+                                                                <!--  Clear button  -->
+                                                                <Button
+                                                                    Grid.Column="2"
+                                                                    Classes="IconBtn"
+                                                                    Click="ClearEnvironmentTable_OnClick"
+                                                                    IsEnabled="{Binding Settings.InstanceConfig.EnableEnvironment}">
+                                                                    <WrapPanel Classes="IconBtnWrapper">
+                                                                        <TextBlock
+                                                                            VerticalAlignment="Center"
+                                                                            Classes="FontAwesome"
+                                                                            Text="&#xf1f8;" />
+                                                                        <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.clear}" />
+                                                                    </WrapPanel>
+                                                                </Button>
+                                                            </Grid>
+                                                        </Grid>
+                                                    </Border>
+                                                </ScrollViewer>
 
+                                                <!--  Misc  -->
+                                                <ScrollViewer Padding="0,0,15,0">
+                                                    <StackPanel Classes="SettingsWrapper">
+
+                                                        <!--  Native Libraries  -->
+                                                        <Border Classes="SettingsCategoryBorder">
+                                                            <StackPanel>
+                                                                <!--  Category Title  -->
+                                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.misc.subtitle.nativeLibraries}" />
+
+                                                                <!--  Use custom GLFW  -->
+                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.customGLFW}" />
+                                                                    <ToggleSwitch
+                                                                        Grid.Column="1"
+                                                                        Classes="SettingsSwitch"
+                                                                        IsChecked="{Binding Settings.InstanceConfig.Misc.UseCustomGlfw, Mode=TwoWay}" />
+                                                                </Grid>
+
+                                                                <!--  GLFW library path  -->
+                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
+                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.pathGLFW}" />
+                                                                    <TextBox
+                                                                        Grid.Column="1"
+                                                                        Classes="TextInput"
+                                                                        IsEnabled="{Binding Settings.InstanceConfig.Misc.UseCustomGlfw}"
+                                                                        PlaceholderText="{lang:Translate common.select.file}"
+                                                                        Text="{Binding Settings.InstanceConfig.Misc.CustomGlfwPath, Mode=TwoWay}" />
+                                                                </Grid>
+
+                                                                <!--  Use custom OpenAL  -->
+                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.customOpenAL}" />
+                                                                    <ToggleSwitch
+                                                                        Grid.Column="1"
+                                                                        Classes="SettingsSwitch"
+                                                                        IsChecked="{Binding Settings.InstanceConfig.Misc.UseCustomOpenAL, Mode=TwoWay}" />
+                                                                </Grid>
+
+                                                                <!--  OpenAL library path  -->
+                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
+                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.pathOpenAL}" />
+                                                                    <TextBox
+                                                                        Grid.Column="1"
+                                                                        Classes="TextInput"
+                                                                        IsEnabled="{Binding Settings.InstanceConfig.Misc.UseCustomOpenAL}"
+                                                                        PlaceholderText="{lang:Translate common.select.file}"
+                                                                        Text="{Binding Settings.InstanceConfig.Misc.CustomOpenALPath, Mode=TwoWay}" />
+                                                                </Grid>
+                                                            </StackPanel>
+                                                        </Border>
+
+                                                        <!--  Preferences  -->
+                                                        <Border Classes="SettingsCategoryBorder">
+                                                            <StackPanel>
+                                                                <!--  Category Title  -->
+                                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.misc.subtitle.preferences}" />
+
+                                                                <!--  Override Account  -->
+                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.overrideAccount}" />
+                                                                    <ToggleSwitch
+                                                                        Grid.Column="1"
+                                                                        Classes="SettingsSwitch"
+                                                                        IsChecked="{Binding Settings.InstanceConfig.Misc.OverrideAccount, Mode=TwoWay}" />
+                                                                </Grid>
+
+                                                                <!--  Account  -->
+                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
+                                                                    <!--  Text  -->
+                                                                    <TextBlock Classes="TextDropdown" Text="{lang:Translate settings.misc.account}" />
+                                                                    <!--  Input  -->
+                                                                    <ComboBox
+                                                                        Grid.Column="1"
+                                                                        Margin="0,0,5,0"
+                                                                        Classes="TextDropdown"
+                                                                        DisplayMemberBinding="{Binding DisplayName}"
+                                                                        IsEnabled="{Binding Settings.InstanceConfig.Misc.OverrideAccount}"
+                                                                        ItemsSource="{Binding Accounts}"
+                                                                        SelectedIndex="{Binding Settings.OverridenAccountIndex}"
+                                                                        SelectionChanged="OverridenAccount_SelectionChanged" />
+                                                                </Grid>
+
+                                                                <!--  Set target server  -->
+                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.serverQuickPlay}" />
+                                                                    <ToggleSwitch
+                                                                        Grid.Column="1"
+                                                                        Classes="SettingsSwitch"
+                                                                        IsChecked="{Binding Settings.InstanceConfig.Misc.JoinServerOnLaunch, Mode=TwoWay}" />
+                                                                </Grid>
+
+                                                                <!--  Server address  -->
+                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
+                                                                    <!--  Text  -->
+                                                                    <TextBlock Classes="TextDropdown" Text="{lang:Translate settings.misc.serverAddress}" />
                                                                     <!--  Input  -->
                                                                     <TextBox
-                                                                        MinHeight="128"
-                                                                        MaxLines="512"
-                                                                        Text="{Binding Settings.InstanceConfig.Java.JvmArguments, Mode=TwoWay}"
-                                                                        TextWrapping="Wrap" />
-                                                                </StackPanel>
-                                                            </Border>
-                                                        </StackPanel>
-                                                    </ScrollViewer>
-
-                                                    <!--  Game  -->
-                                                    <ScrollViewer>
-                                                        <StackPanel Classes="SettingsWrapper">
-                                                            <!-- Window -->
-                                                            <Border Classes="SettingsCategoryBorder">
-                                                                <StackPanel>
-                                                                    <!--  Category Title  -->
-                                                                    <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.edit.subTitle.window}" />
-                                                                    
-                                                                    <!--  Start Maximized  -->
-                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.minecraft.startMaximized}" />
-                                                                        <ToggleSwitch
-                                                                            Grid.Column="1"
-                                                                            Classes="SettingsSwitch"
-                                                                            IsChecked="{Binding Settings.InstanceConfig.Game.StartMaximized, Mode=TwoWay}" />
-                                                                    </Grid>
-                                                                    
-                                                                    <!--  Window Width  -->
-                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.minecraft.windowWidth}" />
-                                                                        <NumericUpDown
-                                                                            Grid.Column="1"
-                                                                            Classes="NumericInput"
-                                                                            FormatString="0"
-                                                                            Increment="10"
-                                                                            IsEnabled="{Binding !Settings.InstanceConfig.Game.StartMaximized}"
-                                                                            Maximum="{x:Static local:App.ScreenWidth}"
-                                                                            Minimum="100"
-                                                                            Value="{Binding Settings.InstanceConfig.Game.WindowWidth, Mode=TwoWay}" />
-                                                                    </Grid>
-
-                                                                    <!--  Window Height  -->
-                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.minecraft.windowHeight}" />
-                                                                        <NumericUpDown
-                                                                            Grid.Column="1"
-                                                                            Classes="NumericInput"
-                                                                            FormatString="0"
-                                                                            Increment="10"
-                                                                            IsEnabled="{Binding !Settings.InstanceConfig.Game.StartMaximized}"
-                                                                            Maximum="{x:Static local:App.ScreenHeight}"
-                                                                            Minimum="100"
-                                                                            Value="{Binding Settings.InstanceConfig.Game.WindowHeight, Mode=TwoWay}" />
-                                                                    </Grid>
-                                                                </StackPanel>
-                                                            </Border>
-                                                            
-                                                            <!-- Console -->
-                                                            <Border Classes="SettingsCategoryBorder">
-                                                                <StackPanel>
-                                                                    <!--  Category Title  -->
-                                                                    <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.edit.subTitle.console}" />
-                                                                    
-                                                                    <!--  Show console  -->
-                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate instance.edit.settings.console.showStart}" />
-                                                                        <ToggleSwitch
-                                                                            Grid.Column="1"
-                                                                            Classes="SettingsSwitch"
-                                                                            IsChecked="{Binding Settings.InstanceConfig.Game.ShowConsoleWhileGameRunning, Mode=TwoWay}" />
-                                                                    </Grid>
-                                                                    
-                                                                    <!--  Auto close console  -->
-                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate instance.edit.settings.console.closeExit}" />
-                                                                        <ToggleSwitch
-                                                                            Grid.Column="1"
-                                                                            Classes="SettingsSwitch"
-                                                                            IsChecked="{Binding Settings.InstanceConfig.Game.CloseConsoleOnGameExit, Mode=TwoWay}" />
-                                                                    </Grid>
-                                                                    
-                                                                    <!--  Show console on crash  -->
-                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate instance.edit.settings.console.showCrash}" />
-                                                                        <ToggleSwitch
-                                                                            Grid.Column="1"
-                                                                            Classes="SettingsSwitch"
-                                                                            IsChecked="{Binding Settings.InstanceConfig.Game.ShowConsoleWhenGameCrashes, Mode=TwoWay}" />
-                                                                    </Grid>
-                                                                    
-                                                                </StackPanel>
-                                                            </Border>
-                                                            
-                                                            <!-- Performance -->
-                                                            <Border Classes="SettingsCategoryBorder">
-                                                                <StackPanel>
-                                                                    <!--  Category Title  -->
-                                                                    <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.edit.subTitle.performance}" />
-                                                                    
-                                                                    <!--  Enable Feral GameMode  -->
-                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.enableGameMode}" />
-                                                                        <ToggleSwitch
-                                                                            Grid.Column="1"
-                                                                            Classes="SettingsSwitch"
-                                                                            IsChecked="{Binding Settings.InstanceConfig.Game.EnableFeralGameMode, Mode=TwoWay}" 
-                                                                            IsVisible="{Binding IsLinux}"/>
-                                                                    </Grid>
-                                                                    
-                                                                    <!-- Enable MangoHud -->
-                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.enableMangoHud}" />
-                                                                        <ToggleSwitch
-                                                                            Grid.Column="1"
-                                                                            Classes="SettingsSwitch"
-                                                                            IsChecked="{Binding Settings.InstanceConfig.Game.EnableMangoHud, Mode=TwoWay}"
-                                                                            IsVisible="{Binding IsLinux}" />
-                                                                    </Grid>
-                                                                    
-                                                                    <!--  Use dedicated GPU  -->
-                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.useDedicatedGpu}" />
-                                                                        <ToggleSwitch
-                                                                            Grid.Column="1"
-                                                                            Classes="SettingsSwitch"
-                                                                            IsChecked="{Binding Settings.InstanceConfig.Game.UseDedicatedGpu, Mode=TwoWay}" />
-                                                                    </Grid>
-                                                                </StackPanel>
-                                                            </Border>
-                                                        </StackPanel>
-                                                    </ScrollViewer>
-                                                    
-                                                    <!-- Custom Commands  -->
-                                                    <ScrollViewer>
-                                                        <StackPanel Classes="SettingsWrapper">
-                                                            <Border Classes="SettingsCategoryBorder">
-                                                                <StackPanel>
-                                                                    <!--  Category Title  -->
-                                                                    <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.misc.subtitle.customCommands}" />
-                                                                    
-                                                                     <!--  Pre-launch Command  -->
-                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
-                                                                        <StackPanel MaxWidth="200" HorizontalAlignment="Left">
-                                                                            <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.prelaunchCommand}" />
-                                                                            <TextBlock
-                                                                                Classes="SettingsDescription"
-                                                                                Text="{lang:Translate settings.misc.prelaunchCommand.description}"
-                                                                                TextWrapping="Wrap" />
-                                                                        </StackPanel>
-                                                                        <TextBox
-                                                                            Grid.Column="1"
-                                                                            Classes="TextInput"
-                                                                            Text="{Binding Settings.InstanceConfig.Commands.PreLaunchCommand, Mode=TwoWay}" />
-                                                                    </Grid>
-
-                                                                    <!--  Wrapper Command  -->
-                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
-                                                                        <StackPanel MaxWidth="200" HorizontalAlignment="Left">
-                                                                            <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.wrapperCommand}" />
-                                                                            <TextBlock
-                                                                                Classes="SettingsDescription"
-                                                                                Text="{lang:Translate settings.misc.wrapperCommand.description}"
-                                                                                TextWrapping="Wrap" />
-                                                                        </StackPanel>
-                                                                        <TextBox
-                                                                            Grid.Column="1"
-                                                                            Classes="TextInput"
-                                                                            Text="{Binding Settings.InstanceConfig.Commands.WrapperCommand, Mode=TwoWay}" />
-                                                                    </Grid>
-
-                                                                    <!--  Post-exit Command  -->
-                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
-                                                                        <StackPanel MaxWidth="200" HorizontalAlignment="Left">
-                                                                            <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.postExitCommand}" />
-                                                                            <TextBlock
-                                                                                Classes="SettingsDescription"
-                                                                                Text="{lang:Translate settings.misc.postExitCommand.description}"
-                                                                                TextWrapping="Wrap" />
-                                                                        </StackPanel>
-                                                                        <TextBox
-                                                                            Grid.Column="1"
-                                                                            Classes="TextInput"
-                                                                            Text="{Binding Settings.InstanceConfig.Commands.PostExitCommand, Mode=TwoWay}" />
-                                                                    </Grid>
-                                                                </StackPanel>
-                                                            </Border>
-                                                        </StackPanel>
-                                                    </ScrollViewer>
-                                                    
-                                                    <!-- Environment Variables  -->
-                                                    <ScrollViewer>
-                                                        <Border Classes="SettingsCategoryBorder">
-                                                            <Grid RowDefinitions="Auto, Auto, *, Auto">
-                                                                    <!--  Category Title  -->
-                                                                    <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.environment.subtitle}" />
-                                                                    
-                                                                    <!--  Enable  -->
-                                                                    <Grid Grid.Row="1" Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.environment.enable}" />
-                                                                        <ToggleSwitch
-                                                                            Grid.Column="1"
-                                                                            Classes="SettingsSwitch"
-                                                                            IsChecked="{Binding Settings.InstanceConfig.EnableEnvironment, Mode=TwoWay}" />
-                                                                    </Grid>
-                                                                    
-                                                                    <!--  Content  -->
-                                                                    <Border Grid.Row="2">
-                                                                        <ScrollViewer Classes="TableScrollViewer">
-                                                                            <DataGrid
-                                                                                Classes="InstanceMultiTable"
-                                                                                IsEnabled="{Binding Settings.InstanceConfig.EnableEnvironment}"
-                                                                                IsReadOnly="False"
-                                                                                ItemsSource="{Binding Settings.InstanceConfig.Environment}"
-                                                                                RowEditEnded="EnvironmentDataGrid_OnRowEditEnded"
-                                                                                SelectedIndex="{Binding Settings.SelectedEnvironmentVariableIndex}">
-                                                                                <DataGrid.Columns>
-                                                                                    <!--  Name  -->
-                                                                                    <DataGridTextColumn
-                                                                                        Width="Auto"
-                                                                                        Binding="{Binding Key}"
-                                                                                        Header="{lang:Translate settings.environment.name}" />
-                                                                                    <!--  Value  -->
-                                                                                    <DataGridTextColumn
-                                                                                        Width="Auto"
-                                                                                        Binding="{Binding Value}"
-                                                                                        Header="{lang:Translate settings.environment.value}" />
-                                                                                </DataGrid.Columns>
-                                                                            </DataGrid>
-                                                                        </ScrollViewer>
-                                                                    </Border>
-                                                                    
-                                                                    <!--  Actions  -->
-                                                                    <Grid
-                                                                        Grid.Row="3"
-                                                                        ColumnDefinitions="Auto, Auto, Auto"
-                                                                        ColumnSpacing="5"
-                                                                        Margin="4, 10, 4, 0">
-                                                                        <!--  Add button  -->
-                                                                        <Button
-                                                                            Classes="IconBtn"
-                                                                            Click="AddEnvironmentRow_OnClick"
-                                                                            IsEnabled="{Binding Settings.InstanceConfig.EnableEnvironment}">
-                                                                            <WrapPanel Classes="IconBtnWrapper">
-                                                                                <TextBlock
-                                                                                    VerticalAlignment="Center"
-                                                                                    Classes="FontAwesome"
-                                                                                    Text="&#x2b;" />
-                                                                                <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.add}" />
-                                                                            </WrapPanel>
-                                                                        </Button>
-                                                                        <!--  Remove button  -->
-                                                                        <Button
-                                                                            Grid.Column="1"
-                                                                            Classes="IconBtn"
-                                                                            Click="RemoveEnvironmentRow_OnClick"
-                                                                            IsEnabled="{Binding Settings.CanRemoveEnvironmentVariable}">
-                                                                            <WrapPanel Classes="IconBtnWrapper">
-                                                                                <TextBlock
-                                                                                    VerticalAlignment="Center"
-                                                                                    Classes="FontAwesome"
-                                                                                    Text="&#xf068;" />
-                                                                                <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.remove}" />
-                                                                            </WrapPanel>
-                                                                        </Button>
-                                                                        <!--  Clear button  -->
-                                                                        <Button
-                                                                            Grid.Column="2"
-                                                                            Classes="IconBtn"
-                                                                            Click="ClearEnvironmentTable_OnClick"
-                                                                            IsEnabled="{Binding Settings.InstanceConfig.EnableEnvironment}">
-                                                                            <WrapPanel Classes="IconBtnWrapper">
-                                                                                <TextBlock
-                                                                                    VerticalAlignment="Center"
-                                                                                    Classes="FontAwesome"
-                                                                                    Text="&#xf1f8;" />
-                                                                                <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.clear}" />
-                                                                            </WrapPanel>
-                                                                        </Button>
-                                                                    </Grid>
-                                                            </Grid>
+                                                                        Grid.Column="1"
+                                                                        Classes="TextInput"
+                                                                        IsEnabled="{Binding Settings.InstanceConfig.Misc.JoinServerOnLaunch}"
+                                                                        PlaceholderText="192.168.1.0:25565"
+                                                                        Text="{Binding Settings.InstanceConfig.Misc.ServerAddress}" />
+                                                                </Grid>
+                                                            </StackPanel>
                                                         </Border>
-                                                    </ScrollViewer>
-                                                            
-                                                    <!--  Misc  -->
-                                                    <ScrollViewer>
-                                                        <StackPanel Classes="SettingsWrapper">
-                                                            
-                                                            <!-- Native Libraries  -->
-                                                            <Border Classes="SettingsCategoryBorder">
-                                                                <StackPanel>
-                                                                    <!--  Category Title  -->
-                                                                    <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.misc.subtitle.nativeLibraries}" />
-                                                                    
-                                                                    <!--  Use custom GLFW  -->
-                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.customGLFW}" />
-                                                                        <ToggleSwitch
-                                                                            Grid.Column="1"
-                                                                            Classes="SettingsSwitch"
-                                                                            IsChecked="{Binding Settings.InstanceConfig.Misc.UseCustomGlfw, Mode=TwoWay}" />
-                                                                    </Grid>
+                                                    </StackPanel>
+                                                </ScrollViewer>
+                                            </Carousel.Items>
+                                        </Carousel>
+                                    </Grid>
 
-                                                                    <!--  GLFW library path  -->
-                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.pathGLFW}" />
-                                                                        <TextBox
-                                                                            Grid.Column="1"
-                                                                            Classes="TextInput"
-                                                                            IsEnabled="{Binding Settings.InstanceConfig.Misc.UseCustomGlfw}"
-                                                                            Text="{Binding Settings.InstanceConfig.Misc.CustomGlfwPath, Mode=TwoWay}"
-                                                                            PlaceholderText="{lang:Translate common.select.file}" />
-                                                                    </Grid>
-
-                                                                    <!--  Use custom OpenAL  -->
-                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.customOpenAL}" />
-                                                                        <ToggleSwitch
-                                                                            Grid.Column="1"
-                                                                            Classes="SettingsSwitch"
-                                                                            IsChecked="{Binding Settings.InstanceConfig.Misc.UseCustomOpenAL, Mode=TwoWay}" />
-                                                                    </Grid>
-
-                                                                    <!--  OpenAL library path  -->
-                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.pathOpenAL}" />
-                                                                        <TextBox
-                                                                            Grid.Column="1"
-                                                                            Classes="TextInput"
-                                                                            IsEnabled="{Binding Settings.InstanceConfig.Misc.UseCustomOpenAL}"
-                                                                            Text="{Binding Settings.InstanceConfig.Misc.CustomOpenALPath, Mode=TwoWay}"
-                                                                            PlaceholderText="{lang:Translate common.select.file}" />
-                                                                    </Grid>
-                                                                </StackPanel>
-                                                            </Border>
-                                                            
-                                                            <!-- Preferences -->
-                                                            <Border Classes="SettingsCategoryBorder">
-                                                                <StackPanel>
-                                                                    <!--  Category Title  -->
-                                                                    <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.misc.subtitle.preferences}" />
-
-                                                                    <!--  Override Account  -->
-                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.overrideAccount}" />
-                                                                        <ToggleSwitch
-                                                                            Grid.Column="1"
-                                                                            Classes="SettingsSwitch"
-                                                                            IsChecked="{Binding Settings.InstanceConfig.Misc.OverrideAccount, Mode=TwoWay}" />
-                                                                    </Grid>
-                                                                    
-                                                                    <!--  Account  -->
-                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
-                                                                        <!--  Text  -->
-                                                                        <TextBlock Classes="TextDropdown" Text="{lang:Translate settings.misc.account}" />
-                                                                        <!--  Input  -->
-                                                                        <ComboBox
-                                                                            Grid.Column="1"
-                                                                            Classes="TextDropdown"
-                                                                            Margin="0, 0, 5, 0"
-                                                                            DisplayMemberBinding="{Binding DisplayName}"
-                                                                            IsEnabled="{Binding Settings.InstanceConfig.Misc.OverrideAccount}"
-                                                                            ItemsSource="{Binding Accounts}"
-                                                                            SelectedIndex="{Binding Settings.OverridenAccountIndex}"
-                                                                            SelectionChanged="OverridenAccount_SelectionChanged" />
-                                                                    </Grid>
-                                                                    
-                                                                    <!--  Set target server  -->
-                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.serverQuickPlay}" />
-                                                                        <ToggleSwitch
-                                                                            Grid.Column="1"
-                                                                            Classes="SettingsSwitch"
-                                                                            IsChecked="{Binding Settings.InstanceConfig.Misc.JoinServerOnLaunch, Mode=TwoWay}" />
-                                                                    </Grid>
-                                                                    
-                                                                    <!--  Server address  -->
-                                                                    <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
-                                                                        <!--  Text  -->
-                                                                        <TextBlock Classes="TextDropdown" Text="{lang:Translate settings.misc.serverAddress}" />
-                                                                        <!--  Input  -->
-                                                                        <TextBox
-                                                                            Grid.Column="1"
-                                                                            Classes="TextInput"
-                                                                            IsEnabled="{Binding Settings.InstanceConfig.Misc.JoinServerOnLaunch}"
-                                                                            Text="{Binding Settings.InstanceConfig.Misc.ServerAddress}"
-                                                                            PlaceholderText="192.168.1.0:25565" />
-                                                                    </Grid>
-                                                                </StackPanel>
-                                                            </Border>
-                                                        </StackPanel>
-                                                    </ScrollViewer>
-                                                </Carousel.Items>
-                                            </Carousel>
-                                        </Grid>
-                                    </ScrollViewer>
-                                    
                                 </Carousel.Items>
                             </Carousel>
                         </Grid>

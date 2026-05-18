@@ -2,16 +2,16 @@
     x:Class="Tavstal.KonkordLauncher.Desktop.Views.MainWindow"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:accounts="clr-namespace:Tavstal.KonkordLauncher.Core.Models.Accounts;assembly=Core"
     xmlns:core="clr-namespace:Tavstal.KonkordLauncher.Core.Models;assembly=Core"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:domain="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Domain"
     xmlns:enums="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Enums"
     xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common"
     xmlns:local="clr-namespace:Tavstal.KonkordLauncher.Desktop"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models1="clr-namespace:Tavstal.KonkordLauncher.Common.Models;assembly=Common"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
-    xmlns:domain="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Domain"
-    xmlns:accounts="clr-namespace:Tavstal.KonkordLauncher.Core.Models.Accounts;assembly=Core"
     Title="{lang:Translate main.title}"
     Width="950"
     Height="600"
@@ -21,20 +21,19 @@
     Background="Transparent"
     CanResize="True"
     CornerRadius="14"
-    
     ExtendClientAreaToDecorationsHint="True"
     Icon="avares://Desktop/Assets/Images/logo.png"
     ShowInTaskbar="True"
-    WindowDecorations="None"
     TransparencyLevelHint="Transparent"
     UseLayoutRounding="True"
+    WindowDecorations="None"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
     <Design.DataContext>
         <vm:MainViewModel />
     </Design.DataContext>
 
-    <!-- Templates -->
+    <!--  Templates  -->
     <Window.DataTemplates>
         <!--  Play Card  -->
         <DataTemplate DataType="domain:InstanceModel">
@@ -349,8 +348,8 @@
             </Border>
         </DataTemplate>
     </Window.DataTemplates>
-    
-    <!-- Content -->
+
+    <!--  Content  -->
     <Grid>
         <!--  Main Window Content  -->
         <Border
@@ -536,7 +535,7 @@
                                 <Carousel.Items>
                                     <!--  Play Page  -->
                                     <Grid
-                                        Margin="20,20,5,0"
+                                        Margin="20,15,5,0"
                                         Classes="MainContentArea"
                                         RowDefinitions="Auto, *">
                                         <Grid
@@ -590,7 +589,7 @@
                                             </ScrollViewer>
                                         </Grid>
                                     </Grid>
-                                    
+
                                     <!--  Patch Page  -->
                                     <Grid
                                         Margin="20,20,10,0"
@@ -614,7 +613,7 @@
                                             </ItemsControl>
                                         </ScrollViewer>
                                     </Grid>
-                                    
+
                                     <!--  Accounts Page  -->
                                     <StackPanel Classes="MainContentArea">
                                         <Grid ColumnDefinitions="*, Auto">
@@ -643,12 +642,12 @@
                                             </ScrollViewer>
                                         </Grid>
                                     </StackPanel>
-                                    
+
                                     <!--  Settings Page  -->
                                     <Grid Margin="20,20,20,0" RowDefinitions="Auto, Auto, *">
                                         <!--  Title  -->
                                         <TextBlock Classes="MainContentTitle" Text="{lang:Translate main.page.settings.title}" />
-                                        
+
                                         <!--  Settings Buttons  -->
                                         <Border Grid.Row="1" Classes="SettingsTabBorder">
                                             <WrapPanel Classes="SettingsTabWrapper">
@@ -695,7 +694,7 @@
                                             </Carousel.PageTransition>
                                             <Carousel.Items>
                                                 <!--  Launcher  -->
-                                                <ScrollViewer>
+                                                <ScrollViewer Padding="0,0,15,0">
                                                     <StackPanel Classes="SettingsWrapper">
                                                         <!--  General Category  -->
                                                         <Border Classes="SettingsCategoryBorder">
@@ -771,8 +770,8 @@
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
-                                                                        Text="{Binding Config.CoreConfig.Launcher.AssetsDirectoryPath, Mode=TwoWay}"
-                                                                        PlaceholderText="{lang:Translate common.select.directory}" />
+                                                                        PlaceholderText="{lang:Translate common.select.directory}"
+                                                                        Text="{Binding Config.CoreConfig.Launcher.AssetsDirectoryPath, Mode=TwoWay}" />
                                                                     <Button
                                                                         Grid.Column="2"
                                                                         Classes="IconBtn"
@@ -788,8 +787,8 @@
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
-                                                                        Text="{Binding Config.CoreConfig.Launcher.CacheDirectoryPath, Mode=TwoWay}"
-                                                                        PlaceholderText="{lang:Translate common.select.directory}" />
+                                                                        PlaceholderText="{lang:Translate common.select.directory}"
+                                                                        Text="{Binding Config.CoreConfig.Launcher.CacheDirectoryPath, Mode=TwoWay}" />
                                                                     <Button
                                                                         Grid.Column="2"
                                                                         Classes="IconBtn"
@@ -805,8 +804,8 @@
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
-                                                                        Text="{Binding Config.CoreConfig.Launcher.IconsDirectoryPath, Mode=TwoWay}"
-                                                                        PlaceholderText="{lang:Translate common.select.directory}" />
+                                                                        PlaceholderText="{lang:Translate common.select.directory}"
+                                                                        Text="{Binding Config.CoreConfig.Launcher.IconsDirectoryPath, Mode=TwoWay}" />
                                                                     <Button
                                                                         Grid.Column="2"
                                                                         Classes="IconBtn"
@@ -822,8 +821,8 @@
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
-                                                                        Text="{Binding Config.CoreConfig.Launcher.InstancesDirectoryPath, Mode=TwoWay}"
-                                                                        PlaceholderText="{lang:Translate common.select.directory}" />
+                                                                        PlaceholderText="{lang:Translate common.select.directory}"
+                                                                        Text="{Binding Config.CoreConfig.Launcher.InstancesDirectoryPath, Mode=TwoWay}" />
                                                                     <Button
                                                                         Grid.Column="2"
                                                                         Classes="IconBtn"
@@ -839,8 +838,8 @@
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
-                                                                        Text="{Binding Config.CoreConfig.Launcher.JavaDirectoryPath, Mode=TwoWay}"
-                                                                        PlaceholderText="{lang:Translate common.select.directory}" />
+                                                                        PlaceholderText="{lang:Translate common.select.directory}"
+                                                                        Text="{Binding Config.CoreConfig.Launcher.JavaDirectoryPath, Mode=TwoWay}" />
                                                                     <Button
                                                                         Grid.Column="2"
                                                                         Classes="IconBtn"
@@ -856,8 +855,8 @@
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
-                                                                        Text="{Binding Config.CoreConfig.Launcher.LibrariesDirectoryPath, Mode=TwoWay}"
-                                                                        PlaceholderText="{lang:Translate common.select.directory}" />
+                                                                        PlaceholderText="{lang:Translate common.select.directory}"
+                                                                        Text="{Binding Config.CoreConfig.Launcher.LibrariesDirectoryPath, Mode=TwoWay}" />
                                                                     <Button
                                                                         Grid.Column="2"
                                                                         Classes="IconBtn"
@@ -873,8 +872,8 @@
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
-                                                                        Text="{Binding Config.CoreConfig.Launcher.ManifestsDirectoryPath, Mode=TwoWay}"
-                                                                        PlaceholderText="{lang:Translate common.select.directory}" />
+                                                                        PlaceholderText="{lang:Translate common.select.directory}"
+                                                                        Text="{Binding Config.CoreConfig.Launcher.ManifestsDirectoryPath, Mode=TwoWay}" />
                                                                     <Button
                                                                         Grid.Column="2"
                                                                         Classes="IconBtn"
@@ -890,8 +889,8 @@
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
-                                                                        Text="{Binding Config.CoreConfig.Launcher.TranslationsDirectoryPath, Mode=TwoWay}"
-                                                                        PlaceholderText="{lang:Translate common.select.directory}" />
+                                                                        PlaceholderText="{lang:Translate common.select.directory}"
+                                                                        Text="{Binding Config.CoreConfig.Launcher.TranslationsDirectoryPath, Mode=TwoWay}" />
                                                                     <Button
                                                                         Grid.Column="2"
                                                                         Classes="IconBtn"
@@ -907,8 +906,8 @@
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
-                                                                        Text="{Binding Config.CoreConfig.Launcher.VersionsDirectoryPath, Mode=TwoWay}"
-                                                                        PlaceholderText="{lang:Translate common.select.directory}" />
+                                                                        PlaceholderText="{lang:Translate common.select.directory}"
+                                                                        Text="{Binding Config.CoreConfig.Launcher.VersionsDirectoryPath, Mode=TwoWay}" />
                                                                     <Button
                                                                         Grid.Column="2"
                                                                         Classes="IconBtn"
@@ -923,7 +922,7 @@
                                                 </ScrollViewer>
 
                                                 <!--  Minecraft  -->
-                                                <ScrollViewer>
+                                                <ScrollViewer Padding="0,0,15,0">
                                                     <StackPanel Classes="SettingsWrapper">
                                                         <!--  General Category  -->
                                                         <Border Classes="SettingsCategoryBorder">
@@ -992,7 +991,7 @@
                                                 </ScrollViewer>
 
                                                 <!--  Java  -->
-                                                <ScrollViewer>
+                                                <ScrollViewer Padding="0,0,15,0">
                                                     <StackPanel Classes="SettingsWrapper">
                                                         <!--  General Category  -->
                                                         <Border Classes="SettingsCategoryBorder">
@@ -1045,8 +1044,8 @@
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
-                                                                        Text="{Binding Config.CoreConfig.Java.DefaultJavaPath, Mode=TwoWay}"
-                                                                        PlaceholderText="{lang:Translate common.select.directory}" />
+                                                                        PlaceholderText="{lang:Translate common.select.directory}"
+                                                                        Text="{Binding Config.CoreConfig.Java.DefaultJavaPath, Mode=TwoWay}" />
                                                                     <StackPanel
                                                                         Grid.Column="2"
                                                                         Orientation="Horizontal"
@@ -1083,7 +1082,7 @@
                                                 </ScrollViewer>
 
                                                 <!--  Misc  -->
-                                                <ScrollViewer>
+                                                <ScrollViewer Padding="0,0,15,0">
                                                     <StackPanel Classes="SettingsWrapper">
                                                         <!--  Custom Commands Category  -->
                                                         <Border Classes="SettingsCategoryBorder">
@@ -1161,8 +1160,8 @@
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
                                                                         IsEnabled="{Binding Config.CoreConfig.Misc.UseCustomGlfw}"
-                                                                        Text="{Binding Config.CoreConfig.Misc.CustomGlfwPath, Mode=TwoWay}"
-                                                                        PlaceholderText="{lang:Translate common.select.file}" />
+                                                                        PlaceholderText="{lang:Translate common.select.file}"
+                                                                        Text="{Binding Config.CoreConfig.Misc.CustomGlfwPath, Mode=TwoWay}" />
                                                                 </Grid>
 
                                                                 <!--  Use custom OpenAL  -->
@@ -1181,8 +1180,8 @@
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
                                                                         IsEnabled="{Binding Config.CoreConfig.Misc.UseCustomOpenAl}"
-                                                                        Text="{Binding Config.CoreConfig.Misc.CustomOpenAlPath, Mode=TwoWay}"
-                                                                        PlaceholderText="{lang:Translate common.select.file}" />
+                                                                        PlaceholderText="{lang:Translate common.select.file}"
+                                                                        Text="{Binding Config.CoreConfig.Misc.CustomOpenAlPath, Mode=TwoWay}" />
                                                                 </Grid>
                                                             </StackPanel>
                                                         </Border>
@@ -1228,12 +1227,12 @@
                                             </Carousel.Items>
                                         </Carousel>
                                     </Grid>
-                                    
+
                                     <!--  About Page  -->
                                     <Grid Margin="20,20,20,0" RowDefinitions="Auto, Auto, *">
-                                        <!-- Title -->
+                                        <!--  Title  -->
                                         <TextBlock Classes="MainContentTitle" Text="{lang:Translate about.tab.about}" />
-                                        
+
                                         <!--  Tab Buttons  -->
                                         <Border Grid.Row="1" Classes="SettingsTabBorder">
                                             <WrapPanel Classes="SettingsTabWrapper">
@@ -1273,7 +1272,7 @@
                                             </Carousel.PageTransition>
                                             <Carousel.Items>
 
-                                                <!-- About -->
+                                                <!--  About  -->
                                                 <ScrollViewer>
                                                     <Grid Classes="AboutWrapper" RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto">
                                                         <!--  Logo  -->
@@ -1320,8 +1319,8 @@
                                                         </WrapPanel>
                                                     </Grid>
                                                 </ScrollViewer>
-                                                
-                                                <!-- Credits -->
+
+                                                <!--  Credits  -->
                                                 <ScrollViewer>
                                                     <Grid Classes="AboutWrapper" RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto">
                                                         <!--  Project Maintainers  -->
@@ -1415,16 +1414,16 @@
                                                         </WrapPanel>
                                                     </Grid>
                                                 </ScrollViewer>
-                                                
-                                                <!-- License -->
+
+                                                <!--  License  -->
                                                 <ScrollViewer Classes="LicenseScrollViewer">
                                                     <TextBlock Classes="LicenseText" Text="{Binding About.License}" />
                                                 </ScrollViewer>
-                                                
+
                                             </Carousel.Items>
                                         </Carousel>
                                     </Grid>
-                                    
+
                                     <!--  Skins Page  -->
                                     <Grid
                                         Margin="20"

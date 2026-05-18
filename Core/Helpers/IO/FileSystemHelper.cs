@@ -651,17 +651,35 @@ public static class FileSystemHelper
         {
             case EOperatingSystem.Windows:
             {
-                Process.Start("explorer.exe", path);
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = "explorer.exe",
+                    UseShellExecute = false
+                };
+                startInfo.ArgumentList.Add(path);
+                Process.Start(startInfo);
                 break;
             }
             case EOperatingSystem.MacOS:
             {
-                Process.Start("open", path);
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = "open",
+                    UseShellExecute = false
+                };
+                startInfo.ArgumentList.Add(path);
+                Process.Start(startInfo);
                 break;
             }
             case EOperatingSystem.Linux:
             {
-                Process.Start("xdg-open", path);
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = "xdg-open",
+                    UseShellExecute = false
+                };
+                startInfo.ArgumentList.Add(path);
+                Process.Start(startInfo);
                 break;
             }
             case EOperatingSystem.Unknown:

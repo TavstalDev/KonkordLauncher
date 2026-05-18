@@ -575,20 +575,20 @@
                                                                 <ContextMenu>
                                                                     <!--  Toggle  -->
                                                                     <MenuItem
-                                                                        Command="{Binding ShaderPacks.Toggle}"
+                                                                        Command="{Binding ShaderPacks.ToggleCommand}"
                                                                         CommandParameter="{Binding ShaderPacks.SelectedShaderPack}"
                                                                         Header="{lang:Translate common.toggle}" />
                                                                     <Separator />
                                                                     <!--  Remove  -->
                                                                     <MenuItem
-                                                                        Command="{Binding ShaderPacks.Remove}"
+                                                                        Command="{Binding ShaderPacks.RemoveCommand}"
                                                                         CommandParameter="{Binding ShaderPacks.SelectedShaderPack}"
                                                                         Header="{lang:Translate common.remove}" />
                                                                     <Separator />
                                                                     <!--  Download Packs  -->
-                                                                    <MenuItem Command="{Binding ShaderPacks.Download}" Header="{lang:Translate instance.download.shaders}" />
+                                                                    <MenuItem Command="{Binding ShaderPacks.DownloadCommand}" Header="{lang:Translate instance.download.shaders}" />
                                                                     <!--  Open Folder  -->
-                                                                    <MenuItem Command="{Binding ShaderPacks.OpenDir}" Header="{lang:Translate common.open.directory}" />
+                                                                    <MenuItem Command="{Binding ShaderPacks.OpenDirCommand}" Header="{lang:Translate common.open.directory}" />
                                                                 </ContextMenu>
                                                             </DataGrid.ContextMenu>
                                                         </DataGrid>
@@ -623,7 +623,7 @@
                                                     <Button
                                                         Grid.Column="2"
                                                         Classes="IconBtn"
-                                                        Command="{Binding ShaderPacks.OpenDir}">
+                                                        Command="{Binding ShaderPacks.OpenDirCommand}">
                                                         <WrapPanel Classes="IconBtnWrapper">
                                                             <TextBlock
                                                                 VerticalAlignment="Center"
@@ -710,28 +710,28 @@
                                                                 <ContextMenu>
                                                                     <!--  Duplicate  -->
                                                                     <MenuItem
-                                                                        Command="{Binding Worlds.Duplicate}"
+                                                                        Command="{Binding Worlds.DuplicateCommand}"
                                                                         CommandParameter="{Binding Worlds.SelectedWorld}"
                                                                         Header="{lang:Translate common.duplicate}" />
                                                                     <!--  Rename  -->
                                                                     <MenuItem
-                                                                        Command="{Binding Worlds.Rename}"
+                                                                        Command="{Binding Worlds.RenameCommand}"
                                                                         CommandParameter="{Binding Worlds.SelectedWorld}"
                                                                         Header="{lang:Translate common.rename}" />
                                                                     <!--  Delete  -->
                                                                     <MenuItem
-                                                                        Command="{Binding Worlds.Delete}"
+                                                                        Command="{Binding Worlds.DeleteCommand}"
                                                                         CommandParameter="{Binding Worlds.SelectedWorld}"
                                                                         Header="{lang:Translate common.delete}" />
                                                                     <Separator />
                                                                     <!--  Copy Speed  -->
                                                                     <MenuItem
-                                                                        Command="{Binding Worlds.CopySeed}"
+                                                                        Command="{Binding Worlds.CopySeedCommand}"
                                                                         CommandParameter="{Binding Worlds.SelectedWorld}"
                                                                         Header="{lang:Translate instance.edit.copySeed}" />
                                                                     <!--  Open Folder  -->
                                                                     <MenuItem
-                                                                        Command="{Binding Worlds.OpenDir}"
+                                                                        Command="{Binding Worlds.OpenDirCommand}"
                                                                         CommandParameter="{Binding Worlds.SelectedWorld}"
                                                                         Header="{lang:Translate common.open.directory}" />
                                                                 </ContextMenu>
@@ -919,22 +919,22 @@
                                                                 <ContextMenu>
                                                                     <!--  Copy  -->
                                                                     <MenuItem
-                                                                        Command="{Binding Screenshots.CopyToClipboard}"
+                                                                        Command="{Binding Screenshots.CopyToClipboardCommand}"
                                                                         CommandParameter="{Binding Screenshots.SelectedScreenshot}"
                                                                         Header="{lang:Translate common.copy}" />
                                                                     <!--  Delete  -->
                                                                     <MenuItem
-                                                                        Command="{Binding Screenshots.Delete}"
+                                                                        Command="{Binding Screenshots.DeleteCommand}"
                                                                         CommandParameter="{Binding Screenshots.SelectedScreenshot}"
                                                                         Header="{lang:Translate common.delete}" />
                                                                     <!--  Rename  -->
                                                                     <MenuItem
-                                                                        Command="{Binding Screenshots.Rename}"
+                                                                        Command="{Binding Screenshots.RenameCommand}"
                                                                         CommandParameter="{Binding Screenshots.SelectedScreenshot}"
                                                                         Header="{lang:Translate common.rename}" />
                                                                     <!--  Open Directory  -->
                                                                     <MenuItem
-                                                                        Command="{Binding Screenshots.OpenDir}"
+                                                                        Command="{Binding Screenshots.OpenDirCommand}"
                                                                         CommandParameter="{Binding Screenshots.SelectedScreenshot}"
                                                                         Header="{lang:Translate common.open.directory}" />
                                                                 </ContextMenu>

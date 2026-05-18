@@ -115,9 +115,7 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
             return;
         
         string resourcePacksDir = Path.Combine(_parent.GameDirectory, "resourcepacks");
-        if (!Directory.Exists(resourcePacksDir))
-            return;
-
+        Directory.CreateDirectory(resourcePacksDir);
         FileSystemHelper.OpenFolderInFileExplorer(resourcePacksDir);
     }
 

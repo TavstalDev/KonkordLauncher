@@ -4,11 +4,11 @@
         <Setter Property="VerticalAlignment" Value="Stretch" />
         <Setter Property="Margin" Value="15" />
     </Style>
-    
+
     <Style Selector="TextBlock.AlertIcon">
         <Setter Property="FontSize" Value="40" />
     </Style>
-    
+
     <Style Selector="TextBlock.AlertTitle">
         <Setter Property="FontSize" Value="20" />
         <Setter Property="FontWeight" Value="500" />
@@ -18,11 +18,11 @@
         <Setter Property="TextWrapping" Value="Wrap" />
         <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
-    
+
     <Style Selector="ScrollViewer.AlertMessage">
         <Setter Property="MaxHeight" Value="80" />
     </Style>
-    
+
     <Style Selector="TextBlock.AlertMessage">
         <Setter Property="FontWeight" Value="300" />
         <Setter Property="HorizontalAlignment" Value="Center" />
@@ -30,7 +30,7 @@
         <Setter Property="TextWrapping" Value="Wrap" />
         <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
-    
+
     <Style Selector="WrapPanel.AlertButtonWrapper">
         <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="VerticalAlignment" Value="Bottom" />

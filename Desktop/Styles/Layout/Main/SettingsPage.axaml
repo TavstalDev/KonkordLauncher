@@ -1,69 +1,69 @@
 <Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <!-- Tab Border -->
+    <!--  Tab Border  -->
     <Style Selector="Border.SettingsTabBorder">
         <Setter Property="BorderBrush" Value="{DynamicResource default-border}" />
         <Setter Property="BorderThickness" Value="0, 0, 0, 1" />
         <Setter Property="Padding" Value="0, 0, 0, 10" />
     </Style>
-    <!-- Tab Wrapper -->
+    <!--  Tab Wrapper  -->
     <Style Selector="WrapPanel.SettingsTabWrapper">
         <Setter Property="ItemSpacing" Value="5" />
         <Setter Property="LineSpacing" Value="5" />
     </Style>
-    
-    <!-- Tab Button  -->
+
+    <!--  Tab Button  -->
     <Style Selector="Button.SettingsTabBtn">
         <Setter Property="CornerRadius" Value="8" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="Foreground" Value="{DynamicResource text-faded}" />
     </Style>
-    <!-- Tab Button Hover  -->
+    <!--  Tab Button Hover  -->
     <Style Selector="Button.SettingsTabBtn:pointerover /template/ ContentPresenter">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="Foreground" Value="{DynamicResource text-faded}" />
     </Style>
-    <!-- Tab Button Active  -->
+    <!--  Tab Button Active  -->
     <Style Selector="Button.SettingsTabBtn:pressed /template/ ContentPresenter">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="Foreground" Value="{DynamicResource text-faded}" />
     </Style>
-    <!-- Tab Button Text  -->
-    <Style Selector="Button.SettingsTabBtn > TextBlock">
+    <!--  Tab Button Text  -->
+    <Style Selector="Button.SettingsTabBtn &gt; TextBlock">
         <Setter Property="FontSize" Value="16" />
         <Setter Property="Margin" Value="5" />
         <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
-    
-    <!-- Tab Active Button  -->
+
+    <!--  Tab Active Button  -->
     <Style Selector="Button.SettingsTabBtnActive">
         <Setter Property="CornerRadius" Value="8" />
         <Setter Property="Background" Value="{DynamicResource default}" />
         <Setter Property="BorderBrush" Value="{DynamicResource default-border}" />
         <Setter Property="Foreground" Value="{DynamicResource default-content}" />
     </Style>
-    <!-- Tab Active Button Hover  -->
+    <!--  Tab Active Button Hover  -->
     <Style Selector="Button.SettingsTabBtnActive:pointerover /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource default}" />
         <Setter Property="BorderBrush" Value="{DynamicResource default-border}" />
         <Setter Property="Foreground" Value="{DynamicResource default-content}" />
     </Style>
-    <!-- Tab Active Button Active  -->
+    <!--  Tab Active Button Active  -->
     <Style Selector="Button.SettingsTabBtnActive:pressed /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource default}" />
         <Setter Property="BorderBrush" Value="{DynamicResource default-border}" />
         <Setter Property="Foreground" Value="{DynamicResource default-content}" />
     </Style>
-    <!-- Tab Active Button Text  -->
-    <Style Selector="Button.SettingsTabBtnActive > TextBlock">
+    <!--  Tab Active Button Text  -->
+    <Style Selector="Button.SettingsTabBtnActive &gt; TextBlock">
         <Setter Property="FontSize" Value="16" />
         <Setter Property="Margin" Value="5" />
         <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
-    
-    <!-- Wrapper -->
+
+    <!--  Wrapper  -->
     <Style Selector="StackPanel.SettingsWrapper">
         <Setter Property="Spacing" Value="20" />
         <Setter Property="Orientation" Value="Vertical" />
@@ -72,8 +72,8 @@
         <Setter Property="RowSpacing" Value="20" />
         <Setter Property="ColumnSpacing" Value="20" />
     </Style>
-    
-    <!-- Category Border -->
+
+    <!--  Category Border  -->
     <Style Selector="Border.SettingsCategoryBorder">
         <Setter Property="Background" Value="{DynamicResource base-100}" />
         <Setter Property="BorderBrush" Value="{DynamicResource border-two}" />
@@ -81,41 +81,41 @@
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Padding" Value="10" />
     </Style>
-    
-    <!-- Category Title -->
+
+    <!--  Category Title  -->
     <Style Selector="TextBlock.SettingsCategoryText">
         <Setter Property="Foreground" Value="{DynamicResource text-faded}" />
         <Setter Property="Margin" Value="5" />
     </Style>
-    
-    <!-- Category Content Grid -->
+
+    <!--  Category Content Grid  -->
     <Style Selector="Grid.SettingsContentGrid">
-      <Setter Property="Margin" Value="5" />      
-      <Setter Property="RowSpacing" Value="5" />
+        <Setter Property="Margin" Value="5" />
+        <Setter Property="RowSpacing" Value="5" />
     </Style>
-    
-    <!-- Setting Name -->
+
+    <!--  Setting Name  -->
     <Style Selector="TextBlock.SettingsName">
         <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
-    
-    <!-- Setting Description -->
+
+    <!--  Setting Description  -->
     <Style Selector="TextBlock.SettingsDescription">
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="FontSize" Value="12" />
         <Setter Property="Foreground" Value="{DynamicResource text-faded}" />
     </Style>
-    
-    <!-- Setting Inputs -->
-    
-    <!-- Toggle Switch -->
+
+    <!--  Setting Inputs  -->
+
+    <!--  Toggle Switch  -->
     <Style Selector="ToggleSwitch.SettingsSwitch">
         <Setter Property="OnContent" Value="" />
         <Setter Property="OffContent" Value="" />
         <Setter Property="HorizontalAlignment" Value="Right" />
     </Style>
-    
-    <!-- Numeric Input -->
+
+    <!--  Numeric Input  -->
     <Style Selector="TextBlock.NumericInput">
         <Setter Property="Margin" Value="0,0,10,0" />
         <Setter Property="VerticalAlignment" Value="Center" />
@@ -126,8 +126,8 @@
         <Setter Property="ShowButtonSpinner" Value="True" />
         <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
-    
-    <!-- Dropdown Input -->
+
+    <!--  Dropdown Input  -->
     <Style Selector="TextBlock.TextDropdown">
         <Setter Property="Margin" Value="0,0,10,0" />
         <Setter Property="VerticalAlignment" Value="Center" />
@@ -137,8 +137,8 @@
         <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
-    
-    <!-- Text Input -->
+
+    <!--  Text Input  -->
     <Style Selector="TextBlock.TextInput">
         <Setter Property="Margin" Value="0,0,10,0" />
         <Setter Property="VerticalAlignment" Value="Center" />

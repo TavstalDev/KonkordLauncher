@@ -8,7 +8,7 @@
         <Setter Property="Margin" Value="0, 0, 0, 10" />
         <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
-    
+
     <Style Selector="TextBlock.InstallStepText">
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="TextAlignment" Value="Center" />
@@ -17,7 +17,7 @@
         <Setter Property="Margin" Value="0, 0, 0, 5" />
         <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
-    
+
     <Style Selector="TextBlock.InstallDetailText">
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="TextAlignment" Value="Center" />
@@ -27,7 +27,7 @@
         <Setter Property="Margin" Value="0, 0, 0, 20" />
         <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
-    
+
     <Style Selector="ProgressBar.InstallProgress">
         <Setter Property="Margin" Value="0, 0, 0, 20" />
         <Setter Property="IsIndeterminate" Value="True" />

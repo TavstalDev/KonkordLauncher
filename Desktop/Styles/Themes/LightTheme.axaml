@@ -4,7 +4,7 @@
     <SolidColorBrush x:Key="base-300" Color="#dfe2e6" />
     <SolidColorBrush x:Key="base-content" Color="#18181b" />
     <SolidColorBrush x:Key="base-overlay" Color="#B3000000" />
-    
+
     <SolidColorBrush x:Key="border-one" Color="#d1d5db" />
     <SolidColorBrush x:Key="border-two" Color="#9ca3af" />
 
@@ -15,8 +15,8 @@
     <SolidColorBrush x:Key="primary" Color="#008033" />
     <SolidColorBrush x:Key="primary-border" Color="#00481D" />
     <SolidColorBrush x:Key="primary-content" Color="#ffffff" />
-    
-    <SolidColorBrush x:Key="secondary" Color="#4b5563" /> 
+
+    <SolidColorBrush x:Key="secondary" Color="#4b5563" />
     <SolidColorBrush x:Key="secondary-border" Color="#374151" />
     <SolidColorBrush x:Key="secondary-content" Color="#FFFFFF" />
 
@@ -31,16 +31,16 @@
 
     <SolidColorBrush x:Key="success" Color="#00d390" />
     <SolidColorBrush x:Key="success-content" Color="#002d20" />
-    
+
     <SolidColorBrush x:Key="warning" Color="#fcb700" />
     <SolidColorBrush x:Key="warning-content" Color="#4d2100" />
-    
+
     <SolidColorBrush x:Key="error" Color="#ff637d" />
     <SolidColorBrush x:Key="error-content" Color="#4d0218" />
 
     <SolidColorBrush x:Key="text-faded" Color="#6b7280" />
     <SolidColorBrush x:Key="text-muted" Color="#374151" />
-    
+
     <x:String x:Key="HtmlBaseStyle">
         body, p, div, span, h1, h2, h3, ul, ol {
         color: #18181b !important;

@@ -1,13 +1,13 @@
 <Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <!--  Window Button  -->
     <Style Selector="Button.WindowBtn">
-        <Setter Property="Width" Value="13"/>
-        <Setter Property="Height" Value="13"/>
-        <Setter Property="MinWidth" Value="0"/> 
-        <Setter Property="MinHeight" Value="0"/>
-        <Setter Property="Padding" Value="0"/>
-        <Setter Property="CornerRadius" Value="6"/>
-        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Width" Value="13" />
+        <Setter Property="Height" Value="13" />
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="MinHeight" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Opacity" Value="0.8" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
@@ -23,7 +23,7 @@
         <Setter Property="Opacity" Value="1.0" />
         <Setter Property="Cursor" Value="Hand" />
     </Style>
-    
+
     <!--  Icon Button  -->
     <Style Selector="Button.IconBtn">
         <Setter Property="Opacity" Value="0.8" />
@@ -45,7 +45,7 @@
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Cursor" Value="Hand" />
     </Style>
-    
+
     <!--  Icon HyperlinkButton  -->
     <Style Selector="HyperlinkButton.IconBtn">
         <Setter Property="Opacity" Value="0.8" />
@@ -67,33 +67,33 @@
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Cursor" Value="Hand" />
     </Style>
-    
+
     <!--  Icon Button Wrapper  -->
     <Style Selector="WrapPanel.IconBtnWrapper">
         <Setter Property="Margin" Value="5, 0" />
         <Setter Property="ItemSpacing" Value="4" />
     </Style>
-    
-    <!-- Default Button  -->
+
+    <!--  Default Button  -->
     <Style Selector="Button, HyperlinkButton.DefaultBtn">
         <Setter Property="Background" Value="{DynamicResource default}" />
         <Setter Property="BorderBrush" Value="{DynamicResource default-border}" />
         <Setter Property="Foreground" Value="{DynamicResource default-content}" />
     </Style>
-    <!-- Default Button Hover  -->
+    <!--  Default Button Hover  -->
     <Style Selector="Button:pointerover /template/ ContentPresenter, HyperlinkButton.DefaultBtn:pointerover /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource default}" />
         <Setter Property="BorderBrush" Value="{DynamicResource default-border}" />
         <Setter Property="Foreground" Value="{DynamicResource default-content}" />
     </Style>
-    <!-- Default Button Active  -->
+    <!--  Default Button Active  -->
     <Style Selector="Button:pressed /template/ ContentPresenter, HyperlinkButton.DefaultBtn:pressed /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource default}" />
         <Setter Property="BorderBrush" Value="{DynamicResource default-border}" />
         <Setter Property="Foreground" Value="{DynamicResource default-content}" />
     </Style>
-    
-    <!-- SideBar Button  -->
+
+    <!--  SideBar Button  -->
     <Style Selector="Button.SidebarBtn">
         <Setter Property="Height" Value="40" />
         <Setter Property="FontSize" Value="18" />
@@ -109,19 +109,19 @@
         <Setter Property="Background" Value="{DynamicResource base-100}" />
         <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
-    <!-- SideBar Button Hover  -->
+    <!--  SideBar Button Hover  -->
     <Style Selector="Button.SidebarBtn:pointerover /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource base-100}" />
         <Setter Property="Foreground" Value="{DynamicResource base-content}" />
         <Setter Property="Opacity" Value="0.9" />
     </Style>
-    <!-- SideBar Button Active  -->
+    <!--  SideBar Button Active  -->
     <Style Selector="Button.SidebarBtn:pressed /template/ ContentPresenter">
         <Setter Property="Background" Value="{DynamicResource base-100}" />
         <Setter Property="Foreground" Value="{DynamicResource base-content}" />
         <Setter Property="Opacity" Value="1.0" />
     </Style>
-    
+
     <!--  SideBarActive Button  -->
     <Style Selector="Button.SideBarActiveBtn">
         <Setter Property="Background" Value="{DynamicResource primary}" />
@@ -137,7 +137,7 @@
         <Setter Property="Background" Value="{DynamicResource primary}" />
         <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
     </Style>
-    
+
     <!--  Primary Button  -->
     <Style Selector="Button.PrimaryBtn, HyperlinkButton.PrimaryBtn">
         <Setter Property="Background" Value="{DynamicResource primary}" />
@@ -156,7 +156,7 @@
         <Setter Property="BorderBrush" Value="{DynamicResource primary-border}" />
         <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
     </Style>
-    
+
     <!--  Secondary Button  -->
     <Style Selector="Button.SecondaryBtn, HyperlinkButton.SecondaryBtn">
         <Setter Property="Background" Value="{DynamicResource secondary}" />
@@ -175,7 +175,7 @@
         <Setter Property="BorderBrush" Value="{DynamicResource secondary-border}" />
         <Setter Property="Foreground" Value="{DynamicResource secondary-content}" />
     </Style>
-    
+
     <!--  Info Button  -->
     <Style Selector="Button.InfoBtn, HyperlinkButton.InfoBtn">
         <Setter Property="Background" Value="{DynamicResource info}" />
@@ -191,7 +191,7 @@
         <Setter Property="Background" Value="{DynamicResource info}" />
         <Setter Property="Foreground" Value="{DynamicResource info-content}" />
     </Style>
-    
+
     <!--  Success Button  -->
     <Style Selector="Button.SuccessBtn, HyperlinkButton.SuccessBtn">
         <Setter Property="Background" Value="{DynamicResource success}" />
@@ -207,7 +207,7 @@
         <Setter Property="Background" Value="{DynamicResource success}" />
         <Setter Property="Foreground" Value="{DynamicResource success-content}" />
     </Style>
-    
+
     <!--  Warning Button  -->
     <Style Selector="Button.WarningBtn, HyperlinkButton.WarningBtn">
         <Setter Property="Background" Value="{DynamicResource warning}" />
@@ -223,7 +223,7 @@
         <Setter Property="Background" Value="{DynamicResource warning}" />
         <Setter Property="Foreground" Value="{DynamicResource warning-content}" />
     </Style>
-    
+
     <!--  Error Button  -->
     <Style Selector="Button.ErrorBtn, HyperlinkButton.ErrorBtn">
         <Setter Property="Background" Value="{DynamicResource error}" />
@@ -239,7 +239,7 @@
         <Setter Property="Background" Value="{DynamicResource error}" />
         <Setter Property="Foreground" Value="{DynamicResource error-content}" />
     </Style>
-    
+
     <!--  Accent Button  -->
     <Style Selector="Button.AccentBtn, HyperlinkButton.AccentBtn">
         <Setter Property="Background" Value="{DynamicResource accent}" />
@@ -255,7 +255,7 @@
         <Setter Property="Background" Value="{DynamicResource accent}" />
         <Setter Property="Foreground" Value="{DynamicResource accent-content}" />
     </Style>
-    
+
     <!--  AccentAlt Button  -->
     <Style Selector="Button.AccentAltBtn, HyperlinkButton.AccentAltBtn">
         <Setter Property="Background" Value="{DynamicResource accent}" />
@@ -271,7 +271,7 @@
         <Setter Property="Background" Value="{DynamicResource accent}" />
         <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
-    
+
     <!--  Neutral Button  -->
     <Style Selector="Button.NeutralBtn, HyperlinkButton.NeutralBtn">
         <Setter Property="Background" Value="{DynamicResource neutral}" />

@@ -2,7 +2,7 @@
     <Style Selector="TextBlock.Muted">
         <Setter Property="Foreground" Value="{DynamicResource base-content}" />
         <Setter Property="FontWeight" Value="300" />
-        <Setter Property="Opacity" Value="0.8"/>
-        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="Opacity" Value="0.8" />
+        <Setter Property="TextWrapping" Value="Wrap" />
     </Style>
 </Styles>

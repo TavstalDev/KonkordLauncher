@@ -42,18 +42,18 @@
         <Setter Property="LineSpacing" Value="10" />
     </Style>
 
-    <!-- InstanceExpander -->
+    <!--  InstanceExpander  -->
     <Style Selector="Expander.InstanceExpander">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="Padding" Value="5, 10" />
         <Setter Property="HorizontalAlignment" Value="Stretch" />
         <Setter Property="CornerRadius" Value="8" />
     </Style>
-    
+
     <Style Selector="Expander.InstanceExpander:expanded">
         <Setter Property="HorizontalAlignment" Value="Stretch" />
     </Style>
-    
+
     <Style Selector="Expander.InstanceExpander /template/ ToggleButton#ExpanderHeader">
         <Setter Property="Background" Value="{DynamicResource base-300}" />
     </Style>
@@ -61,7 +61,7 @@
     <Style Selector="Expander.InstanceExpander:expanded /template/ ToggleButton#ExpanderHeader">
         <Setter Property="Background" Value="{DynamicResource base-300}" />
     </Style>
-    
+
     <Style Selector="Expander.InstanceExpander /template/ ToggleButton#ExpanderHeader:pointerover /template/ Border#ToggleButtonBackground">
         <Setter Property="Background" Value="{DynamicResource base-300}" />
     </Style>

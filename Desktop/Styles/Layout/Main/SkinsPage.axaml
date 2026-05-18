@@ -1,35 +1,35 @@
 <Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <!-- Skin Border -->
+    <!--  Skin Border  -->
     <Style Selector="Border.SkinBorder">
         <Setter Property="Background" Value="{DynamicResource base-200}" />
         <Setter Property="CornerRadius" Value="8" />
     </Style>
-    
-    <!-- Skin Border Selected -->
+
+    <!--  Skin Border Selected  -->
     <Style Selector="Border.SkinBorder.selected">
         <Setter Property="Background" Value="{DynamicResource base-100}" />
         <Setter Property="BorderBrush" Value="{DynamicResource primary-border}" />
         <Setter Property="BorderThickness" Value="2" />
     </Style>
-    
-    <!-- Skin Model Button -->
+
+    <!--  Skin Model Button  -->
     <Style Selector="Button.SkinModelBtn">
         <Setter Property="Background" Value="{DynamicResource base-200}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="CornerRadius" Value="8" />
         <Setter Property="HorizontalAlignment" Value="Stretch" />
-        <Setter Property="HorizontalContentAlignment" Value="Center"/>
-        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
     </Style>
-    
+
     <Style Selector="Button.SkinModelBtn:pointerover">
         <Setter Property="Background" Value="{DynamicResource base-200}" />
     </Style>
-    
+
     <Style Selector="Button.SkinModelBtn:pressed">
         <Setter Property="Background" Value="{DynamicResource base-200}" />
     </Style>
-    
+
     <Style Selector="Button.SkinModelBtn.selected">
         <Setter Property="Background" Value="{DynamicResource primary}" />
         <Setter Property="BorderBrush" Value="{DynamicResource primary-border}" />
@@ -37,52 +37,52 @@
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="CornerRadius" Value="8" />
         <Setter Property="HorizontalAlignment" Value="Stretch" />
-        <Setter Property="HorizontalContentAlignment" Value="Center"/>
-        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
     </Style>
-    
+
     <Style Selector="Button.SkinModelBtn.selected:pointerover">
         <Setter Property="Background" Value="{DynamicResource primary}" />
         <Setter Property="BorderBrush" Value="{DynamicResource primary-border}" />
         <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
     </Style>
-    
+
     <Style Selector="Button.SkinModelBtn.selected:pressed">
         <Setter Property="Background" Value="{DynamicResource primary}" />
         <Setter Property="BorderBrush" Value="{DynamicResource primary-border}" />
         <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
     </Style>
-    
-    <!-- Skin Button -->
+
+    <!--  Skin Button  -->
     <Style Selector="Button.SkinBtn">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="CornerRadius" Value="8" />
-        <Setter Property="HorizontalContentAlignment" Value="Center"/>
-        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
     </Style>
-    
+
     <Style Selector="Button.SkinBtn:pointerover">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="CornerRadius" Value="8" />
     </Style>
-    
+
     <Style Selector="Button.SkinBtn:pressed">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="CornerRadius" Value="8" />
     </Style>
-    
-    <!-- Skin ViewBox -->
+
+    <!--  Skin ViewBox  -->
     <Style Selector="Viewbox.SkinViewBox">
-        <Setter Property="Stretch" Value="Uniform"/>
+        <Setter Property="Stretch" Value="Uniform" />
         <Setter Property="MaxHeight" Value="100" />
     </Style>
-    
-    <!-- Skin Preview Image -->
+
+    <!--  Skin Preview Image  -->
     <Style Selector="Image.SkinPreview">
-        <Setter Property="Stretch" Value="Uniform"/>
+        <Setter Property="Stretch" Value="Uniform" />
         <Setter Property="Margin" Value="10" />
     </Style>
 </Styles>

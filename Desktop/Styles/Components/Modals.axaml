@@ -1,10 +1,10 @@
 <Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <!-- Window Style -->
+    <!--  Window Style  -->
     <Style Selector="Border.ModalView">
         <Setter Property="Padding" Value="25" />
     </Style>
-    
-    <!-- Title Style -->
+
+    <!--  Title Style  -->
     <Style Selector="TextBlock.ModalTitle">
         <Setter Property="FontSize" Value="24" />
         <Setter Property="FontWeight" Value="600" />
@@ -13,17 +13,17 @@
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="TextAlignment" Value="Center" />
     </Style>
-    
-    <!-- Title Border -->
+
+    <!--  Title Border  -->
     <Style Selector="Border.ModalTitleBorder">
         <Setter Property="BorderBrush" Value="{DynamicResource border-one}" />
         <Setter Property="BorderThickness" Value="0, 0, 0, 1" />
         <Setter Property="Padding" Value="20, 10, 20, 20" />
     </Style>
-    <Style Selector="Border.ModalTitleBorder > StackPanel">
+    <Style Selector="Border.ModalTitleBorder &gt; StackPanel">
         <Setter Property="Spacing" Value="5" />
     </Style>
-    <Style Selector="Border.ModalTitleBorder > TextBlock, Border.ModalTitleBorder > StackPanel > TextBlock">
+    <Style Selector="Border.ModalTitleBorder &gt; TextBlock, Border.ModalTitleBorder &gt; StackPanel &gt; TextBlock">
         <Setter Property="HorizontalAlignment" Value="Left" />
         <Setter Property="FontSize" Value="20" />
         <Setter Property="FontWeight" Value="500" />
@@ -36,14 +36,14 @@
         <Setter Property="Foreground" Value="{DynamicResource text-faded}" />
         <Setter Property="TextWrapping" Value="Wrap" />
     </Style>
-    
-    <!-- Tab Style -->
+
+    <!--  Tab Style  -->
     <Style Selector="TabControl.ModalTab">
         <Setter Property="CornerRadius" Value="8" />
         <Setter Property="Padding" Value="0" />
     </Style>
-    
-    <!-- Tab Item Style -->
+
+    <!--  Tab Item Style  -->
     <Style Selector="TabItem.ModalTabItem">
         <Setter Property="FontSize" Value="18" />
         <Setter Property="Background" Value="{DynamicResource base-100}" />
@@ -51,21 +51,21 @@
         <Setter Property="BorderBrush" Value="{DynamicResource border-two}" />
         <Setter Property="BorderThickness" Value="1, 1, 1, 0" />
         <Setter Property="CornerRadius" Value="8, 8, 0, 0" />
-        <Setter Property="Padding" Value="15 0"/>
+        <Setter Property="Padding" Value="15 0" />
         <Setter Property="Margin" Value="0" />
     </Style>
-    
-    <!-- Selected Tab Item Style -->
+
+    <!--  Selected Tab Item Style  -->
     <Style Selector="TabItem.ModalTabItem:selected">
-        <Setter Property="Background" Value="{DynamicResource base-200}"/>
+        <Setter Property="Background" Value="{DynamicResource base-200}" />
     </Style>
-    
-    <!-- Hide the selected pipe in Tab Item -->
+
+    <!--  Hide the selected pipe in Tab Item  -->
     <Style Selector="TabItem.ModalTabItem:selected /template/ Border#PART_SelectedPipe">
         <Setter Property="IsVisible" Value="False" />
     </Style>
-    
-    <!-- Modal Wrapper Border -->
+
+    <!--  Modal Wrapper Border  -->
     <Style Selector="Border.ModalWrapper">
         <Setter Property="Background" Value="{DynamicResource base-100}" />
         <Setter Property="BorderBrush" Value="{DynamicResource border-two}" />
@@ -73,50 +73,52 @@
         <Setter Property="CornerRadius" Value="0, 8, 8, 8" />
         <Setter Property="Margin" Value="0,-2,0,0" />
     </Style>
-    
-    <!-- Modal Wrapper Panel -->
+
+    <!--  Modal Wrapper Panel  -->
     <Style Selector="WrapPanel.ModalWrapper">
         <Setter Property="LineSpacing" Value="10" />
         <Setter Property="ItemSpacing" Value="15" />
-        <Setter Property="Width" Value="440"></Setter>
+        <Setter Property="Width" Value="440" />
         <Setter Property="ItemWidth" Value="440" />
         <Setter Property="Margin" Value="25,20,25,25" />
         <Setter Property="Orientation" Value="Vertical" />
     </Style>
-    
-    <!-- Scrollable Tab Control -->
+
+    <!--  Scrollable Tab Control  -->
     <Style Selector="TabControl.ModalVerticalTab">
         <Setter Property="CornerRadius" Value="8" />
         <Setter Property="Padding" Value="0" />
         <Setter Property="Template">
             <ControlTemplate>
-                <Border BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{TemplateBinding BorderThickness}"
-                        CornerRadius="{TemplateBinding CornerRadius}"
-                        Background="{TemplateBinding Background}"
-                        HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
-                        VerticalAlignment="{TemplateBinding VerticalAlignment}">
+                <Border
+                    HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+                    VerticalAlignment="{TemplateBinding VerticalAlignment}"
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="{TemplateBinding CornerRadius}">
                     <DockPanel>
-                        <ScrollViewer DockPanel.Dock="{TemplateBinding TabStripPlacement}"
-                                      HorizontalScrollBarVisibility="Disabled"
-                                      VerticalScrollBarVisibility="Auto"
-                                      Margin="0">
-                             <ItemsPresenter Name="PART_ItemsPresenter"
-                                                     ItemsPanel="{TemplateBinding ItemsPanel}" />
+                        <ScrollViewer
+                            Margin="0"
+                            DockPanel.Dock="{TemplateBinding TabStripPlacement}"
+                            HorizontalScrollBarVisibility="Disabled"
+                            VerticalScrollBarVisibility="Auto">
+                            <ItemsPresenter Name="PART_ItemsPresenter" ItemsPanel="{TemplateBinding ItemsPanel}" />
                         </ScrollViewer>
-                        <ContentPresenter Name="PART_SelectedContentHost"
-                                          Margin="{TemplateBinding Padding}"
-                                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                                          Content="{TemplateBinding SelectedContent}"
-                                          ContentTemplate="{TemplateBinding SelectedContentTemplate}" />
+                        <ContentPresenter
+                            Name="PART_SelectedContentHost"
+                            Margin="{TemplateBinding Padding}"
+                            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                            Content="{TemplateBinding SelectedContent}"
+                            ContentTemplate="{TemplateBinding SelectedContentTemplate}" />
                     </DockPanel>
                 </Border>
             </ControlTemplate>
         </Setter>
     </Style>
-    
-    <!-- Scrollable Tab Item -->
+
+    <!--  Scrollable Tab Item  -->
     <Style Selector="TabItem.ModalVerticalTabItem">
         <Setter Property="FontSize" Value="18" />
         <Setter Property="Background" Value="{DynamicResource base-100}" />
@@ -124,21 +126,21 @@
         <Setter Property="BorderBrush" Value="{DynamicResource border-two}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="CornerRadius" Value="8, 0, 0, 8" />
-        <Setter Property="Padding" Value="15 0"/>
+        <Setter Property="Padding" Value="15 0" />
         <Setter Property="Margin" Value="0" />
     </Style>
-    
-    <!-- Selected Scrollable Tab Item -->
+
+    <!--  Selected Scrollable Tab Item  -->
     <Style Selector="TabItem.ModalVerticalTabItem:selected">
-        <Setter Property="Background" Value="{DynamicResource base-200}"/>
+        <Setter Property="Background" Value="{DynamicResource base-200}" />
     </Style>
-    
-    <!-- Hide the selected pipe in Scrollable Tab Item -->
+
+    <!--  Hide the selected pipe in Scrollable Tab Item  -->
     <Style Selector="TabItem.ModalVerticalTabItem:selected /template/ Border#PART_SelectedPipe">
         <Setter Property="IsVisible" Value="False" />
     </Style>
-    
-    <!-- Scrollable Wrapper Border for Modals -->
+
+    <!--  Scrollable Wrapper Border for Modals  -->
     <Style Selector="Border.ModalScrollableWrapper">
         <Setter Property="Background" Value="{DynamicResource base-100}" />
         <Setter Property="BorderBrush" Value="{DynamicResource border-two}" />
@@ -146,19 +148,19 @@
         <Setter Property="CornerRadius" Value="0, 8, 8, 0" />
         <Setter Property="Padding" Value="25,20,40,25" />
     </Style>
-    
-    <!-- Scrollable Wrapper Grid for Modals -->
+
+    <!--  Scrollable Wrapper Grid for Modals  -->
     <Style Selector="Grid.ModalScrollableWrapper">
         <Setter Property="ColumnSpacing" Value="15" />
         <Setter Property="RowSpacing" Value="15" />
     </Style>
-    
-    <!-- ScrollViewer for Modals -->
+
+    <!--  ScrollViewer for Modals  -->
     <Style Selector="ScrollViewer.ModalScrollViewer">
         <Setter Property="Padding" Value="0,0,15,0" />
     </Style>
-    
-    <!-- Scrollable Inner Wrapper Border for Modals -->
+
+    <!--  Scrollable Inner Wrapper Border for Modals  -->
     <Style Selector="Border.ModalInnerScrollableWrapper">
         <Setter Property="Background" Value="{DynamicResource base-200}" />
         <Setter Property="BorderBrush" Value="{DynamicResource border-two}" />
@@ -167,21 +169,21 @@
         <Setter Property="Padding" Value="15,15,10,15" />
         <Setter Property="Margin" Value="0, -2, 0, 0" />
     </Style>
-    
-    <!-- ScrollViewer for Tables -->
+
+    <!--  ScrollViewer for Tables  -->
     <Style Selector="ScrollViewer.TableScrollViewer">
         <Setter Property="HorizontalScrollBarVisibility" Value="Auto" />
         <Setter Property="VerticalAlignment" Value="Stretch" />
     </Style>
-    
-    <!-- Grid Title -->
+
+    <!--  Grid Title  -->
     <Style Selector="TextBlock.ModalGridTitle">
         <Setter Property="FontSize" Value="20" />
         <Setter Property="FontWeight" Value="500" />
         <Setter Property="Foreground" Value="{DynamicResource default-content}" />
     </Style>
-    
-    <!-- Grid Inner Content -->
+
+    <!--  Grid Inner Content  -->
     <Style Selector="Border.GridInnerContent">
         <Setter Property="Background" Value="{DynamicResource base-200}" />
         <Setter Property="BorderBrush" Value="{DynamicResource border-two}" />

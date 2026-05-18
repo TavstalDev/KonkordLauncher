@@ -1,10 +1,10 @@
 <Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <!-- Window Style -->
+    <!--  Window Style  -->
     <Style Selector="Border.InstanceView">
         <Setter Property="Padding" Value="30" />
     </Style>
-    
-    <!-- Title Style -->
+
+    <!--  Title Style  -->
     <Style Selector="TextBlock.InstanceTitle">
         <Setter Property="FontSize" Value="20" />
         <Setter Property="FontWeight" Value="600" />
@@ -13,16 +13,16 @@
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="TextAlignment" Value="Center" />
     </Style>
-    
-    <!-- Category Style -->
+
+    <!--  Category Style  -->
     <Style Selector="TextBlock.InstanceCategory">
         <Setter Property="FontSize" Value="16" />
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="Margin" Value="0,5" />
         <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
-    
-    <!-- Instance Wrapper Border -->
+
+    <!--  Instance Wrapper Border  -->
     <Style Selector="Border.InstanceWrapper">
         <Setter Property="Background" Value="{DynamicResource base-100}" />
         <Setter Property="BorderBrush" Value="{DynamicResource border-two}" />
@@ -30,28 +30,28 @@
         <Setter Property="CornerRadius" Value="0, 8, 8, 8" />
         <Setter Property="Margin" Value="0,-2,0,0" />
     </Style>
-    
-    <!-- Instance Wrapper Grid -->
+
+    <!--  Instance Wrapper Grid  -->
     <Style Selector="Grid.InstanceWrapper">
         <Setter Property="ColumnSpacing" Value="15" />
         <Setter Property="RowSpacing" Value="15" />
         <Setter Property="Margin" Value="25,20,50,25" />
     </Style>
-    
-    <!-- Instance Modpack Wrapper -->
+
+    <!--  Instance Modpack Wrapper  -->
     <Style Selector="Grid.InstanceModpackWrapper">
         <Setter Property="ColumnSpacing" Value="15" />
         <Setter Property="RowSpacing" Value="15" />
         <Setter Property="Margin" Value="25,20,25,25" />
     </Style>
-    
-    <!-- Instance Icon -->
+
+    <!--  Instance Icon  -->
     <Style Selector="Image.InstanceIcon">
         <Setter Property="Height" Value="72" />
         <Setter Property="Width" Value="72" />
     </Style>
-    
-    <!-- Single Select Table -->
+
+    <!--  Single Select Table  -->
     <Style Selector="DataGrid.InstanceTable">
         <Setter Property="SelectionMode" Value="Single" />
         <Setter Property="CanUserReorderColumns" Value="True" />
@@ -64,8 +64,8 @@
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="CornerRadius" Value="8" />
     </Style>
-    
-    <!-- Multi Select Table -->
+
+    <!--  Multi Select Table  -->
     <Style Selector="DataGrid.InstanceMultiTable">
         <Setter Property="SelectionMode" Value="Extended" />
         <Setter Property="CanUserReorderColumns" Value="True" />
@@ -78,8 +78,8 @@
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="CornerRadius" Value="8" />
     </Style>
-    
-    <!-- DataGrid Column Header -->
+
+    <!--  DataGrid Column Header  -->
     <Style Selector="DataGridColumnHeader">
         <Setter Property="Background" Value="{DynamicResource base-300}" />
         <Setter Property="Foreground" Value="{DynamicResource base-content}" />
@@ -88,8 +88,8 @@
         <Setter Property="CornerRadius" Value="0" />
         <Setter Property="BorderThickness" Value="0" />
     </Style>
-    
-    <!-- Grid Splitter -->
+
+    <!--  Grid Splitter  -->
     <Style Selector="GridSplitter.InstanceSplitter">
         <Setter Property="Background" Value="{DynamicResource border-two}" />
         <Setter Property="CornerRadius" Value="8" />
@@ -106,8 +106,8 @@
             </Template>
         </Setter>
     </Style>
-    
-    <!-- Grid Splitter Border -->
+
+    <!--  Grid Splitter Border  -->
     <Style Selector="Border.InstanceSplitter">
         <Setter Property="Background" Value="{DynamicResource primary}" />
         <Setter Property="CornerRadius" Value="8" />
@@ -115,44 +115,44 @@
         <Setter Property="Width" Value="4" />
         <Setter Property="MaxWidth" Value="4" />
     </Style>
-    
-    <!-- Instance Search TextBox -->
+
+    <!--  Instance Search TextBox  -->
     <Style Selector="TextBox.InstanceSearch">
         <Setter Property="Width" Value="175" />
         <Setter Property="MaxWidth" Value="175" />
         <Setter Property="Margin" Value="0,5,0,0" />
         <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
-    
-    <!-- Instance Button Wrapper Border -->
+
+    <!--  Instance Button Wrapper Border  -->
     <Style Selector="Border.InstanceButtonBorder">
         <Setter Property="BorderBrush" Value="{DynamicResource border-one}" />
         <Setter Property="BorderThickness" Value="0, 1, 0, 0" />
         <Setter Property="Padding" Value="20" />
     </Style>
-    
-    <!-- Instance Button Wrapper -->
+
+    <!--  Instance Button Wrapper  -->
     <Style Selector="StackPanel.InstanceButtonWrapper">
         <Setter Property="Orientation" Value="Horizontal" />
         <Setter Property="HorizontalAlignment" Value="Right" />
         <Setter Property="Spacing" Value="10" />
     </Style>
-    
-    <!-- Instance Button TextBlock -->
+
+    <!--  Instance Button TextBlock  -->
     <Style Selector="TextBlock.InstanceButtonText">
         <Setter Property="FontSize" Value="15" />
         <Setter Property="FontWeight" Value="600" />
         <Setter Property="Foreground" Value="{DynamicResource default-content}" />
         <Setter Property="Padding" Value="5" />
     </Style>
-    
-    <!-- Mod Card -->
+
+    <!--  Mod Card  -->
     <Style Selector="Border.InstanceModCard">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="CornerRadius" Value="8" />
     </Style>
 
-    <!-- Mod Card Title -->
+    <!--  Mod Card Title  -->
     <Style Selector="TextBlock.InstanceModTitle">
         <Setter Property="FontSize" Value="15" />
         <Setter Property="FontWeight" Value="500" />
@@ -161,15 +161,15 @@
         <Setter Property="Margin" Value="0, 0, 10, 0" />
     </Style>
 
-    <!-- Mod Card Description -->
+    <!--  Mod Card Description  -->
     <Style Selector="TextBlock.InstanceModDescription">
         <Setter Property="Opacity" Value="0.6" />
         <Setter Property="TextWrapping" Value="NoWrap" />
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
         <Setter Property="Margin" Value="0, 0, 10, 0" />
     </Style>
-    
-    <!-- Mod Category CheckBox -->
+
+    <!--  Mod Category CheckBox  -->
     <Style Selector="CheckBox.InstanceModCategory">
         <Setter Property="Foreground" Value="{DynamicResource text-faded}" />
         <Setter Property="FontSize" Value="13" />

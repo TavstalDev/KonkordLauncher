@@ -1,8 +1,8 @@
 <Application
-    RequestedThemeVariant="Dark"
     x:Class="Tavstal.KonkordLauncher.Desktop.App"
     xmlns="https://github.com/avaloniaui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    RequestedThemeVariant="Dark">
 
     <Application.Resources>
         <ResourceDictionary>
@@ -10,19 +10,19 @@
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Light">
                     <ResourceDictionary.MergedDictionaries>
-                        <ResourceInclude Source="Styles/Themes/LightTheme.axaml"/>
+                        <ResourceInclude Source="Styles/Themes/LightTheme.axaml" />
                     </ResourceDictionary.MergedDictionaries>
                 </ResourceDictionary>
 
                 <ResourceDictionary x:Key="Dark">
                     <ResourceDictionary.MergedDictionaries>
-                        <ResourceInclude Source="Styles/Themes/DarkTheme.axaml"/>
+                        <ResourceInclude Source="Styles/Themes/DarkTheme.axaml" />
                     </ResourceDictionary.MergedDictionaries>
                 </ResourceDictionary>
 
                 <ResourceDictionary x:Key="Default">
                     <ResourceDictionary.MergedDictionaries>
-                        <ResourceInclude Source="Styles/Themes/DarkTheme.axaml"/>
+                        <ResourceInclude Source="Styles/Themes/DarkTheme.axaml" />
                     </ResourceDictionary.MergedDictionaries>
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
@@ -32,15 +32,15 @@
         </ResourceDictionary>
     </Application.Resources>
     <Application.Styles>
-        <!-- Fluent Theme  -->
+        <!--  Fluent Theme  -->
         <FluentTheme />
-        <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
+        <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml" />
 
         <!--  Global Styles  -->
         <StyleInclude Source="Styles/Style.axaml" />
-        
+
         <!--  Controls  -->
-        <StyleInclude Source="Styles/Controls/Buttons.axaml"  />
+        <StyleInclude Source="Styles/Controls/Buttons.axaml" />
         <StyleInclude Source="Styles/Controls/CheckBoxes.axaml" />
         <StyleInclude Source="Styles/Controls/Navigation.axaml" />
         <StyleInclude Source="Styles/Controls/TextBoxes.axaml" />
@@ -56,7 +56,7 @@
         <StyleInclude Source="Styles/Layout/Main/SettingsPage.axaml" />
         <StyleInclude Source="Styles/Layout/Main/AboutPage.axaml" />
         <StyleInclude Source="Styles/Layout/Main/SkinsPage.axaml" />
-        
+
         <StyleInclude Source="Styles/Layout/Accounts/AccountsView.axaml" />
         <StyleInclude Source="Styles/Layout/Instances/InstancesView.axaml" />
         <StyleInclude Source="Styles/Layout/StartupView.axaml" />

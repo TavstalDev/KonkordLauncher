@@ -17,13 +17,12 @@
     Background="Transparent"
     CanResize="False"
     CornerRadius="14"
-    
     ExtendClientAreaToDecorationsHint="True"
     Icon="avares://Desktop/Assets/Images/logo.png"
     ShowInTaskbar="True"
-    WindowDecorations="None"
     TransparencyLevelHint="Transparent"
     UseLayoutRounding="True"
+    WindowDecorations="None"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
     <Grid>
@@ -38,9 +37,9 @@
                 <!--  Window Controls  -->
                 <Border HorizontalAlignment="Stretch" PointerPressed="DragStart_PointerPressed">
                     <Grid ColumnDefinitions="*, Auto">
-                        <!-- Window Title  -->
+                        <!--  Window Title  -->
                         <TextBlock Classes="WindowTitle" Text="{Binding $parent[Window].Title}" />
-                        
+
                         <!--  Window Buttons  -->
                         <StackPanel Grid.Column="1" Classes="WindowBtnPanel">
                             <!--  MINIMIZE  -->
@@ -62,12 +61,10 @@
                         </StackPanel>
                     </Grid>
                 </Border>
-                
+
                 <!--  Main Content  -->
-                <Grid
-                    Grid.Row="1"
-                    RowDefinitions="Auto, *, Auto">
-                    
+                <Grid Grid.Row="1" RowDefinitions="Auto, *, Auto">
+
                     <!--  Title  -->
                     <Border Classes="ModalTitleBorder">
                         <StackPanel>
@@ -75,8 +72,8 @@
                             <TextBlock Classes="ModalSubTitle" Text="{lang:Translate iconSelector.subtitle}" />
                         </StackPanel>
                     </Border>
-                    
-                    <!-- Icons -->
+
+                    <!--  Icons  -->
                     <ScrollViewer Grid.Row="1" Margin="20,10,20,0">
                         <ListBox ItemsSource="{Binding Icons}" SelectedItem="{Binding SelectedIcon}">
                             <ListBox.ItemsPanel>
@@ -103,62 +100,60 @@
                             </ListBox.ItemTemplate>
                         </ListBox>
                     </ScrollViewer>
-                    
-                    <!-- Bottom Wrapper -->
+
+                    <!--  Bottom Wrapper  -->
                     <Border Grid.Row="2" Classes="InstanceButtonBorder">
-                        <Grid
-                        HorizontalAlignment="Stretch"
-                        ColumnDefinitions="*, Auto">
-                        <WrapPanel Grid.Column="0" ItemSpacing="5">
-                            <!--  Add Button  -->
-                            <Button
-                                Width="35"
-                                Classes="IconBtn"
-                                Command="{Binding AddBtnCommand}">
-                                <TextBlock Classes="FontAwesome" Text="&#x2b;" />
-                            </Button>
-                            <!--  Remove Button  -->
-                            <Button
-                                Width="35"
-                                Classes="IconBtn"
-                                Command="{Binding RemoveBtnCommand}"
-                                IsEnabled="{Binding HasSelectedIcon}">
-                                <TextBlock Classes="FontAwesome" Text="&#xf1f8;" />
-                            </Button>
-                            <!--  Open Folder Button  -->
-                            <Button
-                                Width="35"
-                                Classes="IconBtn"
-                                Command="{Binding OpenDirectoryCommand}">
-                                <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
-                            </Button>
-                        </WrapPanel>
-                        <WrapPanel Grid.Column="1" ItemSpacing="5">
-                            <!--  Ok Button  -->
-                            <Button
-                                Classes="IconBtn"
-                                Command="{Binding OkBtnCommand}"
-                                IsEnabled="{Binding HasSelectedIcon}">
-                                <WrapPanel Classes="IconBtnWrapper">
-                                    <TextBlock
-                                        VerticalAlignment="Center"
-                                        Classes="FontAwesome"
-                                        Text="&#xf00c;" />
-                                    <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.ok}" />
-                                </WrapPanel>
-                            </Button>
-                            <!--  Cancel Button  -->
-                            <Button Classes="IconBtn" Command="{Binding CancelBtnCommand}">
-                                <WrapPanel Classes="IconBtnWrapper">
-                                    <TextBlock
-                                        VerticalAlignment="Center"
-                                        Classes="FontAwesome"
-                                        Text="&#xf00d;" />
-                                    <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.cancel}" />
-                                </WrapPanel>
-                            </Button>
-                        </WrapPanel>
-                    </Grid>
+                        <Grid HorizontalAlignment="Stretch" ColumnDefinitions="*, Auto">
+                            <WrapPanel Grid.Column="0" ItemSpacing="5">
+                                <!--  Add Button  -->
+                                <Button
+                                    Width="35"
+                                    Classes="IconBtn"
+                                    Command="{Binding AddBtnCommand}">
+                                    <TextBlock Classes="FontAwesome" Text="&#x2b;" />
+                                </Button>
+                                <!--  Remove Button  -->
+                                <Button
+                                    Width="35"
+                                    Classes="IconBtn"
+                                    Command="{Binding RemoveBtnCommand}"
+                                    IsEnabled="{Binding HasSelectedIcon}">
+                                    <TextBlock Classes="FontAwesome" Text="&#xf1f8;" />
+                                </Button>
+                                <!--  Open Folder Button  -->
+                                <Button
+                                    Width="35"
+                                    Classes="IconBtn"
+                                    Command="{Binding OpenDirectoryCommand}">
+                                    <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                </Button>
+                            </WrapPanel>
+                            <WrapPanel Grid.Column="1" ItemSpacing="5">
+                                <!--  Ok Button  -->
+                                <Button
+                                    Classes="IconBtn"
+                                    Command="{Binding OkBtnCommand}"
+                                    IsEnabled="{Binding HasSelectedIcon}">
+                                    <WrapPanel Classes="IconBtnWrapper">
+                                        <TextBlock
+                                            VerticalAlignment="Center"
+                                            Classes="FontAwesome"
+                                            Text="&#xf00c;" />
+                                        <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.ok}" />
+                                    </WrapPanel>
+                                </Button>
+                                <!--  Cancel Button  -->
+                                <Button Classes="IconBtn" Command="{Binding CancelBtnCommand}">
+                                    <WrapPanel Classes="IconBtnWrapper">
+                                        <TextBlock
+                                            VerticalAlignment="Center"
+                                            Classes="FontAwesome"
+                                            Text="&#xf00d;" />
+                                        <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.cancel}" />
+                                    </WrapPanel>
+                                </Button>
+                            </WrapPanel>
+                        </Grid>
                     </Border>
                 </Grid>
             </Grid>

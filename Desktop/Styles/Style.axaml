@@ -20,7 +20,7 @@
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="Foreground" Value="{DynamicResource text-muted}" />
     </Style>
-    
+
     <!--  MainContentArea Border  -->
     <Style Selector="Border.MainContentArea">
         <Setter Property="Background" Value="{DynamicResource base-100}" />
@@ -34,7 +34,7 @@
         <Setter Property="Spacing" Value="10" />
         <Setter Property="Margin" Value="20" />
     </Style>
-    
+
     <!--  MainContentArea Grid  -->
     <Style Selector="Grid.MainContentArea">
         <Setter Property="Margin" Value="20" />
@@ -45,11 +45,12 @@
         <Setter Property="FontSize" Value="24" />
         <Setter Property="FontWeight" Value="Medium" />
         <Setter Property="Foreground" Value="{DynamicResource base-content}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="Margin" Value="0, 0, 0, 10" />
 
     </Style>
-    
-    <!-- Window Title -->
+
+    <!--  Window Title  -->
     <Style Selector="TextBlock.WindowTitle">
         <Setter Property="Opacity" Value="0.75" />
         <Setter Property="FontSize" Value="12" />
@@ -61,8 +62,8 @@
         <Setter Property="ClipToBounds" Value="True" />
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
     </Style>
-    
-    <!-- Window Button Panel  -->
+
+    <!--  Window Button Panel  -->
     <Style Selector="StackPanel.WindowBtnPanel">
         <Setter Property="Margin" Value="0, 12, 12 ,12" />
         <Setter Property="HorizontalAlignment" Value="Right" />
@@ -76,43 +77,43 @@
         <Setter Property="HorizontalScrollBarVisibility" Value="Disabled" />
         <Setter Property="AllowAutoHide" Value="False" />
     </Style>
-    
+
     <!--  Divider Styles  -->
     <Style Selector="Grid.Divider">
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="Margin" Value="10, 5" />
     </Style>
-    
-    <!-- Divider Left -->
+
+    <!--  Divider Left  -->
     <Style Selector="Border.DividerLeft">
         <Setter Property="Margin" Value="0,0,10,0" />
         <Setter Property="Background" Value="#555" />
     </Style>
-    
-    <!-- Divider Right -->
+
+    <!--  Divider Right  -->
     <Style Selector="Border.DividerRight">
         <Setter Property="Margin" Value="10,0,0,0" />
         <Setter Property="Background" Value="#555" />
     </Style>
-    
-    <!-- Divider Text  -->
+
+    <!--  Divider Text  -->
     <Style Selector="TextBlock.Divider">
         <Setter Property="FontWeight" Value="Bold" />
         <Setter Property="Foreground" Value="{DynamicResource base-content}" />
         <Setter Property="Opacity" Value="0.75" />
     </Style>
-    
-    <!-- DataGrid Row Selected Style -->
+
+    <!--  DataGrid Row Selected Style  -->
     <Style Selector="DataGridRow:selected /template/ Rectangle">
-        <Setter Property="Fill" Value="{DynamicResource primary}"/>
-    </Style> 
-    
-    <!-- ListBox Item Selected Style -->
+        <Setter Property="Fill" Value="{DynamicResource primary}" />
+    </Style>
+
+    <!--  ListBox Item Selected Style  -->
     <Style Selector="ListBoxItem /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Foreground" Value="{DynamicResource base-content}"/>
+        <Setter Property="Foreground" Value="{DynamicResource base-content}" />
     </Style>
     <Style Selector="ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
-        <Setter Property="Background" Value="{DynamicResource primary}"/>
-        <Setter Property="Foreground" Value="{DynamicResource primary-content}"/>
+        <Setter Property="Background" Value="{DynamicResource primary}" />
+        <Setter Property="Foreground" Value="{DynamicResource primary-content}" />
     </Style>
 </Styles>

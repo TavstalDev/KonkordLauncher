@@ -11,6 +11,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DynamicData;
 using ReactiveUI;
+using Tavstal.KonkordLauncher.Common.Models;
+using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
@@ -100,10 +102,7 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
     }
 
     [RelayCommand]
-    public void Download(ResourcePackModel resourcePack)
-    {
-        // TODO: Implement resource pack download logic
-    }
+    private async Task Download() => await _parent.OpenResourceDownloadDialog.Handle((EPlatformType.Modrinth, EResourceType.RESOURCE_PACK));
 
     /// <summary>
     /// Opens the directory containing the resource packs in the file explorer.

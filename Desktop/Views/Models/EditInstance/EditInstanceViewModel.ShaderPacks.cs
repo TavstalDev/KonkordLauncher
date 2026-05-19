@@ -9,6 +9,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DynamicData;
 using ReactiveUI;
+using Tavstal.KonkordLauncher.Common.Models;
+using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
@@ -94,10 +96,7 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
     }
 
     [RelayCommand]
-    private void Download()
-    {
-        // TODO: Implement shader download logic
-    }
+    private async Task Download() => await _parent.OpenResourceDownloadDialog.Handle((EPlatformType.Modrinth, EResourceType.SHADER_PACK));
 
     /// <summary>
     /// Opens the directory containing the shader packs in the file explorer.

@@ -10,6 +10,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Helpers;
+using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.Platform;
 using Tavstal.KonkordLauncher.Core.Models;
@@ -59,7 +60,8 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     public Interaction<Unit, Unit> BeginWorldRename { get; } = new();
     public Interaction<Unit, Unit> BeginScreenshotRename { get; } = new();
     public Interaction<Unit, Unit> LogsScrollToEnd { get; } = new();
-
+    public Interaction<(EPlatformType, EResourceType), Unit> OpenResourceDownloadDialog { get; } = new();
+    
     #endregion
 
     #region Observable Properties

@@ -9,6 +9,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DynamicData;
 using ReactiveUI;
+using Tavstal.KonkordLauncher.Common.Models;
+using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
@@ -106,10 +108,7 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
     }
 
     [RelayCommand]
-    public void Download()
-    {
-        // TODO: Implement mod download logic
-    }
+    private async Task Download() => await _parent.OpenResourceDownloadDialog.Handle((EPlatformType.Modrinth, EResourceType.MOD));
 
     /// <summary>
     /// Opens the directory containing the mods in the file explorer.

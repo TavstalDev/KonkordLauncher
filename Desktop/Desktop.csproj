@@ -94,6 +94,10 @@
         <DependentUpon>InputWindow.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
+      <Compile Update="Views\Dialogs\ResourceDownloadWindow.axaml.cs">
+        <DependentUpon>ResourceDownloadWindow.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
 
     <ItemGroup>

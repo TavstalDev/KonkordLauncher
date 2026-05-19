@@ -126,7 +126,14 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
                 LogsScrollViewer.Offset =  new Vector(0, LogsScrollViewer.Extent.Height);
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
-            });
+            }).DisposeWith(disposables);
+            DataContext.OpenResourceDownloadDialog.RegisterHandler(async action =>
+            {
+                var (platformType, resourceType) = action.Input;
+                var dialog = new ResourceDownloadWindow(DataContext.Instance.getInstance(), platformType, resourceType);
+                await dialog.ShowDialog(this);
+                action.SetOutput(Unit.Default);
+            }).DisposeWith(disposables);
         });
     }
     

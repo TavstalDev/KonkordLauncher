@@ -71,17 +71,15 @@
                     <!--  Title  -->
                     <Border Classes="ModalTitleBorder">
                         <StackPanel>
-                            <TextBlock Text="" />
-                            <TextBlock Classes="ModalSubTitle" Text="" />
+                            <TextBlock Text="Download Content" />
+                            <TextBlock Classes="ModalSubTitle" Text="Select the resources that you want to download." />
                         </StackPanel>
                     </Border>
 
                     <Grid Grid.Row="1" RowDefinitions="*, Auto">
                         <!--  Content  -->
                         <ScrollViewer Margin="25,20,25,0">
-                            <Grid Classes="SettingsWrapper" RowDefinitions="Auto, Auto, Auto">
-                                
-                            </Grid>
+                            
                         </ScrollViewer>
 
                         <!--  Bottom Wrapper  -->

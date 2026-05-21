@@ -328,6 +328,156 @@ public static class MetaCacheHelper
             return null;
         }
     }
+    
+    public static async Task<SearchResponse?> SearchModsAsync(string? query = null, string? version = null, List<string>? categories = null, 
+        int offset = 0, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            StringBuilder stringBuilder = new();
+            stringBuilder.AppendLine("mod:");
+            if (!string.IsNullOrEmpty(query))
+                stringBuilder.AppendLine("q=" + query);
+            if (!string.IsNullOrEmpty(version))
+                stringBuilder.AppendLine("v=" + version);
+            if (categories is { Count: > 0 })
+                stringBuilder.AppendLine("categories=" + string.Join(", ", categories));
+            stringBuilder.AppendLine("offset=" + offset);
+            
+            var sha1 = SHA1.HashData(Encoding.UTF8.GetBytes(stringBuilder.ToString()));
+            string hash = Convert.ToHexString(sha1);
+            
+            if (_cache.TryGetValue(hash, out var cached) && cached.IsValid())
+                return await JsonHelper.ReadJsonFileAsync<SearchResponse>(cached.Path, cancellationToken);
+            
+            var response = await ModrinthHelper.SearchModsAsync(query, version, categories, offset, cancellationToken);
+            if (response != null)
+            {
+                var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken);
+                var cacheDir = settings.Launcher.CacheDirectoryPath;
+                Directory.CreateDirectory(cacheDir);
+                string searchDir = Path.Combine(cacheDir, "searchs");
+                Directory.CreateDirectory(searchDir);
+                string cachedFilePath = Path.Combine(searchDir, $"{hash}.json");
+                await JsonHelper.WriteJsonFileAsync(cachedFilePath, response, cancellationToken);
+                
+                _cache.TryAdd(hash, new MetaCache
+                {
+                    Id = hash,
+                    Type = EMetaCacheType.SEARCH_RESULT,
+                    Path = cachedFilePath,
+                    ValidUntil = DateTime.UtcNow.Add(_searchCacheDuration)
+                });
+                await SaveCacheAsync(cancellationToken);
+            }
+            return response;
+        }
+        catch (Exception ex)
+        {
+            _logger.Error($"Failed to search mods in meta cache: {ex}");
+            return null;
+        }
+    }
+    
+    public static async Task<SearchResponse?> SearchResourcePacksAsync(string? query = null, string? version = null, List<string>? categories = null, 
+        int offset = 0, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            StringBuilder stringBuilder = new();
+            stringBuilder.AppendLine("resource_pack:");
+            if (!string.IsNullOrEmpty(query))
+                stringBuilder.AppendLine("q=" + query);
+            if (!string.IsNullOrEmpty(version))
+                stringBuilder.AppendLine("v=" + version);
+            if (categories is { Count: > 0 })
+                stringBuilder.AppendLine("categories=" + string.Join(", ", categories));
+            stringBuilder.AppendLine("offset=" + offset);
+            
+            var sha1 = SHA1.HashData(Encoding.UTF8.GetBytes(stringBuilder.ToString()));
+            string hash = Convert.ToHexString(sha1);
+            
+            if (_cache.TryGetValue(hash, out var cached) && cached.IsValid())
+                return await JsonHelper.ReadJsonFileAsync<SearchResponse>(cached.Path, cancellationToken);
+            
+            var response = await ModrinthHelper.SearchResourcePackAsync(query, version, categories, offset, cancellationToken);
+            if (response != null)
+            {
+                var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken);
+                var cacheDir = settings.Launcher.CacheDirectoryPath;
+                Directory.CreateDirectory(cacheDir);
+                string searchDir = Path.Combine(cacheDir, "searchs");
+                Directory.CreateDirectory(searchDir);
+                string cachedFilePath = Path.Combine(searchDir, $"{hash}.json");
+                await JsonHelper.WriteJsonFileAsync(cachedFilePath, response, cancellationToken);
+                
+                _cache.TryAdd(hash, new MetaCache
+                {
+                    Id = hash,
+                    Type = EMetaCacheType.SEARCH_RESULT,
+                    Path = cachedFilePath,
+                    ValidUntil = DateTime.UtcNow.Add(_searchCacheDuration)
+                });
+                await SaveCacheAsync(cancellationToken);
+            }
+            return response;
+        }
+        catch (Exception ex)
+        {
+            _logger.Error($"Failed to search resource packs in meta cache: {ex}");
+            return null;
+        }
+    }
+    
+    public static async Task<SearchResponse?> SearchShaderPacksAsync(string? query = null, string? version = null, List<string>? categories = null, 
+        int offset = 0, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            StringBuilder stringBuilder = new();
+            stringBuilder.AppendLine("shader_pack:");
+            if (!string.IsNullOrEmpty(query))
+                stringBuilder.AppendLine("q=" + query);
+            if (!string.IsNullOrEmpty(version))
+                stringBuilder.AppendLine("v=" + version);
+            if (categories is { Count: > 0 })
+                stringBuilder.AppendLine("categories=" + string.Join(", ", categories));
+            stringBuilder.AppendLine("offset=" + offset);
+            
+            var sha1 = SHA1.HashData(Encoding.UTF8.GetBytes(stringBuilder.ToString()));
+            string hash = Convert.ToHexString(sha1);
+            
+            if (_cache.TryGetValue(hash, out var cached) && cached.IsValid())
+                return await JsonHelper.ReadJsonFileAsync<SearchResponse>(cached.Path, cancellationToken);
+            
+            var response = await ModrinthHelper.SearchShaderPacksAsync(query, version, categories, offset, cancellationToken);
+            if (response != null)
+            {
+                var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken);
+                var cacheDir = settings.Launcher.CacheDirectoryPath;
+                Directory.CreateDirectory(cacheDir);
+                string searchDir = Path.Combine(cacheDir, "searchs");
+                Directory.CreateDirectory(searchDir);
+                string cachedFilePath = Path.Combine(searchDir, $"{hash}.json");
+                await JsonHelper.WriteJsonFileAsync(cachedFilePath, response, cancellationToken);
+                
+                _cache.TryAdd(hash, new MetaCache
+                {
+                    Id = hash,
+                    Type = EMetaCacheType.SEARCH_RESULT,
+                    Path = cachedFilePath,
+                    ValidUntil = DateTime.UtcNow.Add(_searchCacheDuration)
+                });
+                await SaveCacheAsync(cancellationToken);
+            }
+            return response;
+        }
+        catch (Exception ex)
+        {
+            _logger.Error($"Failed to search shaders in meta cache: {ex}");
+            return null;
+        }
+    }
 
     private static async Task SaveCacheAsync(CancellationToken cancellationToken = default)
     {

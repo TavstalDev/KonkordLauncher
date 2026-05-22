@@ -4,6 +4,8 @@ namespace Tavstal.KonkordLauncher.Common.Models;
 
 public class InstanceResource
 {
+    public string ProjectId { get; set; }
+    
     public string Name { get; set; }
     
     public string Url { get; set; }

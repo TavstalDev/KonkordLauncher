@@ -1,11 +1,12 @@
+using System;
 using System.Reactive;
 using System.Reactive.Disposables.Fluent;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Threading;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
-using Tavstal.KonkordLauncher.Common.Translation;
-using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
@@ -13,13 +14,13 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 public partial class ResourceDownloadWindow : KonkordWindow<ResourceDownloadViewModel>
 {
-    public ResourceDownloadWindow() : this(null!, EPlatformType.Modrinth, EResourceType.RESOURCE_PACK) { }
+    public ResourceDownloadWindow() : this(null!, EResourceType.MOD) { }
     
-    public ResourceDownloadWindow(Instance instance, EPlatformType platformType, EResourceType resourceType)
+    public ResourceDownloadWindow(Instance instance, EResourceType resourceType)
     {
         InitializeComponent();
 
-        DataContext = new ResourceDownloadViewModel(instance, platformType, resourceType);
+        DataContext = new ResourceDownloadViewModel(instance, resourceType);
 
         this.WhenActivated(disposables =>
         {
@@ -42,5 +43,45 @@ public partial class ResourceDownloadWindow : KonkordWindow<ResourceDownloadView
                 return Task.CompletedTask;
             }).DisposeWith(disposables);
         });
+    }
+
+    private void Filter_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (DataContext is not { } viewModel)
+            return;
+        
+        if (!viewModel.AllowScrollbarRefresh)
+            return;
+        
+        Dispatcher.UIThread.Invoke(async () =>  await viewModel.RefreshResourcesAsync(true));
+    }
+
+    private void Category_OnIsCheckedChanged(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not { } viewModel)
+            return;
+        
+        if (!viewModel.AllowScrollbarRefresh || !viewModel.IsMod)
+            return;
+        
+        Dispatcher.UIThread.Invoke(async () =>  await viewModel.RefreshResourcesAsync(true));
+    }
+
+    private void ScrollViewer_OnScrollChanged(object? sender, ScrollChangedEventArgs e)
+    {
+        if (DataContext is not { } viewModel)
+            return;
+        
+        if (!viewModel.AllowScrollbarRefresh)
+            return;
+        
+        if (sender is ScrollViewer scrollViewer)
+        {
+            double verticalOffset = scrollViewer.Offset.Y;
+            double maxVerticalOffset = scrollViewer.Extent.Height - scrollViewer.Viewport.Height;
+
+            if (maxVerticalOffset < 0 || Math.Abs(verticalOffset - maxVerticalOffset) < 0.1)
+                Dispatcher.UIThread.Invoke(async () => await viewModel.RefreshResourcesAsync());
+        }
     }
 }

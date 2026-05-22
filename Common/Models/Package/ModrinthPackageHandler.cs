@@ -168,6 +168,7 @@ public class ModrinthPackageHandler: IInstancePackageHandler
                     
                     resources.Add(new InstanceResource
                     {
+                        ProjectId = url.Replace("https://cdn.modrinth.com/data/", "").Split('/').FirstOrDefault() ?? string.Empty,
                         Name = fileName,
                         Path = path,
                         Url = url,

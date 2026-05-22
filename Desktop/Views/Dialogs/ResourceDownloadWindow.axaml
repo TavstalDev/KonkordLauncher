@@ -10,12 +10,12 @@
     xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
     Title="Konkord Launcher - Resource Downloader"
-    Width="600"
+    Width="900"
     Height="500"
-    MinWidth="600"
+    MinWidth="900"
     MinHeight="500"
     d:DesignHeight="500"
-    d:DesignWidth="600"
+    d:DesignWidth="900"
     x:DataType="vm:ResourceDownloadViewModel"
     Background="Transparent"
     CanResize="True"
@@ -28,6 +28,10 @@
     WindowDecorations="None"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
+
+    <Window.Resources>
+        <converters:BoolToOpacityConverter x:Key="BoolToOpacityConverter" />
+    </Window.Resources>
 
     <Grid>
         <!--  Main window body  -->
@@ -78,14 +82,296 @@
 
                     <Grid Grid.Row="1" RowDefinitions="*, Auto">
                         <!--  Content  -->
-                        <ScrollViewer Margin="25,20,25,0">
-                            
-                        </ScrollViewer>
+                        <Grid
+                            Margin="15"
+                            Classes="SettingsWrapper"
+                            ColumnDefinitions="180, *">
+                            <!--  Filters  -->
+                            <Border Classes="SettingsCategoryBorder">
+                                <ScrollViewer>
+                                    <Grid
+                                        Margin="0,0,10,0"
+                                        RowDefinitions="Auto, Auto, Auto, Auto, Auto"
+                                        RowSpacing="10">
+                                        <!--  Search  -->
+                                        <TextBox
+                                            MinHeight="30"
+                                            Margin="0"
+                                            HorizontalAlignment="Stretch"
+                                            Classes="TextInput"
+                                            FontSize="12"
+                                            IsReadOnly="{Binding !AllowScrollbarRefresh}"
+                                            PlaceholderText="{lang:Translate common.search}"
+                                            Text="{Binding SearchQuery, Delay=500}" />
 
-                        <!--  Bottom Wrapper  -->
+                                        <!--  Platform  -->
+                                        <Grid
+                                            Grid.Row="1"
+                                            RowDefinitions="Auto, Auto"
+                                            RowSpacing="8">
+                                            <!--  Text  -->
+                                            <TextBlock
+                                                Classes="TextInput"
+                                                FontSize="12"
+                                                Foreground="{DynamicResource text-muted}"
+                                                Text="{lang:Translate instance.create.modpack.platform}" />
+                                            <!--  Input  -->
+                                            <ComboBox
+                                                Grid.Row="1"
+                                                MinHeight="30"
+                                                Classes="TextDropdown"
+                                                FontSize="12"
+                                                IsEnabled="False"
+                                                IsHitTestVisible="{Binding AllowScrollbarRefresh}"
+                                                ItemsSource="{Binding AvailablePlatforms}"
+                                                SelectedItem="{Binding SelectedPlatform}"
+                                                SelectionChanged="Filter_OnSelectionChanged" />
+                                        </Grid>
+
+                                        <!--  Minecraft Version  -->
+                                        <Grid
+                                            Grid.Row="2"
+                                            RowDefinitions="Auto, Auto"
+                                            RowSpacing="8">
+                                            <!--  Text  -->
+                                            <TextBlock
+                                                Classes="TextInput"
+                                                FontSize="12"
+                                                Foreground="{DynamicResource text-muted}"
+                                                Text="{lang:Translate instance.create.modpack.minecraft.version}" />
+                                            <!--  Input  -->
+                                            <ComboBox
+                                                Grid.Row="1"
+                                                MinHeight="30"
+                                                Classes="TextDropdown"
+                                                FontSize="12"
+                                                IsHitTestVisible="{Binding AllowScrollbarRefresh}"
+                                                ItemsSource="{Binding VersionFilterSource}"
+                                                SelectedIndex="{Binding VersionFilterIndex}"
+                                                SelectedValue="{Binding MinecraftVersion}"
+                                                SelectionChanged="Filter_OnSelectionChanged" />
+                                        </Grid>
+
+                                        <!--  ModLoader  -->
+                                        <Grid
+                                            Grid.Row="3"
+                                            IsVisible="{Binding IsMod}"
+                                            RowDefinitions="Auto, Auto"
+                                            RowSpacing="8">
+                                            <!--  Text  -->
+                                            <TextBlock
+                                                Classes="TextInput"
+                                                FontSize="12"
+                                                Foreground="{DynamicResource text-muted}"
+                                                Text="{lang:Translate instance.create.modpack.mod.loader}" />
+                                            <!--  Input  -->
+                                            <ComboBox
+                                                Grid.Row="1"
+                                                MinHeight="30"
+                                                Classes="TextDropdown"
+                                                FontSize="12"
+                                                IsHitTestVisible="{Binding AllowScrollbarRefresh}"
+                                                SelectedIndex="0"
+                                                SelectedValue="{Binding ModLoader}"
+                                                SelectionChanged="Filter_OnSelectionChanged">
+                                                <ComboBoxItem Content="Any" />
+                                                <ComboBoxItem Content="NeoForge" />
+                                                <ComboBoxItem Content="Forge" />
+                                                <ComboBoxItem Content="Fabric" />
+                                                <ComboBoxItem Content="Quilt" />
+                                            </ComboBox>
+                                        </Grid>
+
+                                        <!--  Categories  -->
+                                        <StackPanel Grid.Row="4" IsVisible="{Binding IsMod}">
+                                            <TextBlock
+                                                FontSize="12"
+                                                Foreground="{DynamicResource text-muted}"
+                                                Text="{lang:Translate common.categories}" />
+
+                                            <ItemsControl ItemsSource="{Binding Categories}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <CheckBox
+                                                            Classes="InstanceModCategory"
+                                                            Content="{Binding DisplayName}"
+                                                            IsChecked="{Binding IsChecked}"
+                                                            IsCheckedChanged="Category_OnIsCheckedChanged"
+                                                            IsHitTestVisible="{Binding $parent[Window].DataContext.AllowScrollbarRefresh}" />
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </Grid>
+                                </ScrollViewer>
+                            </Border>
+
+                            <!--  Content  -->
+                            <Grid
+                                Grid.Column="1"
+                                ColumnDefinitions="*, Auto, *"
+                                ColumnSpacing="10">
+                                <!--  Mod List  -->
+                                <Border Classes="SettingsCategoryBorder">
+                                    <Grid>
+                                        <ScrollViewer ScrollChanged="ScrollViewer_OnScrollChanged">
+                                            <!--  Content  -->
+                                            <ListBox
+                                                Margin="0,0,10,0"
+                                                Background="Transparent"
+                                                ItemsSource="{Binding Resources}"
+                                                Opacity="{Binding AllowScrollbarRefresh, Converter={StaticResource BoolToOpacityConverter}}"
+                                                SelectedItem="{Binding SelectedResource}"
+                                                SelectionMode="Single">
+                                                <ListBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border Classes="InstanceModCard" Opacity="{Binding !IsInstalled, Converter={StaticResource BoolToOpacityConverter}}">
+                                                            <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
+                                                                <Image Width="35" Source="{Binding Icon}" />
+                                                                <Grid Grid.Column="1" RowDefinitions="Auto, Auto">
+                                                                    <Grid ColumnDefinitions="Auto,Auto">
+                                                                        <TextBlock Classes="InstanceModTitle" Text="{Binding Name}" />
+                                                                        <TextBlock Grid.Column="1" Classes="InstanceModTitle" IsVisible="{Binding IsInstalled}" Text="[Installed]" />
+                                                                    </Grid>
+                                                                        <TextBlock
+                                                                            Grid.Row="1"
+                                                                            Classes="InstanceModDescription"
+                                                                            Text="{Binding Description}" />
+                                                                </Grid>
+                                                            </Grid>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ListBox.ItemTemplate>
+                                            </ListBox>
+                                        </ScrollViewer>
+
+                                        <avalonia:LoadingIndicator
+                                            Height="150"
+                                            VerticalAlignment="Center"
+                                            Foreground="{DynamicResource primary-content}"
+                                            IsActive="{Binding !AllowScrollbarRefresh}"
+                                            Mode="Arc"
+                                            SpeedRatio="1.2" />
+                                    </Grid>
+                                </Border>
+
+                                <!--  Grid Splitter  -->
+                                <GridSplitter Grid.Column="1" Classes="InstanceSplitter" />
+
+                                <!--  Preview  -->
+                                <Border
+                                    Grid.Column="2"
+                                    Padding="10,0"
+                                    Classes="SettingsCategoryBorder">
+                                    <Grid RowDefinitions="*, Auto" RowSpacing="10">
+
+                                        <!--  Preview Content  -->
+                                        <ScrollViewer>
+                                            <HtmlLabel
+                                                MaxWidth="{Binding $parent[Border].Bounds.Width}"
+                                                Margin="0,0,10,0"
+                                                BaseStylesheet="{DynamicResource HtmlBaseStyle}"
+                                                Text="{Binding ModPreview}" />
+                                        </ScrollViewer>
+
+                                        <!--  Version Selector  -->
+                                        <Grid
+                                            Grid.Row="1"
+                                            Margin="0,0,0,10"
+                                            ColumnDefinitions="*, Auto"
+                                            ColumnSpacing="10"
+                                            IsVisible="{Binding SelectedResource, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                            <!--  Version Selector  -->
+                                            <ComboBox
+                                                VerticalAlignment="Center"
+                                                Classes="TextDropdown"
+                                                ItemsSource="{Binding SelectedResource.Versions}"
+                                                PlaceholderText=""
+                                                SelectedIndex="{Binding SelectedResourceVersionIndex}">
+                                                <ComboBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding Name}" />
+                                                    </DataTemplate>
+                                                </ComboBox.ItemTemplate>
+                                            </ComboBox>
+
+                                            <!--  Select Button  -->
+                                            <Button
+                                                Grid.Column="1"
+                                                Classes="IconBtn SuccessBtn"
+                                                Command="{Binding ToggleResourceSelectCommand}"
+                                                IsVisible="{Binding !IsResourceSelected}"
+                                                IsEnabled="{Binding !SelectedResource.IsInstalled}">
+                                                <WrapPanel Classes="IconBtnWrapper">
+                                                    <TextBlock
+                                                        VerticalAlignment="Center"
+                                                        Classes="FontAwesome"
+                                                        Text="&#xf00c;" />
+                                                    <TextBlock
+                                                        VerticalAlignment="Center"
+                                                        FontWeight="500"
+                                                        Text="Select" />
+                                                </WrapPanel>
+                                            </Button>
+
+                                            <!--  Unselect Button  -->
+                                            <Button
+                                                Grid.Column="1"
+                                                Classes="IconBtn WarningBtn"
+                                                Command="{Binding ToggleResourceSelectCommand}"
+                                                IsVisible="{Binding IsResourceSelected}"
+                                                IsEnabled="{Binding !SelectedResource.IsInstalled}">
+                                                <WrapPanel Classes="IconBtnWrapper">
+                                                    <TextBlock
+                                                        VerticalAlignment="Center"
+                                                        Classes="FontAwesome"
+                                                        Text="&#xf00d;" />
+                                                    <TextBlock
+                                                        VerticalAlignment="Center"
+                                                        FontWeight="500"
+                                                        Text="Unselect" />
+                                                </WrapPanel>
+                                            </Button>
+                                        </Grid>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </Grid>
+
+                        <!--  Buttons  -->
                         <Border Grid.Row="1" Classes="InstanceButtonBorder">
-                            <Grid ColumnDefinitions="*, Auto">
-
+                            <Grid ColumnDefinitions="250, 200, *" ColumnSpacing="10">
+                                <!--  Action buttons  -->
+                                <StackPanel Grid.Column="2" Classes="InstanceButtonWrapper">
+                                    <!--  Cancel Button  -->
+                                    <Button Classes="IconBtn ErrorBtn" Command="{Binding CloseWindowCommand}">
+                                        <WrapPanel Classes="IconBtnWrapper">
+                                            <TextBlock
+                                                VerticalAlignment="Center"
+                                                Classes="FontAwesome"
+                                                Text="&#xf00d;" />
+                                            <TextBlock
+                                                VerticalAlignment="Center"
+                                                FontWeight="500"
+                                                Text="{lang:Translate common.cancel}" />
+                                        </WrapPanel>
+                                    </Button>
+                                    <!--  Review Button  -->
+                                    <Button Classes="IconBtn SuccessBtn" 
+                                            IsEnabled="{Binding HasResources}"
+                                            Command="{Binding ReviewInstallCommand}">
+                                        <WrapPanel Classes="IconBtnWrapper">
+                                            <TextBlock
+                                                VerticalAlignment="Center"
+                                                Classes="FontAwesome"
+                                                Text="&#xf061;" />
+                                            <TextBlock
+                                                VerticalAlignment="Center"
+                                                FontWeight="500"
+                                                Text="Review" />
+                                        </WrapPanel>
+                                    </Button>
+                                </StackPanel>
                             </Grid>
                         </Border>
                     </Grid>

@@ -85,11 +85,6 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         SelectedModpack = null;
     }
     
-    public void SetupPipeline()
-    {
-        
-    }
-    
     public async Task InitAsync(VersionManifest versionManifest, CancellationToken cancellationToken = default)
     {
         VersionFilterSource.Add("Any");

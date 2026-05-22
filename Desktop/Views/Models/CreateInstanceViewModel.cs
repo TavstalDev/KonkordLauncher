@@ -90,7 +90,6 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IProgres
     private void SetupPipeline()
     {
         Custom.SetupPipeline();
-        Modpack.SetupPipeline();
     }
     
     #region Commands

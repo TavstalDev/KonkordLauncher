@@ -129,8 +129,7 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
             }).DisposeWith(disposables);
             DataContext.OpenResourceDownloadDialog.RegisterHandler(async action =>
             {
-                var (platformType, resourceType) = action.Input;
-                var dialog = new ResourceDownloadWindow(DataContext.Instance.getInstance(), platformType, resourceType);
+                var dialog = new ResourceDownloadWindow(DataContext.Instance.getInstance(), action.Input);
                 await dialog.ShowDialog(this);
                 action.SetOutput(Unit.Default);
             }).DisposeWith(disposables);
@@ -304,7 +303,7 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
             return;
     
         var row = e.Row;
-        if (row.DataContext is not ResourcePackModel)
+        if (row.DataContext is not ResourceBaseModel)
             return;
     
         _logger.Debug("ResourcePack row updated. Saving...");

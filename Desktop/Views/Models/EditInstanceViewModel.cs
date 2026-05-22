@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
@@ -60,7 +59,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     public Interaction<Unit, Unit> BeginWorldRename { get; } = new();
     public Interaction<Unit, Unit> BeginScreenshotRename { get; } = new();
     public Interaction<Unit, Unit> LogsScrollToEnd { get; } = new();
-    public Interaction<(EPlatformType, EResourceType), Unit> OpenResourceDownloadDialog { get; } = new();
+    public Interaction<EResourceType, Unit> OpenResourceDownloadDialog { get; } = new();
     
     #endregion
 

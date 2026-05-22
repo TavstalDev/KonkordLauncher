@@ -311,15 +311,15 @@
                                                                     Binding="{Binding Name}"
                                                                     Header="{lang:Translate instance.edit.table.name}" />
                                                                 <!--  Version  -->
-                                                                <DataGridTextColumn
+                                                                <!-- TODO <DataGridTextColumn
                                                                     Width="Auto"
                                                                     Binding="{Binding Version}"
-                                                                    Header="{lang:Translate instance.edit.table.version}" />
+                                                                    Header="{lang:Translate instance.edit.table.version}" />-->
                                                                 <!--  Provider  -->
-                                                                <DataGridTextColumn
+                                                                <!-- TODO <DataGridTextColumn
                                                                     Width="Auto"
                                                                     Binding="{Binding Provider}"
-                                                                    Header="{lang:Translate instance.edit.table.provider}" />
+                                                                    Header="{lang:Translate instance.edit.table.provider}" />-->
                                                                 <!--  Size  -->
                                                                 <DataGridTextColumn
                                                                     Width="Auto"
@@ -449,11 +449,11 @@
                                                                     Header="{lang:Translate instance.edit.table.name}"
                                                                     IsReadOnly="True" />
                                                                 <!--  Provider  -->
-                                                                <DataGridTextColumn
+                                                                <!-- TODO <DataGridTextColumn
                                                                     Width="Auto"
                                                                     Binding="{Binding Provider}"
                                                                     Header="{lang:Translate instance.edit.table.provider}"
-                                                                    IsReadOnly="True" />
+                                                                    IsReadOnly="True" />-->
                                                                 <!--  Size  -->
                                                                 <DataGridTextColumn
                                                                     Width="Auto"
@@ -561,10 +561,10 @@
                                                                     Binding="{Binding Name}"
                                                                     Header="{lang:Translate instance.edit.table.name}" />
                                                                 <!--  Provider  -->
-                                                                <DataGridTextColumn
+                                                                <!-- TODO <DataGridTextColumn
                                                                     Width="Auto"
                                                                     Binding="{Binding Provider}"
-                                                                    Header="{lang:Translate instance.edit.table.provider}" />
+                                                                    Header="{lang:Translate instance.edit.table.provider}" />-->
                                                                 <!--  Size  -->
                                                                 <DataGridTextColumn
                                                                     Width="Auto"

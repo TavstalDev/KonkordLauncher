@@ -12,7 +12,6 @@ using CommunityToolkit.Mvvm.Input;
 using DynamicData;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
-using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
@@ -26,9 +25,9 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceViewModel_ResourcePacks));
     private EditInstanceViewModel _parent;
     
-    private readonly SourceCache<ResourcePackModel, Guid> _resourcePackCache = new(x => x.Id);
-    public ReadOnlyObservableCollection<ResourcePackModel> FilteredResourcePacks { get; private set; }
-    [ObservableProperty] private ResourcePackModel? _selectedResourcePack;
+    private readonly SourceCache<ResourceBaseModel, string> _resourcePackCache = new(x => x.Name);
+    public ReadOnlyObservableCollection<ResourceBaseModel> FilteredResourcePacks { get; private set; }
+    [ObservableProperty] private ResourceBaseModel? _selectedResourcePack;
     [ObservableProperty] private string? _resourcePackSearchQuery = string.Empty;
     
     public EditInstanceViewModel_ResourcePacks(EditInstanceViewModel parent)
@@ -55,8 +54,8 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
             .Select(query =>
             {
                 if (string.IsNullOrWhiteSpace(query))
-                    return (Func<ResourcePackModel, bool>)(_ => true); // No filter
-                return (Func<ResourcePackModel, bool>)(pack =>
+                    return (Func<ResourceBaseModel, bool>)(_ => true); // No filter
+                return (Func<ResourceBaseModel, bool>)(pack =>
                     pack.Name.Contains(query, StringComparison.OrdinalIgnoreCase));
             });
 
@@ -81,7 +80,7 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
     /// </summary>
     /// <param name="resourcePack">The resource pack to toggle.</param>
     [RelayCommand]
-    public void Toggle(ResourcePackModel resourcePack)
+    public void Toggle(ResourceBaseModel resourcePack)
     {
         resourcePack.IsEnabled = !resourcePack.IsEnabled;
         SaveResourcePacks();
@@ -92,17 +91,17 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
     /// </summary>
     /// <param name="resourcePack">The resource pack to remove.</param>
     [RelayCommand]
-    public void Remove(ResourcePackModel resourcePack)
+    public void Remove(ResourceBaseModel resourcePack)
     {
-        if (!File.Exists(resourcePack.Path))
+        if (!File.Exists(resourcePack.FilePath))
             return;
 
-        File.Delete(resourcePack.Path);
+        File.Delete(resourcePack.FilePath);
         RefreshResourcePacks();
     }
 
     [RelayCommand]
-    private async Task Download() => await _parent.OpenResourceDownloadDialog.Handle((EPlatformType.Modrinth, EResourceType.RESOURCE_PACK));
+    private async Task Download() => await _parent.OpenResourceDownloadDialog.Handle(EResourceType.RESOURCE_PACK);
 
     /// <summary>
     /// Opens the directory containing the resource packs in the file explorer.
@@ -138,10 +137,13 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
         foreach (var resourcePack in _resourcePackCache.Items)
         {
             string? newPath = null;
-            if (resourcePack.IsEnabled && resourcePack.Path.EndsWith(".zip.dis"))
-                newPath = resourcePack.Path.Replace(".dis", "");
-            else if (!resourcePack.IsEnabled && resourcePack.Path.EndsWith(".zip"))
-                newPath = resourcePack.Path.Replace(".zip", ".zip.dis");
+            if (resourcePack.FilePath == null)
+                continue;
+            
+            if (resourcePack.IsEnabled && resourcePack.FilePath.EndsWith(".zip.dis"))
+                newPath = resourcePack.FilePath.Replace(".dis", "");
+            else if (!resourcePack.IsEnabled && resourcePack.FilePath.EndsWith(".zip"))
+                newPath = resourcePack.FilePath.Replace(".zip", ".zip.dis");
 
             if (newPath == null)
                 continue;
@@ -152,8 +154,8 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
                 continue;
             }
 
-            File.Move(resourcePack.Path, newPath);
-            resourcePack.Path = newPath;
+            File.Move(resourcePack.FilePath, newPath);
+            resourcePack.FilePath = newPath;
         }
     }
 
@@ -203,8 +205,14 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
                 icon ??= ImageHelper.LoadFromResource(new Uri("avares://Desktop/Assets/Images/default_world.png"));
 
                 // TODO: Handle provider
-                var newResourcePack = new ResourcePackModel(resource.EndsWith(".zip"), resourceName, resource, icon,
-                    "unknown", size);
+                var newResourcePack = new ResourceBaseModel
+                {
+                    IsEnabled = resource.EndsWith(".zip"),
+                    Name = resourceName,
+                    Icon = icon,
+                    FileSize = size,
+                    FilePath = resource,
+                };
                 innerCache.AddOrUpdate(newResourcePack);
             }
         });

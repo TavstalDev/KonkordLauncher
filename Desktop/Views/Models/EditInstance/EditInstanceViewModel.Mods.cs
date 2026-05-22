@@ -10,7 +10,6 @@ using CommunityToolkit.Mvvm.Input;
 using DynamicData;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
-using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
@@ -24,9 +23,9 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceViewModel_Mods));
     private EditInstanceViewModel _parent;
     
-    private readonly SourceCache<ModModel, Guid> _modsCache = new(x => x.Id);
-    public ReadOnlyObservableCollection<ModModel> FilteredMods { get; private set; }
-    [ObservableProperty] private ModModel? _selectedMod;
+    private readonly SourceCache<ResourceBaseModel, string> _modsCache = new(x => x.Name);
+    public ReadOnlyObservableCollection<ResourceBaseModel> FilteredMods { get; private set; }
+    [ObservableProperty] private ResourceBaseModel? _selectedMod;
     [ObservableProperty] private string? _modSearchQuery = string.Empty;
     
     public EditInstanceViewModel_Mods(EditInstanceViewModel parent)
@@ -52,8 +51,8 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
                 .Select(query =>
                 {
                     if (string.IsNullOrWhiteSpace(query))
-                        return (Func<ModModel, bool>)(_ => true); // No filter
-                    return (Func<ModModel, bool>)(mod =>
+                        return (Func<ResourceBaseModel, bool>)(_ => true); // No filter
+                    return (Func<ResourceBaseModel, bool>)(mod =>
                         mod.Name.Contains(query, StringComparison.OrdinalIgnoreCase));
                 });
 
@@ -75,20 +74,20 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
     /// </summary>
     /// <param name="mod">The mod to toggle.</param>
     [RelayCommand]
-    public void Toggle(ModModel mod)
+    public void Toggle(ResourceBaseModel mod)
     {
         mod.IsEnabled = !mod.IsEnabled;
         SaveMods();
     }
 
     [RelayCommand]
-    public void CheckUpdate(ModModel mod)
+    public void CheckUpdate(ResourceBaseModel mod)
     {
         // TODO: Implement mod update check logic
     }
 
     [RelayCommand]
-    public void ChangeVersion(ModModel mod)
+    public void ChangeVersion(ResourceBaseModel mod)
     {
         // TODO: Implement mod version change logic
     }
@@ -98,17 +97,17 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
     /// </summary>
     /// <param name="mod">The mod to remove.</param>
     [RelayCommand]
-    public void Remove(ModModel mod)
+    public void Remove(ResourceBaseModel mod)
     {
-        if (!File.Exists(mod.Path))
+        if (!File.Exists(mod.FilePath))
             return;
 
-        File.Delete(mod.Path);
+        File.Delete(mod.FilePath);
         RefreshMods();
     }
 
     [RelayCommand]
-    private async Task Download() => await _parent.OpenResourceDownloadDialog.Handle((EPlatformType.Modrinth, EResourceType.MOD));
+    private async Task Download() => await _parent.OpenResourceDownloadDialog.Handle(EResourceType.MOD);
 
     /// <summary>
     /// Opens the directory containing the mods in the file explorer.
@@ -155,7 +154,14 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
                 var icon = ImageHelper.LoadFromResource(new Uri("avares://Desktop/Assets/Images/default_world.png"));
                 
                 // TODO: Handle provider & version
-                var newMod = new ModModel(mod.EndsWith(".jar"), modName, mod, icon, "unknown", "unknown", size);
+                var newMod = new ResourceBaseModel
+                {
+                    IsEnabled = mod.EndsWith(".jar"),
+                    Name = modName,
+                    Icon = icon,
+                    FileSize = size,
+                    FilePath = mod,
+                };
                 innerCache.AddOrUpdate(newMod);
             }
         });
@@ -179,10 +185,13 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
         foreach (var mod in _modsCache.Items)
         {
             string? newPath = null;
-            if (mod.IsEnabled && mod.Path.EndsWith(".jar.dis"))
-                newPath = mod.Path.Replace(".dis", "");
-            else if (!mod.IsEnabled && mod.Path.EndsWith(".jar"))
-                newPath = mod.Path.Replace(".jar", ".jar.dis");
+            if (mod.FilePath == null)
+                continue;
+            
+            if (mod.IsEnabled && mod.FilePath.EndsWith(".jar.dis"))
+                newPath = mod.FilePath.Replace(".dis", "");
+            else if (!mod.IsEnabled && mod.FilePath.EndsWith(".jar"))
+                newPath = mod.FilePath.Replace(".jar", ".jar.dis");
 
             if (newPath == null)
                 continue;
@@ -193,8 +202,8 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
                 continue;
             }
 
-            File.Move(mod.Path, newPath);
-            mod.Path = newPath;
+            File.Move(mod.FilePath, newPath);
+            mod.FilePath = newPath;
         }
     }
 }

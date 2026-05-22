@@ -10,7 +10,6 @@ using CommunityToolkit.Mvvm.Input;
 using DynamicData;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
-using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
@@ -23,9 +22,9 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceViewModel_ShaderPacks));
     private EditInstanceViewModel _parent;
     
-    private readonly SourceCache<ShaderPackModel, Guid> _shaderPackCache = new(x => x.Id);
-    public ReadOnlyObservableCollection<ShaderPackModel> FilteredShaderPacks { get; private set; }
-    [ObservableProperty] private ShaderPackModel? _selectedShaderPack;
+    private readonly SourceCache<ResourceBaseModel, string> _shaderPackCache = new(x => x.Name);
+    public ReadOnlyObservableCollection<ResourceBaseModel> FilteredShaderPacks { get; private set; }
+    [ObservableProperty] private ResourceBaseModel? _selectedShaderPack;
     [ObservableProperty] private string? _shaderPackSearchQuery = string.Empty;
     
     public EditInstanceViewModel_ShaderPacks(EditInstanceViewModel parent)
@@ -51,8 +50,8 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
                 .Select(query =>
                 {
                     if (string.IsNullOrWhiteSpace(query))
-                        return (Func<ShaderPackModel, bool>)(_ => true); // No filter
-                    return (Func<ShaderPackModel, bool>)(pack =>
+                        return (Func<ResourceBaseModel, bool>)(_ => true); // No filter
+                    return (Func<ResourceBaseModel, bool>)(pack =>
                         pack.Name.Contains(query, StringComparison.OrdinalIgnoreCase));
                 });
 
@@ -75,7 +74,7 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
     /// </summary>
     /// <param name="shader">The shader pack to toggle.</param>
     [RelayCommand]
-    private void Toggle(ShaderPackModel shader)
+    private void Toggle(ResourceBaseModel shader)
     {
         shader.IsEnabled = !shader.IsEnabled;
         SaveShaderPacks();
@@ -86,17 +85,17 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
     /// </summary>
     /// <param name="shader">The shader pack to remove.</param>
     [RelayCommand]
-    private void Remove(ShaderPackModel shader)
+    private void Remove(ResourceBaseModel shader)
     {
-        if (!File.Exists(shader.Path))
+        if (!File.Exists(shader.FilePath))
             return;
 
-        File.Delete(shader.Path);
+        File.Delete(shader.FilePath);
         RefreshShaderPacks();
     }
 
     [RelayCommand]
-    private async Task Download() => await _parent.OpenResourceDownloadDialog.Handle((EPlatformType.Modrinth, EResourceType.SHADER_PACK));
+    private async Task Download() => await _parent.OpenResourceDownloadDialog.Handle(EResourceType.SHADER_PACK);
 
     /// <summary>
     /// Opens the directory containing the shader packs in the file explorer.
@@ -134,10 +133,13 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
         foreach (var shaderPack in _shaderPackCache.Items)
         {
             string? newPath = null;
-            if (shaderPack.IsEnabled && shaderPack.Path.EndsWith(".zip.dis"))
-                newPath = shaderPack.Path.Replace(".dis", "");
-            else if (!shaderPack.IsEnabled && shaderPack.Path.EndsWith(".zip"))
-                newPath = shaderPack.Path.Replace(".zip", ".zip.dis");
+            if (shaderPack.FilePath == null)
+                continue;
+            
+            if (shaderPack.IsEnabled && shaderPack.FilePath.EndsWith(".zip.dis"))
+                newPath = shaderPack.FilePath.Replace(".dis", "");
+            else if (!shaderPack.IsEnabled && shaderPack.FilePath.EndsWith(".zip"))
+                newPath = shaderPack.FilePath.Replace(".zip", ".zip.dis");
 
             if (newPath == null)
                 continue;
@@ -148,8 +150,8 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
                 continue;
             }
 
-            File.Move(shaderPack.Path, newPath);
-            shaderPack.Path = newPath;
+            File.Move(shaderPack.FilePath, newPath);
+            shaderPack.FilePath = newPath;
         }
     }
     
@@ -178,7 +180,14 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
                 var size = File.ReadAllBytes(pack).LongLength;
                 
                 // TODO: Handle provider
-                var newPack = new ShaderPackModel(pack.EndsWith(".zip"), packName, pack, "unknown", size);
+                var newPack = new ResourceBaseModel
+                {
+                    IsEnabled = pack.EndsWith(".zip"),
+                    Name = packName,
+                    Icon = null,
+                    FileSize = size,
+                    FilePath = pack,
+                };
                 innerCache.AddOrUpdate(newPack);
             }
         });

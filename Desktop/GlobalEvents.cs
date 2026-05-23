@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text;
 using Tavstal.KonkordLauncher.Common.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop;
@@ -117,6 +118,7 @@ public static class GlobalEvents
     #region Instance Logged Event
     
     private static readonly Dictionary<string, string> _instanceLogs = new();
+    public const int MaxLogSizeBytes = 10 * 1024 * 1024; // 10 MB
 
     /// <summary>
     /// Delegate for handling events when an instance logs a message.
@@ -139,9 +141,19 @@ public static class GlobalEvents
     public static void InvokeInstanceLogged(string instanceId, string logMessage)
     {
         if (_instanceLogs.ContainsKey(instanceId))
+        {
             _instanceLogs[instanceId] += logMessage;
+            string log = _instanceLogs[instanceId];
+            if (Encoding.UTF8.GetByteCount(log) > MaxLogSizeBytes)
+            {
+                int trimIndex = log.IndexOf('\n', log.Length / 2);
+                if (trimIndex > 0)
+                    _instanceLogs[instanceId] = log.Substring(trimIndex + 1);
+            }
+        }
         else 
             _instanceLogs.TryAdd(instanceId, logMessage);
+        
         OnInstanceLogged?.Invoke(instanceId, logMessage);
     }
 

@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
@@ -7,6 +9,7 @@ using Avalonia.Controls;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DynamicData;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
@@ -31,6 +34,8 @@ public partial class EditInstanceViewModel : KonkordObservableObject
 {
     public readonly InstanceModel Instance;
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceViewModel));
+    private const int MaxLogLines = 1000;
+    
     public bool IsClosing;
     public bool IsInitialized;
     public EditInstanceViewModel_Mods Mods { get; private set; }
@@ -70,7 +75,8 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     [ObservableProperty] private string _instanceName;
     [ObservableProperty] private string? _gameDirectory;
     [ObservableProperty] private bool _isVanilla;
-    [ObservableProperty] private string _logs;
+
+    public ObservableCollection<string> Logs { get; set; } = [];
 
     #endregion
 
@@ -91,22 +97,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         Settings = new EditInstanceViewModel_Settings(this);
         ShaderPacks = new EditInstanceViewModel_ShaderPacks(this);
         Worlds = new EditInstanceViewModel_Worlds(this);
-        Dispatcher.UIThread.Invoke(async () => await InitAsync());
-    }
-
-    /// <summary>
-    /// Handles log messages for a specific instance by updating the Logs property
-    /// and triggering the LogsScrollToEnd interaction to scroll to the end of the logs.
-    /// </summary>
-    /// <param name="instanceId">The ID of the instance that generated the log message.</param>
-    /// <param name="logMessage">The log message to be handled.</param>
-    private void OnInstanceLogged(string instanceId, string logMessage)
-    {
-        if (instanceId != Instance.Id)
-            return;
-
-        Logs += logMessage;
-        Dispatcher.UIThread.Invoke(async () => await LogsScrollToEnd.Handle(Unit.Default));
+        _  = InitAsync();
     }
 
     /// <summary>
@@ -128,7 +119,26 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         
         InstanceName = string.Empty;
         GameDirectory = null;
-        Logs = string.Empty;
+        Logs.Clear();
+    }
+    
+    /// <summary>
+    /// Handles log messages for a specific instance by updating the Logs property
+    /// and triggering the LogsScrollToEnd interaction to scroll to the end of the logs.
+    /// </summary>
+    /// <param name="instanceId">The ID of the instance that generated the log message.</param>
+    /// <param name="logMessage">The log message to be handled.</param>
+    private void OnInstanceLogged(string instanceId, string logMessage)
+    {
+        if (instanceId != Instance.Id)
+            return;
+
+        Logs.Add(logMessage);
+        if (Logs.Count > MaxLogLines) 
+            Logs.RemoveAt(0);
+    
+        if (Logs.Count % 10 == 0)
+            Dispatcher.UIThread.Invoke(async () => await LogsScrollToEnd.Handle(Unit.Default));
     }
 
     /// <summary>
@@ -138,6 +148,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     /// <returns>A task that represents the asynchronous initialization operation.</returns>
     private async Task InitAsync(CancellationToken cancellationToken = default)
     {
+        await Task.Yield();
         var accountData = await LauncherHelper.GetAccountDataAsync(cancellationToken);
 
         InstanceName = Instance.Name;
@@ -150,17 +161,23 @@ public partial class EditInstanceViewModel : KonkordObservableObject
 
         // Logging setup
         GlobalEvents.OnInstanceLogged += OnInstanceLogged;
-        Logs = GlobalEvents.GetInstanceLogs(Instance.Id);
-        if (!string.IsNullOrEmpty(Logs))
+        var logs = GlobalEvents.GetInstanceLogs(Instance.Id);
+        if (!string.IsNullOrEmpty(logs))
+        {
+            Logs.AddRange(logs.Split(Environment.NewLine));
             await LogsScrollToEnd.Handle(Unit.Default);
+        }
+
+        await Task.WhenAll(
+            Mods.InitAsync(cancellationToken),
+            ResourcePacks.InitAsync(cancellationToken),
+            Screenshots.InitAsync(cancellationToken),
+            Servers.InitAsync(cancellationToken),
+            ShaderPacks.InitAsync(cancellationToken),
+            Worlds.InitAsync(cancellationToken)
+        );
         
-        await Mods.InitAsync(cancellationToken);
-        await ResourcePacks.InitAsync(cancellationToken);
-        await Screenshots.InitAsync(cancellationToken);
-        await Servers.InitAsync(cancellationToken);
         await Settings.InitAsync(Instance.ConfigModel, cancellationToken);
-        await ShaderPacks.InitAsync(cancellationToken);
-        await Worlds.InitAsync(cancellationToken);
     }
 
     #region Common
@@ -211,7 +228,11 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     /// Copies the current logs to the system clipboard by triggering the SetClipboardText interaction.
     /// </summary>
     [RelayCommand]
-    private async Task CopyLogs() => await SetClipboardText.Handle(Logs);
+    private async Task CopyLogs()
+    {
+        var newLine = Environment.NewLine;
+        await SetClipboardText.Handle(string.Join(newLine, Logs));
+    }
 
     /// <summary>
     /// Clears the logs for the current instance and updates the global log storage.
@@ -219,7 +240,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     [RelayCommand]
     private void ClearLogs()
     {
-        Logs = string.Empty;
+        Logs.Clear();
         GlobalEvents.CleareInstanceLogs(Instance.Id);
     }
 

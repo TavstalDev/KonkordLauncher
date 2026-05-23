@@ -187,8 +187,7 @@
                                 <Carousel.Items>
 
                                     <!--  Logs  -->
-                                    <ScrollViewer Margin="25,0,25,25">
-                                        <Border Classes="SettingsCategoryBorder">
+                                    <Border Classes="SettingsCategoryBorder"  Margin="25,0,25,25">
                                             <Grid RowDefinitions="Auto, *, Auto">
                                                 <!--  Title  -->
                                                 <TextBlock
@@ -205,12 +204,17 @@
                                                         Name="LogsScrollViewer"
                                                         HorizontalScrollBarVisibility="Disabled"
                                                         VerticalScrollBarVisibility="Auto">
-                                                        <TextBlock
-                                                            FontFamily="Consolas"
-                                                            FontSize="11"
-                                                            Opacity="0.8"
-                                                            Text="{Binding Logs}"
-                                                            TextWrapping="Wrap" />
+                                                        <ItemsControl ItemsSource="{Binding Logs}">
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <TextBlock Text="{Binding}"
+                                                                               FontFamily="Consolas"
+                                                                               FontSize="11"
+                                                                               Opacity="0.8"
+                                                                               TextWrapping="Wrap" />
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
                                                     </ScrollViewer>
                                                 </Border>
 
@@ -267,7 +271,6 @@
                                                 </Grid>
                                             </Grid>
                                         </Border>
-                                    </ScrollViewer>
 
                                     <!--  Mods  -->
                                     <ScrollViewer Margin="25,0,25,25">

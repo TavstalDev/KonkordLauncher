@@ -91,21 +91,29 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
                 await new CreateInstanceWindow().ShowDialog(this);
                 action.SetOutput(Unit.Default);
             }).DisposeWith(disposables);
-            DataContext.ShowInstanceEditDialogInteraction.RegisterHandler(async action =>
+            DataContext.ShowInstanceEditDialogInteraction.RegisterHandler(action =>
             {
-                action.SetOutput(Unit.Default);
-                InstanceModel instance = action.Input;
-                if (_openEditWindows.TryGetValue(instance.Id, out var window))
+                try
                 {
-                    window.Activate();
-                    if (window.WindowState == WindowState.Minimized)
-                        window.WindowState = WindowState.Normal;
-                    return;
+                    action.SetOutput(Unit.Default);
+                    InstanceModel instance = action.Input;
+                    if (_openEditWindows.TryGetValue(instance.Id, out var window))
+                    {
+                        window.Activate();
+                        if (window.WindowState == WindowState.Minimized)
+                            window.WindowState = WindowState.Normal;
+                        return Task.CompletedTask;
+                    }
+                    EditInstanceWindow editInstanceWindow = new EditInstanceWindow(instance);
+                    editInstanceWindow.Show(this);
+                    _openEditWindows.Add(instance.Id, editInstanceWindow);
+                    editInstanceWindow.Closed += (_, _) => _openEditWindows.Remove(instance.Id);
+                    return Task.CompletedTask;
                 }
-                EditInstanceWindow editInstanceWindow = new EditInstanceWindow(instance);
-                editInstanceWindow.Show(this);
-                _openEditWindows.Add(instance.Id, editInstanceWindow);
-                editInstanceWindow.Closed += (_, _) => _openEditWindows.Remove(instance.Id);
+                catch (Exception exception)
+                {
+                    return Task.FromException(exception);
+                }
             }).DisposeWith(disposables);
             DataContext.ShowAccountsDialogInteraction.RegisterHandler(async action =>
             {

@@ -120,16 +120,8 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
         var clipboard = topLevel.Clipboard;
         if (clipboard == null)
             return;
-
-        using var ms = new MemoryStream();
-        screenshot.Image.Save(ms);
-
-        var fileFormat = DataFormat.CreateBytesApplicationFormat("image/png");
-        var item = DataTransferItem.Create(fileFormat, ms.ToArray());
-
-        var transfer = new DataTransfer();
-        transfer.Add(item);
-        await clipboard.SetDataAsync(transfer);
+        
+        await clipboard.SetBitmapAsync(screenshot.Image);
     }
     
     /// <summary>

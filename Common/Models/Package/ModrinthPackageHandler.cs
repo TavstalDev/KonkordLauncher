@@ -18,7 +18,7 @@ public class ModrinthPackageHandler: IInstancePackageHandler
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(ModrinthPackageHandler));
     
     
-    public async Task<Instance?> ImportAsync(string sourcePath, Resolution resolution, string? customName = null, string? customGroup = null, IProgressReporter? progress = null, CancellationToken cancellationToken = default)
+    public async Task<Instance?> ImportAsync(string sourcePath, Resolution resolution, string? customName = null, string? customGroup = null, string? customIconUrl = null, IProgressReporter? progress = null, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -127,6 +127,8 @@ public class ModrinthPackageHandler: IInstancePackageHandler
                     FileSystemHelper.MoveDirectory(overridesDir, result.GameDirectory, true);
 
                 string iconPath = Path.Combine(result.GameDirectory, "icon.png");
+                if (!File.Exists(iconPath) && !string.IsNullOrEmpty(customIconUrl))
+                    await HttpHelper.DownloadFileAsync(customIconUrl, iconPath, null, cancellationToken);
                 result.IconPath = File.Exists(iconPath) ? iconPath : string.Empty;
                 
                 // Download Mods

@@ -13,7 +13,7 @@ public class CurseForgePackageHandler: IInstancePackageHandler
      * modlist.html - list of mods in a raw html list
      */
     
-    public async Task<Instance?> ImportAsync(string sourcePath, Resolution resolution, string? customName = null, string? customGroup = null, IProgressReporter? progress = null, CancellationToken cancellationToken = default)
+    public async Task<Instance?> ImportAsync(string sourcePath, Resolution resolution, string? customName = null, string? customGroup = null, string? customIconUrl = null, IProgressReporter? progress = null, CancellationToken cancellationToken = default)
     {
         try
         {

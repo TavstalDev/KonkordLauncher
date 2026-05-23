@@ -21,20 +21,21 @@ public static class InstanceHelper
     /// <param name="resolution">The resolution to set for the imported instance's game config.</param>
     /// <param name="customName">Optional custom name for the imported instance.</param>
     /// <param name="customGroup">Optional custom group for the imported instance.</param>
+    /// <param name="customIconUrl">Optional custom icon URL for the imported instance.</param>
     /// <param name="progressReporter">Optional progress reporter to receive progress updates during the import process.</param>
     /// <param name="cancellationToken">Token used to cancel the import operation.</param>
     /// <returns>A task that completes when the import has finished.</returns>
-    public static async Task<Instance?> ImportAsync(string sourcePath, EInstanceProvider provider, Resolution resolution, string? customName = null, string? customGroup = null, IProgressReporter? progressReporter = null, CancellationToken cancellationToken = default)
+    public static async Task<Instance?> ImportAsync(string sourcePath, EInstanceProvider provider, Resolution resolution, string? customName = null, string? customGroup = null, string? customIconUrl = null, IProgressReporter? progressReporter = null, CancellationToken cancellationToken = default)
     {
         switch (provider)
         {
             case EInstanceProvider.Modrinth:
             {
-                return await _modrinthHandler.ImportAsync(sourcePath, resolution, customName, customGroup, progressReporter, cancellationToken);
+                return await _modrinthHandler.ImportAsync(sourcePath, resolution, customName, customGroup, customIconUrl, progressReporter, cancellationToken);
             }
             case EInstanceProvider.CurseForge:
             {
-                return await _curseForgeHandler.ImportAsync(sourcePath, resolution, customName, customGroup, progressReporter, cancellationToken);
+                return await _curseForgeHandler.ImportAsync(sourcePath, resolution, customName, customGroup, customIconUrl, progressReporter, cancellationToken);
             }
         }
 

@@ -12,7 +12,7 @@ public interface IInstancePackageHandler
     /// Import an instance package from the given source path (file or URL).
     /// Returns the imported Instance on success, or null on failure.
     /// </summary>
-    Task<Instance?> ImportAsync(string sourcePath, Resolution resolution, string? customName = null, string? customGroup = null, IProgressReporter? progress = null, CancellationToken cancellationToken = default);
+    Task<Instance?> ImportAsync(string sourcePath, Resolution resolution, string? customName = null, string? customGroup = null, string? customIconUrl = null, IProgressReporter? progress = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Export the supplied Instance to a target path (e.g. .zip, .mrpack).

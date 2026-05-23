@@ -201,7 +201,7 @@ public class MinecraftInstance
 
             // Launch the Minecraft game process with the constructed arguments
             
-            var process = JavaProcessLauncher.StartJava(GameDetails.JavaPath, arguments.jvmArgs, arguments.gameArgs, GameDetails.Kind, logsFilePath, GameDetails.WrapperCommand,
+            var process = JavaProcessLauncher.StartJava(GameDetails.JavaPath, arguments.jvmArgs, arguments.gameArgs, GameDetails.Kind, logsFilePath, GameDetails.WrapperCommands,
                 GameDetails.EnvironmentVariables,  _client is { IsOffline: false, AccessToken: not null } ? [ _client.AccessToken ] : null);
             
             // Execute post-exit command if specified

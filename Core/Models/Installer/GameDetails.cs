@@ -56,7 +56,7 @@ public class GameDetails
     /// <summary>
     /// Gets or sets the command wrapper to use when launching the game.
     /// </summary>
-    public string WrapperCommand { get; set; }
+    public List<string> WrapperCommands { get; set; }
 
     /// <summary>
     /// Gets or sets the command to execute after the game exits.
@@ -85,11 +85,11 @@ public class GameDetails
     /// <param name="customVersion">The custom version of Minecraft, if specified.</param>
     /// <param name="customGameDirectory">The custom game directory, if specified.</param>
     /// <param name="preLaunchCommand">The command to execute before launching the game.</param>
-    /// <param name="wrapperCommand">The command wrapper to use when launching the game.</param>
+    /// <param name="wrapperCommands">The command wrapper to use when launching the game.</param>
     /// <param name="postExitCommand">The command to execute after the game exits.</param>
     /// <param name="environmentVariables">The environment variables to be used when launching the game.</param>
     /// <param name="serverAddressToJoin">The server address to join automatically when launching the game, if specified.</param>
-    public GameDetails(string javaPath, uint minMemory, uint maxMemory, string jvmArgs, string minecraftVersion, EMinecraftKind kind, string? customVersion, string? customGameDirectory, string preLaunchCommand, string wrapperCommand, string postExitCommand, Dictionary<string, string> environmentVariables, string? serverAddressToJoin)
+    public GameDetails(string javaPath, uint minMemory, uint maxMemory, string jvmArgs, string minecraftVersion, EMinecraftKind kind, string? customVersion, string? customGameDirectory, string preLaunchCommand, List<string> wrapperCommands, string postExitCommand, Dictionary<string, string> environmentVariables, string? serverAddressToJoin)
     {
         JavaPath = javaPath;
         MinMemory = minMemory;
@@ -100,7 +100,7 @@ public class GameDetails
         CustomVersion = customVersion;
         CustomGameDirectory = customGameDirectory;
         PreLaunchCommand = preLaunchCommand;
-        WrapperCommand = wrapperCommand;
+        WrapperCommands = wrapperCommands;
         PostExitCommand = postExitCommand;
         EnvironmentVariables = environmentVariables;
         ServerAddressToJoin = serverAddressToJoin;

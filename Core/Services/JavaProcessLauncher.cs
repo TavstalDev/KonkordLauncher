@@ -14,7 +14,7 @@ public static class JavaProcessLauncher
 {
     // Logger instance for the JavaProcessLauncher module
     private static readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(JavaProcessLauncher));
-    
+
     /// <summary>
     /// Starts a Java process using the specified java executable and arguments.
     /// </summary>
@@ -27,15 +27,11 @@ public static class JavaProcessLauncher
     /// before starting the process and the launched process' stdout/stderr lines will be written to a logger
     /// that targets this path. If null or empty, no log rotation or file logging is performed.
     /// </param>
-    /// <param name="wrapperCommand">
-    /// Optional wrapper command to run the Java command through. If provided, the constructed java command
-    /// string (<c>javaPath + " " + jvmArguments + " " + gameArguments</c>) will be injected into the wrapper:
-    /// - If the wrapper contains the literal <c>"%command%"</c> substring it will be replaced with the constructed command.
-    /// </param>
+    /// <param name="wrapperCommands"></param>
     /// <param name="environmentVariables">Optional dictionary of environment variables to set on the started process.</param>
     /// <param name="sensitiveDataToReplace">Optional list of sensitive substrings (e.g. tokens, passwords) that should be masked in logged output.</param>
     /// <returns>A <see cref="Process"/> instance representing the started process, or <c>null</c> if the process could not be started.</returns>
-    public static Process? StartJava(string javaPath, string jvmArguments, string gameArguments, EMinecraftKind kind, string? logsPath = null, string? wrapperCommand = null, Dictionary<string, string>? environmentVariables = null, List<string>? sensitiveDataToReplace = null)
+    public static Process? StartJava(string javaPath, string jvmArguments, string gameArguments, EMinecraftKind kind, string? logsPath = null, List<string>? wrapperCommands = null, Dictionary<string, string>? environmentVariables = null, List<string>? sensitiveDataToReplace = null)
     {
         string finalJavaPath = string.IsNullOrEmpty(javaPath) ? "java" : javaPath;
         string args;
@@ -57,24 +53,38 @@ public static class JavaProcessLauncher
         }
 
         ProcessStartInfo psi;
-        if (!string.IsNullOrEmpty(wrapperCommand))
+        if (wrapperCommands is { Count: > 0})
         {
-            string cmdstr = finalJavaPath + " " + args;
-            if (wrapperCommand.Contains("%command%"))
-                wrapperCommand = wrapperCommand.Replace("%command%", cmdstr);
-            else
-                wrapperCommand += cmdstr;
-            
-            string[] cmd = wrapperCommand.Split(' ');
+            string fileName = wrapperCommands[0];
             psi = new ProcessStartInfo
             {
-                FileName = cmd[0],
-                Arguments = string.Join(' ', cmd.Skip(1)),
+                FileName = fileName,
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false
             };
+            bool commandInjected = false;
+            foreach (var command in wrapperCommands.Skip(1))
+            {
+                if (command.Contains("%command%"))
+                {
+                    psi.ArgumentList.Add(command.Replace("%command%", finalJavaPath));
+                    foreach (var arg in SplitArguments(args))
+                        psi.ArgumentList.Add(arg);
+                    commandInjected = true;
+                    continue;
+                }
+                
+                psi.ArgumentList.Add(command);
+            }
+
+            if (!commandInjected)
+            {
+                psi.ArgumentList.Add(finalJavaPath);
+                foreach (var arg in SplitArguments(args))
+                    psi.ArgumentList.Add(arg);
+            }
         }
         else
         {
@@ -100,12 +110,14 @@ public static class JavaProcessLauncher
         _logger.Debug("Starting Java process with arguments:");
         _logger.Debug("Java: " + finalJavaPath);
         _logger.Debug("FileName: " + psi.FileName);
-        string argumentsToPrint = psi.Arguments;
+        string argumentsToPrint = string.Join(" ", psi.ArgumentList);
+#if DEBUG
         if (sensitiveDataToReplace != null)
         {
             foreach (var sen in sensitiveDataToReplace)
                 argumentsToPrint = argumentsToPrint.Replace(sen, "*****");
         }
+#endif
         _logger.Debug("Arguments: " + argumentsToPrint);
 
         // Handle existing logs file
@@ -267,16 +279,12 @@ public static class JavaProcessLauncher
             process.OutputDataReceived += (_, e) =>
             {
                 if (!string.IsNullOrEmpty(e.Data))
-                {
                     _logger.Debug($"Custom command: {e.Data}");
-                }
             };
             process.ErrorDataReceived += (_, e) =>
             {
                 if (!string.IsNullOrEmpty(e.Data))
-                {
                     _logger.Error($"Custom command: {e.Data}");
-                }
             };
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
@@ -285,5 +293,57 @@ public static class JavaProcessLauncher
 
         // Start the process and return the Process object
         return process;
+    }
+    
+    /// <summary>
+    /// Splits a command-line argument string into individual arguments while respecting quoted strings and escape sequences.
+    /// </summary>
+    /// /// <param name="args">The raw argument string to split, typically containing space-separated values with optional quotes and escapes.</param>
+    /// <returns>An enumerable collection of parsed argument strings, with quotes removed and escape sequences resolved.</returns>
+    private static IEnumerable<string> SplitArguments(string args)
+    {
+        var arguments = new List<string>();
+        var currentArg = new StringBuilder();
+        bool inQuotes = false;
+        bool escapeNext = false;
+
+        foreach (char c in args)
+        {
+            if (escapeNext)
+            {
+                currentArg.Append(c);
+                escapeNext = false;
+                continue;
+            }
+
+            if (c == '\\')
+            {
+                escapeNext = true;
+                continue;
+            }
+
+            if (c == '"')
+            {
+                inQuotes = !inQuotes;
+                continue;
+            }
+
+            if (c == ' ' && !inQuotes)
+            {
+                if (currentArg.Length > 0)
+                {
+                    arguments.Add(currentArg.ToString());
+                    currentArg.Clear();
+                }
+                continue;
+            }
+
+            currentArg.Append(c);
+        }
+
+        if (currentArg.Length > 0)
+            arguments.Add(currentArg.ToString());
+
+        return arguments;
     }
 }

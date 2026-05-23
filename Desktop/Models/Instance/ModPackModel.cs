@@ -29,6 +29,11 @@ public class ModPackModel
     public Bitmap? Icon { get; set; }
     
     /// <summary>
+    /// URL to the project's icon image
+    /// </summary>
+    public string? IconUrl { get; set; }
+    
+    /// <summary>
     /// The project's body converted to HTML. Intended to be rendered in the UI.
     /// </summary>
     public string RawPage { get; set; }
@@ -64,6 +69,7 @@ public class ModPackModel
                 Name = project.Title,
                 Description = project.Description,
                 Icon = await iconTask,
+                IconUrl = project.IconUrl,
                 RawPage = rawPage,
                 Versions = new ObservableCollection<Version>(versions),
                 Tags = new ObservableCollection<string>(project.Categories)

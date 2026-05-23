@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -195,7 +196,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         {
             Dispatcher.UIThread.Post(() =>
             {
-                _logger.Info($"The instance has exited.");
+                _logger.Debug($"The instance has exited.");
                 GameProcess = null;
                 IsGameRunning = false;
             });
@@ -205,7 +206,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         {
             Dispatcher.UIThread.Post(() =>
             {
-                _logger.Info($"The instance process has been disposed.");
+                _logger.Debug($"The instance process has been disposed.");
                 GameProcess = null;
                 IsGameRunning = false;
             });
@@ -269,14 +270,19 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
 
         try
         {
-            string wrapperCommand = ConfigModel.Commands.WrapperCommand;
+            List<string> command = [];
+            var customCommands =  ConfigModel.Commands.WrapperCommand.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
             // Add gamemoderun if enabled
-            if (ConfigModel.Game.EnableFeralGameMode && !wrapperCommand.Contains("gamemoderun"))
-                wrapperCommand = "gamemoderun " + wrapperCommand;
+            if (ConfigModel.Game.EnableFeralGameMode && !ConfigModel.Commands.WrapperCommand.Contains("gamemoderun"))
+                command.Add("gamemoderun");
 
             // Add mangohud if enabled
-            if (ConfigModel.Game.EnableMangoHud && !wrapperCommand.Contains("mangohud"))
-                wrapperCommand = "mangohud " + wrapperCommand;
+            if (ConfigModel.Game.EnableMangoHud && !ConfigModel.Commands.WrapperCommand.Contains("mangohud"))
+                command.Add("mangohud");
+
+            foreach (var cc in customCommands)
+                command.Add(cc);
 
             // Attempt to force the use of a dedicated GPU if configured
             var environmentVariables = ConfigModel.EnableEnvironment
@@ -309,6 +315,12 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
                         switch (gpuInfo.Value.Item1)
                         {
                             case "amd":
+                            {
+                                environmentVariables.Add(new("DRI_PRIME", "1"));
+                                environmentVariables.Add(new("LIBVA_DRIVER_NAME", "radeonsi"));
+                                environmentVariables.Add(new("VDPAU_DRIVER", "radeonsi"));
+                                break;
+                            }
                             case "intel":
                             {
                                 environmentVariables.Add(new("DRI_PRIME", "1"));
@@ -350,7 +362,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
                 CustomVersion,
                 GameDirectory,
                 ConfigModel.Commands.PreLaunchCommand,
-                wrapperCommand,
+                command,
                 ConfigModel.Commands.PostExitCommand,
                 envDic,
                 !string.IsNullOrEmpty(serverAddress) ?
@@ -513,21 +525,15 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
                     Dispatcher.UIThread.Invoke<Task>(async () =>
                     {
                         if (ConfigModel.Game.ShowConsoleWhenGameCrashes && GameProcess?.ExitCode != 0)
-                        {
                             await showLogsWindow.Handle(Id);
-                        }
                         else if (ConfigModel.Game.CloseConsoleOnGameExit)
-                        {
                             await closeLogsWindow.Handle(Id);
-                        }
 
                         await closeWindow.Handle(Unit.Default);
                     });
                 }
             };
-            _logger.Info($"Launched the  with PID {process.Id} - Running ? {!process.HasExited}");
             IsGameRunning = !process.HasExited;
-            _logger.Info($"IsGameRunning set to {IsGameRunning}");
         }
         catch (Exception ex)
         {
@@ -627,7 +633,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
                 return;
 
             // This will ensure that no sensitive data is read while the file is being written to
-            Task.Delay(100).Wait(); // Wait a bit to ensure the file is ready to be read
+            Task.Delay(100).Wait();
             
             using var fs = new FileStream(e.FullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             fs.Seek(_lastReadPosition, SeekOrigin.Begin);
@@ -639,11 +645,8 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             while (sr.ReadLine() is { } newLine)
                 newLines.AppendLine(newLine);
             
-            Dispatcher.UIThread.Post(() =>
-            {
-                string logs = string.Join("\n", newLines);
-                GlobalEvents.InvokeInstanceLogged(Id, logs);
-            });
+            string logs = string.Join("\n", newLines);
+            GlobalEvents.InvokeInstanceLogged(Id, logs);
             _lastReadPosition = fs.Position;
         }
         catch (IOException ex)

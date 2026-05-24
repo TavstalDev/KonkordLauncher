@@ -1,19 +1,19 @@
-﻿using System.Text.Json.Serialization;
+﻿
 using Newtonsoft.Json;
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
 
 public class Skin
 {
-    [JsonProperty("id"), JsonPropertyName("id")]
+    [JsonProperty("id")]
     public string Id { get; set; }
-    [JsonProperty("state"), JsonPropertyName("state")]
+    [JsonProperty("state")]
     public string State { get; set; }
-    [JsonProperty("url"), JsonPropertyName("url")]
+    [JsonProperty("url")]
     public string Url { get; set; }
-    [JsonProperty("variant"), JsonPropertyName("variant")]
+    [JsonProperty("variant")]
     public string Variant { get; set; }
-    [JsonProperty("alias"), JsonPropertyName("alias")]
+    [JsonProperty("alias")]
     public string? Alias { get; set; }
 
     public Skin() { }

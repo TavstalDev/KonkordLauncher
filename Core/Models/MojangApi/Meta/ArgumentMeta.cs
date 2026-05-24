@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+﻿
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Tavstal.KonkordLauncher.Core.Enums;
@@ -15,13 +15,13 @@ public class ArgumentMeta
     /// <summary>
     /// Gets or sets the list of game arguments.
     /// </summary>
-    [JsonPropertyName("game"), JsonProperty("game")]
+    [JsonProperty("game")]
     public List<object> Game { get; set; }
 
     /// <summary>
     /// Gets or sets the list of JVM arguments.
     /// </summary>
-    [JsonPropertyName("jvm"), JsonProperty("jvm")]
+    [JsonProperty("jvm")]
     public List<object> Jvm { get; set; }
 
     /// <summary>

@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+
 using Newtonsoft.Json;
 
 namespace Tavstal.KonkordLauncher.Common.Models.Config;
@@ -12,31 +12,31 @@ public class MinecraftConfig
     /// <summary>
     /// Gets or sets a value indicating whether the game should start maximized.
     /// </summary>
-    [JsonProperty("startMaximized"), JsonPropertyName("startMaximized")]
+    [JsonProperty("startMaximized")]
     public bool StartMaximized { get; set; }
     
     /// <summary>
     /// Gets or sets the width of the game window in pixels.
     /// </summary>
-    [JsonProperty("windowWidth"), JsonPropertyName("windowWidth")]
+    [JsonProperty("windowWidth")]
     public uint WindowWidth { get; set; }
     
     /// <summary>
     /// Gets or sets the height of the game window in pixels.
     /// </summary>
-    [JsonProperty("windowHeight"), JsonPropertyName("windowHeight")]
+    [JsonProperty("windowHeight")]
     public uint WindowHeight { get; set; }
     
     /// <summary>
     /// Gets or sets a value indicating whether the launcher should close when the game starts.
     /// </summary>
-    [JsonProperty("closeLauncherOnGameStart"), JsonPropertyName("closeLauncherOnGameStart")]
+    [JsonProperty("closeLauncherOnGameStart")]
     public bool CloseLauncherOnGameStart { get; set; }
     
     /// <summary>
     /// Gets or sets a value indicating whether the launcher should close when the game exits.
     /// </summary>
-    [JsonProperty("closeLauncherOnGameExit"), JsonPropertyName("closeLauncherOnGameExit")]
+    [JsonProperty("closeLauncherOnGameExit")]
     public bool CloseLauncherOnGameExit { get; set; }
 
     /// <summary>

@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+
 using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 
@@ -13,85 +13,85 @@ public class LauncherConfig
     /// <summary>
     /// Gets or sets a value indicating whether automatic updates are enabled.
     /// </summary>
-    [JsonProperty("enableAutomaticUpdates"), JsonPropertyName("enableAutomaticUpdates")]
+    [JsonProperty("enableAutomaticUpdates")]
     public bool EnableAutomaticUpdates { get; set; }
     
     /// <summary>
     /// Gets or sets the update interval in hours.
     /// </summary>
-    [JsonProperty("updateInterval"), JsonPropertyName("updateInterval")]
+    [JsonProperty("updateInterval")]
     public uint UpdateInterval { get; set; }
 
     /// <summary>
     /// Gets or sets the date and time for the next update check.
     /// </summary>
-    [JsonProperty("nextUpdateCheck"), JsonPropertyName("nextUpdateCheck")]
+    [JsonProperty("nextUpdateCheck")]
     public DateTime NextUpdateCheck { get; set; }
     
     /// <summary>
     /// Gets or sets the language of the launcher.
     /// </summary>
-    [JsonProperty("language"), JsonPropertyName("language")]
+    [JsonProperty("language")]
     public string Language { get; set; }
     
     /// <summary>
     /// Gets or sets the theme of the launcher.
     /// </summary>
-    [JsonProperty("theme"), JsonPropertyName("theme")]
+    [JsonProperty("theme")]
     public EThemeType Theme { get; set; }
     
     /// <summary>
     /// Gets or sets the file system path to the assets directory.
     /// </summary>
-    [JsonProperty("assetsDirectoryPath"), JsonPropertyName("assetsDirectoryPath")]
+    [JsonProperty("assetsDirectoryPath")]
     public string AssetsDirectoryPath { get; set; }
     
     /// <summary>
     /// Gets or sets the file system path to the cache directory.
     /// </summary>
-    [JsonProperty("cacheDirectoryPath"), JsonPropertyName("cacheDirectoryPath")]
+    [JsonProperty("cacheDirectoryPath")]
     public string CacheDirectoryPath { get; set; }
     
     /// <summary>
     /// Gets or sets the file system path to the icons directory.
     /// </summary>
-    [JsonProperty("iconsDirectoryPath"), JsonPropertyName("iconsDirectoryPath")]
+    [JsonProperty("iconsDirectoryPath")]
     public string IconsDirectoryPath { get; set; }
     
     /// <summary>
     /// Gets or sets the file system path to the instances directory.
     /// </summary>
-    [JsonProperty("instancesDirectoryPath"), JsonPropertyName("instancesDirectoryPath")]
+    [JsonProperty("instancesDirectoryPath")]
     public string InstancesDirectoryPath { get; set; }
     
     /// <summary>
     /// Gets or sets the file system path to the Java directory.
     /// </summary>
-    [JsonProperty("javaDirectoryPath"), JsonPropertyName("javaDirectoryPath")]
+    [JsonProperty("javaDirectoryPath")]
     public string JavaDirectoryPath { get; set; }
     
     /// <summary>
     /// Gets or sets the file system path to the libraries directory.
     /// </summary>
-    [JsonProperty("librariesDirectoryPath"), JsonPropertyName("librariesDirectoryPath")]
+    [JsonProperty("librariesDirectoryPath")]
     public string LibrariesDirectoryPath { get; set; }
     
     /// <summary>
     /// Gets or sets the file system path to the manifests directory.
     /// </summary>
-    [JsonProperty("manifestsDirectoryPath"), JsonPropertyName("manifestsDirectoryPath")]
+    [JsonProperty("manifestsDirectoryPath")]
     public string ManifestsDirectoryPath { get; set; }
     
     /// <summary>
     /// Gets or sets the file system path to the translations directory.
     /// </summary>
-    [JsonProperty("translationsDirectoryPath"), JsonPropertyName("translationsDirectoryPath")]
+    [JsonProperty("translationsDirectoryPath")]
     public string TranslationsDirectoryPath { get; set; }
     
     /// <summary>
     /// Gets or sets the file system path to the versions directory.
     /// </summary>
-    [JsonProperty("versionsDirectoryPath"), JsonPropertyName("versionsDirectoryPath")]
+    [JsonProperty("versionsDirectoryPath")]
     public string VersionsDirectoryPath { get; set; }
 
     /// <summary>

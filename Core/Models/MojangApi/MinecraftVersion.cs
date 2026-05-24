@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+﻿
 using Newtonsoft.Json;
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi;
@@ -11,38 +11,38 @@ public class MinecraftVersion
     /// <summary>
     /// Gets or sets the unique identifier of the Minecraft version.
     /// </summary>
-    [JsonPropertyName("id"), JsonProperty("id")]
+    [JsonProperty("id")]
     public string Id { get; set; }
 
     /// <summary>
     /// Gets or sets the type of the Minecraft version (e.g., "release", "snapshot").
     /// </summary>
-    [JsonPropertyName("type"), JsonProperty("type")]
+    [JsonProperty("type")]
     public string Type { get; set; }
 
     /// <summary>
     /// Gets or sets the URL for the version's metadata or resources.
     /// </summary>
-    [JsonPropertyName("url"), JsonProperty("url")]
+    [JsonProperty("url")]
     public string Url { get; set; }
 
     /// <summary>
     /// Gets or sets the time the version was created or last updated.
     /// </summary>
-    [JsonPropertyName("time"), JsonProperty("time")]
+    [JsonProperty("time")]
     public DateTime Time { get; set; }
 
     /// <summary>
     /// Gets or sets the release time of the Minecraft version.
     /// </summary>
-    [JsonPropertyName("releaseTime"), JsonProperty("releaseTime")]
+    [JsonProperty("releaseTime")]
     public DateTime ReleaseTime { get; set; }
 
     /// <summary>
     /// Gets or sets the .NET version associated with the Minecraft version.
     /// This property is ignored during JSON serialization and deserialization.
     /// </summary>
-    [System.Text.Json.Serialization.JsonIgnore, Newtonsoft.Json.JsonIgnore]
+    [JsonIgnore]
     private Version? _version { get; set; }
     
     /// <summary>

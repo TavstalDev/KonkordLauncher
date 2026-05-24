@@ -1,13 +1,13 @@
-﻿using System.Text.Json.Serialization;
+﻿
 using Newtonsoft.Json;
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
 
 public class OwnershipItem
 {
-    [JsonProperty("name"), JsonPropertyName("name")]
+    [JsonProperty("name")]
     public string Name { get; set; }
-    [JsonProperty("signature"), JsonPropertyName("signature")]
+    [JsonProperty("signature")]
     public string Signature { get; set; }
 
     public OwnershipItem() { }

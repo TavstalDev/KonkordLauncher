@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+
 using NbtLib;
 using Newtonsoft.Json;
 
@@ -13,7 +13,7 @@ public class ServersDat
     /// Gets or sets the list of Minecraft servers.
     /// </summary>
     [NbtProperty(PropertyName="servers")]
-    [JsonProperty("servers"), JsonPropertyName("servers")]
+    [JsonProperty("servers")]
     public List<MinecraftServer> Servers { get; set; }
 
     /// <summary>

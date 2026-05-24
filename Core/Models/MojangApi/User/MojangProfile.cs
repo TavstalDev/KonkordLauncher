@@ -1,17 +1,17 @@
-﻿using System.Text.Json.Serialization;
+﻿
 using Newtonsoft.Json;
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
 
 public class MojangProfile
 {
-    [JsonProperty("id"), JsonPropertyName("id")]
+    [JsonProperty("id")]
     public string Id { get; set; }
-    [JsonProperty("name"), JsonPropertyName("name")]
+    [JsonProperty("name")]
     public string Name { get; set; }
-    [JsonProperty("skins"), JsonPropertyName("skins")]
+    [JsonProperty("skins")]
     public List<Skin> Skins {  get; set; }
-    [JsonProperty("capes"), JsonPropertyName("capes")]
+    [JsonProperty("capes")]
     public List<Cape> Capes { get; set; }
 
     public MojangProfile() { }

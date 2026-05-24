@@ -1,22 +1,22 @@
-using System.Text.Json.Serialization;
+
 using Newtonsoft.Json;
 
 namespace Tavstal.KonkordLauncher.Common.Models.Package.Modrinth;
 
 public class PackageFile
 {
-    [JsonProperty("path"), JsonPropertyName("path")]
+    [JsonProperty("path")]
     public string Path { get; set; }
     
-    [JsonProperty("hashes"), JsonPropertyName("hashes")]
+    [JsonProperty("hashes")]
     public Dictionary<string, string> Hashes { get; set; } = new();
 
-    [JsonProperty("env"), JsonPropertyName("env")]
+    [JsonProperty("env")]
     public Dictionary<string, string> Env { get; set; } = new();
 
-    [JsonProperty("downloads"), JsonPropertyName("downloads")]
+    [JsonProperty("downloads")]
     public List<string> Downloads { get; set; } = [];
     
-    [JsonProperty("fileSize"), JsonPropertyName("fileSize")]
+    [JsonProperty("fileSize")]
     public long FileSize { get; set; }
 }

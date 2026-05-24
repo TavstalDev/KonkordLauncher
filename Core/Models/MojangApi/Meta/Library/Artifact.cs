@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+﻿
 using Newtonsoft.Json;
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta.Library;
@@ -11,25 +11,25 @@ public class Artifact
     /// <summary>
     /// Gets or sets the file path of the artifact.
     /// </summary>
-    [JsonPropertyName("path"), JsonProperty("path")]
+    [JsonProperty("path")]
     public string Path { get; set; }
 
     /// <summary>
     /// Gets or sets the SHA-1 hash of the artifact.
     /// </summary>
-    [JsonPropertyName("sha1"), JsonProperty("sha1")]
+    [JsonProperty("sha1")]
     public string Sha1 { get; set; }
 
     /// <summary>
     /// Gets or sets the size of the artifact in bytes.
     /// </summary>
-    [JsonPropertyName("size"), JsonProperty("size")]
+    [JsonProperty("size")]
     public int Size { get; set; }
 
     /// <summary>
     /// Gets or sets the URL of the artifact.
     /// </summary>
-    [JsonPropertyName("url"), JsonProperty("url")]
+    [JsonProperty("url")]
     public string Url { get; set; }
 
     /// <summary>

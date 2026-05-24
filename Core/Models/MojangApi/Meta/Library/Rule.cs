@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+﻿
 using Newtonsoft.Json;
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta.Library;
@@ -11,13 +11,13 @@ public class Rule
     /// <summary>
     /// Gets or sets the action of the rule (e.g., allow or disallow).
     /// </summary>
-    [JsonPropertyName("action"), JsonProperty("action")]
+    [JsonProperty("action")]
     public string Action { get; set; }
 
     /// <summary>
     /// Gets or sets the operating system specification for the rule, if applicable.
     /// </summary>
-    [JsonPropertyName("OS"), JsonProperty("OS")]
+    [JsonProperty("OS")]
     public RuleOs Os { get; set; }
 
     /// <summary>

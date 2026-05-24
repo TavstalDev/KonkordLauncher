@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+
 using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Core.Enums;
 
@@ -11,15 +11,15 @@ namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.NeoForge;
 public class NeoForgeManifest : IModManifest
 {
     /// <inheritdoc/>
-    [JsonProperty("gameVersion"), JsonPropertyName("gameVersion")]
+    [JsonProperty("gameVersion")]
     public string GameVersion { get; set; }
 
     /// <inheritdoc/>
-    [JsonProperty("version"), JsonPropertyName("version")]
+    [JsonProperty("version")]
     public string Version { get; set; }
     
     /// <inheritdoc/>
-    [System.Text.Json.Serialization.JsonIgnore, Newtonsoft.Json.JsonIgnore]
+    [JsonIgnore]
     public EMinecraftKind LoaderKind { get;  } = EMinecraftKind.NEOFORGE;
     
     /// <summary>

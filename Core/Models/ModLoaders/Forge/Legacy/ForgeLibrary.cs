@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+﻿
 using Newtonsoft.Json;
 
 namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Legacy;
@@ -11,31 +11,31 @@ public class ForgeLibrary
     /// <summary>
     /// Gets or sets the name of the Forge library.
     /// </summary>
-    [JsonPropertyName("name"), JsonProperty("name")]
+    [JsonProperty("name")]
     public string Name { get; set; }
 
     /// <summary>
     /// Gets or sets the URL of the Forge library.
     /// </summary>
-    [JsonPropertyName("url"), JsonProperty("url")]
+    [JsonProperty("url")]
     public string? Url { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the library is required on the client side.
     /// </summary>
-    [JsonPropertyName("clientreq"), JsonProperty("clientreq")]
+    [JsonProperty("clientreq")]
     public bool? ClientRequires { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the library is required on the server side.
     /// </summary>
-    [JsonPropertyName("serverreq"), JsonProperty("serverreq")]
+    [JsonProperty("serverreq")]
     public bool? ServerRequires { get; set; }
 
     /// <summary>
     /// Gets or sets the list of checksums for the Forge library.
     /// </summary>
-    [JsonPropertyName("checksums"), JsonProperty("checksums")]
+    [JsonProperty("checksums")]
     public List<string>? Checksums { get; set; }
 
     /// <summary>

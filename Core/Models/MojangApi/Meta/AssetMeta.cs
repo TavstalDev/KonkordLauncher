@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+﻿
 using Newtonsoft.Json;
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
@@ -11,31 +11,31 @@ public class AssetMeta
     /// <summary>
     /// Gets or sets the unique identifier for the asset.
     /// </summary>
-    [JsonPropertyName("id"), JsonProperty("id")]
+    [JsonProperty("id")]
     public string Id { get; set; }
 
     /// <summary>
     /// Gets or sets the SHA-1 hash of the asset.
     /// </summary>
-    [JsonPropertyName("sha1"), JsonProperty("sha1")]
+    [JsonProperty("sha1")]
     public string Sha1 { get; set; }
 
     /// <summary>
     /// Gets or sets the size of the asset in bytes.
     /// </summary>
-    [JsonPropertyName("size"), JsonProperty("size")]
+    [JsonProperty("size")]
     public int Size { get; set; }
 
     /// <summary>
     /// Gets or sets the total size of the asset in bytes.
     /// </summary>
-    [JsonPropertyName("totalSize"), JsonProperty("totalSize")]
+    [JsonProperty("totalSize")]
     public int TotalSize { get; set; }
 
     /// <summary>
     /// Gets or sets the URL to download the asset.
     /// </summary>
-    [JsonPropertyName("url"), JsonProperty("url")]
+    [JsonProperty("url")]
     public string Url { get; set; }
 
     /// <summary>

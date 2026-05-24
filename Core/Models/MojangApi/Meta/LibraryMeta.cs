@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+﻿
 using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.Platform;
@@ -14,25 +14,25 @@ public class LibraryMeta
     /// <summary>
     /// Gets or sets the name of the library.
     /// </summary>
-    [JsonPropertyName("name"), JsonProperty("name")]
+    [JsonProperty("name")]
     public string Name { get; set; }
 
     /// <summary>
     /// Gets or sets the download information for the library.
     /// </summary>
-    [JsonPropertyName("downloads"), JsonProperty("downloads")]
+    [JsonProperty("downloads")]
     public LibraryDownloads Downloads { get; set; }
 
     /// <summary>
     /// Gets or sets the rules that determine whether the library is allowed or disallowed.
     /// </summary>
-    [JsonPropertyName("rules"), JsonProperty("rules")]
+    [JsonProperty("rules")]
     public List<Rule> Rules { get; set; }
 
     /// <summary>
     /// Gets or sets the native configurations for the library, if applicable.
     /// </summary>
-    [JsonPropertyName("natives"), JsonProperty("natives")]
+    [JsonProperty("natives")]
     public Natives? Natives { get; set; }
 
     /// <summary>

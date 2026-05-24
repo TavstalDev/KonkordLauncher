@@ -1,5 +1,4 @@
-﻿using System.Text.Json.Serialization;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Core.Encryption;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
@@ -16,25 +15,25 @@ public class Account
     /// <summary>
     /// Gets or sets the unique identifier of the account.
     /// </summary>
-    [JsonPropertyName("id"), JsonProperty("id")]
+    [JsonProperty("id")]
     public string Id { get; set; }
 
     /// <summary>
     /// Gets or sets the UUID of the account.
     /// </summary>
-    [JsonPropertyName("uuid"), JsonProperty("uuid")]
+    [JsonProperty("uuid")]
     public string Uuid { get; set; }
 
     /// <summary>
     /// Gets or sets the display name of the account.
     /// </summary>
-    [JsonPropertyName("displayName"), JsonProperty("displayName")]
+    [JsonProperty("displayName")]
     public string DisplayName { get; set; }
 
     /// <summary>
     /// Gets or sets the type of the account.
     /// </summary>
-    [JsonPropertyName("type"), JsonProperty("type")]
+    [JsonProperty("type")]
     public EAccountType Type { get; set; }
 
     /// <summary>
@@ -42,41 +41,39 @@ public class Account
     /// This property is obsolete and should not be used directly.
     /// </summary>
     [Obsolete("Use GetAccessToken() instead. This property should not be used directly.")]
-    [JsonPropertyName("accessToken"), JsonProperty("accessToken")]
-    [System.Text.Json.Serialization.JsonIgnore(Condition = JsonIgnoreCondition.Never)]
-    public string EncryptedAccessToken { get; set; }
+    [JsonProperty("accessToken")]
+    private string EncryptedAccessToken { get; set; }
 
     /// <summary>
     /// Gets or sets the encrypted refresh token. 
     /// This property is obsolete and should not be used directly.
     /// </summary>
     [Obsolete("Use GetRefreshToken() instead. This property should not be used directly.")]
-    [JsonPropertyName("refreshToken"), JsonProperty("refreshToken")]
-    [System.Text.Json.Serialization.JsonIgnore(Condition = JsonIgnoreCondition.Never)]
-    public string EncryptedRefreshToken { get; set; }
+    [JsonProperty("refreshToken")]
+    private string EncryptedRefreshToken { get; set; }
 
     /// <summary>
     /// Gets or sets the expiration date of the access token.
     /// </summary>
-    [JsonPropertyName("accessTokenExpDate"), JsonProperty("accessTokenExpDate")]
+    [JsonProperty("accessTokenExpDate")]
     public DateTime AccessTokenExpireDate { get; set; }
 
     /// <summary>
     /// Gets or sets the list of skins associated with the account.
     /// </summary>
-    [JsonPropertyName("skins"), JsonProperty("skins")]
+    [JsonProperty("skins")]
     public List<AccountSkin> Skins { get; set; } = new();
 
     /// <summary>
     /// Gets or sets the Mojang profile associated with the account.
     /// </summary>
-    [JsonProperty("mojangProfile"), JsonPropertyName("mojangProfile")]
+    [JsonProperty("mojangProfile")]
     public MojangProfile? MojangProfile { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the account is selected.
     /// </summary>
-    [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
+    [JsonIgnore]
     public bool IsSelected { get; set; }
 
     /// <summary>

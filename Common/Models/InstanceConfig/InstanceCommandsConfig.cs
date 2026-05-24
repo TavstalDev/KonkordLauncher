@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+
 using Newtonsoft.Json;
 
 namespace Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
@@ -11,19 +11,19 @@ public class InstanceCommandsConfig
     /// <summary>
     /// Gets or sets the command to be executed before the game launches.
     /// </summary>
-    [JsonProperty("preLaunchCommand"), JsonPropertyName("preLaunchCommand")]
+    [JsonProperty("preLaunchCommand")]
     public string PreLaunchCommand { get; set; }
 
     /// <summary>
     /// Gets or sets the wrapper command to be executed during the game runtime.
     /// </summary>
-    [JsonProperty("wrapperCommand"), JsonPropertyName("wrapperCommand")]
+    [JsonProperty("wrapperCommand")]
     public string WrapperCommand { get; set; }
 
     /// <summary>
     /// Gets or sets the command to be executed after the game exits.
     /// </summary>
-    [JsonProperty("postExitCommand"), JsonPropertyName("postExitCommand")]
+    [JsonProperty("postExitCommand")]
     public string PostExitCommand { get; set; }
 
     /// <summary>

@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+
 using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Common.Models.Config;
 
@@ -13,37 +13,37 @@ public class InstanceConfig
     /// <summary>
     /// Gets or sets the Java configuration for the game instance.
     /// </summary>
-    [JsonProperty("java"), JsonPropertyName("java")]
+    [JsonProperty("java")]
     public JavaConfig Java { get; set; }
 
     /// <summary>
     /// Gets or sets the game-specific configuration for the instance.
     /// </summary>
-    [JsonProperty("game"), JsonPropertyName("game")]
+    [JsonProperty("game")]
     public InstanceGameConfig Game { get; set; }
 
     /// <summary>
     /// Gets or sets the custom commands configuration for the instance.
     /// </summary>
-    [JsonProperty("customCommands"), JsonPropertyName("customCommands")]
+    [JsonProperty("customCommands")]
     public InstanceCommandsConfig Commands { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether environment variables are enabled for the instance.
     /// </summary>
-    [JsonProperty("enableEnvironment"), JsonPropertyName("enableEnvironment")]
+    [JsonProperty("enableEnvironment")]
     public bool EnableEnvironment { get; set; }
 
     /// <summary>
     /// Gets or sets the environment variables for the instance as a dictionary of key-value pairs.
     /// </summary>
-    [JsonProperty("environment"), JsonPropertyName("environment")]
+    [JsonProperty("environment")]
     public List<EnvironmentVariable> Environment { get; set; }
 
     /// <summary>
     /// Gets or sets the miscellaneous configuration for the instance.
     /// </summary>
-    [JsonProperty("misc"), JsonPropertyName("misc")]
+    [JsonProperty("misc")]
     public InstanceMiscConfig Misc { get; set; }
 
     /// <summary>

@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+﻿
 using Newtonsoft.Json;
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
@@ -11,19 +11,19 @@ public class LoggingClient
     /// <summary>
     /// Gets or sets the argument used for the logging client configuration.
     /// </summary>
-    [JsonPropertyName("argument"), JsonProperty("argument")]
+    [JsonProperty("argument")]
     public string Argument { get; set; }
 
     /// <summary>
     /// Gets or sets the logging file metadata associated with the logging client.
     /// </summary>
-    [JsonPropertyName("file"), JsonProperty("file")]
+    [JsonProperty("file")]
     public LoggingFile File { get; set; }
 
     /// <summary>
     /// Gets or sets the type of the logging client configuration.
     /// </summary>
-    [JsonPropertyName("type"), JsonProperty("type")]
+    [JsonProperty("type")]
     public string Type { get; set; }
 
     /// <summary>

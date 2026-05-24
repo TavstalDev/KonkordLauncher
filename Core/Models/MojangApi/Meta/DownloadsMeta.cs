@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+﻿
 using Newtonsoft.Json;
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
@@ -11,25 +11,25 @@ public class DownloadsMeta
     /// <summary>
     /// Gets or sets the download data for the Minecraft client.
     /// </summary>
-    [JsonPropertyName("client"), JsonProperty("client")]
+    [JsonProperty("client")]
     public DownloadData Client { get; set; }
 
     /// <summary>
     /// Gets or sets the download data for the Minecraft client mappings.
     /// </summary>
-    [JsonPropertyName("client_mappings"), JsonProperty("client_mappings")]
+    [JsonProperty("client_mappings")]
     public DownloadData ClientMappings { get; set; }
 
     /// <summary>
     /// Gets or sets the download data for the Minecraft server.
     /// </summary>
-    [JsonPropertyName("server"), JsonProperty("server")]
+    [JsonProperty("server")]
     public DownloadData Server { get; set; }
 
     /// <summary>
     /// Gets or sets the download data for the Minecraft server mappings.
     /// </summary>
-    [JsonPropertyName("server_mappings"), JsonProperty("server_mappings")]
+    [JsonProperty("server_mappings")]
     public DownloadData ServerMappings { get; set; }
 
     /// <summary>

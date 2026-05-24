@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+
 using Newtonsoft.Json;
 
 namespace Tavstal.KonkordLauncher.Common.Models.Config;
@@ -12,28 +12,28 @@ public class CoreConfig
     /// <summary>
     /// Gets or sets the configuration for the launcher.
     /// </summary>
-    [JsonProperty("launcher"), JsonPropertyName("launcher")]
+    [JsonProperty("launcher")]
     public LauncherConfig Launcher { get; set; }
     
     /// <summary>
     /// Gets or sets the Java configuration for the launcher.
     /// </summary>
-    [JsonProperty("java"), JsonPropertyName("java")]
+    [JsonProperty("java")]
     public JavaConfig Java { get; set; }
     
     /// <summary>
     /// Gets or sets the Minecraft configuration for the launcher.
     /// </summary>
-    [JsonProperty("minecraft"), JsonPropertyName("minecraft")]
+    [JsonProperty("minecraft")]
     public MinecraftConfig Minecraft { get; set; }
     
     /// <summary>
     /// Gets or sets the miscellaneous configuration for the launcher.
     /// </summary>
-    [JsonProperty("misc"), JsonPropertyName("misc")]
+    [JsonProperty("misc")]
     public MiscConfig Misc { get; set; }
     
-    [JsonProperty("cacheRefreshDate"), JsonPropertyName("cacheRefreshDate")]
+    [JsonProperty("cacheRefreshDate")]
     public DateTime CacheRefreshDate { get; set; }
     
     /// <summary>

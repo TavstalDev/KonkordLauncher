@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+﻿
 using Newtonsoft.Json;
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta.Library;
@@ -11,7 +11,7 @@ public class RuleOs
     /// <summary>
     /// Gets or sets the name of the operating system.
     /// </summary>
-    [JsonPropertyName("name"), JsonProperty("name")]
+    [JsonProperty("name")]
     public string Name { get; set; }
 
     /// <summary>

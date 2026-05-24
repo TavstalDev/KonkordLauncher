@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+﻿
 using Newtonsoft.Json;
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta.Library;
@@ -11,13 +11,13 @@ public class LibraryDownloads
     /// <summary>
     /// Gets or sets the main artifact associated with the library.
     /// </summary>
-    [JsonPropertyName("artifact"), JsonProperty("artifact")]
+    [JsonProperty("artifact")]
     public Artifact? Artifact { get; set; }
 
     /// <summary>
     /// Gets or sets the classifiers for platform-specific artifacts, if available.
     /// </summary>
-    [JsonPropertyName("classifiers"), JsonProperty("classifiers")]
+    [JsonProperty("classifiers")]
     public Classifier? Classifiers { get; set; }
 
     /// <summary>

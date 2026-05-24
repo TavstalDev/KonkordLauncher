@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+
 using Newtonsoft.Json;
 
 namespace Tavstal.KonkordLauncher.Common.Models.Config;
@@ -12,61 +12,61 @@ public class MiscConfig
     /// <summary>
     /// Gets or sets the command to execute before launching the application.
     /// </summary>
-    [JsonProperty("preLaunchCommand"), JsonPropertyName("preLaunchCommand")]
+    [JsonProperty("preLaunchCommand")]
     public string PreLaunchCommand { get; set; }
 
     /// <summary>
     /// Gets or sets the wrapper command to execute the application.
     /// </summary>
-    [JsonProperty("wrapperCommand"), JsonPropertyName("wrapperCommand")]
+    [JsonProperty("wrapperCommand")]
     public string WrapperCommand { get; set; }
 
     /// <summary>
     /// Gets or sets the command to execute after the application exits.
     /// </summary>
-    [JsonProperty("postExitCommand"), JsonPropertyName("postExitCommand")]
+    [JsonProperty("postExitCommand")]
     public string PostExitCommand { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether a custom GLFW library should be used.
     /// </summary>
-    [JsonProperty("useCustomGlfw"), JsonPropertyName("useCustomGlfw")]
+    [JsonProperty("useCustomGlfw")]
     public bool UseCustomGlfw { get; set; }
 
     /// <summary>
     /// Gets or sets the file system path to the custom GLFW library.
     /// </summary>
-    [JsonProperty("customGlfwPath"), JsonPropertyName("customGlfwPath")]
+    [JsonProperty("customGlfwPath")]
     public string CustomGlfwPath { get; set; }
     
     /// <summary>
     /// Gets or sets a value indicating whether a custom OpenAL library should be used.
     /// </summary>
-    [JsonProperty("useCustomOpenAl"), JsonPropertyName("useCustomOpenAl")]
+    [JsonProperty("useCustomOpenAl")]
     public bool UseCustomOpenAl { get; set; }
 
     /// <summary>
     /// Gets or sets the file system path to the custom OpenAL library.
     /// </summary>
-    [JsonProperty("customOpenAlPath"), JsonPropertyName("customOpenAlPath")]
+    [JsonProperty("customOpenAlPath")]
     public string CustomOpenAlPath { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether Feral GameMode should be enabled.
     /// </summary>
-    [JsonProperty("enableFeralGameMode"), JsonPropertyName("enableFeralGameMode")]
+    [JsonProperty("enableFeralGameMode")]
     public bool EnableFeralGameMode { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether MangoHud should be enabled.
     /// </summary>
-    [JsonProperty("enableMangoHud"), JsonPropertyName("enableMangoHud")]
+    [JsonProperty("enableMangoHud")]
     public bool EnableMangoHud { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether a dedicated GPU should be used.
     /// </summary>
-    [JsonProperty("useDedicatedGpu"), JsonPropertyName("useDedicatedGpu")]
+    [JsonProperty("useDedicatedGpu")]
     public bool UseDedicatedGpu { get; set; }
 
     /// <summary>

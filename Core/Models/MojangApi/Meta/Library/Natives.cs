@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+﻿
 using Newtonsoft.Json;
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta.Library;
@@ -11,19 +11,19 @@ public class Natives
     /// <summary>
     /// Gets or sets the native configuration for Windows.
     /// </summary>
-    [JsonPropertyName("windows"), JsonProperty("windows")]
+    [JsonProperty("windows")]
     public string Windows { get; set; }
 
     /// <summary>
     /// Gets or sets the native configuration for macOS.
     /// </summary>
-    [JsonPropertyName("osx"), JsonProperty("osx")]
+    [JsonProperty("osx")]
     public string Osx { get; set; }
 
     /// <summary>
     /// Gets or sets the native configuration for Linux.
     /// </summary>
-    [JsonPropertyName("linux"), JsonProperty("linux")]
+    [JsonProperty("linux")]
     public string Linux { get; set; }
 
     /// <summary>

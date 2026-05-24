@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+﻿
 using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.Platform;
@@ -13,19 +13,19 @@ public class Classifier
     /// <summary>
     /// Gets or sets the artifact for Windows native libraries.
     /// </summary>
-    [JsonPropertyName("natives-windows"), JsonProperty("natives-windows")]
+    [JsonProperty("natives-windows")]
     public Artifact WindowsNatives { get; set; }
 
     /// <summary>
     /// Gets or sets the artifact for macOS native libraries.
     /// </summary>
-    [JsonPropertyName("natives-osx"), JsonProperty("natives-osx")]
+    [JsonProperty("natives-osx")]
     public Artifact OsxNatives { get; set; }
 
     /// <summary>
     /// Gets or sets the artifact for Linux native libraries.
     /// </summary>
-    [JsonPropertyName("natives-linux"), JsonProperty("natives-linux")]
+    [JsonProperty("natives-linux")]
     public Artifact LinuxNatives { get; set; }
 
     /// <summary>

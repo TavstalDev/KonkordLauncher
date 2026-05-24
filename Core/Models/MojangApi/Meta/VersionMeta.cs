@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+﻿
 using Newtonsoft.Json;
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
@@ -11,73 +11,73 @@ public class VersionMeta
     /// <summary>
     /// Gets or sets the new format of game arguments.
     /// </summary>
-    [JsonPropertyName("arguments"), JsonProperty("arguments")]
+    [JsonProperty("arguments")]
     public ArgumentMeta? ArgumentsNew { get; set; }
 
     /// <summary>
     /// Gets or sets the legacy format of game arguments as a single string.
     /// </summary>
-    [JsonPropertyName("minecraftArguments"), JsonProperty("minecraftArguments")]
+    [JsonProperty("minecraftArguments")]
     public string? ArgumentsLegacy { get; set; }
 
     /// <summary>
     /// Gets or sets the metadata for the asset index.
     /// </summary>
-    [JsonPropertyName("assetIndex"), JsonProperty("assetIndex")]
+    [JsonProperty("assetIndex")]
     public AssetMeta Index { get; set; }
 
     /// <summary>
     /// Gets or sets the name of the assets version.
     /// </summary>
-    [JsonPropertyName("assets"), JsonProperty("assets")]
+    [JsonProperty("assets")]
     public string Assets { get; set; }
 
     /// <summary>
     /// Gets or sets the compliance level of the version.
     /// </summary>
-    [JsonPropertyName("complianceLevel"), JsonProperty("complianceLevel")]
+    [JsonProperty("complianceLevel")]
     public int ComplianceLevel { get; set; }
 
     /// <summary>
     /// Gets or sets the metadata for downloads associated with this version.
     /// </summary>
-    [JsonPropertyName("downloads"), JsonProperty("downloads")]
+    [JsonProperty("downloads")]
     public DownloadsMeta Downloads { get; set; }
 
     /// <summary>
     /// Gets or sets the unique identifier for this version.
     /// </summary>
-    [JsonPropertyName("id"), JsonProperty("id")]
+    [JsonProperty("id")]
     public string Id { get; set; }
 
     /// <summary>
     /// Gets or sets the metadata for the required Java version.
     /// </summary>
-    [JsonPropertyName("javaVersion"), JsonProperty("javaVersion")]
+    [JsonProperty("javaVersion")]
     public JavaVersionMeta JavaVersionMeta { get; set; }
 
     /// <summary>
     /// Gets or sets the list of libraries required for this version.
     /// </summary>
-    [JsonPropertyName("libraries"), JsonProperty("libraries")]
+    [JsonProperty("libraries")]
     public List<LibraryMeta> Libraries { get; set; }
 
     /// <summary>
     /// Gets or sets the metadata for logging configuration.
     /// </summary>
-    [JsonPropertyName("logging"), JsonProperty("logging")]
+    [JsonProperty("logging")]
     public LoggingMeta LoggingMeta { get; set; }
 
     /// <summary>
     /// Gets or sets the main class to be executed for this version.
     /// </summary>
-    [JsonPropertyName("mainClass"), JsonProperty("mainClass")]
+    [JsonProperty("mainClass")]
     public string MainClass { get; set; }
 
     /// <summary>
     /// Gets or sets the type of this version (e.g., release, snapshot).
     /// </summary>
-    [JsonPropertyName("type"), JsonProperty("type")]
+    [JsonProperty("type")]
     public string Type { get; set; }
     
     /// <summary>

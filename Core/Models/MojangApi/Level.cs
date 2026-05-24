@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+
 using NbtLib;
 using Newtonsoft.Json;
 
@@ -13,7 +13,7 @@ public class Level
     /// Gets or sets the level data, which includes various properties of the Minecraft level.
     /// </summary>
     [NbtProperty(PropertyName = "Data")]
-    [JsonProperty("data"), JsonPropertyName("data")]
+    [JsonProperty("data")]
     public LevelData Data { get; set; }
 
     /// <summary>
@@ -21,7 +21,7 @@ public class Level
     /// This property is currently unused but may be utilized in the future.
     /// </summary>
     [NbtProperty(PropertyName = "DataPacks")]
-    [JsonProperty("dataPacks"), JsonPropertyName("dataPacks")]
+    [JsonProperty("dataPacks")]
     public object? DataPacks { get; set; }
 
     /// <summary>

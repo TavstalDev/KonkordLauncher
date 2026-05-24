@@ -64,7 +64,7 @@ public class ModrinthPackageHandler: IInstancePackageHandler
                 }
             };
             
-            string tempDir = Path.Combine(PathHelper.TempDir, "import");
+            string tempDir = Path.Combine(PathHelper.TempDir, "import-" + Guid.NewGuid());
             try
             {
                 Directory.CreateDirectory(tempDir);
@@ -182,7 +182,7 @@ public class ModrinthPackageHandler: IInstancePackageHandler
                         Client = f["env"]?["client"]?.ToString() ?? string.Empty,
                         Server = f["env"]?["server"]?.ToString() ?? string.Empty,
                     });
-
+                    
                     return Task.Run(async () =>
                     {
                         if (!string.IsNullOrEmpty(directory))
@@ -192,7 +192,6 @@ public class ModrinthPackageHandler: IInstancePackageHandler
                         await HttpHelper.DownloadFileAsync(url, finalPath, prog, cancellationToken);
                     }, cancellationToken);
                 });
-
                 if (tasks != null)
                     await Task.WhenAll(tasks);
 
@@ -233,7 +232,7 @@ public class ModrinthPackageHandler: IInstancePackageHandler
                 resources = res;
         }
         
-        string tmpDir = Path.Combine(PathHelper.TempDir, Path.GetRandomFileName());
+        string tmpDir = Path.Combine(PathHelper.TempDir, "export-" + Guid.NewGuid());
         Directory.CreateDirectory(tmpDir);
         try
         {   

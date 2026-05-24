@@ -1,29 +1,29 @@
-using System.Text.Json.Serialization;
+
 using Newtonsoft.Json;
 
 namespace Tavstal.KonkordLauncher.Common.Models.Package.Modrinth;
 
 public class ModrinthPackageIndex
 {
-    [JsonProperty("game"), JsonPropertyName("game")]
+    [JsonProperty("game")]
     public string Game { get; set; } = "minecraft";
 
-    [JsonProperty("formatVersion"), JsonPropertyName("formatVersion")]
+    [JsonProperty("formatVersion")]
     public int FormatVersion { get; set; } = 1;
     
-    [JsonProperty("versionId"), JsonPropertyName("versionId")]
+    [JsonProperty("versionId")]
     public string VersionId { get; set; }
     
-    [JsonProperty("name"), JsonPropertyName("name")]
+    [JsonProperty("name")]
     public string Name { get; set; }
     
-    [JsonProperty("summary"), JsonPropertyName("summary")]
+    [JsonProperty("summary")]
     public string Summary { get; set; }
 
-    [JsonProperty("dependencies"), JsonPropertyName("dependencies")]
+    [JsonProperty("dependencies")]
     public Dictionary<string, string> Dependencies { get; set; } = new();
 
-    [JsonProperty("files"), JsonPropertyName("files")]
+    [JsonProperty("files")]
     public List<PackageFile> Files { get; set; } = [];
 
 }

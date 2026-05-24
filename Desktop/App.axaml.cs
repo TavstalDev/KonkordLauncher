@@ -122,7 +122,7 @@ public partial class App : Application
     {
         try
         {
-            var settings = await LauncherHelper.GetLauncherSettingsAsync(App.ScreenResolution, cancellationToken);
+            var settings = await LauncherHelper.GetLauncherSettingsAsync(ScreenResolution, cancellationToken);
             ApplyTheme(settings.Launcher.Theme);
             
             Directory.CreateDirectory(PathHelper.TempDir);

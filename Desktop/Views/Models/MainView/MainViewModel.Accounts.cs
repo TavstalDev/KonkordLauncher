@@ -223,7 +223,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             Skin3DHeadTypeB.MakeHeadImage(skinBitmap, 15, 65).SavePng(headshotPath);
             Skin2DTypeB.MakeSkinImage(skinBitmap, IsAccountHasWideModel ? SkinType.New : SkinType.NewSlim).SavePng(previewPath);
             
-            this.OnAccountUpdated();
+            OnAccountUpdated();
         }
         catch (Exception ex)
         {

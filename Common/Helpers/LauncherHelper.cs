@@ -85,33 +85,6 @@ public static class LauncherHelper
     }
 
     /// <summary>
-    /// Retrieves the list of instances.
-    /// This method is not yet implemented.
-    /// </summary>
-    /// <returns>A list of <see cref="Instance"/> objects.</returns>
-    [Obsolete("This method is synchronous and may cause UI freezes. Use GetInstancesAsync instead.")]
-    public static List<Instance> GetInstances()
-    {
-        if (!File.Exists(PathHelper.LauncherInstancesPath))
-        {
-            List<Instance> result = [];
-            JsonHelper.WriteJsonFile(PathHelper.LauncherInstancesPath, result);
-            return result;
-        }
-
-        var readResult = JsonHelper.ReadJsonFile<List<Instance>>(PathHelper.LauncherInstancesPath);
-        if (readResult == null)
-        {
-            List<Instance> result = [];
-            File.Move(PathHelper.LauncherInstancesPath, PathHelper.LauncherInstancesPath + ".bak", true);
-            JsonHelper.WriteJsonFile(PathHelper.LauncherInstancesPath, result);
-            return result;
-        }
-        
-        return readResult;
-    }
-
-    /// <summary>
     /// Asynchronously retrieves the list of instances.
     /// This method is not yet implemented.
     /// </summary>

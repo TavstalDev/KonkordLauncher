@@ -42,9 +42,6 @@ public partial class ResourceBaseModel : ObservableObject
     
     [ObservableProperty]
     public partial string? ProjectId { get; set; }
-    
-    [ObservableProperty]
-    public partial string? InstanceResourceId { get; set; }
 
     public ObservableCollection<Version> Versions { get; set; } = [];
     
@@ -73,8 +70,7 @@ public partial class ResourceBaseModel : ObservableObject
                 Tags = new ObservableCollection<string>(project.Categories),
                 IsEnabled = true,
                 Platform = EPlatformType.Modrinth,
-                FilePath = null,
-                InstanceResourceId = null
+                FilePath = null
             };
         });
     }

@@ -47,7 +47,7 @@ public partial class ResourceBaseModel : ObservableObject
     
     public ObservableCollection<string> Tags { get; set; } = [];
     
-    public string FormattedSize => FileSystemHelper.GetFormatedSize(FileSize);
+    public string FormattedSize => FileSystemHelper.GetFormattedSize(FileSize);
     
     public static async Task<ResourceBaseModel> FromModrinthProjectAsync(Project project, List<Version> versions)
     {

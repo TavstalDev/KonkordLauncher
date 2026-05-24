@@ -87,7 +87,7 @@ public class ForgeEarlyInstance(string forgeVersionName, string universalName,
             if (File.Exists(libraryTargetPath))
                 continue;
             
-            var stream = this.GetType().Assembly.GetManifestResourceStream(library);
+            var stream = GetType().Assembly.GetManifestResourceStream(library);
             if (stream == null)
             {
                 _logger.Error($"Failed to get resource stream for {library}");

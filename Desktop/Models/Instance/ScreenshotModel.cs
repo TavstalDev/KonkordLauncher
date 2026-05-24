@@ -39,7 +39,7 @@ public partial class ScreenshotModel : ObservableObject
     /// <summary>
     /// Gets the formatted size of the screenshot file as a human-readable string.
     /// </summary>
-    public string FormatedSize => FileSystemHelper.GetFormatedSize(Size);
+    public string FormatedSize => FileSystemHelper.GetFormattedSize(Size);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ScreenshotModel"/> class.

@@ -53,7 +53,7 @@ public partial class WorldModel : ObservableObject
     /// <summary>
     /// Gets the formatted size of the world as a human-readable string.
     /// </summary>
-    public string FormattedSize => FileSystemHelper.GetFormatedSize(Size);
+    public string FormattedSize => FileSystemHelper.GetFormattedSize(Size);
 
     /// <summary>
     /// Gets the formatted last played time of the world as a human-readable string.

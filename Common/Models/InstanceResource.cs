@@ -10,6 +10,8 @@ public class InstanceResource
     
     public string Url { get; set; }
     
+    public string? IconPath { get; set; }
+    
     public string Path { get; set; }
     
     public string Client { get; set; }

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Text;
-using System.Text.Json;
+using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Models;
 
@@ -12,11 +12,10 @@ namespace Tavstal.KonkordLauncher.Core.Helpers.Serialization;
 public static class JsonHelper
 {
     private static readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(JsonHelper));
-    private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
+    private static readonly JsonSerializerSettings _jsonSerializerSettings = new()
     {
-        IgnoreReadOnlyFields = true,
-        IgnoreReadOnlyProperties = true,
-        WriteIndented = true
+        Formatting = Formatting.Indented,
+        ContractResolver = new IgnoreReadOnlyContractResolver()
     };
     private static readonly ConcurrentDictionary<string, SemaphoreSlim> _fileLocks =
         new(StringComparer.OrdinalIgnoreCase);
@@ -34,7 +33,7 @@ public static class JsonHelper
     {
         try
         {
-            string content = JsonSerializer.Serialize(obj, _jsonSerializerOptions);
+            string content = JsonConvert.SerializeObject(obj, _jsonSerializerSettings);
             CreateDirectory(path);
             
             for (int i = 0; i < _maxRetries; i++)
@@ -87,7 +86,7 @@ public static class JsonHelper
         
         try
         {
-            string content = JsonSerializer.Serialize(obj, _jsonSerializerOptions);
+            string content = JsonConvert.SerializeObject(obj, _jsonSerializerSettings);
             CreateDirectory(path);
             
             await fileLock.WaitAsync(_retryDelay, cancellationToken);
@@ -135,35 +134,6 @@ public static class JsonHelper
     }
 
     /// <summary>
-    /// Reads and deserializes a JSON file into an object of type <typeparamref name="T"/>.
-    /// </summary>
-    /// <typeparam name="T">The type of the object to deserialize.</typeparam>
-    /// <param name="path">The file path to read the JSON content from.</param>
-    /// <returns>The deserialized object, or default if an error occurs.</returns>
-    [Obsolete]
-    public static T? ReadJsonFile<T>(string path)
-    {
-        try
-        {
-            byte[] buffer;
-            using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            {
-                buffer = new byte[stream.Length];
-                stream.ReadExactly(buffer, 0, (int)stream.Length);
-            }
-            using var ms = new MemoryStream(buffer);
-            var local = JsonSerializer.Deserialize<T>(ms);
-            return local;
-        }
-        catch (Exception ex)
-        {
-            _logger.Exc($"Error in ReadJsonFile<T> {path}:");
-            _logger.Error(ex.ToString());
-            return default;
-        }
-    }
-
-    /// <summary>
     /// Asynchronously reads and deserializes a JSON file into an object of type <typeparamref name="T"/>.
     /// </summary>
     /// <typeparam name="T">The type of the object to deserialize.</typeparam>
@@ -174,15 +144,11 @@ public static class JsonHelper
     {
         try
         {
-            byte[] buffer;
-            await using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            {
-                buffer = new byte[stream.Length];
-                await stream.ReadExactlyAsync(buffer, 0, (int)stream.Length, cancellationToken);
-            }
-            using var ms = new MemoryStream(buffer);
-            var local = await JsonSerializer.DeserializeAsync<T>(ms, cancellationToken: cancellationToken);
-            return local;
+            await using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            using var streamReader = new StreamReader(stream, Encoding.UTF8);
+            await using var jsonReader = new JsonTextReader(streamReader);
+            var serializer = JsonSerializer.Create(_jsonSerializerSettings);
+            return await Task.Run(() => serializer.Deserialize<T>(jsonReader), cancellationToken);
         }
         catch (Exception ex)
         {

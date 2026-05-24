@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Tavstal")]
 [assembly: AssemblyProduct("KonkordLauncher")]
-[assembly: AssemblyCopyright("Copyright © 2025 Tavstal")]
+[assembly: AssemblyCopyright("Copyright © 2026 Tavstal")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

@@ -19,7 +19,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 public partial class EditInstanceViewModel_Servers : KonkordObservableObject
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceViewModel_Servers));
-    private EditInstanceViewModel _parent;
+    private readonly EditInstanceViewModel _parent;
     
     [ObservableProperty] private string _serverName;
     [ObservableProperty] private string _serverIp;
@@ -49,18 +49,6 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
     }
     
     #region Commands
-
-    /// <summary>
-    /// Joins the specified Minecraft server by launching the instance with the server's IP address
-    /// and then closes the parent window.
-    /// </summary>
-    /// <param name="server">The server to join.</param>
-    [RelayCommand]
-    private async Task Join(ServerModel server)
-    {
-        // TODO: await _parent.Instance.LaunchAsync(_parent, server.Ip);
-        await _parent.CloseWindowInteraction.Handle(Unit.Default);
-    }
 
     /// <summary>
     /// Adds a new server to the list of servers if both the server name and IP address are provided.

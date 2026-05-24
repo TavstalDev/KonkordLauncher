@@ -24,7 +24,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceViewModel_Worlds));
-    private EditInstanceViewModel _parent;
+    private readonly EditInstanceViewModel _parent;
 
     public ObservableCollection<WorldModel> Worlds { get; set; } = [];
     [ObservableProperty] private WorldModel? _selectedWorld;

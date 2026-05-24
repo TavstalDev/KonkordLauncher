@@ -28,7 +28,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
 {
     private readonly CoreLogger _logger  = CoreLogger.WithModuleType(typeof(EditInstanceViewModel_Settings));
-    private EditInstanceViewModel _parent;
+    private readonly EditInstanceViewModel _parent;
     
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanRemoveEnvironmentVariable))]
     private InstanceConfigModel _instanceConfig;
@@ -144,7 +144,7 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
 
         if (!_parent.IsInitialized)
             return;
-        SaveCoreConfigToFile(newValue);
+        Task.Run(async () => await SaveCoreConfigToFileAsync(InstanceConfig));
     }
 
     /// <summary>
@@ -158,7 +158,7 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
         if (!_parent.IsInitialized || _parent.IsClosing)
             return;
         _logger.Debug($"Inner property '{e.PropertyName}' changed on {sender?.GetType().Name}. Saving to file...");
-        SaveCoreConfigToFile(InstanceConfig);
+        Task.Run(async () => await SaveCoreConfigToFileAsync(InstanceConfig));
     }
     
     /// <summary>
@@ -172,7 +172,7 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
         if (!_parent.IsInitialized || _parent.IsClosing)
             return;
         _logger.Debug($"Inner collection changed on {sender?.GetType().Name}. Saving to file...");
-        SaveCoreConfigToFile(InstanceConfig);
+        Task.Run(async () => await SaveCoreConfigToFileAsync(InstanceConfig));
     }
 
     /// <summary>
@@ -180,14 +180,14 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
     /// does not exceed the maximum memory in the Java configuration.
     /// </summary>
     /// <param name="newValue">The updated instance configuration model to save.</param>
-    private void SaveCoreConfigToFile(InstanceConfigModel newValue)
+    private async Task SaveCoreConfigToFileAsync(InstanceConfigModel newValue)
     {
         if (_parent.IsClosing)
             return;
         if (newValue.Java.MinMemory > newValue.Java.MaxMemory)
             newValue.Java.MinMemory = newValue.Java.MaxMemory;
 
-        var instances = LauncherHelper.GetInstances();
+        var instances = await LauncherHelper.GetInstancesAsync();
         int index = 0;
         Instance? instanceToSave = null;
         foreach (var instance in instances)
@@ -252,7 +252,8 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
         };
         instances[index] = instanceToSave;
 
-        JsonHelper.WriteJsonFile(PathHelper.LauncherInstancesPath, instances);
+        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances);
         GlobalEvents.InvokeInstanceUpdated(_parent.Instance.Id);
+        _logger.Debug("Saved instance config to file.");
     }
 }

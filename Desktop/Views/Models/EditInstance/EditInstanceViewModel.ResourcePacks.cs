@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.IO.Compression;
@@ -7,12 +8,14 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DynamicData;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
+using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
@@ -23,34 +26,21 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObject
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceViewModel_ResourcePacks));
-    private EditInstanceViewModel _parent;
+    private readonly EditInstanceViewModel _parent;
     
     private readonly SourceCache<ResourceBaseModel, string> _resourcePackCache = new(x => x.Name);
-    public ReadOnlyObservableCollection<ResourceBaseModel> FilteredResourcePacks { get; private set; }
+    public ReadOnlyObservableCollection<ResourceBaseModel> FilteredResourcePacks { get; }
+    
     [ObservableProperty] private ResourceBaseModel? _selectedResourcePack;
-    [ObservableProperty] private string? _resourcePackSearchQuery = string.Empty;
+    [ObservableProperty] 
+    public partial string SearchQuery { get; set; } = string.Empty;
     
     public EditInstanceViewModel_ResourcePacks(EditInstanceViewModel parent)
     {
         _parent = parent;
-    }
-    
-    protected override void Dispose(bool disposing)
-    {
-        base.Dispose(disposing);
-        foreach (var resourcePack in _resourcePackCache.Items)
-            resourcePack.Icon?.Dispose();
-        _resourcePackCache.Clear();
-        _resourcePackCache.Dispose();
-        SelectedResourcePack?.Icon?.Dispose();
-        SelectedResourcePack = null;
-    }
-    
-    public async Task InitAsync(CancellationToken cancellationToken = default)
-    {
-        // Set up a reactive filter for the ResourcePackSearchQuery property.
-        // The filter updates dynamically based on the search query, matching resource packs whose names contain the query string (case-insensitive).
-        var resourcePack = this.WhenAnyValue(x => x.ResourcePackSearchQuery)
+        
+        // Set up a reactive filter for the SearchQuery property.
+        var filter = this.WhenAnyValue(x => x.SearchQuery)
             .Select(query =>
             {
                 if (string.IsNullOrWhiteSpace(query))
@@ -59,19 +49,30 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
                     pack.Name.Contains(query, StringComparison.OrdinalIgnoreCase));
             });
 
-        // Connect the resource pack cache to the reactive filter.
-        // Apply the filter and bind the resulting filtered collection to the FilteredResourcePacks property.
-        // Subscribe to changes in the cache to keep the filtered collection up-to-date.
-        var resourcePackSubscription = _resourcePackCache.Connect()
-            .Filter(resourcePack)
-            .Bind(out var filteredResourcePacks)
+        // Connect the cache to the reactive filter and bind results
+        var subscription = _resourcePackCache.Connect()
+            .Filter(filter)
+            .ObserveOn(RxSchedulers.MainThreadScheduler)
+            .Bind(out var packs)
             .Subscribe();
 
-        Disposables.Add(resourcePackSubscription);
-
-        FilteredResourcePacks = filteredResourcePacks;
-        RefreshResourcePacks();
+        Disposables.Add(subscription);
+        FilteredResourcePacks = packs;
     }
+    
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+        foreach (var resourcePack in  FilteredResourcePacks)
+            resourcePack.Icon?.Dispose();
+        _resourcePackCache.Clear();
+        _resourcePackCache.Dispose();
+        SelectedResourcePack?.Icon?.Dispose();
+        SelectedResourcePack = null;
+    }
+    
+    public async Task InitAsync(CancellationToken cancellationToken = default) => await Dispatcher.UIThread.Invoke(async () => await RefreshResourcePacksAsync());
+    
     
     #region Commands
 
@@ -91,13 +92,13 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
     /// </summary>
     /// <param name="resourcePack">The resource pack to remove.</param>
     [RelayCommand]
-    public void Remove(ResourceBaseModel resourcePack)
+    public async Task Remove(ResourceBaseModel resourcePack)
     {
         if (!File.Exists(resourcePack.FilePath))
             return;
 
         File.Delete(resourcePack.FilePath);
-        RefreshResourcePacks();
+        await RefreshResourcePacksAsync();
     }
 
     [RelayCommand]
@@ -163,58 +164,86 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
     /// Refreshes the list of resource packs by scanning the game directory for resource pack files.
     /// Updates the `ResourcePacks` collection with metadata such as name, size, and icon for each resource pack.
     /// </summary>
-    public void RefreshResourcePacks()
+    public async Task RefreshResourcePacksAsync()
     {
         if (_parent.GameDirectory == null)
             return;
 
         string resourcePacksDir = Path.Combine(_parent.GameDirectory, "resourcepacks");
-        if (!Directory.Exists(resourcePacksDir))
-            return;
+        Directory.CreateDirectory(resourcePacksDir);
+
+        var configPath = _parent.Instance.getInstance().GetResourceConfigPath();
+        List<InstanceResource> instanceResources = [];
+        if (File.Exists(configPath))
+        {
+            var localResources = await JsonHelper.ReadJsonFileAsync<List<InstanceResource>>(configPath);
+            if (localResources != null)
+                instanceResources = localResources;
+        }
 
         _resourcePackCache.Edit(innerCache =>
         {
             foreach (var resourcePack in innerCache.Items)
-            {
-                // Dispose of the image to free memory
-                resourcePack.Icon?.Dispose();
-            }
+                resourcePack.Icon?.Dispose(); // Dispose of the image to free memory
 
             innerCache.Clear();
             var resources = Directory.GetFiles(resourcePacksDir, "*")
-                .Where(x => x.EndsWith(".zip") || x.EndsWith(".zip.dis"));
+                .Where(x => x.EndsWith(".zip") || x.EndsWith(".zip.dis")).ToList();
+            
             foreach (var resource in resources)
             {
-                // Make sure the name does not include the extension
-                var resourceName = Path.GetFileNameWithoutExtension(resource.Replace(".zip.dis", ".zip"));
-                var size = File.ReadAllBytes(resource).LongLength;
-                using var zipFile = ZipFile.OpenRead(resource);
-                Bitmap? icon = null;
-
-                var iconEntry = zipFile.Entries.FirstOrDefault(x =>
-                    x.FullName.EndsWith("pack.png", StringComparison.OrdinalIgnoreCase));
-                if (iconEntry != null)
+                try
                 {
-                    using var iconStream = iconEntry.Open();
-                    using var memoryStream = new MemoryStream();
-                    iconStream.CopyTo(memoryStream);
-                    iconStream.Close();
-                    icon = ImageHelper.Base64ToBitmap(Convert.ToBase64String(memoryStream.ToArray()));
+                    string fileName = Path.GetFileName(resource);
+                    string resourceName = fileName
+                        .Replace(".zip.dis", "")
+                        .Replace(".zip", "");
+                    var size = new FileInfo(resource).Length;
+
+                    Bitmap? icon = null;
+                    try
+                    {
+                        using var zipFile = ZipFile.OpenRead(resource);
+                        var iconEntry = zipFile.Entries.FirstOrDefault(x =>
+                            x.FullName.Equals("pack.png", StringComparison.OrdinalIgnoreCase));
+
+                        if (iconEntry != null)
+                        {
+                            using var iconStream = iconEntry.Open();
+                            using var memoryStream = new MemoryStream();
+                            iconStream.CopyTo(memoryStream);
+                            icon = ImageHelper.Base64ToBitmap(Convert.ToBase64String(memoryStream.ToArray()));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Warn($"Failed to read icon from {resource}: {ex.Message}");
+                    }
+
+                    icon ??= ImageHelper.LoadFromResource(new Uri("avares://Desktop/Assets/Images/default_world.png"));
+
+                    var instanceResource = instanceResources.FirstOrDefault(x => x.Type == EResourceType.RESOURCE_PACK &&
+                        x.Name.Equals(fileName, StringComparison.OrdinalIgnoreCase));
+                    var newResourcePack = new ResourceBaseModel
+                    {
+                        IsEnabled = !fileName.EndsWith(".dis"),
+                        Name = resourceName,
+                        Icon = icon,
+                        FileSize = size,
+                        FilePath = resource,
+                        IsInstalled = true,
+                        Platform = instanceResource?.Platform,
+                        ProjectId = instanceResource?.ProjectId,
+                    };
+                    innerCache.AddOrUpdate(newResourcePack);
                 }
-
-                icon ??= ImageHelper.LoadFromResource(new Uri("avares://Desktop/Assets/Images/default_world.png"));
-
-                // TODO: Handle provider
-                var newResourcePack = new ResourceBaseModel
+                catch (Exception ex)
                 {
-                    IsEnabled = resource.EndsWith(".zip"),
-                    Name = resourceName,
-                    Icon = icon,
-                    FileSize = size,
-                    FilePath = resource,
-                };
-                innerCache.AddOrUpdate(newResourcePack);
+                    _logger.Error($"Failed to load resource pack from {resource}: {ex.Message}");
+                }
             }
         });
+        
+        _logger.Debug($"Cache now contains {_resourcePackCache.Count} items");
     }
 }

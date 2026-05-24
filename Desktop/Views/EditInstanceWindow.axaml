@@ -187,767 +187,751 @@
                                 <Carousel.Items>
 
                                     <!--  Logs  -->
-                                    <Border Classes="SettingsCategoryBorder"  Margin="25,0,25,25">
-                                            <Grid RowDefinitions="Auto, *, Auto">
-                                                <!--  Title  -->
-                                                <TextBlock
-                                                    Margin="5,5,5,10"
-                                                    Classes="SettingsCategoryText"
-                                                    Text="{lang:Translate instance.edit.latestLog}" />
+                                    <Border Margin="25,0,25,25" Classes="SettingsCategoryBorder">
+                                        <Grid RowDefinitions="Auto, *, Auto">
+                                            <!--  Title  -->
+                                            <TextBlock
+                                                Margin="5,5,5,10"
+                                                Classes="SettingsCategoryText"
+                                                Text="{lang:Translate instance.edit.latestLog}" />
 
-                                                <!--  Log content  -->
-                                                <Border
-                                                    Grid.Row="1"
-                                                    Margin="0,0,0,15"
-                                                    Classes="GridInnerContent">
-                                                    <ScrollViewer
-                                                        Name="LogsScrollViewer"
-                                                        HorizontalScrollBarVisibility="Disabled"
-                                                        VerticalScrollBarVisibility="Auto">
-                                                        <ItemsControl ItemsSource="{Binding Logs}">
-                                                            <ItemsControl.ItemTemplate>
-                                                                <DataTemplate>
-                                                                    <TextBlock Text="{Binding}"
-                                                                               FontFamily="Consolas"
-                                                                               FontSize="11"
-                                                                               Opacity="0.8"
-                                                                               TextWrapping="Wrap" />
-                                                                </DataTemplate>
-                                                            </ItemsControl.ItemTemplate>
-                                                        </ItemsControl>
-                                                    </ScrollViewer>
-                                                </Border>
+                                            <!--  Log content  -->
+                                            <Border
+                                                Grid.Row="1"
+                                                Margin="0,0,0,15"
+                                                Classes="GridInnerContent">
+                                                <ScrollViewer
+                                                    Name="LogsScrollViewer"
+                                                    HorizontalScrollBarVisibility="Disabled"
+                                                    VerticalScrollBarVisibility="Auto">
+                                                    <ItemsControl ItemsSource="{Binding Logs}">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <TextBlock
+                                                                    FontFamily="Consolas"
+                                                                    FontSize="11"
+                                                                    Opacity="0.8"
+                                                                    Text="{Binding}"
+                                                                    TextWrapping="Wrap" />
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                </ScrollViewer>
+                                            </Border>
 
-                                                <!--  Actions  -->
-                                                <Grid
-                                                    Grid.Row="2"
-                                                    Margin="4,0"
-                                                    ColumnDefinitions="*, Auto, Auto, Auto"
-                                                    ColumnSpacing="5">
-                                                    <!--  Search bar  -->
-                                                    <TextBox
-                                                        Grid.Column="0"
-                                                        Classes="TextInput"
-                                                        PlaceholderText="{lang:Translate common.search}" />
-                                                    <!--  To bottom button  -->
-                                                    <Button
-                                                        Grid.Column="1"
-                                                        Classes="IconBtn"
-                                                        Command="{Binding ScrollLogsToEndCommand}">
-                                                        <WrapPanel Classes="IconBtnWrapper">
-                                                            <TextBlock
-                                                                VerticalAlignment="Center"
-                                                                Classes="FontAwesome"
-                                                                Text="&#xe4b8;" />
-                                                            <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.bottom}" />
-                                                        </WrapPanel>
-                                                    </Button>
-                                                    <!--  Copy button  -->
-                                                    <Button
-                                                        Grid.Column="2"
-                                                        Classes="IconBtn"
-                                                        Command="{Binding CopyLogsCommand}">
-                                                        <WrapPanel Classes="IconBtnWrapper">
-                                                            <TextBlock
-                                                                VerticalAlignment="Center"
-                                                                Classes="FontAwesome"
-                                                                Text="&#xf0c5;" />
-                                                            <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.copy}" />
-                                                        </WrapPanel>
-                                                    </Button>
-                                                    <!--  Clear button  -->
-                                                    <Button
-                                                        Grid.Column="3"
-                                                        Classes="IconBtn ErrorBtn"
-                                                        Command="{Binding ClearLogsCommand}">
-                                                        <WrapPanel Classes="IconBtnWrapper">
-                                                            <TextBlock
-                                                                VerticalAlignment="Center"
-                                                                Classes="FontAwesome"
-                                                                Text="&#xf1b8;" />
-                                                            <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.clear}" />
-                                                        </WrapPanel>
-                                                    </Button>
-                                                </Grid>
+                                            <!--  Actions  -->
+                                            <Grid
+                                                Grid.Row="2"
+                                                Margin="4,0"
+                                                ColumnDefinitions="*, Auto, Auto, Auto"
+                                                ColumnSpacing="5">
+                                                <!--  Search bar  -->
+                                                <TextBox
+                                                    Grid.Column="0"
+                                                    Classes="TextInput"
+                                                    PlaceholderText="{lang:Translate common.search}" />
+                                                <!--  To bottom button  -->
+                                                <Button
+                                                    Grid.Column="1"
+                                                    Classes="IconBtn"
+                                                    Command="{Binding ScrollLogsToEndCommand}">
+                                                    <WrapPanel Classes="IconBtnWrapper">
+                                                        <TextBlock
+                                                            VerticalAlignment="Center"
+                                                            Classes="FontAwesome"
+                                                            Text="&#xe4b8;" />
+                                                        <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.bottom}" />
+                                                    </WrapPanel>
+                                                </Button>
+                                                <!--  Copy button  -->
+                                                <Button
+                                                    Grid.Column="2"
+                                                    Classes="IconBtn"
+                                                    Command="{Binding CopyLogsCommand}">
+                                                    <WrapPanel Classes="IconBtnWrapper">
+                                                        <TextBlock
+                                                            VerticalAlignment="Center"
+                                                            Classes="FontAwesome"
+                                                            Text="&#xf0c5;" />
+                                                        <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.copy}" />
+                                                    </WrapPanel>
+                                                </Button>
+                                                <!--  Clear button  -->
+                                                <Button
+                                                    Grid.Column="3"
+                                                    Classes="IconBtn ErrorBtn"
+                                                    Command="{Binding ClearLogsCommand}">
+                                                    <WrapPanel Classes="IconBtnWrapper">
+                                                        <TextBlock
+                                                            VerticalAlignment="Center"
+                                                            Classes="FontAwesome"
+                                                            Text="&#xf1b8;" />
+                                                        <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.clear}" />
+                                                    </WrapPanel>
+                                                </Button>
                                             </Grid>
-                                        </Border>
+                                        </Grid>
+                                    </Border>
 
                                     <!--  Mods  -->
-                                    <ScrollViewer Margin="25,0,25,25">
-                                        <Border Classes="SettingsCategoryBorder">
-                                            <Grid RowDefinitions="Auto, *, Auto">
-                                                <!--  Title  -->
-                                                <TextBlock
-                                                    Margin="5,5,5,10"
-                                                    Classes="SettingsCategoryText"
-                                                    Text="{lang:Translate instance.edit.subTitle.mods}" />
+                                    <Border Margin="25,0,25,25" Classes="SettingsCategoryBorder">
+                                        <Grid RowDefinitions="Auto, *, Auto">
+                                            <!--  Title  -->
+                                            <TextBlock
+                                                Margin="5,5,5,10"
+                                                Classes="SettingsCategoryText"
+                                                Text="{lang:Translate instance.edit.subTitle.mods}" />
 
-                                                <!--  Content  -->
-                                                <Border Grid.Row="1">
-                                                    <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
-                                                        <DataGrid
-                                                            Classes="InstanceMultiTable"
-                                                            ItemsSource="{Binding Mods.FilteredMods}"
-                                                            SelectedItem="{Binding Mods.SelectedMod}">
-                                                            <DataGrid.Columns>
-                                                                <!--  Enabled  -->
-                                                                <DataGridCheckBoxColumn
-                                                                    Width="Auto"
-                                                                    Binding="{Binding IsEnabled}"
-                                                                    Header="{lang:Translate instance.edit.table.enabled}"
-                                                                    IsReadOnly="False" />
-                                                                <!--  Image  -->
-                                                                <DataGridTemplateColumn Width="Auto" Header="{lang:Translate instance.edit.table.image}">
-                                                                    <DataGridTemplateColumn.CellTemplate>
-                                                                        <DataTemplate>
-                                                                            <Image
-                                                                                Width="32"
-                                                                                Height="32"
-                                                                                Source="{Binding Icon}"
-                                                                                Stretch="UniformToFill" />
-                                                                        </DataTemplate>
-                                                                    </DataGridTemplateColumn.CellTemplate>
-                                                                </DataGridTemplateColumn>
-                                                                <!--  Name  -->
-                                                                <DataGridTextColumn
-                                                                    Width="*"
-                                                                    Binding="{Binding Name}"
-                                                                    Header="{lang:Translate instance.edit.table.name}" />
-                                                                <!--  Version  -->
-                                                                <!-- TODO <DataGridTextColumn
+                                            <!--  Content  -->
+                                            <Border Grid.Row="1">
+                                                <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
+                                                    <DataGrid
+                                                        Classes="InstanceMultiTable"
+                                                        ItemsSource="{Binding Mods.FilteredMods}"
+                                                        SelectedItem="{Binding Mods.SelectedMod}">
+                                                        <DataGrid.Columns>
+                                                            <!--  Enabled  -->
+                                                            <DataGridCheckBoxColumn
+                                                                Width="Auto"
+                                                                Binding="{Binding IsEnabled}"
+                                                                Header="{lang:Translate instance.edit.table.enabled}"
+                                                                IsReadOnly="False" />
+                                                            <!--  Image  -->
+                                                            <DataGridTemplateColumn Width="Auto" Header="{lang:Translate instance.edit.table.image}">
+                                                                <DataGridTemplateColumn.CellTemplate>
+                                                                    <DataTemplate>
+                                                                        <Image
+                                                                            Width="32"
+                                                                            Height="32"
+                                                                            Source="{Binding Icon}"
+                                                                            Stretch="UniformToFill" />
+                                                                    </DataTemplate>
+                                                                </DataGridTemplateColumn.CellTemplate>
+                                                            </DataGridTemplateColumn>
+                                                            <!--  Name  -->
+                                                            <DataGridTextColumn
+                                                                Width="*"
+                                                                Binding="{Binding Name}"
+                                                                Header="{lang:Translate instance.edit.table.name}" />
+                                                            <!--  Version  -->
+                                                            <!-- TODO <DataGridTextColumn
                                                                     Width="Auto"
                                                                     Binding="{Binding Version}"
                                                                     Header="{lang:Translate instance.edit.table.version}" />-->
-                                                                <!--  Provider  -->
-                                                                <!-- TODO <DataGridTextColumn
-                                                                    Width="Auto"
-                                                                    Binding="{Binding Provider}"
-                                                                    Header="{lang:Translate instance.edit.table.provider}" />-->
-                                                                <!--  Size  -->
-                                                                <DataGridTextColumn
-                                                                    Width="Auto"
-                                                                    Binding="{Binding FormattedSize}"
-                                                                    Header="{lang:Translate instance.edit.table.size}" />
-                                                            </DataGrid.Columns>
-                                                            <DataGrid.ContextMenu>
-                                                                <ContextMenu>
-                                                                    <!--  Toggle  -->
-                                                                    <MenuItem
-                                                                        Command="{Binding Mods.ToggleCommand}"
-                                                                        CommandParameter="{Binding Mods.SelectedMod}"
-                                                                        Header="{lang:Translate common.toggle}" />
-                                                                    <Separator />
-                                                                    <!--  Check For Updates  -->
-                                                                    <MenuItem
-                                                                        Command="{Binding Mods.CheckUpdateCommand}"
-                                                                        CommandParameter="{Binding Mods.SelectedMod}"
-                                                                        Header="{lang:Translate instance.update.check}" />
-                                                                    <Separator />
-                                                                    <!--  Change Version  -->
-                                                                    <MenuItem
-                                                                        Command="{Binding Mods.ChangeVersionCommand}"
-                                                                        CommandParameter="{Binding Mods.SelectedMod}"
-                                                                        Header="{lang:Translate instance.version.change}" />
-                                                                    <Separator />
-                                                                    <!--  Remove  -->
-                                                                    <MenuItem
-                                                                        Command="{Binding Mods.RemoveCommand}"
-                                                                        CommandParameter="{Binding Mods.SelectedMod}"
-                                                                        Header="{lang:Translate common.remove}" />
-                                                                    <Separator />
-                                                                    <!--  Download Mods  -->
-                                                                    <MenuItem Command="{Binding Mods.DownloadCommand}" Header="{lang:Translate instance.download.mods}" />
-                                                                    <!--  Open Folder  -->
-                                                                    <MenuItem Command="{Binding Mods.ModOpenDirectoryCommand}" Header="{lang:Translate common.open.directory}" />
-                                                                </ContextMenu>
-                                                            </DataGrid.ContextMenu>
-                                                        </DataGrid>
-                                                    </ScrollViewer>
-                                                </Border>
+                                                            <!--  Provider  -->
+                                                            <DataGridTextColumn
+                                                                Width="Auto"
+                                                                Binding="{Binding Platform}"
+                                                                Header="{lang:Translate instance.edit.table.provider}" />
+                                                            <!--  Size  -->
+                                                            <DataGridTextColumn
+                                                                Width="Auto"
+                                                                Binding="{Binding FormattedSize}"
+                                                                Header="{lang:Translate instance.edit.table.size}" />
+                                                        </DataGrid.Columns>
+                                                        <DataGrid.ContextMenu>
+                                                            <ContextMenu>
+                                                                <!--  Toggle  -->
+                                                                <MenuItem
+                                                                    Command="{Binding Mods.ToggleCommand}"
+                                                                    CommandParameter="{Binding Mods.SelectedMod}"
+                                                                    Header="{lang:Translate common.toggle}" />
+                                                                <Separator />
+                                                                <!--  Check For Updates  -->
+                                                                <MenuItem
+                                                                    Command="{Binding Mods.CheckUpdateCommand}"
+                                                                    CommandParameter="{Binding Mods.SelectedMod}"
+                                                                    Header="{lang:Translate instance.update.check}" />
+                                                                <Separator />
+                                                                <!--  Change Version  -->
+                                                                <MenuItem
+                                                                    Command="{Binding Mods.ChangeVersionCommand}"
+                                                                    CommandParameter="{Binding Mods.SelectedMod}"
+                                                                    Header="{lang:Translate instance.version.change}" />
+                                                                <Separator />
+                                                                <!--  Remove  -->
+                                                                <MenuItem
+                                                                    Command="{Binding Mods.RemoveCommand}"
+                                                                    CommandParameter="{Binding Mods.SelectedMod}"
+                                                                    Header="{lang:Translate common.remove}" />
+                                                                <Separator />
+                                                                <!--  Download Mods  -->
+                                                                <MenuItem Command="{Binding Mods.DownloadCommand}" Header="{lang:Translate instance.download.mods}" />
+                                                                <!--  Open Folder  -->
+                                                                <MenuItem Command="{Binding Mods.ModOpenDirectoryCommand}" Header="{lang:Translate common.open.directory}" />
+                                                            </ContextMenu>
+                                                        </DataGrid.ContextMenu>
+                                                    </DataGrid>
+                                                </ScrollViewer>
+                                            </Border>
 
-                                                <!--  Actions  -->
-                                                <Grid
-                                                    Grid.Row="2"
-                                                    Margin="4,10,4,0"
-                                                    ColumnDefinitions="*, Auto, Auto"
-                                                    ColumnSpacing="5">
-                                                    <!--  Search bar  -->
-                                                    <TextBox
-                                                        Grid.Column="0"
-                                                        Classes="TextInput"
-                                                        PlaceholderText="{lang:Translate common.search}" />
-                                                    <!--  Download  -->
-                                                    <Button
-                                                        Grid.Column="1"
-                                                        Classes="IconBtn"
-                                                        Command="{Binding Mods.DownloadCommand}">
-                                                        <WrapPanel Classes="IconBtnWrapper">
-                                                            <TextBlock
-                                                                VerticalAlignment="Center"
-                                                                Classes="FontAwesome"
-                                                                Text="&#xf0ed;" />
-                                                            <TextBlock VerticalAlignment="Center" Text="{lang:Translate instance.edit.downloadMods}" />
-                                                        </WrapPanel>
-                                                    </Button>
-                                                    <!--  View Folder  -->
-                                                    <Button
-                                                        Grid.Column="2"
-                                                        Classes="IconBtn"
-                                                        Command="{Binding Mods.ModOpenDirectoryCommand}">
-                                                        <WrapPanel Classes="IconBtnWrapper">
-                                                            <TextBlock
-                                                                VerticalAlignment="Center"
-                                                                Classes="FontAwesome"
-                                                                Text="&#xf07c;" />
-                                                            <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.open.directory}" />
-                                                        </WrapPanel>
-                                                    </Button>
-                                                </Grid>
+                                            <!--  Actions  -->
+                                            <Grid
+                                                Grid.Row="2"
+                                                Margin="4,10,4,0"
+                                                ColumnDefinitions="*, Auto, Auto"
+                                                ColumnSpacing="5">
+                                                <!--  Search bar  -->
+                                                <TextBox
+                                                    Grid.Column="0"
+                                                    Classes="TextInput"
+                                                    PlaceholderText="{lang:Translate common.search}" />
+                                                <!--  Download  -->
+                                                <Button
+                                                    Grid.Column="1"
+                                                    Classes="IconBtn"
+                                                    Command="{Binding Mods.DownloadCommand}">
+                                                    <WrapPanel Classes="IconBtnWrapper">
+                                                        <TextBlock
+                                                            VerticalAlignment="Center"
+                                                            Classes="FontAwesome"
+                                                            Text="&#xf0ed;" />
+                                                        <TextBlock VerticalAlignment="Center" Text="{lang:Translate instance.edit.downloadMods}" />
+                                                    </WrapPanel>
+                                                </Button>
+                                                <!--  View Folder  -->
+                                                <Button
+                                                    Grid.Column="2"
+                                                    Classes="IconBtn"
+                                                    Command="{Binding Mods.ModOpenDirectoryCommand}">
+                                                    <WrapPanel Classes="IconBtnWrapper">
+                                                        <TextBlock
+                                                            VerticalAlignment="Center"
+                                                            Classes="FontAwesome"
+                                                            Text="&#xf07c;" />
+                                                        <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.open.directory}" />
+                                                    </WrapPanel>
+                                                </Button>
                                             </Grid>
-                                        </Border>
-                                    </ScrollViewer>
+                                        </Grid>
+                                    </Border>
 
                                     <!--  Resource Packs  -->
-                                    <ScrollViewer Margin="25,0,25,25">
-                                        <Border Classes="SettingsCategoryBorder">
-                                            <Grid RowDefinitions="Auto, *, Auto">
-                                                <!--  Title  -->
-                                                <TextBlock
-                                                    Margin="5,5,5,10"
-                                                    Classes="SettingsCategoryText"
-                                                    Text="{lang:Translate instance.edit.subTitle.resourcePacks}" />
+                                    <Border Margin="25,0,25,25" Classes="SettingsCategoryBorder">
+                                        <Grid RowDefinitions="Auto, *, Auto">
+                                            <!--  Title  -->
+                                            <TextBlock
+                                                Margin="5,5,5,10"
+                                                Classes="SettingsCategoryText"
+                                                Text="{lang:Translate instance.edit.subTitle.resourcePacks}" />
 
-                                                <!--  Content  -->
-                                                <Border Grid.Row="1">
-                                                    <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
-                                                        <DataGrid
-                                                            CellEditEnded="ResourcePacksDataGrid_OnCellEditEnded"
-                                                            Classes="InstanceMultiTable"
-                                                            IsReadOnly="False"
-                                                            ItemsSource="{Binding ResourcePacks.FilteredResourcePacks}"
-                                                            SelectedItem="{Binding ResourcePacks.SelectedResourcePack}">
-                                                            <DataGrid.Columns>
-                                                                <!--  Enabled  -->
-                                                                <DataGridCheckBoxColumn
-                                                                    Width="Auto"
-                                                                    Binding="{Binding IsEnabled, Mode=TwoWay}"
-                                                                    Header="{lang:Translate instance.edit.table.enabled}"
-                                                                    IsReadOnly="False" />
-                                                                <!--  Image  -->
-                                                                <DataGridTemplateColumn Width="Auto" Header="{lang:Translate instance.edit.table.image}">
-                                                                    <DataGridTemplateColumn.CellTemplate>
-                                                                        <DataTemplate>
-                                                                            <Image
-                                                                                Width="32"
-                                                                                Height="32"
-                                                                                Source="{Binding Icon}"
-                                                                                Stretch="UniformToFill" />
-                                                                        </DataTemplate>
-                                                                    </DataGridTemplateColumn.CellTemplate>
-                                                                </DataGridTemplateColumn>
-                                                                <!--  Name  -->
-                                                                <DataGridTextColumn
-                                                                    Width="Auto"
-                                                                    Binding="{Binding Name}"
-                                                                    Header="{lang:Translate instance.edit.table.name}"
-                                                                    IsReadOnly="True" />
-                                                                <!--  Provider  -->
-                                                                <!-- TODO <DataGridTextColumn
-                                                                    Width="Auto"
-                                                                    Binding="{Binding Provider}"
-                                                                    Header="{lang:Translate instance.edit.table.provider}"
-                                                                    IsReadOnly="True" />-->
-                                                                <!--  Size  -->
-                                                                <DataGridTextColumn
-                                                                    Width="Auto"
-                                                                    Binding="{Binding FormattedSize}"
-                                                                    Header="{lang:Translate instance.edit.table.size}"
-                                                                    IsReadOnly="True" />
-                                                            </DataGrid.Columns>
-                                                            <DataGrid.ContextMenu>
-                                                                <ContextMenu>
-                                                                    <!--  Toggle  -->
-                                                                    <MenuItem
-                                                                        Command="{Binding ResourcePacks.ToggleCommand}"
-                                                                        CommandParameter="{Binding ResourcePacks.SelectedResourcePack}"
-                                                                        Header="{lang:Translate common.toggle}" />
-                                                                    <Separator />
-                                                                    <!--  Remove  -->
-                                                                    <MenuItem
-                                                                        Command="{Binding ResourcePacks.RemoveCommand}"
-                                                                        CommandParameter="{Binding ResourcePacks.SelectedResourcePack}"
-                                                                        Header="{lang:Translate common.remove}" />
-                                                                    <Separator />
-                                                                    <!--  Download Packs  -->
-                                                                    <MenuItem
-                                                                        Command="{Binding ResourcePacks.DownloadCommand}"
-                                                                        CommandParameter="{Binding ResourcePacks.SelectedResourcePack}"
-                                                                        Header="{lang:Translate instance.download.resourcePacks}" />
-                                                                    <!--  Open Folder  -->
-                                                                    <MenuItem Command="{Binding ResourcePacks.OpenDirCommand}" Header="{lang:Translate common.open.directory}" />
-                                                                </ContextMenu>
-                                                            </DataGrid.ContextMenu>
-                                                        </DataGrid>
-                                                    </ScrollViewer>
-                                                </Border>
+                                            <!--  Content  -->
+                                            <Border Grid.Row="1">
+                                                <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
+                                                    <DataGrid
+                                                        CellEditEnded="ResourcePacksDataGrid_OnCellEditEnded"
+                                                        Classes="InstanceMultiTable"
+                                                        IsReadOnly="False"
+                                                        ItemsSource="{Binding ResourcePacks.FilteredResourcePacks}"
+                                                        SelectedItem="{Binding ResourcePacks.SelectedResourcePack}">
+                                                        <DataGrid.Columns>
+                                                            <!--  Enabled  -->
+                                                            <DataGridCheckBoxColumn
+                                                                Width="Auto"
+                                                                Binding="{Binding IsEnabled, Mode=TwoWay}"
+                                                                Header="{lang:Translate instance.edit.table.enabled}"
+                                                                IsReadOnly="False" />
+                                                            <!--  Image  -->
+                                                            <DataGridTemplateColumn Width="Auto" Header="{lang:Translate instance.edit.table.image}">
+                                                                <DataGridTemplateColumn.CellTemplate>
+                                                                    <DataTemplate>
+                                                                        <Image
+                                                                            Width="32"
+                                                                            Height="32"
+                                                                            Source="{Binding Icon}"
+                                                                            Stretch="UniformToFill" />
+                                                                    </DataTemplate>
+                                                                </DataGridTemplateColumn.CellTemplate>
+                                                            </DataGridTemplateColumn>
+                                                            <!--  Name  -->
+                                                            <DataGridTextColumn
+                                                                Width="Auto"
+                                                                Binding="{Binding Name}"
+                                                                Header="{lang:Translate instance.edit.table.name}"
+                                                                IsReadOnly="True" />
+                                                            <!--  Provider  -->
+                                                            <DataGridTextColumn
+                                                                Width="Auto"
+                                                                Binding="{Binding Platform}"
+                                                                Header="{lang:Translate instance.edit.table.provider}"
+                                                                IsReadOnly="True" />
+                                                            <!--  Size  -->
+                                                            <DataGridTextColumn
+                                                                Width="Auto"
+                                                                Binding="{Binding FormattedSize}"
+                                                                Header="{lang:Translate instance.edit.table.size}"
+                                                                IsReadOnly="True" />
+                                                        </DataGrid.Columns>
+                                                        <DataGrid.ContextMenu>
+                                                            <ContextMenu>
+                                                                <!--  Toggle  -->
+                                                                <MenuItem
+                                                                    Command="{Binding ResourcePacks.ToggleCommand}"
+                                                                    CommandParameter="{Binding ResourcePacks.SelectedResourcePack}"
+                                                                    Header="{lang:Translate common.toggle}" />
+                                                                <Separator />
+                                                                <!--  Remove  -->
+                                                                <MenuItem
+                                                                    Command="{Binding ResourcePacks.RemoveCommand}"
+                                                                    CommandParameter="{Binding ResourcePacks.SelectedResourcePack}"
+                                                                    Header="{lang:Translate common.remove}" />
+                                                                <Separator />
+                                                                <!--  Download Packs  -->
+                                                                <MenuItem
+                                                                    Command="{Binding ResourcePacks.DownloadCommand}"
+                                                                    CommandParameter="{Binding ResourcePacks.SelectedResourcePack}"
+                                                                    Header="{lang:Translate instance.download.resourcePacks}" />
+                                                                <!--  Open Folder  -->
+                                                                <MenuItem Command="{Binding ResourcePacks.OpenDirCommand}" Header="{lang:Translate common.open.directory}" />
+                                                            </ContextMenu>
+                                                        </DataGrid.ContextMenu>
+                                                    </DataGrid>
+                                                </ScrollViewer>
+                                            </Border>
 
-                                                <!--  Actions  -->
-                                                <Grid
-                                                    Grid.Row="2"
-                                                    Margin="4,10,4,0"
-                                                    ColumnDefinitions="*, Auto, Auto"
-                                                    ColumnSpacing="5">
-                                                    <!--  Search bar  -->
-                                                    <TextBox
-                                                        Grid.Column="0"
-                                                        Classes="TextInput"
-                                                        PlaceholderText="{lang:Translate common.search}"
-                                                        Text="{Binding ResourcePacks.ResourcePackSearchQuery}" />
-                                                    <!--  Download  -->
-                                                    <Button
-                                                        Grid.Column="1"
-                                                        Classes="IconBtn"
-                                                        Command="{Binding ResourcePacks.DownloadCommand}">
-                                                        <WrapPanel Classes="IconBtnWrapper">
-                                                            <TextBlock
-                                                                VerticalAlignment="Center"
-                                                                Classes="FontAwesome"
-                                                                Text="&#xf0ed;" />
-                                                            <TextBlock VerticalAlignment="Center" Text="{lang:Translate instance.edit.downloadPacks}" />
-                                                        </WrapPanel>
-                                                    </Button>
-                                                    <!--  View Folder  -->
-                                                    <Button
-                                                        Grid.Column="2"
-                                                        Classes="IconBtn"
-                                                        Command="{Binding ResourcePacks.OpenDirCommand}">
-                                                        <WrapPanel Classes="IconBtnWrapper">
-                                                            <TextBlock
-                                                                VerticalAlignment="Center"
-                                                                Classes="FontAwesome"
-                                                                Text="&#xf07c;" />
-                                                            <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.open.directory}" />
-                                                        </WrapPanel>
-                                                    </Button>
-                                                </Grid>
+                                            <!--  Actions  -->
+                                            <Grid
+                                                Grid.Row="2"
+                                                Margin="4,10,4,0"
+                                                ColumnDefinitions="*, Auto, Auto"
+                                                ColumnSpacing="5">
+                                                <!--  Search bar  -->
+                                                <TextBox
+                                                    Grid.Column="0"
+                                                    Classes="TextInput"
+                                                    PlaceholderText="{lang:Translate common.search}"
+                                                    Text="{Binding ResourcePacks.SearchQuery}" />
+                                                <!--  Download  -->
+                                                <Button
+                                                    Grid.Column="1"
+                                                    Classes="IconBtn"
+                                                    Command="{Binding ResourcePacks.DownloadCommand}">
+                                                    <WrapPanel Classes="IconBtnWrapper">
+                                                        <TextBlock
+                                                            VerticalAlignment="Center"
+                                                            Classes="FontAwesome"
+                                                            Text="&#xf0ed;" />
+                                                        <TextBlock VerticalAlignment="Center" Text="{lang:Translate instance.edit.downloadPacks}" />
+                                                    </WrapPanel>
+                                                </Button>
+                                                <!--  View Folder  -->
+                                                <Button
+                                                    Grid.Column="2"
+                                                    Classes="IconBtn"
+                                                    Command="{Binding ResourcePacks.OpenDirCommand}">
+                                                    <WrapPanel Classes="IconBtnWrapper">
+                                                        <TextBlock
+                                                            VerticalAlignment="Center"
+                                                            Classes="FontAwesome"
+                                                            Text="&#xf07c;" />
+                                                        <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.open.directory}" />
+                                                    </WrapPanel>
+                                                </Button>
                                             </Grid>
-                                        </Border>
-                                    </ScrollViewer>
+                                        </Grid>
+                                    </Border>
 
                                     <!--  Shader Packs  -->
-                                    <ScrollViewer Margin="25,0,25,25">
-                                        <Border Classes="SettingsCategoryBorder">
-                                            <Grid RowDefinitions="Auto, *, Auto">
-                                                <!--  Title  -->
-                                                <TextBlock
-                                                    Margin="5,5,5,10"
-                                                    Classes="SettingsCategoryText"
-                                                    Text="{lang:Translate instance.edit.subTitle.shaderPacks}" />
+                                    <Border Margin="25,0,25,25" Classes="SettingsCategoryBorder">
+                                        <Grid RowDefinitions="Auto, *, Auto">
+                                            <!--  Title  -->
+                                            <TextBlock
+                                                Margin="5,5,5,10"
+                                                Classes="SettingsCategoryText"
+                                                Text="{lang:Translate instance.edit.subTitle.shaderPacks}" />
 
-                                                <!--  Content  -->
-                                                <Border Grid.Row="1">
-                                                    <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
-                                                        <DataGrid
-                                                            Classes="InstanceMultiTable"
-                                                            ItemsSource="{Binding ShaderPacks.FilteredShaderPacks}"
-                                                            SelectedItem="{Binding ShaderPacks.SelectedShaderPack}">
-                                                            <DataGrid.Columns>
-                                                                <!--  Enabled  -->
-                                                                <DataGridCheckBoxColumn
-                                                                    Width="Auto"
-                                                                    Binding="{Binding IsEnabled}"
-                                                                    Header="{lang:Translate instance.edit.table.enabled}"
-                                                                    IsReadOnly="False" />
-                                                                <!--  Name  -->
-                                                                <DataGridTextColumn
-                                                                    Width="*"
-                                                                    Binding="{Binding Name}"
-                                                                    Header="{lang:Translate instance.edit.table.name}" />
-                                                                <!--  Provider  -->
-                                                                <!-- TODO <DataGridTextColumn
-                                                                    Width="Auto"
-                                                                    Binding="{Binding Provider}"
-                                                                    Header="{lang:Translate instance.edit.table.provider}" />-->
-                                                                <!--  Size  -->
-                                                                <DataGridTextColumn
-                                                                    Width="Auto"
-                                                                    Binding="{Binding FormattedSize}"
-                                                                    Header="{lang:Translate instance.edit.table.size}" />
-                                                            </DataGrid.Columns>
-                                                            <DataGrid.ContextMenu>
-                                                                <ContextMenu>
-                                                                    <!--  Toggle  -->
-                                                                    <MenuItem
-                                                                        Command="{Binding ShaderPacks.ToggleCommand}"
-                                                                        CommandParameter="{Binding ShaderPacks.SelectedShaderPack}"
-                                                                        Header="{lang:Translate common.toggle}" />
-                                                                    <Separator />
-                                                                    <!--  Remove  -->
-                                                                    <MenuItem
-                                                                        Command="{Binding ShaderPacks.RemoveCommand}"
-                                                                        CommandParameter="{Binding ShaderPacks.SelectedShaderPack}"
-                                                                        Header="{lang:Translate common.remove}" />
-                                                                    <Separator />
-                                                                    <!--  Download Packs  -->
-                                                                    <MenuItem Command="{Binding ShaderPacks.DownloadCommand}" Header="{lang:Translate instance.download.shaders}" />
-                                                                    <!--  Open Folder  -->
-                                                                    <MenuItem Command="{Binding ShaderPacks.OpenDirCommand}" Header="{lang:Translate common.open.directory}" />
-                                                                </ContextMenu>
-                                                            </DataGrid.ContextMenu>
-                                                        </DataGrid>
-                                                    </ScrollViewer>
-                                                </Border>
+                                            <!--  Content  -->
+                                            <Border Grid.Row="1">
+                                                <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
+                                                    <DataGrid
+                                                        Classes="InstanceMultiTable"
+                                                        ItemsSource="{Binding ShaderPacks.FilteredShaderPacks}"
+                                                        SelectedItem="{Binding ShaderPacks.SelectedShaderPack}">
+                                                        <DataGrid.Columns>
+                                                            <!--  Enabled  -->
+                                                            <DataGridCheckBoxColumn
+                                                                Width="Auto"
+                                                                Binding="{Binding IsEnabled}"
+                                                                Header="{lang:Translate instance.edit.table.enabled}"
+                                                                IsReadOnly="False" />
+                                                            <!--  Name  -->
+                                                            <DataGridTextColumn
+                                                                Width="*"
+                                                                Binding="{Binding Name}"
+                                                                Header="{lang:Translate instance.edit.table.name}" />
+                                                            <!--  Provider  -->
+                                                            <DataGridTextColumn
+                                                                Width="Auto"
+                                                                Binding="{Binding Platform}"
+                                                                Header="{lang:Translate instance.edit.table.provider}" />
+                                                            <!--  Size  -->
+                                                            <DataGridTextColumn
+                                                                Width="Auto"
+                                                                Binding="{Binding FormattedSize}"
+                                                                Header="{lang:Translate instance.edit.table.size}" />
+                                                        </DataGrid.Columns>
+                                                        <DataGrid.ContextMenu>
+                                                            <ContextMenu>
+                                                                <!--  Toggle  -->
+                                                                <MenuItem
+                                                                    Command="{Binding ShaderPacks.ToggleCommand}"
+                                                                    CommandParameter="{Binding ShaderPacks.SelectedShaderPack}"
+                                                                    Header="{lang:Translate common.toggle}" />
+                                                                <Separator />
+                                                                <!--  Remove  -->
+                                                                <MenuItem
+                                                                    Command="{Binding ShaderPacks.RemoveCommand}"
+                                                                    CommandParameter="{Binding ShaderPacks.SelectedShaderPack}"
+                                                                    Header="{lang:Translate common.remove}" />
+                                                                <Separator />
+                                                                <!--  Download Packs  -->
+                                                                <MenuItem Command="{Binding ShaderPacks.DownloadCommand}" Header="{lang:Translate instance.download.shaders}" />
+                                                                <!--  Open Folder  -->
+                                                                <MenuItem Command="{Binding ShaderPacks.OpenDirCommand}" Header="{lang:Translate common.open.directory}" />
+                                                            </ContextMenu>
+                                                        </DataGrid.ContextMenu>
+                                                    </DataGrid>
+                                                </ScrollViewer>
+                                            </Border>
 
-                                                <!--  Actions  -->
-                                                <Grid
-                                                    Grid.Row="2"
-                                                    Margin="4,10,4,0"
-                                                    ColumnDefinitions="*, Auto, Auto"
-                                                    ColumnSpacing="5">
-                                                    <!--  Search bar  -->
-                                                    <TextBox
-                                                        Grid.Column="0"
-                                                        Classes="TextInput"
-                                                        PlaceholderText="{lang:Translate common.search}" />
-                                                    <!--  Download  -->
-                                                    <Button
-                                                        Grid.Column="1"
-                                                        Classes="IconBtn"
-                                                        Command="{Binding ShaderPacks.DownloadCommand}">
-                                                        <WrapPanel Classes="IconBtnWrapper">
-                                                            <TextBlock
-                                                                VerticalAlignment="Center"
-                                                                Classes="FontAwesome"
-                                                                Text="&#xf0ed;" />
-                                                            <TextBlock VerticalAlignment="Center" Text="{lang:Translate instance.edit.downloadPacks}" />
-                                                        </WrapPanel>
-                                                    </Button>
-                                                    <!--  View Folder  -->
-                                                    <Button
-                                                        Grid.Column="2"
-                                                        Classes="IconBtn"
-                                                        Command="{Binding ShaderPacks.OpenDirCommand}">
-                                                        <WrapPanel Classes="IconBtnWrapper">
-                                                            <TextBlock
-                                                                VerticalAlignment="Center"
-                                                                Classes="FontAwesome"
-                                                                Text="&#xf07c;" />
-                                                            <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.open.directory}" />
-                                                        </WrapPanel>
-                                                    </Button>
-                                                </Grid>
+                                            <!--  Actions  -->
+                                            <Grid
+                                                Grid.Row="2"
+                                                Margin="4,10,4,0"
+                                                ColumnDefinitions="*, Auto, Auto"
+                                                ColumnSpacing="5">
+                                                <!--  Search bar  -->
+                                                <TextBox
+                                                    Grid.Column="0"
+                                                    Classes="TextInput"
+                                                    PlaceholderText="{lang:Translate common.search}" />
+                                                <!--  Download  -->
+                                                <Button
+                                                    Grid.Column="1"
+                                                    Classes="IconBtn"
+                                                    Command="{Binding ShaderPacks.DownloadCommand}">
+                                                    <WrapPanel Classes="IconBtnWrapper">
+                                                        <TextBlock
+                                                            VerticalAlignment="Center"
+                                                            Classes="FontAwesome"
+                                                            Text="&#xf0ed;" />
+                                                        <TextBlock VerticalAlignment="Center" Text="{lang:Translate instance.edit.downloadPacks}" />
+                                                    </WrapPanel>
+                                                </Button>
+                                                <!--  View Folder  -->
+                                                <Button
+                                                    Grid.Column="2"
+                                                    Classes="IconBtn"
+                                                    Command="{Binding ShaderPacks.OpenDirCommand}">
+                                                    <WrapPanel Classes="IconBtnWrapper">
+                                                        <TextBlock
+                                                            VerticalAlignment="Center"
+                                                            Classes="FontAwesome"
+                                                            Text="&#xf07c;" />
+                                                        <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.open.directory}" />
+                                                    </WrapPanel>
+                                                </Button>
                                             </Grid>
-                                        </Border>
-                                    </ScrollViewer>
+                                        </Grid>
+                                    </Border>
 
                                     <!--  Worlds  -->
-                                    <ScrollViewer Margin="25,0,25,25">
-                                        <Border Classes="SettingsCategoryBorder">
-                                            <Grid RowDefinitions="Auto, *, Auto">
-                                                <!--  Title  -->
-                                                <TextBlock
-                                                    Margin="5,5,5,10"
-                                                    Classes="SettingsCategoryText"
-                                                    Text="{lang:Translate instance.edit.subTitle.worlds}" />
+                                    <Border Margin="25,0,25,25" Classes="SettingsCategoryBorder">
+                                        <Grid RowDefinitions="Auto, *, Auto">
+                                            <!--  Title  -->
+                                            <TextBlock
+                                                Margin="5,5,5,10"
+                                                Classes="SettingsCategoryText"
+                                                Text="{lang:Translate instance.edit.subTitle.worlds}" />
 
-                                                <!--  Content  -->
-                                                <Border Grid.Row="1">
-                                                    <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
-                                                        <DataGrid
-                                                            Name="WorldsTable"
-                                                            CellEditEnded="WorldDataGrid_OnCellEditEnded"
-                                                            Classes="InstanceMultiTable"
-                                                            IsReadOnly="False"
-                                                            ItemsSource="{Binding Worlds.Worlds}"
-                                                            RowEditEnded="WorldDataGrid_OnRowEditEnded"
-                                                            SelectedItem="{Binding Worlds.SelectedWorld}">
-                                                            <DataGrid.Columns>
-                                                                <!--  Icon & Name  -->
-                                                                <DataGridTemplateColumn Width="*" Header="{lang:Translate instance.edit.table.name}">
-                                                                    <DataGridTemplateColumn.CellTemplate>
-                                                                        <DataTemplate>
-                                                                            <StackPanel Orientation="Horizontal" Spacing="5">
-                                                                                <Image
-                                                                                    Height="48"
-                                                                                    MaxWidth="48"
-                                                                                    Margin="5"
-                                                                                    Source="{Binding Icon}"
-                                                                                    Stretch="UniformToFill" />
-                                                                                <TextBlock
-                                                                                    Margin="0,0,25,0"
-                                                                                    VerticalAlignment="Center"
-                                                                                    Text="{Binding Name}"
-                                                                                    TextAlignment="Center" />
-                                                                            </StackPanel>
-                                                                        </DataTemplate>
-                                                                    </DataGridTemplateColumn.CellTemplate>
-                                                                    <DataGridTemplateColumn.CellEditingTemplate>
-                                                                        <DataTemplate>
-                                                                            <TextBox
-                                                                                Margin="5,0,25,0"
+                                            <!--  Content  -->
+                                            <Border Grid.Row="1">
+                                                <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
+                                                    <DataGrid
+                                                        Name="WorldsTable"
+                                                        CellEditEnded="WorldDataGrid_OnCellEditEnded"
+                                                        Classes="InstanceMultiTable"
+                                                        IsReadOnly="False"
+                                                        ItemsSource="{Binding Worlds.Worlds}"
+                                                        RowEditEnded="WorldDataGrid_OnRowEditEnded"
+                                                        SelectedItem="{Binding Worlds.SelectedWorld}">
+                                                        <DataGrid.Columns>
+                                                            <!--  Icon & Name  -->
+                                                            <DataGridTemplateColumn Width="*" Header="{lang:Translate instance.edit.table.name}">
+                                                                <DataGridTemplateColumn.CellTemplate>
+                                                                    <DataTemplate>
+                                                                        <StackPanel Orientation="Horizontal" Spacing="5">
+                                                                            <Image
+                                                                                Height="48"
+                                                                                MaxWidth="48"
+                                                                                Margin="5"
+                                                                                Source="{Binding Icon}"
+                                                                                Stretch="UniformToFill" />
+                                                                            <TextBlock
+                                                                                Margin="0,0,25,0"
                                                                                 VerticalAlignment="Center"
-                                                                                Text="{Binding Name, Mode=TwoWay}" />
-                                                                        </DataTemplate>
-                                                                    </DataGridTemplateColumn.CellEditingTemplate>
-                                                                </DataGridTemplateColumn>
-                                                                <!--  GameMode  -->
-                                                                <DataGridTextColumn
-                                                                    Width="Auto"
-                                                                    Binding="{Binding Gamemode}"
-                                                                    Header="{lang:Translate instance.edit.table.gameMode}"
-                                                                    IsReadOnly="True" />
-                                                                <!--  Last Played  -->
-                                                                <DataGridTextColumn
-                                                                    Width="Auto"
-                                                                    Binding="{Binding FormattedLastPlayed}"
-                                                                    Header="{lang:Translate instance.edit.table.lastPlayed}"
-                                                                    IsReadOnly="True" />
-                                                                <!--  Size  -->
-                                                                <DataGridTextColumn
-                                                                    Width="Auto"
-                                                                    Binding="{Binding FormattedSize}"
-                                                                    Header="{lang:Translate instance.edit.table.size}"
-                                                                    IsReadOnly="True" />
-                                                            </DataGrid.Columns>
-                                                            <DataGrid.ContextMenu>
-                                                                <ContextMenu>
-                                                                    <!--  Duplicate  -->
-                                                                    <MenuItem
-                                                                        Command="{Binding Worlds.DuplicateCommand}"
-                                                                        CommandParameter="{Binding Worlds.SelectedWorld}"
-                                                                        Header="{lang:Translate common.duplicate}" />
-                                                                    <!--  Rename  -->
-                                                                    <MenuItem
-                                                                        Command="{Binding Worlds.RenameCommand}"
-                                                                        CommandParameter="{Binding Worlds.SelectedWorld}"
-                                                                        Header="{lang:Translate common.rename}" />
-                                                                    <!--  Delete  -->
-                                                                    <MenuItem
-                                                                        Command="{Binding Worlds.DeleteCommand}"
-                                                                        CommandParameter="{Binding Worlds.SelectedWorld}"
-                                                                        Header="{lang:Translate common.delete}" />
-                                                                    <Separator />
-                                                                    <!--  Copy Speed  -->
-                                                                    <MenuItem
-                                                                        Command="{Binding Worlds.CopySeedCommand}"
-                                                                        CommandParameter="{Binding Worlds.SelectedWorld}"
-                                                                        Header="{lang:Translate instance.edit.copySeed}" />
-                                                                    <!--  Open Folder  -->
-                                                                    <MenuItem
-                                                                        Command="{Binding Worlds.OpenDirCommand}"
-                                                                        CommandParameter="{Binding Worlds.SelectedWorld}"
-                                                                        Header="{lang:Translate common.open.directory}" />
-                                                                </ContextMenu>
-                                                            </DataGrid.ContextMenu>
-                                                        </DataGrid>
-                                                    </ScrollViewer>
-                                                </Border>
-                                            </Grid>
-                                        </Border>
-                                    </ScrollViewer>
+                                                                                Text="{Binding Name}"
+                                                                                TextAlignment="Center" />
+                                                                        </StackPanel>
+                                                                    </DataTemplate>
+                                                                </DataGridTemplateColumn.CellTemplate>
+                                                                <DataGridTemplateColumn.CellEditingTemplate>
+                                                                    <DataTemplate>
+                                                                        <TextBox
+                                                                            Margin="5,0,25,0"
+                                                                            VerticalAlignment="Center"
+                                                                            Text="{Binding Name, Mode=TwoWay}" />
+                                                                    </DataTemplate>
+                                                                </DataGridTemplateColumn.CellEditingTemplate>
+                                                            </DataGridTemplateColumn>
+                                                            <!--  GameMode  -->
+                                                            <DataGridTextColumn
+                                                                Width="Auto"
+                                                                Binding="{Binding Gamemode}"
+                                                                Header="{lang:Translate instance.edit.table.gameMode}"
+                                                                IsReadOnly="True" />
+                                                            <!--  Last Played  -->
+                                                            <DataGridTextColumn
+                                                                Width="Auto"
+                                                                Binding="{Binding FormattedLastPlayed}"
+                                                                Header="{lang:Translate instance.edit.table.lastPlayed}"
+                                                                IsReadOnly="True" />
+                                                            <!--  Size  -->
+                                                            <DataGridTextColumn
+                                                                Width="Auto"
+                                                                Binding="{Binding FormattedSize}"
+                                                                Header="{lang:Translate instance.edit.table.size}"
+                                                                IsReadOnly="True" />
+                                                        </DataGrid.Columns>
+                                                        <DataGrid.ContextMenu>
+                                                            <ContextMenu>
+                                                                <!--  Duplicate  -->
+                                                                <MenuItem
+                                                                    Command="{Binding Worlds.DuplicateCommand}"
+                                                                    CommandParameter="{Binding Worlds.SelectedWorld}"
+                                                                    Header="{lang:Translate common.duplicate}" />
+                                                                <!--  Rename  -->
+                                                                <MenuItem
+                                                                    Command="{Binding Worlds.RenameCommand}"
+                                                                    CommandParameter="{Binding Worlds.SelectedWorld}"
+                                                                    Header="{lang:Translate common.rename}" />
+                                                                <!--  Delete  -->
+                                                                <MenuItem
+                                                                    Command="{Binding Worlds.DeleteCommand}"
+                                                                    CommandParameter="{Binding Worlds.SelectedWorld}"
+                                                                    Header="{lang:Translate common.delete}" />
+                                                                <Separator />
+                                                                <!--  Copy Speed  -->
+                                                                <MenuItem
+                                                                    Command="{Binding Worlds.CopySeedCommand}"
+                                                                    CommandParameter="{Binding Worlds.SelectedWorld}"
+                                                                    Header="{lang:Translate instance.edit.copySeed}" />
+                                                                <!--  Open Folder  -->
+                                                                <MenuItem
+                                                                    Command="{Binding Worlds.OpenDirCommand}"
+                                                                    CommandParameter="{Binding Worlds.SelectedWorld}"
+                                                                    Header="{lang:Translate common.open.directory}" />
+                                                            </ContextMenu>
+                                                        </DataGrid.ContextMenu>
+                                                    </DataGrid>
+                                                </ScrollViewer>
+                                            </Border>
+                                        </Grid>
+                                    </Border>
 
                                     <!--  Servers  -->
-                                    <ScrollViewer Margin="25,0,25,25">
-                                        <Border Classes="SettingsCategoryBorder">
-                                            <Grid RowDefinitions="Auto, *, Auto">
-                                                <!--  Title  -->
-                                                <TextBlock
-                                                    Margin="5,5,5,10"
-                                                    Classes="SettingsCategoryText"
-                                                    Text="{lang:Translate instance.edit.subTitle.servers}" />
+                                    <Border Margin="25,0,25,25" Classes="SettingsCategoryBorder">
+                                        <Grid RowDefinitions="Auto, *, Auto">
+                                            <!--  Title  -->
+                                            <TextBlock
+                                                Margin="5,5,5,10"
+                                                Classes="SettingsCategoryText"
+                                                Text="{lang:Translate instance.edit.subTitle.servers}" />
 
-                                                <!--  Content  -->
-                                                <Border Grid.Row="1">
-                                                    <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
-                                                        <DataGrid
-                                                            Classes="InstanceMultiTable"
-                                                            IsReadOnly="False"
-                                                            ItemsSource="{Binding Servers.Servers}"
-                                                            RowEditEnded="ServersDataGrid_OnRowEditEnded"
-                                                            SelectedItem="{Binding Servers.SelectedServer}">
-                                                            <DataGrid.Columns>
-                                                                <!--  Icon & Name  -->
-                                                                <DataGridTemplateColumn Width="*" Header="{lang:Translate instance.edit.table.name}">
-                                                                    <DataGridTemplateColumn.CellTemplate>
-                                                                        <DataTemplate>
-                                                                            <StackPanel Orientation="Horizontal" Spacing="5">
-                                                                                <Image
-                                                                                    Height="48"
-                                                                                    MaxWidth="48"
-                                                                                    Margin="5"
-                                                                                    Source="{Binding Image}"
-                                                                                    Stretch="UniformToFill" />
-                                                                                <TextBlock
-                                                                                    Margin="0,0,25,0"
-                                                                                    VerticalAlignment="Center"
-                                                                                    Text="{Binding Name}"
-                                                                                    TextAlignment="Center" />
-                                                                            </StackPanel>
-                                                                        </DataTemplate>
-                                                                    </DataGridTemplateColumn.CellTemplate>
-                                                                    <DataGridTemplateColumn.CellEditingTemplate>
-                                                                        <DataTemplate>
-                                                                            <TextBox
-                                                                                Margin="5,0,25,0"
+                                            <!--  Content  -->
+                                            <Border Grid.Row="1">
+                                                <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
+                                                    <DataGrid
+                                                        Classes="InstanceMultiTable"
+                                                        IsReadOnly="False"
+                                                        ItemsSource="{Binding Servers.Servers}"
+                                                        RowEditEnded="ServersDataGrid_OnRowEditEnded"
+                                                        SelectedItem="{Binding Servers.SelectedServer}">
+                                                        <DataGrid.Columns>
+                                                            <!--  Icon & Name  -->
+                                                            <DataGridTemplateColumn Width="*" Header="{lang:Translate instance.edit.table.name}">
+                                                                <DataGridTemplateColumn.CellTemplate>
+                                                                    <DataTemplate>
+                                                                        <StackPanel Orientation="Horizontal" Spacing="5">
+                                                                            <Image
+                                                                                Height="48"
+                                                                                MaxWidth="48"
+                                                                                Margin="5"
+                                                                                Source="{Binding Image}"
+                                                                                Stretch="UniformToFill" />
+                                                                            <TextBlock
+                                                                                Margin="0,0,25,0"
                                                                                 VerticalAlignment="Center"
-                                                                                Text="{Binding Name, Mode=TwoWay}" />
-                                                                        </DataTemplate>
-                                                                    </DataGridTemplateColumn.CellEditingTemplate>
-                                                                </DataGridTemplateColumn>
-                                                                <!--  Address  -->
-                                                                <DataGridTextColumn
-                                                                    Width="*"
-                                                                    Binding="{Binding Ip}"
-                                                                    Header="{lang:Translate instance.edit.table.ipAddress}" />
-                                                            </DataGrid.Columns>
-                                                            <DataGrid.ContextMenu>
-                                                                <ContextMenu>
-                                                                    <!--  Join  -->
-                                                                    <MenuItem
-                                                                        Command="{Binding Servers.Join}"
-                                                                        CommandParameter="{Binding Servers.SelectedServer}"
-                                                                        Header="{lang:Translate instance.edit.joinServer}" />
-                                                                    <!--  Remove  -->
-                                                                    <MenuItem
-                                                                        Command="{Binding Servers.Remove}"
-                                                                        CommandParameter="{Binding Servers.SelectedServer}"
-                                                                        Header="{lang:Translate common.remove}" />
-                                                                </ContextMenu>
-                                                            </DataGrid.ContextMenu>
-                                                        </DataGrid>
-                                                    </ScrollViewer>
-                                                </Border>
+                                                                                Text="{Binding Name}"
+                                                                                TextAlignment="Center" />
+                                                                        </StackPanel>
+                                                                    </DataTemplate>
+                                                                </DataGridTemplateColumn.CellTemplate>
+                                                                <DataGridTemplateColumn.CellEditingTemplate>
+                                                                    <DataTemplate>
+                                                                        <TextBox
+                                                                            Margin="5,0,25,0"
+                                                                            VerticalAlignment="Center"
+                                                                            Text="{Binding Name, Mode=TwoWay}" />
+                                                                    </DataTemplate>
+                                                                </DataGridTemplateColumn.CellEditingTemplate>
+                                                            </DataGridTemplateColumn>
+                                                            <!--  Address  -->
+                                                            <DataGridTextColumn
+                                                                Width="*"
+                                                                Binding="{Binding Ip}"
+                                                                Header="{lang:Translate instance.edit.table.ipAddress}" />
+                                                        </DataGrid.Columns>
+                                                        <DataGrid.ContextMenu>
+                                                            <ContextMenu>
+                                                                <!--  Remove  -->
+                                                                <MenuItem
+                                                                    Command="{Binding Servers.Remove}"
+                                                                    CommandParameter="{Binding Servers.SelectedServer}"
+                                                                    Header="{lang:Translate common.remove}" />
+                                                            </ContextMenu>
+                                                        </DataGrid.ContextMenu>
+                                                    </DataGrid>
+                                                </ScrollViewer>
+                                            </Border>
 
-                                                <!--  Actions  -->
-                                                <Grid
-                                                    Grid.Row="2"
-                                                    Margin="4,10,4,0"
-                                                    ColumnDefinitions="*, *, Auto"
-                                                    ColumnSpacing="5">
-                                                    <!--  Name bar  -->
-                                                    <TextBox
-                                                        Grid.Column="0"
-                                                        Classes="TextInput"
-                                                        PlaceholderText="Minecraft Server"
-                                                        Text="{Binding Servers.ServerName}" />
-                                                    <!--  Address bar  -->
-                                                    <TextBox
-                                                        Grid.Column="1"
-                                                        Classes="TextInput"
-                                                        PlaceholderText="192.168.1.0:25565"
-                                                        Text="{Binding Servers.ServerIp}" />
-                                                    <!--  Add  -->
-                                                    <Button
-                                                        Grid.Column="2"
-                                                        Classes="IconBtn"
-                                                        Command="{Binding Servers.Add}">
-                                                        <WrapPanel Classes="IconBtnWrapper">
-                                                            <TextBlock
-                                                                VerticalAlignment="Center"
-                                                                Classes="FontAwesome"
-                                                                Text="&#x2b;" />
-                                                            <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.add}" />
-                                                        </WrapPanel>
-                                                    </Button>
-                                                </Grid>
+                                            <!--  Actions  -->
+                                            <Grid
+                                                Grid.Row="2"
+                                                Margin="4,10,4,0"
+                                                ColumnDefinitions="*, *, Auto"
+                                                ColumnSpacing="5">
+                                                <!--  Name bar  -->
+                                                <TextBox
+                                                    Grid.Column="0"
+                                                    Classes="TextInput"
+                                                    PlaceholderText="Minecraft Server"
+                                                    Text="{Binding Servers.ServerName}" />
+                                                <!--  Address bar  -->
+                                                <TextBox
+                                                    Grid.Column="1"
+                                                    Classes="TextInput"
+                                                    PlaceholderText="192.168.1.0:25565"
+                                                    Text="{Binding Servers.ServerIp}" />
+                                                <!--  Add  -->
+                                                <Button
+                                                    Grid.Column="2"
+                                                    Classes="IconBtn"
+                                                    Command="{Binding Servers.Add}">
+                                                    <WrapPanel Classes="IconBtnWrapper">
+                                                        <TextBlock
+                                                            VerticalAlignment="Center"
+                                                            Classes="FontAwesome"
+                                                            Text="&#x2b;" />
+                                                        <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.add}" />
+                                                    </WrapPanel>
+                                                </Button>
                                             </Grid>
-                                        </Border>
-                                    </ScrollViewer>
+                                        </Grid>
+                                    </Border>
 
                                     <!--  Screenshots  -->
-                                    <ScrollViewer Margin="25,0,25,25">
-                                        <Border Classes="SettingsCategoryBorder">
-                                            <Grid RowDefinitions="Auto, *, Auto">
-                                                <!--  Title  -->
-                                                <TextBlock
-                                                    Margin="5,5,5,10"
-                                                    Classes="SettingsCategoryText"
-                                                    Text="{lang:Translate instance.edit.subTitle.screenshots}" />
+                                    <Border Margin="25,0,25,25" Classes="SettingsCategoryBorder">
+                                        <Grid RowDefinitions="Auto, *, Auto">
+                                            <!--  Title  -->
+                                            <TextBlock
+                                                Margin="5,5,5,10"
+                                                Classes="SettingsCategoryText"
+                                                Text="{lang:Translate instance.edit.subTitle.screenshots}" />
 
-                                                <!--  Content  -->
-                                                <Border Grid.Row="1">
-                                                    <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
-                                                        <DataGrid
-                                                            Name="ScreenshotsTable"
-                                                            CellEditEnded="ScreenshotCell_OnEditEnded"
-                                                            Classes="InstanceMultiTable"
-                                                            IsReadOnly="False"
-                                                            ItemsSource="{Binding Screenshots.Screenshots}"
-                                                            SelectedItem="{Binding Screenshots.SelectedScreenshot}">
-                                                            <DataGrid.Columns>
-                                                                <!--  Icon & Name  -->
-                                                                <DataGridTemplateColumn
-                                                                    Width="*"
-                                                                    Header="{lang:Translate instance.edit.table.name}"
-                                                                    IsReadOnly="False">
-                                                                    <DataGridTemplateColumn.CellTemplate>
-                                                                        <DataTemplate>
-                                                                            <StackPanel Orientation="Horizontal">
-                                                                                <Image
-                                                                                    Height="48"
-                                                                                    MaxWidth="48"
-                                                                                    Margin="5"
-                                                                                    Source="{Binding Image}"
-                                                                                    Stretch="UniformToFill" />
-                                                                                <TextBlock
-                                                                                    Margin="5,0,0,0"
-                                                                                    VerticalAlignment="Center"
-                                                                                    Text="{Binding Name}"
-                                                                                    TextAlignment="Center" />
-                                                                                <TextBlock
-                                                                                    Margin="0,0,25,0"
-                                                                                    VerticalAlignment="Center"
-                                                                                    Text="{Binding Extension}"
-                                                                                    TextAlignment="Center" />
-                                                                            </StackPanel>
-                                                                        </DataTemplate>
-                                                                    </DataGridTemplateColumn.CellTemplate>
-                                                                    <DataGridTemplateColumn.CellEditingTemplate>
-                                                                        <DataTemplate>
-                                                                            <TextBox
-                                                                                Margin="5,0,25,0"
+                                            <!--  Content  -->
+                                            <Border Grid.Row="1">
+                                                <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
+                                                    <DataGrid
+                                                        Name="ScreenshotsTable"
+                                                        CellEditEnded="ScreenshotCell_OnEditEnded"
+                                                        Classes="InstanceMultiTable"
+                                                        IsReadOnly="False"
+                                                        ItemsSource="{Binding Screenshots.Screenshots}"
+                                                        SelectedItem="{Binding Screenshots.SelectedScreenshot}">
+                                                        <DataGrid.Columns>
+                                                            <!--  Icon & Name  -->
+                                                            <DataGridTemplateColumn
+                                                                Width="*"
+                                                                Header="{lang:Translate instance.edit.table.name}"
+                                                                IsReadOnly="False">
+                                                                <DataGridTemplateColumn.CellTemplate>
+                                                                    <DataTemplate>
+                                                                        <StackPanel Orientation="Horizontal">
+                                                                            <Image
+                                                                                Height="48"
+                                                                                MaxWidth="48"
+                                                                                Margin="5"
+                                                                                Source="{Binding Image}"
+                                                                                Stretch="UniformToFill" />
+                                                                            <TextBlock
+                                                                                Margin="5,0,0,0"
                                                                                 VerticalAlignment="Center"
-                                                                                Text="{Binding Name, Mode=TwoWay}" />
-                                                                        </DataTemplate>
-                                                                    </DataGridTemplateColumn.CellEditingTemplate>
-                                                                </DataGridTemplateColumn>
-                                                                <!--  Size  -->
-                                                                <DataGridTextColumn
-                                                                    Width="Auto"
-                                                                    Binding="{Binding FormatedSize}"
-                                                                    Header="{lang:Translate instance.edit.table.size}"
-                                                                    IsReadOnly="True" />
-                                                            </DataGrid.Columns>
-                                                            <DataGrid.ContextMenu>
-                                                                <ContextMenu>
-                                                                    <!--  Copy  -->
-                                                                    <MenuItem
-                                                                        Command="{Binding Screenshots.CopyToClipboardCommand}"
-                                                                        CommandParameter="{Binding Screenshots.SelectedScreenshot}"
-                                                                        Header="{lang:Translate common.copy}" />
-                                                                    <!--  Delete  -->
-                                                                    <MenuItem
-                                                                        Command="{Binding Screenshots.DeleteCommand}"
-                                                                        CommandParameter="{Binding Screenshots.SelectedScreenshot}"
-                                                                        Header="{lang:Translate common.delete}" />
-                                                                    <!--  Rename  -->
-                                                                    <MenuItem
-                                                                        Command="{Binding Screenshots.RenameCommand}"
-                                                                        CommandParameter="{Binding Screenshots.SelectedScreenshot}"
-                                                                        Header="{lang:Translate common.rename}" />
-                                                                    <!--  Open Directory  -->
-                                                                    <MenuItem
-                                                                        Command="{Binding Screenshots.OpenDirCommand}"
-                                                                        CommandParameter="{Binding Screenshots.SelectedScreenshot}"
-                                                                        Header="{lang:Translate common.open.directory}" />
-                                                                </ContextMenu>
-                                                            </DataGrid.ContextMenu>
-                                                        </DataGrid>
-                                                    </ScrollViewer>
-                                                </Border>
-                                            </Grid>
-                                        </Border>
-                                    </ScrollViewer>
+                                                                                Text="{Binding Name}"
+                                                                                TextAlignment="Center" />
+                                                                            <TextBlock
+                                                                                Margin="0,0,25,0"
+                                                                                VerticalAlignment="Center"
+                                                                                Text="{Binding Extension}"
+                                                                                TextAlignment="Center" />
+                                                                        </StackPanel>
+                                                                    </DataTemplate>
+                                                                </DataGridTemplateColumn.CellTemplate>
+                                                                <DataGridTemplateColumn.CellEditingTemplate>
+                                                                    <DataTemplate>
+                                                                        <TextBox
+                                                                            Margin="5,0,25,0"
+                                                                            VerticalAlignment="Center"
+                                                                            Text="{Binding Name, Mode=TwoWay}" />
+                                                                    </DataTemplate>
+                                                                </DataGridTemplateColumn.CellEditingTemplate>
+                                                            </DataGridTemplateColumn>
+                                                            <!--  Size  -->
+                                                            <DataGridTextColumn
+                                                                Width="Auto"
+                                                                Binding="{Binding FormatedSize}"
+                                                                Header="{lang:Translate instance.edit.table.size}"
+                                                                IsReadOnly="True" />
+                                                        </DataGrid.Columns>
+                                                        <DataGrid.ContextMenu>
+                                                            <ContextMenu>
+                                                                <!--  Copy  -->
+                                                                <MenuItem
+                                                                    Command="{Binding Screenshots.CopyToClipboardCommand}"
+                                                                    CommandParameter="{Binding Screenshots.SelectedScreenshot}"
+                                                                    Header="{lang:Translate common.copy}" />
+                                                                <!--  Delete  -->
+                                                                <MenuItem
+                                                                    Command="{Binding Screenshots.DeleteCommand}"
+                                                                    CommandParameter="{Binding Screenshots.SelectedScreenshot}"
+                                                                    Header="{lang:Translate common.delete}" />
+                                                                <!--  Rename  -->
+                                                                <MenuItem
+                                                                    Command="{Binding Screenshots.RenameCommand}"
+                                                                    CommandParameter="{Binding Screenshots.SelectedScreenshot}"
+                                                                    Header="{lang:Translate common.rename}" />
+                                                                <!--  Open Directory  -->
+                                                                <MenuItem
+                                                                    Command="{Binding Screenshots.OpenDirCommand}"
+                                                                    CommandParameter="{Binding Screenshots.SelectedScreenshot}"
+                                                                    Header="{lang:Translate common.open.directory}" />
+                                                            </ContextMenu>
+                                                        </DataGrid.ContextMenu>
+                                                    </DataGrid>
+                                                </ScrollViewer>
+                                            </Border>
+                                        </Grid>
+                                    </Border>
 
                                     <!--  Settings  -->
                                     <Grid Margin="25,0,25,25" RowDefinitions="Auto, *">

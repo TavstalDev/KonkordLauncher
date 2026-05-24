@@ -17,7 +17,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 public partial class EditInstanceViewModel_Screenshots  : KonkordObservableObject
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceViewModel_Screenshots));
-    private EditInstanceViewModel _parent;
+    private readonly EditInstanceViewModel _parent;
     
     public ObservableCollection<ScreenshotModel> Screenshots { get; set; } = [];
     [ObservableProperty] private ScreenshotModel? _selectedScreenshot;

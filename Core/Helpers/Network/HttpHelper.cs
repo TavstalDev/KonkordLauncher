@@ -66,12 +66,17 @@ public static class HttpHelper
     /// Sends a GET request to the specified URL.
     /// </summary>
     /// <param name="request">The URL to send the GET request to.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>The HTTP response, or null if an error occurs.</returns>
     public static async Task<HttpResponseMessage?> GetAsync(string request, CancellationToken cancellationToken = default)
     {
         try
         {
             return await _httpClient.GetAsync(request, cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -85,6 +90,7 @@ public static class HttpHelper
     /// Sends a GET request to retrieve a byte array from the specified URL.
     /// </summary>
     /// <param name="request">The URL to send the GET request to.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>The byte array, or null if an error occurs.</returns>
     [Obsolete]
     public static async Task<byte[]?> GetByteArrayAsync(string request, CancellationToken cancellationToken = default)
@@ -92,6 +98,10 @@ public static class HttpHelper
         try
         {
             return await _httpClient.GetByteArrayAsync(request, cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -108,6 +118,7 @@ public static class HttpHelper
     /// <param name="url">The URL of the file to download.</param>
     /// <param name="filePath">The local file path where the downloaded file will be saved.</param>
     /// <param name="progress">An optional progress reporter to track the download progress as a percentage.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>
     /// The file path of the downloaded file if successful, or null if an error occurs.
     /// </returns>
@@ -141,6 +152,10 @@ public static class HttpHelper
 
             return filePath; // Return the path to the downloaded file
         }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
             Logger()?.Exc("Error while downloading file with progress:");
@@ -155,12 +170,17 @@ public static class HttpHelper
     /// Sends a GET request to retrieve a string from the specified URL.
     /// </summary>
     /// <param name="request">The URL to send the GET request to.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>The string response, or null if an error occurs.</returns>
     public static async Task<string?> GetStringAsync(string request, CancellationToken cancellationToken = default)
     {
         try
         {
             return await _httpClient.GetStringAsync(request, cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -175,6 +195,7 @@ public static class HttpHelper
     /// </summary>
     /// <param name="url">The URL to send the GET request to.</param>
     /// <param name="progress">An optional progress reporter.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>The string response, or null if an error occurs.</returns>
     public static async Task<string?> GetStringAsync(string url, IProgress<double>? progress, CancellationToken cancellationToken = default)
     {
@@ -205,6 +226,10 @@ public static class HttpHelper
 
             return System.Text.Encoding.UTF8.GetString(memoryStream.ToArray());
         }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
             Logger()?.Exc("Error while making GET request for string with progress:");
@@ -218,12 +243,17 @@ public static class HttpHelper
     /// Sends a GET request to retrieve a stream from the specified URL.
     /// </summary>
     /// <param name="request">The URL to send the GET request to.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>The stream response, or null if an error occurs.</returns>
     public static async Task<Stream?> GetStreamAsync(string request, CancellationToken cancellationToken = default)
     {
         try
         {
             return await _httpClient.GetStreamAsync(request, cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -238,12 +268,17 @@ public static class HttpHelper
     /// </summary>
     /// <typeparam name="T">The type of the object to deserialize.</typeparam>
     /// <param name="request">The URL to send the GET request to.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>The deserialized object, or default if an error occurs.</returns>
     public static async Task<T?> GetObjectFromJsonAsync<T>(string request, CancellationToken cancellationToken = default)
     {
         try
         {
             return await _httpClient.GetFromJsonAsync<T>(request, cancellationToken: cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -258,12 +293,17 @@ public static class HttpHelper
     /// </summary>
     /// <param name="request">The URL to send the POST request to.</param>
     /// <param name="content">The content to include in the POST request.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>The HTTP response, or null if an error occurs.</returns>
     public static async Task<HttpResponseMessage?> PostAsync(string request, HttpContent? content, CancellationToken cancellationToken = default)
     {
         try
         {
             return await _httpClient.PostAsync(request, content, cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -279,12 +319,17 @@ public static class HttpHelper
     /// <typeparam name="T">The type of the object to serialize as JSON.</typeparam>
     /// <param name="request">The URL to send the POST request to.</param>
     /// <param name="value">The object to serialize as JSON.</param>
+    /// <param name="cancellationToken">A cancellation token to cancel the operation.</param>
     /// <returns>The HTTP response, or null if an error occurs.</returns>
     public static async Task<HttpResponseMessage?> PostJsonAsync<T>(string request, T value, CancellationToken cancellationToken = default)
     {
         try
         {
             return await _httpClient.PostAsJsonAsync(request, value, cancellationToken: cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch (Exception ex)
         {

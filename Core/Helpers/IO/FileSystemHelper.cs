@@ -697,7 +697,7 @@ public static class FileSystemHelper
     /// <returns>
     /// A formatted string like "123 B", "456 KB", "789 MB" etc.
     /// </returns>
-    public static string GetFormatedSize(long size)
+    public static string GetFormattedSize(long size)
     {
         if (size < 1024)
             return $"{size} B";

@@ -183,15 +183,12 @@ public class ModrinthPackageHandler: IInstancePackageHandler
                         Server = f["env"]?["server"]?.ToString() ?? string.Empty,
                     });
                     
-                    return Task.Run(async () =>
-                    {
-                        if (!string.IsNullOrEmpty(directory))
-                            Directory.CreateDirectory(directory);
-
-                        _logger.Info($"Downloading {url} to {finalPath}");
-                        await HttpHelper.DownloadFileAsync(url, finalPath, prog, cancellationToken);
-                    }, cancellationToken);
+                    if (!string.IsNullOrEmpty(directory))
+                        Directory.CreateDirectory(directory);
+                    
+                    return HttpHelper.DownloadFileAsync(url, finalPath, prog, cancellationToken);
                 });
+                
                 if (tasks != null)
                     await Task.WhenAll(tasks);
 
@@ -297,7 +294,7 @@ public class ModrinthPackageHandler: IInstancePackageHandler
 
             // Copy overrides
             foreach (var node in localNodes)
-                await CopyNodeToOverridesAsync(overridesDir, instance.GameDirectory!, node);
+                await CopyNodeToOverridesAsync(overridesDir, instance.GameDirectory!, node, cancellationToken);
             
             // Write package index
             await JsonHelper.WriteJsonFileAsync(indexJson, packageIndex, cancellationToken);
@@ -317,16 +314,18 @@ public class ModrinthPackageHandler: IInstancePackageHandler
         }
     }
 
-    private async Task CopyNodeToOverridesAsync(string overridesDir, string gameDir, FileNode fileNode)
+    private static async Task CopyNodeToOverridesAsync(string overridesDir, string gameDir, FileNode fileNode, CancellationToken cancellationToken  = default)
     {
         string relativePath = fileNode.Path.Replace(gameDir + Path.DirectorySeparatorChar, "");
         string overridePath = Path.Combine(overridesDir, relativePath);
+
+        if (cancellationToken.IsCancellationRequested) throw new OperationCanceledException();
 
         if (fileNode.IsDirectory)
         {
             Directory.CreateDirectory(overridePath);
             foreach (var child in fileNode.Children)
-                await CopyNodeToOverridesAsync(overridesDir, gameDir, child);
+                await CopyNodeToOverridesAsync(overridesDir, gameDir, child, cancellationToken);
             return;
         }
         

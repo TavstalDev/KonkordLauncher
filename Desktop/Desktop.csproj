@@ -1,13 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
+        <AssemblyTitle>KonkordLauncher</AssemblyTitle>
+        <Description>A modern, user-friendly launcher for Minecraft, designed to enhance the gaming experience with a sleek interface and powerful features.</Description>
+        <Company>Tavstal</Company>
+        <Product>KonkordLauncher</Product>
+        <Copyright>Copyright © 2026 Tavstal</Copyright>
+        <ComVisible>false</ComVisible>
+        <Guid>5C0F1C0A-2258-4DD5-B454-0ED8FFF9E5A8</Guid>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <FileVersion>2.0.0</FileVersion>
+        <Version>2.0.0</Version>
+
+        <TargetFramework>net10.0</TargetFramework>
         <RootNamespace>Tavstal.KonkordLauncher.Desktop</RootNamespace>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     </PropertyGroup>
 
     <PropertyGroup>

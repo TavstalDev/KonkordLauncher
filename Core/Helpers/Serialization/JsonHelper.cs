@@ -53,7 +53,7 @@ public static class JsonHelper
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error($"Failed to delete file {path}:\n {ex.Message}");
+                    _logger.Error($"Failed to delete file {path}:\n {ex}");
                     FileSystemHelper.DeleteFile(tempPath);
                 }
             }
@@ -110,7 +110,7 @@ public static class JsonHelper
                     }
                     catch (Exception ex)
                     {
-                        _logger.Error($"Failed to delete file {path}:\n {ex.Message}");
+                        _logger.Error($"Failed to delete file {path}:\n {ex}");
                         FileSystemHelper.DeleteFile(tempPath);
                         if (_maxRetries - 1 > i)
                             await Task.Delay(_retryDelay, cancellationToken);
@@ -138,9 +138,8 @@ public static class JsonHelper
     /// </summary>
     /// <typeparam name="T">The type of the object to deserialize.</typeparam>
     /// <param name="path">The file path to read the JSON content from.</param>
-    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>The deserialized object, or default if an error occurs.</returns>
-    public static async Task<T?> ReadJsonFileAsync<T>(string path, CancellationToken cancellationToken = default)
+    public static async Task<T?> ReadJsonFileAsync<T>(string path)
     {
         try
         {
@@ -148,7 +147,7 @@ public static class JsonHelper
             using var streamReader = new StreamReader(stream, Encoding.UTF8);
             await using var jsonReader = new JsonTextReader(streamReader);
             var serializer = JsonSerializer.Create(_jsonSerializerSettings);
-            return await Task.Run(() => serializer.Deserialize<T>(jsonReader), cancellationToken);
+            return serializer.Deserialize<T>(jsonReader);
         }
         catch (Exception ex)
         {

@@ -1,8 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+      <AssemblyTitle>KonkordLauncherCore</AssemblyTitle>
+      <Description>Minecraft-focused backend library for launching, installing, and managing game instances, assets, Java runtimes, mod loaders, authentication, and version metadata.</Description>
+      <Company>Tavstal</Company>
+      <Product>KonkordLauncherCore</Product>
+      <Copyright>Copyright © 2026 Tavstal</Copyright>
+      <ComVisible>false</ComVisible>
+      <Guid>6824C219-9D48-42E5-8207-FE6A576D881F</Guid>
+      <AssemblyVersion>2.0.0.0</AssemblyVersion>
+      <FileVersion>2.0.0</FileVersion>
+      <Version>2.0.0</Version>
+      
+      <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>Tavstal.KonkordLauncher.Core</RootNamespace>
-    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>

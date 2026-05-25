@@ -22,9 +22,10 @@ public partial class MainViewModel_Config : KonkordObservableObject
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MainViewModel_Config));
     private readonly MainViewModel _parent;
-    
-    [ObservableProperty] private CoreConfigModel _coreConfig;
-    
+
+    [ObservableProperty]
+    public partial CoreConfigModel CoreConfig { get; set; }
+
     /// <summary>
     /// Creates a new instance of <see cref="MainViewModel_Config"/>.
     /// </summary>

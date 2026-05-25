@@ -12,22 +12,26 @@ public partial class JavaVersionModel : ObservableObject
     /// <summary>
     /// The major version of the Java installation.
     /// </summary>
-    [ObservableProperty] private int _major;
+    [ObservableProperty]
+    public partial int Major { get; set; }
 
     /// <summary>
     /// The full version string of the Java installation.
     /// </summary>
-    [ObservableProperty] private string _version;
+    [ObservableProperty]
+    public partial string Version { get; set; }
 
     /// <summary>
     /// The architecture of the Java installation (e.g., x86, x64).
     /// </summary>
-    [ObservableProperty] private string _architecture;
+    [ObservableProperty]
+    public partial string Architecture { get; set; }
 
     /// <summary>
     /// The file system path to the Java installation.
     /// </summary>
-    [ObservableProperty] private string _path;
+    [ObservableProperty]
+    public partial string Path { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="JavaVersionModel"/> class.

@@ -29,8 +29,9 @@ public partial class MainViewModel_Instances : KonkordObservableObject
     private readonly MainViewModel _parent;
     
     public ObservableCollection<InstanceGroup> InstanceGroups { get; } = new();
-    [ObservableProperty] private bool _hasInstances;
-    
+    [ObservableProperty]
+    public partial bool HasInstances { get; set; }
+
     /// <summary>
     /// Creates a new instance of the <see cref="MainViewModel_Instances"/> sub-view-model.
     /// </summary>

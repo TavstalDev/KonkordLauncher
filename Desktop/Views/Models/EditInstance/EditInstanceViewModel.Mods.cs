@@ -29,8 +29,9 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
     
     private readonly SourceCache<ResourceBaseModel, string> _modsCache = new(x => x.Name);
     public ReadOnlyObservableCollection<ResourceBaseModel> FilteredMods { get; private set; }
-    
-    [ObservableProperty] private ResourceBaseModel? _selectedMod;
+
+    [ObservableProperty]
+    public partial ResourceBaseModel? SelectedMod { get; set; }
     [ObservableProperty] 
     public partial string? SearchQuery { get; set; } = string.Empty;
     

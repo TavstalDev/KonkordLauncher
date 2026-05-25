@@ -13,7 +13,8 @@ public partial class AccountDataModel : ObservableObject
     /// <summary>
     /// The ID of the currently selected account.
     /// </summary>
-    [ObservableProperty] private string? _selectedAccountId;
+    [ObservableProperty]
+    public partial string? SelectedAccountId { get; set; }
 
     private ObservableCollection<Account> _accounts;
 
@@ -44,7 +45,7 @@ public partial class AccountDataModel : ObservableObject
     public AccountDataModel()
     {
         _accounts = [];
-        _selectedAccountId = null;
+        SelectedAccountId = null;
         _accounts.CollectionChanged += OnAccountsCollectionChanged;
     }
 
@@ -55,7 +56,7 @@ public partial class AccountDataModel : ObservableObject
     /// <param name="accounts">The collection of accounts.</param>
     public AccountDataModel(string? selectedAccountId, ObservableCollection<Account> accounts)
     {
-        _selectedAccountId = selectedAccountId;
+        SelectedAccountId = selectedAccountId;
         _accounts = accounts;
         _accounts.CollectionChanged += OnAccountsCollectionChanged;
     }
@@ -66,7 +67,7 @@ public partial class AccountDataModel : ObservableObject
     /// <param name="data">The account data to initialize from.</param>
     public AccountDataModel(AccountData data)
     {
-        _selectedAccountId = data.SelectedAccountId;
+        SelectedAccountId = data.SelectedAccountId;
         _accounts = new ObservableCollection<Account>(data.Accounts);
         _accounts.CollectionChanged += OnAccountsCollectionChanged;
     }

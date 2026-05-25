@@ -29,36 +29,68 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(CreateInstanceViewModel_Modpack));
     private readonly CreateInstanceViewModel _parent;
-    
-    [ObservableProperty] private bool _allowScrollbarRefresh = false;
-    [ObservableProperty] private ObservableCollection<ModPackModel> _modpacks = new();
+
+    [ObservableProperty]
+    public partial bool AllowScrollbarRefresh { get; set; } = false;
+
+    [ObservableProperty]
+    public partial ObservableCollection<ModPackModel> Modpacks { get; set; } = new();
     public ObservableCollection<string> VersionFilterSource { get; } = new();
-    [ObservableProperty] private int _versionFilterIndex = -1;
-    
+    [ObservableProperty]
+    public partial int VersionFilterIndex { get; set; } = -1;
+
     [ObservableProperty] private string _searchQuery = string.Empty;
 
-    [ObservableProperty] private EMinecraftKind _modLoader = EMinecraftKind.VANILLA;
-    
+    [ObservableProperty]
+    public partial EMinecraftKind ModLoader { get; set; } = EMinecraftKind.VANILLA;
+
     [ObservableProperty] private string? _minecraftVersion;
 
-    [ObservableProperty] private bool _categoryAdventure;
-    [ObservableProperty] private bool _categoryChallenging;
-    [ObservableProperty] private bool _categoryCombat;
-    [ObservableProperty] private bool _categoryKitchenSink;
-    [ObservableProperty] private bool _categoryLightweight;
-    [ObservableProperty] private bool _categoryMagic;
-    [ObservableProperty] private bool _categoryMultiplayer;
-    [ObservableProperty] private bool _categoryOptimization;
-    [ObservableProperty] private bool _categoryQuests;
-    [ObservableProperty] private bool _categoryTechnology;
-    
+    [ObservableProperty]
+    public partial bool CategoryAdventure { get; set; }
+
+    [ObservableProperty]
+    public partial bool CategoryChallenging { get; set; }
+
+    [ObservableProperty]
+    public partial bool CategoryCombat { get; set; }
+
+    [ObservableProperty]
+    public partial bool CategoryKitchenSink { get; set; }
+
+    [ObservableProperty]
+    public partial bool CategoryLightweight { get; set; }
+
+    [ObservableProperty]
+    public partial bool CategoryMagic { get; set; }
+
+    [ObservableProperty]
+    public partial bool CategoryMultiplayer { get; set; }
+
+    [ObservableProperty]
+    public partial bool CategoryOptimization { get; set; }
+
+    [ObservableProperty]
+    public partial bool CategoryQuests { get; set; }
+
+    [ObservableProperty]
+    public partial bool CategoryTechnology { get; set; }
+
     [ObservableProperty] private EPlatformType _selectedPlatform = EPlatformType.Modrinth;
-    
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(ModpackPreview))] private ModPackModel? _selectedModpack;
-    [ObservableProperty] private int _selectedModpackVersionIndex;
-    [ObservableProperty] private string _instanceName;
-    [ObservableProperty] private bool _canCreateInstance = false;
-    
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ModpackPreview))]
+    public partial ModPackModel? SelectedModpack { get; set; }
+
+    [ObservableProperty]
+    public partial int SelectedModpackVersionIndex { get; set; }
+
+    [ObservableProperty]
+    public partial string InstanceName { get; set; }
+
+    [ObservableProperty]
+    public partial bool CanCreateInstance { get; set; } = false;
+
     public List<EPlatformType> AvailablePlatforms =>
     [
         EPlatformType.Modrinth,

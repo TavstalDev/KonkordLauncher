@@ -23,16 +23,28 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
 {
     private  readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(CreateInstanceViewModel_Import));
     private readonly CreateInstanceViewModel _parent;
-    
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsSourceFromFile))] private int _selectedImportSourceIndex = 0;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsSourceFromFile))]
+    public partial int SelectedImportSourceIndex { get; set; } = 0;
+
     public bool IsSourceFromFile => SelectedImportSourceIndex == 0;
 
-    [ObservableProperty] private string? _importPath;
-    [ObservableProperty] private bool _hasImportPath;
-    [ObservableProperty] private string _importPreviewName = "---";
-    [ObservableProperty] private string _importPreviewVersion = "---";
-    [ObservableProperty] private string _importPreviewModLoader = "---";
-    
+    [ObservableProperty]
+    public partial string? ImportPath { get; set; }
+
+    [ObservableProperty]
+    public partial bool HasImportPath { get; set; }
+
+    [ObservableProperty]
+    public partial string ImportPreviewName { get; set; } = "---";
+
+    [ObservableProperty]
+    public partial string ImportPreviewVersion { get; set; } = "---";
+
+    [ObservableProperty]
+    public partial string ImportPreviewModLoader { get; set; } = "---";
+
     public CreateInstanceViewModel_Import(CreateInstanceViewModel parent)
     {
         _parent = parent;

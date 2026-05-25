@@ -20,9 +20,10 @@ public partial class MainViewModel_About : KonkordObservableObject
     public string Version { get; } =  App.Version;
     public string Branch { get; } = App.Branch;
     public string BuildDate { get; } = App.BuildDate;
-    
-    [ObservableProperty] private string _license;
-    
+
+    [ObservableProperty]
+    public partial string License { get; set; }
+
     /// <summary>
     /// Creates a new instance of <see cref="MainViewModel_About"/>.
     /// </summary>

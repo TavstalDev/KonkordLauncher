@@ -65,17 +65,25 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     public Interaction<Unit, Unit> BeginScreenshotRename { get; } = new();
     public Interaction<Unit, Unit> LogsScrollToEnd { get; } = new();
     public Interaction<EResourceType, Unit> OpenResourceDownloadDialog { get; } = new();
-    
+
     #endregion
 
     #region Observable Properties
 
-    [ObservableProperty] private EEditInstanceTab _editInstanceTab;
-    [ObservableProperty] private EInstanceSettingsTab _instanceSettingsTab;
-    [ObservableProperty] private string _instanceName;
-    [ObservableProperty] private string? _gameDirectory;
-    [ObservableProperty] private bool _isVanilla;
+    [ObservableProperty]
+    public partial EEditInstanceTab EditInstanceTab { get; set; }
 
+    [ObservableProperty]
+    public partial EInstanceSettingsTab InstanceSettingsTab { get; set; }
+
+    [ObservableProperty]
+    public partial string InstanceName { get; set; }
+
+    [ObservableProperty]
+    public partial string? GameDirectory { get; set; }
+
+    [ObservableProperty]
+    public partial bool IsVanilla { get; set; }
     public ObservableCollection<string> Logs { get; set; } = [];
 
     #endregion

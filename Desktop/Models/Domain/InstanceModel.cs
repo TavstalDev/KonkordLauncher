@@ -45,61 +45,70 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     /// <summary>
     /// Gets or sets the unique identifier of the instance.
     /// </summary>
-    [ObservableProperty] private string _id;
+    [ObservableProperty]
+    public partial string Id { get; set; }
 
     /// <summary>
     /// Gets or sets the name of the instance.
     /// </summary>
-    [ObservableProperty] private string _name;
+    [ObservableProperty]
+    public partial string Name { get; set; }
 
     /// <summary>
     /// Gets or sets the group to which the instance belongs.
     /// </summary>
-    [ObservableProperty] private string? _group;
+    [ObservableProperty]
+    public partial string? Group { get; set; }
 
     /// <summary>
     /// Gets or sets the file path to the icon of the instance.
     /// </summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Icon))]
-    private string _iconPath;
+    public partial string IconPath { get; set; }
 
     /// <summary>
     /// Gets or sets the Minecraft version associated with the instance.
     /// </summary>
-    [ObservableProperty] private string _minecraftVersion;
+    [ObservableProperty]
+    public partial string MinecraftVersion { get; set; }
 
     /// <summary>
     /// Gets or sets the custom version of the instance, if any.
     /// </summary>
-    [ObservableProperty] private string _customVersion;
+    [ObservableProperty]
+    public partial string CustomVersion { get; set; }
 
     /// <summary>
     /// Gets or sets the profile type of the instance.
     /// </summary>
-    [ObservableProperty] private EProfileType _type;
+    [ObservableProperty]
+    public partial EProfileType Type { get; set; }
 
     /// <summary>
     /// Gets or sets the kind of Minecraft associated with the instance.
     /// </summary>
-    [ObservableProperty] private EMinecraftKind _kind;
+    [ObservableProperty]
+    public partial EMinecraftKind Kind { get; set; }
 
     /// <summary>
     /// Gets or sets the custom game directory for the instance, if specified.
     /// </summary>
-    [ObservableProperty] private string? _gameDirectory;
+    [ObservableProperty]
+    public partial string? GameDirectory { get; set; }
 
     /// <summary>
     /// Gets or sets the configuration of the instance.
     /// </summary>
-    [ObservableProperty] private InstanceConfig _configModel;
+    [ObservableProperty]
+    public partial InstanceConfig ConfigModel { get; set; }
 
     /// <summary>
     /// Gets or sets the process associated with the running game.
     /// </summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsGameRunning))]
-    private Process? _gameProcess;
+    public partial Process? GameProcess { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the game is currently running.

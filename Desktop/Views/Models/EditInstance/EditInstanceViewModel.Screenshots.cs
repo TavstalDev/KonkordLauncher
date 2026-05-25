@@ -20,8 +20,9 @@ public partial class EditInstanceViewModel_Screenshots  : KonkordObservableObjec
     private readonly EditInstanceViewModel _parent;
     
     public ObservableCollection<ScreenshotModel> Screenshots { get; set; } = [];
-    [ObservableProperty] private ScreenshotModel? _selectedScreenshot;
-    
+    [ObservableProperty]
+    public partial ScreenshotModel? SelectedScreenshot { get; set; }
+
     public EditInstanceViewModel_Screenshots(EditInstanceViewModel parent)
     {
         _parent = parent;

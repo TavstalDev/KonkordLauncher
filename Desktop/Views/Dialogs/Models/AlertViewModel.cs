@@ -14,16 +14,24 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 /// </summary>
 public partial class AlertViewModel : KonkordObservableObject
 {
-    [ObservableProperty] private string _title;
-    [ObservableProperty] private string _message;
-    [ObservableProperty] private EAlertType _alertType;
-    
+    [ObservableProperty]
+    public partial string Title { get; set; }
+
+    [ObservableProperty]
+    public partial string Message { get; set; }
+
+    [ObservableProperty]
+    public partial EAlertType AlertType { get; set; }
+
     [ObservableProperty] private string _getIconColor;
-    [ObservableProperty] private string _getIcon;
-    [ObservableProperty] private bool _hasCancelButton;
+    [ObservableProperty]
+    public partial string GetIcon { get; set; }
+
+    [ObservableProperty]
+    public partial bool HasCancelButton { get; set; }
 
     #region Interactions
-    
+
     public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
     public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
@@ -39,34 +47,34 @@ public partial class AlertViewModel : KonkordObservableObject
     /// <param name="type">The alert type that controls styling and button visibility.</param>
     public AlertViewModel(string title, string message, EAlertType type)
     {
-        _title = title;
-        _message = message;
-        _alertType = type;
+        Title = title;
+        Message = message;
+        AlertType = type;
 
-        switch (_alertType)
+        switch (AlertType)
         {
             case EAlertType.Success:
-                _getIcon = "\uf058";
+                GetIcon = "\uf058";
                 _getIconColor = "success";
                 break;
             case EAlertType.Warning:
-                _getIcon = "\uf071";
+                GetIcon = "\uf071";
                 _getIconColor = "warning";
-                _hasCancelButton = true;
+                HasCancelButton = true;
                 break;
             case EAlertType.Error:
-                _getIcon = "\uf06a";
+                GetIcon = "\uf06a";
                 _getIconColor = "error";
-                _hasCancelButton = true;
+                HasCancelButton = true;
                 break;
             case EAlertType.Confirm:
-                _getIcon = "\uf059";
+                GetIcon = "\uf059";
                 _getIconColor = "confirm";
-                _hasCancelButton = true;
+                HasCancelButton = true;
                 break;
             default:
             case EAlertType.Info:
-                _getIcon = "\uf05a";
+                GetIcon = "\uf05a";
                 _getIconColor = "info";
                 break;
         }

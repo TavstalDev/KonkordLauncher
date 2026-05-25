@@ -15,9 +15,13 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 /// </summary>
 public partial class JavaSelectorViewModel : ObservableObject
 {
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(HasSelectedJavaVersion))] private JavaVersionModel? _selectedJavaVersion;
-    [ObservableProperty] private ObservableCollection<JavaVersionModel> _versions;
-    
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasSelectedJavaVersion))]
+    public partial JavaVersionModel? SelectedJavaVersion { get; set; }
+
+    [ObservableProperty]
+    public partial ObservableCollection<JavaVersionModel> Versions { get; set; }
+
     /// <summary>
     /// Indicates whether a Java version is currently selected.
     /// </summary>

@@ -31,7 +31,8 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
     
     private readonly SourceCache<ResourceBaseModel, string> _shaderPackCache = new(x => x.Name);
     public ReadOnlyObservableCollection<ResourceBaseModel> FilteredShaderPacks { get; private set; }
-    [ObservableProperty] private ResourceBaseModel? _selectedShaderPack;
+    [ObservableProperty]
+    public partial ResourceBaseModel? SelectedShaderPack { get; set; }
     [ObservableProperty] 
     public partial string SearchQuery { get; set; } = string.Empty;
     

@@ -17,16 +17,15 @@ public partial class InstallViewModel : ObservableObject
     /// Gets or sets the progress text displayed during the installation process.
     /// Default value is "Initializing...".
     /// </summary>
-    [ObservableProperty] 
-    private string _progressText = "Initializing...";
+    [ObservableProperty]
+    public partial string ProgressText { get; set; } = "Initializing...";
 
     /// <summary>
     /// Gets or sets the progress value of the installation process.
     /// Default value is 0, representing no progress.
     /// </summary>
-    [ObservableProperty] 
-    private double _progressValue;
-    
+    [ObservableProperty]
+    public partial double ProgressValue { get; set; }
     public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
     public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();

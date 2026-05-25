@@ -10,17 +10,20 @@ public partial class VersionModel : ObservableObject
     /// <summary>
     /// The version number of the instance.
     /// </summary>
-    [ObservableProperty] private string _version;
+    [ObservableProperty]
+    public partial string Version { get; set; }
 
     /// <summary>
     /// The release date of the version.
     /// </summary>
-    [ObservableProperty] private string _releaseDate;
+    [ObservableProperty]
+    public partial string ReleaseDate { get; set; }
 
     /// <summary>
     /// The type of the version (e.g., stable, beta, etc.).
     /// </summary>
-    [ObservableProperty] private string _type;
+    [ObservableProperty]
+    public partial string Type { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="VersionModel"/> class.

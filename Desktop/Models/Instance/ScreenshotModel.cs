@@ -12,29 +12,33 @@ public partial class ScreenshotModel : ObservableObject
     /// <summary>
     /// The name of the screenshot file without its extension.
     /// </summary>
-    [ObservableProperty] private string _name;
+    [ObservableProperty]
+    public partial string Name { get; set; }
 
     /// <summary>
     /// The file extension of the screenshot (e.g., .png, .jpg).
     /// </summary>
-    [ObservableProperty] private string _extension;
+    [ObservableProperty]
+    public partial string Extension { get; set; }
 
     /// <summary>
     /// The full file path of the screenshot.
     /// </summary>
-    [ObservableProperty] private string _path;
+    [ObservableProperty]
+    public partial string Path { get; set; }
 
     /// <summary>
     /// The bitmap image representation of the screenshot.
     /// </summary>
-    [ObservableProperty] private Bitmap? _image;
+    [ObservableProperty]
+    public partial Bitmap? Image { get; set; }
 
     /// <summary>
     /// The size of the screenshot file in bytes.
     /// </summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(FormatedSize))]
-    private long _size;
+    public partial long Size { get; set; }
 
     /// <summary>
     /// Gets the formatted size of the screenshot file as a human-readable string.

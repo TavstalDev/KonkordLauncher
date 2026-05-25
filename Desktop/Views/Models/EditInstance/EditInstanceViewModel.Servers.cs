@@ -20,13 +20,16 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceViewModel_Servers));
     private readonly EditInstanceViewModel _parent;
-    
-    [ObservableProperty] private string _serverName;
-    [ObservableProperty] private string _serverIp;
-    
+
+    [ObservableProperty]
+    public partial string ServerName { get; set; }
+
+    [ObservableProperty]
+    public partial string ServerIp { get; set; }
     public ObservableCollection<ServerModel> Servers { get; set; } = [];
-    [ObservableProperty] private ServerModel? _selectedServer;
-    
+    [ObservableProperty]
+    public partial ServerModel? SelectedServer { get; set; }
+
     public EditInstanceViewModel_Servers(EditInstanceViewModel parent)
     {
         _parent = parent;

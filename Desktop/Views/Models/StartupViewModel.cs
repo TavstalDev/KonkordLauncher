@@ -13,13 +13,14 @@ public partial class StartupViewModel : KonkordObservableObject
     /// <summary>
     /// The progress value, represented as a double.
     /// </summary>
-    [ObservableProperty] private double _progress;
+    [ObservableProperty]
+    public partial double Progress { get; set; }
 
     /// <summary>
     /// The progress text, initialized with a default value of "Starting...".
     /// </summary>
-    [ObservableProperty] private string _progressText = "Starting...";
-    
+    [ObservableProperty]
+    public partial string ProgressText { get; set; } = "Starting...";
     public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
     public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();

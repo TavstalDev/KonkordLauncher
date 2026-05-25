@@ -10,47 +10,56 @@ public partial class InstanceGameConfigModel : ObservableObject
     /// <summary>
     /// Gets or sets a value indicating whether the game should start maximized.
     /// </summary>
-    [ObservableProperty] private bool _startMaximized;
+    [ObservableProperty]
+    public partial bool StartMaximized { get; set; }
 
     /// <summary>
     /// Gets or sets the width of the game window.
     /// </summary>
-    [ObservableProperty] private uint _windowWidth;
+    [ObservableProperty]
+    public partial uint WindowWidth { get; set; }
 
     /// <summary>
     /// Gets or sets the height of the game window.
     /// </summary>
-    [ObservableProperty] private uint _windowHeight;
+    [ObservableProperty]
+    public partial uint WindowHeight { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the console should be shown while the game is running.
     /// </summary>
-    [ObservableProperty] private bool _showConsoleWhileGameRunning;
+    [ObservableProperty]
+    public partial bool ShowConsoleWhileGameRunning { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the console should close automatically when the game exits.
     /// </summary>
-    [ObservableProperty] private bool _closeConsoleOnGameExit;
+    [ObservableProperty]
+    public partial bool CloseConsoleOnGameExit { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the console should be shown when the game crashes.
     /// </summary>
-    [ObservableProperty] private bool _showConsoleWhenGameCrashes;
+    [ObservableProperty]
+    public partial bool ShowConsoleWhenGameCrashes { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether MangoHud should be enabled.
     /// </summary>
-    [ObservableProperty] private bool _enableMangoHud;
+    [ObservableProperty]
+    public partial bool EnableMangoHud { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether Feral GameMode should be enabled.
     /// </summary>
-    [ObservableProperty] private bool _enableFeralGameMode;
+    [ObservableProperty]
+    public partial bool EnableFeralGameMode { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether a dedicated GPU should be used.
     /// </summary>
-    [ObservableProperty] private bool _useDedicatedGpu;
+    [ObservableProperty]
+    public partial bool UseDedicatedGpu { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="InstanceGameConfigModel"/> class with default values.

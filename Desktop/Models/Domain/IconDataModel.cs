@@ -11,13 +11,15 @@ public partial class IconDataModel : ObservableObject
     /// <summary>
     /// The name of the icon.
     /// </summary>
-    [ObservableProperty] private string _name;
+    [ObservableProperty]
+    public partial string Name { get; set; }
 
     /// <summary>
     /// The file path associated with the icon.
     /// </summary>
-    [ObservableProperty] private string _path;
-    
+    [ObservableProperty]
+    public partial string Path { get; set; }
+
     /// <summary>
     /// The image associated with the icon.
     /// </summary>
@@ -31,8 +33,8 @@ public partial class IconDataModel : ObservableObject
     /// <param name="image">The image associated with the icon.</param>
     public IconDataModel(string name, string path, Bitmap image)
     {
-        _name = name;
-        _path = path;
+        Name = name;
+        Path = path;
         _image = image;
     }
 }

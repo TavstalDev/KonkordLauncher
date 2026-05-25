@@ -10,27 +10,32 @@ public partial class MinecraftConfigModel : ObservableObject
     /// <summary>
     /// Gets or sets a value indicating whether the game should start maximized.
     /// </summary>
-    [ObservableProperty] private bool _startMaximized;
+    [ObservableProperty]
+    public partial bool StartMaximized { get; set; }
 
     /// <summary>
     /// Gets or sets the width of the game window.
     /// </summary>
-    [ObservableProperty] private uint _windowWidth;
+    [ObservableProperty]
+    public partial uint WindowWidth { get; set; }
 
     /// <summary>
     /// Gets or sets the height of the game window.
     /// </summary>
-    [ObservableProperty] private uint _windowHeight;
+    [ObservableProperty]
+    public partial uint WindowHeight { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the launcher should close when the game starts.
     /// </summary>
-    [ObservableProperty] private bool _closeLauncherOnGameStart;
+    [ObservableProperty]
+    public partial bool CloseLauncherOnGameStart { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the launcher should close when the game exits.
     /// </summary>
-    [ObservableProperty] private bool _closeLauncherOnGameExit;
+    [ObservableProperty]
+    public partial bool CloseLauncherOnGameExit { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MinecraftConfigModel"/> class with default values.
@@ -47,10 +52,10 @@ public partial class MinecraftConfigModel : ObservableObject
     /// <param name="closeLauncherOnGameExit">Whether the launcher should close when the game exits.</param>
     public MinecraftConfigModel(bool startMaximized, uint windowWidth, uint windowHeight, bool closeLauncherOnGameStart, bool closeLauncherOnGameExit)
     {
-        _startMaximized = startMaximized;
-        _windowWidth = windowWidth;
-        _windowHeight = windowHeight;
-        _closeLauncherOnGameStart = closeLauncherOnGameStart;
-        _closeLauncherOnGameExit = closeLauncherOnGameExit;
+        StartMaximized = startMaximized;
+        WindowWidth = windowWidth;
+        WindowHeight = windowHeight;
+        CloseLauncherOnGameStart = closeLauncherOnGameStart;
+        CloseLauncherOnGameExit = closeLauncherOnGameExit;
     }
 }

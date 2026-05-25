@@ -27,8 +27,9 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
     private readonly EditInstanceViewModel _parent;
 
     public ObservableCollection<WorldModel> Worlds { get; set; } = [];
-    [ObservableProperty] private WorldModel? _selectedWorld;
-    
+    [ObservableProperty]
+    public partial WorldModel? SelectedWorld { get; set; }
+
     public EditInstanceViewModel_Worlds(EditInstanceViewModel parent)
     {
         _parent = parent;

@@ -14,22 +14,26 @@ public partial class CoreConfigModel : ObservableObject
     /// <summary>
     /// Gets or sets the launcher configuration.
     /// </summary>
-    [ObservableProperty] private LauncherConfigModel _launcher;
+    [ObservableProperty]
+    public partial LauncherConfigModel Launcher { get; set; }
 
     /// <summary>
     /// Gets or sets the Java configuration.
     /// </summary>
-    [ObservableProperty] private JavaConfigModel _java;
+    [ObservableProperty]
+    public partial JavaConfigModel Java { get; set; }
 
     /// <summary>
     /// Gets or sets the Minecraft configuration.
     /// </summary>
-    [ObservableProperty] private MinecraftConfigModel _minecraft;
+    [ObservableProperty]
+    public partial MinecraftConfigModel Minecraft { get; set; }
 
     /// <summary>
     /// Gets or sets the miscellaneous configuration.
     /// </summary>
-    [ObservableProperty] private MiscConfigModel _misc;
+    [ObservableProperty]
+    public partial MiscConfigModel Misc { get; set; }
 
     /// <summary>
     /// Gets the list of available languages for the launcher.
@@ -50,10 +54,10 @@ public partial class CoreConfigModel : ObservableObject
     /// <param name="misc">The miscellaneous configuration.</param>
     public CoreConfigModel(LauncherConfigModel launcher, JavaConfigModel java, MinecraftConfigModel minecraft, MiscConfigModel misc)
     {
-        _launcher = launcher;
-        _java = java;
-        _minecraft = minecraft;
-        _misc = misc;
+        Launcher = launcher;
+        Java = java;
+        Minecraft = minecraft;
+        Misc = misc;
     }
 
     /// <summary>
@@ -62,7 +66,7 @@ public partial class CoreConfigModel : ObservableObject
     /// <param name="config">The core configuration object to initialize from.</param>
     public CoreConfigModel(CoreConfig config)
     {
-        _launcher = new LauncherConfigModel {
+        Launcher = new LauncherConfigModel {
             EnableAutomaticUpdates = config.Launcher.EnableAutomaticUpdates,
             UpdateInterval = config.Launcher.UpdateInterval,
             Language = config.Launcher.Language,
@@ -77,14 +81,14 @@ public partial class CoreConfigModel : ObservableObject
             TranslationsDirectoryPath = config.Launcher.TranslationsDirectoryPath,
             VersionsDirectoryPath = config.Launcher.VersionsDirectoryPath
         };
-        _java = new JavaConfigModel {
+        Java = new JavaConfigModel {
             MinMemory = config.Java.MinMemory,
             MaxMemory = config.Java.MaxMemory,
             PermaGen = config.Java.PermaGen,
             DefaultJavaPath = config.Java.JavaPath,
             JvmArguments = config.Java.JvmArguments
         };
-        _minecraft = new MinecraftConfigModel
+        Minecraft = new MinecraftConfigModel
         {
             StartMaximized = config.Minecraft.StartMaximized,
             WindowWidth = config.Minecraft.WindowWidth,
@@ -92,7 +96,7 @@ public partial class CoreConfigModel : ObservableObject
             CloseLauncherOnGameStart = config.Minecraft.CloseLauncherOnGameStart,
             CloseLauncherOnGameExit = config.Minecraft.CloseLauncherOnGameExit
         };
-        _misc = new MiscConfigModel
+        Misc = new MiscConfigModel
         {
             PreLaunchCommand = config.Misc.PreLaunchCommand,
             WrapperCommand = config.Misc.WrapperCommand,

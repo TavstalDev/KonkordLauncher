@@ -20,13 +20,16 @@ public partial class InputViewModel : ObservableObject
     /// <summary>
     /// The title of the input dialog.
     /// </summary>
-    [ObservableProperty] private string _title;
+    [ObservableProperty]
+    public partial string Title { get; set; }
 
     /// <summary>
     /// The text input provided by the user in the dialog.
     /// Notifies changes to <see cref="CanClickOnOk"/>.
     /// </summary>
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanClickOnOk))] private string _inputText = string.Empty;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanClickOnOk))]
+    public partial string InputText { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets a value indicating whether the "OK" button can be clicked.
@@ -40,7 +43,7 @@ public partial class InputViewModel : ObservableObject
     /// <param name="title">The title to be displayed in the input dialog.</param>
     public InputViewModel(string title)
     {
-        _title = title;
+        Title = title;
     }
 
     /// <summary>

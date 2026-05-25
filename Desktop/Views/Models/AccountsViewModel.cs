@@ -45,16 +45,29 @@ public partial class AccountsViewModel : KonkordObservableObject
     #endregion
 
     #region Observable Properties
-    [ObservableProperty] private bool isLoggingInMicrosoftAccount;
-    [ObservableProperty] private bool isProcessingLogin;
-    [ObservableProperty] private double _progress;
-    [ObservableProperty] private string _progressText = "Loading...";
-    [ObservableProperty] private string? _offlineUsername;
-    [ObservableProperty] private DeviceCodeResult _deviceData = new()
+    [ObservableProperty]
+    public partial bool IsLoggingInMicrosoftAccount { get; set; }
+
+    [ObservableProperty]
+    public partial bool IsProcessingLogin { get; set; }
+
+    [ObservableProperty]
+    public partial double Progress { get; set; }
+
+    [ObservableProperty]
+    public partial string ProgressText { get; set; } = "Loading...";
+
+    [ObservableProperty]
+    public partial string? OfflineUsername { get; set; }
+
+    [ObservableProperty]
+    public partial DeviceCodeResult DeviceData { get; set; } = new()
     {
         UserCode = TranslationManager.Translate("common.loading"),
     };
-    [ObservableProperty] private Bitmap? _qrCode = ImageHelper.Load("avares://Desktop/Assets/creeper.jpg").Result;
+
+    [ObservableProperty]
+    public partial Bitmap? QrCode { get; set; } = ImageHelper.Load("avares://Desktop/Assets/creeper.jpg").Result;
     #endregion
 
     /// <summary>

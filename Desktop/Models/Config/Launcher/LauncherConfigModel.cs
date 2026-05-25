@@ -11,67 +11,80 @@ public partial class LauncherConfigModel : ObservableObject
     /// <summary>
     /// Gets or sets a value indicating whether automatic updates are enabled.
     /// </summary>
-    [ObservableProperty] private bool _enableAutomaticUpdates;
+    [ObservableProperty]
+    public partial bool EnableAutomaticUpdates { get; set; }
 
     /// <summary>
     /// Gets or sets the update interval in minutes.
     /// </summary>
-    [ObservableProperty] private uint _updateInterval;
+    [ObservableProperty]
+    public partial uint UpdateInterval { get; set; }
 
     /// <summary>
     /// Gets or sets the language of the launcher.
     /// </summary>
-    [ObservableProperty] private string _language;
+    [ObservableProperty]
+    public partial string Language { get; set; }
 
     /// <summary>
     /// Gets or sets the theme type of the launcher.
     /// </summary>
-    [ObservableProperty] private EThemeType _theme;
+    [ObservableProperty]
+    public partial EThemeType Theme { get; set; }
 
     /// <summary>
     /// Gets or sets the path to the assets directory.
     /// </summary>
-    [ObservableProperty] private string _assetsDirectoryPath;
+    [ObservableProperty]
+    public partial string AssetsDirectoryPath { get; set; }
 
     /// <summary>
     /// Gets or sets the path to the cache directory.
     /// </summary>
-    [ObservableProperty] private string _cacheDirectoryPath;
+    [ObservableProperty]
+    public partial string CacheDirectoryPath { get; set; }
 
     /// <summary>
     /// Gets or sets the path to the icons directory.
     /// </summary>
-    [ObservableProperty] private string _iconsDirectoryPath;
+    [ObservableProperty]
+    public partial string IconsDirectoryPath { get; set; }
 
     /// <summary>
     /// Gets or sets the path to the instances directory.
     /// </summary>
-    [ObservableProperty] private string _instancesDirectoryPath;
+    [ObservableProperty]
+    public partial string InstancesDirectoryPath { get; set; }
 
     /// <summary>
     /// Gets or sets the path to the Java directory.
     /// </summary>
-    [ObservableProperty] private string _javaDirectoryPath;
+    [ObservableProperty]
+    public partial string JavaDirectoryPath { get; set; }
 
     /// <summary>
     /// Gets or sets the path to the libraries directory.
     /// </summary>
-    [ObservableProperty] private string _librariesDirectoryPath;
+    [ObservableProperty]
+    public partial string LibrariesDirectoryPath { get; set; }
 
     /// <summary>
     /// Gets or sets the path to the manifests directory.
     /// </summary>
-    [ObservableProperty] private string _manifestsDirectoryPath;
+    [ObservableProperty]
+    public partial string ManifestsDirectoryPath { get; set; }
 
     /// <summary>
     /// Gets or sets the path to the translations directory.
     /// </summary>
-    [ObservableProperty] private string _translationsDirectoryPath;
+    [ObservableProperty]
+    public partial string TranslationsDirectoryPath { get; set; }
 
     /// <summary>
     /// Gets or sets the path to the versions directory.
     /// </summary>
-    [ObservableProperty] private string _versionsDirectoryPath;
+    [ObservableProperty]
+    public partial string VersionsDirectoryPath { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="LauncherConfigModel"/> class with default values.
@@ -96,18 +109,18 @@ public partial class LauncherConfigModel : ObservableObject
     /// <param name="versionsDirectoryPath">The path to the versions directory.</param>
     public LauncherConfigModel(bool enableAutomaticUpdates, uint updateInterval, string language, EThemeType theme, string assetsDirectoryPath, string cacheDirectoryPath, string iconsDirectoryPath, string instancesDirectoryPath, string javaDirectoryPath, string librariesDirectoryPath, string manifestsDirectoryPath, string translationsDirectoryPath, string versionsDirectoryPath)
     {
-        _enableAutomaticUpdates = enableAutomaticUpdates;
-        _updateInterval = updateInterval;
-        _language = language;
-        _theme = theme;
-        _assetsDirectoryPath = assetsDirectoryPath;
-        _cacheDirectoryPath = cacheDirectoryPath;
-        _iconsDirectoryPath = iconsDirectoryPath;
-        _instancesDirectoryPath = instancesDirectoryPath;
-        _javaDirectoryPath = javaDirectoryPath;
-        _librariesDirectoryPath = librariesDirectoryPath;
-        _manifestsDirectoryPath = manifestsDirectoryPath;
-        _translationsDirectoryPath = translationsDirectoryPath;
-        _versionsDirectoryPath = versionsDirectoryPath;
+        EnableAutomaticUpdates = enableAutomaticUpdates;
+        UpdateInterval = updateInterval;
+        Language = language;
+        Theme = theme;
+        AssetsDirectoryPath = assetsDirectoryPath;
+        CacheDirectoryPath = cacheDirectoryPath;
+        IconsDirectoryPath = iconsDirectoryPath;
+        InstancesDirectoryPath = instancesDirectoryPath;
+        JavaDirectoryPath = javaDirectoryPath;
+        LibrariesDirectoryPath = librariesDirectoryPath;
+        ManifestsDirectoryPath = manifestsDirectoryPath;
+        TranslationsDirectoryPath = translationsDirectoryPath;
+        VersionsDirectoryPath = versionsDirectoryPath;
     }
 }

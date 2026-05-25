@@ -10,27 +10,32 @@ public partial class JavaConfigModel : ObservableObject
     /// <summary>
     /// Gets or sets the minimum memory allocation for Java in megabytes.
     /// </summary>
-    [ObservableProperty] private uint _minMemory;
+    [ObservableProperty]
+    public partial uint MinMemory { get; set; }
 
     /// <summary>
     /// Gets or sets the maximum memory allocation for Java in megabytes.
     /// </summary>
-    [ObservableProperty] private uint _maxMemory;
+    [ObservableProperty]
+    public partial uint MaxMemory { get; set; }
 
     /// <summary>
     /// Gets or sets the permanent generation memory size for Java in megabytes.
     /// </summary>
-    [ObservableProperty] private uint _permaGen;
+    [ObservableProperty]
+    public partial uint PermaGen { get; set; }
 
     /// <summary>
     /// Gets or sets the default file path to the Java executable.
     /// </summary>
-    [ObservableProperty] private string _defaultJavaPath;
+    [ObservableProperty]
+    public partial string DefaultJavaPath { get; set; }
 
     /// <summary>
     /// Gets or sets the JVM arguments to be used when launching Java.
     /// </summary>
-    [ObservableProperty] private string _jvmArguments;
+    [ObservableProperty]
+    public partial string JvmArguments { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="JavaConfigModel"/> class with default values.
@@ -47,10 +52,10 @@ public partial class JavaConfigModel : ObservableObject
     /// <param name="jvmArguments">The JVM arguments to be used when launching Java.</param>
     public JavaConfigModel(uint minMemory, uint maxMemory, uint permaGen, string defaultJavaPath, string jvmArguments)
     {
-        _minMemory = minMemory;
-        _maxMemory = maxMemory;
-        _permaGen = permaGen;
-        _defaultJavaPath = defaultJavaPath;
-        _jvmArguments = jvmArguments;
+        MinMemory = minMemory;
+        MaxMemory = maxMemory;
+        PermaGen = permaGen;
+        DefaultJavaPath = defaultJavaPath;
+        JvmArguments = jvmArguments;
     }
 }

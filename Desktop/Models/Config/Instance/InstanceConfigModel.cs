@@ -14,22 +14,26 @@ public partial class InstanceConfigModel : ObservableObject
     /// <summary>
     /// Gets or sets the Java configuration for the instance.
     /// </summary>
-    [ObservableProperty] private JavaConfigModel _java;
+    [ObservableProperty]
+    public partial JavaConfigModel Java { get; set; }
 
     /// <summary>
     /// Gets or sets the game configuration for the instance.
     /// </summary>
-    [ObservableProperty] private InstanceGameConfigModel _game;
+    [ObservableProperty]
+    public partial InstanceGameConfigModel Game { get; set; }
 
     /// <summary>
     /// Gets or sets the commands configuration for the instance.
     /// </summary>
-    [ObservableProperty] private InstanceCommandsConfigModel _commands;
+    [ObservableProperty]
+    public partial InstanceCommandsConfigModel Commands { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the environment variables are enabled.
     /// </summary>
-    [ObservableProperty] private bool _enableEnvironment;
+    [ObservableProperty]
+    public partial bool EnableEnvironment { get; set; }
 
     /// <summary>
     /// Gets or sets the environment variables for the instance.
@@ -39,7 +43,8 @@ public partial class InstanceConfigModel : ObservableObject
     /// <summary>
     /// Gets or sets the miscellaneous configuration for the instance.
     /// </summary>
-    [ObservableProperty] private InstanceMiscConfigModel _misc;
+    [ObservableProperty]
+    public partial InstanceMiscConfigModel Misc { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="InstanceConfigModel"/> class with default values.

@@ -42,11 +42,21 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(CreateInstanceViewModel_Custom));
     private readonly CreateInstanceViewModel _parent;
-    
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))] private string _instanceName = string.Empty;
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))] private string _instanceGroup = string.Empty;
-    [ObservableProperty]  private string? _instanceIconPath;
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))] private Bitmap? _instanceIcon;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))]
+    public partial string InstanceName { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))]
+    public partial string InstanceGroup { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    public partial string? InstanceIconPath { get; set; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))]
+    public partial Bitmap? InstanceIcon { get; set; }
 
     /// <summary>
     /// Gets a value indicating whether a custom instance can be created.
@@ -78,24 +88,37 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
     #region Vanilla
     private readonly SourceCache<MinecraftVersion, string> _minecraftVersionCache = new(x => x.Id);
     public ReadOnlyObservableCollection<MinecraftVersion> MinecraftVersions { get; private set; }
-    [ObservableProperty] private string _searchQuery = string.Empty;
+    [ObservableProperty]
+    public partial string SearchQuery { get; set; } = string.Empty;
 
-    [ObservableProperty] private bool _showReleases = true;
+    [ObservableProperty]
+    public partial bool ShowReleases { get; set; } = true;
 
-    [ObservableProperty] private bool _showSnapshots;
+    [ObservableProperty]
+    public partial bool ShowSnapshots { get; set; }
 
-    [ObservableProperty] private bool _showAlphas;
+    [ObservableProperty]
+    public partial bool ShowAlphas { get; set; }
 
-    [ObservableProperty] private bool _showBetas;
+    [ObservableProperty]
+    public partial bool ShowBetas { get; set; }
 
-    [ObservableProperty] private bool _showExperiments;
-    
+    [ObservableProperty]
+    public partial bool ShowExperiments { get; set; }
+
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))] private MinecraftVersion? _selectedMinecraftVersion;
     #endregion
     #region  Mod Loader
-    [ObservableProperty] private string _modLoaderSearchQuery = string.Empty;
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))] private EMinecraftKind _modLoaderType = EMinecraftKind.VANILLA;
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))] private IModManifest? _selectedModLoader;
+    [ObservableProperty]
+    public partial string ModLoaderSearchQuery { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))]
+    public partial EMinecraftKind ModLoaderType { get; set; } = EMinecraftKind.VANILLA;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))]
+    public partial IModManifest? SelectedModLoader { get; set; }
 
     private readonly SourceCache<IModManifest, string> _modLoaderVersionCache = new(x => x.Version);
     public ReadOnlyObservableCollection<IModManifest> ModLoaderVersionResult { get; private set; } = new([]);
@@ -124,7 +147,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
     {
         _parent = parent;
         if (Design.IsDesignMode)
-            _instanceIcon = ImageHelper.Load("avares://Desktop/Assets/Icons/dirt.png").Result;
+            InstanceIcon = ImageHelper.Load("avares://Desktop/Assets/Icons/dirt.png").Result;
     }
 
     /// <summary>

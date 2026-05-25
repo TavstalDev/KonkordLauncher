@@ -10,42 +10,50 @@ public partial class InstanceMiscConfigModel : ObservableObject
     /// <summary>
     /// Gets or sets a value indicating whether a custom GLFW library should be used.
     /// </summary>
-    [ObservableProperty] private bool _useCustomGlfw;
+    [ObservableProperty]
+    public partial bool UseCustomGlfw { get; set; }
 
     /// <summary>
     /// Gets or sets the file path to the custom GLFW library.
     /// </summary>
-    [ObservableProperty] private string _customGlfwPath;
+    [ObservableProperty]
+    public partial string CustomGlfwPath { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether a custom OpenAL library should be used.
     /// </summary>
-    [ObservableProperty] private bool _useCustomOpenAL;
+    [ObservableProperty]
+    public partial bool UseCustomOpenAL { get; set; }
 
     /// <summary>
     /// Gets or sets the file path to the custom OpenAL library.
     /// </summary>
-    [ObservableProperty] private string _customOpenALPath;
+    [ObservableProperty]
+    public partial string CustomOpenALPath { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the account should be overridden.
     /// </summary>
-    [ObservableProperty] private bool _overrideAccount;
+    [ObservableProperty]
+    public partial bool OverrideAccount { get; set; }
 
     /// <summary>
     /// Gets or sets the account ID to use when overriding the account.
     /// </summary>
-    [ObservableProperty] private string _accountId;
+    [ObservableProperty]
+    public partial string AccountId { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the instance should join a server on launch.
     /// </summary>
-    [ObservableProperty] private bool _joinServerOnLaunch;
+    [ObservableProperty]
+    public partial bool JoinServerOnLaunch { get; set; }
 
     /// <summary>
     /// Gets or sets the address of the server to join on launch.
     /// </summary>
-    [ObservableProperty] private string _serverAddress;
+    [ObservableProperty]
+    public partial string ServerAddress { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="InstanceMiscConfigModel"/> class with default values.

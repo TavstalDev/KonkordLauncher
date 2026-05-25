@@ -31,12 +31,17 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
 
     #region Observable Properties
 
-    [ObservableProperty] private string _instanceName;
-    [ObservableProperty] private string? _gameDirectory;
-    [ObservableProperty] private string _logs;
+    [ObservableProperty]
+    public partial string InstanceName { get; set; }
+
+    [ObservableProperty]
+    public partial string? GameDirectory { get; set; }
+
+    [ObservableProperty]
+    public partial string Logs { get; set; }
 
     #endregion
-    
+
     /// <summary>
     /// Initializes a new instance of the <see cref="InstanceLogsViewModel"/> class with the specified instance ID.
     /// Retrieves the instance details and sets up logging for the instance.

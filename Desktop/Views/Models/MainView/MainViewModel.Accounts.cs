@@ -39,15 +39,27 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MainViewModel_Accounts));
     private readonly MainViewModel _parent;
-    
-    [ObservableProperty] private Bitmap _accountAvatar;
-    [ObservableProperty] private Bitmap? _accountSkinPreview;
-    [ObservableProperty] private bool _isAccountHasWideModel;
-    [ObservableProperty] private bool _isAccountSkinProcessing;
-    [ObservableProperty] private AccountSkin _selectedSkin;
-    [ObservableProperty] private AccountDataModel _accountData;
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(AccountName)), NotifyPropertyChangedFor(nameof(IsMojangAccount))]  private Account? _selectedAccount;
-    
+
+    [ObservableProperty]
+    public partial Bitmap AccountAvatar { get; set; }
+
+    [ObservableProperty]
+    public partial Bitmap? AccountSkinPreview { get; set; }
+
+    [ObservableProperty]
+    public partial bool IsAccountHasWideModel { get; set; }
+
+    [ObservableProperty]
+    public partial bool IsAccountSkinProcessing { get; set; }
+
+    [ObservableProperty]
+    public partial AccountSkin SelectedSkin { get; set; }
+
+    [ObservableProperty]
+    public partial AccountDataModel AccountData { get; set; }
+
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(AccountName)), NotifyPropertyChangedFor(nameof(IsMojangAccount))]
+    public partial Account? SelectedAccount { get; set; }
     public ObservableCollection<SkinDataModel> Skins { get; } = new();
     public ObservableCollection<CapeDataModel> Capes { get; } = new();
 

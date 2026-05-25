@@ -14,13 +14,15 @@ public partial class WorldModel : ObservableObject
     /// <summary>
     /// The name of the world.
     /// </summary>
-    [ObservableProperty] private string _name;
+    [ObservableProperty]
+    public partial string Name { get; set; }
 
     /// <summary>
     /// The file path of the world.
     /// </summary>
-    [ObservableProperty] private string _path;
-    
+    [ObservableProperty]
+    public partial string Path { get; set; }
+
     /// <summary>
     /// The game mode of the world (e.g., Survival, Creative).
     /// </summary>
@@ -29,8 +31,9 @@ public partial class WorldModel : ObservableObject
     /// <summary>
     /// The seed value used to generate the world.
     /// </summary>
-    [ObservableProperty] public long _seed;
-    
+    [ObservableProperty]
+    public partial long Seed { get; set; }
+
     /// <summary>
     /// The last played timestamp of the world in milliseconds since the Unix epoch.
     /// </summary>
@@ -43,12 +46,13 @@ public partial class WorldModel : ObservableObject
     /// </summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(FormattedSize))]
-    private long _size;
+    public partial long Size { get; set; }
 
     /// <summary>
     /// The icon representing the world.
     /// </summary>
-    [ObservableProperty] private Bitmap? _icon;
+    [ObservableProperty]
+    public partial Bitmap? Icon { get; set; }
 
     /// <summary>
     /// Gets the formatted size of the world as a human-readable string.
@@ -94,12 +98,12 @@ public partial class WorldModel : ObservableObject
     /// <param name="icon">The icon representing the world.</param>
     public WorldModel(string name, string path, string gamemode, long seed, long lastPlayed, long size, Bitmap? icon)
     {
-        _name = name;
-        _path = path;
+        Name = name;
+        Path = path;
         _gamemode = gamemode;
-        _seed = seed;
+        Seed = seed;
         _lastPlayed = lastPlayed;
-        _size = size;
-        _icon = icon;
+        Size = size;
+        Icon = icon;
     }
 }

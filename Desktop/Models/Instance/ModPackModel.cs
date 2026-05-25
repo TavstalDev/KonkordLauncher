@@ -16,12 +16,12 @@ public class ModPackModel
     /// <summary>
     /// Human-readable title of the mod pack (project).
     /// </summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
     
     /// <summary>
     /// Short description text provided by the project.
     /// </summary>
-    public string Description { get; set; }
+    public string Description { get; set; } = string.Empty;
     
     /// <summary>
     /// Optional icon for the project as a bitmap. May be null if the project has no icon or the fetch failed.
@@ -36,17 +36,17 @@ public class ModPackModel
     /// <summary>
     /// The project's body converted to HTML. Intended to be rendered in the UI.
     /// </summary>
-    public string RawPage { get; set; }
-    
+    public string RawPage { get; set; } =  string.Empty;
+
     /// <summary>
     /// Collection of versions associated with the project.
     /// </summary>
-    public ObservableCollection<Version> Versions { get; set; }
-    
+    public ObservableCollection<Version> Versions { get; set; } = [];
+
     /// <summary>
     /// Categories/tags associated with the project.
     /// </summary>
-    public ObservableCollection<string> Tags { get; set; }
+    public ObservableCollection<string> Tags { get; set; } = [];
     
     /// <summary>
     /// Create a <see cref="ModPackModel"/> from a Modrinth <see cref="Project"/> and a list of <see cref="Version"/>s.

@@ -26,8 +26,9 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IProgres
     public CreateInstanceViewModel_Modpack Modpack { get;  }
     public CreateInstanceViewModel_Import Import { get;  }
 
-    [ObservableProperty] private ECreateInstanceTab _selectedTab = ECreateInstanceTab.CUSTOM;
-    
+    [ObservableProperty]
+    public partial ECreateInstanceTab SelectedTab { get; set; } = ECreateInstanceTab.CUSTOM;
+
     #region Interactions
     public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
     public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();

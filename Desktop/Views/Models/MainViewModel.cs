@@ -58,9 +58,13 @@ public partial class MainViewModel : KonkordObservableObject
     public Interaction<Instance, Unit> ExportModrinthInstanceInteraction { get; } = new();
     public Interaction<Instance, Unit> ExportCurseForgeInstanceInteraction { get; } = new();
     #endregion
-    
-    [ObservableProperty] private bool _isLoading;
-    [ObservableProperty] private ESidebarType _currentPageIndex = ESidebarType.Play;
+
+    [ObservableProperty]
+    public partial bool IsLoading { get; set; }
+
+    [ObservableProperty]
+    public partial ESidebarType CurrentPageIndex { get; set; } = ESidebarType.Play;
+
     [ObservableProperty] private ESettingsTab _currentSettingsTab = ESettingsTab.LAUNCHER;
     [ObservableProperty] private EAboutTab _currentAboutTab = EAboutTab.ABOUT;
     

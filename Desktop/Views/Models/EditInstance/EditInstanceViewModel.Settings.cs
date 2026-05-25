@@ -29,12 +29,14 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
 {
     private readonly CoreLogger _logger  = CoreLogger.WithModuleType(typeof(EditInstanceViewModel_Settings));
     private readonly EditInstanceViewModel _parent;
-    
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanRemoveEnvironmentVariable))]
-    private InstanceConfigModel _instanceConfig;
 
-    [ObservableProperty] private int? _overridenAccountIndex = 0;
-    
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanRemoveEnvironmentVariable))]
+    public partial InstanceConfigModel InstanceConfig { get; set; }
+
+    [ObservableProperty]
+    public partial int? OverridenAccountIndex { get; set; } = 0;
+
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanRemoveEnvironmentVariable))]
     private int? _selectedEnvironmentVariableIndex;
     
@@ -46,7 +48,7 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
         _parent = parent;
         if (Design.IsDesignMode)
         {
-            _instanceConfig = new InstanceConfigModel();
+            InstanceConfig = new InstanceConfigModel();
             return;
         }
     }

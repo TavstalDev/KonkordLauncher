@@ -30,8 +30,9 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
     
     private readonly SourceCache<ResourceBaseModel, string> _resourcePackCache = new(x => x.Name);
     public ReadOnlyObservableCollection<ResourceBaseModel> FilteredResourcePacks { get; }
-    
-    [ObservableProperty] private ResourceBaseModel? _selectedResourcePack;
+
+    [ObservableProperty]
+    public partial ResourceBaseModel? SelectedResourcePack { get; set; }
     [ObservableProperty] 
     public partial string SearchQuery { get; set; } = string.Empty;
     

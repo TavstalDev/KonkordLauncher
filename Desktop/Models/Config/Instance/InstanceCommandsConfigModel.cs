@@ -10,17 +10,20 @@ public partial class InstanceCommandsConfigModel : ObservableObject
     /// <summary>
     /// Gets or sets the command to be executed before launching the instance.
     /// </summary>
-    [ObservableProperty] private string _preLaunchCommand;
+    [ObservableProperty]
+    public partial string PreLaunchCommand { get; set; }
 
     /// <summary>
     /// Gets or sets the wrapper command to be executed during the instance runtime.
     /// </summary>
-    [ObservableProperty] private string _wrapperCommand;
+    [ObservableProperty]
+    public partial string WrapperCommand { get; set; }
 
     /// <summary>
     /// Gets or sets the command to be executed after the instance exits.
     /// </summary>
-    [ObservableProperty] private string _postExitCommand;
+    [ObservableProperty]
+    public partial string PostExitCommand { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="InstanceCommandsConfigModel"/> class with default values.

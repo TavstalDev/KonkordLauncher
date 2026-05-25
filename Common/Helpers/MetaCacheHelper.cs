@@ -35,7 +35,7 @@ public static class MetaCacheHelper
                 return; // No cache exists
             }
 
-            var result = await JsonHelper.ReadJsonFileAsync<List<MetaCache>>(PathHelper.MetaCachePath, cancellationToken);
+            var result = await JsonHelper.ReadJsonFileAsync<List<MetaCache>>(PathHelper.MetaCachePath);
             if (result != null)
                 foreach (var metaCache in result)
                 {
@@ -111,7 +111,7 @@ public static class MetaCacheHelper
             string hash = Convert.ToHexString(sha1);
 
             if (_cache.TryGetValue(hash, out var cached) && cached.IsValid())
-                return await JsonHelper.ReadJsonFileAsync<Project>(cached.Path, cancellationToken);
+                return await JsonHelper.ReadJsonFileAsync<Project>(cached.Path);
             
             var response = await ModrinthHelper.GetProjectAsync(id, cancellationToken);
             if (response != null)
@@ -157,7 +157,7 @@ public static class MetaCacheHelper
                 string hash = Convert.ToHexString(sha1);
 
                 if (_cache.TryGetValue(hash, out var cached) && cached.IsValid())
-                    cacheReadTasks.Add(JsonHelper.ReadJsonFileAsync<Project>(cached.Path, cancellationToken)!);
+                    cacheReadTasks.Add(JsonHelper.ReadJsonFileAsync<Project>(cached.Path)!);
                 else
                     idsToFetch.Add(id);
             }
@@ -225,7 +225,7 @@ public static class MetaCacheHelper
                 string hash = Convert.ToHexString(sha1);
 
                 if (_cache.TryGetValue(hash, out var cached) && cached.IsValid())
-                    cacheReadTasks.Add(JsonHelper.ReadJsonFileAsync<Version>(cached.Path, cancellationToken)!);
+                    cacheReadTasks.Add(JsonHelper.ReadJsonFileAsync<Version>(cached.Path)!);
                 else
                     idsToFetch.Add(id);
             }
@@ -298,7 +298,7 @@ public static class MetaCacheHelper
             string hash = Convert.ToHexString(sha1);
             
             if (_cache.TryGetValue(hash, out var cached) && cached.IsValid())
-                return await JsonHelper.ReadJsonFileAsync<SearchResponse>(cached.Path, cancellationToken);
+                return await JsonHelper.ReadJsonFileAsync<SearchResponse>(cached.Path);
             
             var response = await ModrinthHelper.SearchModpacksAsync(query, version, categories, offset, cancellationToken);
             if (response != null)
@@ -348,7 +348,7 @@ public static class MetaCacheHelper
             string hash = Convert.ToHexString(sha1);
             
             if (_cache.TryGetValue(hash, out var cached) && cached.IsValid())
-                return await JsonHelper.ReadJsonFileAsync<SearchResponse>(cached.Path, cancellationToken);
+                return await JsonHelper.ReadJsonFileAsync<SearchResponse>(cached.Path);
             
             var response = await ModrinthHelper.SearchModsAsync(query, version, categories, offset, cancellationToken);
             if (response != null)
@@ -398,7 +398,7 @@ public static class MetaCacheHelper
             string hash = Convert.ToHexString(sha1);
             
             if (_cache.TryGetValue(hash, out var cached) && cached.IsValid())
-                return await JsonHelper.ReadJsonFileAsync<SearchResponse>(cached.Path, cancellationToken);
+                return await JsonHelper.ReadJsonFileAsync<SearchResponse>(cached.Path);
             
             var response = await ModrinthHelper.SearchResourcePackAsync(query, version, categories, offset, cancellationToken);
             if (response != null)
@@ -448,7 +448,7 @@ public static class MetaCacheHelper
             string hash = Convert.ToHexString(sha1);
             
             if (_cache.TryGetValue(hash, out var cached) && cached.IsValid())
-                return await JsonHelper.ReadJsonFileAsync<SearchResponse>(cached.Path, cancellationToken);
+                return await JsonHelper.ReadJsonFileAsync<SearchResponse>(cached.Path);
             
             var response = await ModrinthHelper.SearchShaderPacksAsync(query, version, categories, offset, cancellationToken);
             if (response != null)

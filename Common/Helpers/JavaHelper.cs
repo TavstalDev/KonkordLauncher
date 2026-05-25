@@ -75,7 +75,7 @@ public static class JavaHelper
                 }
                 else
                 {
-                    _mirrorConfig = await JsonHelper.ReadJsonFileAsync<JavaMirrorConfig>(PathHelper.JavaMirrorsPath, cancellationToken) ??
+                    _mirrorConfig = await JsonHelper.ReadJsonFileAsync<JavaMirrorConfig>(PathHelper.JavaMirrorsPath) ??
                                     new JavaMirrorConfig();
                 }
             }
@@ -243,7 +243,13 @@ public static class JavaHelper
                 }
             }
 
-            return new JavaVersion(int.Parse(majorVersion), javaVersion, architecture, path);
+            return new JavaVersion
+            {
+                Major = int.Parse(majorVersion),
+                Version = javaVersion,
+                Architecture = architecture,
+                Path = path
+            };
         }
         catch (Exception ex)
         {

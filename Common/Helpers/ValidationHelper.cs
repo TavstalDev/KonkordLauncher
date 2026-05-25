@@ -100,7 +100,7 @@ public static class ValidationHelper
                 return true; // No account was found to check
             }
 
-            AccountData? data = await JsonHelper.ReadJsonFileAsync<AccountData>(PathHelper.LauncherAccountsPath, cancellationToken);
+            AccountData? data = await JsonHelper.ReadJsonFileAsync<AccountData>(PathHelper.LauncherAccountsPath);
             if (data == null)
             {
                 _logger.Error("Failed to read accounts data, file is corrupted or empty.");
@@ -201,7 +201,7 @@ public static class ValidationHelper
                 
                 await JsonHelper.WriteJsonFileAsync(settings.Launcher.GetForgeManifestPath(), manifest, cancellationToken);
             }
-            if (await ManifestHelper.GetForgeManifestAsync(settings.Launcher.GetForgeManifestPath(), cancellationToken) == null)
+            if (await ManifestHelper.GetForgeManifestAsync(settings.Launcher.GetForgeManifestPath()) == null)
                 _logger.Error("Failed to load Forge manifest");
             
             
@@ -242,7 +242,7 @@ public static class ValidationHelper
                     await JsonHelper.WriteJsonFileAsync(settings.Launcher.GetNeoForgeManifestPath(), manifest, cancellationToken);
                 }
 
-                if (await ManifestHelper.GetNeoForgeManifestAsync(settings.Launcher.GetNeoForgeManifestPath(), cancellationToken) == null)
+                if (await ManifestHelper.GetNeoForgeManifestAsync(settings.Launcher.GetNeoForgeManifestPath()) == null)
                     _logger.Error("Failed to load NeoForge manifest");
             }
             catch (Exception e)

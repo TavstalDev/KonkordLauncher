@@ -27,19 +27,14 @@ public static class InstanceHelper
     /// <returns>A task that completes when the import has finished.</returns>
     public static async Task<Instance?> ImportAsync(string sourcePath, EInstanceProvider provider, Resolution resolution, string? customName = null, string? customGroup = null, string? customIconUrl = null, IProgressReporter? progressReporter = null, CancellationToken cancellationToken = default)
     {
-        switch (provider)
+        return provider switch
         {
-            case EInstanceProvider.Modrinth:
-            {
-                return await _modrinthHandler.ImportAsync(sourcePath, resolution, customName, customGroup, customIconUrl, progressReporter, cancellationToken);
-            }
-            case EInstanceProvider.CurseForge:
-            {
-                return await _curseForgeHandler.ImportAsync(sourcePath, resolution, customName, customGroup, customIconUrl, progressReporter, cancellationToken);
-            }
-        }
-
-        return null;
+            EInstanceProvider.MODRINTH => await _modrinthHandler.ImportAsync(sourcePath, resolution, customName,
+                customGroup, customIconUrl, progressReporter, cancellationToken),
+            EInstanceProvider.CURSE_FORGE => await _curseForgeHandler.ImportAsync(sourcePath, resolution, customName,
+                customGroup, customIconUrl, progressReporter, cancellationToken),
+            _ => null
+        };
     }
 
     /// <summary>
@@ -55,18 +50,13 @@ public static class InstanceHelper
     /// <returns>A task that completes when the export has finished.</returns>
     public static async Task<bool> ExportAsync(Instance instance,  List<FileNode> fileNodes, string targetPath, EInstanceProvider provider, string exportVersion = "1.0.0", string summary = "", CancellationToken cancellationToken = default)
     {
-        switch (provider)
+        return provider switch
         {
-            case EInstanceProvider.Modrinth:
-            {
-                return await _modrinthHandler.ExportAsync(instance, fileNodes, targetPath, exportVersion, summary, null, cancellationToken);
-            }
-            case EInstanceProvider.CurseForge:
-            {
-                return await _curseForgeHandler.ExportAsync(instance, fileNodes, targetPath, exportVersion, summary, null, cancellationToken);
-            }
-        }
-
-        return false;
+            EInstanceProvider.MODRINTH => await _modrinthHandler.ExportAsync(instance, fileNodes, targetPath,
+                exportVersion, summary, null, cancellationToken),
+            EInstanceProvider.CURSE_FORGE => await _curseForgeHandler.ExportAsync(instance, fileNodes, targetPath,
+                exportVersion, summary, null, cancellationToken),
+            _ => false
+        };
     }
 }

@@ -3,120 +3,67 @@ using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Config;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
+using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Instance;
 
 namespace Tavstal.KonkordLauncher.Common.Helpers;
 
 /// <summary>
-/// Provides helper methods for managing launcher settings, accounts, and instances.
+/// Helper methods for reading and creating launcher-related data files (settings, accounts, instances, patch notes).
 /// </summary>
 public static class LauncherHelper
 {
+    private static readonly CoreLogger _logger = new(typeof(LauncherHelper));
+    
     /// <summary>
-    /// Asynchronously retrieves the launcher settings from the configuration file.
-    /// If the file does not exist or is invalid, a new configuration is created and saved.
+    /// Load the launcher's core configuration from disk, creating it with reasonable defaults if missing.
     /// </summary>
-    /// <param name="screenResolution">An optional screen resolution to set in the configuration if a new one is created.</param>
-    /// <param name="cancellationToken">Optional <see cref="CancellationToken"/> that can be used by callers to cancel the asynchronous operation.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result contains the launcher settings as a <see cref="CoreConfig"/> object.</returns>
-    public static async Task<CoreConfig> GetLauncherSettingsAsync(Resolution? screenResolution = null, CancellationToken cancellationToken = default)
-    {
-        if (!File.Exists(PathHelper.LauncherConfigPath))
+    /// <param name="screenResolution">Optional initial screen resolution to apply to the created default configuration.</param>
+    /// <param name="cancellationToken">A token to observe while writing a newly created configuration file.</param>
+    /// <returns>A task that resolves to the loaded <see cref="CoreConfig"/>.</returns>
+    public static async Task<CoreConfig> GetLauncherSettingsAsync(Resolution? screenResolution = null, CancellationToken cancellationToken = default) =>
+        await ReadOrRecreateAsync(PathHelper.LauncherConfigPath, () =>
         {
-            CoreConfig result = new CoreConfig();
+            CoreConfig config = new CoreConfig();
             if (screenResolution != null)
             {
-                result.Minecraft.WindowWidth = screenResolution.X;
-                result.Minecraft.WindowHeight = screenResolution.Y;
+                config.Minecraft.WindowWidth = screenResolution.X;
+                config.Minecraft.WindowHeight = screenResolution.Y;
             }
-
-            await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherConfigPath, result, cancellationToken);
-            return result;
-        }
-
-        var readResult = await JsonHelper.ReadJsonFileAsync<CoreConfig>(PathHelper.LauncherConfigPath, cancellationToken);
-        if (readResult == null)
-        {
-            CoreConfig result = new CoreConfig();
-            if (screenResolution != null)
-            {
-                result.Minecraft.WindowWidth = screenResolution.X;
-                result.Minecraft.WindowHeight = screenResolution.Y;
-            }
-            File.Move(PathHelper.LauncherConfigPath, PathHelper.LauncherConfigPath + ".bak", true);
-            await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherConfigPath, result, cancellationToken);
-            return result;
-        }
-
-        return readResult;
-    }
-
+            return config;
+        }, cancellationToken);
+    
     /// <summary>
-    /// Asynchronously retrieves the account data from the configuration file.
-    /// If the file does not exist or is invalid, a new account data configuration is created and saved.
+    /// Load the stored account data from disk, creating an empty
+    /// <see cref="AccountData"/> instance if none exists or if the file cannot be read.
     /// </summary>
-    /// <returns>A task that represents the asynchronous operation. The task result contains the account data as an <see cref="AccountData"/> object.</returns>
+    /// <param name="cancellationToken">A token to observe while writing a newly created accounts file.</param>
+    /// <returns>A task that resolves to the loaded <see cref="AccountData"/>.</returns>
     public static async Task<AccountData> GetAccountDataAsync(CancellationToken cancellationToken = default)
     {
-        if (!File.Exists(PathHelper.LauncherAccountsPath))
-        {
-            AccountData result = new AccountData();
-            await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, result, cancellationToken);
-            foreach (var account in result.Accounts)
-                account.IsSelected = result.SelectedAccountId == account.Id;
-            return result;
-        }
-
-        var readResult = await JsonHelper.ReadJsonFileAsync<AccountData>(PathHelper.LauncherAccountsPath, cancellationToken);
-        if (readResult == null)
-        {
-            AccountData result = new AccountData();
-            File.Move(PathHelper.LauncherAccountsPath, PathHelper.LauncherAccountsPath + ".bak", true);
-            await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, result, cancellationToken);
-            foreach (var account in result.Accounts)
-                account.IsSelected = result.SelectedAccountId == account.Id;
-            return result;
-        }
-        
-        foreach (var account in readResult.Accounts)
-            account.IsSelected = readResult.SelectedAccountId == account.Id;
-
-        return readResult;
-    }
-
-    /// <summary>
-    /// Asynchronously retrieves the list of instances.
-    /// This method is not yet implemented.
-    /// </summary>
-    /// <returns>A task that represents the asynchronous operation. The task result contains a list of <see cref="Instance"/> objects.</returns>
-    public static async Task<List<Instance>> GetInstancesAsync(CancellationToken cancellationToken = default)
-    {
-        if (!File.Exists(PathHelper.LauncherInstancesPath))
-        {
-            List<Instance> result = [];
-            await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, result, cancellationToken);
-            return result;
-        }
-
-        var readResult = await JsonHelper.ReadJsonFileAsync<List<Instance>>(PathHelper.LauncherInstancesPath, cancellationToken);
-        if (readResult == null)
-        {
-            List<Instance> result = [];
-            File.Move(PathHelper.LauncherInstancesPath, PathHelper.LauncherInstancesPath + ".bak", true);
-            await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, result, cancellationToken);
-            return result;
-        }
-        
-        return readResult;
+        var result = await ReadOrRecreateAsync(PathHelper.LauncherAccountsPath, () => new AccountData(), cancellationToken);
+        foreach (var account in result.Accounts)
+            account.IsSelected = result.SelectedAccountId == account.Id;
+        return result;
     }
     
     /// <summary>
-    /// Retrieves a list of patch notes from a cached GitHub JSON file.
-    /// If the file does not exist, an empty list is returned.
+    /// Load the list of launcher instances from disk, creating an empty list if none exists.
     /// </summary>
-    /// <param name="cacheDir">The directory where the GitHub cache file is located.</param>
-    /// <param name="cancellationToken">Optional <see cref="CancellationToken"/> that can be used by callers to cancel the asynchronous operation.</param>
-    /// <returns>A list of <see cref="PatchNote"/> objects containing the patch notes.</returns>
+    /// <param name="cancellationToken">A token to observe while writing a newly created instances file.</param>
+    /// <returns>A task that resolves to a list of <see cref="Instance"/>.</returns>
+    public static async Task<List<Instance>> GetInstancesAsync(CancellationToken cancellationToken = default) => 
+        await ReadOrRecreateAsync<List<Instance>>(PathHelper.LauncherInstancesPath, () => [], cancellationToken);
+    
+    /// <summary>
+    /// Read cached GitHub release notes saved in the given cache directory and convert them to <see cref="PatchNote"/>.
+    /// </summary>
+    /// <param name="cacheDir">Directory that contains the GitHub cache file named <c>github_cache.json</c>.</param>
+    /// <param name="cancellationToken">A token to observe while reading the cache file from disk.</param>
+    /// <returns>
+    /// A task that resolves to a list of <see cref="PatchNote"/> instances parsed from the cache file.
+    /// If the cache file does not exist, an empty list is returned.
+    /// </returns>
     public static async Task<List<PatchNote>> GetPatchNotesAsync(string cacheDir, CancellationToken cancellationToken = default)
     {
         string githubFilePath = Path.Combine(cacheDir, "github_cache.json");
@@ -126,6 +73,7 @@ public static class LauncherHelper
         List<PatchNote> result = [];
         string rawJson = await File.ReadAllTextAsync(githubFilePath, cancellationToken);
         JArray jArray = JArray.Parse(rawJson);
+        // ReSharper disable once LoopCanBeConvertedToQuery
         foreach (var patchNote in jArray)
         {
             string tagName = patchNote["tag_name"]?.ToString() ?? "Unknown Version";
@@ -135,5 +83,43 @@ public static class LauncherHelper
         }
         
         return result;
+    }
+
+    /// <summary>
+    /// Read the JSON file at <paramref name="path"/> and return the deserialized object if possible; otherwise
+    /// create a fresh object via <paramref name="factory"/>, persist it and return that.
+    /// </summary>
+    /// <typeparam name="T">The type to deserialize from the JSON file.</typeparam>
+    /// <param name="path">Absolute path to the JSON file to read or create.</param>
+    /// <param name="factory">Factory function called to create a new instance of <typeparamref name="T"/>.</param>
+    /// <param name="cancellationToken">A token to observe while writing a newly created file to disk.</param>
+    /// <returns>A task that resolves to the read or newly created instance of <typeparamref name="T"/>.</returns>
+    private static async Task<T> ReadOrRecreateAsync<T>(string path, Func<T> factory, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            if (!File.Exists(path))
+            {
+                T result = factory();
+                await JsonHelper.WriteJsonFileAsync(path, result, cancellationToken);
+                return result;
+            }
+
+            var readResult = await JsonHelper.ReadJsonFileAsync<T>(path);
+            if (readResult == null)
+            {
+                T result = factory();
+                File.Move(path, path + ".bak", true);
+                await JsonHelper.WriteJsonFileAsync(path, result, cancellationToken);
+                return result;
+            }
+
+            return readResult;
+        }
+        catch (Exception ex)
+        {
+            _logger.Error($"Error reading or creating file at {path}: {ex}");
+            return factory();
+        }
     }
 }

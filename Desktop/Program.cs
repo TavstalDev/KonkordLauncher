@@ -13,11 +13,6 @@ namespace Tavstal.KonkordLauncher.Desktop;
 // ReSharper disable once ClassNeverInstantiated.Global
 class Program
 {
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-    public static IHost AppHost { get; private set; }
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-    public static IServiceProvider Services => AppHost.Services;
-    
     // Initialization code. Don't use any Avalonia, third-party APIs or any
     // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
     // yet and stuff might break.
@@ -25,7 +20,7 @@ class Program
     public static void Main(string[] args)
     {
         VelopackApp.Build().Run();
-        AppHost = Host.CreateDefaultBuilder(args)
+        var appHost = Host.CreateDefaultBuilder(args)
             .ConfigureServices(services =>
             {
                 var keyDir = Path.Combine(
@@ -41,14 +36,14 @@ class Program
             .Build();
         
         // Get protector immediately
-        var provider = AppHost.Services.GetRequiredService<IDataProtectionProvider>();
+        var provider = appHost.Services.GetRequiredService<IDataProtectionProvider>();
         EncryptionUtility.SetDataProtectionProvider(provider);
 
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
     }
 
     // Avalonia configuration, don't remove; also used by visual designer.
-    public static AppBuilder BuildAvaloniaApp()
+    private static AppBuilder BuildAvaloniaApp()
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .WithInterFont()

@@ -1,5 +1,9 @@
 ﻿namespace Tavstal.KonkordLauncher.Core.Helpers.Utils;
 
+/// <summary>
+/// Provides thread-safe utility methods for common numeric operations:
+/// random number generation, value clamping, and primitive-to-byte conversions.
+/// </summary>
 public static class MathHelper
 {
     private static Random? _random;
@@ -16,8 +20,7 @@ public static class MathHelper
     {
         lock (syncObj)
         {
-            if (_random == null)
-                _random = new Random(); // Or exception...
+            _random ??= new Random();
             return _random.Next(min, max);
         }
     }
@@ -31,8 +34,7 @@ public static class MathHelper
     {
         lock (syncObj)
         {
-            if (_random == null)
-                _random = new Random(); // Or exception...
+            _random ??= new Random();
             return _random.Next(0, max);
         }
     }
@@ -57,8 +59,7 @@ public static class MathHelper
     {
         lock (syncObj)
         {
-            if (_random == null)
-                _random = new Random();
+            _random ??= new Random();
             return (uint)(_random.Next(1 << 30)) << 2 | (uint)(_random.Next(1 << 2));
         }
     }
@@ -85,8 +86,7 @@ public static class MathHelper
     {
         lock (syncObj)
         {
-            if (_random == null)
-                _random = new Random(); // Or exception...
+            _random ??= new Random();
             return (_random.NextDouble() * Math.Abs(max - min)) + min;
         }
     }
@@ -100,8 +100,7 @@ public static class MathHelper
     {
         lock (syncObj)
         {
-            if (_random == null)
-                _random = new Random(); // Or exception...
+            _random ??= new Random();
             return (_random.NextDouble() * Math.Abs(max));
         }
     }
@@ -128,9 +127,8 @@ public static class MathHelper
     {
         lock (syncObj)
         {
-            if (_random == null)
-                _random = new Random(); // Or exception...
-            return ((float)_random.NextDouble() * Math.Abs(max - min)) + min;
+            _random ??= new Random();
+            return (float)_random.NextDouble() * Math.Abs(max - min) + min;
         }
     }
 
@@ -143,9 +141,8 @@ public static class MathHelper
     {
         lock (syncObj)
         {
-            if (_random == null)
-                _random = new Random(); // Or exception...
-            return ((float)_random.NextDouble() * Math.Abs(max));
+            _random ??= new Random();
+            return (float)_random.NextDouble() * Math.Abs(max);
         }
     }
 

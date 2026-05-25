@@ -170,14 +170,14 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
             DataContext.ExportModrinthInstanceInteraction.RegisterHandler(async action =>
             {
                 var instance = action.Input;
-                ExportWindow exportWindow = new ExportWindow(instance, EInstanceProvider.Modrinth);
+                ExportWindow exportWindow = new ExportWindow(instance, EInstanceProvider.MODRINTH);
                 await exportWindow.ShowDialog(this);
                 action.SetOutput(Unit.Default);
             }).DisposeWith(disposables);
             DataContext.ExportCurseForgeInstanceInteraction.RegisterHandler(async action =>
             {
                 var instance = action.Input;
-                ExportWindow exportWindow = new ExportWindow(instance, EInstanceProvider.CurseForge);
+                ExportWindow exportWindow = new ExportWindow(instance, EInstanceProvider.CURSE_FORGE);
                 await exportWindow.ShowDialog(this);
                 action.SetOutput(Unit.Default);
             }).DisposeWith(disposables);

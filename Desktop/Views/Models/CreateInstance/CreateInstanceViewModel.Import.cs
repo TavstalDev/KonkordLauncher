@@ -126,7 +126,7 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
             return;
         }
         
-        if (await InstanceHelper.ImportAsync(ImportPath, EInstanceProvider.Modrinth, App.ScreenResolution, null, null, null, _parent, cancellationToken) != null)
+        if (await InstanceHelper.ImportAsync(ImportPath, EInstanceProvider.MODRINTH, App.ScreenResolution, null, null, null, _parent, cancellationToken) != null)
         {
             _parent.CloseReporter();
             var instances = await LauncherHelper.GetInstancesAsync(cancellationToken);
@@ -174,7 +174,7 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
             await HttpHelper.DownloadFileAsync(ImportPath, tempPath, progress, cancellationToken);
             _parent.CloseReporter();
             
-            if (await InstanceHelper.ImportAsync(tempPath, EInstanceProvider.Modrinth, App.ScreenResolution, null, null, null, _parent,
+            if (await InstanceHelper.ImportAsync(tempPath, EInstanceProvider.MODRINTH, App.ScreenResolution, null, null, null, _parent,
                     cancellationToken) != null)
             {
                 _parent.CloseReporter();

@@ -46,7 +46,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
     [ObservableProperty]
     public partial string SearchQuery { get; set; } = string.Empty;
     [ObservableProperty]
-    public partial EMinecraftKind ModLoader { get; set; } = EMinecraftKind.VANILLA;
+    public partial EMinecraftKind ModLoader { get; set; }
 
     [ObservableProperty] 
     public partial string MinecraftVersion { get; set; } = string.Empty;
@@ -238,7 +238,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
         VersionFilterIndex = foundInstanceVersion ? index : 0;
 
         string configPath = Instance.GetResourceConfigPath();
-        var instanceResources = await JsonHelper.ReadJsonFileAsync<List<InstanceResource>>(configPath, cancellationToken);
+        var instanceResources = await JsonHelper.ReadJsonFileAsync<List<InstanceResource>>(configPath);
         if (instanceResources is { Count: > 0 })
             InstanceResources.AddRange(instanceResources);
 

@@ -183,7 +183,7 @@ public partial class ExportViewModel : KonkordObservableObject
         string exportPath;
         switch (Provider)
         {
-            case EInstanceProvider.CurseForge:
+            case EInstanceProvider.CURSE_FORGE:
             {
                 exportPath = Path.Combine(directoryResult, $"{InstanceName}-{InstanceVersion}.zip");
                 break;

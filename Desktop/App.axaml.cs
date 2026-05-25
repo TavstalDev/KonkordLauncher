@@ -14,6 +14,7 @@ using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Instance;
+using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Views;
 
 namespace Tavstal.KonkordLauncher.Desktop;
@@ -208,12 +209,12 @@ public partial class App : Application
                 return;
             switch (theme)
             {
-                case EThemeType.Light:
+                case EThemeType.LIGHT:
                 {
                     RequestedThemeVariant = ThemeVariant.Light;
                     break;
                 }
-                case EThemeType.Dark:
+                case EThemeType.DARK:
                 {
                     RequestedThemeVariant = ThemeVariant.Dark;
                     break;

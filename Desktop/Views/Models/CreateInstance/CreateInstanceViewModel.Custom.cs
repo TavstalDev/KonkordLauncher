@@ -297,8 +297,8 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
     public async Task InitAsync(CoreConfig settings, VersionManifest versionManifest,  CancellationToken cancellationToken = default)
     {
         List<IModManifest>? fabricManifestCache= await ManifestHelper.GetFabricManifestAsync(settings.Launcher.GetFabricManifestPath(), cancellationToken);
-        List<IModManifest>? forgeManifestCache= await ManifestHelper.GetForgeManifestAsync(settings.Launcher.GetForgeManifestPath(), cancellationToken);
-        List<IModManifest>? neoForgeManifestCache= await ManifestHelper.GetNeoForgeManifestAsync(settings.Launcher.GetNeoForgeManifestPath(), cancellationToken);
+        List<IModManifest>? forgeManifestCache= await ManifestHelper.GetForgeManifestAsync(settings.Launcher.GetForgeManifestPath());
+        List<IModManifest>? neoForgeManifestCache= await ManifestHelper.GetNeoForgeManifestAsync(settings.Launcher.GetNeoForgeManifestPath());
         List<IModManifest>? quiltManifestCache = await ManifestHelper.GetQuiltManifestAsync(settings.Launcher.GetQuiltManifestPath(), cancellationToken);
         
         _minecraftVersionCache.Edit(innerCache =>

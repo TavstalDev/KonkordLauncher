@@ -18,7 +18,7 @@ public partial class ExportWindow : KonkordWindow<ExportViewModel>
     /// <summary>
     /// Default ctor that initializes the window for preview/design use.
     /// </summary>
-    public ExportWindow() : this(null, EInstanceProvider.Modrinth) { }
+    public ExportWindow() : this(null, EInstanceProvider.MODRINTH) { }
     
     /// <summary>
     /// Creates a new <see cref="ExportWindow"/> bound to the provided <see cref="Instance"/> and provider.

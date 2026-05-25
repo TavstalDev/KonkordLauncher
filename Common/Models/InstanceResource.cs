@@ -1,30 +1,43 @@
+using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Core.Enums;
 
 namespace Tavstal.KonkordLauncher.Common.Models;
 
 public class InstanceResource
 {
-    public string ProjectId { get; set; }
+    [JsonProperty("projectId")]
+    public required string ProjectId { get; set; }
     
-    public string Name { get; set; }
+    [JsonProperty("instanceId")]
+    public required string Name { get; set; }
     
-    public string Url { get; set; }
+    [JsonProperty("url")]
+    public required string Url { get; set; }
     
+    [JsonProperty("iconPath")]
     public string? IconPath { get; set; }
     
-    public string Path { get; set; }
+    [JsonProperty("path")]
+    public required string Path { get; set; }
     
-    public string Client { get; set; }
+    [JsonProperty("client")]
+    public string? Client { get; set; }
     
-    public string Server { get; set; }
+    [JsonProperty("server")]
+    public string? Server { get; set; }
     
-    public string Sha1 { get; set; }
+    [JsonProperty("sha1")]
+    public string? Sha1 { get; set; }
     
-    public string Sha512 { get; set; }
+    [JsonProperty("sha256")]
+    public string? Sha512 { get; set; }
     
+    [JsonProperty("platform")]
     public EPlatformType Platform { get; set; }
     
+    [JsonProperty("type")]
     public EResourceType Type { get; set; }
     
+    [JsonProperty("fileSize")]
     public long FileSize { get; set; }
 }

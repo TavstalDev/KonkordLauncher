@@ -1,3 +1,6 @@
+using System.Runtime.Serialization;
+using Newtonsoft.Json;
+
 namespace Tavstal.KonkordLauncher.Common.Models;
 
 /// <summary>
@@ -8,16 +11,19 @@ public class PatchNote
     /// <summary>
     /// Gets or sets the title of the patch note.
     /// </summary>
+    [JsonProperty("title")]
     public string Title { get; set; }
 
     /// <summary>
     /// Gets or sets the content or description of the patch note.
     /// </summary>
+    [JsonProperty("content")]
     public string Content { get; set; }
 
     /// <summary>
     /// Gets or sets the URL for more information about the patch note.
     /// </summary>
+    [JsonProperty("url")]
     public string Url { get; set; }
 
     /// <summary>

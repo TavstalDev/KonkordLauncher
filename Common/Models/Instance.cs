@@ -4,26 +4,25 @@ using Tavstal.KonkordLauncher.Core.Enums;
 
 namespace Tavstal.KonkordLauncher.Common.Models;
 
-[Serializable]
 public class Instance
 {
-    [JsonProperty("id")]
-    public string Id { get; set; }
+    [JsonProperty("id")] 
+    public string Id { get; set; } = Guid.NewGuid().ToString();
     
     [JsonProperty("name")]
-    public string Name { get; set; }
+    public required string Name { get; set; }
     
     [JsonProperty("group")]
     public string? Group { get; set; }
     
     [JsonProperty("iconPath")]
-    public string IconPath { get; set; }
+    public string? IconPath { get; set; }
     
     [JsonProperty("minecraftVersion")]
-    public string MinecraftVersion { get; set; }
+    public required string MinecraftVersion { get; set; }
     
     [JsonProperty("customVersion")]
-    public string CustomVersion { get; set; }
+    public string? CustomVersion { get; set; }
     
     [JsonProperty("type")]
     public EProfileType Type { get; set; }
@@ -35,12 +34,7 @@ public class Instance
     public string? GameDirectory { get; set; }
     
     [JsonProperty("settings")]
-    public InstanceConfig.InstanceConfig Config { get; set; }
-
-    public Instance()
-    {
-        Id = Guid.NewGuid().ToString();
-    }
+    public required InstanceConfig.InstanceConfig Config { get; set; }
 
     public string GetResourceConfigPath() => Path.Combine(GameDirectory!, "resources.json");
 

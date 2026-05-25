@@ -8,10 +8,10 @@ public enum EThemeType
     /// <summary>
     /// Represents the light theme.
     /// </summary>
-    Light = 0,
+    LIGHT = 0,
 
     /// <summary>
     /// Represents the dark theme.
     /// </summary>
-    Dark = 1,
+    DARK = 1,
 }

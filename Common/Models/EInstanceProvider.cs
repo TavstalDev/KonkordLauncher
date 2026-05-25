@@ -8,10 +8,10 @@ public enum EInstanceProvider
     /// <summary>
     /// The Modrinth instance provider.
     /// </summary>
-    Modrinth = 0,
+    MODRINTH = 0,
 
     /// <summary>
     /// The CurseForge instance provider.
     /// </summary>
-    CurseForge = 1
+    CURSE_FORGE = 1
 }

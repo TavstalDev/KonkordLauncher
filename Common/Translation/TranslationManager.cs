@@ -40,6 +40,7 @@ public static class TranslationManager
     /// Initializes the translations by loading them from local files or remote sources.
     /// </summary>
     /// <param name="progressReporter">Optional progress reporter to update the status during initialization.</param>
+    /// <param name="cancellationToken">Optional cancellation token to cancel the operation.</param>
     public static async Task InitializeTranslations(IProgressReporter? progressReporter = null, CancellationToken cancellationToken = default)
     {
         if (_initialized)
@@ -124,6 +125,7 @@ public static class TranslationManager
     /// If the file does not exist, it attempts to download and save it from a remote source.
     /// </summary>
     /// <param name="language">The language code for which the file should be ensured.</param>
+    /// <param name="cancellationToken">Optional cancellation token to cancel the operation.</param>
     /// <returns>
     /// A task that represents the asynchronous operation. The task result contains a boolean value:
     /// true if the language file exists or was successfully created, otherwise false.
@@ -173,11 +175,11 @@ public static class TranslationManager
     /// </summary>
     /// <param name="path">The file path to the translation file.</param>
     /// <returns>A dictionary of translations or null if an error occurs.</returns>
-    public static async Task<Dictionary<string, string>?> ReadTranslationAsync(string path, CancellationToken cancellationToken = default)
+    public static async Task<Dictionary<string, string>?> ReadTranslationAsync(string path)
     {
         try
         {
-            var result = await JsonHelper.ReadJsonFileAsync<Dictionary<string, string>>(path, cancellationToken);
+            var result = await JsonHelper.ReadJsonFileAsync<Dictionary<string, string>>(path);
             return result ?? new Dictionary<string, string>();
         }
         catch (Exception ex)
@@ -193,6 +195,7 @@ public static class TranslationManager
     /// </summary>
     /// <param name="path">The file path to save the translation file.</param>
     /// <param name="translation">The dictionary of translations to save.</param>
+    /// <param name="cancellationToken">Optional cancellation token to cancel the operation.</param>
     /// <returns>True if the file was saved successfully, otherwise false.</returns>
     public static async Task<bool> SaveTranslationAsync(string path, Dictionary<string, string> translation, CancellationToken cancellationToken = default)
     {

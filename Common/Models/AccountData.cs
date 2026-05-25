@@ -13,31 +13,11 @@ public class AccountData
     /// Gets or sets the ID of the selected account.
     /// </summary>
     [JsonProperty("selectedAccountId")]
-    public string SelectedAccountId { get; set; }
+    public string SelectedAccountId { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the list of accounts
     /// </summary>
     [JsonProperty("accounts")]
-    public List<Account> Accounts { get; set; }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="AccountData"/> class.
-    /// </summary>
-    public AccountData()
-    {
-        SelectedAccountId = string.Empty;
-        Accounts = new List<Account>();
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="AccountData"/> class with the specified accounts and selected account ID.
-    /// </summary>
-    /// <param name="accounts">The list of accounts.</param>
-    /// <param name="selectedAccountId">The ID of the selected account.</param>
-    public AccountData(List<Account> accounts, string selectedAccountId)
-    {
-        Accounts = accounts;
-        SelectedAccountId = selectedAccountId;
-    }
+    public List<Account> Accounts { get; set; } = [];
 }

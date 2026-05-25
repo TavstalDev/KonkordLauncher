@@ -18,7 +18,8 @@ public class ModrinthPackageHandler: IInstancePackageHandler
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(ModrinthPackageHandler));
     
     
-    public async Task<Instance?> ImportAsync(string sourcePath, Resolution resolution, string? customName = null, string? customGroup = null, string? customIconUrl = null, IProgressReporter? progress = null, CancellationToken cancellationToken = default)
+    public async Task<Instance?> ImportAsync(string sourcePath, Resolution resolution, string? customName = null, string? customGroup = null, string? customIconUrl = null, 
+        IProgressReporter? progress = null, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -33,6 +34,8 @@ public class ModrinthPackageHandler: IInstancePackageHandler
             Instance result = new Instance
             {
                 Id = Guid.NewGuid().ToString(),
+                Name = string.Empty,
+                MinecraftVersion = string.Empty,
                 Type = EProfileType.CUSTOM,
                 Kind = EMinecraftKind.VANILLA,
                 Config = new InstanceConfig.InstanceConfig
@@ -216,15 +219,15 @@ public class ModrinthPackageHandler: IInstancePackageHandler
         }
     }
 
-    public async Task<bool> ExportAsync(Instance instance, List<FileNode> fileNodes, string targetPath, string exportVersion = "1.0.0", string summary = "", IProgressReporter? progress = null,
-        CancellationToken cancellationToken = default)
+    public async Task<bool> ExportAsync(Instance instance, List<FileNode> fileNodes, string targetPath, string exportVersion = "1.0.0", string summary = "", 
+        IProgressReporter? progress = null, CancellationToken cancellationToken = default)
     {
         string resourceFile = instance.GetResourceConfigPath();
         List<InstanceResource> resources = [];
-        List<FileNode> localNodes = fileNodes;
+        List<FileNode> localNodes = new (fileNodes);
         if (File.Exists(resourceFile))
         {
-            var res = await JsonHelper.ReadJsonFileAsync<List<InstanceResource>>(resourceFile, cancellationToken);
+            var res = await JsonHelper.ReadJsonFileAsync<List<InstanceResource>>(resourceFile);
             if (res != null)
                 resources = res;
         }

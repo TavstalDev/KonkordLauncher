@@ -12,22 +12,25 @@ public static class LanguagePackProvider
     /// </summary>
     private static readonly List<Language> _languagePacks = 
     [
-        new(
-            "English",
-            "en",
-            "https://raw.githubusercontent.com/TavstalDev/KonkordLauncher/master/KonkordLauncher/assets/translations/default.json",
-            true
-        ),
-        new(
-            "German",
-            "de",
-            "https://raw.githubusercontent.com/TavstalDev/KonkordLauncher/master/KonkordLauncher/assets/translations/german.json"
-        ),
-        new(
-            "Hungarian",
-            "hu",
-            "https://raw.githubusercontent.com/TavstalDev/KonkordLauncher/master/KonkordLauncher/assets/translations/hungarian.json"
-        )
+        new()
+        {
+            Name = "English",
+            TwoLetterCode = "en",
+            Url = "https://raw.githubusercontent.com/TavstalDev/KonkordLauncher/master/KonkordLauncher/assets/translations/default.json",
+            IsDefault = true
+        },
+        new()
+        {
+            Name = "German",
+            TwoLetterCode = "de",
+            Url = "https://raw.githubusercontent.com/TavstalDev/KonkordLauncher/master/KonkordLauncher/assets/translations/german.json",
+        },
+        new()
+        {
+            Name = "Hungarian",
+            TwoLetterCode = "hu",
+            Url = "https://raw.githubusercontent.com/TavstalDev/KonkordLauncher/master/KonkordLauncher/assets/translations/hungarian.json"
+        }
     ];
 
     /// <summary>

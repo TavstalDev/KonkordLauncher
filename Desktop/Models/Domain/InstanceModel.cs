@@ -421,6 +421,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
                 case EMinecraftKind.NEOFORGE:
                 {
                     gameInstance = new NeoForgeInstance(
+                        Id,
                         gameDetails,
                         new PathDetails(
                             settings.Launcher.AssetsDirectoryPath,
@@ -441,6 +442,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
                 case EMinecraftKind.FORGE:
                 {
                     gameInstance = ForgeInstance.GetForgeInstance(
+                        Id,
                         gameDetails,
                         new PathDetails(
                             settings.Launcher.AssetsDirectoryPath,
@@ -461,6 +463,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
                 case EMinecraftKind.FABRIC:
                 {
                     gameInstance = new FabricInstance(
+                        Id,
                         gameDetails,
                         new PathDetails(
                             settings.Launcher.AssetsDirectoryPath,
@@ -481,6 +484,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
                 case EMinecraftKind.QUILT:
                 {
                     gameInstance = new QuiltInstance(
+                        Id,
                         gameDetails,
                         new PathDetails(
                             settings.Launcher.AssetsDirectoryPath,

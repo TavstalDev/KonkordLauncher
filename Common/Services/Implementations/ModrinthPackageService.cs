@@ -1,9 +1,12 @@
 using System.IO.Compression;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
-using Tavstal.KonkordLauncher.Common.Helpers;
+using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Config;
 using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
+using Tavstal.KonkordLauncher.Common.Models.Package;
 using Tavstal.KonkordLauncher.Common.Models.Package.Modrinth;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Network;
@@ -11,26 +14,41 @@ using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Instance;
 
-namespace Tavstal.KonkordLauncher.Common.Models.Package;
+namespace Tavstal.KonkordLauncher.Common.Services.Implementations;
 
-public class ModrinthPackageHandler: IInstancePackageHandler
+/// <summary>
+/// Implements Modrinth package import and export operations for <c>.mrpack</c> archives.
+/// </summary>
+public class ModrinthPackageService : IPackageService
 {
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(ModrinthPackageHandler));
+    private readonly ILogger _logger;
+    private readonly ILauncherStore _launcherStore;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ModrinthPackageService"/> class.
+    /// </summary>
+    /// <param name="logger">Logger instance for recording diagnostic, warning, and error messages.</param>
+    /// <param name="launcherStore">Service for accessing and modifying launcher data such as instances and settings.</param>
+    public ModrinthPackageService(ILogger<ModrinthPackageService> logger, ILauncherStore launcherStore)
+    {
+        _logger = logger;
+        _launcherStore = launcherStore;
+    }
     
-    
-    public async Task<Instance?> ImportAsync(string sourcePath, Resolution resolution, string? customName = null, string? customGroup = null, string? customIconUrl = null, 
-        IProgressReporter? progress = null, CancellationToken cancellationToken = default)
+    /// <inheritdoc/>
+    public async Task<Instance?> ImportAsync(string sourcePath, Resolution resolution, string? customName = null, string? customGroup = null,
+        string? customIconUrl = null, IProgressReporter? progress = null, CancellationToken cancellationToken = default)
     {
         try
         {
             if (!File.Exists(sourcePath) || Path.GetExtension(sourcePath) != ".mrpack")
             {
-                _logger.Error("Source path does not exist or is not a .mrpack file");
+                _logger.LogCritical("Source path does not exist or is not a .mrpack file");
                 return null;
             }
 
-            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken);
-            var instances = await LauncherHelper.GetInstancesAsync(cancellationToken);
+            var settings = await _launcherStore.GetSettingsAsync(cancellationToken: cancellationToken);
+            var instances = await _launcherStore.GetInstancesAsync(cancellationToken);
             Instance result = new Instance
             {
                 Id = Guid.NewGuid().ToString(),
@@ -38,7 +56,7 @@ public class ModrinthPackageHandler: IInstancePackageHandler
                 MinecraftVersion = string.Empty,
                 Type = EProfileType.CUSTOM,
                 Kind = EMinecraftKind.VANILLA,
-                Config = new InstanceConfig.InstanceConfig
+                Config = new InstanceConfig
                 {
                     Game = new InstanceGameConfig
                     {
@@ -76,7 +94,7 @@ public class ModrinthPackageHandler: IInstancePackageHandler
                 string indexJsonPath = Path.Combine(tempDir, "modrinth.index.json");
                 if (!File.Exists(indexJsonPath))
                 {
-                    _logger.Error("modrinth.index.json not found in package");
+                    _logger.LogError("modrinth.index.json not found in package");
                     return null;
                 }
                 
@@ -87,13 +105,13 @@ public class ModrinthPackageHandler: IInstancePackageHandler
                 var dependenices = indexJson["dependencies"];
                 if (dependenices == null)
                 {
-                    _logger.Error("'dependencies' not found in modrinth.index.json");
+                    _logger.LogError("'dependencies' not found in modrinth.index.json");
                     return null;
                 }
 
                 if (dependenices["minecraft"] == null)
                 {
-                    _logger.Error("'minecraft' dependency not found in modrinth.index.json");
+                    _logger.LogError("'minecraft' dependency not found in modrinth.index.json");
                     return null;
                 }
                 
@@ -144,14 +162,14 @@ public class ModrinthPackageHandler: IInstancePackageHandler
                     string? url = f["downloads"]?.FirstOrDefault()?.Value<string>();
                     if (string.IsNullOrEmpty(url))
                     {
-                        _logger.Warn("No download URL found for a file in modrinth.index.json");
+                        _logger.LogWarning("No download URL found for a file in modrinth.index.json");
                         return Task.CompletedTask;
                     }
                     
                     string? path = f["path"]?.ToString();
                     if (string.IsNullOrEmpty(path))
                     {
-                        _logger.Warn("No path found for a file in modrinth.index.json");
+                        _logger.LogWarning("No path found for a file in modrinth.index.json");
                         return Task.CompletedTask;
                     }
                     
@@ -202,7 +220,7 @@ public class ModrinthPackageHandler: IInstancePackageHandler
             }
             catch (Exception ex)
             {
-                _logger.Error($"Error processing modrinth package: {ex}");
+                _logger.LogError($"Error processing modrinth package: {ex}");
                 return null;
             }
             finally
@@ -214,13 +232,14 @@ public class ModrinthPackageHandler: IInstancePackageHandler
         }
         catch (Exception ex)
         {
-            _logger.Error($"Failed to import modrinth package: {ex}");
+            _logger.LogDebug($"Failed to import modrinth package: {ex}");
             return null;
         }
     }
 
-    public async Task<bool> ExportAsync(Instance instance, List<FileNode> fileNodes, string targetPath, string exportVersion = "1.0.0", string summary = "", 
-        IProgressReporter? progress = null, CancellationToken cancellationToken = default)
+    /// <inheritdoc/>
+    public async Task<bool> ExportAsync(Instance instance, List<FileNode> fileNodes, string targetPath, string exportVersion = "1.0.0",
+        string summary = "", IProgressReporter? progress = null, CancellationToken cancellationToken = default)
     {
         string resourceFile = instance.GetResourceConfigPath();
         List<InstanceResource> resources = [];
@@ -284,13 +303,13 @@ public class ModrinthPackageHandler: IInstancePackageHandler
                     FileSize = resource.FileSize,
                     Hashes =
                     {
-                        ["sha1"] = resource.Sha1,
-                        ["sha512"] = resource.Sha512
+                        ["sha1"] = resource.Sha1!,
+                        ["sha512"] = resource.Sha512!
                     },
                     Env =
                     {
-                        ["client"] = resource.Client,
-                        ["server"] = resource.Server
+                        ["client"] = resource.Client!,
+                        ["server"] = resource.Server!
                     }
                 });
             }
@@ -303,12 +322,12 @@ public class ModrinthPackageHandler: IInstancePackageHandler
             await JsonHelper.WriteJsonFileAsync(indexJson, packageIndex, cancellationToken);
             
             await ZipFile.CreateFromDirectoryAsync(tmpDir, targetPath, CompressionLevel.Optimal, false, cancellationToken);
-            _logger.Debug($"Exported modrinth package to {targetPath}");
+            _logger.LogDebug($"Exported modrinth package to {targetPath}");
             return true;
         }
         catch (Exception ex)
         {
-            _logger.Error($"Failed to export modrinth package: {ex}");
+            _logger.LogCritical($"Failed to export modrinth package: {ex}");
             return false;
         }
         finally
@@ -316,7 +335,15 @@ public class ModrinthPackageHandler: IInstancePackageHandler
             FileSystemHelper.DeleteDirectory(tmpDir);
         }
     }
-
+    
+    /// <summary>
+    /// Recursively copies a file node and its children from the game directory to the package's overrides directory.
+    /// </summary>
+    /// <param name="overridesDir">The root overrides directory inside the temporary package layout where files are copied.</param>
+    /// <param name="gameDir">The base game directory path used to compute relative override paths.</param>
+    /// <param name="fileNode">The file or directory node to copy. It may be a file or directory with children.</param>
+    /// <param name="cancellationToken">Cancellation token observed during the copy operation.</param>
+    /// <returns>A task that completes when the node and all its children have been copied.</returns>
     private static async Task CopyNodeToOverridesAsync(string overridesDir, string gameDir, FileNode fileNode, CancellationToken cancellationToken  = default)
     {
         string relativePath = fileNode.Path.Replace(gameDir + Path.DirectorySeparatorChar, "");

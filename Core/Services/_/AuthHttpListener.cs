@@ -7,6 +7,7 @@ namespace Tavstal.KonkordLauncher.Core.Services;
 /// Provides authentication services, including starting and stopping an HTTP listener
 /// and handling HTTP requests for authentication callbacks.
 /// </summary>
+[Obsolete("This class is deprecated and may be removed in future versions. Please use the new authentication flow instead.")]
 public static class AuthHttpListener
 {
     private static bool _isListening;

@@ -13,6 +13,7 @@ namespace Tavstal.KonkordLauncher.Core.Services;
 /// <summary>
 /// Provides services for managing and rendering Minecraft skins and capes.
 /// </summary>
+[Obsolete("This class is deprecated. Use the new SkinService instead.")]
 public static class SkinService
 {
     private static readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(SkinService));

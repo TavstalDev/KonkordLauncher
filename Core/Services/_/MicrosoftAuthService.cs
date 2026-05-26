@@ -16,6 +16,7 @@ namespace Tavstal.KonkordLauncher.Core.Services;
 /// <summary>
 /// Provides services for handling Microsoft authentication and related operations.
 /// </summary>
+[Obsolete("MicrosoftAuthService is deprecated. Please use MicrosoftAuthenticationService instead.")]
 public static class MicrosoftAuthService
 {
     private static readonly CoreLogger _logger = new(typeof(MicrosoftAuthService));
@@ -97,23 +98,6 @@ public static class MicrosoftAuthService
         process.Start();
     }
     
-    /// <summary>
-    /// Generates the Microsoft authentication URL using the client ID and redirect URL.
-    /// </summary>
-    /// <returns>
-    /// A string containing the authentication URL if the client ID is set; 
-    /// otherwise, an empty string if the client ID is not set.
-    /// </returns>
-    public static string GetAuthenticationUrl()
-    {
-        if (string.IsNullOrEmpty(_microsoftClientId))
-        {
-            _logger.Error("Microsoft client ID is not set.");
-            return string.Empty;
-        }
-        
-        return MicrosoftEndpoints.MakeMicrosoftAuthUrl(_microsoftClientId, _redirectAuthenticateUrl);
-    }
     
     /// <summary>
     /// Handles an HTTP request for Microsoft authentication.

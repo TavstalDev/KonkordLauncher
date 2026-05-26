@@ -6,6 +6,7 @@ namespace Tavstal.KonkordLauncher.Core.Services;
 /// <summary>
 /// Provides functionality to listen for Microsoft device authentication status updates.
 /// </summary>
+[Obsolete("This class is deprecated. Please use MicrosoftDeviceAuthService instead.")]
 public static class MicrosoftDeviceListener
 {
     // Indicates whether the listener is currently active.

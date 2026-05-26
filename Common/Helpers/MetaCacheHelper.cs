@@ -12,6 +12,7 @@ using Version = Modrinth.Models.Version;
 
 namespace Tavstal.KonkordLauncher.Common.Helpers;
 
+[Obsolete("MetaCacheHelper is deprecated and will be removed in a future release. Please use the new caching system instead.")]
 public static class MetaCacheHelper
 {
     private static readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MetaCacheHelper));

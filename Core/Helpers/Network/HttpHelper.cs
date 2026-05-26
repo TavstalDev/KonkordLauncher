@@ -11,6 +11,7 @@ namespace Tavstal.KonkordLauncher.Core.Helpers.Network;
 /// Provides helper methods for HTTP operations, including GET and POST requests, 
 /// as well as methods for handling progress and deserializing JSON responses.
 /// </summary>
+[Obsolete("This class is deprecated and may be removed in future versions. Please use the new HttpService class instead.")]
 public static class HttpHelper
 {
     private static readonly HttpClient _httpClient = CreateHttpClient();

@@ -12,6 +12,7 @@ namespace Tavstal.KonkordLauncher.Core.Helpers.Domain;
 /// <summary>
 /// Provides helper methods for managing and retrieving mod loader manifests.
 /// </summary>
+[Obsolete("This class is deprecated and may be removed in future versions. Please use the new ManifestService instead.")]
 public static class ManifestHelper
 {
     /// <summary>

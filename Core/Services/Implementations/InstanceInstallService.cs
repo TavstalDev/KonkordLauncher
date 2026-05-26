@@ -1,14 +1,11 @@
-using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.Domain;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
-using Tavstal.KonkordLauncher.Core.Helpers.Platform;
 using Tavstal.KonkordLauncher.Core.Instances;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.Instance;
-using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 
@@ -36,7 +33,7 @@ public class InstanceInstallService : IInstanceInstallService
         {
             _logger.LogDebug("Downloading core files...");
             DateTime startTime = DateTime.Now;
-            await DownloadCoreFilesAsync(cancellationToken);
+            await DownloadCoreFilesAsync(instance, progress, cancellationToken);
             DateTime endTime = DateTime.Now;
             _logger.LogInformation($"Core files downloaded in {(endTime - startTime).TotalMilliseconds}ms.");
 
@@ -76,7 +73,7 @@ public class InstanceInstallService : IInstanceInstallService
             _logger.LogDebug("Downloading dependencies...");
             var libraries = instance.GetCombinedLibraries(moddedData);
             startTime = DateTime.Now;
-            await DownloadDependenciesAsync(instance.VersionData, libraries, cancellationToken);
+            await DownloadDependenciesAsync(instance, libraries, progress, cancellationToken);
             endTime = DateTime.Now;
             _logger.LogInformation($"Dependencies downloaded in {(endTime - startTime).TotalMilliseconds}ms.");
 
@@ -85,10 +82,9 @@ public class InstanceInstallService : IInstanceInstallService
                 VersionHelper.isNewer(instance.VersionData.MinecraftVersion, "1.20.3") ||
                 !VersionHelper.isNewer(instance.VersionData.MinecraftVersion, "1.16.5"))
                 instance.ArgumentBuilder.AddClass(moddedData != null ? instance.VersionData.CustomJarPath! : instance.VersionData.VanillaJarPath);
-
-            var arguments = instance.ArgumentBuilder.Build();
+            
             await Task.Delay(250, cancellationToken); // Ensure the progress reporter has time to update before launching
-            //_progressReporter?.CloseReporter();
+            progress?.CloseReporter();
             
             // Copy custom natives if specified
             _logger.LogDebug("Copying custom native files if specified...");
@@ -102,21 +98,6 @@ public class InstanceInstallService : IInstanceInstallService
             }
             endTime = DateTime.Now;
             _logger.LogInformation($"Custom native files copied in {(endTime - startTime).TotalMilliseconds}ms.");
-
-            // Execute pre-launch command if specified
-            if (!string.IsNullOrEmpty(instance.GameDetails.PreLaunchCommand))
-            {
-               var preLaunchProc = StartCommand(instance.GameDetails.PreLaunchCommand);
-               if (preLaunchProc != null)
-               {
-                   _logger.LogDebug("Executing pre-launch command...");
-                   startTime = DateTime.Now;
-                   await preLaunchProc.WaitForExitAsync(cancellationToken);
-                   endTime = DateTime.Now;
-                   _logger.LogInformation($"Pre-launch command executed in {(endTime - startTime).TotalMilliseconds}ms.");
-               }
-            }
-            
             return true;
         }
         finally
@@ -124,124 +105,56 @@ public class InstanceInstallService : IInstanceInstallService
             FileSystemHelper.DeleteDirectory(tempDir);
         }
     }
-
-    public async Task<bool> IsInstalledAsync(MinecraftInstance instance, CancellationToken cancellationToken = default)
-    {
-       
-    }
-
-    public async Task RepairAsync(MinecraftInstance instance, IProgressReporter? progress = null,
+    
+    private async Task DownloadCoreFilesAsync(MinecraftInstance instance,
+        IProgressReporter? progressReporter = null,
         CancellationToken cancellationToken = default)
     {
-       
-    }
-    
-    private Process? StartCommand(string command, Dictionary<string, string>? environmentVariables = null)
-    {
-        // Configure the process start information
-        var psi = new ProcessStartInfo
-        {
-            UseShellExecute = false,
-            RedirectStandardError = true,
-            RedirectStandardOutput = true,
-        };
-        // Add environment variables if provided
-        if (environmentVariables != null)
-        {
-            foreach (var kvp in environmentVariables)
-                psi.EnvironmentVariables[kvp.Key] = kvp.Value;
-        }
-
-        switch (OSHelper.GetOperatingSystem())
-        {
-            case EOperatingSystem.Windows:
-            {
-                psi.FileName = "cmd.exe";
-                psi.Arguments = $"/C \"{command}\"";
-                break;
-            }
-            case EOperatingSystem.MacOS:
-            {
-                psi.FileName = "/bin/zsh";
-                psi.Arguments = $"-c \"{command}\"";
-                break;
-            }
-            case EOperatingSystem.Unknown:
-            case EOperatingSystem.Linux:
-            {
-                psi.FileName = "/bin/sh";
-                psi.Arguments = $"-c \"{command}\"";
-                break;
-            }
-        }
-        
-        var process = Process.Start(psi);
-        if (process != null)
-        {
-            process.EnableRaisingEvents = true;
-#if DEBUG
-            process.OutputDataReceived += (_, e) =>
-            {
-                if (!string.IsNullOrEmpty(e.Data))
-                    _logger.LogDebug($"Custom command: {e.Data}");
-            };
-            process.ErrorDataReceived += (_, e) =>
-            {
-                if (!string.IsNullOrEmpty(e.Data))
-                    _logger.LogDebug($"Custom command: {e.Data}");
-            };
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
-#endif
-        }
-
-        // Start the process and return the Process object
-        return process;
-    }
-    
-    private async Task DownloadCoreFilesAsync(CancellationToken cancellationToken = default)
-    {
-        var localVersionMeta = await MinecraftFileService.DownloadVersionAsync(VersionData, MinecraftVersion, _progressReporter, cancellationToken);
-        MinecraftVersionMeta = localVersionMeta ?? throw new InvalidOperationException("Failed to download the version meta data. Please check your internet connection and try again.");
+        var localVersionMeta = await _libraryDownloadService.DownloadVersionAsync(instance.VersionData, instance.MinecraftVersion, progressReporter, cancellationToken);
+        instance.MinecraftVersionMeta = localVersionMeta ?? throw new InvalidOperationException("Failed to download the version meta data. Please check your internet connection and try again.");
 
         // Change the required Java version if necessary
-        if (GameDetails.Kind == EMinecraftKind.FORGE)
+        if (instance.GameDetails.Kind == EMinecraftKind.FORGE)
         {
-            Version forgeMinecraftVersion = new Version(GameDetails.MinecraftVersion);
+            Version forgeMinecraftVersion = new Version(instance.GameDetails.MinecraftVersion);
             // Set the required Java version to 7 for Forge versions 1.7.2 and below
             if (forgeMinecraftVersion.Major == 1 &&
                 (forgeMinecraftVersion.Minor < 7 || forgeMinecraftVersion is { Minor: 7, Build: < 10 }))
-                MinecraftVersionMeta.JavaVersionMeta.MajorVersion = 7;
+                instance.MinecraftVersionMeta.JavaVersionMeta.MajorVersion = 7;
         }
         
-        if (GameDetails.JavaPath == "LAUNCH_ME_FIRST" || string.IsNullOrEmpty(GameDetails.JavaPath))
+        if (instance.GameDetails.JavaPath == "LAUNCH_ME_FIRST" || string.IsNullOrEmpty(instance.GameDetails.JavaPath))
             // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract - It can be null if the event has no subscribers
-            OnSetupDefaultJava?.Invoke(MinecraftVersionMeta);
+            instance.InvokeSetupDefaultJava(instance.MinecraftVersionMeta);
         
-        await MinecraftFileService.DownloadMappingsAsync(MinecraftVersionMeta, VersionData, _progressReporter);
-        await MinecraftFileService.DownloadAssetsAsync(MinecraftVersionMeta, PathDetails.AssetsDir, VersionData.GameDir, _progressReporter, cancellationToken);
+        await _libraryDownloadService.DownloadMappingsAsync(instance.MinecraftVersionMeta, instance.VersionData, progressReporter, cancellationToken);
+        await _libraryDownloadService.DownloadAssetsAsync(instance.MinecraftVersionMeta, instance.PathDetails.AssetsDir, instance.VersionData.GameDir, progressReporter, cancellationToken);
     }
     
-    private async Task DownloadDependenciesAsync(VersionDetails versionDetails, List<LibraryMeta> libraries, CancellationToken cancellationToken = default)
+    private async Task DownloadDependenciesAsync(MinecraftInstance instance,
+        List<LibraryMeta> libraries,
+        IProgressReporter? progressReporter = null,
+        CancellationToken cancellationToken = default)
     {
-        if (ArgumentBuilder == null)
+        if (instance.ArgumentBuilder == null)
             throw new InvalidOperationException($"{nameof(ArgumentBuilder)} cannot be null.");
         
-        var loggingArg = await MinecraftFileService.DownloadLoggingAsync(MinecraftVersionMeta, VersionData.CustomVersionDirectory ?? VersionData.VanillaVersionDirectory, versionDetails.GameDir, _progressReporter, cancellationToken);
+        var loggingArg = await _libraryDownloadService.DownloadLoggingAsync(instance.MinecraftVersionMeta, instance.VersionData.CustomVersionDirectory ?? instance.VersionData.VanillaVersionDirectory, instance.VersionData.GameDir, progressReporter, cancellationToken);
         if (loggingArg != null)
-            ArgumentBuilder.AddJvmArgumentBeforeClassPath(loggingArg);
+            instance.ArgumentBuilder.AddJvmArgumentBeforeClassPath(loggingArg);
 
-        var classPath = await MinecraftFileService.DownloadLibrariesAsync(GameDetails.Kind, VersionData, libraries, ArgumentBuilder.ClassPath, PathDetails.CacheDir, PathDetails.LibrariesDir, _progressReporter, cancellationToken);
+        var classPath = await _libraryDownloadService.DownloadLibrariesAsync(instance.GameDetails.Kind, instance.VersionData, libraries, 
+            instance.ArgumentBuilder.ClassPath, instance.PathDetails.CacheDir, instance.PathDetails.LibrariesDir, progressReporter, cancellationToken);
         foreach (var cp in classPath)
-            ArgumentBuilder.AddClass(cp);
+            instance.ArgumentBuilder.AddClass(cp);
 
-        if (GameDetails.Kind is not (EMinecraftKind.FORGE or EMinecraftKind.NEOFORGE))
+        if (instance.GameDetails.Kind is not (EMinecraftKind.FORGE or EMinecraftKind.NEOFORGE))
         {
             string? result =
-                await MinecraftFileService.ExtractLaunchWrapperAsync(PathDetails.LibrariesDir, cancellationToken);
+                await _libraryDownloadService.ExtractLaunchWrapperAsync(instance.PathDetails.LibrariesDir, cancellationToken);
             if (!string.IsNullOrEmpty(result))
-                ArgumentBuilder.AddClass(result);
-            ArgumentBuilder.AddJvmArgument(new LaunchArg("io.github.tavstaldev.launchWrapper.Launch", 2));
+                instance.ArgumentBuilder.AddClass(result);
+            instance.ArgumentBuilder.AddJvmArgument(new LaunchArg("io.github.tavstaldev.launchWrapper.Launch", 2));
         }
     }
 }

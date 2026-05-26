@@ -400,6 +400,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
                 case EMinecraftKind.VANILLA:
                 {
                     gameInstance = new MinecraftInstance(
+                        Id,
                         gameDetails,
                         new PathDetails(
                             settings.Launcher.AssetsDirectoryPath,

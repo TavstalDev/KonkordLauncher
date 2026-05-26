@@ -203,8 +203,10 @@ public partial class ExportViewModel : KonkordObservableObject
 
         IsExporting = true;
         List<FileNode> selectedFiles = ObservableFileNode.ToFileNodes(Items.ToList());
-        if (!await InstanceHelper.ExportAsync(Instance, selectedFiles, exportPath, Provider, InstanceVersion,
-                InstanceSummary))
+        // TODO : User service
+        // !await InstanceHelper.ExportAsync(Instance, selectedFiles, exportPath, Provider, InstanceVersion,
+        // InstanceSummary)
+        if (true)
         {
             IsExporting = false;
             await ShowAlertDialogInteraction.Handle(new Alert(TranslationManager.Translate("common.error"), TranslationManager.Translate("instance.export.alert.error"), EAlertType.Error));

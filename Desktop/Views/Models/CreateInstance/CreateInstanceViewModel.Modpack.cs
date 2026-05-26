@@ -207,7 +207,9 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
             await HttpHelper.DownloadFileAsync(file.Url, tempPath, prog, cancellationToken);
             
             _parent.CloseReporter();
-            if (await InstanceHelper.ImportAsync(tempPath, EInstanceProvider.MODRINTH, App.ScreenResolution, InstanceName, null, modpack.IconUrl, _parent, cancellationToken) != null)
+            // TODO: Use service
+            // await InstanceHelper.ImportAsync(tempPath, EInstanceProvider.MODRINTH, App.ScreenResolution, InstanceName, null, modpack.IconUrl, _parent, cancellationToken) != null
+            if (true)
             {
                 _parent.CloseReporter();
                 instances = await LauncherHelper.GetInstancesAsync(cancellationToken);

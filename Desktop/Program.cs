@@ -5,7 +5,11 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ReactiveUI.Avalonia;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
+using Tavstal.KonkordLauncher.Common.Services.Implementations;
 using Tavstal.KonkordLauncher.Core.Encryption;
+using Tavstal.KonkordLauncher.Core.Services.Abstractions;
+using Tavstal.KonkordLauncher.Core.Services.Implementations;
 using Velopack;
 
 namespace Tavstal.KonkordLauncher.Desktop;
@@ -23,6 +27,20 @@ class Program
         var appHost = Host.CreateDefaultBuilder(args)
             .ConfigureServices(services =>
             {
+                services.AddLogging();
+                services.AddSingleton<IHttpService, HttpService>();
+                
+                // Minecraft services
+                services.AddSingleton<IManifestService, ManifestService>();
+                services.AddScoped<ILibraryDownloadService, LibraryDownloadService>();
+                
+                // Launcher services
+                services.AddSingleton<ILauncherStore, LauncherStore>();
+                services.AddSingleton<IModrinthApiClient, ModrinthApiClient>();
+                services.AddSingleton<IPackageService, ModrinthPackageService>();
+                services.AddSingleton<IPackageService, CurseForgePackageService>();
+                services.AddSingleton<IMetaCacheService, MetaCacheService>();
+                
                 var keyDir = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                     "KonkordLauncher",

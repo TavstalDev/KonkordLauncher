@@ -20,6 +20,7 @@ namespace Tavstal.KonkordLauncher.Core.Services;
 /// <summary>
 /// Provides file-related services for preparing and maintaining Minecraft runtime data.
 /// </summary>
+[Obsolete("This class is deprecated and will be removed in future versions. Please use the new MinecraftRuntimeService for handling Minecraft file operations.")]
 public static class MinecraftFileService
 {
     private static readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MinecraftFileService));

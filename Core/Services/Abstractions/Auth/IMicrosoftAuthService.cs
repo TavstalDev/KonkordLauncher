@@ -16,6 +16,9 @@ public interface IMicrosoftAuthService
     /// </summary>
     EAuthStatus AuthStatus { get; }
     
+    public delegate void AuthStatusChangedHandler(EAuthStatus status);
+    event AuthStatusChangedHandler? OnAuthStatusChanged;
+    
     /// <summary>
     /// Sets the Microsoft OAuth2 client ID for authentication requests.
     /// </summary>

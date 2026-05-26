@@ -1,5 +1,6 @@
 using System.Net;
 using Microsoft.Extensions.Logging;
+using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions.Auth;
 
@@ -20,6 +21,13 @@ public class MicrosoftHttpAuthService : IMicrosoftHttpAuthService
     {
         _logger = logger;
         _microsoftAuthService = microsoftAuthService;
+        _microsoftAuthService.OnAuthStatusChanged += OnAuthStatusChanged;
+    }
+
+    private void OnAuthStatusChanged(EAuthStatus status)
+    {
+        if (status == EAuthStatus.SUCCESS)
+            Task.Run(async () => await StopListeningAsync());
     }
 
     /// <inheritdoc/>

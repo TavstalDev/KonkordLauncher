@@ -21,7 +21,7 @@ public class MicrosoftAuthService : IMicrosoftAuthService
     private readonly ILogger _logger;
     private readonly IHttpService _httpService;
     private string _microsoftClientId = "496a0c42-aa74-41fe-b7bc-0ad155cdaa26";
-    private readonly string _redirectAuthenticateUrl = Path.Combine(AuthHttpListener.ListeningUrl, "microsoft/authcallback");
+    private readonly string _redirectAuthenticateUrl = Path.Combine(MicrosoftHttpAuthService.ListeningUrl, "microsoft/authcallback");
     private IProgressReporter? _progressReporter;
     
     private EAuthStatus _authStatus = EAuthStatus.NONE;
@@ -32,8 +32,7 @@ public class MicrosoftAuthService : IMicrosoftAuthService
     private Account? _account;
     public Account? Account => _account;
     
-    public delegate void AuthStatusChangedHandler(EAuthStatus status);
-    public static event AuthStatusChangedHandler? OnAuthStatusChanged;
+    public event IMicrosoftAuthService.AuthStatusChangedHandler? OnAuthStatusChanged;
     
     public MicrosoftAuthService(ILogger<MicrosoftAuthService> logger, IHttpService httpService)
     {
@@ -496,7 +495,6 @@ public class MicrosoftAuthService : IMicrosoftAuthService
             
             _authStatus = EAuthStatus.SUCCESS;
             OnAuthStatusChanged?.Invoke(_authStatus);
-            AuthHttpListener.StopListening(false);
         }
         catch (Exception ex)
         {

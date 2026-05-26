@@ -28,7 +28,7 @@ public class MinecraftInstance
     public ArgumentBuilder? ArgumentBuilder { get; set; }
     protected IProgressReporter? _progressReporter { get; }
 
-    public VersionMeta MinecraftVersionMeta { get; private set; }
+    public VersionMeta MinecraftVersionMeta { get; set; }
     
     public MinecraftInstance(string id, GameDetails gameDetails, PathDetails pathDetails, LauncherDetails launcherDetails,
         ClientDetails clientDetails, Resolution? resolution = null, IProgressReporter? progressReporter = null)
@@ -130,8 +130,10 @@ public class MinecraftInstance
     /// Event triggered when the default Java path needs to be set up.
     /// Subscribers can handle this event to configure the Java path based on the provided version metadata.
     /// </summary>
-    public event SetupDefaultJavaEventHandler OnSetupDefaultJava;
+    public event SetupDefaultJavaEventHandler? OnSetupDefaultJava;
 
+    public void InvokeSetupDefaultJava(VersionMeta versionMeta) => OnSetupDefaultJava?.Invoke(versionMeta);
+    
     /// <summary>
     /// Updates the Java path used by the game and logs the change.
     /// </summary>

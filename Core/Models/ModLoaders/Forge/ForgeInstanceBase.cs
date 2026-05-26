@@ -19,13 +19,14 @@ namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
 /// <param name="resolution">Optional screen resolution settings for the instance.</param>
 /// <param name="progressReporter">Optional progress reporter for tracking installation or setup progress.</param>
 public abstract class ForgeInstanceBase(
+    string id,
     GameDetails gameDetails,
     PathDetails pathDetails,
     LauncherDetails launcherDetails,
     ClientDetails clientDetails,
     Resolution? resolution = null,
     IProgressReporter? progressReporter = null)
-    : MinecraftInstance(gameDetails, pathDetails, launcherDetails, clientDetails, resolution, progressReporter)
+    : MinecraftInstance(id, gameDetails, pathDetails, launcherDetails, clientDetails, resolution, progressReporter)
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(ForgeInstanceBase));
 

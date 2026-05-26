@@ -15,13 +15,14 @@ namespace Tavstal.KonkordLauncher.Core.Instances;
 /// Represents a Quilt instance, handling installation, configuration, and launching of Quilt-based Minecraft versions.
 /// </summary>
 public class QuiltInstance(
+    string id,
     GameDetails gameDetails,
     PathDetails pathDetails,
     LauncherDetails launcherDetails,
     ClientDetails clientDetails,
     Resolution? resolution = null,
     IProgressReporter? progressReporter = null)
-    : MinecraftInstance(gameDetails, pathDetails, launcherDetails, clientDetails, resolution, progressReporter)
+    : MinecraftInstance(id, gameDetails, pathDetails, launcherDetails, clientDetails, resolution, progressReporter)
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(QuiltInstance));
 
@@ -31,7 +32,7 @@ public class QuiltInstance(
     /// <param name="tempDir">The temporary directory used during installation.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the modded data if successful, or null if an error occurs.</returns>
-    protected override async Task<ModdedData?> InstallModdedAsync(string tempDir, CancellationToken cancellationToken = default)
+    public override async Task<ModdedData?> InstallModdedAsync(string tempDir, CancellationToken cancellationToken = default)
     {
         if (ArgumentBuilder == null)
             throw new InvalidOperationException($"{nameof(ArgumentBuilder)} is null.");

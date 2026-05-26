@@ -1,42 +1,34 @@
 using System.Diagnostics;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
-using Tavstal.KonkordLauncher.Core.Helpers.Platform;
+using Tavstal.KonkordLauncher.Core.Instances;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 
-namespace Tavstal.KonkordLauncher.Core.Services;
+namespace Tavstal.KonkordLauncher.Core.Services.Implementations;
 
-/// <summary>
-/// Provides functionality to launch Java processes with specified arguments.
-/// </summary>
-public static class JavaProcessLauncher
+public class InstanceLaunchService : IInstanceLaunchService
 {
-    // Logger instance for the JavaProcessLauncher module
-    private static readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(JavaProcessLauncher));
-
-    /// <summary>
-    /// Starts a Java process using the specified java executable and arguments.
-    /// </summary>
-    /// <param name="javaPath">Path to the java executable to use. If null or empty, the system "java" command will be used.</param>
-    /// <param name="jvmArguments">JVM arguments to pass to the Java executable (e.g. "-Xmx2G -Xms1G"). This string should contain any JVM flags required.</param>
-    /// <param name="gameArguments">Game (application) arguments to pass after JVM arguments (e.g. "--username user --version 1.16.5").</param>
-    /// <param name="kind">The kind of Minecraft instance being launched.</param>
-    /// <param name="logsPath">
-    /// Optional path to a log file. If supplied, existing log file at this path will be rotated (moved/archived)
-    /// before starting the process and the launched process' stdout/stderr lines will be written to a logger
-    /// that targets this path. If null or empty, no log rotation or file logging is performed.
-    /// </param>
-    /// <param name="wrapperCommands"></param>
-    /// <param name="environmentVariables">Optional dictionary of environment variables to set on the started process.</param>
-    /// <param name="sensitiveDataToReplace">Optional list of sensitive substrings (e.g. tokens, passwords) that should be masked in logged output.</param>
-    /// <returns>A <see cref="Process"/> instance representing the started process, or <c>null</c> if the process could not be started.</returns>
-    public static Process? StartJava(string javaPath, string jvmArguments, string gameArguments, EMinecraftKind kind, string? logsPath = null, List<string>? wrapperCommands = null, Dictionary<string, string>? environmentVariables = null, List<string>? sensitiveDataToReplace = null)
+    private readonly ILogger _logger;
+    private readonly Dictionary<string, Process> _runningProcesses = new();
+    
+    public InstanceLaunchService(ILogger<InstanceLaunchService> logger)
     {
-        string finalJavaPath = string.IsNullOrEmpty(javaPath) ? "java" : javaPath;
+        _logger = logger;
+    }
+    
+    public async Task<Process?> LaunchAsync(MinecraftInstance instance, 
+        string gameArguments, string jvmArguments, string? customLogPath = null,
+        List<string>? sensitiveDataToReplace = null,
+        IProgressReporter? progress = null,
+        CancellationToken cancellationToken = default)
+    {
+        string finalJavaPath = string.IsNullOrEmpty(instance.GameDetails.JavaPath) ? "java" : instance.GameDetails.JavaPath;
         string args;
         bool useWrapper = false;
-        switch (kind)
+        switch (instance.GameDetails.Kind)
         {
             case EMinecraftKind.NEOFORGE:
             case EMinecraftKind.FORGE:
@@ -53,9 +45,9 @@ public static class JavaProcessLauncher
         }
 
         ProcessStartInfo psi;
-        if (wrapperCommands is { Count: > 0})
+        if (instance.GameDetails.WrapperCommands is { Count: > 0})
         {
-            string fileName = wrapperCommands[0];
+            string fileName = instance.GameDetails.WrapperCommands[0];
             psi = new ProcessStartInfo
             {
                 FileName = fileName,
@@ -65,7 +57,7 @@ public static class JavaProcessLauncher
                 UseShellExecute = false
             };
             bool commandInjected = false;
-            foreach (var command in wrapperCommands.Skip(1))
+            foreach (var command in instance.GameDetails.WrapperCommands.Skip(1))
             {
                 if (command.Contains("%command%"))
                 {
@@ -100,16 +92,13 @@ public static class JavaProcessLauncher
         }
         
         // Add environment variables if provided
-        if (environmentVariables != null)
-        {
-            foreach (var kvp in environmentVariables)
-                psi.EnvironmentVariables[kvp.Key] = kvp.Value;
-        }
+        foreach (var kvp in instance.GameDetails.EnvironmentVariables)
+            psi.EnvironmentVariables[kvp.Key] = kvp.Value;
         
         // Log the process start details
-        _logger.Debug("Starting Java process with arguments:");
-        _logger.Debug("Java: " + finalJavaPath);
-        _logger.Debug("FileName: " + psi.FileName);
+        _logger.LogDebug("Starting Java process with arguments:");
+        _logger.LogDebug("Java: " + finalJavaPath);
+        _logger.LogDebug("FileName: " + psi.FileName);
         string argumentsToPrint = string.Join(" ", psi.ArgumentList);
 #if DEBUG
         if (sensitiveDataToReplace != null)
@@ -118,19 +107,19 @@ public static class JavaProcessLauncher
                 argumentsToPrint = argumentsToPrint.Replace(sen, "*****");
         }
 #endif
-        _logger.Debug("Arguments: " + argumentsToPrint);
+        _logger.LogDebug("Arguments: " + argumentsToPrint);
 
         // Handle existing logs file
-        bool shouldHandleLogs = !string.IsNullOrEmpty(logsPath);
+        bool shouldHandleLogs = !string.IsNullOrEmpty(customLogPath);
         if (shouldHandleLogs)
         {
-            string logsDir = Path.GetDirectoryName(logsPath)!;
-            if (File.Exists(logsPath))
+            string logsDir = Path.GetDirectoryName(customLogPath)!;
+            if (File.Exists(customLogPath))
             {
-                var lastWritten = File.GetLastWriteTime(logsPath);
+                var lastWritten = File.GetLastWriteTime(customLogPath);
                 string newPath = Path.Combine(logsDir, string.Format(PathHelper.LogsFileFormat, lastWritten));
                 string archivePath = newPath + ".gz";
-                File.Move(logsPath, newPath, true);
+                File.Move(customLogPath, newPath, true);
                 FileSystemHelper.CompressFile(newPath, archivePath);
             }
         }
@@ -145,41 +134,41 @@ public static class JavaProcessLauncher
             {
                 if (string.IsNullOrEmpty(e.Data))
                     return;
-                _logger.Error($"[JVM Process Error] {e.Data}");
+                _logger.LogError($"[JVM Process Error] {e.Data}");
             };
             process.Exited += (_, _) =>
             {
                 switch (process.ExitCode)
                 {
                     case 0:
-                        _logger.Info($"[JVM Process Exit] {process.ExitCode} - Clean exit");
+                        _logger.LogInformation($"[JVM Process Exit] {process.ExitCode} - Clean exit");
                         break;
                     case 1:
-                        _logger.Error($"[JVM Process Exit] {process.ExitCode} - JVM error (bad arguments, missing class, crash)");
+                        _logger.LogError($"[JVM Process Exit] {process.ExitCode} - JVM error (bad arguments, missing class, crash)");
                         break;
                     case -1:
-                        _logger.Warn($"[JVM Process Exit] {process.ExitCode} - Forced exit / OutOfMemoryError");
+                        _logger.LogWarning($"[JVM Process Exit] {process.ExitCode} - Forced exit / OutOfMemoryError");
                         break;
                     case 130:
-                        _logger.Warn($"[JVM Process Exit] {process.ExitCode} - Terminated by user (SIGINT/Ctrl+C)");
+                        _logger.LogWarning($"[JVM Process Exit] {process.ExitCode} - Terminated by user (SIGINT/Ctrl+C)");
                         break;
                     case 137:
-                        _logger.Error($"[JVM Process Exit] {process.ExitCode} - Killed by OS (OOM killer or SIGKILL)");
+                        _logger.LogError($"[JVM Process Exit] {process.ExitCode} - Killed by OS (OOM killer or SIGKILL)");
                         break;
                     case 139:
-                        _logger.Error($"[JVM Process Exit] {process.ExitCode} - Segmentation fault (native crash)");
+                        _logger.LogError($"[JVM Process Exit] {process.ExitCode} - Segmentation fault (native crash)");
                         break;
                     default:
                         if (process.ExitCode > 0)
-                            _logger.Error($"[JVM Process Exit] {process.ExitCode} - Abnormal exit");
+                            _logger.LogError($"[JVM Process Exit] {process.ExitCode} - Abnormal exit");
                         else
-                            _logger.Warn($"[JVM Process Exit] {process.ExitCode} - Unknown exit");
+                            _logger.LogWarning($"[JVM Process Exit] {process.ExitCode} - Unknown exit");
                         break;
                 }
             };
             if (shouldHandleLogs)
             {
-                CoreLogger jvmLogger = new CoreLogger("Game", false, logsPath);
+                CoreLogger jvmLogger = new CoreLogger("Game", false, customLogPath);
                 bool replaceSD = sensitiveDataToReplace != null;
                 process.OutputDataReceived += (_, e) =>
                 {
@@ -208,92 +197,42 @@ public static class JavaProcessLauncher
             {
                 var writer = process.StandardInput;
                 string[] gameArgs = gameArguments.Split(' ');
-                writer.WriteLine(gameArgs[0]); // Write the main class
-                writer.WriteLine(
+                await writer.WriteLineAsync(gameArgs[0]); // Write the main class
+                await writer.WriteLineAsync(
                     Convert.ToBase64String(
                         Encoding.UTF8.GetBytes(gameArgs.Skip(1)
                             .Aggregate((a, b) => a + " " + b)))); // Write the rest of the arguments as a single line
-                writer.Flush();
+                await writer.FlushAsync(cancellationToken);
                 writer.Close();
             }
         }
-
-        // Start the process and return the Process object
+        
+        _runningProcesses.Add(instance.Id, process!);
         return process;
     }
-    
-    /// <summary>
-    /// Starts a process to execute a custom command with optional environment variables.
-    /// </summary>
-    /// <param name="command">The command to execute.</param>
-    /// <param name="environmentVariables">
-    /// An optional dictionary of environment variables to set for the process.
-    /// </param>
-    /// <returns>
-    /// A <see cref="Process"/> object representing the started process, or null if the process could not be started.
-    /// </returns>
-    public static Process? StartCommand(string command, Dictionary<string, string>? environmentVariables = null)
+
+    public async Task StopAsync(string instanceId, CancellationToken cancellationToken = default)
     {
-        // Configure the process start information
-        var psi = new ProcessStartInfo
+        if (!_runningProcesses.TryGetValue(instanceId, out var process))
         {
-            UseShellExecute = false,
-            RedirectStandardError = true,
-            RedirectStandardOutput = true,
-        };
-        // Add environment variables if provided
-        if (environmentVariables != null)
-        {
-            foreach (var kvp in environmentVariables)
-                psi.EnvironmentVariables[kvp.Key] = kvp.Value;
+            _logger.LogWarning("Attempted to stop instance {InstanceId} which is not currently running.", instanceId);
+            return;
         }
 
-        switch (OSHelper.GetOperatingSystem())
+        if (process.HasExited)
         {
-            case EOperatingSystem.Windows:
-            {
-                psi.FileName = "cmd.exe";
-                psi.Arguments = $"/C \"{command}\"";
-                break;
-            }
-            case EOperatingSystem.MacOS:
-            {
-                psi.FileName = "/bin/zsh";
-                psi.Arguments = $"-c \"{command}\"";
-                break;
-            }
-            case EOperatingSystem.Unknown:
-            case EOperatingSystem.Linux:
-            {
-                psi.FileName = "/bin/sh";
-                psi.Arguments = $"-c \"{command}\"";
-                break;
-            }
+            _logger.LogInformation("Instance {InstanceId} process has already exited.", instanceId);
+            _runningProcesses.Remove(instanceId);
+            return;
         }
         
-        var process = Process.Start(psi);
-        if (process != null)
-        {
-            process.EnableRaisingEvents = true;
-#if DEBUG
-            process.OutputDataReceived += (_, e) =>
-            {
-                if (!string.IsNullOrEmpty(e.Data))
-                    _logger.Debug($"Custom command: {e.Data}");
-            };
-            process.ErrorDataReceived += (_, e) =>
-            {
-                if (!string.IsNullOrEmpty(e.Data))
-                    _logger.Error($"Custom command: {e.Data}");
-            };
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
-#endif
-        }
-
-        // Start the process and return the Process object
-        return process;
+        process.Close();
+        await process.WaitForExitAsync(cancellationToken);
+        _logger.LogDebug("Instance {InstanceId} stopped.", instanceId);
+        _runningProcesses.Remove(instanceId);
     }
+
+    public bool IsRunning(string instanceId) => _runningProcesses.TryGetValue(instanceId, out var process) && !process.HasExited;
     
     /// <summary>
     /// Splits a command-line argument string into individual arguments while respecting quoted strings and escape sequences.

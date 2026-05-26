@@ -14,10 +14,6 @@ public interface IInstanceLaunchService
     /// Launches the specified Minecraft instance.
     /// </summary>
     /// <param name="instance">The instance to launch.</param>
-    /// <param name="gameArgs">The fully resolved game arguments string to use for the launch.</param>
-    /// <param name="jvmArgs">The fully resolved JVM arguments string to use for the launch.</param>
-    /// <param name="customLogPath">Optional custom log file path to redirect the instance's standard output and error streams.</param>
-    /// <param name="sensitiveDataToReplace">Optional list of sensitive data strings to redact from logs and process information.</param>
     /// <param name="progress">Optional progress reporter for launch-stage updates.</param>
     /// <param name="cancellationToken">Cancellation token observed during launch preparation and startup.</param>
     /// <returns>
@@ -25,10 +21,6 @@ public interface IInstanceLaunchService
     /// </returns>  
     Task<Process?> LaunchAsync(
         MinecraftInstance instance,
-        string gameArgs,
-        string jvmArgs,
-        string? customLogPath = null,
-        List<string>? sensitiveDataToReplace = null,
         IProgressReporter? progress = null,
         CancellationToken cancellationToken = default);
 

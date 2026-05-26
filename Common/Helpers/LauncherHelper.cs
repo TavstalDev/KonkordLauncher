@@ -11,6 +11,7 @@ namespace Tavstal.KonkordLauncher.Common.Helpers;
 /// <summary>
 /// Helper methods for reading and creating launcher-related data files (settings, accounts, instances, patch notes).
 /// </summary>
+[Obsolete("This class is deprecated and will be removed in a future release. Please use the corresponding methods in LauncherStore instead.")]
 public static class LauncherHelper
 {
     private static readonly CoreLogger _logger = new(typeof(LauncherHelper));

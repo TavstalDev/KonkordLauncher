@@ -10,11 +10,16 @@ using Tavstal.KonkordLauncher.Core.Models.Instance;
 
 namespace Tavstal.KonkordLauncher.Common.Services.Implementations;
 
+/// <inheritdoc/>
 public class LauncherStore : ILauncherStore
 {
     private readonly ILogger  _logger;
     private readonly ConcurrentDictionary<string, (DateTime lastWritten, object data)> _cache = [];
     
+    /// <summary>
+    /// Initializes a new instance of the <see cref="LauncherStore"/> class.
+    /// </summary>
+    /// <param name="logger">Logger used to record diagnostics and error messages for store operations.</param>
     public LauncherStore(ILogger<LauncherStore> logger)
     {
         _logger = logger;
@@ -98,7 +103,7 @@ public class LauncherStore : ILauncherStore
         {
             await JsonHelper.WriteJsonFileAsync(path, value, cancellationToken);
             var cacheValue = (DateTime.UtcNow, value);
-            _cache.AddOrUpdate(path, cacheValue!, (_, __) => cacheValue!);
+            _cache.AddOrUpdate(path, cacheValue!, (_, _) => cacheValue!);
             return true;
         }
         catch (Exception ex)
@@ -144,7 +149,7 @@ public class LauncherStore : ILauncherStore
             }
 
             var cacheValue = (lastWritten, readResult);
-            _cache.AddOrUpdate(path, cacheValue!, (_, __) => cacheValue!);
+            _cache.AddOrUpdate(path, cacheValue!, (_, _) => cacheValue!);
             return readResult;
         }
         catch (Exception ex)

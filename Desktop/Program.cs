@@ -9,7 +9,9 @@ using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Common.Services.Implementations;
 using Tavstal.KonkordLauncher.Core.Encryption;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions;
+using Tavstal.KonkordLauncher.Core.Services.Abstractions.Auth;
 using Tavstal.KonkordLauncher.Core.Services.Implementations;
+using Tavstal.KonkordLauncher.Core.Services.Implementations.Auth;
 using Velopack;
 
 namespace Tavstal.KonkordLauncher.Desktop;
@@ -33,6 +35,14 @@ class Program
                 // Minecraft services
                 services.AddSingleton<IManifestService, ManifestService>();
                 services.AddScoped<ILibraryDownloadService, LibraryDownloadService>();
+                services.AddSingleton<InstanceInstallService, InstanceInstallService>();
+                services.AddSingleton<InstanceLaunchService, InstanceLaunchService>();
+                
+                services.AddSingleton<ISkinService, SkinService>();
+                services.AddSingleton<IMojangSkinService, MojangSkinService>();
+                services.AddSingleton<IMicrosoftAuthService, MicrosoftAuthService>();
+                services.AddSingleton<IMicrosoftDeviceAuthService, MicrosoftDeviceAuthService>();
+                services.AddSingleton<IMicrosoftHttpAuthService, MicrosoftHttpAuthService>();
                 
                 // Launcher services
                 services.AddSingleton<ILauncherStore, LauncherStore>();

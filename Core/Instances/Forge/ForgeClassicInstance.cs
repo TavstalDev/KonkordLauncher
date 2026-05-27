@@ -1,15 +1,16 @@
 ﻿using System.IO.Compression;
 using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
-using Tavstal.KonkordLauncher.Core.Helpers.Network;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints.Modding;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.Instance;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Legacy;
+using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta.Library;
+using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Core.Instances.Forge;
 
@@ -17,17 +18,18 @@ namespace Tavstal.KonkordLauncher.Core.Instances.Forge;
 public class ForgeClassicInstance(string forgeVersionName,
     string universalFormat,
     string id,
+    MinecraftVersion gameVersion,
    GameDetails gameDetails,
    PathDetails pathDetails,
    LauncherDetails launcherDetails,
    ClientDetails clientDetails,
    Resolution? resolution = null,
    IProgressReporter? progressReporter = null)
-   : ForgeInstanceBase(id, gameDetails, pathDetails, launcherDetails, clientDetails, resolution, progressReporter)
+   : ForgeInstanceBase(id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, resolution, progressReporter)
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(ForgeClassicInstance));
     
-    public override async Task<ModdedData?> InstallModdedAsync(string tempDir, CancellationToken cancellationToken = default)
+    public override async Task<ModdedData?> InstallModdedAsync(string tempDir, IHttpService httpService, CancellationToken cancellationToken = default)
     {
         if (ArgumentBuilder == null)
             throw new InvalidOperationException($"{nameof(ArgumentBuilder)} is null.");
@@ -62,7 +64,7 @@ public class ForgeClassicInstance(string forgeVersionName,
                     e.ToString("0.00"));
             };
        
-            await HttpHelper.DownloadFileAsync(
+            await httpService.DownloadFileAsync(
                 string.Format(ForgeEndpoints.InstallerJarUrl, forgeVersionName), installerJarPath,
                 progress, cancellationToken);
        
@@ -197,7 +199,7 @@ public class ForgeClassicInstance(string forgeVersionName,
                 string patchedVanillaJarPath = Path.Combine(tempDir, "patched_vanilla.jar");
                 await ZipFile.CreateFromDirectoryAsync(vanillaExtractDir, patchedVanillaJarPath, cancellationToken);
 
-                File.Copy(patchedVanillaJarPath, VersionData.CustomJarPath);
+                File.Copy(patchedVanillaJarPath, VersionData.CustomJarPath!);
             }
         }
 

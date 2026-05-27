@@ -1,31 +1,33 @@
 ﻿using System.IO.Compression;
 using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
-using Tavstal.KonkordLauncher.Core.Helpers.Network;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints.Modding;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.Instance;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Modern;
+using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
+using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Core.Instances.Forge;
 
 // 1.12.2+
 public class ForgeModernInstance(
     string id,
+    MinecraftVersion gameVersion,
    GameDetails gameDetails,
    PathDetails pathDetails,
    LauncherDetails launcherDetails,
    ClientDetails clientDetails,
    Resolution? resolution = null,
    IProgressReporter? progressReporter = null)
-   : ForgeInstanceBase(id, gameDetails, pathDetails, launcherDetails, clientDetails, resolution, progressReporter)
+   : ForgeInstanceBase(id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, resolution, progressReporter)
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(ForgeModernInstance));
 
-    public override async Task<ModdedData?> InstallModdedAsync(string tempDir, CancellationToken cancellationToken = default)
+    public override async Task<ModdedData?> InstallModdedAsync(string tempDir, IHttpService httpService, CancellationToken cancellationToken = default)
     {
         if (ArgumentBuilder == null)
             throw new InvalidOperationException($"{nameof(ArgumentBuilder)} is null.");
@@ -54,7 +56,7 @@ public class ForgeModernInstance(
                     e.ToString("0.00"));
             };
        
-            await HttpHelper.DownloadFileAsync(
+            await httpService.DownloadFileAsync(
                 string.Format(ForgeEndpoints.InstallerJarUrl, $"{VersionData.MinecraftVersion}-{VersionData.CustomVersion}"), installerJarPath,
                 progress, cancellationToken);
        
@@ -131,7 +133,7 @@ public class ForgeModernInstance(
                     e.ToString("0.00"));
             };
 
-            await HttpHelper.DownloadFileAsync(libMeta.Downloads.Artifact.Url, libraryPath, libProgress, cancellationToken);
+            await httpService.DownloadFileAsync(libMeta.Downloads.Artifact.Url, libraryPath, libProgress, cancellationToken);
         }
 
         // Map and start processors

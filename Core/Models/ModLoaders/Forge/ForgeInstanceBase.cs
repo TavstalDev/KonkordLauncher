@@ -6,6 +6,7 @@ using Tavstal.KonkordLauncher.Core.Instances;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.Instance;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Modern;
+using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 
 namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
 
@@ -20,13 +21,14 @@ namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
 /// <param name="progressReporter">Optional progress reporter for tracking installation or setup progress.</param>
 public abstract class ForgeInstanceBase(
     string id,
+    MinecraftVersion gameVersion,
     GameDetails gameDetails,
     PathDetails pathDetails,
     LauncherDetails launcherDetails,
     ClientDetails clientDetails,
     Resolution? resolution = null,
     IProgressReporter? progressReporter = null)
-    : MinecraftInstance(id, gameDetails, pathDetails, launcherDetails, clientDetails, resolution, progressReporter)
+    : MinecraftInstance(id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, resolution, progressReporter)
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(ForgeInstanceBase));
 

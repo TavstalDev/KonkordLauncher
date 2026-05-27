@@ -1,38 +1,31 @@
 ﻿using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
-using Tavstal.KonkordLauncher.Core.Helpers.Network;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints.Modding;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.Instance;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Fabric;
+using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta.Library;
+using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Core.Instances;
 
-/// <summary>
-/// Represents a Quilt instance, handling installation, configuration, and launching of Quilt-based Minecraft versions.
-/// </summary>
 public class QuiltInstance(
     string id,
+    MinecraftVersion gameVersion,
     GameDetails gameDetails,
     PathDetails pathDetails,
     LauncherDetails launcherDetails,
     ClientDetails clientDetails,
     Resolution? resolution = null,
     IProgressReporter? progressReporter = null)
-    : MinecraftInstance(id, gameDetails, pathDetails, launcherDetails, clientDetails, resolution, progressReporter)
+    : MinecraftInstance(id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, resolution, progressReporter)
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(QuiltInstance));
-
-    /// <summary>
-    /// Installs the Quilt modded environment asynchronously.
-    /// </summary>
-    /// <param name="tempDir">The temporary directory used during installation.</param>
-    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-    /// <returns>A task that represents the asynchronous operation. The task result contains the modded data if successful, or null if an error occurs.</returns>
-    public override async Task<ModdedData?> InstallModdedAsync(string tempDir, CancellationToken cancellationToken = default)
+    
+    public override async Task<ModdedData?> InstallModdedAsync(string tempDir, IHttpService httpService, CancellationToken cancellationToken = default)
     {
         if (ArgumentBuilder == null)
             throw new InvalidOperationException($"{nameof(ArgumentBuilder)} is null.");
@@ -63,7 +56,7 @@ public class QuiltInstance(
             string quiltVersionJsonUrl = string.Format(QuiltEndpoints.LoaderJsonUrl, VersionData.MinecraftVersion,
                 VersionData.CustomVersion);
 
-            var resultJson = await HttpHelper.GetStringAsync(quiltVersionJsonUrl, progress, cancellationToken);
+            var resultJson = await httpService.GetStringAsync(quiltVersionJsonUrl, progress, cancellationToken);
             if (resultJson == null)
                 return null;
                 
@@ -113,7 +106,7 @@ public class QuiltInstance(
                 _progressReporter?.UpdateStatusTranslated("instance.downloading.loader", "quilt", e.ToString("0.00"));
             };
             _logger.Debug("Downloading quilt loader jar...");
-            await HttpHelper.DownloadFileAsync(string.Format(QuiltEndpoints.LoaderJarUrl, VersionData.CustomVersion), loaderJarPath, progress, cancellationToken);
+            await httpService.DownloadFileAsync(string.Format(QuiltEndpoints.LoaderJarUrl, VersionData.CustomVersion), loaderJarPath, progress, cancellationToken);
         }
         
         

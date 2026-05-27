@@ -1,14 +1,10 @@
-﻿using System.Diagnostics;
-using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Helpers.Domain;
-using Tavstal.KonkordLauncher.Core.Helpers.IO;
-using Tavstal.KonkordLauncher.Core.Helpers.Platform;
+﻿using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.Instance;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
-using Tavstal.KonkordLauncher.Core.Services;
+using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Core.Instances;
 
@@ -23,14 +19,13 @@ public class MinecraftInstance
     public PathDetails PathDetails { get; }
     public Resolution? Resolution { get; }
     public VersionDetails VersionData { get; }
-    public VersionManifest VersionManifest { get; }
     public MinecraftVersion MinecraftVersion { get; }
     public ArgumentBuilder? ArgumentBuilder { get; set; }
     protected IProgressReporter? _progressReporter { get; }
 
     public VersionMeta MinecraftVersionMeta { get; set; }
     
-    public MinecraftInstance(string id, GameDetails gameDetails, PathDetails pathDetails, LauncherDetails launcherDetails,
+    public MinecraftInstance(string id, MinecraftVersion gameVersion, GameDetails gameDetails, PathDetails pathDetails, LauncherDetails launcherDetails,
         ClientDetails clientDetails, Resolution? resolution = null, IProgressReporter? progressReporter = null)
     {
         Id = id;
@@ -40,14 +35,7 @@ public class MinecraftInstance
         Resolution = resolution;
         LauncherDetails = launcherDetails;
         Client = clientDetails;
-
-        VersionManifest = ManifestHelper.GetMinecraftManifest()
-                          ?? throw new InvalidOperationException(
-                              "Failed to read the local vanilla manifest. Please ensure that the file exists and is valid.");
-
-        MinecraftVersion = VersionManifest.Versions.FirstOrDefault(x => x.Id == GameDetails.MinecraftVersion)
-                           ?? throw new InvalidOperationException(
-                               $"The specified Minecraft version does not exist in the manifest: {GameDetails.MinecraftVersion}");
+        MinecraftVersion = gameVersion;
 
 
         string vanillaVersionsRoot = Path.Combine(PathDetails.VersionsDir, "vanilla");
@@ -85,11 +73,6 @@ public class MinecraftInstance
         }
     }
     
-    public async Task<Process?> StartAsync(CancellationToken cancellationToken = default)
-    {
-        return null;
-    }
-    
     public List<LibraryMeta> GetCombinedLibraries(ModdedData? moddedData)
     {
         var libraries = new List<LibraryMeta>(MinecraftVersionMeta.Libraries);
@@ -99,7 +82,7 @@ public class MinecraftInstance
     }
     
     
-    public virtual Task<ModdedData?> InstallModdedAsync(string tempDir, CancellationToken cancellationToken = default)
+    public virtual Task<ModdedData?> InstallModdedAsync(string tempDir, IHttpService httpService, CancellationToken cancellationToken = default)
     {
         // Vanilla installer, do nothing
         return Task.FromResult<ModdedData?>(null);

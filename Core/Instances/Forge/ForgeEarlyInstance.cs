@@ -1,28 +1,30 @@
 using System.IO.Compression;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
-using Tavstal.KonkordLauncher.Core.Helpers.Network;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints.Modding;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.Instance;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
+using Tavstal.KonkordLauncher.Core.Models.MojangApi;
+using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Core.Instances.Forge;
 
 // 1.1 - 1.5.2
 public class ForgeEarlyInstance(string forgeVersionName, string universalName,
     string id,
+    MinecraftVersion gameVersion,
     GameDetails gameDetails,
     PathDetails pathDetails,
     LauncherDetails launcherDetails,
     ClientDetails clientDetails,
     Resolution? resolution = null,
     IProgressReporter? progressReporter = null)
-    : ForgeInstanceBase(id, gameDetails, pathDetails, launcherDetails, clientDetails, resolution, progressReporter)
+    : ForgeInstanceBase(id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, resolution, progressReporter)
 {
     private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(ForgeClassicInstance));
     
-    public override async Task<ModdedData?> InstallModdedAsync(string tempDir, CancellationToken cancellationToken = default)
+    public override async Task<ModdedData?> InstallModdedAsync(string tempDir, IHttpService httpService, CancellationToken cancellationToken = default)
     {
         if (!File.Exists(PathDetails.CustomManifestPath))
         {
@@ -45,7 +47,7 @@ public class ForgeEarlyInstance(string forgeVersionName, string universalName,
                     e.ToString("0.00"));
             };
        
-            await HttpHelper.DownloadFileAsync(
+            await httpService.DownloadFileAsync(
                 string.Format(ForgeEndpoints.LoaderUniversalZipUrl, forgeVersionName, universalName), universalZipPath,
                 progress, cancellationToken);
             

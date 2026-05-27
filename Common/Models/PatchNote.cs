@@ -1,4 +1,3 @@
-using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
 namespace Tavstal.KonkordLauncher.Common.Models;

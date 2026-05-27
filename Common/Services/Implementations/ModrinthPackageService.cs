@@ -9,10 +9,10 @@ using Tavstal.KonkordLauncher.Common.Models.Package.Modrinth;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
-using Tavstal.KonkordLauncher.Core.Helpers.Network;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Instance;
+using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Common.Services.Implementations;
 
@@ -22,16 +22,19 @@ namespace Tavstal.KonkordLauncher.Common.Services.Implementations;
 public class ModrinthPackageService : IPackageService
 {
     private readonly ILogger _logger;
+    private readonly IHttpService _httpService;
     private readonly ILauncherStore _launcherStore;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ModrinthPackageService"/> class.
     /// </summary>
     /// <param name="logger">Logger instance for recording diagnostic, warning, and error messages.</param>
+    /// <param name="httpService">Service for performing HTTP operations such as downloading files from URLs.</param>
     /// <param name="launcherStore">Service for accessing and modifying launcher data such as instances and settings.</param>
-    public ModrinthPackageService(ILogger<ModrinthPackageService> logger, ILauncherStore launcherStore)
+    public ModrinthPackageService(ILogger<ModrinthPackageService> logger, IHttpService httpService, ILauncherStore launcherStore)
     {
         _logger = logger;
+        _httpService = httpService;
         _launcherStore = launcherStore;
     }
     
@@ -149,7 +152,7 @@ public class ModrinthPackageService : IPackageService
 
                 string iconPath = Path.Combine(result.GameDirectory, "icon.png");
                 if (!File.Exists(iconPath) && !string.IsNullOrEmpty(customIconUrl))
-                    await HttpHelper.DownloadFileAsync(customIconUrl, iconPath, null, cancellationToken);
+                    await _httpService.DownloadFileAsync(customIconUrl, iconPath, null, cancellationToken);
                 result.IconPath = File.Exists(iconPath) ? iconPath : string.Empty;
                 
                 // Download Mods
@@ -207,7 +210,7 @@ public class ModrinthPackageService : IPackageService
                     if (!string.IsNullOrEmpty(directory))
                         Directory.CreateDirectory(directory);
                     
-                    return HttpHelper.DownloadFileAsync(url, finalPath, prog, cancellationToken);
+                    return _httpService.DownloadFileAsync(url, finalPath, prog, cancellationToken);
                 });
                 
                 if (tasks != null)

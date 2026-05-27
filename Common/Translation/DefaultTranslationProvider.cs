@@ -506,5 +506,5 @@ public static class DefaultTranslationProvider
     /// <summary>
     /// Gets the dictionary of default translations.
     /// </summary>
-    public static Dictionary<string, string> Translations => _translations;
+    public static Dictionary<string, string> Translations => _translations.ToDictionary();
 }

@@ -1,5 +1,5 @@
 using System.ComponentModel;
-using Tavstal.KonkordLauncher.Common.Translation;
+using Tavstal.KonkordLauncher.Common.Helpers;
 
 namespace Tavstal.KonkordLauncher.Common.Models.Translation;
 
@@ -19,7 +19,7 @@ public class TranslationBindingSource : INotifyPropertyChanged
     /// </summary>
     /// <param name="key">The key to translate.</param>
     /// <returns>The translated string corresponding to the key.</returns>
-    public string this[string key] => TranslationManager.Translate(key);
+    public string this[string key] => TranslationHelper.Translate(key);
 
     /// <summary>
     /// Occurs when a property value changes.

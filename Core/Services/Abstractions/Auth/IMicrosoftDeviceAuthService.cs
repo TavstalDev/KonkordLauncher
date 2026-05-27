@@ -1,5 +1,3 @@
-using Tavstal.KonkordLauncher.Core.Models;
-
 namespace Tavstal.KonkordLauncher.Core.Services.Abstractions.Auth;
 
 /// <summary>

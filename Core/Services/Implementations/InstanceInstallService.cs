@@ -14,11 +14,13 @@ namespace Tavstal.KonkordLauncher.Core.Services.Implementations;
 public class InstanceInstallService : IInstanceInstallService
 {
     private readonly ILogger _logger;
+    private readonly IHttpService _httpService;
     private readonly ILibraryDownloadService _libraryDownloadService;
     
-    public InstanceInstallService(ILogger<InstanceInstallService> logger, ILibraryDownloadService libraryDownloadService)
+    public InstanceInstallService(ILogger<InstanceInstallService> logger, IHttpService httpService, ILibraryDownloadService libraryDownloadService)
     {
         _logger = logger;
+        _httpService = httpService;
         _libraryDownloadService = libraryDownloadService;
     }
     
@@ -59,7 +61,7 @@ public class InstanceInstallService : IInstanceInstallService
 
             _logger.LogDebug("Installing modded data if applicable...");
             startTime = DateTime.Now;
-            var moddedData = await instance.InstallModdedAsync(tempDir, cancellationToken);
+            var moddedData = await instance.InstallModdedAsync(tempDir, _httpService, cancellationToken);
             endTime = DateTime.Now;
             _logger.LogInformation($"Modded data installation completed in {(endTime - startTime).TotalMilliseconds}ms.");
             string mainClass = moddedData?.MainClass ?? instance.MinecraftVersionMeta.MainClass;
@@ -79,8 +81,8 @@ public class InstanceInstallService : IInstanceInstallService
 
             // Fix for Forge: 1.17.x-1.20.3 unable to launch issue
             if (instance.GameDetails.Kind != EMinecraftKind.FORGE ||
-                VersionHelper.isNewer(instance.VersionData.MinecraftVersion, "1.20.3") ||
-                !VersionHelper.isNewer(instance.VersionData.MinecraftVersion, "1.16.5"))
+               GameHelper.isNewer(instance.VersionData.MinecraftVersion, "1.20.3") ||
+                !GameHelper.isNewer(instance.VersionData.MinecraftVersion, "1.16.5"))
                 instance.ArgumentBuilder.AddClass(moddedData != null ? instance.VersionData.CustomJarPath! : instance.VersionData.VanillaJarPath);
             
             await Task.Delay(250, cancellationToken); // Ensure the progress reporter has time to update before launching

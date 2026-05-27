@@ -410,7 +410,7 @@ public class LibraryDownloadService : ILibraryDownloadService
                 var otherVersion = otherParts[2];
                 otherParts.RemoveAt(2);
                 var otherName = string.Join(":", otherParts);
-                return otherName == libName && VersionHelper.isNewer(otherVersion, libVersion);
+                return otherName == libName && GameHelper.isNewer(otherVersion, libVersion);
             });
             if (hasNewerVersion)
                 continue;

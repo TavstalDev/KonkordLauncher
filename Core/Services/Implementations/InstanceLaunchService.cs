@@ -7,7 +7,6 @@ using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Platform;
 using Tavstal.KonkordLauncher.Core.Instances;
 using Tavstal.KonkordLauncher.Core.Models;
-using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Core.Services.Implementations;
@@ -54,7 +53,7 @@ public class InstanceLaunchService : IInstanceLaunchService
         // Below 1.7 there is no dedicated logs directory
         // so this fixes this issue
         string? customLogPath = null;
-        if (!VersionHelper.isNewer(instance.GameDetails.MinecraftVersion, "1.7"))
+        if (!GameHelper.isNewer(instance.GameDetails.MinecraftVersion, "1.7"))
         {
             string logsDir = Path.Combine(instance.VersionData.GameDir, "logs");
             Directory.CreateDirectory(logsDir);

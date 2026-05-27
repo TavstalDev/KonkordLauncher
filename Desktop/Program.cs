@@ -45,7 +45,11 @@ class Program
                 services.AddSingleton<IMicrosoftHttpAuthService, MicrosoftHttpAuthService>();
                 
                 // Launcher services
+                services.AddSingleton<IJavaService, JavaService>();
                 services.AddSingleton<ILauncherStore, LauncherStore>();
+                services.AddSingleton<ITranslationService, TranslationService>();
+                services.AddHostedService(sp => sp.GetRequiredService<TranslationService>());
+                services.AddSingleton<IValidationService, ValidationService>();
                 services.AddSingleton<IModrinthApiClient, ModrinthApiClient>();
                 services.AddSingleton<IPackageService, ModrinthPackageService>();
                 services.AddSingleton<IPackageService, CurseForgePackageService>();

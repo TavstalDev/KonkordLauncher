@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Text;
 using Tavstal.KonkordLauncher.Common.Models;
-using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 
 namespace Tavstal.KonkordLauncher.Desktop;
 

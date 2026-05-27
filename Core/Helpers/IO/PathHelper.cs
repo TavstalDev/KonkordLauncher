@@ -5,8 +5,6 @@ namespace Tavstal.KonkordLauncher.Core.Helpers.IO;
 /// </summary>
 public static class PathHelper
 {
-    private static string _workingDirectory;
-    
     /// <summary>
     /// Gets the application directory path.
     /// In debug mode, it appends "LauncherDebug" to the current directory.
@@ -15,29 +13,29 @@ public static class PathHelper
     {
         get
         {
-            if (!string.IsNullOrEmpty(_workingDirectory))
-                return _workingDirectory;
+            if (!string.IsNullOrEmpty(field))
+                return field;
             
 #if DEBUG
-            _workingDirectory = Path.Combine(Directory.GetCurrentDirectory(), "LauncherDebug");
-            return _workingDirectory;
+            field = Path.Combine(Directory.GetCurrentDirectory(), "LauncherDebug");
+            return field;
 #else
             var dir = Directory.GetCurrentDirectory();
             string? dirName = Path.GetDirectoryName(dir);
             if (string.IsNullOrEmpty(dirName))
             {
-                _workingDirectory = dir;
-                return _workingDirectory;
+                field = dir;
+                return field;
             }
             
             if (!dirName.EndsWith("bin", StringComparison.OrdinalIgnoreCase))
             {
-                _workingDirectory = dir.EndsWith("bin", StringComparison.OrdinalIgnoreCase) ? dirName : dir;
-                return _workingDirectory;
+                field = dir.EndsWith("bin", StringComparison.OrdinalIgnoreCase) ? dirName : dir;
+                return field;
             }
 
-            _workingDirectory = Path.GetDirectoryName(dirName) ?? dirName;
-            return _workingDirectory;
+            field = Path.GetDirectoryName(dirName) ?? dirName;
+            return field;
 #endif
         }
     }
@@ -91,8 +89,7 @@ public static class PathHelper
     /// Validates whether the specified path is a valid file system path.
     /// </summary>
     /// <param name="path">The path to validate.</param>
-    /// <returns>
-    /// <c>true</c> if the path is valid; otherwise, <c>false</c>.
+    /// <returns><c>true</c> if the path is valid; otherwise, <c>false</c>.
     /// </returns>
     public static bool IsValidPath(string? path)
     {

@@ -53,18 +53,14 @@ public static class ForgeMapper
             var key = match.Groups[1].Value;
             if (dictionaries.TryGetValue(key, out string? value))
             {
-                if (value == null)
-                    value = "";
-
+                value ??= "";
                 return value;
             }
 
             return match.Value;
         }));
 
-        if (handleEmpty)
-            return HandleEmptyArg(str);
-        return str;
+        return handleEmpty ? HandleEmptyArg(str) : str;
     }
 
     /// <summary>
@@ -119,8 +115,5 @@ public static class ForgeMapper
     /// </summary>
     /// <param name="str">The string to check.</param>
     /// <returns>True if the string is enclosed in quotes, otherwise false.</returns>
-    private static bool CheckEmptyHandled(string str)
-    {
-        return str.StartsWith("\"") || str.EndsWith("\"");
-    }
+    private static bool CheckEmptyHandled(string str) => str.StartsWith("\"") || str.EndsWith("\"");
 }

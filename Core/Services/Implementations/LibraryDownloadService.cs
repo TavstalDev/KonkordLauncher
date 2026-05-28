@@ -1,7 +1,6 @@
 using System.Collections.Concurrent;
 using System.IO.Compression;
 using System.Reflection;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Tavstal.KonkordLauncher.Core.Enums;
@@ -12,6 +11,7 @@ using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.Instance;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions;
@@ -21,7 +21,7 @@ namespace Tavstal.KonkordLauncher.Core.Services.Implementations;
 /// <inheritdoc/>
 public class LibraryDownloadService : ILibraryDownloadService
 {
-    private readonly ILogger _logger;
+    private readonly ICustomLogger _logger;
     private readonly IHttpService _httpService;
     private const int MaxParallelDownloads = 16;
     
@@ -30,7 +30,7 @@ public class LibraryDownloadService : ILibraryDownloadService
     /// </summary>
     /// <param name="logger">Logger used to record diagnostics and errors during library download operations.</param>
     /// <param name="httpService">HTTP service used to download files and fetch remote content.</param>
-    public LibraryDownloadService(ILogger<LibraryDownloadService> logger, IHttpService httpService)
+    public LibraryDownloadService(ICustomLogger<LibraryDownloadService> logger, IHttpService httpService)
     {
         _logger = logger;
         _httpService = httpService;

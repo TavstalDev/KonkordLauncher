@@ -2,9 +2,10 @@ using System.Diagnostics;
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.Platform;
-using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 
 namespace Tavstal.KonkordLauncher.Core.Helpers.IO;
 
@@ -13,7 +14,7 @@ namespace Tavstal.KonkordLauncher.Core.Helpers.IO;
 /// </summary>
 public static class FileSystemHelper
 {
-    private static readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(FileSystemHelper));
+    private static readonly ICustomLogger _logger = new CustomLogger(nameof(FileSystemHelper), LogLevel.Error);
 
     #region Core Operations
     
@@ -31,19 +32,19 @@ public static class FileSystemHelper
 
         if (!MakeFileWritable(path))
         {
-            _logger.Error($"Failed to clear read-only attribute from file '{path}' before deletion.");
+            _logger.LogError($"Failed to clear read-only attribute from file '{path}' before deletion.");
             return false;
         }
         
         if (IsFileLocked(path))
         {
-            _logger.Error($"Refusing to delete file '{path}' because it is currently locked by another process.");
+            _logger.LogError($"Refusing to delete file '{path}' because it is currently locked by another process.");
             return false;
         }
 
         if (!IsSafeToDelete(path))
         {
-            _logger.Error("Refusing to delete file '{path}' because it is not considered safe to delete.");
+            _logger.LogError("Refusing to delete file '{path}' because it is not considered safe to delete.");
             return false;
         }
 
@@ -54,7 +55,7 @@ public static class FileSystemHelper
         }
         catch (Exception ex)
         {
-            _logger.Error($"Unexpected error while trying to delete file '{path}': {ex}");
+            _logger.LogError($"Unexpected error while trying to delete file '{path}': {ex}");
             return false;
         }
     }
@@ -75,28 +76,28 @@ public static class FileSystemHelper
 
             if (!IsSafeToDelete(path))
             {
-                _logger.Error($"Refusing to delete directory '{path}' because it is not considered safe to delete.");
+                _logger.LogError($"Refusing to delete directory '{path}' because it is not considered safe to delete.");
                 return false;
             }
 
             string homeDir = OSHelper.GetHomeDirectory();
             if (string.Equals(path, homeDir, StringComparison.OrdinalIgnoreCase))
             {
-                _logger.Error($"Refusing to delete directory '{path}' because it is the user's home directory.");
+                _logger.LogError($"Refusing to delete directory '{path}' because it is the user's home directory.");
                 return false;
             }
 
             string programsDir = OSHelper.GetProgramsDirectory();
             if (string.Equals(path, programsDir, StringComparison.OrdinalIgnoreCase))
             {
-                _logger.Error($"Refusing to delete directory '{path}' because it is the system's programs directory.");
+                _logger.LogError($"Refusing to delete directory '{path}' because it is the system's programs directory.");
                 return false;
             }
 
             string desktopDir = OSHelper.GetDesktopDirectory();
             if (string.Equals(path, desktopDir, StringComparison.OrdinalIgnoreCase))
             {
-                _logger.Error($"Refusing to delete directory '{path}' because it is the user's desktop directory.");
+                _logger.LogError($"Refusing to delete directory '{path}' because it is the user's desktop directory.");
                 return false;
             }
 
@@ -107,7 +108,7 @@ public static class FileSystemHelper
             {
                 if (!DeleteFile(file.FullName))
                 {
-                    _logger.Error($"Failed to delete file '{file.FullName}' while deleting directory '{path}'. Aborting directory deletion.");
+                    _logger.LogError($"Failed to delete file '{file.FullName}' while deleting directory '{path}'. Aborting directory deletion.");
                     return false;
                 }
             }
@@ -128,7 +129,7 @@ public static class FileSystemHelper
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error($"Unexpected error while trying to delete subdirectory '{dir}': {ex}");
+                    _logger.LogError($"Unexpected error while trying to delete subdirectory '{dir}': {ex}");
                     return false;
                 }
             }
@@ -138,7 +139,7 @@ public static class FileSystemHelper
         }
         catch (Exception ex)
         {
-            _logger.Error($"Unexpected error while trying to delete directory '{path}': {ex}");
+            _logger.LogError($"Unexpected error while trying to delete directory '{path}': {ex}");
             return false;
         }
     }
@@ -259,16 +260,15 @@ public static class FileSystemHelper
             if (process.ExitCode != 0)
             {
                 string error = await process.StandardError.ReadToEndAsync();
-                _logger.Exc($"Error while making '{path}' executable:");
-                _logger.Error(error);
+                _logger.LogCritical($"Error while making '{path}' executable:");
+                _logger.LogError(error);
                 return false;
             }
             return true;
         }
         catch (Exception ex)
         {
-            _logger.Exc($"Failed to make '{path}' executable:");
-            _logger.Error(ex.ToString());
+            _logger.LogCritical($"Failed to make '{path}' executable:", ex);
             return false;
         }
     }
@@ -295,8 +295,7 @@ public static class FileSystemHelper
         }
         catch (Exception ex)
         {
-            _logger.Exc($"Failed to following file readonly {pathToFile}:");
-            _logger.Error(ex);
+            _logger.LogCritical($"Failed to following file readonly {pathToFile}:", ex);
             return false;
         }
     }
@@ -323,8 +322,7 @@ public static class FileSystemHelper
         }
         catch (Exception ex)
         {
-            _logger.Exc($"Failed to following file writable {pathToFile}:");
-            _logger.Error(ex);
+            _logger.LogCritical($"Failed to following file writable {pathToFile}:", ex);
             return false;
         }
     }
@@ -353,8 +351,7 @@ public static class FileSystemHelper
         }
         catch (Exception ex)
         {
-            _logger.Error($"Unexpected error while testing write permissions at {targetDir}:");
-            _logger.Error(ex);
+            _logger.LogError($"Unexpected error while testing write permissions at {targetDir}:", ex);
             return false;
         }
     }
@@ -385,8 +382,7 @@ public static class FileSystemHelper
         }
         catch (Exception ex)
         {
-            _logger.Error($"Unexpected error while testing write permissions at {targetDir}:");
-            _logger.Error(ex);
+            _logger.LogError($"Unexpected error while testing write permissions at {targetDir}:", ex);
             return false;
         }
     }
@@ -406,8 +402,7 @@ public static class FileSystemHelper
         }
         catch (Exception ex)
         {
-            _logger.Error($"Unexpected error while checking free space at {targetDir}:");
-            _logger.Error(ex);
+            _logger.LogError($"Unexpected error while checking free space at {targetDir}:", ex);
             return false;
         }
     }
@@ -440,8 +435,8 @@ public static class FileSystemHelper
         }
         catch (Exception ex)
         {
-            _logger.Exc("Failed to check SHA1 hash:");
-            _logger.Error(ex.ToString());
+            _logger.LogCritical("Failed to check SHA1 hash:");
+            _logger.LogError(ex.ToString());
             return false;
         }
     }
@@ -475,8 +470,8 @@ public static class FileSystemHelper
         }
         catch (Exception ex)
         {
-            _logger.Exc("Failed to check SHA256 hash:");
-            _logger.Error(ex.ToString());
+            _logger.LogCritical("Failed to check SHA256 hash:");
+            _logger.LogError(ex.ToString());
             return false;
         }
     }
@@ -499,7 +494,7 @@ public static class FileSystemHelper
         string[] parts = digest.Split(':', 2);
         if (parts.Length < 2)
         {
-            _logger.Error($"Invalid digest format: '{digest}'. Expected format is 'type:hash'.");
+            _logger.LogError($"Invalid digest format: '{digest}'. Expected format is 'type:hash'.");
             return false;
         }
         
@@ -510,7 +505,7 @@ public static class FileSystemHelper
             case "sha256":
                 return CheckSHA256(path, parts[1]);
             default:
-                _logger.Error($"Unsupported digest type '{parts[0]}' in digest string '{digest}'.");
+                _logger.LogError($"Unsupported digest type '{parts[0]}' in digest string '{digest}'.");
                 return false;
         }
     }
@@ -528,8 +523,8 @@ public static class FileSystemHelper
         }
         catch (Exception ex)
         {
-            _logger.Exc("Failed to compute file hash:");
-            _logger.Error(ex.ToString());
+            _logger.LogCritical("Failed to compute file hash:");
+            _logger.LogError(ex.ToString());
             return null;
         }
     }
@@ -553,8 +548,8 @@ public static class FileSystemHelper
         }
         catch (Exception ex)
         {
-            _logger.Exc("Failed to compute file hash:");
-            _logger.Error(ex.ToString());
+            _logger.LogCritical("Failed to compute file hash:");
+            _logger.LogError(ex.ToString());
             return null;
         }
     }
@@ -576,8 +571,8 @@ public static class FileSystemHelper
         }
         catch (Exception ex)
         {
-            _logger.Exc("Failed to compute content hash:");
-            _logger.Error(ex.ToString());
+            _logger.LogCritical("Failed to compute content hash:");
+            _logger.LogError(ex.ToString());
             return null;
         }
     }
@@ -643,7 +638,7 @@ public static class FileSystemHelper
         // Ensure the path exists
         if (!Directory.Exists(path))
         {
-            _logger.Error($"Error: Folder not found at '{path}'");
+            _logger.LogError($"Error: Folder not found at '{path}'");
             return;
         }
 
@@ -684,7 +679,7 @@ public static class FileSystemHelper
             }
             case EOperatingSystem.Unknown:
             {
-                _logger.Error("Error: Unsupported operating system for opening folder in file explorer.");
+                _logger.LogError("Error: Unsupported operating system for opening folder in file explorer.");
                 break;
             }
         }

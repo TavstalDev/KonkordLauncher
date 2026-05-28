@@ -1,20 +1,20 @@
-using Microsoft.Extensions.Logging;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Package;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Instance;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Common.Services.Implementations;
 
 public class CurseForgePackageService : IPackageService
 {
-    private readonly ILogger _logger;
+    private readonly ICustomLogger _logger;
     private readonly IHttpService _httpService;
     private readonly ILauncherStore _launcherStore;
     
-    public CurseForgePackageService(ILogger<CurseForgePackageService> logger, IHttpService httpService, ILauncherStore launcherStore)
+    public CurseForgePackageService(ICustomLogger<CurseForgePackageService> logger, IHttpService httpService, ILauncherStore launcherStore)
     {
         _logger = logger;
         _httpService = httpService;

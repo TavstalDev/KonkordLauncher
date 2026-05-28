@@ -1,6 +1,5 @@
 using System.Net;
 using System.Net.Http.Headers;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Tavstal.KonkordLauncher.Core.Enums;
@@ -8,6 +7,7 @@ using Tavstal.KonkordLauncher.Core.Helpers.Platform;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Accounts;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.Microsoft;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions;
@@ -18,7 +18,7 @@ namespace Tavstal.KonkordLauncher.Core.Services.Implementations.Auth;
 /// <inheritdoc/>
 public class MicrosoftAuthService : IMicrosoftAuthService
 {
-    private readonly ILogger _logger;
+    private readonly ICustomLogger _logger;
     private readonly IHttpService _httpService;
     private string _microsoftClientId = "496a0c42-aa74-41fe-b7bc-0ad155cdaa26";
     private readonly string _redirectAuthenticateUrl = Path.Combine(MicrosoftHttpAuthService.ListeningUrl, "microsoft/authcallback");
@@ -34,7 +34,7 @@ public class MicrosoftAuthService : IMicrosoftAuthService
     
     public event IMicrosoftAuthService.AuthStatusChangedHandler? OnAuthStatusChanged;
     
-    public MicrosoftAuthService(ILogger<MicrosoftAuthService> logger, IHttpService httpService)
+    public MicrosoftAuthService(ICustomLogger<MicrosoftAuthService> logger, IHttpService httpService)
     {
         _logger = logger;
         _httpService = httpService;

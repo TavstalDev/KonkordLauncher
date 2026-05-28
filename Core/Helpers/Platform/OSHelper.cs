@@ -1,8 +1,9 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Hardware.Info;
+using Microsoft.Extensions.Logging;
 using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 
 namespace Tavstal.KonkordLauncher.Core.Helpers.Platform;
 
@@ -11,7 +12,7 @@ namespace Tavstal.KonkordLauncher.Core.Helpers.Platform;
 /// </summary>
 public static class OSHelper
 {
-    private static readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(OSHelper));
+    private static readonly ICustomLogger _logger = new CustomLogger(nameof(OSHelper), LogLevel.Error);
     private static readonly HardwareInfo _hardwareInfo = new();
     private const int Windows11MajorVersion = 10;
     private const int Windows11MinimumBuild = 22000;
@@ -29,20 +30,14 @@ public static class OSHelper
     public static EOperatingSystem GetOperatingSystem()
     {
         var platform = Environment.OSVersion.Platform;
-        switch (platform)
+        return platform switch
         {
-            case PlatformID.Win32NT:
-            case PlatformID.Win32Windows:
-            case PlatformID.Win32S:
-            case PlatformID.WinCE:
-                return EOperatingSystem.Windows;
-            case PlatformID.Unix:
-                return EOperatingSystem.Linux;
-            case PlatformID.MacOSX:
-                return EOperatingSystem.MacOS;
-            default:
-                return EOperatingSystem.Unknown;
-        }
+            PlatformID.Win32NT or PlatformID.Win32Windows or PlatformID.Win32S or PlatformID.WinCE => EOperatingSystem
+                .Windows,
+            PlatformID.Unix => EOperatingSystem.Linux,
+            PlatformID.MacOSX => EOperatingSystem.MacOS,
+            _ => EOperatingSystem.Unknown
+        };
     }
     
     /// <summary>
@@ -280,9 +275,10 @@ public static class OSHelper
                     };
                     break;
                 }
+                case EOperatingSystem.Unknown:
                 default:
                 {
-                    _logger.Warn("Unsupported operating system for opening URLs.");
+                    _logger.LogWarning("Unsupported operating system for opening URLs.");
                     return false;
                 }
             }
@@ -293,7 +289,7 @@ public static class OSHelper
         }
         catch (Exception ex)
         {
-            _logger.Error($"Failed to open the website after installation: {ex}");
+            _logger.LogCritical("Failed to open the website after installation:", ex);
             return false;
         }
     }

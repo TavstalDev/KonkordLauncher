@@ -1,8 +1,10 @@
 ﻿using System.Collections.Concurrent;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 
 namespace Tavstal.KonkordLauncher.Core.Helpers.Serialization;
 
@@ -11,7 +13,7 @@ namespace Tavstal.KonkordLauncher.Core.Helpers.Serialization;
 /// </summary>
 public static class JsonHelper
 {
-    private static readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(JsonHelper));
+    private static readonly ICustomLogger _logger = new CustomLogger(nameof(JsonHelper), LogLevel.Error);
     private static readonly JsonSerializerSettings _jsonSerializerSettings = new()
     {
         Formatting = Formatting.Indented,
@@ -45,7 +47,7 @@ public static class JsonHelper
 
                     if (!FileSystemHelper.DeleteFile(path))
                     {
-                        _logger.Error($"Failed to delete file {path}.");
+                        _logger.LogError($"Failed to delete file {path}.");
                         continue;
                     }
                     File.Move(tempPath, path, true);
@@ -53,18 +55,17 @@ public static class JsonHelper
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error($"Failed to delete file {path}:\n {ex}");
+                    _logger.LogError($"Failed to delete file {path}:\n {ex}");
                     FileSystemHelper.DeleteFile(tempPath);
                 }
             }
             
-            _logger.Error($"Failed to acquire file lock for {path} after {_maxRetries} attempts.");
+            _logger.LogError($"Failed to acquire file lock for {path} after {_maxRetries} attempts.");
             return false;
         }
         catch (Exception ex)
         {
-            _logger.Exc($"Error in WriteJsonFile<T> {path}:");
-            _logger.Error(ex.ToString());
+            _logger.LogCritical($"Error in WriteJsonFile<T> {path}:", ex);
             return false;
         }
     }
@@ -102,7 +103,7 @@ public static class JsonHelper
 
                         if (!FileSystemHelper.DeleteFile(path))
                         {
-                            _logger.Error($"Failed to delete file {path}.");
+                            _logger.LogError($"Failed to delete file {path}.");
                             continue;
                         }
                         File.Move(tempPath, path, true);
@@ -110,7 +111,7 @@ public static class JsonHelper
                     }
                     catch (Exception ex)
                     {
-                        _logger.Error($"Failed to delete file {path}:\n {ex}");
+                        _logger.LogError($"Failed to delete file {path}:\n {ex}");
                         FileSystemHelper.DeleteFile(tempPath);
                         if (_maxRetries - 1 > i)
                             await Task.Delay(_retryDelay, cancellationToken);
@@ -122,13 +123,12 @@ public static class JsonHelper
                 fileLock.Release();
             }
 
-            _logger.Error($"Failed to acquire file lock for {path} after {_maxRetries} attempts.");
+            _logger.LogError($"Failed to acquire file lock for {path} after {_maxRetries} attempts.");
             return false;
         }
         catch (Exception ex)
         {
-            _logger.Exc($"Error in WriteJsonFileAsync<T> {path}:");
-            _logger.Error(ex.ToString());
+            _logger.LogCritical($"Error in WriteJsonFileAsync<T> {path}:", ex);
             return false;
         }
     }
@@ -151,8 +151,7 @@ public static class JsonHelper
         }
         catch (Exception ex)
         {
-            _logger.Exc($"Error in ReadJsonFileAsync<T> {path}:");
-            _logger.Error(ex.ToString());
+            _logger.LogCritical($"Error in ReadJsonFileAsync<T> {path}:", ex);
             return default;
         }
     }

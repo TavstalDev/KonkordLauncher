@@ -7,6 +7,7 @@ using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Platform;
 using Tavstal.KonkordLauncher.Core.Instances;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Core.Services.Implementations;
@@ -14,14 +15,14 @@ namespace Tavstal.KonkordLauncher.Core.Services.Implementations;
 /// <inheritdoc/>
 public class InstanceLaunchService : IInstanceLaunchService
 {
-    private readonly ILogger _logger;
+    private readonly ICustomLogger _logger;
     private readonly Dictionary<string, Process> _runningProcesses = new();
     
     /// <summary>
     /// Initializes a new instance of the <see cref="InstanceLaunchService"/> class.
     /// </summary>
     /// <param name="logger">The logger used to record launch lifecycle events, process output, and error diagnostics.</param>
-    public InstanceLaunchService(ILogger<InstanceLaunchService> logger)
+    public InstanceLaunchService(ICustomLogger<InstanceLaunchService> logger)
     {
         _logger = logger;
     }
@@ -34,7 +35,7 @@ public class InstanceLaunchService : IInstanceLaunchService
         var arguments = instance.ArgumentBuilder!.Build();
         string gameArguments = arguments.gameArgs;
         string jvmArguments = arguments.jvmArgs;
-        DateTime startTime, endTime;
+        var stopper = new Stopwatch();
         
         // Execute pre-launch command if specified
         if (!string.IsNullOrEmpty(instance.GameDetails.PreLaunchCommand))
@@ -43,10 +44,10 @@ public class InstanceLaunchService : IInstanceLaunchService
             if (preLaunchProc != null)
             {
                 _logger.LogDebug("Executing pre-launch command...");
-                startTime = DateTime.Now;
+                stopper.Start();
                 await preLaunchProc.WaitForExitAsync(cancellationToken);
-                endTime = DateTime.Now;
-                _logger.LogInformation($"Pre-launch command executed in {(endTime - startTime).TotalMilliseconds}ms.");
+                stopper.Stop();
+                _logger.LogInformation($"Pre-launch command executed in {stopper.ElapsedMilliseconds}ms.");
             }
         }
             
@@ -213,7 +214,7 @@ public class InstanceLaunchService : IInstanceLaunchService
             };
             if (shouldHandleLogs)
             {
-                CoreLogger jvmLogger = new CoreLogger("Game", false, customLogPath);
+                var jvmLogger = new CustomLogger("Game", LogLevel.Trace, false, customLogPath);
                 bool replaceSD = sensitiveDataToReplace != null;
                 process.OutputDataReceived += (_, e) =>
                 {
@@ -224,7 +225,7 @@ public class InstanceLaunchService : IInstanceLaunchService
                         foreach (string s in sensitiveDataToReplace!)
                             line = line.Replace(s, "*****");
                     
-                    jvmLogger.Info(line);
+                    jvmLogger.LogInformation(line);
                 };
                 process.ErrorDataReceived += (_, e) =>
                 {
@@ -234,7 +235,7 @@ public class InstanceLaunchService : IInstanceLaunchService
                     if (replaceSD)
                         foreach (string s in sensitiveDataToReplace!)
                             line = line.Replace(s, "*****");
-                    jvmLogger.Error(line);
+                    jvmLogger.LogError(line);
                 };
             }
 
@@ -261,20 +262,20 @@ public class InstanceLaunchService : IInstanceLaunchService
     {
         if (!_runningProcesses.TryGetValue(instanceId, out var process))
         {
-            _logger.LogWarning("Attempted to stop instance {InstanceId} which is not currently running.", instanceId);
+            _logger.LogWarning($"Attempted to stop instance {instanceId} which is not currently running.");
             return;
         }
 
         if (process.HasExited)
         {
-            _logger.LogInformation("Instance {InstanceId} process has already exited.", instanceId);
+            _logger.LogInformation($"Instance {instanceId} process has already exited.");
             _runningProcesses.Remove(instanceId);
             return;
         }
         
         process.Close();
         await process.WaitForExitAsync(cancellationToken);
-        _logger.LogDebug("Instance {InstanceId} stopped.", instanceId);
+        _logger.LogDebug($"Instance {instanceId} stopped.");
         _runningProcesses.Remove(instanceId);
     }
 

@@ -4,7 +4,6 @@ using System.Text;
 using Microsoft.AspNetCore.DataProtection;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.Platform;
-using Tavstal.KonkordLauncher.Core.Models;
 
 namespace Tavstal.KonkordLauncher.Core.Encryption;
 
@@ -13,10 +12,6 @@ namespace Tavstal.KonkordLauncher.Core.Encryption;
 /// </summary>
 public static class EncryptionUtility
 {
-    /// <summary>
-    /// Logger instance for the EncryptionUtility class.
-    /// </summary>
-    private static readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EncryptionUtility));
     private const string DP_PREFIX = "dpv1:";
     private const string WIN_PREFIX = "winv1:";
     private const string LINUX_PREFIX = "linuxv1:";
@@ -67,28 +62,19 @@ public static class EncryptionUtility
     /// <returns>The encrypted text.</returns>
     public static string Encrypt(string text)
     {
-        try
-        {
-            if (_protector != null)
-                return DP_PREFIX + _protector.Protect(text);
+        if (_protector != null)
+            return DP_PREFIX + _protector.Protect(text);
             
-            switch (OSHelper.GetOperatingSystem())
-            {
-                case EOperatingSystem.Windows:
-                    return WIN_PREFIX + EncryptWin(text);
-                case EOperatingSystem.Linux:
-                    return LINUX_PREFIX + EncryptLinux(text);
-                case EOperatingSystem.MacOS:
-                    return MAC_PREFIX + EncryptMac(text);
-                default:
-                    throw new Exception("Unknown operating system");
-            }
-        }
-        catch (Exception ex)
+        switch (OSHelper.GetOperatingSystem())
         {
-            _logger.Exc("Error while encrypting text");
-            _logger.Exc(ex);
-            return text;
+            case EOperatingSystem.Windows:
+                return WIN_PREFIX + EncryptWin(text);
+            case EOperatingSystem.Linux:
+                return LINUX_PREFIX + EncryptLinux(text);
+            case EOperatingSystem.MacOS:
+                return MAC_PREFIX + EncryptMac(text);
+            default:
+                throw new Exception("Unknown operating system");
         }
     }
 
@@ -100,37 +86,28 @@ public static class EncryptionUtility
     /// <returns>The decrypted text.</returns>
     public static string Decrypt(string text, bool ignoreIfUnknown = false)
     {
-        try
-        {
-            if (string.IsNullOrEmpty(text))
-                return text;
-
-            if (text.StartsWith(DP_PREFIX))
-            {
-                if (_protector == null)
-                    throw new CryptographicException("Data protector is not set for DP encrypted text");
-                return _protector!.Unprotect(text[DP_PREFIX.Length..]);
-            }
-
-            if (text.StartsWith(WIN_PREFIX))
-                return DecryptWin(text[WIN_PREFIX.Length..]);
-
-            if (text.StartsWith(LINUX_PREFIX))
-                return DecryptLinux(text[LINUX_PREFIX.Length..]);
-            
-            if (text.StartsWith(MAC_PREFIX))
-                return DecryptMac(text[MAC_PREFIX.Length..]);
-
-            if (ignoreIfUnknown)
-                return text;
-            throw new CryptographicException("Unknown encryption format");
-        }
-        catch (Exception ex)
-        {
-            _logger.Exc("Error while decrypting text");
-            _logger.Exc(ex);
+        if (string.IsNullOrEmpty(text))
             return text;
+
+        if (text.StartsWith(DP_PREFIX))
+        {
+            if (_protector == null)
+                throw new CryptographicException("Data protector is not set for DP encrypted text");
+            return _protector!.Unprotect(text[DP_PREFIX.Length..]);
         }
+
+        if (text.StartsWith(WIN_PREFIX))
+            return DecryptWin(text[WIN_PREFIX.Length..]);
+
+        if (text.StartsWith(LINUX_PREFIX))
+            return DecryptLinux(text[LINUX_PREFIX.Length..]);
+            
+        if (text.StartsWith(MAC_PREFIX))
+            return DecryptMac(text[MAC_PREFIX.Length..]);
+
+        if (ignoreIfUnknown)
+            return text;
+        throw new CryptographicException("Unknown encryption format");
     }
     
     /// <summary>
@@ -202,18 +179,9 @@ public static class EncryptionUtility
     [SuppressMessage("Interoperability", "CA1416:Validate platform compatibility")]
     private static string EncryptWin(string text)
     {
-        try
-        {
-            byte[] plainBytes = Encoding.UTF8.GetBytes(text);
-            byte[] encryptedBytes = ProtectedData.Protect(plainBytes, s_entropy, DataProtectionScope.CurrentUser);
-            return Convert.ToBase64String(encryptedBytes);
-        }
-        catch (Exception ex)
-        {
-            _logger.Exc("Error while encrypting text on Windows");
-            _logger.Exc(ex);
-            return text;
-        }
+        byte[] plainBytes = Encoding.UTF8.GetBytes(text);
+        byte[] encryptedBytes = ProtectedData.Protect(plainBytes, s_entropy, DataProtectionScope.CurrentUser);
+        return Convert.ToBase64String(encryptedBytes);
     }
 
     /// <summary>
@@ -224,18 +192,9 @@ public static class EncryptionUtility
     [SuppressMessage("Interoperability", "CA1416:Validate platform compatibility")]
     private static string DecryptWin(string text)
     {
-        try
-        {
-            byte[] cipherBytes = Convert.FromBase64String(text);
-            byte[] decryptedBytes = ProtectedData.Unprotect(cipherBytes, s_entropy, DataProtectionScope.CurrentUser);
-            return Encoding.UTF8.GetString(decryptedBytes);
-        }
-        catch (Exception ex)
-        {
-            _logger.Exc("Error while decrypting text on Windows");
-            _logger.Exc(ex);
-            return text;
-        }
+        byte[] cipherBytes = Convert.FromBase64String(text);
+        byte[] decryptedBytes = ProtectedData.Unprotect(cipherBytes, s_entropy, DataProtectionScope.CurrentUser);
+        return Encoding.UTF8.GetString(decryptedBytes);
     }
 
     /// <summary>
@@ -245,27 +204,18 @@ public static class EncryptionUtility
     /// <returns>The encrypted text.</returns>
     private static string EncryptLinux(string text)
     {
-        try
-        {
-            if (string.IsNullOrEmpty(text))
-                return text;
-            
-            // This is a fallback method for encryption
-            // in case of IDataProtector is not set.
-            // It is recommended to set IDataProtector for better security.
-            // However, if not set, this method will be used.
-            // This is not the most secure method, especially with a static key,
-            // but it is better than nothing.
-            // I could generate a custom key on each machine, but since I would need to store it
-            // somewhere unencrypted, it would defeat the purpose of encryption.
-            return Encrypt(linuxKey, text);
-        }
-        catch (Exception ex)
-        {
-            _logger.Exc("Error while encrypting text on Linux");
-            _logger.Exc(ex);
+        if (string.IsNullOrEmpty(text))
             return text;
-        }
+            
+        // This is a fallback method for encryption
+        // in case of IDataProtector is not set.
+        // It is recommended to set IDataProtector for better security.
+        // However, if not set, this method will be used.
+        // This is not the most secure method, especially with a static key,
+        // but it is better than nothing.
+        // I could generate a custom key on each machine, but since I would need to store it
+        // somewhere unencrypted, it would defeat the purpose of encryption.
+        return Encrypt(linuxKey, text);
     }
 
     /// <summary>
@@ -275,27 +225,18 @@ public static class EncryptionUtility
     /// <returns>The decrypted text.</returns>
     private static string DecryptLinux(string text)
     {
-        try
-        {
-            if (string.IsNullOrEmpty(text))
-                return text;
-            
-            // This is a fallback method for encryption
-            // in case of IDataProtector is not set.
-            // It is recommended to set IDataProtector for better security.
-            // However, if not set, this method will be used.
-            // This is not the most secure method, especially with a static key,
-            // but it is better than nothing.
-            // I could generate a custom key on each machine, but since I would need to store it
-            // somewhere unencrypted, it would defeat the purpose of encryption.
-            return Decrypt(linuxKey, text);
-        }
-        catch (Exception ex)
-        {
-            _logger.Exc("Error while decrypting text on Linux");
-            _logger.Exc(ex);
+        if (string.IsNullOrEmpty(text))
             return text;
-        }
+            
+        // This is a fallback method for encryption
+        // in case of IDataProtector is not set.
+        // It is recommended to set IDataProtector for better security.
+        // However, if not set, this method will be used.
+        // This is not the most secure method, especially with a static key,
+        // but it is better than nothing.
+        // I could generate a custom key on each machine, but since I would need to store it
+        // somewhere unencrypted, it would defeat the purpose of encryption.
+        return Decrypt(linuxKey, text);
     }
 
     /// <summary>
@@ -305,27 +246,18 @@ public static class EncryptionUtility
     /// <returns>The encrypted text.</returns>
     private static string EncryptMac(string text)
     {
-        try
-        {
-            if (string.IsNullOrEmpty(text))
-                return text;
-            
-            // This is a fallback method for encryption
-            // in case of IDataProtector is not set.
-            // It is recommended to set IDataProtector for better security.
-            // However, if not set, this method will be used.
-            // This is not the most secure method, especially with a static key,
-            // but it is better than nothing.
-            // I could generate a custom key on each machine, but since I would need to store it
-            // somewhere unencrypted, it would defeat the purpose of encryption.
-            return Encrypt(macKey, text);
-        }
-        catch (Exception ex)
-        {
-            _logger.Exc("Error while encrypting text on Mac");
-            _logger.Exc(ex);
+        if (string.IsNullOrEmpty(text))
             return text;
-        }
+            
+        // This is a fallback method for encryption
+        // in case of IDataProtector is not set.
+        // It is recommended to set IDataProtector for better security.
+        // However, if not set, this method will be used.
+        // This is not the most secure method, especially with a static key,
+        // but it is better than nothing.
+        // I could generate a custom key on each machine, but since I would need to store it
+        // somewhere unencrypted, it would defeat the purpose of encryption.
+        return Encrypt(macKey, text);
     }
 
     /// <summary>
@@ -335,27 +267,18 @@ public static class EncryptionUtility
     /// <returns>The decrypted text.</returns>
     private static string DecryptMac(string text)
     {
-        try
-        {
-            if (string.IsNullOrEmpty(text))
-                return text;
-            
-            // This is a fallback method for encryption
-            // in case of IDataProtector is not set.
-            // It is recommended to set IDataProtector for better security.
-            // However, if not set, this method will be used.
-            // This is not the most secure method, especially with a static key,
-            // but it is better than nothing.
-            // I could generate a custom key on each machine, but since I would need to store it
-            // somewhere unencrypted, it would defeat the purpose of encryption.
-            return Decrypt(macKey, text);
-        }
-        catch (Exception ex)
-        {
-            _logger.Exc("Error while decrypting text on Mac");
-            _logger.Exc(ex);
+        if (string.IsNullOrEmpty(text))
             return text;
-        }
+            
+        // This is a fallback method for encryption
+        // in case of IDataProtector is not set.
+        // It is recommended to set IDataProtector for better security.
+        // However, if not set, this method will be used.
+        // This is not the most secure method, especially with a static key,
+        // but it is better than nothing.
+        // I could generate a custom key on each machine, but since I would need to store it
+        // somewhere unencrypted, it would defeat the purpose of encryption.
+        return Decrypt(macKey, text);
     }
 
     /// <summary>

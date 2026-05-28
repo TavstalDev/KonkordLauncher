@@ -3,13 +3,13 @@ using System.IO.Compression;
 using System.Text;
 using ICSharpCode.SharpZipLib.GZip;
 using ICSharpCode.SharpZipLib.Tar;
-using Microsoft.Extensions.Logging;
 using Tavstal.KonkordLauncher.Common.Models.Java;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Platform;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Common.Services.Implementations;
@@ -17,7 +17,7 @@ namespace Tavstal.KonkordLauncher.Common.Services.Implementations;
 /// <inheritdoc/>
 public class JavaService : IJavaService
 {
-    private readonly ILogger _logger;
+    private readonly ICustomLogger _logger;
     private readonly IHttpService _httpService;
     private List<JavaVersion> _cachedJavaVersions = [];
     private JavaMirrorConfig? _mirrorConfig;
@@ -50,7 +50,7 @@ public class JavaService : IJavaService
     /// </summary>
     /// <param name="logger">Logger used to record diagnostic messages, warnings, and errors related to Java operations.</param>
     /// <param name="httpService">HTTP service used to download Java distributions and related files.</param>
-    public JavaService(ILogger<JavaService> logger, IHttpService httpService)
+    public JavaService(ICustomLogger<JavaService> logger, IHttpService httpService)
     {
         _logger = logger;
         _httpService = httpService;

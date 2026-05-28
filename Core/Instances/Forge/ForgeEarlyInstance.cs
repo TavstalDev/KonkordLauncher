@@ -4,6 +4,7 @@ using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints.Modding;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.Instance;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions;
@@ -18,17 +19,16 @@ public class ForgeEarlyInstance(string forgeVersionName, string universalName,
     PathDetails pathDetails,
     LauncherDetails launcherDetails,
     ClientDetails clientDetails,
+    ICustomLogger logger,
     Resolution? resolution = null,
     IProgressReporter? progressReporter = null)
-    : ForgeInstanceBase(id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, resolution, progressReporter)
+    : ForgeInstanceBase(id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, logger, resolution, progressReporter)
 {
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(ForgeClassicInstance));
-    
     public override async Task<ModdedData?> InstallModdedAsync(string tempDir, IHttpService httpService, CancellationToken cancellationToken = default)
     {
         if (!File.Exists(PathDetails.CustomManifestPath))
         {
-            _logger.Error("Forge manifest file does not exist. Please ensure the manifest is downloaded.");
+            _logger.LogError("Forge manifest file does not exist. Please ensure the manifest is downloaded.");
             return null;
         }
         
@@ -62,7 +62,7 @@ public class ForgeEarlyInstance(string forgeVersionName, string universalName,
             if (Directory.Exists(vanillaMetaDir))
                 FileSystemHelper.DeleteDirectory(vanillaMetaDir);
             else
-                _logger.Warn("META-INF directory not found in the vanilla jar. This may indicate an issue with the jar file.");
+                _logger.LogWarning("META-INF directory not found in the vanilla jar. This may indicate an issue with the jar file.");
             
             // Extract universal jar
             await ZipFile.ExtractToDirectoryAsync(universalZipPath, vanillaExtractDir, true, cancellationToken);
@@ -93,7 +93,7 @@ public class ForgeEarlyInstance(string forgeVersionName, string universalName,
             var stream = GetType().Assembly.GetManifestResourceStream(library);
             if (stream == null)
             {
-                _logger.Error($"Failed to get resource stream for {library}");
+                _logger.LogError($"Failed to get resource stream for {library}");
                 continue;
             }
 

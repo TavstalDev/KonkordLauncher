@@ -10,7 +10,6 @@ namespace Tavstal.KonkordLauncher.Core.Models.Instance;
 /// </summary>
 public class ArgumentBuilder
 {
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(ArgumentBuilder));
     private readonly List<string> _classPath = [];
     public List<string> ClassPath => _classPath;
     private readonly List<LaunchArg> _jvmArguments = [];
@@ -22,7 +21,6 @@ public class ArgumentBuilder
     public bool UseClasspathFile { get; set; }
     
     public string? ClasspathFilePath { get; set; }
-
     
     /// <summary>
     /// Adds a classpath entry to the builder.
@@ -96,7 +94,8 @@ public class ArgumentBuilder
     /// <param name="clientDetails">Authenticated client details (tokens, uuid, display name).</param>
     /// <param name="pathDetails">Resolved path details (assets dir, libraries dir).</param>
     /// <param name="resolution">Optional resolution to set width/height game args.</param>
-    public ArgumentBuilder(string version, string versionName, string nativesDir, string gameDir, string assetIndexId, VersionMeta versionMeta, LauncherDetails launcherDetails, GameDetails gameDetails, ClientDetails clientDetails, PathDetails pathDetails, Resolution? resolution)
+    public ArgumentBuilder(string version, string versionName, string nativesDir, string gameDir, string assetIndexId, VersionMeta versionMeta, LauncherDetails launcherDetails, 
+        GameDetails gameDetails, ClientDetails clientDetails, PathDetails pathDetails, Resolution? resolution )
     {
         string gameAssetsDir = Path.Combine(pathDetails.AssetsDir, "virtual", "legacy");
         string userType = clientDetails.IsOffline ? "offline" : "msa";

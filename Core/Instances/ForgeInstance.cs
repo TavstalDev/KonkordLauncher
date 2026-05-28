@@ -2,6 +2,7 @@ using Tavstal.KonkordLauncher.Core.Instances.Forge;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.Instance;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 
 namespace Tavstal.KonkordLauncher.Core.Instances;
@@ -20,6 +21,7 @@ public static class ForgeInstance
     /// <param name="pathDetails">Paths used by the instance (libraries, versions, assets, etc.).</param>
     /// <param name="launcherDetails">Information about the launcher (branding, version, etc.).</param>
     /// <param name="clientDetails">Client-specific details (user agent, client settings).</param>
+    /// <param name="logger">Logger for recording instance operations and errors.</param>
     /// <param name="resolution">Optional screen resolution to use when launching the game.</param>
     /// <param name="progressReporter">Optional progress reporter used during instance creation/install operations.</param>
     /// <returns>
@@ -37,6 +39,7 @@ public static class ForgeInstance
         PathDetails pathDetails,
         LauncherDetails launcherDetails,
         ClientDetails clientDetails,
+        ICustomLogger logger,
         Resolution? resolution = null,
         IProgressReporter? progressReporter = null)
     {
@@ -48,68 +51,66 @@ public static class ForgeInstance
         {
             // Early 1.1 - 1.2.5
             // Only 1.2.5 is supported
-            (1, <= 2) => new ForgeEarlyInstance(GetLegacyName(mcVer, forgeVer), "client", id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
-                progressReporter),
+            (1, <= 2) => new ForgeEarlyInstance(GetLegacyName(mcVer, forgeVer), "client", id, gameVersion, gameDetails, 
+                pathDetails, launcherDetails, clientDetails, logger, resolution, progressReporter),
             // Early 1.3.2 - 1.5.1
             // Classic 1.5.2
             (1, <= 5) => mcVer switch
             {
-                "1.5.2" => new ForgeClassicInstance(GetLegacyName(mcVer, forgeVer), "minecraftforge-universal-${version}.jar", id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
-                    progressReporter),
+                "1.5.2" => new ForgeClassicInstance(GetLegacyName(mcVer, forgeVer), "minecraftforge-universal-${version}.jar", id, gameVersion, 
+                    gameDetails, pathDetails, launcherDetails, clientDetails, logger, resolution, progressReporter),
                 
-                _ => new ForgeEarlyInstance(GetLegacyName(mcVer, forgeVer), "universal", id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
-                    progressReporter)
+                _ => new ForgeEarlyInstance(GetLegacyName(mcVer, forgeVer), "universal", id, gameVersion, gameDetails, pathDetails, launcherDetails, 
+                    clientDetails, logger, resolution, progressReporter)
             },
             // Classic 1.6 - 1.7.2
             // Legacy 1.7.10-pre4 & 1.7.10
             (1, <= 7) => mcVer switch
             {
-                "1.7.10" => new ForgeLegacyInstance($"1.7.10-{forgeVer}-1.7.10", id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
-                    progressReporter),
+                "1.7.10" => new ForgeLegacyInstance($"1.7.10-{forgeVer}-1.7.10", id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, logger,
+                    resolution, progressReporter),
                 
-                "1.7.10-pre4" => new ForgeLegacyInstance($"1.7.10_pre4-{forgeVer}-prerelease", id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
-                    progressReporter),
+                "1.7.10-pre4" => new ForgeLegacyInstance($"1.7.10_pre4-{forgeVer}-prerelease", id, gameVersion, gameDetails, pathDetails, launcherDetails, 
+                    clientDetails, logger, resolution, progressReporter),
                 
-                "1.7.2" => new ForgeClassicInstance($"1.7.2-{forgeVer}-mc172", "forge-${version}-universal.jar", id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
-                    progressReporter),
+                "1.7.2" => new ForgeClassicInstance($"1.7.2-{forgeVer}-mc172", "forge-${version}-universal.jar", id, gameVersion, gameDetails, 
+                    pathDetails, launcherDetails, clientDetails, logger, resolution, progressReporter),
                 
-                _ => new ForgeClassicInstance(GetLegacyName(mcVer, forgeVer), "minecraftforge-universal-${version}.jar", id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
-                    progressReporter),
+                _ => new ForgeClassicInstance(GetLegacyName(mcVer, forgeVer), "minecraftforge-universal-${version}.jar", id, gameVersion, 
+                    gameDetails, pathDetails, launcherDetails, clientDetails, logger, resolution, progressReporter),
             },
             // Legacy 1.8+ - 1.12.x
             (1, <= 12) => (mcVer, forgeVer) switch
             {
-                ("1.8", _) => new ForgeLegacyInstance(GetLegacyName(mcVer, forgeVer), id, gameVersion,gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
-                        progressReporter),
-                ("1.8.8", _) => new ForgeLegacyInstance(GetLegacyName(mcVer, forgeVer), id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
-                        progressReporter),
-                ("1.8.9", _) => new ForgeLegacyInstance(GetLegacyNameWithMc(mcVer, forgeVer), id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
-                    progressReporter),
+                ("1.8", _) => new ForgeLegacyInstance(GetLegacyName(mcVer, forgeVer), id, gameVersion,gameDetails, pathDetails, launcherDetails, 
+                    clientDetails, logger, resolution, progressReporter),
+                ("1.8.8", _) => new ForgeLegacyInstance(GetLegacyName(mcVer, forgeVer), id, gameVersion, gameDetails, pathDetails, launcherDetails, 
+                    clientDetails, logger, resolution, progressReporter),
+                ("1.8.9", _) => new ForgeLegacyInstance(GetLegacyNameWithMc(mcVer, forgeVer), id, gameVersion, gameDetails, pathDetails, launcherDetails, 
+                    clientDetails, logger, resolution, progressReporter),
 
-                ("1.9", "12.16.1.1938") => new ForgeLegacyInstance(GetLegacyNameWithZero(mcVer,  forgeVer), id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
-                    progressReporter),
+                ("1.9", "12.16.1.1938") => new ForgeLegacyInstance(GetLegacyNameWithZero(mcVer,  forgeVer), id, gameVersion, gameDetails, 
+                    pathDetails, launcherDetails, clientDetails, logger, resolution, progressReporter),
                 
-                ("1.9", _) => new ForgeLegacyInstance(GetLegacyName(mcVer,  forgeVer), id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
-                        progressReporter),
+                ("1.9", _) => new ForgeLegacyInstance(GetLegacyName(mcVer,  forgeVer), id, gameVersion, gameDetails, pathDetails, launcherDetails, 
+                    clientDetails, logger, resolution, progressReporter),
                 
-                ("1.9.4", _) => new ForgeLegacyInstance(GetLegacyNameWithMc(mcVer,  forgeVer), id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
-                    progressReporter),
+                ("1.9.4", _) => new ForgeLegacyInstance(GetLegacyNameWithMc(mcVer,  forgeVer), id, gameVersion, gameDetails, pathDetails, launcherDetails, 
+                    clientDetails, logger, resolution, progressReporter),
 
-                ("1.10", _) => new ForgeLegacyInstance(GetLegacyNameWithZero(mcVer,  forgeVer), id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
-                    progressReporter),
+                ("1.10", _) => new ForgeLegacyInstance(GetLegacyNameWithZero(mcVer,  forgeVer), id, gameVersion, gameDetails, pathDetails, launcherDetails, 
+                    clientDetails, logger, resolution, progressReporter),
                 
                 ("1.10.2", _) or ("1.11", _) or ("1.11.2", _) or ("1.12", _) or
-                ("1.12.1", _) => new ForgeLegacyInstance(GetLegacyName(mcVer,  forgeVer), id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
-                            progressReporter),
-                ("1.12.2", _) => new ForgeModernInstance(id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
-                    progressReporter),
+                ("1.12.1", _) => new ForgeLegacyInstance(GetLegacyName(mcVer,  forgeVer), id, gameVersion, gameDetails, pathDetails, launcherDetails, 
+                    clientDetails, logger, resolution, progressReporter),
+                ("1.12.2", _) => new ForgeModernInstance(id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, logger, resolution, progressReporter),
 
-                _ => new ForgeLegacyInstance(GetLegacyName(mcVer,  forgeVer), id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
-                    progressReporter)  
+                _ => new ForgeLegacyInstance(GetLegacyName(mcVer,  forgeVer), id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, 
+                    logger, resolution, progressReporter)  
             },
             // Modern 1.13+
-            _ => new ForgeModernInstance(id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, resolution,
-                progressReporter)
+            _ => new ForgeModernInstance(id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, logger, resolution, progressReporter)
         };
     }
     

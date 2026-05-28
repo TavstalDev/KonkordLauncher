@@ -1,7 +1,7 @@
 using System.Net.Http.Headers;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 
@@ -10,7 +10,7 @@ namespace Tavstal.KonkordLauncher.Core.Services.Implementations;
 /// <inheritdoc/>
 public class MojangSkinService : IMojangSkinService
 {
-    private readonly ILogger _logger;
+    private readonly ICustomLogger _logger;
     private readonly IHttpService  _httpService;
     
     /// <summary>
@@ -18,7 +18,7 @@ public class MojangSkinService : IMojangSkinService
     /// </summary>
     /// <param name="logger">The logger instance used for recording diagnostic information, warnings, and errors related to Mojang skin and cape API operations.</param>
     /// <param name="httpService">The HTTP service instance used for making authenticated requests to the Microsoft/Mojang player configuration API endpoints.</param>
-    public MojangSkinService(ILogger<MojangSkinService> logger, IHttpService httpService)
+    public MojangSkinService(ICustomLogger<MojangSkinService> logger, IHttpService httpService)
     {
         _logger = logger;
         _httpService = httpService;

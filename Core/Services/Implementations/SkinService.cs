@@ -1,10 +1,10 @@
 using System.Text;
-using Microsoft.Extensions.Logging;
 using MinecraftSkinRender;
 using MinecraftSkinRender.Image;
 using Newtonsoft.Json.Linq;
 using SkiaSharp;
 using Tavstal.KonkordLauncher.Core.Models.Accounts;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 
@@ -13,7 +13,7 @@ namespace Tavstal.KonkordLauncher.Core.Services.Implementations;
 /// <inheritdoc/>
 public class SkinService : ISkinService
 {
-    private readonly ILogger  _logger;
+    private readonly ICustomLogger _logger;
     private readonly IHttpService _httpService;
     private const int MaxParallelDownloads = 10;
     
@@ -22,7 +22,7 @@ public class SkinService : ISkinService
     /// </summary>
     /// <param name="logger">The logger instance used for recording diagnostic information, warnings, and errors related to skin and cape operations.</param>
     /// <param name="httpService">The HTTP service instance used for making asynchronous web requests to fetch skin textures, capes, and player profile data from external APIs.</param>
-    public SkinService(ILogger<SkinService> logger, IHttpService httpService)
+    public SkinService(ICustomLogger<SkinService> logger, IHttpService httpService)
     {
         _logger = logger;
         _httpService = httpService;

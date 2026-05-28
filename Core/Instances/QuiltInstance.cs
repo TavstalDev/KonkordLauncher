@@ -4,6 +4,7 @@ using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints.Modding;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.Instance;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Fabric;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
@@ -19,11 +20,11 @@ public class QuiltInstance(
     PathDetails pathDetails,
     LauncherDetails launcherDetails,
     ClientDetails clientDetails,
+    ICustomLogger logger,
     Resolution? resolution = null,
     IProgressReporter? progressReporter = null)
-    : MinecraftInstance(id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, resolution, progressReporter)
+    : MinecraftInstance(id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, logger, resolution, progressReporter)
 {
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(QuiltInstance));
     
     public override async Task<ModdedData?> InstallModdedAsync(string tempDir, IHttpService httpService, CancellationToken cancellationToken = default)
     {
@@ -33,7 +34,7 @@ public class QuiltInstance(
         _progressReporter?.UpdateStatusTranslated("instance.reading.manifest");
         if (!File.Exists(PathDetails.CustomManifestPath))
         {
-            _logger.Error("Quilt manifest file not found at path: " + PathDetails.CustomManifestPath);
+            _logger.LogError("Quilt manifest file not found at path: " + PathDetails.CustomManifestPath);
             return null;
         }
         
@@ -68,7 +69,7 @@ public class QuiltInstance(
             if (quiltVersionMeta == null)
             { 
                  FileSystemHelper.DeleteFile(VersionData.CustomJsonPath!); // Delete it because this if part won't be executed again if it exists
-                _logger.Error("Quilt version meta is null after deserialization. Invalid JSON format.");
+                _logger.LogError("Quilt version meta is null after deserialization. Invalid JSON format.");
                 return null;
             }
             
@@ -81,7 +82,7 @@ public class QuiltInstance(
             quiltVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(await File.ReadAllTextAsync(VersionData.CustomJsonPath, cancellationToken));
             if (quiltVersionMeta == null)
             {
-                _logger.Error("Quilt version meta is null after deserialization. Invalid JSON format.");
+                _logger.LogError("Quilt version meta is null after deserialization. Invalid JSON format.");
                 return null;
             }
 
@@ -105,7 +106,7 @@ public class QuiltInstance(
                 _progressReporter?.ReportProgress(e);
                 _progressReporter?.UpdateStatusTranslated("instance.downloading.loader", "quilt", e.ToString("0.00"));
             };
-            _logger.Debug("Downloading quilt loader jar...");
+            _logger.LogDebug("Downloading quilt loader jar...");
             await httpService.DownloadFileAsync(string.Format(QuiltEndpoints.LoaderJarUrl, VersionData.CustomVersion), loaderJarPath, progress, cancellationToken);
         }
         

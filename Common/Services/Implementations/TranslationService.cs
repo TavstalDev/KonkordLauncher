@@ -1,10 +1,10 @@
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Common.Services.Implementations;
@@ -12,7 +12,7 @@ namespace Tavstal.KonkordLauncher.Common.Services.Implementations;
 /// <inheritdoc cref="ITranslationService"/>
 public class TranslationService : IHostedService, ITranslationService
 {
-    private readonly ILogger _logger;
+    private readonly ICustomLogger _logger;
     private readonly IHttpService _httpService;
     private readonly ILauncherStore _launcherStore;
     private Dictionary<string, string> _translations = new();
@@ -26,7 +26,7 @@ public class TranslationService : IHostedService, ITranslationService
     /// <param name="logger">Logger used to record translation loading and lookup diagnostics.</param>
     /// <param name="httpService">HTTP service used to download translation files when a local copy is not available.</param>
     /// <param name="launcherStore">Launcher store used to resolve the translation directory from the current launcher settings.</param>
-    public TranslationService(ILogger<TranslationService> logger, IHttpService httpService, ILauncherStore launcherStore)
+    public TranslationService(ICustomLogger<TranslationService> logger, IHttpService httpService, ILauncherStore launcherStore)
     {
         _logger = logger;
         _httpService = httpService;

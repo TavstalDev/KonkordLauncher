@@ -2,6 +2,7 @@
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.Instance;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions;
@@ -10,7 +11,7 @@ namespace Tavstal.KonkordLauncher.Core.Instances;
 
 public class MinecraftInstance
 {
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MinecraftInstance));
+    protected readonly ICustomLogger _logger;
 
     public string Id { get; }
     public LauncherDetails LauncherDetails { get; }
@@ -26,17 +27,17 @@ public class MinecraftInstance
     public VersionMeta MinecraftVersionMeta { get; set; }
     
     public MinecraftInstance(string id, MinecraftVersion gameVersion, GameDetails gameDetails, PathDetails pathDetails, LauncherDetails launcherDetails,
-        ClientDetails clientDetails, Resolution? resolution = null, IProgressReporter? progressReporter = null)
+        ClientDetails clientDetails, ICustomLogger logger, Resolution? resolution = null, IProgressReporter? progressReporter = null)
     {
         Id = id;
-        _progressReporter = progressReporter;
+        MinecraftVersion = gameVersion;
         GameDetails = gameDetails;
         PathDetails = pathDetails;
-        Resolution = resolution;
         LauncherDetails = launcherDetails;
         Client = clientDetails;
-        MinecraftVersion = gameVersion;
-
+        Resolution = resolution;
+        _logger = logger;
+        _progressReporter = progressReporter;
 
         string vanillaVersionsRoot = Path.Combine(PathDetails.VersionsDir, "vanilla");
         Directory.CreateDirectory(vanillaVersionsRoot);
@@ -124,7 +125,7 @@ public class MinecraftInstance
     public void UpdateJavaPath(string javaPath)
     {
         GameDetails.JavaPath = javaPath;
-        _logger.Debug($"Java path updated to: {javaPath}");
+        _logger.LogDebug($"Java path updated to: {javaPath}");
     }
     #endregion
 }

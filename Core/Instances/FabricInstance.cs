@@ -4,6 +4,7 @@ using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints.Modding;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.Instance;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Fabric;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
@@ -19,12 +20,11 @@ public class FabricInstance(
     PathDetails pathDetails,
     LauncherDetails launcherDetails,
     ClientDetails clientDetails,
+    ICustomLogger logger,
     Resolution? resolution = null,
     IProgressReporter? progressReporter = null)
-    : MinecraftInstance(id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, resolution, progressReporter)
+    : MinecraftInstance(id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, logger, resolution, progressReporter)
 {
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(FabricInstance));
-    
     public override async Task<ModdedData?> InstallModdedAsync(string tempDir, IHttpService httpService, CancellationToken cancellationToken = default)
     {
         if (ArgumentBuilder == null)
@@ -33,7 +33,7 @@ public class FabricInstance(
         _progressReporter?.UpdateStatusTranslated("instance.reading.manifest");
         if (!File.Exists(PathDetails.CustomManifestPath))
         {
-            _logger.Error("Fabric manifest file not found at path: " + PathDetails.CustomManifestPath);
+            _logger.LogError("Fabric manifest file not found at path: " + PathDetails.CustomManifestPath);
             return null;
         }
         
@@ -68,7 +68,7 @@ public class FabricInstance(
             if (fabricVersionMeta == null)
             {
                 FileSystemHelper.DeleteFile(VersionData.CustomJsonPath!); // Delete it because this if part won't be executed again if it exists
-                _logger.Error("Fabric version meta is null after deserialization. Invalid JSON format.");
+                _logger.LogError("Fabric version meta is null after deserialization. Invalid JSON format.");
                 return null;
             }
             
@@ -81,7 +81,7 @@ public class FabricInstance(
             fabricVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(await File.ReadAllTextAsync(VersionData.CustomJsonPath!, cancellationToken));
             if (fabricVersionMeta == null)
             {
-                _logger.Error("Fabric version meta is null after deserialization. Invalid JSON format.");
+                _logger.LogError("Fabric version meta is null after deserialization. Invalid JSON format.");
                 return null;
             }
 
@@ -103,7 +103,7 @@ public class FabricInstance(
                 _progressReporter?.ReportProgress(e);
                 _progressReporter?.UpdateStatusTranslated("instance.downloading.loader", "fabric", e.ToString("0.00"));
             };
-            _logger.Debug("Downloading fabric loader jar...");
+            _logger.LogDebug("Downloading fabric loader jar...");
             await httpService.DownloadFileAsync(string.Format(FabricEndpoints.LoaderJarUrl, VersionData.CustomVersion), loaderJarPath, progress, cancellationToken);
         }
         

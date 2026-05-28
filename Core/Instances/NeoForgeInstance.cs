@@ -4,6 +4,7 @@ using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints.Modding;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.Instance;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Modern;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
@@ -19,12 +20,11 @@ public class NeoForgeInstance(
     PathDetails pathDetails,
     LauncherDetails launcherDetails,
     ClientDetails clientDetails,
+    ICustomLogger logger,
     Resolution? resolution = null,
     IProgressReporter? progressReporter = null)
-    : ForgeInstanceBase(id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, resolution, progressReporter)
+    : ForgeInstanceBase(id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, logger, resolution, progressReporter)
 {
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(NeoForgeInstance));
-    
     public override async Task<ModdedData?> InstallModdedAsync(string tempDir, IHttpService httpService, CancellationToken cancellationToken = default)
     {
         if (ArgumentBuilder == null)
@@ -32,7 +32,7 @@ public class NeoForgeInstance(
         
         if (!File.Exists(PathDetails.CustomManifestPath))
         {
-            _logger.Error("NeoForge manifest file does not exist. Please ensure the manifest is downloaded.");
+            _logger.LogError("NeoForge manifest file does not exist. Please ensure the manifest is downloaded.");
             return null;
         }
 
@@ -67,14 +67,14 @@ public class NeoForgeInstance(
             if (File.Exists(source))
                 File.Move(source, installerProfilePath);
             else
-                _logger.Error("Install profile JSON file not found in the neoforge installer directory.");
+                _logger.LogError("Install profile JSON file not found in the neoforge installer directory.");
             
             // Move version.json
             source = Path.Combine(installerDir, "version.json");
             if (File.Exists(source))
                 File.Move(source, VersionData.CustomJsonPath!);
             else
-                _logger.Error("Install version JSON file not found in the neoforge installer directory.");
+                _logger.LogError("Install version JSON file not found in the neoforge installer directory.");
             
             // Extract Maven
             source = Path.Combine(installerDir, "maven");
@@ -97,7 +97,7 @@ public class NeoForgeInstance(
                 }
             }
             else
-                _logger.Warn("Maven directory not found in the neoforge installer directory.");
+                _logger.LogWarning("Maven directory not found in the neoforge installer directory.");
         }
         
         // Read Forge Version Meta
@@ -121,7 +121,7 @@ public class NeoForgeInstance(
         {
             if (libMeta.Downloads.Artifact == null)
             {
-                _logger.Warn($"Library {libMeta.Name} does not have an artifact to download.");
+                _logger.LogWarning($"Library {libMeta.Name} does not have an artifact to download.");
                 continue;
             }
 
@@ -138,7 +138,7 @@ public class NeoForgeInstance(
             
             if (string.IsNullOrEmpty(libMeta.Downloads.Artifact.Url))
             {
-                _logger.Warn($"Library {libMeta.Name} does not have a download URL.");
+                _logger.LogWarning($"Library {libMeta.Name} does not have a download URL.");
                 continue;
             }
             
@@ -160,7 +160,7 @@ public class NeoForgeInstance(
         // Copy Version Files
         string jarSourcePath = Path.Combine(installerDir, "maven", "net", "neoforged", "neoforge", $"{VersionData.MinecraftVersion}-{VersionData.CustomVersion}", 
             $"neoforge-{VersionData.CustomVersion}-universal.jar");
-        _logger.Debug("Source jar path: " + jarSourcePath);
+        _logger.LogDebug("Source jar path: " + jarSourcePath);
         if (File.Exists(jarSourcePath))
         {
             string targetJarPath = Path.Combine(VersionData.CustomVersionDirectory!, $"neoforge-{VersionData.MinecraftVersion}-{VersionData.CustomVersion}.jar");

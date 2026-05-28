@@ -1,5 +1,4 @@
 using System.Xml.Linq;
-using Microsoft.Extensions.Logging;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Enums;
@@ -8,6 +7,7 @@ using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints.Modding;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 
@@ -16,7 +16,7 @@ namespace Tavstal.KonkordLauncher.Common.Services.Implementations;
 /// <inheritdoc/>
 public class ValidationService : IValidationService
 {
-    private readonly ILogger _logger;
+    private readonly ICustomLogger _logger;
     private readonly IHttpService _httpService;
     private readonly ILauncherStore _launcherStore;
     private readonly IManifestService _manifestService;
@@ -29,7 +29,7 @@ public class ValidationService : IValidationService
     /// <param name="launcherStore">Launcher store used to read and create launcher configuration data.</param>
     /// <param name="manifestService">Manifest service used to load and cache validated manifest data.</param>
 
-    public ValidationService(ILogger<ValidationService> logger, IHttpService httpService, ILauncherStore launcherStore, IManifestService manifestService)
+    public ValidationService(ICustomLogger<ValidationService> logger, IHttpService httpService, ILauncherStore launcherStore, IManifestService manifestService)
     {
         _logger = logger;
         _httpService = httpService;

@@ -4,6 +4,7 @@ using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints.Modding;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.Instance;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Legacy;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
@@ -21,12 +22,11 @@ public class ForgeLegacyInstance(string forgeVersionName,
     PathDetails pathDetails,
     LauncherDetails launcherDetails,
     ClientDetails clientDetails,
+    ICustomLogger logger,
     Resolution? resolution = null,
     IProgressReporter? progressReporter = null)
-    : ForgeInstanceBase(id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, resolution, progressReporter)
+    : ForgeInstanceBase(id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, logger, resolution, progressReporter)
 {
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(ForgeLegacyInstance));
-
     public override async Task<ModdedData?> InstallModdedAsync(string tempDir, IHttpService httpService, CancellationToken cancellationToken = default)
     {
         if (ArgumentBuilder == null)
@@ -34,7 +34,7 @@ public class ForgeLegacyInstance(string forgeVersionName,
         
         if (!File.Exists(PathDetails.CustomManifestPath))
         {
-            _logger.Error("Forge manifest file does not exist. Please ensure the manifest is downloaded.");
+            _logger.LogError("Forge manifest file does not exist. Please ensure the manifest is downloaded.");
             return null;
         }
 
@@ -73,11 +73,11 @@ public class ForgeLegacyInstance(string forgeVersionName,
             if (File.Exists(source))
                 File.Move(source, installerProfilePath, true);
             else
-                _logger.Error("Install profile JSON file not found in the forge installer directory.");
+                _logger.LogError("Install profile JSON file not found in the forge installer directory.");
             
             // Extract universal jar
             string universalJarPath = Path.Combine(installerDir, $"forge-{forgeVersionName}-universal.jar");
-            _logger.Debug("Checking for universal jar at: " + universalJarPath);
+            _logger.LogDebug("Checking for universal jar at: " + universalJarPath);
             if (File.Exists(universalJarPath))
             {
                 string universalDir = Path.Combine(tempDir,
@@ -97,7 +97,7 @@ public class ForgeLegacyInstance(string forgeVersionName,
                     File.Move(Path.Combine(universalDir, "version.json"), VersionData.CustomJsonPath!, true);
             }
             else
-                _logger.Warn("Forge universal jar not found in the installer directory. This may indicate an issue with the installer.");
+                _logger.LogWarning("Forge universal jar not found in the installer directory. This may indicate an issue with the installer.");
             
             // Maven directory does not exist in this version
         }

@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.Domain;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
@@ -6,6 +5,7 @@ using Tavstal.KonkordLauncher.Core.Instances;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.Instance;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 
@@ -13,11 +13,11 @@ namespace Tavstal.KonkordLauncher.Core.Services.Implementations;
 
 public class InstanceInstallService : IInstanceInstallService
 {
-    private readonly ILogger _logger;
+    private readonly ICustomLogger _logger;
     private readonly IHttpService _httpService;
     private readonly ILibraryDownloadService _libraryDownloadService;
     
-    public InstanceInstallService(ILogger<InstanceInstallService> logger, IHttpService httpService, ILibraryDownloadService libraryDownloadService)
+    public InstanceInstallService(ICustomLogger<InstanceInstallService> logger, IHttpService httpService, ILibraryDownloadService libraryDownloadService)
     {
         _logger = logger;
         _httpService = httpService;

@@ -1,7 +1,7 @@
 using System.Net;
-using Microsoft.Extensions.Logging;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions.Auth;
 
 namespace Tavstal.KonkordLauncher.Core.Services.Implementations.Auth;
@@ -9,14 +9,14 @@ namespace Tavstal.KonkordLauncher.Core.Services.Implementations.Auth;
 /// <inheritdoc/>
 public class MicrosoftHttpAuthService : IMicrosoftHttpAuthService
 {
-    private readonly ILogger _logger;
+    private readonly ICustomLogger _logger;
     private readonly IMicrosoftAuthService _microsoftAuthService;
     private bool _isListening;
     private HttpListener? _httpListener;
     public const string ListeningUrl = "http://localhost:43319/";
     private IProgressReporter? _progressReporter;
 
-    public MicrosoftHttpAuthService(ILogger<MicrosoftHttpAuthService> logger,
+    public MicrosoftHttpAuthService(ICustomLogger<MicrosoftHttpAuthService> logger,
         IMicrosoftAuthService microsoftAuthService)
     {
         _logger = logger;

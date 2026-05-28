@@ -1,8 +1,8 @@
-using Microsoft.Extensions.Logging;
 using Modrinth;
 using Modrinth.Models;
 using Modrinth.Models.Enums.Project;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Version = Modrinth.Models.Version;
 
 namespace Tavstal.KonkordLauncher.Common.Services.Implementations;
@@ -10,14 +10,14 @@ namespace Tavstal.KonkordLauncher.Common.Services.Implementations;
 /// <inheritdoc/>
 public class ModrinthApiClient : IModrinthApiClient
 {
-    private readonly ILogger _logger;
+    private readonly ICustomLogger _logger;
     private readonly ModrinthClient _client = new (new ModrinthClientConfig
     {
         UserAgent = "KonkordLauncher/2.0.0 (+https://github.com/TavstalDev/KonkordLauncher)",
         ModrinthToken = null
     });
     
-    public ModrinthApiClient(ILogger<ModrinthApiClient> logger)
+    public ModrinthApiClient(ICustomLogger<ModrinthApiClient> logger)
     {
         _logger = logger;
     }

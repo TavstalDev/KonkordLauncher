@@ -1,6 +1,6 @@
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Fabric;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
@@ -14,7 +14,7 @@ namespace Tavstal.KonkordLauncher.Core.Services.Implementations;
 /// <inheritdoc/>
 public class ManifestService : IManifestService
 {
-    private readonly ILogger _logger;
+    private readonly ICustomLogger _logger;
     private VersionManifest? _versionManifest;
     private List<IModManifest>? _fabricManifest;
     private List<IModManifest>? _quiltManifest;
@@ -25,7 +25,7 @@ public class ManifestService : IManifestService
     /// Initializes a new instance of the <see cref="ManifestService"/> class.
     /// </summary>
     /// <param name="logger">Logger instance used to record diagnostic and error messages during manifest operations.</param>
-    public ManifestService(ILogger<ManifestService> logger)
+    public ManifestService(ICustomLogger<ManifestService> logger)
     {
         _logger = logger;
     }

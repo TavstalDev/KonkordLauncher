@@ -5,6 +5,7 @@ using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Instances;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.Instance;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Modern;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 
@@ -17,6 +18,7 @@ namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
 /// <param name="pathDetails">Details about the file paths used by the instance.</param>
 /// <param name="launcherDetails">Details about the launcher configuration.</param>
 /// <param name="clientDetails">Details about the client configuration.</param>
+/// <param name="logger">The logger instance for logging information and errors.</param>
 /// <param name="resolution">Optional screen resolution settings for the instance.</param>
 /// <param name="progressReporter">Optional progress reporter for tracking installation or setup progress.</param>
 public abstract class ForgeInstanceBase(
@@ -26,12 +28,11 @@ public abstract class ForgeInstanceBase(
     PathDetails pathDetails,
     LauncherDetails launcherDetails,
     ClientDetails clientDetails,
+    ICustomLogger logger,
     Resolution? resolution = null,
     IProgressReporter? progressReporter = null)
-    : MinecraftInstance(id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, resolution, progressReporter)
+    : MinecraftInstance(id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, logger, resolution, progressReporter)
 {
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(ForgeInstanceBase));
-
     // The following methods are originally from https://github.com/CmlLib
     // but have been adapted to fit the current code structure and conventions.
     
@@ -187,7 +188,7 @@ public abstract class ForgeInstanceBase(
         if (string.IsNullOrEmpty(defaultJava))
             throw new InvalidOperationException("JavaPath was empty");
 
-        _logger.Debug($"Forge processor java: {defaultJava}");
+        _logger.LogDebug($"Forge processor java: {defaultJava}");
         
         // Constructs the combined classpath string.
         string combinedPath = string.Join(Path.PathSeparator.ToString(),
@@ -200,14 +201,14 @@ public abstract class ForgeInstanceBase(
             }));
 
         // Constructs the argument string for the Java process.
-        _logger.Debug("Combined classpath: " + combinedPath);
-        _logger.Debug("Main class: " + mainClass);
+        _logger.LogDebug("Combined classpath: " + combinedPath);
+        _logger.LogDebug("Main class: " + mainClass);
         string arg = $"-cp {combinedPath} {mainClass}";
 
         if (args is { Length: > 0 })
         {
             arg += " " + string.Join(" ", args);
-            _logger.Debug("Arguments: " + arg.Replace(combinedPath, "[classpath_placeholder]"));
+            _logger.LogDebug("Arguments: " + arg.Replace(combinedPath, "[classpath_placeholder]"));
         }
         
         Process process = new Process
@@ -225,7 +226,7 @@ public abstract class ForgeInstanceBase(
 #if DEBUG
         string o = await process.StandardError.ReadToEndAsync();
         if (!string.IsNullOrEmpty(o))
-            _logger.Error("Forge processor error: " + o);
+            _logger.LogError("Forge processor error: " + o);
 #endif
     }
 }

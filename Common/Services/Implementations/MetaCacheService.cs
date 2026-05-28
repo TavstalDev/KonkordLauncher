@@ -3,12 +3,12 @@ using System.Security.Cryptography;
 using System.Text;
 using Avalonia.Media.Imaging;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Modrinth.Models;
 using Tavstal.KonkordLauncher.Common.Models.MetaCache;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using File = System.IO.File;
 using Version = Modrinth.Models.Version;
 
@@ -17,7 +17,7 @@ namespace Tavstal.KonkordLauncher.Common.Services.Implementations;
 /// <inheritdoc cref="IMetaCacheService" />
 public class MetaCacheService : BackgroundService, IMetaCacheService
 {
-    private readonly ILogger _logger;
+    private readonly ICustomLogger _logger;
     private readonly ILauncherStore _launcherStore;
     private readonly IModrinthApiClient _modrinthApiClient;
     private static readonly HttpClient _httpClient = new();
@@ -32,7 +32,7 @@ public class MetaCacheService : BackgroundService, IMetaCacheService
     /// <param name="logger">Logger used to record initialization failures and other diagnostics.</param>
     /// <param name="launcherStore">Launcher store used to resolve cache directory settings.</param>
     /// <param name="modrinthApiClient">API client used to fetch data from Modrinth when cache misses occur.</param>
-    public MetaCacheService(ILogger<MetaCacheService> logger, ILauncherStore launcherStore, IModrinthApiClient modrinthApiClient)
+    public MetaCacheService(ICustomLogger<MetaCacheService> logger, ILauncherStore launcherStore, IModrinthApiClient modrinthApiClient)
     {
         _logger = logger;
         _launcherStore = launcherStore;

@@ -1,5 +1,4 @@
 using System.IO.Compression;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Config;
@@ -12,6 +11,7 @@ using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Instance;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Common.Services.Implementations;
@@ -21,7 +21,7 @@ namespace Tavstal.KonkordLauncher.Common.Services.Implementations;
 /// </summary>
 public class ModrinthPackageService : IPackageService
 {
-    private readonly ILogger _logger;
+    private readonly ICustomLogger _logger;
     private readonly IHttpService _httpService;
     private readonly ILauncherStore _launcherStore;
 
@@ -31,7 +31,7 @@ public class ModrinthPackageService : IPackageService
     /// <param name="logger">Logger instance for recording diagnostic, warning, and error messages.</param>
     /// <param name="httpService">Service for performing HTTP operations such as downloading files from URLs.</param>
     /// <param name="launcherStore">Service for accessing and modifying launcher data such as instances and settings.</param>
-    public ModrinthPackageService(ILogger<ModrinthPackageService> logger, IHttpService httpService, ILauncherStore launcherStore)
+    public ModrinthPackageService(ICustomLogger<ModrinthPackageService> logger, IHttpService httpService, ILauncherStore launcherStore)
     {
         _logger = logger;
         _httpService = httpService;

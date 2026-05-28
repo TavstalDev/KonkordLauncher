@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using NbtLib;
-using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
@@ -83,7 +82,7 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
     /// </summary>
     public void SaveServers()
     {
-        _logger.Debug("Saving servers to servers.dat file...");
+        _logger.LogDebug("Saving servers to servers.dat file...");
         if (_parent.GameDirectory == null)
             return;
         try
@@ -120,8 +119,8 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
         }
         catch (Exception ex)
         {
-            _logger.Exc("Failed to save servers to servers.dat file.");
-            _logger.Error(ex);
+            _logger.LogCritical("Failed to save servers to servers.dat file.");
+            _logger.LogError(ex);
         }
     }
 

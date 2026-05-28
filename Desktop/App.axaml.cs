@@ -9,11 +9,12 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
 using DiscordRPC;
-using Tavstal.KonkordLauncher.Common.Helpers;
+using Microsoft.Extensions.DependencyInjection;
 using Tavstal.KonkordLauncher.Common.Models;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
-using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Instance;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Desktop.Views;
 
 namespace Tavstal.KonkordLauncher.Desktop;
@@ -24,8 +25,8 @@ namespace Tavstal.KonkordLauncher.Desktop;
 // ReSharper disable once PartialTypeWithSinglePart - Avalonia code generation
 public partial class App : Application
 {
-    private static readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(App));
     // ReSharper disable once NotAccessedField.Local - Used to ensure the task is not garbage collected before completion
+    private static ICustomLogger? _logger;
     private static Task? _initializeTask;
     private static DiscordRpcClient? _rpcClient;
 
@@ -122,7 +123,9 @@ public partial class App : Application
     {
         try
         {
-            var settings = await LauncherHelper.GetLauncherSettingsAsync(ScreenResolution, cancellationToken);
+            var launcherStore = Program.ServiceProvider.GetRequiredService<ILauncherStore>();
+            _logger = Program.ServiceProvider.GetRequiredService<ICustomLogger<App>>();
+            var settings = await launcherStore.GetSettingsAsync(ScreenResolution, cancellationToken);
             ApplyTheme(settings.Launcher.Theme);
             
             Directory.CreateDirectory(PathHelper.TempDir);
@@ -206,24 +209,16 @@ public partial class App : Application
         {
             if (Current == null)
                 return;
-            switch (theme)
+            RequestedThemeVariant = theme switch
             {
-                case EThemeType.LIGHT:
-                {
-                    RequestedThemeVariant = ThemeVariant.Light;
-                    break;
-                }
-                case EThemeType.DARK:
-                {
-                    RequestedThemeVariant = ThemeVariant.Dark;
-                    break;
-                }
-            }
+                EThemeType.LIGHT => ThemeVariant.Light,
+                EThemeType.DARK => ThemeVariant.Dark,
+                _ => RequestedThemeVariant
+            };
         }
         catch (Exception ex)
         {
-            _logger.Exc("Failed to apply theme");
-            _logger.Error(ex);
+            _logger?.LogCritical("Failed to apply theme", ex);
         }
     }
     
@@ -241,7 +236,7 @@ public partial class App : Application
             // Check if the Discord RPC client is initialized and not disposed.
             if (_rpcClient == null || _rpcClient.IsDisposed)
             {
-                _logger.Error("Discord RPC client is not initialized or disposed.");
+                _logger?.LogError("Discord RPC client is not initialized or disposed.");
                 return;
             }
         
@@ -255,8 +250,7 @@ public partial class App : Application
         catch (Exception ex)
         {
             // Log any exceptions that occur during the update process.
-            _logger.Exc("Failed to update Discord RPC");
-            _logger.Error(ex);
+            _logger?.LogCritical("Failed to update Discord RPC", ex);
         }
     }
 
@@ -273,7 +267,7 @@ public partial class App : Application
             // Check if the Discord RPC client is initialized and not disposed.
             if (_rpcClient == null || _rpcClient.IsDisposed)
             {
-                _logger.Error("Discord RPC client is not initialized or disposed.");
+                _logger?.LogError("Discord RPC client is not initialized or disposed.");
                 return;
             }
 
@@ -287,8 +281,7 @@ public partial class App : Application
         catch (Exception ex)
         {
             // Log any exceptions that occur during the clearing process.
-            _logger.Exc("Failed to clear Discord RPC");
-            _logger.Error(ex);
+            _logger?.LogCritical("Failed to clear Discord RPC", ex);
         }
     }
 }

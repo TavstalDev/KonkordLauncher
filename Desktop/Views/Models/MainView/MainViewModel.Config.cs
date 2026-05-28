@@ -8,7 +8,6 @@ using Tavstal.KonkordLauncher.Common.Models.Config;
 using Tavstal.KonkordLauncher.Common.Models.Translation;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
-using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Config.Launcher;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
@@ -188,7 +187,7 @@ public partial class MainViewModel_Config : KonkordObservableObject
         if (_parent.IsLoading || !_parent.Initialization.IsCompletedSuccessfully)
             return; 
         
-        _logger.Debug("CoreConfig changed with old and new value. Unsubscribing from old, subscribing to new.");
+        _logger.LogDebug("CoreConfig changed with old and new value. Unsubscribing from old, subscribing to new.");
 
         if (oldValue != null)
             UnsubscribeFromCoreConfigChildren(oldValue);
@@ -208,7 +207,7 @@ public partial class MainViewModel_Config : KonkordObservableObject
         if (_parent.IsLoading || !_parent.Initialization.IsCompletedSuccessfully)
             return;
         
-        _logger.Debug($"Inner property '{e.PropertyName}' changed on {sender?.GetType().Name}. Saving to file...");
+        _logger.LogDebug($"Inner property '{e.PropertyName}' changed on {sender?.GetType().Name}. Saving to file...");
         SaveCoreConfigToFile(CoreConfig);
 
         // Handle theme change
@@ -235,7 +234,7 @@ public partial class MainViewModel_Config : KonkordObservableObject
     {
         if (newValue.Java.MinMemory > newValue.Java.MaxMemory)
         {
-            _logger.Warn("Min memory cannot be greater than max memory. Adjusting values.");
+            _logger.LogWarning("Min memory cannot be greater than max memory. Adjusting values.");
             newValue.Java.MinMemory = newValue.Java.MaxMemory;
         }
 

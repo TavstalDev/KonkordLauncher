@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
@@ -9,8 +8,6 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Helpers;
-using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
@@ -70,7 +67,7 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
         var currentInstance = instances.FirstOrDefault(x => x.Id == _instanceId);
         if (currentInstance == null)
         {
-            _logger.Error($"Instance with ID '{_instanceId}' not found.");
+            _logger.LogError($"Instance with ID '{_instanceId}' not found.");
             throw new KeyNotFoundException($"Instance with ID '{_instanceId}' not found.");
         }
 
@@ -110,7 +107,7 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
-        _logger.Debug("Freeing memory in EditInstanceViewModel...");
+        _logger.LogDebug("Freeing memory in EditInstanceViewModel...");
         GlobalEvents.OnInstanceLogged -= OnInstanceLogged;
         
         InstanceName = string.Empty;

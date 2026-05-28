@@ -11,8 +11,6 @@ using CommunityToolkit.Mvvm.Input;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Package;
-using Tavstal.KonkordLauncher.Common.Translation;
-using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;

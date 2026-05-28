@@ -14,11 +14,9 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Modrinth.Models;
 using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
-using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 using Version = Modrinth.Models.Version;
@@ -214,7 +212,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
     {
         await Task.Yield();
 
-        var settings = await Task.Run(() => LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken), cancellationToken);
+        var settings = await Task.Run(() => LauncherHelper.GetSettingsAsync(cancellationToken: cancellationToken), cancellationToken);
         var manifestPath = settings.Launcher.GetVanillaManifestPath();
         var versionManifest = await Task.Run(() => ManifestHelper.GetMinecraftManifestAsync(manifestPath, cancellationToken), cancellationToken);
 

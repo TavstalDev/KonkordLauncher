@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Config;
-using Tavstal.KonkordLauncher.Common.Translation;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Config.Launcher;
 

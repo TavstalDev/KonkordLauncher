@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Tavstal.KonkordLauncher.Common.Translation;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Instance;
 

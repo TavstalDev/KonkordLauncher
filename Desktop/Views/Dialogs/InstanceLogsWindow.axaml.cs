@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using ReactiveUI;
-using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
@@ -12,8 +12,6 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 public partial class InstanceLogsWindow : KonkordWindow<InstanceLogsViewModel>
 {
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(InstanceLogsWindow));
-    
     public InstanceLogsWindow()
     {
         InitializeComponent();

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables.Fluent;
 using System.Reflection;
@@ -11,11 +12,11 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
+using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Config;
-using Tavstal.KonkordLauncher.Common.Translation;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Platform;
@@ -24,6 +25,8 @@ using Tavstal.KonkordLauncher.Core.Helpers.Utils;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Accounts;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
+using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
@@ -38,18 +41,15 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 /// </summary>
 public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressReporter
 {
-    /// <summary>
-    /// Logger instance for the StartupWindow class.
-    /// </summary>
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(StartupWindow));
-
-    /// <summary>
-    /// Delay in milliseconds for each validation step.
-    /// </summary>
+    private readonly ICustomLogger _logger;
+    private readonly IHttpService _httpService;
+    private readonly ITranslationService _translationService;
+    private readonly ILauncherStore _launcherStore;
+    private readonly IValidationService _validationService;
+    private readonly IJavaService _javaService;
+    private readonly ISkinService _skinService;
     private const int _stepDelay = 100;
-    
     private const int _maxParallelDownloads = 16;
-
     private readonly int[] _javaVersionsToDownload = [8, 16, 17, 21, 25];
 
     /// <summary>
@@ -57,6 +57,15 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
     /// </summary>
     public StartupWindow()
     {
+        var services = Program.ServiceProvider;
+        _logger = services.GetRequiredService<ICustomLogger<StartupWindow>>();
+        _httpService = services.GetRequiredService<IHttpService>();
+        _translationService = services.GetRequiredService<ITranslationService>();
+        _launcherStore = services.GetRequiredService<ILauncherStore>();
+        _validationService = services.GetRequiredService<IValidationService>();
+        _javaService = services.GetRequiredService<IJavaService>();
+        _skinService = services.GetRequiredService<ISkinService>();
+        
         InitializeComponent();
         
         DataContext = new StartupViewModel();
@@ -99,8 +108,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
             }
             catch (Exception ex)
             {
-                _logger.Error("An error occurred during startup initialization:");
-                _logger.Error(ex);
+                _logger.LogError("An error occurred during startup initialization:", ex);
             } 
         });
     }
@@ -126,7 +134,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
     /// <param name="cancellationToken">A token used to cancel startup work if initialization is aborted.</param>
     private async Task InitAsync(CancellationToken cancellationToken = default)
     {
-        var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken);
+        var settings = await _launcherStore.GetSettingsAsync(cancellationToken: cancellationToken);
 
         // Set initial status
         UpdateStatusTranslated("startup.progress.initializing");
@@ -135,7 +143,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
         UpdateStatusTranslated("startup.validation.dataFolder");
         await Task.Delay(_stepDelay, cancellationToken);
         bool shouldGenerateIcons = !Directory.Exists(settings.Launcher.IconsDirectoryPath);
-        if (!await ValidationHelper.ValidateDataFolderAsync())
+        if (!await _validationService.ValidateLauncherDirectoryAsync(cancellationToken))
         {
             UpdateStatusTranslated("startup.validation.dataFolderFailed");
             return;
@@ -153,11 +161,11 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
                 var fileName = path.Replace("Tavstal.KonkordLauncher.Desktop.Assets.Icons.", "");
                 if (!fileName.EndsWith(".png"))
                     continue;
-                _logger.Debug($"Extracting icon: {fileName}");
+                _logger.LogDebug($"Extracting icon: {fileName}");
                 var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path);
                 if (stream == null)
                 {
-                    _logger.Error($"Failed to get resource stream for {fileName}");
+                    _logger.LogError($"Failed to get resource stream for {fileName}");
                     continue;
                 }
 
@@ -170,12 +178,11 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
         // Validate Translations
         UpdateStatusTranslated("startup.validation.translations");
         await Task.Delay(_stepDelay, cancellationToken);
-        await TranslationManager.InitializeTranslations(cancellationToken: cancellationToken);
 
         // Validate Accounts
         UpdateStatusTranslated("startup.validation.accounts");
         await Task.Delay(_stepDelay, cancellationToken);
-        if (!await ValidationHelper.ValidateAccounts(cancellationToken))
+        if (!await _validationService.ValidateAccounts(cancellationToken))
         {
             UpdateStatusTranslated("startup.validation.accountsFailed");
             return;
@@ -184,7 +191,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
         // Validate Manifests
         UpdateStatusTranslated("startup.validation.manifests");
         await Task.Delay(_stepDelay, cancellationToken);
-        if (!await ValidationHelper.ValidateManifests(this, cancellationToken))
+        if (!await _validationService.ValidateManifests(this, cancellationToken))
         {
             UpdateStatusTranslated("startup.validation.manifestsFailed");
             return;
@@ -192,9 +199,6 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
 
         // Validate Java
         await ValidateJavaAsync(settings, cancellationToken);
-        
-        // Initialize MetaCache
-        await MetaCacheHelper.InitAsync(cancellationToken);
 
         // Refresh GitHub Cache & Skins Cache
         bool shouldRefreshCache = await ValidateCachesAsync(settings, cancellationToken);
@@ -210,10 +214,10 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
 
             if (await CheckUpdateAsync(cancellationToken: cancellationToken))
             {
-                _logger.Debug("Update found and applied, exiting startup to restart application...");
+                _logger.LogDebug("Update found and applied, exiting startup to restart application...");
                 return;
             }
-            _logger.Debug("No updates found, starting application...");
+            _logger.LogDebug("No updates found, starting application...");
         }
 
         // Update cache refresh time if needed
@@ -226,7 +230,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
         // Start Main Window
         if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop)
         {
-            _logger.Error("Failed to start main window: Application lifetime is not IClassicDesktopStyleApplicationLifetime");
+            _logger.LogError("Failed to start main window: Application lifetime is not IClassicDesktopStyleApplicationLifetime");
             return;
         }
 
@@ -251,7 +255,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
     {
         UpdateStatusTranslated("startup.validation.java");
         await Task.Delay(_stepDelay, cancellationToken);
-        var javaInstallations = JavaHelper.LocateJavaInstallations(settings.Launcher.JavaDirectoryPath);
+        var javaInstallations = await _javaService.LocateJavaInstallationsAsync(settings.Launcher.JavaDirectoryPath, cancellationToken: cancellationToken);
         bool wasJavaUpdated = false;
         foreach (int javaVersion in _javaVersionsToDownload)
         {
@@ -265,7 +269,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
                 UpdateStatusTranslated("startup.validation.java.download", javaVersion,
                     prog.ToString("0.00"));
             };
-            await JavaHelper.DownloadJavaVersionAsync(javaVersion, settings.Launcher.JavaDirectoryPath, progress, cancellationToken);
+            await _javaService.DownloadJavaVersionAsync(javaVersion, settings.Launcher.JavaDirectoryPath, progress, cancellationToken);
             wasJavaUpdated = true;
         }
 
@@ -283,8 +287,8 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
                 if (!await FileSystemHelper.MakeExecutableAsync(javaExecutablePath))
                 {
                     AlertWindow window = new AlertWindow(
-                        TranslationManager.Translate("startup.validation.java.exec.failedTitle"),
-                        TranslationManager.Translate("startup.validation.java.exec.failedMessage",
+                        _translationService.Translate("startup.validation.java.exec.failedTitle"),
+                        _translationService.Translate("startup.validation.java.exec.failedMessage",
                             javaExecutablePath),
                         EAlertType.Error
                     );
@@ -293,7 +297,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
             }
         }
 
-        JavaHelper.LocateJavaInstallations(settings.Launcher.JavaDirectoryPath, true);
+        await _javaService.LocateJavaInstallationsAsync(settings.Launcher.JavaDirectoryPath, true, cancellationToken);
     }
 
     /// <summary>
@@ -314,10 +318,10 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
         string githubCachePath = Path.Combine(settings.Launcher.CacheDirectoryPath, "github_cache.json");
         if (!File.Exists(githubCachePath) || shouldRefreshCache)
         {
-            string? response = await HttpHelper.GetStringAsync(KonkordEndpoints.AllReleases, cancellationToken);
+            string? response = await _httpService.GetStringAsync(KonkordEndpoints.AllReleases, cancellationToken);
             if (response == null)
             {
-                _logger.Error("Failed to fetch GitHub cache data");
+                _logger.LogError("Failed to fetch GitHub cache data");
                 response = "[]";
             }
             await File.WriteAllTextAsync(githubCachePath, response, cancellationToken);
@@ -325,7 +329,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
 
         // Refresh skins cache
         UpdateStatusTranslated("startup.validation.skins");
-        AccountData accountData = await LauncherHelper.GetAccountDataAsync(cancellationToken);
+        AccountData accountData = await _launcherStore.GetAccountDataAsync(cancellationToken);
         var semaphore = new SemaphoreSlim(_maxParallelDownloads);
         var tasks = new List<Task>();
         foreach (Account account in accountData.Accounts)
@@ -336,11 +340,11 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
                 try
                 {
                     foreach (var skin in account.Skins)
-                        await SkinService.FetchSkins(settings.Launcher.CacheDirectoryPath, account.Id, account.Uuid,
+                        await _skinService.FetchSkinsAsync(settings.Launcher.CacheDirectoryPath, account.Id, account.Uuid,
                             skin, cancellationToken);
                     var capes = account.MojangProfile?.Capes ?? [];
                     if (capes.Count > 0)
-                        await SkinService.FetchCapes(settings.Launcher.CacheDirectoryPath, capes, cancellationToken);
+                        await _skinService.FetchCapesAsync(settings.Launcher.CacheDirectoryPath, capes, cancellationToken);
                 }
                 finally
                 {
@@ -375,7 +379,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
             
             if (!mgr.IsInstalled) 
             {
-                _logger.Info("Running in portable/dev mode. Update check skipped.");
+                _logger.LogInformation("Running in portable/dev mode. Update check skipped.");
                 return false;
             }
             
@@ -396,8 +400,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
         }
         catch (Exception ex)
         {
-            _logger.Exc("Error while checking for updates");
-            _logger.Error(ex);
+            _logger.LogCritical("Error while checking for updates", ex);
             return false;
         }
     }
@@ -443,7 +446,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
         {
             if (DataContext == null)
                 return;
-            DataContext.ProgressText = TranslationManager.Translate(key, args);
+            DataContext.ProgressText =  _translationService.Translate(key, args);
         });
     }
 

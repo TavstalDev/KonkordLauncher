@@ -16,7 +16,6 @@ using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
-using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
@@ -128,7 +127,7 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
     /// </summary>
     public void SaveResourcePacks()
     {
-        _logger.Debug("Saving resource packs...");
+        _logger.LogDebug("Saving resource packs...");
         if (_parent.GameDirectory == null)
             return;
 
@@ -152,7 +151,7 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
 
             if (File.Exists(newPath))
             {
-                _logger.Warn("Skipping save... Resource pack file already exists: " + newPath);
+                _logger.LogWarning("Skipping save... Resource pack file already exists: " + newPath);
                 continue;
             }
 
@@ -218,7 +217,7 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
                     }
                     catch (Exception ex)
                     {
-                        _logger.Warn($"Failed to read icon from {resource}: {ex.Message}");
+                        _logger.LogWarning($"Failed to read icon from {resource}: {ex.Message}");
                     }
 
                     icon ??= ImageHelper.LoadFromResource(new Uri("avares://Desktop/Assets/Images/default_world.png"));
@@ -240,11 +239,11 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error($"Failed to load resource pack from {resource}: {ex.Message}");
+                    _logger.LogError($"Failed to load resource pack from {resource}: {ex.Message}");
                 }
             }
         });
         
-        _logger.Debug($"Cache now contains {_resourcePackCache.Count} items");
+        _logger.LogDebug($"Cache now contains {_resourcePackCache.Count} items");
     }
 }

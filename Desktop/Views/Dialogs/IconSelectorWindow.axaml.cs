@@ -6,10 +6,10 @@ using System.Reactive.Disposables.Fluent;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
+using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Helpers;
-using Tavstal.KonkordLauncher.Common.Translation;
-using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using IconSelectorViewModel = Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models.IconSelectorViewModel;
 
@@ -20,7 +20,9 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 /// </summary>
 public partial class IconSelectorWindow : KonkordWindow<IconSelectorViewModel>
 {
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(IconSelectorWindow));
+    private readonly ICustomLogger _logger;
+    private readonly ITranslationService _translationService;
+    private readonly ILauncherStore _launcherStore;
     
     /// <summary>
     /// Initializes a new instance of the <see cref="IconSelectorWindow"/> class.
@@ -28,6 +30,10 @@ public partial class IconSelectorWindow : KonkordWindow<IconSelectorViewModel>
     /// </summary>
     public IconSelectorWindow()
     {
+        var services = Program.ServiceProvider;
+        _logger = services.GetRequiredService<ICustomLogger<IconSelectorWindow>>();
+        _translationService = services.GetRequiredService<ITranslationService>();
+        _launcherStore = services.GetRequiredService<ILauncherStore>();
         InitializeComponent();
 
         DataContext = new IconSelectorViewModel();
@@ -74,13 +80,13 @@ public partial class IconSelectorWindow : KonkordWindow<IconSelectorViewModel>
         // Check if folder picking is supported on the current platform
         if (!storageProvider.CanPickFolder)
         {
-            _logger.Error("Folder picking is not supported on this platform.");
+            _logger.LogError("Folder picking is not supported on this platform.");
             return null;
         }
         
         var options = new FilePickerOpenOptions
         {
-            Title = TranslationManager.Translate("common.select.file"),
+            Title = _translationService.Translate("common.select.file"),
             AllowMultiple = false,
             FileTypeFilter = new List<FilePickerFileType>
             {
@@ -95,7 +101,7 @@ public partial class IconSelectorWindow : KonkordWindow<IconSelectorViewModel>
         if (!files.Any())
             return null;
 
-        var settings = await LauncherHelper.GetLauncherSettingsAsync();
+        var settings = await _launcherStore.GetSettingsAsync();
         List<(string, string)> result = [];
         foreach (var file in files)
         {
@@ -109,7 +115,7 @@ public partial class IconSelectorWindow : KonkordWindow<IconSelectorViewModel>
             }
             catch (Exception ex)
             {
-                _logger.Error($"Failed to copy file {file.Name} to icons directory: {ex.Message}");
+                _logger.LogError($"Failed to copy file {file.Name} to icons directory: {ex.Message}");
             }
         }
         

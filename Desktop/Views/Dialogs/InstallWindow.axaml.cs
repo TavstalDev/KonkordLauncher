@@ -3,8 +3,9 @@ using System.Reactive.Disposables.Fluent;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
+using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Translation;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using InstallViewModel = Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models.InstallViewModel;
@@ -17,11 +18,15 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 /// </summary>
 public partial class InstallWindow : KonkordWindow<InstallViewModel>, IProgressReporter
 {
+    private readonly ITranslationService _translationService;
+    
     /// <summary>
     /// Initializes a new instance of the <see cref="InstallWindow"/> class.
     /// </summary>
     public InstallWindow()
     {
+        var services = Program.ServiceProvider;
+        _translationService = services.GetRequiredService<ITranslationService>();
         InitializeComponent();
 
         // Sets the data context of the window to an instance of the InstallViewModel.
@@ -97,7 +102,7 @@ public partial class InstallWindow : KonkordWindow<InstallViewModel>, IProgressR
         {
             if (DataContext == null)
                 return;
-            DataContext.ProgressText = TranslationManager.Translate(key, args);
+            DataContext.ProgressText = _translationService.Translate(key, args);
         });
     }
     

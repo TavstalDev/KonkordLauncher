@@ -15,7 +15,6 @@ using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
-using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
@@ -144,7 +143,7 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
     /// </summary>
     public void SaveMods()
     {
-        _logger.Debug("Saving mods...");
+        _logger.LogDebug("Saving mods...");
         if (_parent.GameDirectory == null)
             return;
 
@@ -168,7 +167,7 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
 
             if (File.Exists(newPath))
             {
-                _logger.Warn("Skipping save... Mod file already exists: " + newPath);
+                _logger.LogWarning("Skipping save... Mod file already exists: " + newPath);
                 continue;
             }
 
@@ -228,7 +227,7 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
                     }
                     catch (Exception ex)
                     {
-                        _logger.Warn($"Failed to read icon from {mod}: {ex.Message}");
+                        _logger.LogWarning($"Failed to read icon from {mod}: {ex.Message}");
                     }
 
                     icon ??= ImageHelper.LoadFromResource(new Uri("avares://Desktop/Assets/Images/default_world.png"));
@@ -248,7 +247,7 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error($"Failed to load mod from {mod}: {ex}");
+                    _logger.LogError($"Failed to load mod from {mod}: {ex}");
                 }
             }
         });

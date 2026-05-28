@@ -13,7 +13,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using NbtLib;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
-using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
@@ -115,7 +114,7 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     public async Task DuplicateWorldAsync(WorldModel world, CancellationToken cancellationToken = default)
     {
-        _logger.Debug("Saving worlds...");
+        _logger.LogDebug("Saving worlds...");
         if (_parent.GameDirectory == null)
             return;
         
@@ -138,7 +137,7 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
         }
         if (newPath == null)
         {
-            _logger.Error("Failed to generate a unique path for the duplicated world.");
+            _logger.LogError("Failed to generate a unique path for the duplicated world.");
             return;
         }
 
@@ -156,7 +155,7 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
             inputStream.Close(); // Close the input stream to avoid file lock issues
             if (worldData == null)
             {
-                _logger.Error("Failed to parse level.dat for world: " + world.Name);
+                _logger.LogError("Failed to parse level.dat for world: " + world.Name);
                 return;
             }
 
@@ -164,14 +163,14 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
             // ReSharper disable once CanSimplifyDictionaryLookupWithTryGetValue
             if (!worldData.ContainsKey("Data"))
             {
-                _logger.Error("No 'Data' tag found in level.dat for world: " + world.Name);
+                _logger.LogError("No 'Data' tag found in level.dat for world: " + world.Name);
                 return;
             }
 
             var dataTag = worldData["Data"] as NbtCompoundTag;
             if (dataTag == null)
             {
-                _logger.Error("Data tag is not a compound tag in level.dat for world: " + world.Name);
+                _logger.LogError("Data tag is not a compound tag in level.dat for world: " + world.Name);
                 return;
             }
 
@@ -180,7 +179,7 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
             // ReSharper disable once CanSimplifyDictionaryRemovingWithSingleCall
             if (!dataTag.ContainsKey("LevelName"))
             {
-                _logger.Error("No 'LevelName' tag found in level.dat for world: " + world.Name);
+                _logger.LogError("No 'LevelName' tag found in level.dat for world: " + world.Name);
                 return;
             }
 
@@ -195,8 +194,8 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
         }
         catch (Exception ex)
         {
-            _logger.Exc("Failed to duplicate world.");
-            _logger.Error(ex);
+            _logger.LogCritical("Failed to duplicate world.");
+            _logger.LogError(ex);
         }
     }
     
@@ -206,7 +205,7 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
     /// </summary>
     public void SaveWorlds()
     {
-        _logger.Debug("Saving worlds...");
+        _logger.LogDebug("Saving worlds...");
         if (_parent.GameDirectory == null)
             return;
         
@@ -229,7 +228,7 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
                 string newPath = Path.Combine(worldsDir, world.Name);
                 if (Directory.Exists(newPath))
                 {
-                    _logger.Warn("World with the same name already exists, skipping save.");
+                    _logger.LogWarning("World with the same name already exists, skipping save.");
                     continue;
                 }
                 
@@ -243,7 +242,7 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
                 inputStream.Close(); // Close the input stream to avoid file lock issues
                 if (worldData == null)
                 {
-                    _logger.Error("Failed to parse level.dat for world: " + world.Name);
+                    _logger.LogError("Failed to parse level.dat for world: " + world.Name);
                     continue;
                 }
                 
@@ -251,14 +250,14 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
                 // ReSharper disable once CanSimplifyDictionaryLookupWithTryGetValue
                 if (!worldData.ContainsKey("Data"))
                 {
-                    _logger.Error("No 'Data' tag found in level.dat for world: " + world.Name);
+                    _logger.LogError("No 'Data' tag found in level.dat for world: " + world.Name);
                     continue;
                 }
                 
                 var dataTag = worldData["Data"] as NbtCompoundTag;
                 if (dataTag == null)
                 {
-                    _logger.Error("Data tag is not a compound tag in level.dat for world: " + world.Name);
+                    _logger.LogError("Data tag is not a compound tag in level.dat for world: " + world.Name);
                     continue;
                 }
                 
@@ -267,7 +266,7 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
                 // ReSharper disable once CanSimplifyDictionaryRemovingWithSingleCall
                 if (!dataTag.ContainsKey("LevelName"))
                 {
-                    _logger.Error("No 'LevelName' tag found in level.dat for world: " + world.Name);
+                    _logger.LogError("No 'LevelName' tag found in level.dat for world: " + world.Name);
                     continue;
                 }
                 
@@ -285,8 +284,8 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
         }
         catch (Exception ex)
         {
-            _logger.Exc("Failed to save worlds.");
-            _logger.Error(ex);
+            _logger.LogCritical("Failed to save worlds.");
+            _logger.LogError(ex);
         }
     }
     
@@ -382,7 +381,7 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error($"Failed to load world icon for {worldName}: {ex.Message}");
+                    _logger.LogError($"Failed to load world icon for {worldName}: {ex.Message}");
                 }
             }
             icon ??= ImageHelper.LoadFromResource(new Uri("avares://Desktop/Assets/Images/default_world.png"));

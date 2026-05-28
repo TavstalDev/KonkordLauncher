@@ -9,16 +9,13 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Config;
 using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
-using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Platform;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
-using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Config.Instance;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
@@ -137,7 +134,7 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
         if (_parent.IsClosing)
             return;
         
-        _logger.Debug("InstanceConfig changed with old and new value. Unsubscribing from old, subscribing to new.");
+        _logger.LogDebug("InstanceConfig changed with old and new value. Unsubscribing from old, subscribing to new.");
         
         if (oldValue != null)
             UnsubscribeFromConfigChildren(oldValue);
@@ -159,7 +156,7 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
     {
         if (!_parent.IsInitialized || _parent.IsClosing)
             return;
-        _logger.Debug($"Inner property '{e.PropertyName}' changed on {sender?.GetType().Name}. Saving to file...");
+        _logger.LogDebug($"Inner property '{e.PropertyName}' changed on {sender?.GetType().Name}. Saving to file...");
         Task.Run(async () => await SaveCoreConfigToFileAsync(InstanceConfig));
     }
     
@@ -173,7 +170,7 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
     {
         if (!_parent.IsInitialized || _parent.IsClosing)
             return;
-        _logger.Debug($"Inner collection changed on {sender?.GetType().Name}. Saving to file...");
+        _logger.LogDebug($"Inner collection changed on {sender?.GetType().Name}. Saving to file...");
         Task.Run(async () => await SaveCoreConfigToFileAsync(InstanceConfig));
     }
 
@@ -256,6 +253,6 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
 
         await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances);
         GlobalEvents.InvokeInstanceUpdated(_parent.Instance.Id);
-        _logger.Debug("Saved instance config to file.");
+        _logger.LogDebug("Saved instance config to file.");
     }
 }

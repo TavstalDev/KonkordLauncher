@@ -1,16 +1,12 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Tavstal.KonkordLauncher.Common.Helpers;
-using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
-using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
@@ -115,7 +111,7 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
     {
         if (string.IsNullOrEmpty(ImportPath) || !File.Exists(ImportPath))
         {
-            _logger.Warn("Invalid import path specified.");
+            _logger.LogWarning("Invalid import path specified.");
             await _parent.ShowAlertDialogInteraction.Handle(new Alert(
                 TranslationManager.Translate("instance.create.import.error.invalid_path.title"),
                 TranslationManager.Translate("instance.create.import.error.invalid_path.message"),
@@ -135,7 +131,7 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
         }
         else
         {
-            _logger.Warn("Failed to import instance from file.");
+            _logger.LogWarning("Failed to import instance from file.");
             await _parent.ShowAlertDialogInteraction.Handle(new Alert(
                 TranslationManager.Translate("instance.create.import.error.import_failed.title"),
                 TranslationManager.Translate("instance.create.import.error.import_failed.message"),
@@ -148,7 +144,7 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
     {
         if (string.IsNullOrEmpty(ImportPath))
         {
-            _logger.Warn("Invalid import path specified.");
+            _logger.LogWarning("Invalid import path specified.");
             await _parent.ShowAlertDialogInteraction.Handle(new Alert(
                 TranslationManager.Translate("instance.create.import.error.invalid_path.title"),
                 TranslationManager.Translate("instance.create.import.error.invalid_path.message"),
@@ -186,7 +182,7 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
             }
             else
             {
-                _logger.Warn("Failed to import instance from url.");
+                _logger.LogWarning("Failed to import instance from url.");
                 await _parent.ShowAlertDialogInteraction.Handle(new Alert(
                     TranslationManager.Translate("instance.create.import.error.import_failed.title"),
                     TranslationManager.Translate("instance.create.import.error.import_failed.message"),
@@ -196,7 +192,7 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
         }
         catch (Exception ex)
         {
-            _logger.Error($"Failed to import instance from URL: {ex}");
+            _logger.LogError($"Failed to import instance from URL: {ex}");
             await _parent.ShowAlertDialogInteraction.Handle(new Alert(
                 TranslationManager.Translate("instance.create.import.error.import_failed.title"),
                 TranslationManager.Translate("instance.create.import.error.import_failed.message"),

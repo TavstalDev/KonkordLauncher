@@ -15,15 +15,14 @@ using CommunityToolkit.Mvvm.Input;
 using MinecraftSkinRender;
 using MinecraftSkinRender.Image;
 using SkiaSharp;
-using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
-using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
-using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Accounts;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
+using Tavstal.KonkordLauncher.Core.Services.Implementations;
+using Tavstal.KonkordLauncher.Core.Services.Implementations.Auth;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
@@ -150,19 +149,19 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
 
         if (!await MicrosoftAuthService.RefreshLoginAsync(account.GetRefreshToken(), cancellationToken))
         {
-            _logger.Error($"Failed to refresh account {account.DisplayName} ({account.Id}).");
+            _logger.LogError($"Failed to refresh account {account.DisplayName} ({account.Id}).");
             return;
         }
 
         if (MicrosoftAuthService.Account == null)
         {
-            _logger.Error($"Failed to refresh account {account.DisplayName} ({account.Id}) after successful api call.");
+            _logger.LogError($"Failed to refresh account {account.DisplayName} ({account.Id}) after successful api call.");
             return;
         }
 
         var updatedAccount = MicrosoftAuthService.Account;
         updatedAccount.Id = account.Id; // Ensure the ID remains the same
-        _logger.Info($"Successfully refreshed account {account.DisplayName} ({account.Id}).");
+        _logger.LogInformation($"Successfully refreshed account {account.DisplayName} ({account.Id}).");
 
         AccountData accountData = await LauncherHelper.GetAccountDataAsync(cancellationToken);
         var index = accountData.Accounts.FindIndex(x => x.Id == account.Id);
@@ -216,7 +215,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
                 return;
 
             string skinId = Guid.NewGuid().ToString();
-            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken);
+            var settings = await LauncherHelper.GetSettingsAsync(cancellationToken: cancellationToken);
             string skinDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins", SelectedAccount.Id, skinId);
             if (!Directory.Exists(skinDir))
                 Directory.CreateDirectory(skinDir);
@@ -238,7 +237,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         }
         catch (Exception ex)
         {
-            _logger.Error("Error while uploading skin: " + ex);
+            _logger.LogError("Error while uploading skin: " + ex);
         }
         finally
         {
@@ -267,11 +266,11 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             if (SelectedAccount == null)
                 return;
             
-            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken);
+            var settings = await LauncherHelper.GetSettingsAsync(cancellationToken: cancellationToken);
             string skinPath = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins", SelectedAccount.Id, model.Id, "texture.png");
             if (!File.Exists(skinPath))
             {
-                _logger.Error("Skin file does not exist: " + skinPath);
+                _logger.LogError("Skin file does not exist: " + skinPath);
                 return;
             }
             
@@ -307,7 +306,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         }
         catch (Exception ex)
         {
-            _logger.Error("Error while selecting skin: " + ex);
+            _logger.LogError("Error while selecting skin: " + ex);
         }
         finally
         {
@@ -375,7 +374,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         }
         catch (Exception ex)
         {
-            _logger.Error("Error while selecting cape: " + ex);
+            _logger.LogError("Error while selecting cape: " + ex);
             await _parent.ShowAlertDialogInteraction.Handle(new Alert(TranslationManager.Translate("common.error"), TranslationManager.Translate("main.page.skins.alert.cape.unexpected"), EAlertType.Error));
         }
         finally
@@ -399,7 +398,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             // Prevent re-selecting the same model
             if (newValue == IsAccountHasWideModel || IsAccountSkinProcessing)
             {
-                _logger.Debug("Skipped re-selecting the same skin model.");
+                _logger.LogDebug("Skipped re-selecting the same skin model.");
                 return;
             }
             IsAccountSkinProcessing = true;
@@ -407,14 +406,14 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             // Ensure an account is selected
             if (SelectedAccount == null)
             {
-                _logger.Debug("No account selected while selecting skin model.");
+                _logger.LogDebug("No account selected while selecting skin model.");
                 return;
             }
             
             Skin? skin = SelectedAccount.MojangProfile?.Skins.FirstOrDefault(x => x.Id == SelectedSkin.MojangId);
             if (skin == null)
             {
-                _logger.Debug("No skin found while selecting skin model.");
+                _logger.LogDebug("No skin found while selecting skin model.");
                 return;
             }
 
@@ -442,7 +441,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
              The preview should be updated here, but until it is 2D there is not much point in updating it since there is barely any changes that are visible.
              
              
-            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken);
+            var settings = await LauncherHelper.GetSettingsAsync(cancellationToken: cancellationToken);
             string skinsDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins");
             // Get the new model image
             string path = Path.Combine(skinsDir, SelectedAccount.Id, skin.Id, "preview.png");
@@ -453,7 +452,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             }
             catch (Exception ex)
             {
-                _logger.Error("Failed to load skin image: " + ex);
+                _logger.LogError("Failed to load skin image: " + ex);
                 return;
             }
 
@@ -463,7 +462,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         }
         catch (Exception ex)
         {
-            _logger.Error("Error while selecting skin model: " + ex);
+            _logger.LogError("Error while selecting skin model: " + ex);
         }
         finally
         {
@@ -508,7 +507,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         SelectedAccount = selectedAccount;
         if (SelectedAccount?.MojangProfile != null)
         {
-            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken);
+            var settings = await LauncherHelper.GetSettingsAsync(cancellationToken: cancellationToken);
             string skinsDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins");
             string capesDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "capes");
 
@@ -525,7 +524,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error("Failed to load skin image: " + ex);
+                    _logger.LogError("Failed to load skin image: " + ex);
                 }
 
                 bool isActive = skin.MojangId == activeSkin?.Id && activeSkin != null;
@@ -548,7 +547,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             }
             catch (Exception ex)
             {
-                _logger.Error("Failed to load cape image: " + ex);
+                _logger.LogError("Failed to load cape image: " + ex);
             }
 
             Capes.Add(new CapeDataModel("none", "None", noCapeImg, false));
@@ -562,7 +561,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error("Failed to load cape image: " + ex);
+                    _logger.LogError("Failed to load cape image: " + ex);
                 }
 
                 bool isActive = cape.State.Equals("active", StringComparison.InvariantCultureIgnoreCase);
@@ -586,7 +585,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
     private async Task UpdateSelectedAccountAvatarAsync(CancellationToken cancellationToken = default)
     {
         AccountAvatar?.Dispose();
-        var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken);
+        var settings = await LauncherHelper.GetSettingsAsync(cancellationToken: cancellationToken);
         string skinsDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins");
         string? avatarPath;
         if (SelectedAccount != null)
@@ -642,7 +641,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         if (_parent.IsLoading || !_parent.Initialization.IsCompletedSuccessfully)
             return;
         
-        _logger.Debug("AccountData changed with old and new value. Unsubscribing from old, subscribing to new.");
+        _logger.LogDebug("AccountData changed with old and new value. Unsubscribing from old, subscribing to new.");
 
         if (oldValue != null)
             UnsubscribeFromAccountDataChildren(oldValue);
@@ -665,7 +664,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         if (sender is not AccountDataModel accountData)
             return;
         
-        _logger.Debug($"Inner property '{e.PropertyName}' changed on {sender?.GetType().Name}. Saving to file...");
+        _logger.LogDebug($"Inner property '{e.PropertyName}' changed on {sender?.GetType().Name}. Saving to file...");
         SaveAccountDataToFile(accountData);
     }
 

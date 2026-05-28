@@ -5,10 +5,12 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
+using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Translation;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Core.Services.Abstractions.Auth;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
@@ -21,12 +23,22 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 /// </summary>
 public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgressReporter
 {
+    private readonly ITranslationService _translationService;
+    private readonly IMicrosoftAuthService _microsoftAuthService;
+    private readonly IMicrosoftDeviceAuthService _microsoftDeviceAuthService;
+    private readonly IMicrosoftHttpAuthService _microsoftHttpAuthService;
+    
     /// <summary>
     /// Initializes a new instance of the AccountsWindow class.
     /// Sets up the DataContext and attaches developer tools in debug mode.
     /// </summary>
     public AccountsWindow()
     {
+        var services = Program.ServiceProvider;
+        _translationService = services.GetRequiredService<ITranslationService>();
+        _microsoftAuthService = services.GetRequiredService<IMicrosoftAuthService>();
+        _microsoftDeviceAuthService = services.GetRequiredService<IMicrosoftDeviceAuthService>();
+        _microsoftHttpAuthService = services.GetRequiredService<IMicrosoftHttpAuthService>();
         InitializeComponent();
 
         DataContext = new AccountsViewModel(this);
@@ -65,7 +77,7 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
         });
 
         OfflineUsernameInput.TextChanged += OfflineUsername_OnTextChanged;
-        MicrosoftAuthService.OnAuthStatusChanged += OnAuthStatusChanged;
+        _microsoftAuthService.OnAuthStatusChanged += OnAuthStatusChanged;
     }
 
     #region Events
@@ -78,9 +90,12 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
     protected override void OnClosing(WindowClosingEventArgs e)
     {
         OfflineUsernameInput.TextChanged -= OfflineUsername_OnTextChanged;
-        MicrosoftAuthService.OnAuthStatusChanged -= OnAuthStatusChanged;
-        AuthHttpListener.StopListening();
-        MicrosoftDeviceListener.StopListening();
+        _microsoftAuthService.OnAuthStatusChanged -= OnAuthStatusChanged;
+        Task.Run(async () =>
+        {
+            await _microsoftHttpAuthService.StopListeningAsync();
+            await _microsoftDeviceAuthService.StopListeningAsync();
+        });
         base.OnClosing(e);
     }
     
@@ -168,7 +183,7 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
             if (DataContext == null)
                 return;
 
-            DataContext.ProgressText = TranslationManager.Translate(key, args);
+            DataContext.ProgressText = _translationService.Translate(key, args);
         });
     }
     

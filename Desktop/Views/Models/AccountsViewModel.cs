@@ -8,9 +8,7 @@ using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
-using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.Domain;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
@@ -18,6 +16,8 @@ using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Accounts;
 using Tavstal.KonkordLauncher.Core.Models.Microsoft;
+using Tavstal.KonkordLauncher.Core.Services.Implementations;
+using Tavstal.KonkordLauncher.Core.Services.Implementations.Auth;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
@@ -110,7 +110,7 @@ public partial class AccountsViewModel : KonkordObservableObject
 
     private async Task HandleAuthStatusChange(EAuthStatus status)
     {
-        _logger.Debug($"Microsoft Status result: {status}");
+        _logger.LogDebug($"Microsoft Status result: {status}");
         IsProcessingLogin = status == EAuthStatus.PROCESSING || status ==  EAuthStatus.SUCCESS;
         if (status == EAuthStatus.FAILED)
         {
@@ -148,7 +148,7 @@ public partial class AccountsViewModel : KonkordObservableObject
         if (string.IsNullOrEmpty(accountData.SelectedAccountId))
             accountData.SelectedAccountId = microsoftAccount.Id;
         accountData.Accounts.Add(microsoftAccount);
-        var settings = await LauncherHelper.GetLauncherSettingsAsync();
+        var settings = await LauncherHelper.GetSettingsAsync();
         await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData);
 
         foreach (var skin in microsoftAccount.Skins)
@@ -194,7 +194,7 @@ public partial class AccountsViewModel : KonkordObservableObject
         var codeResult = await MicrosoftAuthService.CreateDeviceCodeAsync(_progressReporter);
         if (codeResult == null)
         {
-            _logger.Error("Failed to create Microsoft device code.");
+            _logger.LogError("Failed to create Microsoft device code.");
             return;
         }
 
@@ -232,7 +232,7 @@ public partial class AccountsViewModel : KonkordObservableObject
         }
         catch (Exception ex)
         {
-            _logger.Error(ex);
+            _logger.LogError(ex);
         }
     }
     
@@ -296,7 +296,7 @@ public partial class AccountsViewModel : KonkordObservableObject
         accountData.Accounts.Add(account);
         await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData, cancellationToken);
         GlobalEvents.InvokeAccountsChanged();
-        var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken);
+        var settings = await LauncherHelper.GetSettingsAsync(cancellationToken: cancellationToken);
         await SkinService.FetchOfflineSkins(settings.Launcher.CacheDirectoryPath, id, OfflineUsername, cancellationToken);
         
         await CloseWindowInteraction.Handle(Unit.Default);

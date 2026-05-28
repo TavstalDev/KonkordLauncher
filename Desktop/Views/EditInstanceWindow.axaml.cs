@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
-using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Accounts;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
@@ -25,7 +26,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 /// </summary>
 public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
 {
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceWindow));
+    private readonly ICustomLogger _logger;
     private readonly string _instanceId;
     private Button _selectedInstanceTab;
     private Button _selectedSettingsTab;
@@ -43,6 +44,7 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     /// <param name="instance">The instance model to be edited in this window.</param>
     public EditInstanceWindow(InstanceModel instance)
     {
+        _logger = Program.ServiceProvider.GetRequiredService<ICustomLogger<EditInstanceWindow>>();
         _instanceId = Design.IsDesignMode ? string.Empty : instance.Id;
         InitializeComponent();
         
@@ -306,7 +308,7 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
         if (row.DataContext is not ResourceBaseModel)
             return;
     
-        _logger.Debug("ResourcePack row updated. Saving...");
+        _logger.LogDebug("ResourcePack row updated. Saving...");
         DataContext.ResourcePacks.SaveResourcePacks();
     }
 
@@ -329,7 +331,7 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
         if (row.DataContext is not WorldModel)
             return;
         
-        _logger.Debug("World row updated. Saving...");
+        _logger.LogDebug("World row updated. Saving...");
         DataContext.Worlds.SaveWorlds();
     }
     
@@ -348,7 +350,7 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
         if (row.DataContext is not WorldModel)
             return;
         
-        _logger.Debug("World row updated. Saving...");
+        _logger.LogDebug("World row updated. Saving...");
         DataContext.Worlds.SaveWorlds();
     }
 
@@ -371,7 +373,7 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
         if (row.DataContext is not ServerModel)
             return;
         
-        _logger.Debug("Server row updated. Saving servers...");
+        _logger.LogDebug("Server row updated. Saving servers...");
         DataContext.Servers.SaveServers();
     }
     
@@ -412,7 +414,7 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
         // Check if a file with the new name already exists
         if (File.Exists(newPath))
         {
-            _logger.Warn($"Failed to rename screenshot. A file with the name '{screenshot.Name}' already exists.");
+            _logger.LogWarning($"Failed to rename screenshot. A file with the name '{screenshot.Name}' already exists.");
             screenshot.Name = oldName;
             return;
         }
@@ -422,12 +424,11 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
         {
             File.Move(oldPath, newPath);
             screenshot.Path = newPath;
-            _logger.Debug($"Screenshot renamed from '{oldName}' to '{screenshot.Name}'.");
+            _logger.LogDebug($"Screenshot renamed from '{oldName}' to '{screenshot.Name}'.");
         }
         catch (Exception ex)
         {
-            _logger.Exc($"An error occurred while renaming the screenshot:");
-            _logger.Error(ex);
+            _logger.LogCritical($"An error occurred while renaming the screenshot:", ex);
         }
     }
 

@@ -7,7 +7,6 @@ using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Platform.Storage;
 using ReactiveUI.Avalonia;
-using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
@@ -93,7 +92,7 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
         var topLevel = GetTopLevel(this);
         if (topLevel?.Clipboard == null)
         {
-            _logger.Error("Unable to set clipboard text: TopLevel or Clipboard is null.");
+            _logger.LogError("Unable to set clipboard text: TopLevel or Clipboard is null.");
             return;
         }
 
@@ -112,7 +111,7 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
         var topLevel = GetTopLevel(this);
         if (topLevel == null)
         {
-            _logger.Error("Unable to set clipboard image: TopLevel is null.");
+            _logger.LogError("Unable to set clipboard image: TopLevel is null.");
             return;
         }
         
@@ -137,7 +136,7 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
             var topLevel = GetTopLevel(this);
             if (topLevel == null)
             {
-                _logger.Error("Unable to open file picker: TopLevel is null.");
+                _logger.LogError("Unable to open file picker: TopLevel is null.");
                 return null;
             }
 
@@ -161,7 +160,7 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
         }
         catch (Exception ex)
         {
-            _logger.Error($"Error opening file picker: {ex}");
+            _logger.LogError($"Error opening file picker: {ex}");
             return null;
         }
     }
@@ -177,7 +176,7 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
         var topLevel = GetTopLevel(this);
         if (topLevel == null)
         {
-            _logger.Error("Unable to open folder picker: TopLevel is null.");
+            _logger.LogError("Unable to open folder picker: TopLevel is null.");
             return null;
         }
 

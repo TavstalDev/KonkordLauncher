@@ -2,9 +2,10 @@ using System.Reactive;
 using System.Reactive.Disposables.Fluent;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
-using Tavstal.KonkordLauncher.Common.Translation;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
@@ -28,6 +29,8 @@ public partial class ExportWindow : KonkordWindow<ExportViewModel>
     /// <param name="provider">The provider which influences export format (e.g. CurseForge or Modrinth).</param>
     public ExportWindow(Instance? instance, EInstanceProvider provider)
     {
+        var services = Program.ServiceProvider;
+        var translationService = services.GetRequiredService<ITranslationService>();
         InitializeComponent();
 
         DataContext = new ExportViewModel(instance, provider);
@@ -54,7 +57,7 @@ public partial class ExportWindow : KonkordWindow<ExportViewModel>
             }).DisposeWith(disposables);
             DataContext.OpenFolderPickerInteraction.RegisterHandler(async action =>
             {
-                var result = await OpenFolderPickerAsync(TranslationManager.Translate("common.select.directory"));
+                var result = await OpenFolderPickerAsync(translationService.Translate("common.select.directory"));
                 action.SetOutput(result);
             }).DisposeWith(disposables);
             DataContext.ShowAlertDialogInteraction.RegisterHandler(async action =>

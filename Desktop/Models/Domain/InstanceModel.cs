@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Text;
@@ -12,10 +11,8 @@ using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models.Config;
 using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
-using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Platform;
@@ -204,7 +201,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         {
             Dispatcher.UIThread.Post(() =>
             {
-                _logger.Debug($"The instance has exited.");
+                _logger.LogDebug($"The instance has exited.");
                 GameProcess = null;
                 IsGameRunning = false;
             });
@@ -214,7 +211,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         {
             Dispatcher.UIThread.Post(() =>
             {
-                _logger.Debug($"The instance process has been disposed.");
+                _logger.LogDebug($"The instance process has been disposed.");
                 GameProcess = null;
                 IsGameRunning = false;
             });
@@ -244,7 +241,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         _watcher.Created += OnLogFileChanged;
         _watcher.Error += (_, e) =>
         {
-            _logger.Error("Watcher error: " + e.GetException());
+            _logger.LogError("Watcher error: " + e.GetException());
         };
     }
 
@@ -263,7 +260,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     public async Task LaunchAsync(Interaction<string, Unit> showLogsWindow, Interaction<string, Unit> closeLogsWindow, Interaction<Unit, Unit> closeWindow, Interaction<Alert, Unit> showAlertDialog, string? serverAddress = null)
     {
         _lastReadPosition = 0;
-        _logger.Debug($"Launching instance: {Name}");
+        _logger.LogDebug($"Launching instance: {Name}");
         var accountData = await LauncherHelper.GetAccountDataAsync();
         var account = ConfigModel.Misc.OverrideAccount ? 
             accountData.Accounts.FirstOrDefault(x => x.Id == ConfigModel.Misc.AccountId) 
@@ -271,7 +268,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         
         if (account == null)
         {
-            _logger.Error("No account selected for launching the ");
+            _logger.LogError("No account selected for launching the ");
             await showAlertDialog.Handle(new Alert(TranslationManager.Translate("account.none.title"), TranslationManager.Translate("account.none.message"), EAlertType.Warning));
             return;
         }
@@ -359,7 +356,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
 
             // Set up the game instance with the provided details
             MinecraftInstance? gameInstance = null;
-            var settings = await LauncherHelper.GetLauncherSettingsAsync();
+            var settings = await LauncherHelper.GetSettingsAsync();
             var gameDetails = new GameDetails(
                 ConfigModel.Java.JavaPath,
                 ConfigModel.Java.MinMemory,
@@ -511,7 +508,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             var process = await gameInstance.StartAsync();
             if (process == null)
             {
-                _logger.Error("Failed to launch the  Process is null.");
+                _logger.LogError("Failed to launch the  Process is null.");
                 return;
             }
 
@@ -550,8 +547,8 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         }
         catch (Exception ex)
         {
-            _logger.Exc($"Failed to launch the {Name} ");
-            _logger.Error(ex);
+            _logger.LogCritical($"Failed to launch the {Name} ");
+            _logger.LogError(ex);
         }
     }
     
@@ -606,8 +603,8 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         }
         catch (Exception ex)
         {
-            _logger.Exc("Error while setting up default Java path:");
-            _logger.Error(ex);
+            _logger.LogCritical("Error while setting up default Java path:");
+            _logger.LogError(ex);
         }
     }
     
@@ -664,8 +661,8 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         }
         catch (IOException ex)
         {
-            _logger.Exc("Error while reading latest log file:");
-            _logger.Error(ex);
+            _logger.LogCritical("Error while reading latest log file:");
+            _logger.LogError(ex);
         }
     }
     

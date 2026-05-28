@@ -5,9 +5,10 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
+using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Translation;
-using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
@@ -20,7 +21,8 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 /// </summary>
 public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewModel>
 {
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(CreateInstanceWindow));
+    private readonly ICustomLogger _logger;
+    private readonly ITranslationService _translationService;
     private Button _selectedTabBtn;
     private Button _selectedImportTypeBtn;
 
@@ -30,6 +32,9 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
     /// </summary>
     public CreateInstanceWindow()
     {
+        var services = Program.ServiceProvider;
+        _logger = services.GetRequiredService<ICustomLogger<CreateInstanceWindow>>();
+        _translationService = services.GetRequiredService<ITranslationService>();
         InitializeComponent();
         
         DataContext = new CreateInstanceViewModel();
@@ -82,7 +87,7 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
             }).DisposeWith(disposables);
             DataContext.ShowFileSelectorInteraction.RegisterHandler(async action =>
             {
-                string title = TranslationManager.Translate("common.select.file");
+                string title = _translationService.Translate("common.select.file");
                 string? result = await OpenFilePickerAsync(title, ".zip, .mrpack, .json", ["*.zip", "*.mrpack", "*.json"]);
                 action.SetOutput(result);
             }).DisposeWith(disposables);

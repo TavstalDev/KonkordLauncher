@@ -9,11 +9,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Tavstal.KonkordLauncher.Common.Helpers;
-using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
-using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
@@ -153,7 +150,7 @@ public partial class MainViewModel_Instances : KonkordObservableObject
 
         if (!instance.IsGameRunning || instance.GameProcess == null)
         {
-            _logger.Warn($"Instance {instance.Name} is not running or has no associated process.");
+            _logger.LogWarning($"Instance {instance.Name} is not running or has no associated process.");
             return;
         }
 

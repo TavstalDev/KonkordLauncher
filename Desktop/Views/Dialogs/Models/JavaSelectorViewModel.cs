@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Helpers;
 using JavaVersionModel = Tavstal.KonkordLauncher.Desktop.Models.Domain.JavaVersionModel;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
@@ -45,7 +44,7 @@ public partial class JavaSelectorViewModel : ObservableObject
     /// </summary>
     private async Task InitAsync()
     {
-        var settings = await LauncherHelper.GetLauncherSettingsAsync();
+        var settings = await LauncherHelper.GetSettingsAsync();
         
         var versions = JavaHelper.LocateJavaInstallations(settings.Launcher.JavaDirectoryPath);
         foreach (var version in versions)

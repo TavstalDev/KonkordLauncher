@@ -10,11 +10,8 @@ using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Tavstal.KonkordLauncher.Common.Helpers;
-using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
-using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
@@ -181,7 +178,7 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         
         var file = selectedVersion.Files.FirstOrDefault(x => x.Primary);
         if (file == null)        {
-            _logger.Error("Selected modpack version does not have a primary file.");
+            _logger.LogError("Selected modpack version does not have a primary file.");
             await _parent.ShowAlertDialogInteraction.Handle(new Alert(
                 TranslationManager.Translate("instance.create.modpack.error.no_primary_file.title"),
                 TranslationManager.Translate("instance.create.modpack.error.no_primary_file.message"),
@@ -216,7 +213,7 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
             }
             else
             {
-                _logger.Warn("Failed to import instance from modpack file.");
+                _logger.LogWarning("Failed to import instance from modpack file.");
                 await _parent.ShowAlertDialogInteraction.Handle(new Alert(
                     TranslationManager.Translate("instance.create.modpack.error.import_failed.title"),
                     TranslationManager.Translate("instance.create.modpack.error.import_failed.message"),

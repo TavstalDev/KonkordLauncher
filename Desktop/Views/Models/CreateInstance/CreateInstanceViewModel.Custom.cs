@@ -16,15 +16,12 @@ using CommunityToolkit.Mvvm.Input;
 using DynamicData;
 using DynamicData.Binding;
 using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Config;
 using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
-using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
-using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
@@ -215,7 +212,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
                 .SortAndBind(out var filteredCollection, SortExpressionComparer<MinecraftVersion>.Descending(x => x.ReleaseTime))
                 .Subscribe(
                     _ => { },
-                    ex => _logger.Error($"Version pipeline crashed: {ex}")
+                    ex => _logger.LogError($"Version pipeline crashed: {ex}")
                 );
 
         Disposables.Add(bindingSubscription);
@@ -277,7 +274,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
             .SortAndBind(out var filteredModLoaders, ModVersionComparer)
             .Subscribe(
                 _ => { },
-                ex => _logger.Error($"ModLoader pipeline crashed: {ex}")
+                ex => _logger.LogError($"ModLoader pipeline crashed: {ex}")
             );
 
         Disposables.Add(modLoaderSubscription);
@@ -372,7 +369,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
         if (SelectedMinecraftVersion == null)
             return;
         
-        var settings = await LauncherHelper.GetLauncherSettingsAsync();
+        var settings = await LauncherHelper.GetSettingsAsync();
         var instances = await LauncherHelper.GetInstancesAsync();
         if (instances.Any(x => x.Name == InstanceName))
         {

@@ -4,10 +4,11 @@ using System.Reactive;
 using System.Reactive.Disposables.Fluent;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
-using Tavstal.KonkordLauncher.Common.Translation;
-using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
@@ -22,7 +23,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 public partial class MainWindow : KonkordWindow<MainViewModel>
 {
     // This window should not use KonkordWindow as long as it can only be opened once.
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MainWindow));
+    private readonly ICustomLogger _logger;
     private readonly Dictionary<string, InstanceLogsWindow> _logWindows = new(); 
     private readonly Dictionary<string, EditInstanceWindow> _openEditWindows = new();
     private Button _selectedSideBarButton;
@@ -31,6 +32,9 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
     
     public MainWindow()
     {
+        var services = Program.ServiceProvider;
+        _logger = services.GetRequiredService<ICustomLogger<MainWindow>>();
+        var translationService = services.GetRequiredService<ITranslationService>();
         InitializeComponent();
         
         _selectedSideBarButton = PlaySideBtn;
@@ -66,12 +70,12 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
             }).DisposeWith(disposables);
             DataContext.OpenFolderPickerInteraction.RegisterHandler(async action =>
             {
-                var result = await OpenFolderPickerAsync(TranslationManager.Translate("common.select.directory"));
+                var result = await OpenFolderPickerAsync(translationService.Translate("common.select.directory"));
                 action.SetOutput(result);
             }).DisposeWith(disposables);
             DataContext.OpenImagePickerInteraction.RegisterHandler(async action =>
             {
-                var result = await OpenFilePickerAsync(TranslationManager.Translate("common.select.file"), "PNGs", ["*.png"]);
+                var result = await OpenFilePickerAsync(translationService.Translate("common.select.file"), "PNGs", ["*.png"]);
                 action.SetOutput(result);
             }).DisposeWith(disposables);
             DataContext.ShowAlertDialogInteraction.RegisterHandler(async action =>
@@ -251,39 +255,16 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
         viewModel.CurrentPageIndex = sidebarType;
         _selectedSideBarButton.Classes.Remove("SideBarActiveBtn");
 
-        switch (sidebarType)
+        _selectedSideBarButton = sidebarType switch
         {
-            case ESidebarType.Play:
-            {
-                _selectedSideBarButton = PlaySideBtn;
-                break;
-            }
-            case ESidebarType.Patch:
-            {
-                _selectedSideBarButton = NewsSideBtn;
-                break;
-            }
-            case ESidebarType.Accounts:
-            {
-                _selectedSideBarButton = AccountsSideBtn;
-                break;
-            }
-            case ESidebarType.Settings:
-            {
-                _selectedSideBarButton = SettingsSideBtn;
-                break;
-            }
-            case ESidebarType.About:
-            {
-                _selectedSideBarButton = AboutSideBtn;
-                break;
-            }
-            case ESidebarType.Skins:
-            {
-                _selectedSideBarButton = SkinsSideBtn;
-                break;
-            }
-        }
+            ESidebarType.Play => PlaySideBtn,
+            ESidebarType.Patch => NewsSideBtn,
+            ESidebarType.Accounts => AccountsSideBtn,
+            ESidebarType.Settings => SettingsSideBtn,
+            ESidebarType.About => AboutSideBtn,
+            ESidebarType.Skins => SkinsSideBtn,
+            _ => _selectedSideBarButton
+        };
 
         _selectedSideBarButton.Classes.Add("SideBarActiveBtn");
     }
@@ -303,29 +284,14 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
 
         viewModel.CurrentSettingsTab = tabType;
         _selectedSettingsTabButton.Classes.Remove("SettingsTabBtnActive");
-        switch (tabType)
+        _selectedSettingsTabButton = tabType switch
         {
-            case ESettingsTab.LAUNCHER:
-            {
-                _selectedSettingsTabButton = LauncherSettingsBtn;
-                break;
-            }
-            case ESettingsTab.MINECRAFT:
-            {
-                _selectedSettingsTabButton = MinecraftSettingsBtn;
-                break;
-            }
-            case ESettingsTab.JAVA:
-            {
-                _selectedSettingsTabButton = JavaSettingsBtn;
-                break;
-            }
-            case ESettingsTab.MISC:
-            {
-                _selectedSettingsTabButton = MiscSettingsBtn;
-                break;
-            }
-        }
+            ESettingsTab.LAUNCHER => LauncherSettingsBtn,
+            ESettingsTab.MINECRAFT => MinecraftSettingsBtn,
+            ESettingsTab.JAVA => JavaSettingsBtn,
+            ESettingsTab.MISC => MiscSettingsBtn,
+            _ => _selectedSettingsTabButton
+        };
         _selectedSettingsTabButton.Classes.Add("SettingsTabBtnActive");
     }
 

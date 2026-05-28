@@ -15,7 +15,6 @@ using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
-using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
@@ -132,7 +131,7 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
     /// </summary>
     public void SaveShaderPacks()
     {
-        _logger.Debug("Saving shader packs...");
+        _logger.LogDebug("Saving shader packs...");
         if (_parent.GameDirectory == null)
             return;
 
@@ -156,7 +155,7 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
 
             if (File.Exists(newPath))
             {
-                _logger.Warn("Skipping save... Shader pack file already exists: " + newPath);
+                _logger.LogWarning("Skipping save... Shader pack file already exists: " + newPath);
                 continue;
             }
 
@@ -216,7 +215,7 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
                     }
                     catch (Exception ex)
                     {
-                        _logger.Warn($"Failed to read icon from {pack}: {ex.Message}");
+                        _logger.LogWarning($"Failed to read icon from {pack}: {ex.Message}");
                     }
 
                     icon ??= ImageHelper.LoadFromResource(new Uri("avares://Desktop/Assets/Images/default_world.png"));
@@ -236,7 +235,7 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error($"Failed to load shader pack {pack}: {ex}");
+                    _logger.LogError($"Failed to load shader pack {pack}: {ex}");
                 }
             }
         });

@@ -6,12 +6,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.Platform;
-using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
@@ -25,7 +26,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 /// </summary>
 public partial class MainViewModel : KonkordObservableObject
 {
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MainViewModel));
+    private readonly ILauncherStore _launcherStore;
     public bool IsLinux { get; } = OSHelper.GetOperatingSystem() == EOperatingSystem.Linux;
     public DateTime NextCacheRefresh { get; private set; }
     public DateTime NextUpdate { get; private set; }
@@ -76,6 +77,9 @@ public partial class MainViewModel : KonkordObservableObject
     /// </summary>
     public MainViewModel()
     {
+        var services = Program.ServiceProvider;
+        ICustomLogger logger = services.GetRequiredService<ICustomLogger<MainViewModel>>();
+        _launcherStore = services.GetRequiredService<ILauncherStore>();
         Accounts = new MainViewModel_Accounts(this);
         About = new MainViewModel_About(this);
         Config = new MainViewModel_Config(this);
@@ -85,9 +89,9 @@ public partial class MainViewModel : KonkordObservableObject
         Initialization.ContinueWith(task =>
         {
             if (task.IsFaulted)
-                _logger.Error("Initialization failed: " + task.Exception);
+                logger.LogError("Initialization failed: " + task.Exception);
             else
-                _logger.Debug("Initialization completed successfully.");
+                logger.LogDebug("Initialization completed successfully.");
         }, TaskScheduler.Default);
     }
     
@@ -96,10 +100,10 @@ public partial class MainViewModel : KonkordObservableObject
         IsLoading = true;
         try
         {
-            var settings = await LauncherHelper.GetLauncherSettingsAsync(cancellationToken: cancellationToken);
+            var settings = await _launcherStore.GetSettingsAsync(cancellationToken: cancellationToken);
             NextUpdate = settings.Launcher.NextUpdateCheck;
             NextCacheRefresh = settings.CacheRefreshDate;
-            var accountData = await LauncherHelper.GetAccountDataAsync(cancellationToken);
+            var accountData = await _launcherStore.GetAccountDataAsync(cancellationToken);
             
             await Config.InitAsync(settings);
             await Accounts.InitAsync(accountData);
@@ -108,7 +112,7 @@ public partial class MainViewModel : KonkordObservableObject
             #region Patches
 
             var patches =
-                await LauncherHelper.GetPatchNotesAsync(settings.Launcher.CacheDirectoryPath, cancellationToken);
+                await _launcherStore.GetPatchNotesAsync(settings.Launcher.CacheDirectoryPath, cancellationToken);
             foreach (var patch in patches)
                 Patches.Add(new PatchNote(patch.Title, patch.Content, patch.Url));
 

@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using Markdig;
 using Modrinth.Models;
-using Tavstal.KonkordLauncher.Common.Helpers;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Instance;
 

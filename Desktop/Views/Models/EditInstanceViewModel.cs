@@ -10,13 +10,14 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DynamicData;
+using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Models;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.Platform;
-using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Accounts;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
@@ -33,7 +34,8 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 public partial class EditInstanceViewModel : KonkordObservableObject
 {
     public readonly InstanceModel Instance;
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceViewModel));
+    private readonly ICustomLogger _logger;
+    private readonly ILauncherStore _launcherStore;
     private const int MaxLogLines = 1000;
     
     public bool IsClosing;
@@ -97,6 +99,10 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         if (Design.IsDesignMode)
             return;
 
+        var services = Program.ServiceProvider;
+        _logger = services.GetRequiredService<ICustomLogger<EditInstanceViewModel>>();
+        _launcherStore = services.GetRequiredService<ILauncherStore>();
+        
         Instance = instance;
         Mods = new EditInstanceViewModel_Mods(this);
         ResourcePacks = new EditInstanceViewModel_ResourcePacks(this);
@@ -119,7 +125,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
-        _logger.Debug("Freeing memory in EditInstanceViewModel...");
+        _logger.LogDebug("Freeing memory in EditInstanceViewModel...");
         IsClosing = true;
         GlobalEvents.OnInstanceLogged -= OnInstanceLogged;
         

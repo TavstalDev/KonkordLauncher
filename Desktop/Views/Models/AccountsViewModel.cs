@@ -4,6 +4,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -75,7 +76,10 @@ public partial class AccountsViewModel : KonkordObservableObject
     public partial DeviceCodeResult DeviceData { get; set; }
 
     [ObservableProperty]
-    public partial Bitmap? QrCode { get; set; } = ImageHelper.Load("avares://Desktop/Assets/creeper.jpg").Result;
+    public partial Bitmap? QrCode { get; set; }
+    
+    [ObservableProperty]
+    public partial bool IsQrCodeLoading { get; set; }
     #endregion
 
     /// <summary>
@@ -86,6 +90,17 @@ public partial class AccountsViewModel : KonkordObservableObject
     /// </param>
     public AccountsViewModel(IProgressReporter progressReporter)
     {
+        _progressReporter = progressReporter;
+
+        if (Design.IsDesignMode)
+        {
+            DeviceData = new DeviceCodeResult
+            {
+                UserCode = "DEBUG",
+            };
+            return;
+        }
+        
         var services = Program.ServiceProvider;
         _logger = services.GetRequiredService<ICustomLogger<AccountsViewModel>>();
         _launcherStore = services.GetRequiredService<ILauncherStore>();
@@ -94,8 +109,6 @@ public partial class AccountsViewModel : KonkordObservableObject
         _deviceAuthService = services.GetRequiredService<IMicrosoftDeviceAuthService>();
         _httpAuthService = services.GetRequiredService<IMicrosoftHttpAuthService>();
         _skinService = services.GetRequiredService<ISkinService>();
-        _progressReporter = progressReporter;
-        
         DeviceData = new DeviceCodeResult
         {
             UserCode = _translationService.Translate("common.loading"),
@@ -221,8 +234,10 @@ public partial class AccountsViewModel : KonkordObservableObject
         }
 
         DeviceData = codeResult;
+        IsQrCodeLoading = true;
         QrCode?.Dispose();
         QrCode = ImageHelper.GenerateQrCode(DeviceData.VerificationUri);
+        IsQrCodeLoading = false;
         
         await Task.WhenAny(
             Task.Run(async () => await _httpAuthService.StartListeningAsync()),

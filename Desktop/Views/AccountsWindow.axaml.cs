@@ -34,11 +34,6 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
     /// </summary>
     public AccountsWindow()
     {
-        var services = Program.ServiceProvider;
-        _translationService = services.GetRequiredService<ITranslationService>();
-        _microsoftAuthService = services.GetRequiredService<IMicrosoftAuthService>();
-        _microsoftDeviceAuthService = services.GetRequiredService<IMicrosoftDeviceAuthService>();
-        _microsoftHttpAuthService = services.GetRequiredService<IMicrosoftHttpAuthService>();
         InitializeComponent();
 
         DataContext = new AccountsViewModel(this);
@@ -77,7 +72,15 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
         });
 
         OfflineUsernameInput.TextChanged += OfflineUsername_OnTextChanged;
-        _microsoftAuthService.OnAuthStatusChanged += OnAuthStatusChanged;
+        if (!Design.IsDesignMode)
+        {
+            var services = Program.ServiceProvider;
+            _translationService = services.GetRequiredService<ITranslationService>();
+            _microsoftAuthService = services.GetRequiredService<IMicrosoftAuthService>();
+            _microsoftDeviceAuthService = services.GetRequiredService<IMicrosoftDeviceAuthService>();
+            _microsoftHttpAuthService = services.GetRequiredService<IMicrosoftHttpAuthService>();
+            _microsoftAuthService.OnAuthStatusChanged += OnAuthStatusChanged;
+        }
     }
 
     #region Events

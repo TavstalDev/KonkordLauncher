@@ -57,15 +57,18 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
     /// </summary>
     public StartupWindow()
     {
-        var services = Program.ServiceProvider;
-        _logger = services.GetRequiredService<ICustomLogger<StartupWindow>>();
-        _httpService = services.GetRequiredService<IHttpService>();
-        _translationService = services.GetRequiredService<ITranslationService>();
-        _launcherStore = services.GetRequiredService<ILauncherStore>();
-        _validationService = services.GetRequiredService<IValidationService>();
-        _javaService = services.GetRequiredService<IJavaService>();
-        _skinService = services.GetRequiredService<ISkinService>();
-        
+        if (!Design.IsDesignMode)
+        {
+            var services = Program.ServiceProvider;
+            _logger = services.GetRequiredService<ICustomLogger<StartupWindow>>();
+            _httpService = services.GetRequiredService<IHttpService>();
+            _translationService = services.GetRequiredService<ITranslationService>();
+            _launcherStore = services.GetRequiredService<ILauncherStore>();
+            _validationService = services.GetRequiredService<IValidationService>();
+            _javaService = services.GetRequiredService<IJavaService>();
+            _skinService = services.GetRequiredService<ISkinService>();
+        }
+
         InitializeComponent();
         
         DataContext = new StartupViewModel();

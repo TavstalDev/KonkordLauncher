@@ -1,4 +1,6 @@
+using Avalonia.Controls;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Models;
 
 namespace Tavstal.KonkordLauncher.Common.Helpers;
 
@@ -10,7 +12,16 @@ public class TranslationHelper
     /// <summary>
     /// Gets or sets the current translation service instance used for lookups.
     /// </summary>
-    public static ITranslationService? Current { get; set; }
+    public static ITranslationService? Current
+    {
+        get
+        {
+            if (Design.IsDesignMode)
+                field ??= new DesignTimeTranslationService();
+            return field;
+        }
+        set;
+    }
 
     /// <summary>
     /// Translates the specified key using the current translation service.

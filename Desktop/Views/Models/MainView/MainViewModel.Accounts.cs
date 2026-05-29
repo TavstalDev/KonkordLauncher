@@ -87,6 +87,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         _translationService = services.GetRequiredService<ITranslationService>();
         _authService = services.GetRequiredService<IMicrosoftAuthService>();
         _mojangSkinService = services.GetRequiredService<IMojangSkinService>();
+        AccountAvatar = ImageHelper.LoadFromResource(new Uri("avares://Desktop/Assets/Images/placeholders/steve_head.png"));
     }
     
     /// <summary>

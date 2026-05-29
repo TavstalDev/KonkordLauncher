@@ -9,7 +9,9 @@ using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using IconDataModel = Tavstal.KonkordLauncher.Desktop.Models.Domain.IconDataModel;
@@ -21,6 +23,8 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 /// </summary>
 public partial class IconSelectorViewModel : KonkordObservableObject
 {
+    private readonly ILauncherStore _launcherStore;
+    
     #region Observable Properties
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasSelectedIcon))]
@@ -44,6 +48,8 @@ public partial class IconSelectorViewModel : KonkordObservableObject
     /// </summary>
     public IconSelectorViewModel()
     {
+        var services = Program.ServiceProvider;
+        _launcherStore = services.GetRequiredService<ILauncherStore>();
         _ = InitAsync();
     }
     
@@ -68,7 +74,7 @@ public partial class IconSelectorViewModel : KonkordObservableObject
     private async Task InitAsync(CancellationToken cancellationToken = default)
     {
         // Load available icons
-        var settings = await LauncherHelper.GetSettingsAsync(cancellationToken: cancellationToken);
+        var settings = await _launcherStore.GetSettingsAsync(cancellationToken: cancellationToken);
         var icons = Directory.GetFiles(settings.Launcher.IconsDirectoryPath);
         foreach (var iconPath in icons)
         {
@@ -143,7 +149,7 @@ public partial class IconSelectorViewModel : KonkordObservableObject
     [RelayCommand]
     public async Task OpenDirectoryAsync()
     {
-        var settings = await LauncherHelper.GetSettingsAsync();
+        var settings = await _launcherStore.GetSettingsAsync();
         FileSystemHelper.OpenFolderInFileExplorer(settings.Launcher.IconsDirectoryPath);
     }
     #endregion

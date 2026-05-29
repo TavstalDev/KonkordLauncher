@@ -9,8 +9,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
@@ -22,7 +25,9 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.MainView;
 /// </summary>
 public partial class MainViewModel_Instances : KonkordObservableObject
 {
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MainViewModel_Instances));
+    private readonly ICustomLogger _logger;
+    private readonly ILauncherStore _launcherStore;
+    private readonly ITranslationService _translationService;
     private readonly MainViewModel _parent;
     
     public ObservableCollection<InstanceGroup> InstanceGroups { get; } = new();
@@ -35,6 +40,11 @@ public partial class MainViewModel_Instances : KonkordObservableObject
     /// <param name="parent">The parent <see cref="MainViewModel"/> used for interactions.</param>
     public MainViewModel_Instances(MainViewModel parent)
     {
+        var services = Program.ServiceProvider;
+        _logger = services.GetRequiredService<ICustomLogger<MainViewModel_Instances>>();
+        _launcherStore = services.GetRequiredService<ILauncherStore>();
+        _translationService = services.GetRequiredService<ITranslationService>();
+        
         _parent = parent;
         GlobalEvents.OnInstanceAdded += OnInstanceAdded;
         GlobalEvents.OnInstanceUpdated += OnInstanceUpdated;
@@ -90,9 +100,9 @@ public partial class MainViewModel_Instances : KonkordObservableObject
     /// <returns>A task that completes when initialization has finished.</returns>
     public async Task InitAsync(CancellationToken cancellationToken = default)
     {
-        var instances = await LauncherHelper.GetInstancesAsync(cancellationToken);
+        var instances = await _launcherStore.GetInstancesAsync(cancellationToken);
         var instanceGroups = new Dictionary<string, InstanceGroup>();
-        string uncategorized = TranslationManager.Translate("main.page.play.uncategorized");
+        string uncategorized = _translationService.Translate("main.page.play.uncategorized");
         foreach (var instance in instances)
         {
             string key = instance.Group ?? string.Empty;
@@ -195,20 +205,20 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         if (instance == null)
             return;
 
-        var instances = await LauncherHelper.GetInstancesAsync(cancellationToken);
+        var instances = await _launcherStore.GetInstancesAsync(cancellationToken);
         var targetInstance = instances.FirstOrDefault(i => i.Id == instance.Id);
         if (targetInstance == null)
             return;
 
         int index = instances.IndexOf(targetInstance);
-        var result = await _parent.ShowTextInputDialogInteraction.Handle(TranslationManager.Translate("instance.rename.title"));
+        var result = await _parent.ShowTextInputDialogInteraction.Handle(_translationService.Translate("instance.rename.title"));
         if (string.IsNullOrEmpty(result))
             return;
 
         if (instances.Any(x => x.Name.Equals(result, StringComparison.OrdinalIgnoreCase)))
         {
-            await _parent.ShowAlertDialogInteraction.Handle(new Alert(TranslationManager.Translate("common.error"),
-                TranslationManager.Translate("instance.rename.duplicate"), EAlertType.Error));
+            await _parent.ShowAlertDialogInteraction.Handle(new Alert(_translationService.Translate("common.error"),
+                _translationService.Translate("instance.rename.duplicate"), EAlertType.Error));
             return;
         }
 
@@ -230,7 +240,7 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         if (instance == null)
             return;
 
-        var instances = await LauncherHelper.GetInstancesAsync(cancellationToken);
+        var instances = await _launcherStore.GetInstancesAsync(cancellationToken);
         var targetInstance = instances.FirstOrDefault(i => i.Id == instance.Id);
         if (targetInstance == null)
             return;
@@ -258,13 +268,13 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         if (instance == null)
             return;
 
-        var instances = await LauncherHelper.GetInstancesAsync(cancellationToken);
+        var instances = await _launcherStore.GetInstancesAsync(cancellationToken);
         var targetInstance = instances.FirstOrDefault(i => i.Id == instance.Id);
         if (targetInstance == null)
             return;
 
         int index = instances.IndexOf(targetInstance);
-        var result = await _parent.ShowTextInputDialogInteraction.Handle(TranslationManager.Translate("instance.change.group.title"));
+        var result = await _parent.ShowTextInputDialogInteraction.Handle(_translationService.Translate("instance.change.group.title"));
         if (string.IsNullOrEmpty(result))
             return;
 
@@ -332,12 +342,12 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         if (instance == null)
             return;
 
-        var result = await _parent.ShowConfirmDialogInteraction.Handle(new Alert(TranslationManager.Translate("instance.delete.title"),
-            TranslationManager.Translate("instance.delete.message", instance.Name), EAlertType.Confirm));
+        var result = await _parent.ShowConfirmDialogInteraction.Handle(new Alert(_translationService.Translate("instance.delete.title"),
+            _translationService.Translate("instance.delete.message", instance.Name), EAlertType.Confirm));
         if (!result)
             return;
 
-        var instances = await LauncherHelper.GetInstancesAsync(cancellationToken);
+        var instances = await _launcherStore.GetInstancesAsync(cancellationToken);
         var targetInstance = instances.FirstOrDefault(i => i.Id == instance.Id);
         if (targetInstance == null)
             return;
@@ -362,12 +372,12 @@ public partial class MainViewModel_Instances : KonkordObservableObject
     /// <param name="cancellationToken">Token used to cancel the disk read operation.</param>
     private async Task HandleInstanceCreatedAsync(string instanceId, CancellationToken cancellationToken = default)
     {
-        var instances = await LauncherHelper.GetInstancesAsync(cancellationToken);
+        var instances = await _launcherStore.GetInstancesAsync(cancellationToken);
         var targetInstance = instances.FirstOrDefault(i => i.Id == instanceId);
         if (targetInstance == null)
             return;
 
-        string uncategorized = TranslationManager.Translate("main.page.play.uncategorized");
+        string uncategorized = _translationService.Translate("main.page.play.uncategorized");
         var groupName = targetInstance.Group ?? uncategorized;
         
         var existingGroup = InstanceGroups.FirstOrDefault(x => x.GroupName == groupName);
@@ -391,7 +401,7 @@ public partial class MainViewModel_Instances : KonkordObservableObject
     /// <param name="cancellationToken">Token used to cancel the disk read operation.</param>
     private async Task HandleInstanceUpdatedAsync(string instanceId, CancellationToken cancellationToken = default)
     {
-        var instances = await LauncherHelper.GetInstancesAsync(cancellationToken);
+        var instances = await _launcherStore.GetInstancesAsync(cancellationToken);
         var targetInstance = instances.FirstOrDefault(i => i.Id == instanceId);
         if (targetInstance == null)
             return;
@@ -427,7 +437,7 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         if (oldGroup.Instances.Count == 0)            
             InstanceGroups.Remove(oldGroup);
         
-        string uncategorized = TranslationManager.Translate("main.page.play.uncategorized");
+        string uncategorized = _translationService.Translate("main.page.play.uncategorized");
         var groupName = targetInstance.Group ?? uncategorized;
         var newGroup = InstanceGroups.FirstOrDefault(x => x.GroupName == groupName);
         if (newGroup == null)
@@ -441,15 +451,14 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         
         newGroup.Instances.Add(instanceToUpdate);
     }
-    
+
     /// <summary>
     /// Handles an instance removal event by removing the corresponding item from the
     /// appropriate group and removing empty groups from the UI collection.
     /// </summary>
     /// <param name="instanceId">The ID of the removed instance.</param>
-    /// <param name="cancellationToken">Unused cancellation token (present for signature consistency).</param>
     /// <returns>A completed task.</returns>
-    private Task HandleInstanceRemovedAsync(string instanceId, CancellationToken cancellationToken = default)
+    private Task HandleInstanceRemovedAsync(string instanceId)
     {
         bool found = false;
         InstanceModel? instanceToRemove = null;

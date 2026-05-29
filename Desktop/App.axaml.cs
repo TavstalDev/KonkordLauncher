@@ -55,16 +55,22 @@ public partial class App : Application
             if (!string.IsNullOrEmpty(_version))
                 return _version;
             
-            Version? currentVersion;
-            object[] versionAttributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false);
-            if (versionAttributes.Length > 0)
+            Version? currentVersion = null;
+            try
             {
-                AssemblyInformationalVersionAttribute informationalVersionAttribute = (AssemblyInformationalVersionAttribute)versionAttributes[0];
-                currentVersion = new Version(informationalVersionAttribute.InformationalVersion);
+                object[] versionAttributes = Assembly.GetExecutingAssembly()
+                    .GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false);
+                if (versionAttributes.Length > 0)
+                {
+                    AssemblyInformationalVersionAttribute informationalVersionAttribute =
+                        (AssemblyInformationalVersionAttribute)versionAttributes[0];
+                    currentVersion = new Version(informationalVersionAttribute.InformationalVersion);
+                }
+                else
+                    currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
             }
-            else
-                currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
-            
+            catch { /* ignored */}
+
             _version = currentVersion?.ToString() ?? "2.0.0";
             return _version;
         }
@@ -218,7 +224,7 @@ public partial class App : Application
         }
         catch (Exception ex)
         {
-            _logger?.LogCritical("Failed to apply theme", ex);
+            _logger?.LogCritical(ex, "Failed to apply theme");
         }
     }
     
@@ -250,7 +256,7 @@ public partial class App : Application
         catch (Exception ex)
         {
             // Log any exceptions that occur during the update process.
-            _logger?.LogCritical("Failed to update Discord RPC", ex);
+            _logger?.LogCritical(ex, "Failed to update Discord RPC");
         }
     }
 
@@ -281,7 +287,7 @@ public partial class App : Application
         catch (Exception ex)
         {
             // Log any exceptions that occur during the clearing process.
-            _logger?.LogCritical("Failed to clear Discord RPC", ex);
+            _logger?.LogCritical(ex, "Failed to clear Discord RPC");
         }
     }
 }

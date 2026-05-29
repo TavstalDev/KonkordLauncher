@@ -3,7 +3,9 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using Markdig;
+using Microsoft.Extensions.DependencyInjection;
 using Modrinth.Models;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Instance;
 
@@ -58,7 +60,7 @@ public class ModPackModel
         return await Task.Run(async () => 
         {
             var iconTask = project.IconUrl != null 
-                ? MetaCacheHelper.GetImageAsync(project.IconUrl) 
+                ? Program.ServiceProvider.GetRequiredService<IMetaCacheService>().GetImageAsync(project.IconUrl) 
                 : Task.FromResult<Bitmap?>(null);
             
             string rawPage = Markdown.ToHtml(project.Body);

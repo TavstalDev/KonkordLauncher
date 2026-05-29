@@ -10,9 +10,14 @@ using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
+using Tavstal.KonkordLauncher.Common.Services.Implementations;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
+using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
@@ -22,7 +27,12 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.CreateInstance;
 
 public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
 {
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(CreateInstanceViewModel_Modpack));
+    private readonly ICustomLogger _logger;
+    private readonly IHttpService _httpService;
+    private readonly ITranslationService _translationService;
+    private readonly IMetaCacheService _metaCacheService;
+    private readonly ILauncherStore _launcherStore;
+    private readonly ModrinthPackageService _modrinthPackageService;
     private readonly CreateInstanceViewModel _parent;
 
     [ObservableProperty]
@@ -94,11 +104,18 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         EPlatformType.FTB
     ];
     
-    public string? ModpackPreview => SelectedModpack == null ? "<p>" + TranslationManager.Translate("instance.create.modpack.preview.select") +"</p>" : SelectedModpack.RawPage;
+    public string? ModpackPreview => SelectedModpack == null ? "<p>" + _translationService.Translate("instance.create.modpack.preview.select") +"</p>" : SelectedModpack.RawPage;
     
     public CreateInstanceViewModel_Modpack(CreateInstanceViewModel parent)
     {
         _parent = parent;
+        var services = Program.ServiceProvider;
+        _logger = services.GetRequiredService<ICustomLogger<CreateInstanceViewModel_Modpack>>();
+        _httpService = services.GetRequiredService<IHttpService>();
+        _translationService = services.GetRequiredService<ITranslationService>();
+        _metaCacheService = services.GetRequiredService<IMetaCacheService>();
+        _launcherStore = services.GetRequiredService<ILauncherStore>();
+        _modrinthPackageService = services.GetRequiredService<ModrinthPackageService>();
     }
     
     protected override void Dispose(bool disposing)
@@ -123,15 +140,15 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
             VersionFilterSource.Add(version.Id);
         }
 
-        var response = await MetaCacheHelper.SearchModpacksAsync(cancellationToken: cancellationToken);
+        var response = await _metaCacheService.SearchModpacksAsync(cancellationToken: cancellationToken);
         if (response == null)
             throw new Exception("Modrinth search failed.");
 
         var projectIds = response.Hits.Select(h => h.ProjectId).ToList();
-        var projects = await MetaCacheHelper.GetProjectsAsync(projectIds, cancellationToken);
+        var projects = await _metaCacheService.GetProjectsAsync(projectIds, cancellationToken);
         
         var versionIds = projects.SelectMany(p => p.Versions).Distinct().ToList();
-        var versions = await MetaCacheHelper.GetVersionsAsync(versionIds, cancellationToken);
+        var versions = await _metaCacheService.GetVersionsAsync(versionIds, cancellationToken);
         
         var versionDict = versions.ToDictionary(v => v.Id);
         
@@ -164,13 +181,13 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
             return;
 
         var selectedVersion = modpack.Versions[SelectedModpackVersionIndex];
-        var instances = await LauncherHelper.GetInstancesAsync(cancellationToken);
+        var instances = await _launcherStore.GetInstancesAsync(cancellationToken);
 
         if (instances.Any(x => x.Name == InstanceName))
         {
             await _parent.ShowAlertDialogInteraction.Handle(new Alert(
-                TranslationManager.Translate("instance.create.modpack.error.instance_exists.title"),
-                TranslationManager.Translate("instance.create.modpack.error.instance_exists.message"),
+                _translationService.Translate("instance.create.modpack.error.instance_exists.title"),
+                _translationService.Translate("instance.create.modpack.error.instance_exists.message"),
                 EAlertType.Error
             ));
             return;
@@ -180,8 +197,8 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         if (file == null)        {
             _logger.LogError("Selected modpack version does not have a primary file.");
             await _parent.ShowAlertDialogInteraction.Handle(new Alert(
-                TranslationManager.Translate("instance.create.modpack.error.no_primary_file.title"),
-                TranslationManager.Translate("instance.create.modpack.error.no_primary_file.message"),
+                _translationService.Translate("instance.create.modpack.error.no_primary_file.title"),
+                _translationService.Translate("instance.create.modpack.error.no_primary_file.message"),
                 EAlertType.Error
             ));
             return;
@@ -199,15 +216,14 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
                 _parent?.UpdateStatusTranslated("instance.download.file", file.FileName, p.ToString("0.00"));
             });
             
-            await HttpHelper.DownloadFileAsync(file.Url, tempPath, prog, cancellationToken);
+            await _httpService.DownloadFileAsync(file.Url, tempPath, prog, cancellationToken);
             
             _parent.CloseReporter();
-            // TODO: Use service
-            // await InstanceHelper.ImportAsync(tempPath, EInstanceProvider.MODRINTH, App.ScreenResolution, InstanceName, null, modpack.IconUrl, _parent, cancellationToken) != null
-            if (true)
+
+            if (await _modrinthPackageService.ImportAsync(tempPath, App.ScreenResolution, InstanceName, null, modpack.IconUrl, _parent, cancellationToken) != null)
             {
                 _parent.CloseReporter();
-                instances = await LauncherHelper.GetInstancesAsync(cancellationToken);
+                instances = await _launcherStore.GetInstancesAsync(cancellationToken);
                 GlobalEvents.InvokeInstanceAdded(instances.Last().Id);
                 await _parent.CloseWindowInteraction.Handle(Unit.Default);
             }
@@ -215,8 +231,8 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
             {
                 _logger.LogWarning("Failed to import instance from modpack file.");
                 await _parent.ShowAlertDialogInteraction.Handle(new Alert(
-                    TranslationManager.Translate("instance.create.modpack.error.import_failed.title"),
-                    TranslationManager.Translate("instance.create.modpack.error.import_failed.message"),
+                    _translationService.Translate("instance.create.modpack.error.import_failed.title"),
+                    _translationService.Translate("instance.create.modpack.error.import_failed.message"),
                     EAlertType.Error
                 ));
             }
@@ -281,15 +297,15 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         if (CategoryTechnology)
             categories.Add("technology");
         
-        var response = await MetaCacheHelper.SearchModpacksAsync(SearchQuery, version, categories, resetSearch ? 0 : Modpacks.Count, cancellationToken);
+        var response = await _metaCacheService.SearchModpacksAsync(SearchQuery, version, categories, resetSearch ? 0 : Modpacks.Count, cancellationToken);
         if (response == null)
             throw new Exception("Modrinth search failed.");
 
         var projectIds = response.Hits.Select(h => h.ProjectId).ToList();
-        var projects = await MetaCacheHelper.GetProjectsAsync(projectIds, cancellationToken);
+        var projects = await _metaCacheService.GetProjectsAsync(projectIds, cancellationToken);
         
         var versionIds = projects.SelectMany(p => p.Versions).Distinct().ToList();
-        var versions = await MetaCacheHelper.GetVersionsAsync(versionIds, cancellationToken);
+        var versions = await _metaCacheService.GetVersionsAsync(versionIds, cancellationToken);
         
         var versionDict = versions.ToDictionary(v => v.Id);
         

@@ -4,6 +4,8 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Extensions.DependencyInjection;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.MainView;
@@ -13,7 +15,6 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.MainView;
 /// </summary>
 public partial class MainViewModel_About : KonkordObservableObject
 {
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MainViewModel_About));
     private readonly MainViewModel _parent;
         
     public string Version { get; } =  App.Version;

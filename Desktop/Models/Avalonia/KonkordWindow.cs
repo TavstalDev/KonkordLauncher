@@ -19,8 +19,6 @@ namespace Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 /// <typeparam name="TViewModel">Type of the view model assigned to the window.</typeparam>
 public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> where TViewModel : class
 {
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(KonkordWindow<TViewModel>));
-    
     /// <summary>
     /// Strongly-typed DataContext for this window. The setter is protected-init only to allow derived
     /// windows to assign a view-model during construction while still exposing the typed getter.
@@ -91,14 +89,11 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
         
         var topLevel = GetTopLevel(this);
         if (topLevel?.Clipboard == null)
-        {
-            _logger.LogError("Unable to set clipboard text: TopLevel or Clipboard is null.");
             return;
-        }
 
         await topLevel.Clipboard.SetTextAsync(text);
     }
-    
+
     /// <summary>
     /// Copies the provided screenshot image to the system clipboard as a PNG byte payload.
     /// </summary>
@@ -110,18 +105,15 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
 
         var topLevel = GetTopLevel(this);
         if (topLevel == null)
-        {
-            _logger.LogError("Unable to set clipboard image: TopLevel is null.");
             return;
-        }
-        
+
         var clipboard = topLevel.Clipboard;
         if (clipboard == null)
             return;
-        
+
         await clipboard.SetBitmapAsync(screenshot.Image);
     }
-    
+
     /// <summary>
     /// Opens a native file picker dialog and returns a single selected file path or null.
     /// </summary>
@@ -131,38 +123,27 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
     /// <returns>Local file path of the selected file, or null if none selected or an error occurred.</returns>
     protected async Task<string?> OpenFilePickerAsync(string title, string filterName, string[] patterns)
     {
-        try
-        {
-            var topLevel = GetTopLevel(this);
-            if (topLevel == null)
-            {
-                _logger.LogError("Unable to open file picker: TopLevel is null.");
-                return null;
-            }
-
-            var storageProvider = topLevel.StorageProvider;
-
-            var options = new FilePickerOpenOptions
-            {
-                Title = title,
-                AllowMultiple = false,
-                FileTypeFilter = new List<FilePickerFileType>
-                {
-                    new(filterName)
-                    {
-                        Patterns = patterns
-                    }
-                }
-            };
-
-            var files = await storageProvider.OpenFilePickerAsync(options);
-            return !files.Any() ? null : files[0].TryGetLocalPath();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"Error opening file picker: {ex}");
+        var topLevel = GetTopLevel(this);
+        if (topLevel == null)
             return null;
-        }
+            
+        var storageProvider = topLevel.StorageProvider;
+
+        var options = new FilePickerOpenOptions
+        {
+            Title = title,
+            AllowMultiple = false,
+            FileTypeFilter = new List<FilePickerFileType>
+            {
+                new(filterName)
+                {
+                    Patterns = patterns
+                }
+            }
+        };
+
+        var files = await storageProvider.OpenFilePickerAsync(options);
+        return !files.Any() ? null : files[0].TryGetLocalPath();
     }
     
     /// <summary>
@@ -175,10 +156,7 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
     {
         var topLevel = GetTopLevel(this);
         if (topLevel == null)
-        {
-            _logger.LogError("Unable to open folder picker: TopLevel is null.");
             return null;
-        }
 
         var storageProvider = topLevel.StorageProvider;
         

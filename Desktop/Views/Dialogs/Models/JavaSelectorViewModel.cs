@@ -4,7 +4,9 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using JavaVersionModel = Tavstal.KonkordLauncher.Desktop.Models.Domain.JavaVersionModel;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
@@ -14,6 +16,9 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 /// </summary>
 public partial class JavaSelectorViewModel : ObservableObject
 {
+    private readonly ILauncherStore _launcherStore;
+    private readonly IJavaService _javaService;
+    
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasSelectedJavaVersion))]
     public partial JavaVersionModel? SelectedJavaVersion { get; set; }
@@ -34,6 +39,9 @@ public partial class JavaSelectorViewModel : ObservableObject
     {
         Versions = [];
         SelectedJavaVersion = null;
+        var services = Program.ServiceProvider;
+        _launcherStore = services.GetRequiredService<ILauncherStore>();
+        _javaService = services.GetRequiredService<IJavaService>();
 
         _ = InitAsync();
     }
@@ -44,9 +52,9 @@ public partial class JavaSelectorViewModel : ObservableObject
     /// </summary>
     private async Task InitAsync()
     {
-        var settings = await LauncherHelper.GetSettingsAsync();
+        var settings = await _launcherStore.GetSettingsAsync();
         
-        var versions = JavaHelper.LocateJavaInstallations(settings.Launcher.JavaDirectoryPath);
+        var versions = await _javaService.LocateJavaInstallationsAsync(settings.Launcher.JavaDirectoryPath);
         foreach (var version in versions)
             Versions.Add(new JavaVersionModel(version));
     }

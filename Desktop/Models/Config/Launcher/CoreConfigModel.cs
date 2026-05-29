@@ -37,7 +37,14 @@ public partial class CoreConfigModel : ObservableObject
     /// <summary>
     /// Gets the list of available languages for the launcher.
     /// </summary>
-    public List<Language> AvailableLanguages => LanguagePackProvider.LanguagePacks;
+    public List<Language> AvailableLanguages => [
+        new()
+        {
+            Name = "English",
+            TwoLetterCode = "en",
+            IsDefault = true,
+        }
+    ];
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CoreConfigModel"/> class with default values.

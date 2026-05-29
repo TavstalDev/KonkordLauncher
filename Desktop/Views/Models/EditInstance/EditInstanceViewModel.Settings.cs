@@ -9,13 +9,16 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Config;
 using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Platform;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Config.Instance;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
@@ -24,7 +27,9 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
 public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
 {
-    private readonly CoreLogger _logger  = CoreLogger.WithModuleType(typeof(EditInstanceViewModel_Settings));
+    private readonly ICustomLogger _logger;
+    private readonly ITranslationService _translationService;
+    private readonly ILauncherStore _launcherStore;
     private readonly EditInstanceViewModel _parent;
 
     [ObservableProperty]
@@ -43,6 +48,10 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
     public EditInstanceViewModel_Settings(EditInstanceViewModel parent)
     {
         _parent = parent;
+        var services = Program.ServiceProvider;
+        _logger = services.GetRequiredService<ICustomLogger<EditInstanceViewModel_Settings>>();
+        _translationService = services.GetRequiredService<ITranslationService>();
+        _launcherStore = services.GetRequiredService<ILauncherStore>();
         if (Design.IsDesignMode)
         {
             InstanceConfig = new InstanceConfigModel();
@@ -75,7 +84,7 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
     [RelayCommand]
     private async Task JavaDirSelect()
     {
-        var result = await _parent.ShowDirPickerInteraction.Handle(TranslationManager.Translate("common.select.directory"));
+        var result = await _parent.ShowDirPickerInteraction.Handle(_translationService.Translate("common.select.directory"));
         if (string.IsNullOrEmpty(result) || !Directory.Exists(result))
             return;
         
@@ -186,7 +195,7 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
         if (newValue.Java.MinMemory > newValue.Java.MaxMemory)
             newValue.Java.MinMemory = newValue.Java.MaxMemory;
 
-        var instances = await LauncherHelper.GetInstancesAsync();
+        var instances = await _launcherStore.GetInstancesAsync();
         int index = 0;
         Instance? instanceToSave = null;
         foreach (var instance in instances)

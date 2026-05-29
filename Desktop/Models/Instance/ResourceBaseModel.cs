@@ -4,7 +4,9 @@ using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Markdig;
+using Microsoft.Extensions.DependencyInjection;
 using Modrinth.Models;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 
@@ -53,7 +55,7 @@ public partial class ResourceBaseModel : ObservableObject
         return await Task.Run(async () => 
         {
             var iconTask = project.IconUrl != null 
-                ? MetaCacheHelper.GetImageAsync(project.IconUrl) 
+                ? Program.ServiceProvider.GetRequiredService<IMetaCacheService>().GetImageAsync(project.IconUrl) 
                 : Task.FromResult<Bitmap?>(null);
             
             string rawPage = Markdown.ToHtml(project.Body);

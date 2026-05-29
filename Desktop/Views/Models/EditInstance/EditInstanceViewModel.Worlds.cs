@@ -11,8 +11,10 @@ using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
 using NbtLib;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
@@ -22,7 +24,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
 public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
 {
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceViewModel_Worlds));
+    private readonly ICustomLogger _logger;
     private readonly EditInstanceViewModel _parent;
 
     public ObservableCollection<WorldModel> Worlds { get; set; } = [];
@@ -32,6 +34,8 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
     public EditInstanceViewModel_Worlds(EditInstanceViewModel parent)
     {
         _parent = parent;
+        var services = Program.ServiceProvider;
+        _logger = services.GetRequiredService<ICustomLogger<EditInstanceViewModel_Worlds>>();
     }
     
     protected override void Dispose(bool disposing)
@@ -194,8 +198,7 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
         }
         catch (Exception ex)
         {
-            _logger.LogCritical("Failed to duplicate world.");
-            _logger.LogError(ex);
+            _logger.LogCritical(ex, "Failed to duplicate world.");
         }
     }
     
@@ -284,8 +287,7 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
         }
         catch (Exception ex)
         {
-            _logger.LogCritical("Failed to save worlds.");
-            _logger.LogError(ex);
+            _logger.LogCritical(ex, "Failed to save worlds.");
         }
     }
     

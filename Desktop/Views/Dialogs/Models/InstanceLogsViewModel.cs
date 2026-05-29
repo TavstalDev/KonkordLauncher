@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
@@ -7,7 +8,10 @@ using Avalonia.Controls;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
@@ -15,7 +19,8 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 public partial class InstanceLogsViewModel : KonkordObservableObject
 {
     private readonly string _instanceId;
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(InstanceLogsViewModel));
+    private readonly ICustomLogger _logger;
+    private readonly ILauncherStore _launcherStore;
     
     #region Interactions
     public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
@@ -53,6 +58,9 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
             return;
 
         _instanceId = instanceId;
+        var services = Program.ServiceProvider;
+        _logger = services.GetRequiredService<ICustomLogger<InstanceLogsViewModel>>();
+        _launcherStore = services.GetRequiredService<ILauncherStore>();
         _ = InitAsync();
     }
 
@@ -63,7 +71,7 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
     /// <returns>A task that completes when initialization is finished.</returns>
     private async Task InitAsync(CancellationToken cancellationToken = default)
     {
-        var instances = await LauncherHelper.GetInstancesAsync(cancellationToken);
+        var instances = await _launcherStore.GetInstancesAsync(cancellationToken);
         var currentInstance = instances.FirstOrDefault(x => x.Id == _instanceId);
         if (currentInstance == null)
         {

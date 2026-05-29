@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Text;
@@ -10,9 +11,11 @@ using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models.Config;
 using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Platform;
@@ -21,7 +24,9 @@ using Tavstal.KonkordLauncher.Core.Instances;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.Instance;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
+using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
@@ -33,7 +38,13 @@ namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
 /// </summary>
 public partial class InstanceModel : ObservableObject, IProgressReporter
 {
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(InstanceModel));
+    private readonly ICustomLogger _logger;
+    private readonly ILauncherStore _launcherStore;
+    private readonly IManifestService _manifestService;
+    private readonly ITranslationService _translationService;
+    private readonly IJavaService _javaService;
+    private readonly IInstanceInstallService _installService;
+    private readonly IInstanceLaunchService _launchService;
     private long _lastReadPosition;
     private FileSystemWatcher? _watcher;
 
@@ -119,17 +130,27 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         ? ImageHelper.LoadFromResource(new Uri("avares://Desktop/Assets/Icons/dirt.png"))
         : new Bitmap(IconPath);
     #endregion
-    
+
     /// <summary>
     /// Initializes a new instance of the <see cref="InstanceModel"/> class.
     /// </summary>
-    public InstanceModel() {}
+    public InstanceModel()
+    {
+        var services = Program.ServiceProvider;
+        _logger = services.GetRequiredService<ICustomLogger<InstanceModel>>();
+        _launcherStore = services.GetRequiredService<ILauncherStore>();
+        _manifestService = services.GetRequiredService<IManifestService>();
+        _translationService = services.GetRequiredService<ITranslationService>();
+        _javaService = services.GetRequiredService<IJavaService>();
+        _installService = services.GetRequiredService<IInstanceInstallService>();
+        _launchService = services.GetRequiredService<IInstanceLaunchService>();
+    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="InstanceModel"/> class using the specified common instance model.
     /// </summary>
     /// <param name="instance">The common instance model to initialize from.</param>
-    public InstanceModel(Common.Models.Instance instance)
+    public InstanceModel(Common.Models.Instance instance) : this()
     {
         Id = instance.Id;
         Name = instance.Name;
@@ -261,7 +282,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     {
         _lastReadPosition = 0;
         _logger.LogDebug($"Launching instance: {Name}");
-        var accountData = await LauncherHelper.GetAccountDataAsync();
+        var accountData = await _launcherStore.GetAccountDataAsync();
         var account = ConfigModel.Misc.OverrideAccount ? 
             accountData.Accounts.FirstOrDefault(x => x.Id == ConfigModel.Misc.AccountId) 
             : accountData.Accounts.FirstOrDefault(x => x.Id == accountData.SelectedAccountId);
@@ -269,7 +290,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         if (account == null)
         {
             _logger.LogError("No account selected for launching the ");
-            await showAlertDialog.Handle(new Alert(TranslationManager.Translate("account.none.title"), TranslationManager.Translate("account.none.message"), EAlertType.Warning));
+            await showAlertDialog.Handle(new Alert(_translationService.Translate("account.none.title"), _translationService.Translate("account.none.message"), EAlertType.Warning));
             return;
         }
 
@@ -356,7 +377,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
 
             // Set up the game instance with the provided details
             MinecraftInstance? gameInstance = null;
-            var settings = await LauncherHelper.GetSettingsAsync();
+            var settings = await _launcherStore.GetSettingsAsync();
             var gameDetails = new GameDetails(
                 ConfigModel.Java.JavaPath,
                 ConfigModel.Java.MinMemory,
@@ -391,121 +412,61 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
                     ? (uint)App.ScreenSize.Height
                     : ConfigModel.Game.WindowHeight
             );
-            switch (Kind)
+
+            var minecraftManifest = await _manifestService.GetMinecraftManifestAsync(settings.Launcher.GetVanillaManifestPath());
+            if (minecraftManifest == null)
+                throw new InvalidOperationException("Failed to load Minecraft manifest.");
+            
+            var minecraftVersion = minecraftManifest.Versions.FirstOrDefault(x => x.Id == gameDetails.MinecraftVersion);
+            if (minecraftVersion == null)
+                throw new InvalidOperationException($"Minecraft version {gameDetails.MinecraftVersion} not found in manifest.");
+            
+            gameInstance = Kind switch
             {
-                case EMinecraftKind.VANILLA:
-                {
-                    gameInstance = new MinecraftInstance(
-                        Id,
-                        gameDetails,
-                        new PathDetails(
-                            settings.Launcher.AssetsDirectoryPath,
-                            settings.Launcher.CacheDirectoryPath,
-                            settings.Launcher.LibrariesDirectoryPath,
-                            settings.Launcher.VersionsDirectoryPath,
-                            settings.Launcher.GetVanillaManifestPath(),
-                            null,
-                            nativeLibraries
-                        ),
-                        launcherDetails,
-                        clientDetails,
-                        resolution,
-                        this
-                    );
-                    break;
-                }
-                case EMinecraftKind.NEOFORGE:
-                {
-                    gameInstance = new NeoForgeInstance(
-                        Id,
-                        gameDetails,
-                        new PathDetails(
-                            settings.Launcher.AssetsDirectoryPath,
-                            settings.Launcher.CacheDirectoryPath,
-                            settings.Launcher.LibrariesDirectoryPath,
-                            settings.Launcher.VersionsDirectoryPath,
-                            settings.Launcher.GetVanillaManifestPath(),
-                            settings.Launcher.GetNeoForgeManifestPath(),
-                            nativeLibraries
-                        ),
-                        launcherDetails,
-                        clientDetails,
-                        resolution,
-                        this
-                    );
-                    break;
-                }
-                case EMinecraftKind.FORGE:
-                {
-                    gameInstance = ForgeInstance.GetForgeInstance(
-                        Id,
-                        gameDetails,
-                        new PathDetails(
-                            settings.Launcher.AssetsDirectoryPath,
-                            settings.Launcher.CacheDirectoryPath,
-                            settings.Launcher.LibrariesDirectoryPath,
-                            settings.Launcher.VersionsDirectoryPath,
-                            settings.Launcher.GetVanillaManifestPath(),
-                            settings.Launcher.GetForgeManifestPath(),
-                            nativeLibraries
-                        ),
-                        launcherDetails,
-                        clientDetails,
-                        resolution,
-                        this
-                    );
-                    break;
-                }
-                case EMinecraftKind.FABRIC:
-                {
-                    gameInstance = new FabricInstance(
-                        Id,
-                        gameDetails,
-                        new PathDetails(
-                            settings.Launcher.AssetsDirectoryPath,
-                            settings.Launcher.CacheDirectoryPath,
-                            settings.Launcher.LibrariesDirectoryPath,
-                            settings.Launcher.VersionsDirectoryPath,
-                            settings.Launcher.GetVanillaManifestPath(),
-                            settings.Launcher.GetFabricManifestPath(),
-                            nativeLibraries
-                        ),
-                        launcherDetails,
-                        clientDetails,
-                        resolution,
-                        this
-                    );
-                    break;
-                }
-                case EMinecraftKind.QUILT:
-                {
-                    gameInstance = new QuiltInstance(
-                        Id,
-                        gameDetails,
-                        new PathDetails(
-                            settings.Launcher.AssetsDirectoryPath,
-                            settings.Launcher.CacheDirectoryPath,
-                            settings.Launcher.LibrariesDirectoryPath,
-                            settings.Launcher.VersionsDirectoryPath,
-                            settings.Launcher.GetVanillaManifestPath(),
-                            settings.Launcher.GetQuiltManifestPath(),
-                            nativeLibraries
-                        ),
-                        launcherDetails,
-                        clientDetails,
-                        resolution,
-                        this
-                    );
-                    break;
-                }
-            }
+                EMinecraftKind.VANILLA => new MinecraftInstance(Id, minecraftVersion, gameDetails,
+                    new PathDetails(settings.Launcher.AssetsDirectoryPath, settings.Launcher.CacheDirectoryPath,
+                        settings.Launcher.LibrariesDirectoryPath, settings.Launcher.VersionsDirectoryPath,
+                        settings.Launcher.GetVanillaManifestPath(), null, nativeLibraries), launcherDetails,
+                    clientDetails, new CustomLogger<MinecraftInstance>(_logger.GetLogLevel()), resolution, this),
+                EMinecraftKind.NEOFORGE => new NeoForgeInstance(Id, minecraftVersion, gameDetails,
+                    new PathDetails(settings.Launcher.AssetsDirectoryPath, settings.Launcher.CacheDirectoryPath,
+                        settings.Launcher.LibrariesDirectoryPath, settings.Launcher.VersionsDirectoryPath,
+                        settings.Launcher.GetVanillaManifestPath(), settings.Launcher.GetNeoForgeManifestPath(),
+                        nativeLibraries), launcherDetails, clientDetails, new CustomLogger<NeoForgeInstance>(_logger.GetLogLevel()), resolution, this),
+                EMinecraftKind.FORGE => ForgeInstance.GetForgeInstance(Id, minecraftVersion, gameDetails,
+                    new PathDetails(settings.Launcher.AssetsDirectoryPath, settings.Launcher.CacheDirectoryPath,
+                        settings.Launcher.LibrariesDirectoryPath, settings.Launcher.VersionsDirectoryPath,
+                        settings.Launcher.GetVanillaManifestPath(), settings.Launcher.GetForgeManifestPath(),
+                        nativeLibraries), launcherDetails, clientDetails, new CustomLogger<MinecraftInstance>(_logger.GetLogLevel()),  resolution, this),
+                EMinecraftKind.FABRIC => new FabricInstance(Id, minecraftVersion, gameDetails,
+                    new PathDetails(settings.Launcher.AssetsDirectoryPath, settings.Launcher.CacheDirectoryPath,
+                        settings.Launcher.LibrariesDirectoryPath, settings.Launcher.VersionsDirectoryPath,
+                        settings.Launcher.GetVanillaManifestPath(), settings.Launcher.GetFabricManifestPath(),
+                        nativeLibraries), launcherDetails, clientDetails,  new CustomLogger<FabricInstance>(_logger.GetLogLevel()), resolution, this),
+                EMinecraftKind.QUILT => new QuiltInstance(Id, minecraftVersion, gameDetails,
+                    new PathDetails(settings.Launcher.AssetsDirectoryPath, settings.Launcher.CacheDirectoryPath,
+                        settings.Launcher.LibrariesDirectoryPath, settings.Launcher.VersionsDirectoryPath,
+                        settings.Launcher.GetVanillaManifestPath(), settings.Launcher.GetQuiltManifestPath(),
+                        nativeLibraries), launcherDetails, clientDetails, new CustomLogger<QuiltInstance>(_logger.GetLogLevel()), resolution, this),
+                _ => gameInstance
+            };
 
             if (gameInstance == null)
                 return;
             
             gameInstance.OnSetupDefaultJava += meta => Dispatcher.UIThread.Invoke(async () => await SetupDefaultJavaPathAsync(gameInstance, meta, settings, showAlertDialog));
 
-            var process = await gameInstance.StartAsync();
+            if (!await _installService.InstallAsync(gameInstance, this))
+            {
+                _logger.LogWarning("Installation failed or was cancelled.");
+                await showAlertDialog.Handle(new Alert(
+                    _translationService.Translate("instance.launch.install_failed.title"), 
+                    _translationService.Translate("instance.launch.install_failed.message"), 
+                    EAlertType.Error));
+                return;
+            }
+            
+            var process = await _launchService.LaunchAsync(gameInstance, this);
             if (process == null)
             {
                 _logger.LogError("Failed to launch the  Process is null.");
@@ -547,8 +508,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to launch the {Name} ");
-            _logger.LogError(ex);
+            _logger.LogCritical(ex, $"Failed to launch the {Name}");
         }
     }
     
@@ -566,7 +526,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         try
         {
             string defaultJavaPath = settings.Java.JavaPath;
-            var instances = await LauncherHelper.GetInstancesAsync(cancellationToken);
+            var instances = await _launcherStore.GetInstancesAsync(cancellationToken);
             var instanceIndex = instances.FindIndex(x => x.Id == Id);
 
             if (meta == null)
@@ -576,7 +536,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             }
 
             // Check if the Java version specified in the metadata is available, if not attempt to download it
-            var javaInstallations = JavaHelper.LocateJavaInstallations(settings.Launcher.JavaDirectoryPath);
+            var javaInstallations = await _javaService.LocateJavaInstallationsAsync(settings.Launcher.JavaDirectoryPath, cancellationToken: cancellationToken);
             if (javaInstallations.All(x => x.Major != meta.JavaVersionMeta.MajorVersion) &&
                 string.IsNullOrEmpty(defaultJavaPath))
             {
@@ -584,8 +544,8 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
                     GameProcess.Kill();
                 
                 await showAlertDialog.Handle(new Alert(
-                    TranslationManager.Translate("instance.java.notfound.title", meta.JavaVersionMeta.MajorVersion),
-                    TranslationManager.Translate("instance.java.notfound.message", meta.JavaVersionMeta.MajorVersion),
+                    _translationService.Translate("instance.java.notfound.title", meta.JavaVersionMeta.MajorVersion),
+                    _translationService.Translate("instance.java.notfound.message", meta.JavaVersionMeta.MajorVersion),
                     EAlertType.Warning));
                 return;
             }
@@ -603,8 +563,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         }
         catch (Exception ex)
         {
-            _logger.LogCritical("Error while setting up default Java path:");
-            _logger.LogError(ex);
+            _logger.LogCritical(ex, "Error while setting up default Java path:");
         }
     }
     
@@ -661,8 +620,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         }
         catch (IOException ex)
         {
-            _logger.LogCritical("Error while reading latest log file:");
-            _logger.LogError(ex);
+            _logger.LogCritical(ex, "Error while reading latest log file:");
         }
     }
     

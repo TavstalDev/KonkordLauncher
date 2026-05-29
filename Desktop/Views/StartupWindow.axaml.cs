@@ -108,7 +108,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
             }
             catch (Exception ex)
             {
-                _logger.LogError("An error occurred during startup initialization:", ex);
+                _logger.LogError(ex, "An error occurred during startup initialization:");
             } 
         });
     }
@@ -400,7 +400,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
         }
         catch (Exception ex)
         {
-            _logger.LogCritical("Error while checking for updates", ex);
+            _logger.LogCritical(ex, "Error while checking for updates");
             return false;
         }
     }

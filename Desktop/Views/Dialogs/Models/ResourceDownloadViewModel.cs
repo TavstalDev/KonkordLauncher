@@ -12,11 +12,14 @@ using Avalonia.Controls;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
 using Modrinth.Models;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
+using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 using Version = Modrinth.Models.Version;
@@ -25,7 +28,9 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 public partial class ResourceDownloadViewModel : KonkordObservableObject
 {
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(ResourceDownloadViewModel));
+    private readonly ILauncherStore _launcherStore;
+    private readonly IManifestService _manifestService;
+    private readonly IMetaCacheService _metaCacheService;
     public readonly Instance Instance;
     public readonly List<InstanceResource> InstanceResources = [];
     public readonly EResourceType ResourceType;
@@ -86,6 +91,10 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
         ResourceType = resourceType;
         IsMod = resourceType == EResourceType.MOD;
         ModLoader = Instance.Kind;
+        var services = Program.ServiceProvider;
+        _launcherStore = services.GetRequiredService<ILauncherStore>();
+        _manifestService = services.GetRequiredService<IManifestService>();
+        _metaCacheService = services.GetRequiredService<IMetaCacheService>();
 
         if (IsMod)
         {
@@ -212,9 +221,9 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
     {
         await Task.Yield();
 
-        var settings = await Task.Run(() => LauncherHelper.GetSettingsAsync(cancellationToken: cancellationToken), cancellationToken);
+        var settings = await Task.Run(() => _launcherStore.GetSettingsAsync(cancellationToken: cancellationToken), cancellationToken);
         var manifestPath = settings.Launcher.GetVanillaManifestPath();
-        var versionManifest = await Task.Run(() => ManifestHelper.GetMinecraftManifestAsync(manifestPath, cancellationToken), cancellationToken);
+        var versionManifest = await Task.Run(() => _manifestService.GetMinecraftManifestAsync(manifestPath, cancellationToken), cancellationToken);
 
         if (versionManifest == null)
             throw new Exception("Failed to load Minecraft version manifest.");
@@ -263,19 +272,19 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
         {
             case EResourceType.RESOURCE_PACK:
             {
-                response = await MetaCacheHelper.SearchResourcePacksAsync(SearchQuery, version, categories,
+                response = await _metaCacheService.SearchResourcePacksAsync(SearchQuery, version, categories,
                     resetSearch ? 0 : Resources.Count, cancellationToken);
                 break;
             }
             case EResourceType.MOD:
             {
-                response = await MetaCacheHelper.SearchModsAsync(SearchQuery, version, categories,
+                response = await _metaCacheService.SearchModsAsync(SearchQuery, version, categories,
                     resetSearch ? 0 : Resources.Count, cancellationToken);
                 break;
             }
             case EResourceType.SHADER_PACK:
             {
-                response = await MetaCacheHelper.SearchShaderPacksAsync(SearchQuery, version, categories,
+                response = await _metaCacheService.SearchShaderPacksAsync(SearchQuery, version, categories,
                     resetSearch ? 0 : Resources.Count, cancellationToken);
                 break;
             }
@@ -285,10 +294,10 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
             throw new Exception("Modrinth search failed.");
 
         var projectIds = response.Hits.Select(h => h.ProjectId).ToList();
-        var projects = await MetaCacheHelper.GetProjectsAsync(projectIds, cancellationToken);
+        var projects = await _metaCacheService.GetProjectsAsync(projectIds, cancellationToken);
         
         var versionIds = projects.SelectMany(p => p.Versions).Distinct().ToList();
-        var versions = await MetaCacheHelper.GetVersionsAsync(versionIds, cancellationToken);
+        var versions = await _metaCacheService.GetVersionsAsync(versionIds, cancellationToken);
         if (IsMod)
         {
             string modLoader = ModLoader switch

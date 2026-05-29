@@ -8,9 +8,12 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Package;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
+using Tavstal.KonkordLauncher.Common.Services.Implementations;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
@@ -23,7 +26,8 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 /// </summary>
 public partial class ExportViewModel : KonkordObservableObject
 {
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(ExportViewModel));
+    private readonly ITranslationService  _translationService;
+    private readonly ModrinthPackageService _modrinthPackageService;
     public Instance Instance { get; }
     public EInstanceProvider Provider { get; }
     
@@ -55,6 +59,10 @@ public partial class ExportViewModel : KonkordObservableObject
     public ExportViewModel(Instance? instance, EInstanceProvider provider)
     {
         Provider = provider;
+        var services = Program.ServiceProvider;
+        _translationService = services.GetRequiredService<ITranslationService>();
+        _modrinthPackageService = services.GetRequiredService<ModrinthPackageService>();
+        
         if (Design.IsDesignMode || instance == null) // Both indicates design mode
         {
             Items =
@@ -166,14 +174,14 @@ public partial class ExportViewModel : KonkordObservableObject
     {
         if (string.IsNullOrEmpty(InstanceName) || string.IsNullOrEmpty(InstanceVersion))
         {
-            await ShowAlertDialogInteraction.Handle(new Alert(TranslationManager.Translate("common.error"), TranslationManager.Translate("instance.export.alert.empty.name.or.version"), EAlertType.Error));
+            await ShowAlertDialogInteraction.Handle(new Alert(_translationService.Translate("common.error"), _translationService.Translate("instance.export.alert.empty.name.or.version"), EAlertType.Error));
             return;
         }
 
         var directoryResult = await OpenFolderPickerInteraction.Handle(Unit.Default);
         if (string.IsNullOrEmpty(directoryResult))
         {
-            await ShowAlertDialogInteraction.Handle(new Alert(TranslationManager.Translate("common.error"), TranslationManager.Translate("instance.export.alert.no.directory"), EAlertType.Error));
+            await ShowAlertDialogInteraction.Handle(new Alert(_translationService.Translate("common.error"), _translationService.Translate("instance.export.alert.no.directory"), EAlertType.Error));
             return;
         }
 
@@ -194,24 +202,21 @@ public partial class ExportViewModel : KonkordObservableObject
         
         if (File.Exists(exportPath))
         {
-            await ShowAlertDialogInteraction.Handle(new Alert(TranslationManager.Translate("common.error"), TranslationManager.Translate("instance.export.alert.file.exists"), EAlertType.Error));
+            await ShowAlertDialogInteraction.Handle(new Alert(_translationService.Translate("common.error"), _translationService.Translate("instance.export.alert.file.exists"), EAlertType.Error));
             return;
         }
 
         IsExporting = true;
         List<FileNode> selectedFiles = ObservableFileNode.ToFileNodes(Items.ToList());
-        // TODO : User service
-        // !await InstanceHelper.ExportAsync(Instance, selectedFiles, exportPath, Provider, InstanceVersion,
-        // InstanceSummary)
-        if (true)
+        if (await _modrinthPackageService.ExportAsync(Instance, selectedFiles, exportPath,InstanceVersion, InstanceSummary))
         {
             IsExporting = false;
-            await ShowAlertDialogInteraction.Handle(new Alert(TranslationManager.Translate("common.error"), TranslationManager.Translate("instance.export.alert.error"), EAlertType.Error));
+            await ShowAlertDialogInteraction.Handle(new Alert(_translationService.Translate("common.error"), _translationService.Translate("instance.export.alert.error"), EAlertType.Error));
             return;
         }
         IsExporting = false;
         
-        await ShowAlertDialogInteraction.Handle(new Alert(TranslationManager.Translate("common.success"), TranslationManager.Translate("instance.export.alert.success", exportPath), EAlertType.Success));
+        await ShowAlertDialogInteraction.Handle(new Alert(_translationService.Translate("common.success"), _translationService.Translate("instance.export.alert.success", exportPath), EAlertType.Success));
         await CloseWindowInteraction.Handle(Unit.Default);
     }
 

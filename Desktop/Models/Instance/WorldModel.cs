@@ -1,6 +1,8 @@
 using System;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Extensions.DependencyInjection;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Instance;
@@ -10,6 +12,8 @@ namespace Tavstal.KonkordLauncher.Desktop.Models.Instance;
 /// </summary>
 public partial class WorldModel : ObservableObject
 {
+    private readonly ITranslationService _translationService;
+    
     /// <summary>
     /// The name of the world.
     /// </summary>
@@ -70,18 +74,18 @@ public partial class WorldModel : ObservableObject
             var timeDiff = DateTime.UtcNow - epoch;
 
             if (timeDiff.TotalHours < 1)
-                return TranslationManager.Translate("common.time.pass.minute", timeDiff.Minutes);
+                return _translationService.Translate("common.time.pass.minute", timeDiff.Minutes);
 
             if (timeDiff.TotalDays < 1)
-                return TranslationManager.Translate("common.time.pass.hour", $"{timeDiff.Hours}");
+                return _translationService.Translate("common.time.pass.hour", $"{timeDiff.Hours}");
 
             if (timeDiff.TotalDays < 30)
-                return TranslationManager.Translate("common.time.pass.day", $"{timeDiff.Days}");
+                return _translationService.Translate("common.time.pass.day", $"{timeDiff.Days}");
 
             if (timeDiff.TotalDays < 365)
-                return TranslationManager.Translate("common.time.pass.month",  $"{timeDiff.TotalDays / 30:F0}");
+                return _translationService.Translate("common.time.pass.month",  $"{timeDiff.TotalDays / 30:F0}");
 
-            return TranslationManager.Translate("common.time.pass.year", $"{timeDiff.TotalDays / 365:F0}");
+            return _translationService.Translate("common.time.pass.year", $"{timeDiff.TotalDays / 365:F0}");
         }
     }
 
@@ -104,5 +108,6 @@ public partial class WorldModel : ObservableObject
         _lastPlayed = lastPlayed;
         Size = size;
         Icon = icon;
+        _translationService = Program.ServiceProvider.GetRequiredService<ITranslationService>();
     }
 }

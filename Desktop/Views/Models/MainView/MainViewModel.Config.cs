@@ -4,10 +4,12 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
 using Tavstal.KonkordLauncher.Common.Models.Config;
 using Tavstal.KonkordLauncher.Common.Models.Translation;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Config.Launcher;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
@@ -19,7 +21,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.MainView;
 /// </summary>
 public partial class MainViewModel_Config : KonkordObservableObject
 {
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(MainViewModel_Config));
+    private readonly ICustomLogger _logger;
     private readonly MainViewModel _parent;
 
     [ObservableProperty]
@@ -32,6 +34,8 @@ public partial class MainViewModel_Config : KonkordObservableObject
     public MainViewModel_Config(MainViewModel parent)
     {
         _parent = parent;
+        var services = Program.ServiceProvider;
+        _logger = services.GetRequiredService<ICustomLogger<MainViewModel_Config>>();
     }
     
     /// <summary>

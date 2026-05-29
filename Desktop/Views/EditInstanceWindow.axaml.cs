@@ -428,7 +428,7 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"An error occurred while renaming the screenshot:", ex);
+            _logger.LogCritical(ex, $"An error occurred while renaming the screenshot:");
         }
     }
 

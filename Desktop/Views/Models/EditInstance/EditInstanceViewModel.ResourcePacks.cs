@@ -12,10 +12,12 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DynamicData;
+using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
@@ -24,7 +26,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
 public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObject
 {
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceViewModel_ResourcePacks));
+    private readonly ICustomLogger _logger;
     private readonly EditInstanceViewModel _parent;
     
     private readonly SourceCache<ResourceBaseModel, string> _resourcePackCache = new(x => x.Name);
@@ -38,6 +40,8 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
     public EditInstanceViewModel_ResourcePacks(EditInstanceViewModel parent)
     {
         _parent = parent;
+        var services = Program.ServiceProvider;
+        _logger = services.GetRequiredService<ICustomLogger<EditInstanceViewModel_ResourcePacks>>();
         
         // Set up a reactive filter for the SearchQuery property.
         var filter = this.WhenAnyValue(x => x.SearchQuery)
@@ -239,7 +243,7 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"Failed to load resource pack from {resource}: {ex.Message}");
+                    _logger.LogError($"Failed to load resource pack from {resource}:");
                 }
             }
         });

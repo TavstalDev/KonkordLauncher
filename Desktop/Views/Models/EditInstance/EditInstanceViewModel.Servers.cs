@@ -6,7 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
 using NbtLib;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
@@ -15,7 +17,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
 public partial class EditInstanceViewModel_Servers : KonkordObservableObject
 {
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(EditInstanceViewModel_Servers));
+    private readonly ICustomLogger _logger;
     private readonly EditInstanceViewModel _parent;
 
     [ObservableProperty]
@@ -30,6 +32,8 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
     public EditInstanceViewModel_Servers(EditInstanceViewModel parent)
     {
         _parent = parent;
+        var services = Program.ServiceProvider;
+        _logger = services.GetRequiredService<ICustomLogger<EditInstanceViewModel_Servers>>();
     }
 
     protected override void Dispose(bool disposing)
@@ -119,8 +123,7 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
         }
         catch (Exception ex)
         {
-            _logger.LogCritical("Failed to save servers to servers.dat file.");
-            _logger.LogError(ex);
+            _logger.LogCritical(ex, "Failed to save servers to servers.dat file.");
         }
     }
 

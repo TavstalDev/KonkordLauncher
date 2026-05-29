@@ -15,15 +15,19 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DynamicData;
 using DynamicData.Binding;
+using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Config;
 using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
+using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
@@ -36,7 +40,10 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.CreateInstance;
 /// </summary>
 public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
 {
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(CreateInstanceViewModel_Custom));
+    private readonly ICustomLogger _logger;
+    private readonly ITranslationService _translationService;
+    private readonly ILauncherStore _launcherStore;
+    private readonly IManifestService _manifestService;
     private readonly CreateInstanceViewModel _parent;
 
     [ObservableProperty]
@@ -142,6 +149,12 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
     public CreateInstanceViewModel_Custom(CreateInstanceViewModel parent)
     {
         _parent = parent;
+        var services = Program.ServiceProvider;
+        _logger = services.GetRequiredService<ICustomLogger<CreateInstanceViewModel_Custom>>();
+        _translationService = services.GetRequiredService<ITranslationService>();
+        _launcherStore = services.GetRequiredService<ILauncherStore>();
+        _manifestService = services.GetRequiredService<IManifestService>();
+        
         if (Design.IsDesignMode)
             InstanceIcon = ImageHelper.Load("avares://Desktop/Assets/Icons/dirt.png").Result;
     }
@@ -212,7 +225,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
                 .SortAndBind(out var filteredCollection, SortExpressionComparer<MinecraftVersion>.Descending(x => x.ReleaseTime))
                 .Subscribe(
                     _ => { },
-                    ex => _logger.LogError($"Version pipeline crashed: {ex}")
+                    ex => _logger.LogError($"Version pipeline crashed:")
                 );
 
         Disposables.Add(bindingSubscription);
@@ -274,7 +287,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
             .SortAndBind(out var filteredModLoaders, ModVersionComparer)
             .Subscribe(
                 _ => { },
-                ex => _logger.LogError($"ModLoader pipeline crashed: {ex}")
+                ex => _logger.LogError($"ModLoader pipeline crashed:")
             );
 
         Disposables.Add(modLoaderSubscription);
@@ -292,10 +305,10 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
     /// <returns>A <see cref="Task"/> that completes when initialization has finished.</returns>
     public async Task InitAsync(CoreConfig settings, VersionManifest versionManifest,  CancellationToken cancellationToken = default)
     {
-        List<IModManifest>? fabricManifestCache= await ManifestHelper.GetFabricManifestAsync(settings.Launcher.GetFabricManifestPath(), cancellationToken);
-        List<IModManifest>? forgeManifestCache= await ManifestHelper.GetForgeManifestAsync(settings.Launcher.GetForgeManifestPath());
-        List<IModManifest>? neoForgeManifestCache= await ManifestHelper.GetNeoForgeManifestAsync(settings.Launcher.GetNeoForgeManifestPath());
-        List<IModManifest>? quiltManifestCache = await ManifestHelper.GetQuiltManifestAsync(settings.Launcher.GetQuiltManifestPath(), cancellationToken);
+        List<IModManifest>? fabricManifestCache= await _manifestService.GetFabricManifestAsync(settings.Launcher.GetFabricManifestPath(), cancellationToken);
+        List<IModManifest>? forgeManifestCache= await _manifestService.GetForgeManifestAsync(settings.Launcher.GetForgeManifestPath(), cancellationToken);
+        List<IModManifest>? neoForgeManifestCache= await _manifestService.GetNeoForgeManifestAsync(settings.Launcher.GetNeoForgeManifestPath());
+        List<IModManifest>? quiltManifestCache = await _manifestService.GetQuiltManifestAsync(settings.Launcher.GetQuiltManifestPath(), cancellationToken);
         
         _minecraftVersionCache.Edit(innerCache =>
         {
@@ -369,12 +382,12 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
         if (SelectedMinecraftVersion == null)
             return;
         
-        var settings = await LauncherHelper.GetSettingsAsync();
-        var instances = await LauncherHelper.GetInstancesAsync();
+        var settings = await _launcherStore.GetSettingsAsync();
+        var instances = await _launcherStore.GetInstancesAsync();
         if (instances.Any(x => x.Name == InstanceName))
         {
-            await _parent.ShowAlertDialogInteraction.Handle(new Alert(TranslationManager.Translate("instance.duplicate.title"),
-                TranslationManager.Translate("instance.duplicate.message"),
+            await _parent.ShowAlertDialogInteraction.Handle(new Alert(_translationService.Translate("instance.duplicate.title"),
+                _translationService.Translate("instance.duplicate.message"),
                 EAlertType.Error));
             return;
         }

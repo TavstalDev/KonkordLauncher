@@ -78,8 +78,8 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     [ObservableProperty]
     public partial EInstanceSettingsTab InstanceSettingsTab { get; set; }
 
-    [ObservableProperty]
-    public partial string InstanceName { get; set; }
+    [ObservableProperty] 
+    public partial string InstanceName { get; set; } = string.Empty;
 
     [ObservableProperty]
     public partial string? GameDirectory { get; set; }
@@ -163,7 +163,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     private async Task InitAsync(CancellationToken cancellationToken = default)
     {
         await Task.Yield();
-        var accountData = await LauncherHelper.GetAccountDataAsync(cancellationToken);
+        var accountData = await _launcherStore.GetAccountDataAsync(cancellationToken);
 
         InstanceName = Instance.Name;
         IsVanilla = Instance.Kind == EMinecraftKind.VANILLA;

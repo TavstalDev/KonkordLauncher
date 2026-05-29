@@ -1,12 +1,18 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
+using Tavstal.KonkordLauncher.Common.Services.Implementations;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
+using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
@@ -15,7 +21,11 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.CreateInstance;
 
 public partial class CreateInstanceViewModel_Import : KonkordObservableObject
 {
-    private  readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(CreateInstanceViewModel_Import));
+    private readonly ICustomLogger _logger;
+    private readonly IHttpService _httpService;
+    private readonly ITranslationService _translationService;
+    private readonly ILauncherStore _launcherStore;
+    private readonly ModrinthPackageService _modrinthPackageService;
     private readonly CreateInstanceViewModel _parent;
 
     [ObservableProperty]
@@ -42,6 +52,12 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
     public CreateInstanceViewModel_Import(CreateInstanceViewModel parent)
     {
         _parent = parent;
+        var services = Program.ServiceProvider;
+        _logger = services.GetRequiredService<ICustomLogger<CreateInstanceViewModel_Import>>();
+        _httpService = services.GetRequiredService<IHttpService>();
+        _translationService = services.GetRequiredService<ITranslationService>();
+        _launcherStore = services.GetRequiredService<ILauncherStore>();
+        _modrinthPackageService = services.GetRequiredService<ModrinthPackageService>();
     }
     
     #region Commands
@@ -113,19 +129,17 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
         {
             _logger.LogWarning("Invalid import path specified.");
             await _parent.ShowAlertDialogInteraction.Handle(new Alert(
-                TranslationManager.Translate("instance.create.import.error.invalid_path.title"),
-                TranslationManager.Translate("instance.create.import.error.invalid_path.message"),
+                _translationService.Translate("instance.create.import.error.invalid_path.title"),
+                _translationService.Translate("instance.create.import.error.invalid_path.message"),
                 EAlertType.Error
             ));
             return;
         }
         
-        // TODO: Use service
-        // await InstanceHelper.ImportAsync(ImportPath, EInstanceProvider.MODRINTH, App.ScreenResolution, null, null, null, _parent, cancellationToken) != null
-        if (true) 
+        if (await _modrinthPackageService.ImportAsync(ImportPath, App.ScreenResolution, null, null, null, _parent, cancellationToken) != null ) 
         {
             _parent.CloseReporter();
-            var instances = await LauncherHelper.GetInstancesAsync(cancellationToken);
+            var instances = await _launcherStore.GetInstancesAsync(cancellationToken);
             GlobalEvents.InvokeInstanceAdded(instances.Last().Id);
             await _parent.CloseWindowInteraction.Handle(Unit.Default);
         }
@@ -133,8 +147,8 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
         {
             _logger.LogWarning("Failed to import instance from file.");
             await _parent.ShowAlertDialogInteraction.Handle(new Alert(
-                TranslationManager.Translate("instance.create.import.error.import_failed.title"),
-                TranslationManager.Translate("instance.create.import.error.import_failed.message"),
+                _translationService.Translate("instance.create.import.error.import_failed.title"),
+                _translationService.Translate("instance.create.import.error.import_failed.message"),
                 EAlertType.Error
             ));
         }
@@ -146,8 +160,8 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
         {
             _logger.LogWarning("Invalid import path specified.");
             await _parent.ShowAlertDialogInteraction.Handle(new Alert(
-                TranslationManager.Translate("instance.create.import.error.invalid_path.title"),
-                TranslationManager.Translate("instance.create.import.error.invalid_path.message"),
+                _translationService.Translate("instance.create.import.error.invalid_path.title"),
+                _translationService.Translate("instance.create.import.error.invalid_path.message"),
                 EAlertType.Error
             ));
             return;
@@ -167,16 +181,13 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
                 _parent.UpdateStatusTranslated("instance.download.file", "instance", p.ToString("0.00"));
             });
 
-            await HttpHelper.DownloadFileAsync(ImportPath, tempPath, progress, cancellationToken);
+            await _httpService.DownloadFileAsync(ImportPath, tempPath, progress, cancellationToken);
             _parent.CloseReporter();
             
-            // TODO: Use service
-            // await InstanceHelper.ImportAsync(tempPath, EInstanceProvider.MODRINTH, App.ScreenResolution, null, null, null, _parent,
-            // cancellationToken) != null
-            if (true)
+            if (await _modrinthPackageService.ImportAsync(tempPath, App.ScreenResolution, null, null, null, _parent, cancellationToken) != null)
             {
                 _parent.CloseReporter();
-                var instances = await LauncherHelper.GetInstancesAsync(cancellationToken);
+                var instances = await _launcherStore.GetInstancesAsync(cancellationToken);
                 GlobalEvents.InvokeInstanceAdded(instances.Last().Id);
                 await _parent.CloseWindowInteraction.Handle(Unit.Default);
             }
@@ -184,18 +195,18 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
             {
                 _logger.LogWarning("Failed to import instance from url.");
                 await _parent.ShowAlertDialogInteraction.Handle(new Alert(
-                    TranslationManager.Translate("instance.create.import.error.import_failed.title"),
-                    TranslationManager.Translate("instance.create.import.error.import_failed.message"),
+                    _translationService.Translate("instance.create.import.error.import_failed.title"),
+                    _translationService.Translate("instance.create.import.error.import_failed.message"),
                     EAlertType.Error
                 ));
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Failed to import instance from URL: {ex}");
+            _logger.LogError(ex, $"Failed to import instance from URL:");
             await _parent.ShowAlertDialogInteraction.Handle(new Alert(
-                TranslationManager.Translate("instance.create.import.error.import_failed.title"),
-                TranslationManager.Translate("instance.create.import.error.import_failed.message"),
+                _translationService.Translate("instance.create.import.error.import_failed.title"),
+                _translationService.Translate("instance.create.import.error.import_failed.message"),
                 EAlertType.Error
             ));
         }

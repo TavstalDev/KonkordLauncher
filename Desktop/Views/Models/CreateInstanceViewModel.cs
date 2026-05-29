@@ -7,8 +7,11 @@ using Avalonia.Controls;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
@@ -19,7 +22,8 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 
 public partial class CreateInstanceViewModel : KonkordObservableObject, IProgressReporter
 {
-    private readonly CoreLogger _logger = CoreLogger.WithModuleType(typeof(CreateInstanceViewModel));
+    private readonly ILauncherStore _launcherStore;
+    private readonly IManifestService _manifestService;
     public CreateInstanceViewModel_Custom Custom { get;  }
     public CreateInstanceViewModel_Modpack Modpack { get;  }
     public CreateInstanceViewModel_Import Import { get;  }
@@ -40,6 +44,10 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IProgres
 
     public CreateInstanceViewModel()
     {
+        var services = Program.ServiceProvider;
+        _launcherStore = services.GetRequiredService<ILauncherStore>();
+        _manifestService = services.GetRequiredService<IManifestService>();
+        
         Custom = new CreateInstanceViewModel_Custom(this);
         Modpack = new CreateInstanceViewModel_Modpack(this);
         Import = new CreateInstanceViewModel_Import(this);
@@ -72,9 +80,9 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IProgres
     {
         await Task.Yield();
         
-        var settings = await Task.Run(() => LauncherHelper.GetSettingsAsync(cancellationToken: cancellationToken), cancellationToken);
+        var settings = await Task.Run(() => _launcherStore.GetSettingsAsync(cancellationToken: cancellationToken), cancellationToken);
         var manifestPath = settings.Launcher.GetVanillaManifestPath();
-        var versionManifest = await Task.Run(() => ManifestHelper.GetMinecraftManifestAsync(manifestPath, cancellationToken), cancellationToken);
+        var versionManifest = await Task.Run(() => _manifestService.GetMinecraftManifestAsync(manifestPath, cancellationToken), cancellationToken);
 
         if (versionManifest == null)
             throw new Exception("Failed to load Minecraft version manifest.");

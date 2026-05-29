@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,6 +33,9 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
     public EditInstanceViewModel_Servers(EditInstanceViewModel parent)
     {
         _parent = parent;
+        if (Design.IsDesignMode)
+            return;
+        
         var services = Program.ServiceProvider;
         _logger = services.GetRequiredService<ICustomLogger<EditInstanceViewModel_Servers>>();
     }

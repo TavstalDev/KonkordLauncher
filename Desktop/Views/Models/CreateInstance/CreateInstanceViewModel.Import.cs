@@ -5,6 +5,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
@@ -52,6 +53,9 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
     public CreateInstanceViewModel_Import(CreateInstanceViewModel parent)
     {
         _parent = parent;
+        if (Design.IsDesignMode)
+            return;
+        
         var services = Program.ServiceProvider;
         _logger = services.GetRequiredService<ICustomLogger<CreateInstanceViewModel_Import>>();
         _httpService = services.GetRequiredService<IHttpService>();

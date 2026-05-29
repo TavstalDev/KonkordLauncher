@@ -27,7 +27,7 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
     private readonly IMicrosoftAuthService _microsoftAuthService;
     private readonly IMicrosoftDeviceAuthService _microsoftDeviceAuthService;
     private readonly IMicrosoftHttpAuthService _microsoftHttpAuthService;
-    
+
     /// <summary>
     /// Initializes a new instance of the AccountsWindow class.
     /// Sets up the DataContext and attaches developer tools in debug mode.
@@ -35,8 +35,17 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
     public AccountsWindow()
     {
         InitializeComponent();
-
         DataContext = new AccountsViewModel(this);
+
+        if (Design.IsDesignMode)
+            return;
+
+        var services = Program.ServiceProvider;
+        _translationService = services.GetRequiredService<ITranslationService>();
+        _microsoftAuthService = services.GetRequiredService<IMicrosoftAuthService>();
+        _microsoftDeviceAuthService = services.GetRequiredService<IMicrosoftDeviceAuthService>();
+        _microsoftHttpAuthService = services.GetRequiredService<IMicrosoftHttpAuthService>();
+        _microsoftAuthService.OnAuthStatusChanged += OnAuthStatusChanged;
 
         this.WhenActivated(disposables =>
         {
@@ -72,15 +81,6 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
         });
 
         OfflineUsernameInput.TextChanged += OfflineUsername_OnTextChanged;
-        if (!Design.IsDesignMode)
-        {
-            var services = Program.ServiceProvider;
-            _translationService = services.GetRequiredService<ITranslationService>();
-            _microsoftAuthService = services.GetRequiredService<IMicrosoftAuthService>();
-            _microsoftDeviceAuthService = services.GetRequiredService<IMicrosoftDeviceAuthService>();
-            _microsoftHttpAuthService = services.GetRequiredService<IMicrosoftHttpAuthService>();
-            _microsoftAuthService.OnAuthStatusChanged += OnAuthStatusChanged;
-        }
     }
 
     #region Events

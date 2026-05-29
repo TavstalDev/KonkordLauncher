@@ -8,6 +8,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -34,6 +35,9 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
     public EditInstanceViewModel_Worlds(EditInstanceViewModel parent)
     {
         _parent = parent;
+        if (Design.IsDesignMode)
+            return;
+        
         var services = Program.ServiceProvider;
         _logger = services.GetRequiredService<ICustomLogger<EditInstanceViewModel_Worlds>>();
     }

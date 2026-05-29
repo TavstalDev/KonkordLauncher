@@ -149,14 +149,17 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
     public CreateInstanceViewModel_Custom(CreateInstanceViewModel parent)
     {
         _parent = parent;
+        if (Design.IsDesignMode)
+        {
+            InstanceIcon = ImageHelper.Load("avares://Desktop/Assets/Icons/dirt.png").Result;
+            return;
+        }
+        
         var services = Program.ServiceProvider;
         _logger = services.GetRequiredService<ICustomLogger<CreateInstanceViewModel_Custom>>();
         _translationService = services.GetRequiredService<ITranslationService>();
         _launcherStore = services.GetRequiredService<ILauncherStore>();
         _manifestService = services.GetRequiredService<IManifestService>();
-        
-        if (Design.IsDesignMode)
-            InstanceIcon = ImageHelper.Load("avares://Desktop/Assets/Icons/dirt.png").Result;
     }
 
     /// <summary>

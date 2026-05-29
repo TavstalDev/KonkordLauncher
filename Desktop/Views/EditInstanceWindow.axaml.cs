@@ -44,9 +44,12 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     /// <param name="instance">The instance model to be edited in this window.</param>
     public EditInstanceWindow(InstanceModel instance)
     {
-        _logger = Program.ServiceProvider.GetRequiredService<ICustomLogger<EditInstanceWindow>>();
-        _instanceId = Design.IsDesignMode ? string.Empty : instance.Id;
         InitializeComponent();
+        
+        if (!Design.IsDesignMode)
+            _logger = Program.ServiceProvider.GetRequiredService<ICustomLogger<EditInstanceWindow>>();
+        
+        _instanceId = Design.IsDesignMode ? string.Empty : instance.Id;
         
         DataContext = new EditInstanceViewModel(instance);
         _selectedInstanceTab = LogsTabBtn;

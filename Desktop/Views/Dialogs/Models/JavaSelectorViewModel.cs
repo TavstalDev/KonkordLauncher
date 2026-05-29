@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,6 +40,10 @@ public partial class JavaSelectorViewModel : ObservableObject
     {
         Versions = [];
         SelectedJavaVersion = null;
+        
+        if (Design.IsDesignMode)
+            return;
+        
         var services = Program.ServiceProvider;
         _launcherStore = services.GetRequiredService<ILauncherStore>();
         _javaService = services.GetRequiredService<IJavaService>();

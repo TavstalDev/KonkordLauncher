@@ -7,6 +7,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,12 +41,15 @@ public partial class MainViewModel_Instances : KonkordObservableObject
     /// <param name="parent">The parent <see cref="MainViewModel"/> used for interactions.</param>
     public MainViewModel_Instances(MainViewModel parent)
     {
+        _parent = parent;
+        if (Design.IsDesignMode)
+            return;
+        
         var services = Program.ServiceProvider;
         _logger = services.GetRequiredService<ICustomLogger<MainViewModel_Instances>>();
         _launcherStore = services.GetRequiredService<ILauncherStore>();
         _translationService = services.GetRequiredService<ITranslationService>();
         
-        _parent = parent;
         GlobalEvents.OnInstanceAdded += OnInstanceAdded;
         GlobalEvents.OnInstanceUpdated += OnInstanceUpdated;
         GlobalEvents.OnInstanceRemoved += OnInstanceRemoved;

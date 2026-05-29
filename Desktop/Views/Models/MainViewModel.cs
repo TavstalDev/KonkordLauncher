@@ -4,6 +4,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
@@ -77,13 +78,17 @@ public partial class MainViewModel : KonkordObservableObject
     /// </summary>
     public MainViewModel()
     {
-        var services = Program.ServiceProvider;
-        ICustomLogger logger = services.GetRequiredService<ICustomLogger<MainViewModel>>();
-        _launcherStore = services.GetRequiredService<ILauncherStore>();
         Accounts = new MainViewModel_Accounts(this);
         About = new MainViewModel_About(this);
         Config = new MainViewModel_Config(this);
         Instances = new MainViewModel_Instances(this);
+     
+        if (Design.IsDesignMode)
+            return;
+        
+        var services = Program.ServiceProvider;
+        ICustomLogger logger = services.GetRequiredService<ICustomLogger<MainViewModel>>();
+        _launcherStore = services.GetRequiredService<ILauncherStore>();
         
         Initialization = InitAsync();
         Initialization.ContinueWith(task =>

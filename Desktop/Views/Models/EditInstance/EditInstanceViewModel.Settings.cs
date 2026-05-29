@@ -48,15 +48,16 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
     public EditInstanceViewModel_Settings(EditInstanceViewModel parent)
     {
         _parent = parent;
-        var services = Program.ServiceProvider;
-        _logger = services.GetRequiredService<ICustomLogger<EditInstanceViewModel_Settings>>();
-        _translationService = services.GetRequiredService<ITranslationService>();
-        _launcherStore = services.GetRequiredService<ILauncherStore>();
         if (Design.IsDesignMode)
         {
             InstanceConfig = new InstanceConfigModel();
             return;
         }
+        
+        var services = Program.ServiceProvider;
+        _logger = services.GetRequiredService<ICustomLogger<EditInstanceViewModel_Settings>>();
+        _translationService = services.GetRequiredService<ITranslationService>();
+        _launcherStore = services.GetRequiredService<ILauncherStore>();
     }
     
     protected override void Dispose(bool disposing)

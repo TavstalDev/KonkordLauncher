@@ -8,6 +8,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -81,13 +82,16 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
     public MainViewModel_Accounts(MainViewModel parent)
     {
         _parent = parent;
+        AccountAvatar = ImageHelper.LoadFromResource(new Uri("avares://Desktop/Assets/Images/placeholders/steve_head.png"));
+        if (Design.IsDesignMode)
+            return;
+        
         var services = Program.ServiceProvider;
         _logger = services.GetRequiredService<ICustomLogger<MainViewModel_Accounts>>();
         _launcherStore = services.GetRequiredService<ILauncherStore>();
         _translationService = services.GetRequiredService<ITranslationService>();
         _authService = services.GetRequiredService<IMicrosoftAuthService>();
         _mojangSkinService = services.GetRequiredService<IMojangSkinService>();
-        AccountAvatar = ImageHelper.LoadFromResource(new Uri("avares://Desktop/Assets/Images/placeholders/steve_head.png"));
     }
     
     /// <summary>

@@ -21,8 +21,11 @@ public partial class InstanceLogsWindow : KonkordWindow<InstanceLogsViewModel>
     public InstanceLogsWindow(string instanceId)
     {
         InitializeComponent();
-        
         DataContext = new InstanceLogsViewModel(instanceId);
+        
+        if (Design.IsDesignMode)
+            return;
+        
         this.WhenActivated(disposables =>
         {
             DataContext.MinimizeWindowInteraction.RegisterHandler(action =>

@@ -29,11 +29,14 @@ public partial class ExportWindow : KonkordWindow<ExportViewModel>
     /// <param name="provider">The provider which influences export format (e.g. CurseForge or Modrinth).</param>
     public ExportWindow(Instance? instance, EInstanceProvider provider)
     {
+        InitializeComponent();
+        DataContext = new ExportViewModel(instance, provider);
+        
+        if (Design.IsDesignMode)
+            return;
+        
         var services = Program.ServiceProvider;
         var translationService = services.GetRequiredService<ITranslationService>();
-        InitializeComponent();
-
-        DataContext = new ExportViewModel(instance, provider);
 
         this.WhenActivated(disposables =>
         {

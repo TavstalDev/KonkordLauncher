@@ -3,7 +3,6 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:accounts="clr-namespace:Tavstal.KonkordLauncher.Core.Models.Accounts;assembly=Core"
-    xmlns:core="clr-namespace:Tavstal.KonkordLauncher.Core.Models;assembly=Core"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:domain="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Domain"
     xmlns:enums="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Enums"

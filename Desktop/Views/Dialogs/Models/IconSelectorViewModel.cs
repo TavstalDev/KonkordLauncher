@@ -6,6 +6,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -48,6 +49,9 @@ public partial class IconSelectorViewModel : KonkordObservableObject
     /// </summary>
     public IconSelectorViewModel()
     {
+        if (Design.IsDesignMode)
+            return;
+        
         var services = Program.ServiceProvider;
         _launcherStore = services.GetRequiredService<ILauncherStore>();
         _ = InitAsync();

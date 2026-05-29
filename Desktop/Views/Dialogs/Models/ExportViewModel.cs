@@ -59,9 +59,6 @@ public partial class ExportViewModel : KonkordObservableObject
     public ExportViewModel(Instance? instance, EInstanceProvider provider)
     {
         Provider = provider;
-        var services = Program.ServiceProvider;
-        _translationService = services.GetRequiredService<ITranslationService>();
-        _modrinthPackageService = services.GetRequiredService<ModrinthPackageService>();
         
         if (Design.IsDesignMode || instance == null) // Both indicates design mode
         {
@@ -97,6 +94,10 @@ public partial class ExportViewModel : KonkordObservableObject
             ];
             return;
         }
+        
+        var services = Program.ServiceProvider;
+        _translationService = services.GetRequiredService<ITranslationService>();
+        _modrinthPackageService = services.GetRequiredService<ModrinthPackageService>();
         
         Instance = instance;
         InstanceName = instance.Name;

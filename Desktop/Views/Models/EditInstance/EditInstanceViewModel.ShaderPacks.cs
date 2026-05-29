@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -38,6 +39,9 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
     public EditInstanceViewModel_ShaderPacks(EditInstanceViewModel parent)
     {
         _parent = parent;
+        if (Design.IsDesignMode)
+            return;
+        
         var services = Program.ServiceProvider;
         _logger = services.GetRequiredService<ICustomLogger<EditInstanceViewModel_ShaderPacks>>();
         

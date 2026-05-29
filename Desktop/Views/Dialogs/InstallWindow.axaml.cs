@@ -25,12 +25,15 @@ public partial class InstallWindow : KonkordWindow<InstallViewModel>, IProgressR
     /// </summary>
     public InstallWindow()
     {
+        InitializeComponent();
+        DataContext = new InstallViewModel();
+        
+        if (Design.IsDesignMode)
+            return;
+        
         var services = Program.ServiceProvider;
         _translationService = services.GetRequiredService<ITranslationService>();
-        InitializeComponent();
-
-        // Sets the data context of the window to an instance of the InstallViewModel.
-        DataContext = new InstallViewModel();
+        
         this.WhenActivated(disposables =>
         {
             DataContext.MinimizeWindowInteraction.RegisterHandler(action =>

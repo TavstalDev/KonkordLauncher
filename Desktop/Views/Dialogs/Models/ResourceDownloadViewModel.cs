@@ -91,6 +91,10 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
         ResourceType = resourceType;
         IsMod = resourceType == EResourceType.MOD;
         ModLoader = Instance.Kind;
+        
+        if (Design.IsDesignMode)
+            return;
+        
         var services = Program.ServiceProvider;
         _launcherStore = services.GetRequiredService<ILauncherStore>();
         _manifestService = services.GetRequiredService<IManifestService>();

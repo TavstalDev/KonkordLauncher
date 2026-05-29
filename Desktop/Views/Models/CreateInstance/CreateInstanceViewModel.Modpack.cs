@@ -7,6 +7,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -109,6 +110,9 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
     public CreateInstanceViewModel_Modpack(CreateInstanceViewModel parent)
     {
         _parent = parent;
+        if (Design.IsDesignMode)
+            return;
+        
         var services = Program.ServiceProvider;
         _logger = services.GetRequiredService<ICustomLogger<CreateInstanceViewModel_Modpack>>();
         _httpService = services.GetRequiredService<IHttpService>();

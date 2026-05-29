@@ -32,14 +32,18 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
     /// </summary>
     public CreateInstanceWindow()
     {
-        var services = Program.ServiceProvider;
-        _logger = services.GetRequiredService<ICustomLogger<CreateInstanceWindow>>();
-        _translationService = services.GetRequiredService<ITranslationService>();
         InitializeComponent();
-        
+
         DataContext = new CreateInstanceViewModel();
         _selectedTabBtn = CustomTabBtn;
         _selectedImportTypeBtn = ImportFromFileTabBtn;
+        
+        if (Design.IsDesignMode)
+            return;
+           
+        var services = Program.ServiceProvider;
+        _logger = services.GetRequiredService<ICustomLogger<CreateInstanceWindow>>();
+        _translationService = services.GetRequiredService<ITranslationService>();
         
         this.WhenActivated(disposables =>
         {

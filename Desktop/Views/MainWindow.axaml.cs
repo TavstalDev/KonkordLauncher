@@ -32,6 +32,8 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
     
     public MainWindow()
     {
+        InitializeComponent();
+        
         _selectedSideBarButton = PlaySideBtn;
         _selectedSettingsTabButton = LauncherSettingsBtn;
         _selectedAboutTabButton = AboutInfoBtn;
@@ -42,8 +44,6 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
         var services = Program.ServiceProvider;
         _logger = services.GetRequiredService<ICustomLogger<MainWindow>>();
         var translationService = services.GetRequiredService<ITranslationService>();
-        
-        InitializeComponent();
         
         DataContext = new MainViewModel();
         this.WhenActivated(disposables =>

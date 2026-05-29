@@ -44,10 +44,6 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IProgres
 
     public CreateInstanceViewModel()
     {
-        var services = Program.ServiceProvider;
-        _launcherStore = services.GetRequiredService<ILauncherStore>();
-        _manifestService = services.GetRequiredService<IManifestService>();
-        
         Custom = new CreateInstanceViewModel_Custom(this);
         Modpack = new CreateInstanceViewModel_Modpack(this);
         Import = new CreateInstanceViewModel_Import(this);
@@ -55,6 +51,10 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IProgres
         if (Design.IsDesignMode)
             return;
 
+        var services = Program.ServiceProvider;
+        _launcherStore = services.GetRequiredService<ILauncherStore>();
+        _manifestService = services.GetRequiredService<IManifestService>();
+        
         SetupPipeline();
         _ = InitAsync();
     }

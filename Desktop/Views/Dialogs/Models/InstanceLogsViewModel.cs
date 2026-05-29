@@ -54,10 +54,11 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
     /// </exception>
     public InstanceLogsViewModel(string instanceId)
     {
+        _instanceId = instanceId;
+        
         if (Design.IsDesignMode)
             return;
-
-        _instanceId = instanceId;
+        
         var services = Program.ServiceProvider;
         _logger = services.GetRequiredService<ICustomLogger<InstanceLogsViewModel>>();
         _launcherStore = services.GetRequiredService<ILauncherStore>();

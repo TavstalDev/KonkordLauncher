@@ -30,13 +30,17 @@ public partial class IconSelectorWindow : KonkordWindow<IconSelectorViewModel>
     /// </summary>
     public IconSelectorWindow()
     {
+        InitializeComponent();
+        DataContext = new IconSelectorViewModel();
+        
+        if (Design.IsDesignMode)
+            return;
+        
         var services = Program.ServiceProvider;
         _logger = services.GetRequiredService<ICustomLogger<IconSelectorWindow>>();
         _translationService = services.GetRequiredService<ITranslationService>();
         _launcherStore = services.GetRequiredService<ILauncherStore>();
-        InitializeComponent();
-
-        DataContext = new IconSelectorViewModel();
+        
         this.WhenActivated(disposables =>
         {
             DataContext.MinimizeWindowInteraction.RegisterHandler(action =>

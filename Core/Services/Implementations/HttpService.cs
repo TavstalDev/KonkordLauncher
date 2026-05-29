@@ -66,12 +66,12 @@ public class HttpService : IHttpService
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError($"HTTP request to {url} failed with { ex.StatusCode}: {ex.Message}", ex);
+            _logger.LogError($"HTTP request to {url} failed with { ex.StatusCode}: {ex.Message}");
             return null;
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to make GET request to {url}: {ex}");
+            _logger.LogCritical(ex, $"Failed to make GET request to {url}:");
             return null;
         }
     }
@@ -89,12 +89,12 @@ public class HttpService : IHttpService
         }
         catch (HttpRequestException ex)
         {
-            _logger.LogError($"HTTP request to {url} failed with { ex.StatusCode}: {ex.Message}", ex);
+            _logger.LogError($"HTTP request to {url} failed with { ex.StatusCode}: {ex.Message}");
             return null;
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to make GET request to {url}: {ex}");
+            _logger.LogCritical(ex, $"Failed to make GET request to {url}:");
             return null;
         }
     }
@@ -135,12 +135,12 @@ public class HttpService : IHttpService
         }
         catch (HttpRequestException ex)
         {
-             _logger.LogError($"HTTP request to {url} failed with { ex.StatusCode}: {ex.Message}", ex);
+             _logger.LogError($"HTTP request to {url} failed with { ex.StatusCode}: {ex.Message}");
             return null;
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to make GET request to {url}: {ex}");
+            _logger.LogCritical(ex, $"Failed to make GET request to {url}:");
             return null;
         }
     }
@@ -158,12 +158,12 @@ public class HttpService : IHttpService
         }
         catch (HttpRequestException ex)
         {
-             _logger.LogError($"HTTP request to {url} failed with { ex.StatusCode}: {ex.Message}", ex);
+             _logger.LogError($"HTTP request to {url} failed with { ex.StatusCode}: {ex.Message}");
             return null;
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to make GET request to {url}: {ex}");
+            _logger.LogCritical(ex, $"Failed to make GET request to {url}:");
             return null;
         }
     }
@@ -181,12 +181,12 @@ public class HttpService : IHttpService
         }
         catch (HttpRequestException ex)
         {
-             _logger.LogError($"HTTP request to {url} failed with { ex.StatusCode}: {ex.Message}", ex);
+             _logger.LogError($"HTTP request to {url} failed with { ex.StatusCode}: {ex.Message}");
             return null;
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to make GET request to {url}: {ex}");
+            _logger.LogCritical(ex, $"Failed to make GET request to {url}:");
             return null;
         }
     }
@@ -204,12 +204,12 @@ public class HttpService : IHttpService
         }
         catch (HttpRequestException ex)
         {
-             _logger.LogError($"HTTP request to {url} failed with { ex.StatusCode}: {ex.Message}", ex);
+             _logger.LogError($"HTTP request to {url} failed with { ex.StatusCode}: {ex.Message}");
             return default;
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to make GET request to {url}: {ex}");
+            _logger.LogCritical(ex, $"Failed to make GET request to {url}:");
             return default;
         }
     }
@@ -251,12 +251,12 @@ public class HttpService : IHttpService
         }
         catch (HttpRequestException ex)
         {
-             _logger.LogError($"HTTP request to {url} failed with { ex.StatusCode}: {ex.Message}", ex);
+             _logger.LogError($"HTTP request to {url} failed with { ex.StatusCode}: {ex.Message}");
             return null;
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to download file from {url}: {ex}");
+            _logger.LogCritical(ex, $"Failed to download file from {url}:");
             return null;
         }
     }
@@ -274,12 +274,12 @@ public class HttpService : IHttpService
         }
         catch (HttpRequestException ex)
         {
-             _logger.LogError($"HTTP request to {url} failed with { ex.StatusCode}: {ex.Message}", ex);
+             _logger.LogError($"HTTP request to {url} failed with { ex.StatusCode}: {ex.Message}");
             return null;
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to make POST request to {url}: {ex}");
+            _logger.LogCritical(ex, $"Failed to make POST request to {url}:");
             return null;
         }
     }
@@ -297,12 +297,12 @@ public class HttpService : IHttpService
         }
         catch (HttpRequestException ex)
         {
-             _logger.LogError($"HTTP request to {url} failed with { ex.StatusCode}: {ex.Message}", ex);
+             _logger.LogError($"HTTP request to {url} failed with { ex.StatusCode}: {ex.Message}");
             return null;
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to make POST request to {url}: {ex}");
+            _logger.LogCritical(ex, $"Failed to make POST request to {url}:");
             return null;
         }
     }

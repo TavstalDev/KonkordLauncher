@@ -289,7 +289,7 @@ public static class OSHelper
         }
         catch (Exception ex)
         {
-            _logger.LogCritical("Failed to open the website after installation:", ex);
+            _logger.LogCritical(ex, "Failed to open the website after installation:");
             return false;
         }
     }

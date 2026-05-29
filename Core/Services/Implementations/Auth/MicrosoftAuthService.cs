@@ -157,7 +157,7 @@ public class MicrosoftAuthService : IMicrosoftAuthService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Error while handling HTTP request for Microsoft authentication: {ex}");
+            _logger.LogCritical(ex, $"Error while handling HTTP request for Microsoft authentication:");
             _authStatus = EAuthStatus.FAILED;
             OnAuthStatusChanged?.Invoke(_authStatus);
         }
@@ -186,7 +186,7 @@ public class MicrosoftAuthService : IMicrosoftAuthService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Error while create device code: {ex}");
+            _logger.LogCritical(ex, $"Error while create device code:");
             _authStatus = EAuthStatus.FAILED;
             OnAuthStatusChanged?.Invoke(_authStatus);
             return null;
@@ -226,7 +226,7 @@ public class MicrosoftAuthService : IMicrosoftAuthService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Error while create device code: {ex}");
+            _logger.LogCritical(ex, $"Error while create device code:");
             _authStatus = EAuthStatus.FAILED;
             OnAuthStatusChanged?.Invoke(_authStatus);
         }
@@ -273,7 +273,7 @@ public class MicrosoftAuthService : IMicrosoftAuthService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Error while making Xbox token call: {ex}");
+            _logger.LogCritical(ex, $"Error while making Xbox token call:");
             _authStatus = EAuthStatus.FAILED;
             OnAuthStatusChanged?.Invoke(_authStatus);
         }
@@ -355,7 +355,7 @@ public class MicrosoftAuthService : IMicrosoftAuthService
          }
          catch (Exception ex)
          {
-             _logger.LogCritical($"Error while making Xbox XSTS call: {ex}");
+             _logger.LogCritical(ex, $"Error while making Xbox XSTS call:");
              _authStatus = EAuthStatus.FAILED;
              OnAuthStatusChanged?.Invoke(_authStatus);
          }
@@ -405,7 +405,7 @@ public class MicrosoftAuthService : IMicrosoftAuthService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Error while making Minecraft access call: {ex}");
+            _logger.LogCritical(ex, $"Error while making Minecraft access call:");
             _authStatus = EAuthStatus.FAILED;
             OnAuthStatusChanged?.Invoke(_authStatus);
         }
@@ -443,7 +443,7 @@ public class MicrosoftAuthService : IMicrosoftAuthService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Error while checking Minecraft ownership: {ex}");
+            _logger.LogCritical(ex, $"Error while checking Minecraft ownership:");
             _authStatus = EAuthStatus.FAILED;
             OnAuthStatusChanged?.Invoke(_authStatus);
         }
@@ -498,7 +498,7 @@ public class MicrosoftAuthService : IMicrosoftAuthService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Error while getting Minecraft profile: {ex}");
+            _logger.LogCritical(ex, $"Error while getting Minecraft profile:");
             _authStatus = EAuthStatus.FAILED;
             OnAuthStatusChanged?.Invoke(_authStatus);
         }
@@ -565,7 +565,7 @@ public class MicrosoftAuthService : IMicrosoftAuthService
        }
        catch (Exception ex)
        {
-           _logger.LogCritical($"Error while handling HTTP request for Microsoft authentication: {ex}");
+           _logger.LogCritical(ex, $"Error while handling HTTP request for Microsoft authentication:");
            _authStatus = EAuthStatus.FAILED;
            OnAuthStatusChanged?.Invoke(_authStatus);
            return false;

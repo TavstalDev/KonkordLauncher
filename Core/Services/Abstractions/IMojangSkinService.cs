@@ -17,7 +17,7 @@ public interface IMojangSkinService
     /// <param name="url">The URL pointing to the skin image file. Must be a publicly accessible PNG image.</param>
     /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
     /// <returns>The updated <see cref="MojangProfile"/> containing the player's profile data with the new skin applied, or null if the operation failed.</returns>
-    Task<MojangProfile?> ChangeSkin(string mcToken, string variant, string url,
+    Task<MojangProfile?> ChangeSkinAsync(string mcToken, string variant, string url,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -29,7 +29,7 @@ public interface IMojangSkinService
     /// <param name="skinPath">The local file system path to the skin PNG file to be uploaded.</param>
     /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
     /// <returns>The updated <see cref="MojangProfile"/> containing the player's profile data with the uploaded skin applied, or null if the operation failed.</returns>
-    Task<MojangProfile?> UploadSkin(string mcToken, string variant, string skinPath,
+    Task<MojangProfile?> UploadSkinAsync(string mcToken, string variant, string skinPath,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -39,7 +39,7 @@ public interface IMojangSkinService
     /// <param name="playerId">The unique player ID (typically the numeric representation of the player's UUID).</param>
     /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
     /// <returns>The updated <see cref="MojangProfile"/> with the default skin restored, or null if the operation failed.</returns>
-    Task<MojangProfile?> ResetSkin(string mcToken, long playerId, CancellationToken cancellationToken = default);
+    Task<MojangProfile?> ResetSkinAsync(string mcToken, long playerId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Displays a specific cape on the player's character if they own it.
@@ -49,7 +49,7 @@ public interface IMojangSkinService
     /// <param name="capeId">The identifier of the cape to display. This must be a cape the player owns.</param>
     /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
     /// <returns>The updated <see cref="MojangProfile"/> with the cape now visible, or null if the operation failed.</returns>
-    Task<MojangProfile?> ShowCape(string mcToken, string capeId, CancellationToken cancellationToken = default);
+    Task<MojangProfile?> ShowCapeAsync(string mcToken, string capeId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Hides the currently displayed cape from the player's character.
@@ -58,5 +58,5 @@ public interface IMojangSkinService
     /// <param name="mcToken">The Minecraft authentication token obtained from Microsoft/Mojang login.</param>
     /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
     /// <returns>The updated <see cref="MojangProfile"/> with the cape now hidden, or null if the operation failed.</returns>
-    Task<MojangProfile?> HideCape(string mcToken, CancellationToken cancellationToken = default);
+    Task<MojangProfile?> HideCapeAsync(string mcToken, CancellationToken cancellationToken = default);
 }

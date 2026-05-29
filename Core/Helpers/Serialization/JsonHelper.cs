@@ -55,7 +55,7 @@ public static class JsonHelper
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"Failed to delete file {path}:\n {ex}");
+                    _logger.LogError(ex, $"Failed to delete file {path}:");
                     FileSystemHelper.DeleteFile(tempPath);
                 }
             }
@@ -65,7 +65,7 @@ public static class JsonHelper
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Error in WriteJsonFile<T> {path}:", ex);
+            _logger.LogCritical(ex, $"Error in WriteJsonFile<T> {path}:");
             return false;
         }
     }
@@ -111,7 +111,7 @@ public static class JsonHelper
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError($"Failed to delete file {path}:\n {ex}");
+                        _logger.LogError(ex, $"Failed to delete file {path}:");
                         FileSystemHelper.DeleteFile(tempPath);
                         if (_maxRetries - 1 > i)
                             await Task.Delay(_retryDelay, cancellationToken);
@@ -128,7 +128,7 @@ public static class JsonHelper
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Error in WriteJsonFileAsync<T> {path}:", ex);
+            _logger.LogCritical(ex, $"Error in WriteJsonFileAsync<T> {path}:");
             return false;
         }
     }
@@ -151,7 +151,7 @@ public static class JsonHelper
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Error in ReadJsonFileAsync<T> {path}:", ex);
+            _logger.LogCritical(ex, $"Error in ReadJsonFileAsync<T> {path}:");
             return default;
         }
     }

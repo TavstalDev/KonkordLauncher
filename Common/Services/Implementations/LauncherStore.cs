@@ -108,7 +108,7 @@ public class LauncherStore : ILauncherStore
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Error saving file at {path}: {ex}");
+            _logger.LogCritical(ex, $"Error saving file at {path}:");
             return false;
         }
     }
@@ -154,7 +154,7 @@ public class LauncherStore : ILauncherStore
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Error reading or creating file at {path}: {ex}");
+            _logger.LogCritical(ex, $"Error reading or creating file at {path}:");
             return factory();
         }
     }

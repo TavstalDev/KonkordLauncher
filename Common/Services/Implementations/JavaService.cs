@@ -143,7 +143,7 @@ public class JavaService : IJavaService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to download Java '{majorVersion}'.");
+            _logger.LogCritical(ex, $"Failed to download Java '{majorVersion}'.");
             _logger.LogCritical(ex.ToString());
             return false;
         }
@@ -173,7 +173,7 @@ public class JavaService : IJavaService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to validate Java: {ex}");
+            _logger.LogCritical(ex, $"Failed to validate Java:");
             return Task.FromResult(false);
         }
     }
@@ -239,7 +239,7 @@ public class JavaService : IJavaService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to get Java version details: {ex}");
+            _logger.LogCritical(ex, $"Failed to get Java version details:");
             return null;
         }
     }

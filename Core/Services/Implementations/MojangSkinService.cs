@@ -25,7 +25,7 @@ public class MojangSkinService : IMojangSkinService
     }
     
     /// <inheritdoc/>
-    public async Task<MojangProfile?> ChangeSkin(string mcToken, string variant, string url, CancellationToken cancellationToken = default)
+    public async Task<MojangProfile?> ChangeSkinAsync(string mcToken, string variant, string url, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -54,13 +54,13 @@ public class MojangSkinService : IMojangSkinService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical("Failed to change skin: " + ex.Message);
+            _logger.LogCritical(ex, "Failed to change skin: " + ex.Message);
             return null;
         }
     }
 
     /// <inheritdoc/>
-    public async Task<MojangProfile?> UploadSkin(string mcToken, string variant, string skinPath, CancellationToken cancellationToken = default)
+    public async Task<MojangProfile?> UploadSkinAsync(string mcToken, string variant, string skinPath, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -85,13 +85,13 @@ public class MojangSkinService : IMojangSkinService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical("Failed to upload skin: " + ex.Message);
+            _logger.LogCritical(ex, "Failed to upload skin: " + ex.Message);
             return null;
         }
     }
 
     /// <inheritdoc/>
-    public async Task<MojangProfile?> ResetSkin(string mcToken, long playerId, CancellationToken cancellationToken = default)
+    public async Task<MojangProfile?> ResetSkinAsync(string mcToken, long playerId, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -108,13 +108,13 @@ public class MojangSkinService : IMojangSkinService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical("Failed to reset skin: " + ex.Message);
+            _logger.LogCritical(ex, "Failed to reset skin: " + ex.Message);
             return null;
         }
     }
 
     /// <inheritdoc/>
-    public async Task<MojangProfile?> ShowCape(string mcToken, string capeId, CancellationToken cancellationToken = default)
+    public async Task<MojangProfile?> ShowCapeAsync(string mcToken, string capeId, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -141,13 +141,13 @@ public class MojangSkinService : IMojangSkinService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical("Failed to show cape: " + ex.Message);
+            _logger.LogCritical(ex, "Failed to show cape: " + ex.Message);
             return null;
         }
     }
 
     /// <inheritdoc/>
-    public async Task<MojangProfile?> HideCape(string mcToken, CancellationToken cancellationToken = default)
+    public async Task<MojangProfile?> HideCapeAsync(string mcToken, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -164,7 +164,7 @@ public class MojangSkinService : IMojangSkinService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical("Failed to hide cape: " + ex.Message);
+            _logger.LogCritical(ex, "Failed to hide cape: " + ex.Message);
             return null;
         }
     }

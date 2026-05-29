@@ -622,7 +622,7 @@ public class LibraryDownloadService : ILibraryDownloadService
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Failed to extract native files from {libFilePath}: {ex}");
+            _logger.LogError(ex, $"Failed to extract native files from {libFilePath}:");
         }
         finally
         {

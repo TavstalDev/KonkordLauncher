@@ -69,7 +69,7 @@ public class ValidationService : IValidationService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to validate data folder: {ex}");
+            _logger.LogCritical(ex, $"Failed to validate data folder:");
             return false;
         }
     }
@@ -106,7 +106,7 @@ public class ValidationService : IValidationService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to validate accounts: {ex}");
+            _logger.LogCritical(ex, $"Failed to validate accounts:");
             return false;
         }
     }
@@ -227,7 +227,7 @@ public class ValidationService : IValidationService
             }
             catch (Exception ex)
             {
-                _logger.LogCritical($"Failed to validate NeoForge manifest: {ex}");
+                _logger.LogCritical(ex, $"Failed to validate NeoForge manifest:");
                 // Skipping due to known issues with the NeoForge manifest (as of 2026. 03. 09.)
             }
 
@@ -248,7 +248,7 @@ public class ValidationService : IValidationService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to validate manifests: {ex}");
+            _logger.LogCritical(ex, $"Failed to validate manifests:");
             return false;
         }
     }

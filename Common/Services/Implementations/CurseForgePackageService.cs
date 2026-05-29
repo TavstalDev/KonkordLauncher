@@ -32,7 +32,7 @@ public class CurseForgePackageService : IPackageService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to import curse forge package: {ex}");
+            _logger.LogCritical(ex, $"Failed to import curse forge package:");
             return null;
         }
     }
@@ -48,7 +48,7 @@ public class CurseForgePackageService : IPackageService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to export curse forge package: {ex}");
+            _logger.LogCritical(ex, $"Failed to export curse forge package:");
             return false;
         }
     }

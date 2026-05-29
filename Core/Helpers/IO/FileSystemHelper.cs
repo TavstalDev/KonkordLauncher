@@ -55,7 +55,7 @@ public static class FileSystemHelper
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Unexpected error while trying to delete file '{path}': {ex}");
+            _logger.LogCritical(ex, $"Unexpected error while trying to delete file '{path}':");
             return false;
         }
     }
@@ -129,7 +129,7 @@ public static class FileSystemHelper
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"Unexpected error while trying to delete subdirectory '{dir}': {ex}");
+                    _logger.LogError(ex, $"Unexpected error while trying to delete subdirectory '{dir}':");
                     return false;
                 }
             }
@@ -139,7 +139,7 @@ public static class FileSystemHelper
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Unexpected error while trying to delete directory '{path}': {ex}");
+            _logger.LogCritical(ex,$"Unexpected error while trying to delete directory '{path}':");
             return false;
         }
     }
@@ -268,7 +268,7 @@ public static class FileSystemHelper
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to make '{path}' executable:", ex);
+            _logger.LogCritical(ex, $"Failed to make '{path}' executable:");
             return false;
         }
     }
@@ -295,7 +295,7 @@ public static class FileSystemHelper
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to following file readonly {pathToFile}:", ex);
+            _logger.LogCritical(ex, $"Failed to following file readonly {pathToFile}:");
             return false;
         }
     }
@@ -322,7 +322,7 @@ public static class FileSystemHelper
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to following file writable {pathToFile}:", ex);
+            _logger.LogCritical(ex, $"Failed to following file writable {pathToFile}:");
             return false;
         }
     }
@@ -351,7 +351,7 @@ public static class FileSystemHelper
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Unexpected error while testing write permissions at {targetDir}:", ex);
+            _logger.LogError($"Unexpected error while testing write permissions at {targetDir}:");
             return false;
         }
     }
@@ -382,7 +382,7 @@ public static class FileSystemHelper
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Unexpected error while testing write permissions at {targetDir}:", ex);
+            _logger.LogError($"Unexpected error while testing write permissions at {targetDir}:");
             return false;
         }
     }
@@ -402,7 +402,7 @@ public static class FileSystemHelper
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Unexpected error while checking free space at {targetDir}:", ex);
+            _logger.LogError($"Unexpected error while checking free space at {targetDir}:");
             return false;
         }
     }
@@ -435,7 +435,7 @@ public static class FileSystemHelper
         }
         catch (Exception ex)
         {
-            _logger.LogCritical("Failed to check SHA1 hash:");
+            _logger.LogCritical(ex, "Failed to check SHA1 hash:");
             _logger.LogError(ex.ToString());
             return false;
         }
@@ -470,7 +470,7 @@ public static class FileSystemHelper
         }
         catch (Exception ex)
         {
-            _logger.LogCritical("Failed to check SHA256 hash:");
+            _logger.LogCritical(ex, "Failed to check SHA256 hash:");
             _logger.LogError(ex.ToString());
             return false;
         }
@@ -523,7 +523,7 @@ public static class FileSystemHelper
         }
         catch (Exception ex)
         {
-            _logger.LogCritical("Failed to compute file hash:");
+            _logger.LogCritical(ex, "Failed to compute file hash:");
             _logger.LogError(ex.ToString());
             return null;
         }
@@ -548,7 +548,7 @@ public static class FileSystemHelper
         }
         catch (Exception ex)
         {
-            _logger.LogCritical("Failed to compute file hash:");
+            _logger.LogCritical(ex, "Failed to compute file hash:");
             _logger.LogError(ex.ToString());
             return null;
         }
@@ -571,7 +571,7 @@ public static class FileSystemHelper
         }
         catch (Exception ex)
         {
-            _logger.LogCritical("Failed to compute content hash:");
+            _logger.LogCritical(ex, "Failed to compute content hash:");
             _logger.LogError(ex.ToString());
             return null;
         }

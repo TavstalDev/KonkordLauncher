@@ -63,7 +63,7 @@ public class MetaCacheService : BackgroundService, IMetaCacheService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to initialize meta cache: {ex}");
+            _logger.LogCritical(ex, $"Failed to initialize meta cache:");
         }
     }
 
@@ -113,7 +113,7 @@ public class MetaCacheService : BackgroundService, IMetaCacheService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to get image in meta cache: {ex}");
+            _logger.LogCritical(ex, $"Failed to get image in meta cache:");
             return null;
         }
     }
@@ -154,7 +154,7 @@ public class MetaCacheService : BackgroundService, IMetaCacheService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to get project in meta cache: {ex}");
+            _logger.LogCritical(ex, $"Failed to get project in meta cache:");
             return null;
         }
     }
@@ -223,7 +223,7 @@ public class MetaCacheService : BackgroundService, IMetaCacheService
          }
          catch (Exception ex)
          {
-             _logger.LogCritical($"Failed to get projects in meta cache: {ex}");
+             _logger.LogCritical(ex, $"Failed to get projects in meta cache:");
              return [];
          }
     }
@@ -292,7 +292,7 @@ public class MetaCacheService : BackgroundService, IMetaCacheService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to get versions in meta cache: {ex}");
+            _logger.LogCritical(ex, $"Failed to get versions in meta cache:");
             return [];
         }
     }
@@ -313,7 +313,7 @@ public class MetaCacheService : BackgroundService, IMetaCacheService
        }
        catch (Exception ex)
        {
-           _logger.LogCritical($"Failed to search modpacks in meta cache: {ex}");
+           _logger.LogCritical(ex, $"Failed to search modpacks in meta cache:");
            return null;
        }
     }
@@ -334,7 +334,7 @@ public class MetaCacheService : BackgroundService, IMetaCacheService
        }
        catch (Exception ex)
        {
-           _logger.LogCritical($"Failed to search mods in meta cache: {ex}");
+           _logger.LogCritical(ex, $"Failed to search mods in meta cache:");
            return null;
        }
     }
@@ -355,7 +355,7 @@ public class MetaCacheService : BackgroundService, IMetaCacheService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to search resource packs in meta cache: {ex}");
+            _logger.LogCritical(ex, $"Failed to search resource packs in meta cache:");
             return null;
         }
     }
@@ -376,7 +376,7 @@ public class MetaCacheService : BackgroundService, IMetaCacheService
          }
          catch (Exception ex)
          {
-             _logger.LogCritical($"Failed to search shaders in meta cache: {ex}");
+             _logger.LogCritical(ex, $"Failed to search shaders in meta cache:");
              return null;
          }
     }
@@ -458,7 +458,7 @@ public class MetaCacheService : BackgroundService, IMetaCacheService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to save meta cache: {ex}");
+            _logger.LogCritical(ex, $"Failed to save meta cache:");
         }
     }
 }

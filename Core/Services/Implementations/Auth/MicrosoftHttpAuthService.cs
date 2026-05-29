@@ -54,7 +54,7 @@ public class MicrosoftHttpAuthService : IMicrosoftHttpAuthService
         catch (HttpListenerException ex)
         {
             progressReporter?.UpdateStatusTranslated("auth.listener.failed");
-            _logger.LogError($"Failed to start HTTP listener: {ex}");
+            _logger.LogError(ex, $"Failed to start HTTP listener:");
             _isListening = false;
             return;
         }

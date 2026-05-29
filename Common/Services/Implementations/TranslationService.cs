@@ -108,7 +108,7 @@ public class TranslationService : IHostedService, ITranslationService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to change language: {ex.Message}");
+            _logger.LogCritical(ex, $"Failed to change language: {ex.Message}");
         }
     }
 

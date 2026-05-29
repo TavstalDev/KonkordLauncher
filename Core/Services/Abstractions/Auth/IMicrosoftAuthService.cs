@@ -1,7 +1,9 @@
 using System.Net;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Models;
+using Tavstal.KonkordLauncher.Core.Models.Accounts;
 using Tavstal.KonkordLauncher.Core.Models.Microsoft;
+using Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
 
 namespace Tavstal.KonkordLauncher.Core.Services.Abstractions.Auth;
 
@@ -15,6 +17,16 @@ public interface IMicrosoftAuthService
     /// Gets the current authentication status.
     /// </summary>
     EAuthStatus AuthStatus { get; }
+    
+    /// <summary>
+    /// Gets the currently loaded Mojang profile associated with the authenticated account.
+    /// </summary>
+    MojangProfile? MojangProfile { get; }
+    
+    /// <summary>
+    /// Gets the authenticated account information, if available.
+    /// </summary>
+    Account? Account { get; }
     
     public delegate void AuthStatusChangedHandler(EAuthStatus status);
     event AuthStatusChangedHandler? OnAuthStatusChanged;

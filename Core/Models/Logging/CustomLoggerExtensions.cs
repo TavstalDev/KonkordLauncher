@@ -206,7 +206,7 @@ public static class CustomLoggerExtensions
         /// <param name="args">An object array that contains zero or more objects to format.</param>
         /// <example>
         /// <code language="csharp">
-        /// logger.LogCritical("Processing request from {Address}", address)
+        /// logger.LogCritical(ex, "Processing request from {Address}", address)
         /// </code>
         /// </example>
         public void LogCritical(string? message, params object?[] args)

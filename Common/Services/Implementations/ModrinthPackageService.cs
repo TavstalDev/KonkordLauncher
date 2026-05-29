@@ -46,7 +46,7 @@ public class ModrinthPackageService : IPackageService
         {
             if (!File.Exists(sourcePath) || Path.GetExtension(sourcePath) != ".mrpack")
             {
-                _logger.LogCritical("Source path does not exist or is not a .mrpack file");
+                _logger.LogError("Source path does not exist or is not a .mrpack file");
                 return null;
             }
 
@@ -223,7 +223,7 @@ public class ModrinthPackageService : IPackageService
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error processing modrinth package: {ex}");
+                _logger.LogError(ex, $"Error processing modrinth package:");
                 return null;
             }
             finally
@@ -235,7 +235,7 @@ public class ModrinthPackageService : IPackageService
         }
         catch (Exception ex)
         {
-            _logger.LogDebug($"Failed to import modrinth package: {ex}");
+            _logger.LogDebug(ex, $"Failed to import modrinth package:");
             return null;
         }
     }
@@ -330,7 +330,7 @@ public class ModrinthPackageService : IPackageService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to export modrinth package: {ex}");
+            _logger.LogCritical(ex, $"Failed to export modrinth package:");
             return false;
         }
         finally

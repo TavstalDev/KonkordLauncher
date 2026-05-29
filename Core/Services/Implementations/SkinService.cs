@@ -43,7 +43,7 @@ public class SkinService : ISkinService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to download skin model: {ex}");
+            _logger.LogCritical(ex, $"Failed to download skin model:");
             return null;
         }
     }
@@ -124,7 +124,7 @@ public class SkinService : ISkinService
        }
        catch (Exception ex)
        {
-           _logger.LogCritical($"Failed to fetch offline skin for {name}: {ex}" );
+           _logger.LogCritical(ex, $"Failed to fetch offline skin for {name}:" );
        }
     }
 
@@ -201,7 +201,7 @@ public class SkinService : ISkinService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to fetch skin for {uuid}: {ex}");
+            _logger.LogCritical(ex, $"Failed to fetch skin for {uuid}:");
         }
     }
 
@@ -251,7 +251,7 @@ public class SkinService : ISkinService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to fetch capes: {ex}");
+            _logger.LogCritical(ex, $"Failed to fetch capes:");
         }
     }
 

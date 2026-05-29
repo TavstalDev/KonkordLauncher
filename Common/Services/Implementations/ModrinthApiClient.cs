@@ -44,7 +44,7 @@ public class ModrinthApiClient : IModrinthApiClient
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to search mods on modrinth: {ex}");
+            _logger.LogCritical(ex, $"Failed to search mods on modrinth:");
             return null;
         }
     }
@@ -71,7 +71,7 @@ public class ModrinthApiClient : IModrinthApiClient
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to search modpacks on modrinth: {ex}");
+            _logger.LogCritical(ex, $"Failed to search modpacks on modrinth:");
             return null;
         }
     }
@@ -98,7 +98,7 @@ public class ModrinthApiClient : IModrinthApiClient
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to search resource packs on modrinth: {ex}");
+            _logger.LogCritical(ex, $"Failed to search resource packs on modrinth:");
             return null;
         }
     }
@@ -125,7 +125,7 @@ public class ModrinthApiClient : IModrinthApiClient
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to search shader packs on modrinth: {ex}");
+            _logger.LogCritical(ex, $"Failed to search shader packs on modrinth:");
             return null;
         }
     }
@@ -139,7 +139,7 @@ public class ModrinthApiClient : IModrinthApiClient
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to get project from modrinth: {ex}");
+            _logger.LogCritical(ex, $"Failed to get project from modrinth:");
             return null;
         }
     }
@@ -153,7 +153,7 @@ public class ModrinthApiClient : IModrinthApiClient
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to get projects from modrinth: {ex}");
+            _logger.LogCritical(ex, $"Failed to get projects from modrinth:");
             return [];
         }
     }
@@ -167,7 +167,7 @@ public class ModrinthApiClient : IModrinthApiClient
         }
         catch (Exception ex)
         {
-            _logger.LogCritical($"Failed to get versions from modrinth: {ex}");
+            _logger.LogCritical(ex, $"Failed to get versions from modrinth:");
             return [];
         }
     }

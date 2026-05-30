@@ -138,20 +138,39 @@
                                         <Image
                                             Width="150"
                                             Height="150"
-                                            Source="{Binding QrCode}" />
+                                            Source="{Binding QrCode}"
+                                            IsVisible="{Binding !IsQrCodeLoading}"/>
+                                        
+                                        <!-- QR code loading indicator  -->
+                                        <avalonia:LoadingIndicator
+                                            Height="150"
+                                            VerticalAlignment="Center"
+                                            Foreground="{DynamicResource primary-content}"
+                                            IsActive="{Binding IsQrCodeLoading}"
+                                            IsVisible="{Binding IsQrCodeLoading}"
+                                            Mode="Arc"
+                                            SpeedRatio="1.2" />
+                                        
                                         
                                         <!--  Code  -->
                                         <WrapPanel HorizontalAlignment="Center" ItemSpacing="10">
                                             <SelectableTextBlock
                                                 VerticalAlignment="Center"
                                                 FontSize="25"
-                                                Text="{Binding DeviceData.UserCode}" />
+                                                Text="{Binding DeviceData.UserCode}"
+                                                IsVisible="{Binding !IsQrCodeLoading}"/>
+                                            <TextBlock 
+                                                VerticalAlignment="Center"
+                                                FontSize="25"
+                                                Text="{lang:Translate common.loading}"
+                                                IsVisible="{Binding IsQrCodeLoading}" />
                                             <!--  Copy link button  -->
                                             <Button Classes="IconBtn" Command="{Binding MicrosoftCopyCodeCommand}">
                                                 <TextBlock
                                                     VerticalAlignment="Center"
                                                     Classes="FontAwesome"
-                                                    Text="&#xf0c5;" />
+                                                    Text="&#xf0c5;"
+                                                    IsEnabled="{Binding !IsQrCodeLoading}"/>
                                             </Button>
                                         </WrapPanel>
 

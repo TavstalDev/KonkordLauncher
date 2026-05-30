@@ -73,13 +73,13 @@ public partial class AccountsViewModel : KonkordObservableObject
     public partial string? OfflineUsername { get; set; }
 
     [ObservableProperty]
-    public partial DeviceCodeResult DeviceData { get; set; }
+    public partial DeviceCodeResult? DeviceData { get; set; }
 
     [ObservableProperty]
     public partial Bitmap? QrCode { get; set; }
-    
-    [ObservableProperty]
-    public partial bool IsQrCodeLoading { get; set; }
+
+    [ObservableProperty] 
+    public partial bool IsQrCodeLoading { get; set; } = true;
     #endregion
 
     /// <summary>
@@ -109,10 +109,6 @@ public partial class AccountsViewModel : KonkordObservableObject
         _deviceAuthService = services.GetRequiredService<IMicrosoftDeviceAuthService>();
         _httpAuthService = services.GetRequiredService<IMicrosoftHttpAuthService>();
         _skinService = services.GetRequiredService<ISkinService>();
-        DeviceData = new DeviceCodeResult
-        {
-            UserCode = _translationService.Translate("common.loading"),
-        };
     }
 
     /// <summary>
@@ -136,6 +132,10 @@ public partial class AccountsViewModel : KonkordObservableObject
     {
         _authService.Reset();
         IsLoggingInMicrosoftAccount = false;
+        IsQrCodeLoading = true;
+        var qrCodeCopy = QrCode;
+        QrCode = null;
+        qrCodeCopy?.Dispose();
     }
 
     public void OnAuthStatusChange(EAuthStatus status)
@@ -232,11 +232,12 @@ public partial class AccountsViewModel : KonkordObservableObject
             _logger.LogError("Failed to create Microsoft device code.");
             return;
         }
-
-        DeviceData = codeResult;
+        
         IsQrCodeLoading = true;
         QrCode?.Dispose();
+        DeviceData = codeResult;
         QrCode = ImageHelper.GenerateQrCode(DeviceData.VerificationUri);
+        await Task.Delay(200); // Small delay to ensure the code is loaded
         IsQrCodeLoading = false;
         
         await Task.WhenAny(
@@ -255,13 +256,13 @@ public partial class AccountsViewModel : KonkordObservableObject
     /// Opens the Microsoft device code verification URL in the default browser.
     /// </summary>
     [RelayCommand]
-    private void MicrosoftOpenCodeLink() => OSHelper.OpenUrl(DeviceData.VerificationUri);
+    private void MicrosoftOpenCodeLink() => OSHelper.OpenUrl(DeviceData!.VerificationUri);
 
     /// <summary>
     /// Copies the Microsoft device code to the clipboard.
     /// </summary>
     [RelayCommand]
-    private async Task MicrosoftCopyCode() => await SetClipboardText.Handle(DeviceData.UserCode);
+    private async Task MicrosoftCopyCode() => await SetClipboardText.Handle(DeviceData!.UserCode);
     
     /// <summary>
     /// Cancels the Microsoft login process and stops the authentication listener.

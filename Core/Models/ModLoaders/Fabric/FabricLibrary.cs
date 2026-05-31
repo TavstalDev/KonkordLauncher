@@ -77,11 +77,14 @@ public class FabricLibrary
     /// <returns>The full download URL for the artifact.</returns>
     public string GetURL()
     {
-        string path;
-        string[] parts = Name.Split(":", 3);
-        path = parts[0].Replace(".", "/") + "/" + parts[1] + "/" + parts[2] + "/" + parts[1] + "-" + parts[2] + ".jar";
-
-        return Url + path;
+        var parts = Name.Split(':') ?? [];
+        if (parts.Length != 3)
+            throw new FormatException($"Invalid Maven coordinate '{Name}'");
+        string groupPath = parts[0].Replace('.', '/');
+        string artifact = parts[1];
+        string version = parts[2];
+        string path = $"{groupPath}/{artifact}/{version}/{artifact}-{version}.jar";
+        return Url.TrimEnd('/') + "/" + path;
     }
 
     /// <summary>

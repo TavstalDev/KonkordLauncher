@@ -7,7 +7,7 @@ namespace Tavstal.KonkordLauncher.Common.Helpers;
 /// <summary>
 /// Provides a static bridge to the active <see cref="ITranslationService"/> implementation.
 /// </summary>
-public class TranslationHelper
+public static class TranslationHelper
 {
     /// <summary>
     /// Gets or sets the current translation service instance used for lookups.

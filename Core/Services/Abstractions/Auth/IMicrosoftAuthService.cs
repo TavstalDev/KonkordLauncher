@@ -28,7 +28,15 @@ public interface IMicrosoftAuthService
     /// </summary>
     Account? Account { get; }
     
+    /// <summary>
+    /// Delegate used to notify subscribers when the Microsoft authentication status changes.
+    /// </summary>
+    /// <param name="status">The new authentication status.</param>
     public delegate void AuthStatusChangedHandler(EAuthStatus status);
+
+    /// <summary>
+    /// Occurs when the Microsoft authentication status changes.
+    /// </summary>
     event AuthStatusChangedHandler? OnAuthStatusChanged;
     
     /// <summary>

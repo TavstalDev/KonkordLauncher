@@ -2,8 +2,15 @@ using Microsoft.Extensions.Logging;
 
 namespace Tavstal.KonkordLauncher.Core.Models.Logging;
 
+/// <summary>
+/// Provides extension helpers for the custom logging system used by the launcher.
+/// </summary>
 public static class CustomLoggerExtensions
 {
+    /// <summary>
+    /// Formats a <see cref="LogEntry"/> and an optional <see cref="Exception"/> into a single string
+    /// suitable for output to the configured log sinks.
+    /// </summary>
     private static readonly Func<LogEntry, Exception?, string> _messageFormatter = (state, exception) =>
     {
         var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");

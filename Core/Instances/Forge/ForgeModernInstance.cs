@@ -14,7 +14,20 @@ using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Core.Instances.Forge;
 
-// 1.12.2+
+/// <summary>
+/// Represents a modern Forge instance implementation for Minecraft 1.12.2 and newer.
+/// This type extends <see cref="ForgeInstanceBase"/> and is responsible for installer/profile-based
+/// setup logic used by newer Forge distributions.
+/// </summary>
+/// <param name="id">Unique identifier for the launcher instance.</param>
+/// <param name="gameVersion">The base Mojang <see cref="MinecraftVersion"/> selected for this instance.</param>
+/// <param name="gameDetails">Game-level settings such as Minecraft version, Forge version, and custom directories.</param>
+/// <param name="pathDetails">Resolved filesystem locations (versions, libraries, assets, cache, etc.).</param>
+/// <param name="launcherDetails">Launcher metadata and configuration used during installation and launch preparation.</param>
+/// <param name="clientDetails">Client/session information associated with this instance.</param>
+/// <param name="logger">Logger used to report installation progress, warnings, and errors.</param>
+/// <param name="resolution">Optional launch resolution override for the game window.</param>
+/// <param name="progressReporter">Optional progress reporter for UI/status updates during long-running tasks.</param>
 public class ForgeModernInstance(
     string id,
     MinecraftVersion gameVersion,
@@ -27,6 +40,7 @@ public class ForgeModernInstance(
    IProgressReporter? progressReporter = null)
    : ForgeInstanceBase(id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, logger, resolution, progressReporter)
 {
+    /// <inheritdoc/>
     public override async Task<ModdedData?> InstallModdedAsync(string tempDir, IHttpService httpService, CancellationToken cancellationToken = default)
     {
         if (ArgumentBuilder == null)

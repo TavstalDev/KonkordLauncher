@@ -14,7 +14,23 @@ using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Core.Instances.Forge;
 
-// 1.7.10-1.12.1
+/// <summary>
+/// Represents a legacy Forge instance implementation for Minecraft versions 1.7.10 through 1.12.1.
+/// Handles installer/profile-based setup logic specific to this Forge generation.
+/// </summary>
+/// <param name="forgeVersionName">
+/// The Forge version identifier used for resolving installer and universal artifacts
+/// (for example: <c>1.12.2-14.23.5.2860</c>).
+/// </param>
+/// <param name="id">Unique identifier for this launcher instance.</param>
+/// <param name="gameVersion">The base Minecraft version metadata selected for the instance.</param>
+/// <param name="gameDetails">Game-specific runtime settings (kind, version values, custom paths, etc.).</param>
+/// <param name="pathDetails">Filesystem path configuration used by the instance (versions, libraries, assets, ...).</param>
+/// <param name="launcherDetails">Launcher-level configuration and metadata.</param>
+/// <param name="clientDetails">Client/session metadata associated with this instance.</param>
+/// <param name="logger">Logger used for diagnostics, warnings, and install progress messages.</param>
+/// <param name="resolution">Optional launch resolution override.</param>
+/// <param name="progressReporter">Optional progress reporter for long-running install/download operations.</param>
 public class ForgeLegacyInstance(string forgeVersionName,
     string id,
     MinecraftVersion gameVersion,
@@ -27,6 +43,7 @@ public class ForgeLegacyInstance(string forgeVersionName,
     IProgressReporter? progressReporter = null)
     : ForgeInstanceBase(id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, logger, resolution, progressReporter)
 {
+    /// <inheritdoc/>
     public override async Task<ModdedData?> InstallModdedAsync(string tempDir, IHttpService httpService, CancellationToken cancellationToken = default)
     {
         if (ArgumentBuilder == null)

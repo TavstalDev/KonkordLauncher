@@ -24,7 +24,7 @@ public static class LoggerHelper
             return;
         
         string logEntry = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] {entry}";
-        var queue = _queues.GetOrAdd(logFilePath ?? DefaultLogFilePath, _ => new ConcurrentQueue<string>());
+        var queue = _queues.GetOrAdd(logFilePath, _ => new ConcurrentQueue<string>());
         queue.Enqueue(logEntry);
         _signal.Release();
     }

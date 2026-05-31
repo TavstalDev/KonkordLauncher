@@ -82,7 +82,7 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
     [ObservableProperty]
     public partial bool CategoryTechnology { get; set; }
 
-    [ObservableProperty] private EPlatformType _selectedPlatform = EPlatformType.Modrinth;
+    [ObservableProperty] private EPlatformType _selectedPlatform = EPlatformType.MODRINTH;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ModpackPreview))]
@@ -99,9 +99,9 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
 
     public List<EPlatformType> AvailablePlatforms =>
     [
-        EPlatformType.Modrinth,
-        EPlatformType.CurseForge,
-        EPlatformType.Technic,
+        EPlatformType.MODRINTH,
+        EPlatformType.CURSE_FORGE,
+        EPlatformType.TECHNIC,
         EPlatformType.FTB
     ];
     

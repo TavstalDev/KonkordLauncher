@@ -45,7 +45,7 @@ public static class ForgeMapper
     /// <returns>The interpolated string.</returns>
     public static string Interpolation(string str, Dictionary<string, string?> dictionaries, bool handleEmpty)
     {
-        str = ArgBracket.Replace(str, (match =>
+        str = ArgBracket.Replace(str, match =>
         {
             if (match.Groups.Count < 2)
                 return match.Value;
@@ -58,7 +58,7 @@ public static class ForgeMapper
             }
 
             return match.Value;
-        }));
+        });
 
         return handleEmpty ? HandleEmptyArg(str) : str;
     }

@@ -70,7 +70,7 @@ public partial class ResourceBaseModel : ObservableObject
                 Versions = new ObservableCollection<Version>(versions),
                 Tags = new ObservableCollection<string>(project.Categories),
                 IsEnabled = true,
-                Platform = EPlatformType.Modrinth,
+                Platform = EPlatformType.MODRINTH,
                 FilePath = null
             };
         });

@@ -12,6 +12,23 @@ using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 namespace Tavstal.KonkordLauncher.Core.Instances.Forge;
 
 // 1.1 - 1.5.2
+
+/// <summary>
+/// Instance implementation for legacy Forge versions (approximately 1.1 - 1.5.2).
+/// This class handles the legacy installation flow where a "universal" zip is applied
+/// to a vanilla jar to produce a patched (forge-enabled) jar, and legacy libraries are staged.
+/// </summary>
+/// <param name="forgeVersionName">The Forge version identifier used to build download URLs (e.g. "10.13.4.1614").</param>
+/// <param name="universalName">The name of the universal artifact inside the Forge distribution (used in download URL).</param>
+/// <param name="id">Unique identifier for the instance.</param>
+/// <param name="gameVersion">The base vanilla <see cref="MinecraftVersion"/> used by this instance.</param>
+/// <param name="gameDetails">Game-level configuration (version strings, custom game directory, etc.).</param>
+/// <param name="pathDetails">Filesystem path configuration for versions, libraries, assets and so on.</param>
+/// <param name="launcherDetails">Launcher-level metadata.</param>
+/// <param name="clientDetails">Client-specific details such as auth tokens or client-side settings.</param>
+/// <param name="logger">Logger used for diagnostics and progress reporting.</param>
+/// <param name="resolution">Optional default resolution for the instance window.</param>
+/// <param name="progressReporter">Optional progress reporter to surface download/extract progress to callers.</param>
 public class ForgeEarlyInstance(string forgeVersionName, string universalName,
     string id,
     MinecraftVersion gameVersion,
@@ -24,6 +41,7 @@ public class ForgeEarlyInstance(string forgeVersionName, string universalName,
     IProgressReporter? progressReporter = null)
     : ForgeInstanceBase(id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, logger, resolution, progressReporter)
 {
+    /// <inheritdoc/>
     public override async Task<ModdedData?> InstallModdedAsync(string tempDir, IHttpService httpService, CancellationToken cancellationToken = default)
     {
         if (!File.Exists(PathDetails.CustomManifestPath))

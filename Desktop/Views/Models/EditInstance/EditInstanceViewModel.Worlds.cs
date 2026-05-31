@@ -357,7 +357,7 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
                     
                     // GameMode (int) — try "GameType" first, then "GameMode"
                     if (data.Data.GameMode != null)
-                        gamemode = (data.Data.GameMode) switch
+                        gamemode = data.Data.GameMode switch
                         {
                             0 => "Survival",
                             1 => "Creative",
@@ -366,7 +366,7 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
                             _ => "Unknown"
                         };
                     else if (data.Data.GameType != null)
-                        gamemode = (data.Data.GameType) switch
+                        gamemode = data.Data.GameType switch
                         {
                             0 => "Survival",
                             1 => "Creative",

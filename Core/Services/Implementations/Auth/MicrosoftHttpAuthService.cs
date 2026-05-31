@@ -16,6 +16,14 @@ public class MicrosoftHttpAuthService : IMicrosoftHttpAuthService
     public const string ListeningUrl = "http://localhost:43319/";
     private IProgressReporter? _progressReporter;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MicrosoftHttpAuthService"/> class and subscribes
+    /// to authentication status changes so the local listener can be stopped after successful sign-in.
+    /// </summary>
+    /// <param name="logger">Logger used for diagnostic and error output.</param>
+    /// <param name="microsoftAuthService">
+    /// The Microsoft authentication service that raises authentication status change notifications.
+    /// </param>
     public MicrosoftHttpAuthService(ICustomLogger<MicrosoftHttpAuthService> logger,
         IMicrosoftAuthService microsoftAuthService)
     {
@@ -24,6 +32,11 @@ public class MicrosoftHttpAuthService : IMicrosoftHttpAuthService
         _microsoftAuthService.OnAuthStatusChanged += OnAuthStatusChanged;
     }
 
+    /// <summary>
+    /// Handles authentication status updates from the Microsoft authentication service.
+    /// Stops the local HTTP listener once authentication succeeds.
+    /// </summary>
+    /// <param name="status">The current authentication status.</param>
     private void OnAuthStatusChanged(EAuthStatus status)
     {
         if (status == EAuthStatus.SUCCESS)

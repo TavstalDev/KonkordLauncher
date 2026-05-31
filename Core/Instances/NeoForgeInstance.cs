@@ -13,6 +13,19 @@ using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Core.Instances;
 
+/// <summary>
+/// An implementation of <see cref="ForgeInstanceBase"/> that installs and configures NeoForge-based modded instances.
+/// NeoForge is the community-driven fork of Minecraft Forge for modern Java Edition versions.
+/// </summary>
+/// <param name="id">Unique identifier for the instance.</param>
+/// <param name="gameVersion">The vanilla <see cref="MinecraftVersion"/> used as the base for this instance.</param>
+/// <param name="gameDetails">Details about the game/runtime configuration.</param>
+/// <param name="pathDetails">Filesystem paths used by the instance (libraries, assets, etc.).</param>
+/// <param name="launcherDetails">Launcher metadata and settings.</param>
+/// <param name="clientDetails">Client-specific data (e.g. credentials).</param>
+/// <param name="logger">Logger used for diagnostic messages.</param>
+/// <param name="resolution">Optional default resolution for the instance.</param>
+/// <param name="progressReporter">Optional progress reporter used to surface download/install progress to callers.</param>
 public class NeoForgeInstance(
     string id,
     MinecraftVersion gameVersion,
@@ -25,6 +38,7 @@ public class NeoForgeInstance(
     IProgressReporter? progressReporter = null)
     : ForgeInstanceBase(id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, logger, resolution, progressReporter)
 {
+    /// <inheritdoc/>
     public override async Task<ModdedData?> InstallModdedAsync(string tempDir, IHttpService httpService, CancellationToken cancellationToken = default)
     {
         if (ArgumentBuilder == null)

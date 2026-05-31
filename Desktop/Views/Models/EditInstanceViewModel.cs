@@ -48,7 +48,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     public EditInstanceViewModel_ShaderPacks ShaderPacks { get; private set; }
     public EditInstanceViewModel_Worlds Worlds { get; private set; }
 
-    public bool IsLinux => OSHelper.GetOperatingSystem() == EOperatingSystem.Linux;
+    public bool IsLinux => OSHelper.GetOperatingSystem() == EOperatingSystem.LINUX;
     public List<Account> Accounts { get; private set; }
 
     #region Interactions

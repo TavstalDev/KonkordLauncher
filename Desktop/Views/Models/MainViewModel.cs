@@ -28,7 +28,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 public partial class MainViewModel : KonkordObservableObject
 {
     private readonly ILauncherStore _launcherStore;
-    public bool IsLinux { get; } = OSHelper.GetOperatingSystem() == EOperatingSystem.Linux;
+    public bool IsLinux { get; } = OSHelper.GetOperatingSystem() == EOperatingSystem.LINUX;
     public DateTime NextCacheRefresh { get; private set; }
     public DateTime NextUpdate { get; private set; }
     public Task Initialization { get; }

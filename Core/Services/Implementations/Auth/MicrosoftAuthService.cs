@@ -32,8 +32,15 @@ public class MicrosoftAuthService : IMicrosoftAuthService
     private Account? _account;
     public Account? Account => _account;
     
+    /// <inheritdoc/>
     public event IMicrosoftAuthService.AuthStatusChangedHandler? OnAuthStatusChanged;
     
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MicrosoftAuthService"/> class with the
+    /// logger and HTTP service used to perform Microsoft authentication requests.
+    /// </summary>
+    /// <param name="logger">Logger used for diagnostics and error reporting.</param>
+    /// <param name="httpService">HTTP service used to create configured <see cref="HttpClient"/> instances.</param>
     public MicrosoftAuthService(ICustomLogger<MicrosoftAuthService> logger, IHttpService httpService)
     {
         _logger = logger;

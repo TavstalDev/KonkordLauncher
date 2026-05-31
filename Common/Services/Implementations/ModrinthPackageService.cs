@@ -57,7 +57,6 @@ public class ModrinthPackageService : IPackageService
                 Id = Guid.NewGuid().ToString(),
                 Name = string.Empty,
                 MinecraftVersion = string.Empty,
-                Type = EProfileType.CUSTOM,
                 Kind = EMinecraftKind.VANILLA,
                 Config = new InstanceConfig
                 {
@@ -199,7 +198,7 @@ public class ModrinthPackageService : IPackageService
                         Path = path,
                         Url = url,
                         Type = resourceType,
-                        Platform = EPlatformType.Modrinth,
+                        Platform = EPlatformType.MODRINTH,
                         FileSize = f["size"]?.ToObject<long>() ?? 0,
                         Sha1 = f["hashes"]?["sha1"]?.ToString() ?? string.Empty,
                         Sha512 = f["hashes"]?["sha512"]?.ToString() ?? string.Empty,

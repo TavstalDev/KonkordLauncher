@@ -279,7 +279,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
         if (!wasJavaUpdated)
             return;
         
-        if (OSHelper.GetOperatingSystem() != EOperatingSystem.Windows)
+        if (OSHelper.GetOperatingSystem() != EOperatingSystem.WINDOWS)
         {
             string[] directories = Directory.GetDirectories(settings.Launcher.JavaDirectoryPath);
             foreach (string directory in directories)

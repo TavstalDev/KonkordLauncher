@@ -89,7 +89,7 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
         if (string.IsNullOrEmpty(result) || !Directory.Exists(result))
             return;
         
-        InstanceConfig.Java.DefaultJavaPath = Path.Combine(result, OSHelper.GetOperatingSystem() == EOperatingSystem.Windows ? "javaw.exe" : "java");
+        InstanceConfig.Java.DefaultJavaPath = Path.Combine(result, OSHelper.GetOperatingSystem() == EOperatingSystem.WINDOWS ? "javaw.exe" : "java");
     }
     
     [RelayCommand]

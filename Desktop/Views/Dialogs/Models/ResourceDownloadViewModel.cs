@@ -56,7 +56,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
     public partial ObservableCollection<CategoryModel> Categories { get; set; } = [];
 
     [ObservableProperty]
-    public partial EPlatformType SelectedPlatform { get; set; } = EPlatformType.Modrinth;
+    public partial EPlatformType SelectedPlatform { get; set; } = EPlatformType.MODRINTH;
 
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(ModPreview)), NotifyPropertyChangedFor(nameof(IsResourceSelected))]
     public partial ResourceBaseModel? SelectedResource { get; set; }
@@ -73,9 +73,9 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
     
     public List<EPlatformType> AvailablePlatforms =>
     [
-        EPlatformType.Modrinth,
-        EPlatformType.CurseForge,
-        EPlatformType.Technic,
+        EPlatformType.MODRINTH,
+        EPlatformType.CURSE_FORGE,
+        EPlatformType.TECHNIC,
         EPlatformType.FTB
     ];
     

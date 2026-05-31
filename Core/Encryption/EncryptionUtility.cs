@@ -67,11 +67,11 @@ public static class EncryptionUtility
             
         switch (OSHelper.GetOperatingSystem())
         {
-            case EOperatingSystem.Windows:
+            case EOperatingSystem.WINDOWS:
                 return WIN_PREFIX + EncryptWin(text);
-            case EOperatingSystem.Linux:
+            case EOperatingSystem.LINUX:
                 return LINUX_PREFIX + EncryptLinux(text);
-            case EOperatingSystem.MacOS:
+            case EOperatingSystem.MACOS:
                 return MAC_PREFIX + EncryptMac(text);
             default:
                 throw new Exception("Unknown operating system");

@@ -87,12 +87,6 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     public partial string CustomVersion { get; set; }
 
     /// <summary>
-    /// Gets or sets the profile type of the instance.
-    /// </summary>
-    [ObservableProperty]
-    public partial EProfileType Type { get; set; }
-
-    /// <summary>
     /// Gets or sets the kind of Minecraft associated with the instance.
     /// </summary>
     [ObservableProperty]
@@ -158,7 +152,6 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         IconPath = instance.IconPath;
         MinecraftVersion = instance.MinecraftVersion;
         CustomVersion = instance.CustomVersion;
-        Type = instance.Type;
         Kind = instance.Kind;
         GameDirectory = instance.GameDirectory;
         ConfigModel = instance.Config;
@@ -181,7 +174,6 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             IconPath = IconPath,
             MinecraftVersion = MinecraftVersion,
             CustomVersion = CustomVersion,
-            Type = Type,
             Kind = Kind,
             GameDirectory = GameDirectory,
             Config = ConfigModel
@@ -204,7 +196,6 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         IconPath = newData.IconPath;
         MinecraftVersion = newData.MinecraftVersion;
         CustomVersion = newData.CustomVersion;
-        Type = newData.Type;
         Kind = newData.Kind;
         GameDirectory = newData.GameDirectory;
         ConfigModel = newData.Config;
@@ -319,7 +310,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             {
                 switch (OSHelper.GetOperatingSystem())
                 {
-                    case EOperatingSystem.Windows:
+                    case EOperatingSystem.WINDOWS:
                     {
                         switch (gpuInfo.Value.Item1)
                         {
@@ -336,7 +327,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
                         }
                         break;
                     }
-                    case EOperatingSystem.Linux:
+                    case EOperatingSystem.LINUX:
                     {
                         switch (gpuInfo.Value.Item1)
                         {

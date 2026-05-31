@@ -25,7 +25,6 @@ public interface ICustomLogger
     /// Gets the name of the module or component associated with this logger.
     /// </summary>
     /// <returns>The logger's module name.</returns>
-
     string GetModuleName();
     
     /// <summary>

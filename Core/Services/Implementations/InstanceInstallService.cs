@@ -11,12 +11,20 @@ using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Core.Services.Implementations;
 
+/// <inheritdoc/>
 public class InstanceInstallService : IInstanceInstallService
 {
     private readonly ICustomLogger _logger;
     private readonly IHttpService _httpService;
     private readonly ILibraryDownloadService _libraryDownloadService;
     
+    /// <summary>
+    /// Initializes a new instance of the <see cref="InstanceInstallService"/> class with the
+    /// dependencies required to install and prepare a Minecraft instance.
+    /// </summary>
+    /// <param name="logger">Logger used to record installation progress and diagnostic information.</param>
+    /// <param name="httpService">HTTP service used for downloading or retrieving remote installation data.</param>
+    /// <param name="libraryDownloadService">Service responsible for downloading Minecraft libraries, mappings, assets, and related files.</param>
     public InstanceInstallService(ICustomLogger<InstanceInstallService> logger, IHttpService httpService, ILibraryDownloadService libraryDownloadService)
     {
         _logger = logger;
@@ -24,6 +32,7 @@ public class InstanceInstallService : IInstanceInstallService
         _libraryDownloadService = libraryDownloadService;
     }
     
+    /// <inheritdoc/>
     public async Task<bool> InstallAsync(MinecraftInstance instance, IProgressReporter? progress = null,
         CancellationToken cancellationToken = default)
     {
@@ -108,6 +117,14 @@ public class InstanceInstallService : IInstanceInstallService
         }
     }
     
+    /// <summary>
+    /// Downloads the core files required for an instance, including version metadata, mappings,
+    /// and game assets. Also adjusts Java requirements for older Forge versions when needed.
+    /// </summary>
+    /// <param name="instance">The Minecraft instance being prepared for installation.</param>
+    /// <param name="progressReporter">Optional progress reporter used to report download progress.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <exception cref="InvalidOperationException">Thrown when the version metadata cannot be downloaded successfully.</exception>
     private async Task DownloadCoreFilesAsync(MinecraftInstance instance,
         IProgressReporter? progressReporter = null,
         CancellationToken cancellationToken = default)
@@ -133,6 +150,15 @@ public class InstanceInstallService : IInstanceInstallService
         await _libraryDownloadService.DownloadAssetsAsync(instance.MinecraftVersionMeta, instance.PathDetails.AssetsDir, instance.VersionData.GameDir, progressReporter, cancellationToken);
     }
     
+    /// <summary>
+    /// Downloads and prepares all runtime dependencies required by the instance, including
+    /// logging configuration, libraries, and the LaunchWrapper for non-Forge/non-NeoForge setups.
+    /// </summary>
+    /// <param name="instance">The Minecraft instance being installed.</param>
+    /// <param name="libraries">The complete list of libraries that must be downloaded.</param>
+    /// <param name="progressReporter">Optional progress reporter used to report download progress.</param>
+    /// <param name="cancellationToken">Token used to cancel the operation.</param>
+    /// <exception cref="InvalidOperationException">Thrown when the argument builder has not been initialized.</exception>
     private async Task DownloadDependenciesAsync(MinecraftInstance instance,
         List<LibraryMeta> libraries,
         IProgressReporter? progressReporter = null,

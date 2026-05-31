@@ -9,7 +9,6 @@ public static class MathHelper
     private static Random? _random;
     private static readonly Lock syncObj = new();
 
-
     /// <summary>
     /// Returns a random integer between the specified minimum and maximum values (inclusive).
     /// </summary>
@@ -48,7 +47,7 @@ public static class MathHelper
     /// <returns>The clamped value.</returns>
     public static int Clamp(int value, int minValue, int maxValue)
     {
-        return maxValue < value ? maxValue : (value < minValue ? minValue : value);
+        return maxValue < value ? maxValue : value < minValue ? minValue : value;
     }
 
     /// <summary>
@@ -60,7 +59,7 @@ public static class MathHelper
         lock (syncObj)
         {
             _random ??= new Random();
-            return (uint)(_random.Next(1 << 30)) << 2 | (uint)(_random.Next(1 << 2));
+            return (uint)_random.Next(1 << 30) << 2 | (uint)_random.Next(1 << 2);
         }
     }
 
@@ -73,7 +72,7 @@ public static class MathHelper
     /// <returns>The clamped value.</returns>
     public static uint Clamp(uint value, uint minValue, uint maxValue)
     {
-        return maxValue < value ? maxValue : (value < minValue ? minValue : value);
+        return maxValue < value ? maxValue : value < minValue ? minValue : value;
     }
 
     /// <summary>
@@ -87,7 +86,7 @@ public static class MathHelper
         lock (syncObj)
         {
             _random ??= new Random();
-            return (_random.NextDouble() * Math.Abs(max - min)) + min;
+            return _random.NextDouble() * Math.Abs(max - min) + min;
         }
     }
 
@@ -101,7 +100,7 @@ public static class MathHelper
         lock (syncObj)
         {
             _random ??= new Random();
-            return (_random.NextDouble() * Math.Abs(max));
+            return _random.NextDouble() * Math.Abs(max);
         }
     }
 
@@ -114,7 +113,7 @@ public static class MathHelper
     /// <returns>The clamped double value.</returns>
     public static double Clamp(double value, double minValue, double maxValue)
     {
-        return maxValue < value ? maxValue : (value < minValue ? minValue : value);
+        return maxValue < value ? maxValue : value < minValue ? minValue : value;
     }
 
     /// <summary>
@@ -155,7 +154,7 @@ public static class MathHelper
     /// <returns>The clamped float value within the specified range.</returns>
     public static float Clamp(float value, float minValue, float maxValue)
     {
-        return maxValue < value ? maxValue : (value < minValue ? minValue : value);
+        return maxValue < value ? maxValue : value < minValue ? minValue : value;
     }
 
     /// <summary>

@@ -122,7 +122,7 @@ public class HttpService : IHttpService
 
                 if (progress != null && contentLength.HasValue)
                 {
-                    double percentage = ((double)totalBytesRead / contentLength.Value) * 100;
+                    double percentage = (double)totalBytesRead / contentLength.Value * 100;
                     progress.Report(percentage);
                 }
             }
@@ -238,7 +238,7 @@ public class HttpService : IHttpService
 
                 if (progress != null && contentLength.HasValue)
                 {
-                    double percentage = ((double)totalBytesRead / contentLength.Value) * 100;
+                    double percentage = (double)totalBytesRead / contentLength.Value * 100;
                     progress.Report(percentage);
                 }
             }

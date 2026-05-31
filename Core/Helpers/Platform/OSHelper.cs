@@ -33,10 +33,10 @@ public static class OSHelper
         return platform switch
         {
             PlatformID.Win32NT or PlatformID.Win32Windows or PlatformID.Win32S or PlatformID.WinCE => EOperatingSystem
-                .Windows,
-            PlatformID.Unix => EOperatingSystem.Linux,
-            PlatformID.MacOSX => EOperatingSystem.MacOS,
-            _ => EOperatingSystem.Unknown
+                .WINDOWS,
+            PlatformID.Unix => EOperatingSystem.LINUX,
+            PlatformID.MacOSX => EOperatingSystem.MACOS,
+            _ => EOperatingSystem.UNKNOWN
         };
     }
     
@@ -48,11 +48,11 @@ public static class OSHelper
     /// </returns>
     public static bool IsWindows11()
     {
-        if (GetOperatingSystem() != EOperatingSystem.Windows)
+        if (GetOperatingSystem() != EOperatingSystem.WINDOWS)
             return false;
 
         Version osVersion = Environment.OSVersion.Version;
-        return (osVersion.Major > Windows11MajorVersion) || osVersion is { Major: Windows11MajorVersion, Build: >= Windows11MinimumBuild };
+        return osVersion.Major > Windows11MajorVersion || osVersion is { Major: Windows11MajorVersion, Build: >= Windows11MinimumBuild };
     }
 
     /// <summary>
@@ -133,13 +133,13 @@ public static class OSHelper
 
         switch (os)
         {
-            case EOperatingSystem.Windows:
+            case EOperatingSystem.WINDOWS:
             {
                 return Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
             }
-            case EOperatingSystem.Linux:
-            case EOperatingSystem.MacOS:
-            case EOperatingSystem.Unknown:
+            case EOperatingSystem.LINUX:
+            case EOperatingSystem.MACOS:
+            case EOperatingSystem.UNKNOWN:
             {
                 return Environment.GetEnvironmentVariable("HOME") ?? string.Empty;
             }
@@ -163,16 +163,16 @@ public static class OSHelper
 
         switch (os)
         {
-            case EOperatingSystem.Windows:
+            case EOperatingSystem.WINDOWS:
             {
                 return Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             }
-            case EOperatingSystem.MacOS:
+            case EOperatingSystem.MACOS:
             {
                 return Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
             }
-            case EOperatingSystem.Linux:
-            case EOperatingSystem.Unknown:
+            case EOperatingSystem.LINUX:
+            case EOperatingSystem.UNKNOWN:
             {
                 var xdgDesktop = Environment.GetEnvironmentVariable("XDG_DESKTOP_DIR");
                 if (!string.IsNullOrEmpty(xdgDesktop))
@@ -218,17 +218,17 @@ public static class OSHelper
 
         switch (os)
         {
-            case EOperatingSystem.Windows:
+            case EOperatingSystem.WINDOWS:
             {
                 return Environment.GetFolderPath(Environment.SpecialFolder.Programs);
             }
-            case EOperatingSystem.MacOS:
+            case EOperatingSystem.MACOS:
             {
                 // MacOS: Standard directory for applications.
                 return "/Applications";
             }
-            case EOperatingSystem.Linux:
-            case EOperatingSystem.Unknown:
+            case EOperatingSystem.LINUX:
+            case EOperatingSystem.UNKNOWN:
             {
                 // Linux: Standard directory for user-specific applications.
                 // ~/.local/share/applications
@@ -251,7 +251,7 @@ public static class OSHelper
             ProcessStartInfo startInfo;
             switch (GetOperatingSystem())
             {
-                case EOperatingSystem.Windows:
+                case EOperatingSystem.WINDOWS:
                 {
                     startInfo = new ProcessStartInfo(url)
                     {
@@ -259,7 +259,7 @@ public static class OSHelper
                     };
                     break;
                 }
-                case EOperatingSystem.MacOS:
+                case EOperatingSystem.MACOS:
                 {
                     startInfo = new ProcessStartInfo("open", url)
                     {
@@ -267,7 +267,7 @@ public static class OSHelper
                     };
                     break;
                 }
-                case EOperatingSystem.Linux:
+                case EOperatingSystem.LINUX:
                 {
                     startInfo = new ProcessStartInfo("xdg-open", url)
                     {
@@ -275,7 +275,7 @@ public static class OSHelper
                     };
                     break;
                 }
-                case EOperatingSystem.Unknown:
+                case EOperatingSystem.UNKNOWN:
                 default:
                 {
                     _logger.LogWarning("Unsupported operating system for opening URLs.");

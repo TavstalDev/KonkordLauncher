@@ -13,6 +13,18 @@ using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Core.Instances;
 
+/// <summary>
+/// An instance implementation that installs and configures Fabric-based modded instances.
+/// </summary>
+/// <param name="id">Unique identifier for the instance.</param>
+/// <param name="gameVersion">The vanilla <see cref="MinecraftVersion"/> used as the base for this instance.</param>
+/// <param name="gameDetails">Game/runtime settings describing version strings and custom paths.</param>
+/// <param name="pathDetails">Filesystem root paths used by the instance (libraries, assets, versions, etc.).</param>
+/// <param name="launcherDetails">Launcher-level metadata and settings.</param>
+/// <param name="clientDetails">Client-specific data (credentials, tokens, etc.).</param>
+/// <param name="logger">Logger used to emit diagnostic messages during installation and setup.</param>
+/// <param name="resolution">Optional default window resolution for the instance.</param>
+/// <param name="progressReporter">Optional progress reporter used to report long-running download/extract progress.</param>
 public class FabricInstance(
     string id,
     MinecraftVersion gameVersion,
@@ -25,6 +37,7 @@ public class FabricInstance(
     IProgressReporter? progressReporter = null)
     : MinecraftInstance(id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, logger, resolution, progressReporter)
 {
+    /// <inheritdoc/>
     public override async Task<ModdedData?> InstallModdedAsync(string tempDir, IHttpService httpService, CancellationToken cancellationToken = default)
     {
         if (ArgumentBuilder == null)

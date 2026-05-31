@@ -15,7 +15,24 @@ using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Core.Instances.Forge;
 
-// 1.5.2 - 1.7.2
+/// <summary>
+/// Represents a classic Forge instance installer/runner implementation for legacy Minecraft versions
+/// in the 1.5.2 to 1.7.2 range.
+/// </summary>
+/// <param name="forgeVersionName">
+/// The full Forge version identifier used for resolving installer/universal artifacts
+/// (for example, values like "1.6.4-9.11.1.1345").
+/// </param>
+/// <param name="universalFormat">The expected universal jar naming format used by this Forge generation.</param>
+/// <param name="id">Unique identifier for the launcher instance.</param>
+/// <param name="gameVersion">The selected base Minecraft version metadata.</param>
+/// <param name="gameDetails">Per-instance game configuration (kind, versions, Java path, etc.).</param>
+/// <param name="pathDetails">Resolved filesystem paths used by the instance (versions, libraries, assets, etc.).</param>
+/// <param name="launcherDetails">Launcher-level metadata and settings used during install/launch.</param>
+/// <param name="clientDetails">Client/session details associated with this instance.</param>
+/// <param name="logger">Logger used for progress, diagnostics, and error reporting.</param>
+/// <param name="resolution">Optional window resolution configuration for the instance.</param>
+/// <param name="progressReporter">Optional progress reporter used to surface long-running install status updates.</param>
 public class ForgeClassicInstance(string forgeVersionName,
     string universalFormat,
     string id,
@@ -29,6 +46,7 @@ public class ForgeClassicInstance(string forgeVersionName,
    IProgressReporter? progressReporter = null)
    : ForgeInstanceBase(id, gameVersion, gameDetails, pathDetails, launcherDetails, clientDetails, logger, resolution, progressReporter)
 {
+    /// <inheritdoc/>
     public override async Task<ModdedData?> InstallModdedAsync(string tempDir, IHttpService httpService, CancellationToken cancellationToken = default)
     {
         if (ArgumentBuilder == null)

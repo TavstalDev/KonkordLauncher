@@ -12,6 +12,13 @@ public class CustomLogger : ICustomLogger
     private readonly string _moduleName;
     private readonly string? _customLogFilePath;
     
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CustomLogger"/> class.
+    /// </summary>
+    /// <param name="moduleName">Name of the module or component producing logs (used in output).</param>
+    /// <param name="logLevel">Minimum <see cref="LogLevel"/> that will be emitted by this logger.</param>
+    /// <param name="printLogs">If true, log messages are also printed to the console.</param>
+    /// <param name="customLogFilePath">Optional path to a custom log file (passed to <see cref="LoggerHelper"/>).</param>
     public CustomLogger(string moduleName, LogLevel logLevel, bool printLogs = true, string? customLogFilePath = null)
     {
         _moduleName = moduleName;
@@ -53,6 +60,11 @@ public class CustomLogger : ICustomLogger
     /// <inheritdoc/>
     public LogLevel GetLogLevel() => _logLevel;
 
+    /// <summary>
+    /// Maps a <see cref="LogLevel"/> to a <see cref="ConsoleColor"/> for console output.
+    /// </summary>
+    /// <param name="logLevel">The log level to map.</param>
+    /// <returns>A <see cref="ConsoleColor"/> suitable for the given level.</returns>
     private static ConsoleColor GetLogLevelColor(LogLevel logLevel)
     {
         return logLevel switch
@@ -78,6 +90,12 @@ public class CustomLogger<T> : CustomLogger, ICustomLogger<T> where T : class
     public CustomLogger() 
         : this(LogLevel.Information, true, null) { }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CustomLogger{T}"/> class.
+    /// </summary>
+    /// <param name="logLevel">Minimum level to log.</param>
+    /// <param name="printLogs">Whether messages are printed to the console.</param>
+    /// <param name="customLogFilePath">Optional custom file path for persisted logs.</param>
     public CustomLogger(LogLevel logLevel, bool printLogs = true, string? customLogFilePath = null) 
         : base(typeof(T).Name, logLevel, printLogs, customLogFilePath) { }
 }

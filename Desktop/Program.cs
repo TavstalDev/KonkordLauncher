@@ -61,8 +61,8 @@ class Program
                 // Minecraft services
                 services.AddSingleton<IManifestService, ManifestService>();
                 services.AddScoped<ILibraryDownloadService, LibraryDownloadService>();
-                services.AddSingleton<InstanceInstallService, InstanceInstallService>();
-                services.AddSingleton<InstanceLaunchService, InstanceLaunchService>();
+                services.AddSingleton<IInstanceInstallService, InstanceInstallService>();
+                services.AddSingleton<IInstanceLaunchService, InstanceLaunchService>();
                 
                 services.AddSingleton<ISkinService, SkinService>();
                 services.AddSingleton<IMojangSkinService, MojangSkinService>();
@@ -77,8 +77,8 @@ class Program
                 services.AddHostedService(sp => sp.GetRequiredService<TranslationService>());
                 services.AddSingleton<IValidationService, ValidationService>();
                 services.AddSingleton<IModrinthApiClient, ModrinthApiClient>();
-                services.AddSingleton<IPackageService, ModrinthPackageService>();
-                services.AddSingleton<IPackageService, CurseForgePackageService>();
+                services.AddSingleton<ModrinthPackageService, ModrinthPackageService>();
+                services.AddSingleton<CurseForgePackageService, CurseForgePackageService>();
                 services.AddSingleton<IMetaCacheService, MetaCacheService>();
                 
                 var keyDir = Path.Combine(

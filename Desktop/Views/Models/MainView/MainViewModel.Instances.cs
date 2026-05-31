@@ -74,7 +74,11 @@ public partial class MainViewModel_Instances : KonkordObservableObject
     /// <param name="instanceId">The ID of the instance that was added.</param>
     private void OnInstanceAdded(string instanceId)
     {
-        _ =  HandleInstanceCreatedAsync(instanceId);
+        _ =  HandleInstanceCreatedAsync(instanceId).ContinueWith(task =>
+        {
+            if (task.IsFaulted)
+                _logger.LogError(task.Exception, "Instance added event handling error.");
+        }, TaskScheduler.Default);
     }
 
     /// <summary>
@@ -83,7 +87,11 @@ public partial class MainViewModel_Instances : KonkordObservableObject
     /// <param name="instanceId">The ID of the instance that was updated.</param>
     private void OnInstanceUpdated(string instanceId)
     {
-        _ =  HandleInstanceUpdatedAsync(instanceId);
+        _ =  HandleInstanceUpdatedAsync(instanceId).ContinueWith(task =>
+        {
+            if (task.IsFaulted)
+                _logger.LogError(task.Exception, "Instance updated event handling error.");
+        }, TaskScheduler.Default);
     }
 
     /// <summary>
@@ -92,7 +100,11 @@ public partial class MainViewModel_Instances : KonkordObservableObject
     /// <param name="instanceId">The ID of the instance that was removed.</param>
     private void OnInstanceRemoved(string instanceId)
     {
-        _ = HandleInstanceRemovedAsync(instanceId);
+        _ = HandleInstanceRemovedAsync(instanceId).ContinueWith(task =>
+        {
+            if (task.IsFaulted)
+                _logger.LogError(task.Exception, "Instance removed event handling error.");
+        }, TaskScheduler.Default);
     }
 
     /// <summary>

@@ -191,9 +191,6 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
             }).DisposeWith(disposables);
         });
         
-        if (Design.IsDesignMode)
-            return;
-        
         var screen = Screens.Primary;
         if (screen == null)
             throw new InvalidOperationException("No primary screen found."); // Ensure there is a primary screen

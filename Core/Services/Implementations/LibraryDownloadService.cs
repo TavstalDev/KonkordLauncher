@@ -606,7 +606,7 @@ public class LibraryDownloadService : ILibraryDownloadService
             ZipFile.ExtractToDirectory(libFilePath, tempDir, true);
 
             string searchPattern = "*.so";
-            if (OSHelper.GetOperatingSystem() == EOperatingSystem.Windows)
+            if (OSHelper.GetOperatingSystem() == EOperatingSystem.WINDOWS)
                 searchPattern = "*.dll";
 
             foreach (var file in Directory.GetFiles(tempDir, searchPattern, SearchOption.AllDirectories))

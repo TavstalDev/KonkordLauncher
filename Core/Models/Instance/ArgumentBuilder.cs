@@ -16,7 +16,7 @@ public class ArgumentBuilder
     private readonly List<LaunchArg> _jvmArgumentsBeforeClassPath = [];
     private readonly List<LaunchArg> _gameArguments = [];
     private readonly Dictionary<string, string> _placeholders = new();
-    private readonly string _classPathSeparator = OSHelper.GetOperatingSystem() == EOperatingSystem.Windows ? ";" : ":";
+    private readonly string _classPathSeparator = OSHelper.GetOperatingSystem() == EOperatingSystem.WINDOWS ? ";" : ":";
     
     public bool UseClasspathFile { get; set; }
     
@@ -177,7 +177,7 @@ public class ArgumentBuilder
     public (string jvmArgs, string gameArgs) Build()
     {
         string classpath = string.Join(_classPathSeparator, _classPath);
-        if (OSHelper.GetOperatingSystem() == EOperatingSystem.Windows)
+        if (OSHelper.GetOperatingSystem() == EOperatingSystem.WINDOWS)
             classpath = classpath.Replace(@"\", @"\\");
 
         if (UseClasspathFile)

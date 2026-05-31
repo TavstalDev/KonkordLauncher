@@ -24,21 +24,21 @@ public class JavaService : IJavaService
     private DateTime _cacheExpiration = DateTime.MinValue;
     private readonly Dictionary<EOperatingSystem, string[]> _lookupDirectories = new()
     {
-        [EOperatingSystem.Windows] =
+        [EOperatingSystem.WINDOWS] =
         [
             @"C:\Program Files\Java",
             @"C:\Program Files (x86)\Java",
             @"C:\ProgramData\Oracle\Java",
             @"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Java"
         ],
-        [EOperatingSystem.Linux] =
+        [EOperatingSystem.LINUX] =
         [
             "/usr/lib/jvm",
             "/usr/java",
             "/opt/java",
             "/usr/local/java"
         ],
-        [EOperatingSystem.MacOS] =
+        [EOperatingSystem.MACOS] =
         [
             "/Library/Java/JavaVirtualMachines",
             "/System/Library/Java/JavaVirtualMachines"
@@ -80,9 +80,9 @@ public class JavaService : IJavaService
             bool isArmBased = OSHelper.IsArmBased();
             var osMirror = operatingSystem switch
             {
-                EOperatingSystem.Windows => _mirrorConfig.Windows,
-                EOperatingSystem.Linux => _mirrorConfig.Linux,
-                EOperatingSystem.MacOS => _mirrorConfig.Mac,
+                EOperatingSystem.WINDOWS => _mirrorConfig.Windows,
+                EOperatingSystem.LINUX => _mirrorConfig.Linux,
+                EOperatingSystem.MACOS => _mirrorConfig.Mac,
                 _ => null
             };
             if (osMirror == null)
@@ -317,11 +317,11 @@ public class JavaService : IJavaService
     {
         switch (operatingSystem)
         {
-            case EOperatingSystem.Windows:
+            case EOperatingSystem.WINDOWS:
                 return "javaw.exe";
-            case EOperatingSystem.Linux:
-            case EOperatingSystem.MacOS:
-            case EOperatingSystem.Unknown:
+            case EOperatingSystem.LINUX:
+            case EOperatingSystem.MACOS:
+            case EOperatingSystem.UNKNOWN:
             default:
                 return "java";
         }

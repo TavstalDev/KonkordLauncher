@@ -311,20 +311,20 @@ public class InstanceLaunchService : IInstanceLaunchService
 
         switch (OSHelper.GetOperatingSystem())
         {
-            case EOperatingSystem.Windows:
+            case EOperatingSystem.WINDOWS:
             {
                 psi.FileName = "cmd.exe";
                 psi.Arguments = $"/C \"{command}\"";
                 break;
             }
-            case EOperatingSystem.MacOS:
+            case EOperatingSystem.MACOS:
             {
                 psi.FileName = "/bin/zsh";
                 psi.Arguments = $"-c \"{command}\"";
                 break;
             }
-            case EOperatingSystem.Unknown:
-            case EOperatingSystem.Linux:
+            case EOperatingSystem.UNKNOWN:
+            case EOperatingSystem.LINUX:
             {
                 psi.FileName = "/bin/sh";
                 psi.Arguments = $"-c \"{command}\"";

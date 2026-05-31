@@ -8,20 +8,20 @@ public enum EOperatingSystem
     /// <summary>
     /// Represents the Windows operating system.
     /// </summary>
-    Windows = 0,
+    WINDOWS = 0,
 
     /// <summary>
     /// Represents the Linux operating system.
     /// </summary>
-    Linux = 1,
+    LINUX = 1,
 
     /// <summary>
     /// Represents the macOS operating system.
     /// </summary>
-    MacOS = 2,
+    MACOS = 2,
 
     /// <summary>
     /// Represents an unknown or unsupported operating system.
     /// </summary>
-    Unknown = 3
+    UNKNOWN = 3
 }

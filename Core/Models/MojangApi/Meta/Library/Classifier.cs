@@ -58,17 +58,17 @@ public class Classifier
     {
         switch (OSHelper.GetOperatingSystem())
         {
-            case EOperatingSystem.Windows:
+            case EOperatingSystem.WINDOWS:
             {
                 return WindowsNatives;
             }
-            case EOperatingSystem.MacOS:
+            case EOperatingSystem.MACOS:
             {
                 return OsxNatives;
             }
             default:
-            case EOperatingSystem.Linux:
-            case EOperatingSystem.Unknown:
+            case EOperatingSystem.LINUX:
+            case EOperatingSystem.UNKNOWN:
             {
                 return LinuxNatives;
             }

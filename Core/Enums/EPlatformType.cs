@@ -8,17 +8,17 @@ public enum EPlatformType
     /// <summary>
     /// Represents the Modrinth platform.
     /// </summary>
-    Modrinth = 0,
+    MODRINTH = 0,
 
     /// <summary>
     /// Represents the CurseForge platform.
     /// </summary>
-    CurseForge = 1,
+    CURSE_FORGE = 1,
 
     /// <summary>
     /// Represents the Technic platform.
     /// </summary>
-    Technic = 2,
+    TECHNIC = 2,
 
     /// <summary>
     /// Represents the FTB (Feed The Beast) platform.

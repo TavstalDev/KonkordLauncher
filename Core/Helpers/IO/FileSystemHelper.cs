@@ -644,7 +644,7 @@ public static class FileSystemHelper
 
         switch (OSHelper.GetOperatingSystem())
         {
-            case EOperatingSystem.Windows:
+            case EOperatingSystem.WINDOWS:
             {
                 var startInfo = new ProcessStartInfo
                 {
@@ -655,7 +655,7 @@ public static class FileSystemHelper
                 Process.Start(startInfo);
                 break;
             }
-            case EOperatingSystem.MacOS:
+            case EOperatingSystem.MACOS:
             {
                 var startInfo = new ProcessStartInfo
                 {
@@ -666,7 +666,7 @@ public static class FileSystemHelper
                 Process.Start(startInfo);
                 break;
             }
-            case EOperatingSystem.Linux:
+            case EOperatingSystem.LINUX:
             {
                 var startInfo = new ProcessStartInfo
                 {
@@ -677,7 +677,7 @@ public static class FileSystemHelper
                 Process.Start(startInfo);
                 break;
             }
-            case EOperatingSystem.Unknown:
+            case EOperatingSystem.UNKNOWN:
             {
                 _logger.LogError("Error: Unsupported operating system for opening folder in file explorer.");
                 break;

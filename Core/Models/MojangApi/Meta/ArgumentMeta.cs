@@ -204,19 +204,19 @@ public class ArgumentMeta
                 continue;
             }
                 
-            if (rule.Os.Name == "windows" && operatingSystem == EOperatingSystem.Windows)
+            if (rule.Os.Name == "windows" && operatingSystem == EOperatingSystem.WINDOWS)
             {
                 localResult = rule.Action == "allow";
                 continue;
             }
 
-            if (rule.Os.Name == "linux" && operatingSystem == EOperatingSystem.Linux)
+            if (rule.Os.Name == "linux" && operatingSystem == EOperatingSystem.LINUX)
             {
                 localResult = rule.Action == "allow";
                 continue;
             }
 
-            if (rule.Os.Name.StartsWith("osx") && operatingSystem == EOperatingSystem.MacOS)
+            if (rule.Os.Name.StartsWith("osx") && operatingSystem == EOperatingSystem.MACOS)
                 localResult = rule.Action == "allow";
         }
         

@@ -90,7 +90,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
         Instance = instance;
         ResourceType = resourceType;
         IsMod = resourceType == EResourceType.MOD;
-        ModLoader = Instance.Kind;
+        ModLoader = Instance?.Kind ?? EMinecraftKind.FABRIC;
         
         if (Design.IsDesignMode)
             return;

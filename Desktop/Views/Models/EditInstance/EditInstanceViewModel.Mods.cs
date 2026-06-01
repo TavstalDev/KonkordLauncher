@@ -235,7 +235,7 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogWarning($"Failed to read icon from {mod}:");
+                        _logger.LogWarning(ex, $"Failed to read icon from {mod}:");
                     }
 
                     icon ??= ImageHelper.LoadFromResource(new Uri("avares://Desktop/Assets/Images/default_world.png"));
@@ -255,7 +255,7 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"Failed to load mod from {mod}:");
+                    _logger.LogError(ex, $"Failed to load mod from {mod}:");
                 }
             }
         });

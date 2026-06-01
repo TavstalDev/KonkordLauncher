@@ -223,7 +223,7 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogWarning($"Failed to read icon from {pack}:");
+                        _logger.LogWarning(ex, $"Failed to read icon from {pack}:");
                     }
 
                     icon ??= ImageHelper.LoadFromResource(new Uri("avares://Desktop/Assets/Images/default_world.png"));

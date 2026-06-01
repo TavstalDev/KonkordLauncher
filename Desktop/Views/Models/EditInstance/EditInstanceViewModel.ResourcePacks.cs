@@ -247,7 +247,7 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"Failed to load resource pack from {resource}:");
+                    _logger.LogError(ex, $"Failed to load resource pack from {resource}:");
                 }
             }
         });

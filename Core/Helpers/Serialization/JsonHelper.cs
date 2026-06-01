@@ -143,6 +143,9 @@ public static class JsonHelper
     {
         try
         {
+            if (!File.Exists(path))
+                return default;
+            
             await using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             using var streamReader = new StreamReader(stream, Encoding.UTF8);
             await using var jsonReader = new JsonTextReader(streamReader);

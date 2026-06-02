@@ -32,8 +32,8 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IProgres
     public partial ECreateInstanceTab SelectedTab { get; set; } = ECreateInstanceTab.CUSTOM;
 
     #region Interactions
-    public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
-    public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
+    
+    
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
     public Interaction<ECreateInstanceTab, Unit> SwitchTabInteraction { get; } = new();
     public Interaction<int, Unit> SwitchImportTabInteraction { get; } = new();
@@ -99,20 +99,6 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IProgres
         Custom.SetupPipeline();
     }
     
-    #region Commands
-
-    /// <summary>
-    /// Requests the window to minimize by invoking the <see cref="MinimizeWindowInteraction"/> interaction.
-    /// </summary>
-    [RelayCommand]
-    public async Task MinimizeWindow() => await MinimizeWindowInteraction.Handle(Unit.Default);
-
-    /// <summary>
-    /// Requests the window to toggle maximize/restore by invoking the <see cref="MaximizeWindowInteraction"/> interaction.
-    /// </summary>
-    [RelayCommand]
-    public async Task MaximizeWindow() => await MaximizeWindowInteraction.Handle(Unit.Default);
-
     /// <summary>
     /// Requests the window to close by invoking the <see cref="CloseWindowInteraction"/> interaction.
     /// </summary>
@@ -125,8 +111,6 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IProgres
     /// <param name="tab">The tab to switch to (one of <see cref="ECreateInstanceTab"/>).</param>
     [RelayCommand]
     private async Task HandleTabBtn(ECreateInstanceTab tab) => await SwitchTabInteraction.Handle(tab);
-    
-    #endregion
 
     #region Progress Reporter
     private InstallWindow? _installWindow;

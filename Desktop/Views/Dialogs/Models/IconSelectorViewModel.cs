@@ -36,8 +36,8 @@ public partial class IconSelectorViewModel : KonkordObservableObject
     #endregion
     
     #region Interaction
-    public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
-    public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
+    
+    
     public Interaction<string?, Unit> CloseWindowInteraction { get; } = new();
     public Interaction<Unit, List<(string, string)>?> ShowFilePicker { get; }  = new();
     #endregion
@@ -88,11 +88,6 @@ public partial class IconSelectorViewModel : KonkordObservableObject
     }
     
     #region Commands
-    [RelayCommand]
-    public async Task MinimizeWindow() => await MinimizeWindowInteraction.Handle(Unit.Default);
-
-    [RelayCommand]
-    public async Task MaximizeWindow() => await MaximizeWindowInteraction.Handle(Unit.Default);
 
     [RelayCommand]
     public async Task CloseWindow() => await CloseWindowInteraction.Handle(null);

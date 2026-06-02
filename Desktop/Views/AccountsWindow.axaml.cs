@@ -49,18 +49,6 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
 
         this.WhenActivated(disposables =>
         {
-            DataContext.MinimizeWindowInteraction.RegisterHandler(action =>
-            {
-                WindowState = WindowState.Minimized;
-                action.SetOutput(Unit.Default);
-                return Task.CompletedTask;
-            }).DisposeWith(disposables);
-            DataContext.MaximizeWindowInteraction.RegisterHandler(action =>
-            {
-                WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
-                action.SetOutput(Unit.Default);
-                return Task.CompletedTask;
-            }).DisposeWith(disposables);
             DataContext.CloseWindowInteraction.RegisterHandler(action =>
             {
                 Close();

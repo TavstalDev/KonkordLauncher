@@ -44,8 +44,8 @@ public partial class ExportViewModel : KonkordObservableObject
     public ObservableCollection<ObservableFileNode> Items { get; } = new();
     
     #region Interactions
-    public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
-    public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
+    
+    
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
     public Interaction<Unit, string?> OpenFolderPickerInteraction { get; } = new();
     public Interaction<Alert, Unit> ShowAlertDialogInteraction { get; } = new();
@@ -148,19 +148,7 @@ public partial class ExportViewModel : KonkordObservableObject
     }
     
     #region Commands
-
-    /// <summary>
-    /// Requests the window to minimize by invoking the <see cref="MinimizeWindowInteraction"/> interaction.
-    /// </summary>
-    [RelayCommand]
-    public async Task MinimizeWindow() => await MinimizeWindowInteraction.Handle(Unit.Default);
-
-    /// <summary>
-    /// Requests the window to toggle maximize/restore by invoking the <see cref="MaximizeWindowInteraction"/> interaction.
-    /// </summary>
-    [RelayCommand]
-    public async Task MaximizeWindow() => await MaximizeWindowInteraction.Handle(Unit.Default);
-
+    
     /// <summary>
     /// Requests the window to close by invoking the <see cref="CloseWindowInteraction"/> interaction.
     /// </summary>

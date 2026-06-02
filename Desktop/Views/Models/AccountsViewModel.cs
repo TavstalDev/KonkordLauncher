@@ -49,8 +49,6 @@ public partial class AccountsViewModel : KonkordObservableObject
     private readonly IProgressReporter _progressReporter;
 
     #region Interactions
-    public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
-    public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
     public Interaction<Alert, Unit> ShowAlertDialog { get; } = new();
     public Interaction<string, Unit> SetClipboardText { get; } = new();
@@ -197,17 +195,6 @@ public partial class AccountsViewModel : KonkordObservableObject
     }
     
     #region Window Commands
-    [RelayCommand]
-    public async Task MinimizeWindow()
-    {
-        await MinimizeWindowInteraction.Handle(Unit.Default);
-    }
-
-    [RelayCommand]
-    public async Task MaximizeWindow()
-    {
-        await MaximizeWindowInteraction.Handle(Unit.Default);
-    }
 
     [RelayCommand]
     public async Task CloseWindow()

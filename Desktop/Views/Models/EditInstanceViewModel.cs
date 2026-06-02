@@ -53,8 +53,8 @@ public partial class EditInstanceViewModel : KonkordObservableObject
 
     #region Interactions
 
-    public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
-    public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
+    
+    
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
     public Interaction<EEditInstanceTab, Unit> TabSwitchInteraction { get; } = new();
     public Interaction<EInstanceSettingsTab, Unit> SettingsTabSwitchInteraction { get; } = new();
@@ -196,29 +196,12 @@ public partial class EditInstanceViewModel : KonkordObservableObject
 
     #region Common
     
-    #region Window
-    
-    /// <summary>
-    /// Requests the window to minimize by invoking the <see cref="MinimizeWindowInteraction"/> interaction.
-    /// </summary>
-    /// <returns>A task that completes when the minimize request has been handled.</returns>
-    [RelayCommand]
-    public async Task MinimizeWindow() => await MinimizeWindowInteraction.Handle(Unit.Default);
-
-    /// <summary>
-    /// Requests the window to toggle maximize/restore by invoking the <see cref="MaximizeWindowInteraction"/> interaction.
-    /// </summary>
-    /// <returns>A task that completes when the maximize/restore request has been handled.</returns>
-    [RelayCommand]
-    public async Task MaximizeWindow() => await MaximizeWindowInteraction.Handle(Unit.Default);
-
     /// <summary>
     /// Requests the window to close by invoking the <see cref="CloseWindowInteraction"/> interaction.
     /// </summary>
     /// <returns>A task that completes when the close request has been handled.</returns>
     [RelayCommand]
     public async Task CloseWindow() => await CloseWindowInteraction.Handle(Unit.Default);
-    #endregion
 
     /// <summary>
     /// Requests a tab switch inside the edit-instance UI by invoking the <see cref="TabSwitchInteraction"/> interaction.

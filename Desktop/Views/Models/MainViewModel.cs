@@ -39,8 +39,8 @@ public partial class MainViewModel : KonkordObservableObject
     public MainViewModel_Instances Instances { get; }
     
     #region Interactions
-    public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
-    public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
+    
+    
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
     public Interaction<Alert, Unit> ShowAlertDialogInteraction { get; } = new();
     public Interaction<Alert, bool> ShowConfirmDialogInteraction { get; } = new();
@@ -154,19 +154,8 @@ public partial class MainViewModel : KonkordObservableObject
 
     #region Commands
 
-    #region Windows
-    [RelayCommand]
-    public async Task MinimizeWindow() => await MinimizeWindowInteraction.Handle(Unit.Default);
-    
-
-    [RelayCommand]
-    public async Task MaximizeWindow() => await MaximizeWindowInteraction.Handle(Unit.Default);
-    
-
     [RelayCommand]
     public async Task CloseWindow() => await CloseWindowInteraction.Handle(Unit.Default);
-    
-    #endregion
     
     /// <summary>
     /// Handles the sidebar button click event by changing the current sidebar view.

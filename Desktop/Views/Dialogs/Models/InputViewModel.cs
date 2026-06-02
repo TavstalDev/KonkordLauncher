@@ -13,8 +13,8 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 /// </summary>
 public partial class InputViewModel : ObservableObject
 {
-    public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
-    public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
+    
+    
     public Interaction<string?, Unit> CloseWindowInteraction { get; } = new();
 
     /// <summary>
@@ -60,20 +60,5 @@ public partial class InputViewModel : ObservableObject
     }
     
     [RelayCommand]
-    public async Task MinimizeWindow()
-    {
-        await MinimizeWindowInteraction.Handle(Unit.Default);
-    }
-
-    [RelayCommand]
-    public async Task MaximizeWindow()
-    {
-        await MaximizeWindowInteraction.Handle(Unit.Default);
-    }
-
-    [RelayCommand]
-    public async Task CloseWindow()
-    {
-        await CloseWindowInteraction.Handle(null);
-    }
+    public async Task CloseWindow() => await CloseWindowInteraction.Handle(null);
 }

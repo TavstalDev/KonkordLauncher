@@ -32,8 +32,8 @@ public partial class AlertViewModel : KonkordObservableObject
 
     #region Interactions
 
-    public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
-    public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
+    
+    
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
     public Interaction<Unit, Unit> ClickYesInteraction { get; } = new();
     
@@ -82,18 +82,6 @@ public partial class AlertViewModel : KonkordObservableObject
     
     #region Window Commands
     
-    /// <summary>
-    /// Requests the view to minimize the window.
-    /// </summary>
-    [RelayCommand]
-    public async Task MinimizeWindow() => await MinimizeWindowInteraction.Handle(Unit.Default);
-
-    /// <summary>
-    /// Requests the view to maximize or restore the window.
-    /// </summary>
-    [RelayCommand]
-    public async Task MaximizeWindow() => await MaximizeWindowInteraction.Handle(Unit.Default);
-
     /// <summary>
     /// Requests the view to close the window.
     /// </summary>

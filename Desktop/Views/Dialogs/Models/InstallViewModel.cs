@@ -26,27 +26,11 @@ public partial class InstallViewModel : ObservableObject
     /// </summary>
     [ObservableProperty]
     public partial double ProgressValue { get; set; }
-    public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
-    public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
+    
+    
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
     
-    #region Window Commands
-    [RelayCommand]
-    public async Task MinimizeWindow()
-    {
-        await MinimizeWindowInteraction.Handle(Unit.Default);
-    }
 
     [RelayCommand]
-    public async Task MaximizeWindow()
-    {
-        await MaximizeWindowInteraction.Handle(Unit.Default);
-    }
-
-    [RelayCommand]
-    public async Task CloseWindow()
-    {
-        await CloseWindowInteraction.Handle(Unit.Default);
-    }
-    #endregion
+    public async Task CloseWindow() => await CloseWindowInteraction.Handle(Unit.Default);
 }

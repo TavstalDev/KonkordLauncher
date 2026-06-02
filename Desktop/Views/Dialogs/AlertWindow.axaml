@@ -7,6 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
+    xmlns:templates="clr-namespace:Tavstal.KonkordLauncher.Desktop.Styles.Templates"
     Title="{lang:Translate alert.title}"
     Width="300"
     MinWidth="300"
@@ -37,32 +38,8 @@
         PointerPressed="DragStart_PointerPressed">
         <Grid RowDefinitions="Auto, *">
             <!--  Window Controls  -->
-            <Border HorizontalAlignment="Stretch" PointerPressed="DragStart_PointerPressed">
-                <Grid ColumnDefinitions="*, Auto">
-                    <!--  Window Title  -->
-                    <TextBlock Classes="WindowTitle" Text="{Binding $parent[Window].Title}" />
-
-                    <!--  Window Buttons  -->
-                    <StackPanel Grid.Column="1" Classes="WindowBtnPanel">
-                        <!--  MINIMIZE  -->
-                        <Button
-                            Classes="WindowBtn WarningBtn"
-                            Command="{Binding MinimizeWindowCommand}"
-                            ToolTip.Tip="{lang:Translate main.window.minimize}" />
-                        <!--  MAXIMIZE / RESTORE  -->
-                        <Button
-                            Classes="WindowBtn SuccessBtn"
-                            Command="{Binding MaximizeWindowCommand}"
-                            IsEnabled="{Binding $parent[Window].CanResize}"
-                            ToolTip.Tip="{lang:Translate main.window.maximize}" />
-                        <!--  CLOSE  -->
-                        <Button
-                            Classes="WindowBtn ErrorBtn"
-                            Command="{Binding CloseWindowCommand}"
-                            ToolTip.Tip="{lang:Translate main.window.close}" />
-                    </StackPanel>
-                </Grid>
-            </Border>
+            <templates:CustomTitleBar/>
+            
             <!--  Main Content  -->
             <Grid
                 Grid.Row="1"

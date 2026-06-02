@@ -23,8 +23,8 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
     private readonly ILauncherStore _launcherStore;
     
     #region Interactions
-    public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
-    public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
+    
+    
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
     public Interaction<string, Unit> SetClipboardText { get; } = new();
     public Interaction<Unit, Unit> LogsScrollToEnd { get; } = new();
@@ -146,23 +146,6 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
         GlobalEvents.CleareInstanceLogs(_instanceId);
     }
     
-    #region Window Commands
     [RelayCommand]
-    public async Task MinimizeWindow()
-    {
-        await MinimizeWindowInteraction.Handle(Unit.Default);
-    }
-
-    [RelayCommand]
-    public async Task MaximizeWindow()
-    {
-        await MaximizeWindowInteraction.Handle(Unit.Default);
-    }
-
-    [RelayCommand]
-    public async Task CloseWindow()
-    {
-        await CloseWindowInteraction.Handle(Unit.Default);
-    }
-    #endregion
+    public async Task CloseWindow() => await CloseWindowInteraction.Handle(Unit.Default);
 }

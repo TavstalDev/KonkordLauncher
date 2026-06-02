@@ -11,8 +11,8 @@ using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Core.Services.Implementations;
 
-/// <inheritdoc/>
-public class ManifestService : IManifestService
+/// <inheritdoc cref="IManifestService" />
+public class ManifestService : IManifestService, IAsyncInitializable
 {
     private readonly ICustomLogger _logger;
     private VersionManifest? _versionManifest;
@@ -114,5 +114,10 @@ public class ManifestService : IManifestService
             _neoForgeManifest.Add(manifest);
         
         return _neoForgeManifest;
+    }
+
+    public async Task InitializeAsync(CancellationToken cancellationToken = default)
+    {
+        
     }
 }

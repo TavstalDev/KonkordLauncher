@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Collections;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -19,6 +20,7 @@ using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
+using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
@@ -28,6 +30,9 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 public partial class ResourceDownloadViewModel : KonkordObservableObject
 {
+    private readonly Window _parent;
+    private readonly ICustomLogger _logger;
+    private readonly ITranslationService _translationService;
     private readonly ILauncherStore _launcherStore;
     private readonly IManifestService _manifestService;
     private readonly IMetaCacheService _metaCacheService;
@@ -49,6 +54,8 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
     public partial string SearchQuery { get; set; } = string.Empty;
     [ObservableProperty]
     public partial EMinecraftKind ModLoader { get; set; }
+    [ObservableProperty]
+    public partial int ModLoaderIndex { get; set; } = 0;
 
     [ObservableProperty] 
     public partial string MinecraftVersion { get; set; } = string.Empty;
@@ -63,8 +70,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
     [ObservableProperty] public partial int SelectedResourceVersionIndex { get; set; } = -1;
 
     public bool? IsResourceSelected => SelectedResource != null && ResourcesToDownload.ContainsKey(SelectedResource.Name);
-    // TODO: Translate
-    public string? ModPreview => SelectedResource == null ? "<p>" + "Select a resource to see its preview." +"</p>" : SelectedResource.RawPage;
+    public string? ModPreview => SelectedResource == null ? "<p>" + _translationService.Translate("instance.resource.download.preview") + "</p>" : SelectedResource.RawPage;
     
     public AvaloniaDictionary<string, Version> ResourcesToDownload { get; } = new();
     
@@ -79,123 +85,123 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
         EPlatformType.FTB
     ];
     
-    #region Interactions
-    public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
-    public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
-    public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
-    #endregion
+    public Interaction<bool, Unit> CloseWindowInteraction { get; } = new();
     
-    public ResourceDownloadViewModel(Instance instance, EResourceType resourceType)
+    public ResourceDownloadViewModel(Window parent, Instance instance, EResourceType resourceType)
     {
+        _parent = parent;
         Instance = instance;
         ResourceType = resourceType;
         IsMod = resourceType == EResourceType.MOD;
         ModLoader = Instance?.Kind ?? EMinecraftKind.FABRIC;
+        ModLoaderIndex = (int)ModLoader;
         
         if (Design.IsDesignMode)
             return;
         
         var services = Program.ServiceProvider;
+        _logger = services.GetRequiredService<ICustomLogger<ResourceDownloadViewModel>>();
+        _translationService = services.GetRequiredService<ITranslationService>();
         _launcherStore = services.GetRequiredService<ILauncherStore>();
         _manifestService = services.GetRequiredService<IManifestService>();
         _metaCacheService = services.GetRequiredService<IMetaCacheService>();
-
+        
         if (IsMod)
         {
             Categories!.Add(new CategoryModel
             {
                 Name = "adventure",
-                TranslationKey = ""
+                TranslationKey = "modrinth.category.adventure"
             });
             Categories!.Add(new CategoryModel
             {
                 Name = "cursed",
-                TranslationKey = ""
+                TranslationKey = "modrinth.category.cursed"
             });
             Categories!.Add(new CategoryModel
             {
                 Name = "decoration",
-                TranslationKey = ""
+                TranslationKey = "modrinth.category.decoration"
             });
             Categories!.Add(new CategoryModel
             {
                 Name = "economy",
-                TranslationKey = ""
+                TranslationKey = "modrinth.category.economy"
             });
             Categories!.Add(new CategoryModel
             {
                 Name = "equipment",
-                TranslationKey = ""
+                TranslationKey = "modrinth.category.equipment"
             });
             Categories!.Add(new CategoryModel
             {
                 Name = "food",
-                TranslationKey = ""
+                TranslationKey = "modrinth.category.food"
             });
             Categories!.Add(new CategoryModel
             {
                 Name = "game_mechanics",
-                TranslationKey = ""
+                TranslationKey = "modrinth.category.game_mechanics"
             });
             Categories!.Add(new CategoryModel
             {
                 Name = "library",
-                TranslationKey = ""
+                TranslationKey = "modrinth.category.library"
             });
             Categories!.Add(new CategoryModel
             {
                 Name = "magic",
-                TranslationKey = ""
+                TranslationKey = "modrinth.category.magic"
             });
             Categories!.Add(new CategoryModel
             {
                 Name = "management",
-                TranslationKey = ""
+                TranslationKey = "modrinth.category.management"
             });
             Categories!.Add(new CategoryModel
             {
                 Name = "minigame",
-                TranslationKey = ""
+                TranslationKey = "modrinth.category.minigame"
             });
             Categories!.Add(new CategoryModel
             {
                 Name = "mobs",
-                TranslationKey = ""
+                TranslationKey = "modrinth.category.mobs"
             });
             Categories!.Add(new CategoryModel
             {
                 Name = "optimization",
-                TranslationKey = ""
+                TranslationKey = "modrinth.category.optimization"
             });
             Categories!.Add(new CategoryModel
             {
                 Name = "social",
-                TranslationKey = ""
+                TranslationKey = "modrinth.category.social"
             });
             Categories!.Add(new CategoryModel
             {
                 Name = "storage",
-                TranslationKey = ""
+                TranslationKey = "modrinth.category.storage"
             });
             Categories!.Add(new CategoryModel
             {
                 Name = "technology",
-                TranslationKey = ""
+                TranslationKey = "modrinth.category.technology"
             });
             Categories!.Add(new CategoryModel
             {
                 Name = "transportation",
-                TranslationKey = ""
+                TranslationKey = "modrinth.category.transportation"
             });
             Categories!.Add(new CategoryModel
             {
                 Name = "utility",
-                TranslationKey = ""
+                TranslationKey = "modrinth.category.utility"
             });
             Categories!.Add(new CategoryModel
             {
                 Name = "worldgen",
-                TranslationKey = ""
+                TranslationKey = "modrinth.category.worldgen"
             });
         }
         
@@ -353,22 +359,10 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
     #region Commands
 
     /// <summary>
-    /// Requests the window to minimize by invoking the <see cref="MinimizeWindowInteraction"/> interaction.
-    /// </summary>
-    [RelayCommand]
-    public async Task MinimizeWindow() => await MinimizeWindowInteraction.Handle(Unit.Default);
-
-    /// <summary>
-    /// Requests the window to toggle maximize/restore by invoking the <see cref="MaximizeWindowInteraction"/> interaction.
-    /// </summary>
-    [RelayCommand]
-    public async Task MaximizeWindow() => await MaximizeWindowInteraction.Handle(Unit.Default);
-
-    /// <summary>
     /// Requests the window to close by invoking the <see cref="CloseWindowInteraction"/> interaction.
     /// </summary>
     [RelayCommand]
-    public async Task CloseWindow() => await CloseWindowInteraction.Handle(Unit.Default);
+    public async Task CloseWindow() => await CloseWindowInteraction.Handle(false);
 
     [RelayCommand]
     public async Task ToggleResourceSelect()
@@ -394,7 +388,68 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
     [RelayCommand]
     public async Task ReviewInstall()
     {
-        // TODO: Show a dialog what will be installed, also fetch dependencies
+        if (ResourcesToDownload.Count == 0)
+            return;
+
+        List<ResourceDownloadModel> resources = [];
+        Dictionary<string, string> dependencies = new();
+        foreach (var resource in ResourcesToDownload)
+        {
+            var file = resource.Value.Files.FirstOrDefault();
+            if (file == null)
+            {
+                _logger.LogWarning($"Resource {resource.Key} has no files, skipping.");
+                continue;
+            }
+
+            var deps = resource.Value.Dependencies;
+            if (deps != null)
+            {
+                foreach (var resourceDependency in deps)
+                {
+                    if (resourceDependency.ProjectId == null || resourceDependency.VersionId == null || InstanceResources.Any(x => x.ProjectId == resourceDependency.ProjectId))
+                        continue;
+                    
+                    dependencies[resourceDependency.ProjectId] = resourceDependency.VersionId;
+                }
+            }
+
+            resources.Add(new ResourceDownloadModel
+            {
+                Name = resource.Key,
+                Version = resource.Value.VersionNumber,
+                Url = file.Url,
+                FileName = file.FileName,
+                Platform = SelectedPlatform,
+                ShouldDownload = true
+            });
+        }
+
+        var dependencyVersions = await _metaCacheService.GetVersionsAsync(dependencies.Values.ToList());
+        foreach (var dependencyVersion in dependencyVersions)
+        {
+            var file = dependencyVersion.Files.FirstOrDefault();
+            if (file == null)
+            {
+                _logger.LogWarning($"Version {dependencyVersion.Id} has no files, skipping.");
+                continue;
+            }
+            
+            resources.Add(new ResourceDownloadModel
+            {
+                Name = dependencyVersion.Name,
+                Version = dependencyVersion.VersionNumber,
+                Url = file.Url,
+                FileName = file.FileName,
+                Platform = SelectedPlatform,
+                ShouldDownload = true
+            });
+        }
+
+        var reviewWindow = new ResourceReviewWindow(Instance, resources);
+        bool result = await reviewWindow.ShowDialog<bool>(_parent);
+        if (result)
+            await CloseWindowInteraction.Handle(true);
     }
     
     partial void OnSearchQueryChanged(string value)

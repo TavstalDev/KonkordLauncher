@@ -20,25 +20,13 @@ public partial class ResourceDownloadWindow : KonkordWindow<ResourceDownloadView
     {
         InitializeComponent();
 
-        DataContext = new ResourceDownloadViewModel(instance, resourceType);
+        DataContext = new ResourceDownloadViewModel(this, instance, resourceType);
 
         this.WhenActivated(disposables =>
         {
-            DataContext.MinimizeWindowInteraction.RegisterHandler(action =>
-            {
-                WindowState = WindowState.Minimized;
-                action.SetOutput(Unit.Default);
-                return Task.CompletedTask;
-            }).DisposeWith(disposables);
-            DataContext.MaximizeWindowInteraction.RegisterHandler(action =>
-            {
-                WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
-                action.SetOutput(Unit.Default);
-                return Task.CompletedTask;
-            }).DisposeWith(disposables);
             DataContext.CloseWindowInteraction.RegisterHandler(action =>
             {
-                Close();
+                Close(action.Input);
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             }).DisposeWith(disposables);

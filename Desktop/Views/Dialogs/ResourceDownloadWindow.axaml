@@ -8,7 +8,8 @@
     xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
-    Title="Konkord Launcher - Resource Downloader"
+    xmlns:templates="clr-namespace:Tavstal.KonkordLauncher.Desktop.Styles.Templates"
+    Title="{lang:Translate instance.resource.download.window}"
     Width="900"
     Height="500"
     MinWidth="900"
@@ -42,40 +43,15 @@
             PointerPressed="DragStart_PointerPressed">
             <Grid RowDefinitions="Auto, *">
                 <!--  Window Controls  -->
-                <Border HorizontalAlignment="Stretch" PointerPressed="DragStart_PointerPressed">
-                    <Grid ColumnDefinitions="*, Auto">
-                        <!--  Window Title  -->
-                        <TextBlock Classes="WindowTitle" Text="{Binding $parent[Window].Title}" />
-
-                        <!--  Window Buttons  -->
-                        <StackPanel Grid.Column="1" Classes="WindowBtnPanel">
-                            <!--  MINIMIZE  -->
-                            <Button
-                                Classes="WindowBtn WarningBtn"
-                                Command="{Binding MinimizeWindowCommand}"
-                                ToolTip.Tip="{lang:Translate main.window.minimize}" />
-                            <!--  MAXIMIZE / RESTORE  -->
-                            <Button
-                                Classes="WindowBtn SuccessBtn"
-                                Command="{Binding MaximizeWindowCommand}"
-                                IsEnabled="{Binding $parent[Window].CanResize}"
-                                ToolTip.Tip="{lang:Translate main.window.maximize}" />
-                            <!--  CLOSE  -->
-                            <Button
-                                Classes="WindowBtn ErrorBtn"
-                                Command="{Binding CloseWindowCommand}"
-                                ToolTip.Tip="{lang:Translate main.window.close}" />
-                        </StackPanel>
-                    </Grid>
-                </Border>
+                <templates:CustomTitleBar/>
 
                 <!--  Main Content  -->
                 <Grid Grid.Row="1" RowDefinitions="Auto, *">
                     <!--  Title  -->
                     <Border Classes="ModalTitleBorder">
                         <StackPanel>
-                            <TextBlock Text="Download Content" />
-                            <TextBlock Classes="ModalSubTitle" Text="Select the resources that you want to download." />
+                            <TextBlock Text="{lang:Translate instance.resource.download.title}" />
+                            <TextBlock Classes="ModalSubTitle" Text="{lang:Translate instance.resource.download.description}" />
                         </StackPanel>
                     </Border>
 
@@ -170,7 +146,7 @@
                                                 Classes="TextDropdown"
                                                 FontSize="12"
                                                 IsHitTestVisible="{Binding AllowScrollbarRefresh}"
-                                                SelectedIndex="0"
+                                                SelectedIndex="{Binding ModLoaderIndex}"
                                                 SelectedValue="{Binding ModLoader}"
                                                 SelectionChanged="Filter_OnSelectionChanged">
                                                 <ComboBoxItem Content="Any" />
@@ -377,68 +353,8 @@
                 </Grid>
             </Grid>
         </Border>
-
-        <!--  Resize overlay (8px grips)  -->
-        <Grid ColumnDefinitions="8,*,8" RowDefinitions="8,*,8">
-            <!--  Edges  -->
-            <Border
-                Grid.Row="0"
-                Grid.Column="1"
-                Background="Transparent"
-                Cursor="TopSide"
-                PointerPressed="ResizeHandle_PointerPressed"
-                Tag="North" />
-            <Border
-                Grid.Row="2"
-                Grid.Column="1"
-                Background="Transparent"
-                Cursor="BottomSide"
-                PointerPressed="ResizeHandle_PointerPressed"
-                Tag="South" />
-            <Border
-                Grid.Row="1"
-                Grid.Column="0"
-                Background="Transparent"
-                Cursor="LeftSide"
-                PointerPressed="ResizeHandle_PointerPressed"
-                Tag="West" />
-            <Border
-                Grid.Row="1"
-                Grid.Column="2"
-                Background="Transparent"
-                Cursor="RightSide"
-                PointerPressed="ResizeHandle_PointerPressed"
-                Tag="East" />
-
-            <!--  Corners  -->
-            <Border
-                Grid.Row="0"
-                Grid.Column="0"
-                Background="Transparent"
-                Cursor="TopLeftCorner"
-                PointerPressed="ResizeHandle_PointerPressed"
-                Tag="NorthWest" />
-            <Border
-                Grid.Row="0"
-                Grid.Column="2"
-                Background="Transparent"
-                Cursor="TopRightCorner"
-                PointerPressed="ResizeHandle_PointerPressed"
-                Tag="NorthEast" />
-            <Border
-                Grid.Row="2"
-                Grid.Column="0"
-                Background="Transparent"
-                Cursor="BottomLeftCorner"
-                PointerPressed="ResizeHandle_PointerPressed"
-                Tag="SouthWest" />
-            <Border
-                Grid.Row="2"
-                Grid.Column="2"
-                Background="Transparent"
-                Cursor="BottomRightCorner"
-                PointerPressed="ResizeHandle_PointerPressed"
-                Tag="SouthEast" />
-        </Grid>
+        
+        <!--  Resize overlay  -->
+        <templates:WindowResizer />
     </Grid>
 </Window>

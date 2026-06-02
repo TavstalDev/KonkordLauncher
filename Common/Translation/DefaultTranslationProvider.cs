@@ -330,6 +330,21 @@ public static class DefaultTranslationProvider
         {"instance.export.alert.success", "Instance exported successfully to {0}."},
 
         #endregion
+
+        #region Resources
+
+        {"instance.resource.download.window", "Konkord Launcher - Resource Downloader"},
+        {"instance.resource.download.title", "Download Resource"},
+        {"instance.resource.download.description", "Select the resources that you want to download."},
+        {"instance.resource.download.preview", "Select a resource to see its preview."},
+        {"instance.resource.review.window", "Konkord Launcher - Resource Downloader Review"},
+        {"instance.resource.review.title", "Review Selection"},
+        {"instance.resource.review.description", "You are about to download the following content:"},
+        {"instance.resource.review.file", "File:"},
+        {"instance.resource.review.version", "Version:"},
+        {"instance.resource.review.platform", "Platform:"},
+
+        #endregion
         
         #endregion
         
@@ -492,6 +507,30 @@ public static class DefaultTranslationProvider
         {"updater.applying", "Applying update..."},
         {"updater.finalizing", "Finalizing update..."},
         {"updater.completed", "Update completed! Restarting..."},
+
+        #endregion
+
+        #region Modrinth
+
+        { "modrinth.category.adventure", "Adventure" },
+        { "modrinth.category.cursed", "Cursed" },
+        { "modrinth.category.decoration", "Decoration" },
+        { "modrinth.category.economy", "Economy" },
+        { "modrinth.category.equipment", "Equipment" },
+        { "modrinth.category.food", "Food" },
+        { "modrinth.category.game_mechanics", "Game mechanics" },
+        { "modrinth.category.library", "Library" },
+        { "modrinth.category.magic", "Magic" },
+        { "modrinth.category.management", "Management" },
+        { "modrinth.category.minigame", "Minigame" },
+        { "modrinth.category.mobs", "Mobs" },
+        { "modrinth.category.optimization", "Optimization" },
+        { "modrinth.category.social", "Social" },
+        { "modrinth.category.storage", "Storage" },
+        { "modrinth.category.technology", "Technology" },
+        { "modrinth.category.transportation", "Transportation" },
+        { "modrinth.category.utility", "Utility" },
+        { "modrinth.category.worldgen", "Worldgen" },
 
         #endregion
         

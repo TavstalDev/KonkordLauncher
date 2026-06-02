@@ -111,7 +111,11 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         Settings = new EditInstanceViewModel_Settings(this);
         ShaderPacks = new EditInstanceViewModel_ShaderPacks(this);
         Worlds = new EditInstanceViewModel_Worlds(this);
-        _  = InitAsync();
+        _  = InitAsync().ContinueWith(t =>
+        { 
+            if (t.IsFaulted)
+                _logger.LogError(t.Exception, "Error initializing EditInstanceViewModel");
+        });
     }
 
     /// <summary>

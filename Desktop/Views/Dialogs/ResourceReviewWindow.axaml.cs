@@ -13,13 +13,13 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 public partial class ResourceReviewWindow : KonkordWindow<ResourceReviewViewModel>
 {
-    public ResourceReviewWindow() : this(null!, []) {}
+    public ResourceReviewWindow() : this(null!, EResourceType.MOD, []) {}
     
-    public ResourceReviewWindow(Instance instance, List<ResourceDownloadModel> resources)
+    public ResourceReviewWindow(Instance instance, EResourceType resourceType, List<ResourceDownloadModel> resources)
     {
         InitializeComponent();
 
-        DataContext = new ResourceReviewViewModel(instance, resources);
+        DataContext = new ResourceReviewViewModel(instance, resourceType, resources);
         
         if (Design.IsDesignMode)
             return;

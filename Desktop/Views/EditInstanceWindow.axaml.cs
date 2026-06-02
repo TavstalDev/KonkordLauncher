@@ -8,6 +8,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
+using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
 using Tavstal.KonkordLauncher.Core.Models.Accounts;
 using Tavstal.KonkordLauncher.Core.Models.Logging;
@@ -123,7 +124,28 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
             DataContext.OpenResourceDownloadDialog.RegisterHandler(async action =>
             {
                 var dialog = new ResourceDownloadWindow(DataContext.Instance.getInstance(), action.Input);
-                await dialog.ShowDialog(this);
+                var result = await dialog.ShowDialog<bool?>(this);
+                if (result == true)
+                {
+                    switch (action.Input)
+                    {
+                        case EResourceType.RESOURCE_PACK:
+                        {
+                            await DataContext.ResourcePacks.RefreshResourcePacksAsync();
+                            break;
+                        }
+                        case EResourceType.MOD:
+                        {
+                            await DataContext.Mods.RefreshModsAsync();
+                            break;
+                        }
+                        case EResourceType.SHADER_PACK:
+                        {
+                            await DataContext.ShaderPacks.RefreshShaderPacksAsync();
+                            break;
+                        }
+                    }
+                }
                 action.SetOutput(Unit.Default);
             }).DisposeWith(disposables);
         });

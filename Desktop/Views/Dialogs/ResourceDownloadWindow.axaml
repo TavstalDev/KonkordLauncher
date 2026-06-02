@@ -206,7 +206,8 @@
                                                                 <Grid Grid.Column="1" RowDefinitions="Auto, Auto">
                                                                     <Grid ColumnDefinitions="Auto,Auto">
                                                                         <TextBlock Classes="InstanceModTitle" Text="{Binding Name}" />
-                                                                        <TextBlock Grid.Column="1" Classes="InstanceModTitle" IsVisible="{Binding IsInstalled}" Text="[Installed]" />
+                                                                        <TextBlock Grid.Column="1" Classes="InstanceModTitle" IsVisible="{Binding IsSelected}" Text="{lang:Translate instance.resource.download.selected}" />
+                                                                        <TextBlock Grid.Column="1" Classes="InstanceModTitle" IsVisible="{Binding IsInstalled}" Text="{lang:Translate instance.resource.download.installed}" />
                                                                     </Grid>
                                                                         <TextBlock
                                                                             Grid.Row="1"

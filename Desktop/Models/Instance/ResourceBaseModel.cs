@@ -27,6 +27,9 @@ public partial class ResourceBaseModel : ObservableObject
     public partial Bitmap? Icon { get; set; }
     
     [ObservableProperty]
+    public partial string? IconUrl { get; set; }
+    
+    [ObservableProperty]
     public partial string? FilePath { get; set; }
     
     [ObservableProperty, NotifyPropertyChangedFor(nameof(FormattedSize))]
@@ -34,6 +37,9 @@ public partial class ResourceBaseModel : ObservableObject
     
     [ObservableProperty]
     public partial bool IsEnabled { get; set; }
+    
+    [ObservableProperty]
+    public partial bool IsSelected { get; set; }
     
     [ObservableProperty]
     public partial bool IsInstalled { get; set; }
@@ -66,6 +72,7 @@ public partial class ResourceBaseModel : ObservableObject
                 Name = project.Title,
                 Description = project.Description,
                 Icon = await iconTask,
+                IconUrl = project.IconUrl,
                 RawPage = rawPage,
                 Versions = new ObservableCollection<Version>(versions),
                 Tags = new ObservableCollection<string>(project.Categories),

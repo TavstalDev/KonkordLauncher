@@ -123,7 +123,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
     [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))]
     public partial IModManifest? SelectedModLoader { get; set; }
 
-    private readonly SourceCache<IModManifest, string> _modLoaderVersionCache = new(x => x.Version);
+    private readonly SourceCache<IModManifest, string> _modLoaderVersionCache = new(x => $"{x.LoaderKind}:{x.GameVersion}:{x.Version}");
     public ReadOnlyObservableCollection<IModManifest> ModLoaderVersionResult { get; private set; } = new([]);
     
     private static readonly IComparer<IModManifest> ModVersionComparer = 
@@ -253,7 +253,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
                 var selectedVersion = SelectedMinecraftVersion.Id;
                 var searchQuery = ModLoaderSearchQuery;
                 var modLoaderType = ModLoaderType;
-
+                
                 return (Func<IModManifest, bool>)(manifest =>
                 {
                     // Return empty if no mod loader is selected or the mod loader type does not match
@@ -261,25 +261,15 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
                         return false;
 
                     // Filter by mod loader type
-                    switch (modLoaderType)
-                    {
-                        case EMinecraftKind.NEOFORGE:
-                        case EMinecraftKind.FORGE:
-                            if (manifest.GameVersion != selectedVersion)
-                                return false;
-                            break;
-                        case EMinecraftKind.FABRIC:
-                        case EMinecraftKind.QUILT:
-                            break;
-                        default:
-                            return false;
-                    }
-
-                    // Filter by search query
-                    if (!string.IsNullOrEmpty(searchQuery) && !manifest.Version.StartsWith(searchQuery))
+                    if ((modLoaderType == EMinecraftKind.NEOFORGE || modLoaderType == EMinecraftKind.QUILT) &&
+                        manifest.GameVersion != selectedVersion)
                         return false;
 
-                    return true;
+                    // Filter by search query
+                    if (string.IsNullOrEmpty(searchQuery))
+                        return true;
+                    
+                    return manifest.Version.StartsWith(searchQuery);
                 });
             });
         
@@ -290,7 +280,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
             .SortAndBind(out var filteredModLoaders, ModVersionComparer)
             .Subscribe(
                 _ => { },
-                ex => _logger.LogError($"ModLoader pipeline crashed:")
+                ex => _logger.LogError(ex, $"ModLoader pipeline crashed:")
             );
 
         Disposables.Add(modLoaderSubscription);
@@ -308,9 +298,9 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
     /// <returns>A <see cref="Task"/> that completes when initialization has finished.</returns>
     public async Task InitAsync(CoreConfig settings, VersionManifest versionManifest,  CancellationToken cancellationToken = default)
     {
-        List<IModManifest>? fabricManifestCache= await _manifestService.GetFabricManifestAsync(settings.Launcher.GetFabricManifestPath(), cancellationToken);
-        List<IModManifest>? forgeManifestCache= await _manifestService.GetForgeManifestAsync(settings.Launcher.GetForgeManifestPath(), cancellationToken);
-        List<IModManifest>? neoForgeManifestCache= await _manifestService.GetNeoForgeManifestAsync(settings.Launcher.GetNeoForgeManifestPath());
+        List<IModManifest>? fabricManifestCache = await _manifestService.GetFabricManifestAsync(settings.Launcher.GetFabricManifestPath(), cancellationToken);
+        List<IModManifest>? forgeManifestCache = await _manifestService.GetForgeManifestAsync(settings.Launcher.GetForgeManifestPath(), cancellationToken);
+        List<IModManifest>? neoForgeManifestCache = await _manifestService.GetNeoForgeManifestAsync(settings.Launcher.GetNeoForgeManifestPath());
         List<IModManifest>? quiltManifestCache = await _manifestService.GetQuiltManifestAsync(settings.Launcher.GetQuiltManifestPath(), cancellationToken);
         
         _minecraftVersionCache.Edit(innerCache =>

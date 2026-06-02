@@ -9,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Collections;
 using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -40,6 +39,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
     public readonly List<InstanceResource> InstanceResources = [];
     public readonly EResourceType ResourceType;
     public bool IsMod { get; }
+    private long _refreshGeneration;
 
     [ObservableProperty]
     public partial bool AllowScrollbarRefresh { get; set; } = false;
@@ -264,6 +264,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
 
     public async Task RefreshResourcesAsync(bool resetSearch = false, CancellationToken cancellationToken = default)
     {
+        var refreshGeneration = Interlocked.Increment(ref _refreshGeneration);
         AllowScrollbarRefresh = false;
         string? version = MinecraftVersion;
         
@@ -305,9 +306,26 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
 
         var projectIds = response.Hits.Select(h => h.ProjectId).ToList();
         var projects = await _metaCacheService.GetProjectsAsync(projectIds, cancellationToken);
+        if (refreshGeneration != _refreshGeneration)
+            return;
+
+        var projectOrder = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        for (int i = 0; i < response.Hits.Length; i++)
+        {
+            var projectId = response.Hits[i].ProjectId;
+            if (string.IsNullOrWhiteSpace(projectId) || !projectOrder.TryAdd(projectId, i))
+                continue;
+        }
+
+        projects = projects
+            .OrderBy(project => projectOrder.GetValueOrDefault(project.Id, int.MaxValue))
+            .ToArray();
         
         var versionIds = projects.SelectMany(p => p.Versions).Distinct().ToList();
         var versions = await _metaCacheService.GetVersionsAsync(versionIds, cancellationToken);
+        if (refreshGeneration != _refreshGeneration)
+            return;
+
         if (IsMod)
         {
             string modLoader = ModLoader switch
@@ -337,6 +355,8 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
         });
         
         var results = await Task.WhenAll(tasks);
+        if (refreshGeneration != _refreshGeneration)
+            return;
 
         if (resetSearch)
         {
@@ -350,6 +370,8 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
         {
             if (InstanceResources.Any(r => r.ProjectId == model.ProjectId))
                 model.IsInstalled = true;
+            if (ResourcesToDownload.ContainsKey(model.Name))
+                model.IsSelected = true;
             Resources.Add(model);
         }
 
@@ -376,13 +398,17 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
         var version = SelectedResource.Versions[SelectedResourceVersionIndex];
         bool shouldAdd = true;
         if (ResourcesToDownload.Remove(SelectedResource.Name, out var existingVersion))
+        {
             shouldAdd = existingVersion.Id != version.Id;
-        
+            SelectedResource.IsSelected = false;
+        }
+
         HasResources = ResourcesToDownload.Count + (shouldAdd ? 1 : 0) > 0;
         if (!shouldAdd)
             return;
 
         ResourcesToDownload.Add(SelectedResource.Name, version);
+        SelectedResource.IsSelected = true;
     }
 
     [RelayCommand]
@@ -395,30 +421,35 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
         Dictionary<string, string> dependencies = new();
         foreach (var resource in ResourcesToDownload)
         {
-            var file = resource.Value.Files.FirstOrDefault();
+            var version = resource.Value;
+            var file = version.Files.FirstOrDefault();
             if (file == null)
             {
                 _logger.LogWarning($"Resource {resource.Key} has no files, skipping.");
                 continue;
             }
 
-            var deps = resource.Value.Dependencies;
+            var deps = version.Dependencies;
             if (deps != null)
             {
                 foreach (var resourceDependency in deps)
                 {
-                    if (resourceDependency.ProjectId == null || resourceDependency.VersionId == null || InstanceResources.Any(x => x.ProjectId == resourceDependency.ProjectId))
+                    if (resourceDependency.ProjectId == null || resourceDependency.VersionId == null || InstanceResources.Any(x => x.ProjectId == resourceDependency.ProjectId) 
+                        || resources.Any(x => x.ProjectId == resourceDependency.ProjectId))
                         continue;
                     
                     dependencies[resourceDependency.ProjectId] = resourceDependency.VersionId;
                 }
             }
-
             resources.Add(new ResourceDownloadModel
             {
+                ProjectId = version.ProjectId,
                 Name = resource.Key,
-                Version = resource.Value.VersionNumber,
+                Version = version.VersionNumber,
                 Url = file.Url,
+                IconUrl = null, // TODO
+                Sha1 = file.Hashes.Sha1,
+                Sha512 = file.Hashes.Sha512,
                 FileName = file.FileName,
                 Platform = SelectedPlatform,
                 ShouldDownload = true
@@ -437,21 +468,25 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
             
             resources.Add(new ResourceDownloadModel
             {
+                ProjectId = dependencyVersion.ProjectId,
                 Name = dependencyVersion.Name,
                 Version = dependencyVersion.VersionNumber,
                 Url = file.Url,
+                Sha1 = file.Hashes.Sha1,
+                Sha512 = file.Hashes.Sha512,
                 FileName = file.FileName,
                 Platform = SelectedPlatform,
                 ShouldDownload = true
             });
         }
 
-        var reviewWindow = new ResourceReviewWindow(Instance, resources);
+        var reviewWindow = new ResourceReviewWindow(Instance, ResourceType, resources);
         bool result = await reviewWindow.ShowDialog<bool>(_parent);
         if (result)
             await CloseWindowInteraction.Handle(true);
     }
     
+    // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnSearchQueryChanged(string value)
     {
         if (!AllowScrollbarRefresh)

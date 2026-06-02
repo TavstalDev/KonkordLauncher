@@ -274,13 +274,13 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         _lastReadPosition = 0;
         _logger.LogDebug($"Launching instance: {Name}");
         var accountData = await _launcherStore.GetAccountDataAsync();
+        _logger.LogDebug($"Selected account id: {accountData.SelectedAccountId}");
         var account = ConfigModel.Misc.OverrideAccount ? 
             accountData.Accounts.FirstOrDefault(x => x.Id == ConfigModel.Misc.AccountId) 
             : accountData.Accounts.FirstOrDefault(x => x.Id == accountData.SelectedAccountId);
         
         if (account == null)
         {
-            _logger.LogError("No account selected for launching the ");
             await showAlertDialog.Handle(new Alert(_translationService.Translate("account.none.title"), _translationService.Translate("account.none.message"), EAlertType.Warning));
             return;
         }

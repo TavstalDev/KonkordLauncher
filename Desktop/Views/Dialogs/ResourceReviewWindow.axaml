@@ -54,7 +54,7 @@
                                         <DataTemplate>
                                             <Expander Classes="InstanceResource">
                                                 <Expander.Header>
-                                                    <CheckBox Content="{Binding Name}"  />
+                                                    <CheckBox Content="{Binding Name}" IsChecked="{Binding ShouldDownload}"  />
                                                 </Expander.Header>
 
                                                 <StackPanel Margin="45, 5, 0, 5">

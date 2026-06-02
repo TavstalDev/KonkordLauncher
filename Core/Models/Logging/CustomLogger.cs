@@ -87,8 +87,13 @@ public class CustomLogger<T> : CustomLogger, ICustomLogger<T> where T : class
     /// Initializes a new instance of the <see cref="CustomLogger{T}"/> class with default settings.
     /// Used by dependency injection to instantiate loggers without explicit parameter passing.
     /// </summary>
+#if DEBUG
+    public CustomLogger() 
+        : this(LogLevel.Debug, true, null) { }
+#else 
     public CustomLogger() 
         : this(LogLevel.Information, true, null) { }
+#endif
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CustomLogger{T}"/> class.

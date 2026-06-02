@@ -144,7 +144,7 @@ public class ValidationService : IValidationService
             }
             if (await _manifestService.GetFabricManifestAsync(settings.Launcher.GetFabricManifestPath(), cancellationToken) == null)
                 _logger.LogError("Failed to load Fabric manifest");
-
+            
             // Forge
             if (!File.Exists(settings.Launcher.GetForgeManifestPath()) || refreshManifests)
             {

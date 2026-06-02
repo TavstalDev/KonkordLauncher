@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using CommunityToolkit.Mvvm.Input;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
@@ -17,13 +19,45 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
     private readonly IManifestService _manifestService;
     private readonly IMetaCacheService _metaCacheService;
     public readonly Instance Instance;
-    public readonly List<InstanceResource> InstanceResources = [];
+    public ObservableCollection<InstanceResource> InstanceResources { get; set; } = [];
     
     #region Interactions
     public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
     public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
     #endregion
+
+    public ResourceReviewViewModel()
+    {
+        if (Design.IsDesignMode)
+        {
+            InstanceResources =
+            [
+                new InstanceResource
+                {
+                    Name = "Test",
+                    ProjectId = "1",
+                    Url = "",
+                    Path = "mods/test.jar"
+                },
+                new InstanceResource
+                {
+                    Name = "Test2",
+                    ProjectId = "2",
+                    Url = "",
+                    Path = "mods/test2.jar"
+                },
+                new InstanceResource
+                {
+                    Name = "Test3",
+                    ProjectId = "3",
+                    Url = "",
+                    Path = "mods/test3.jar"
+                }
+            ];
+            return;
+        }
+    }
     
     #region Commands
 

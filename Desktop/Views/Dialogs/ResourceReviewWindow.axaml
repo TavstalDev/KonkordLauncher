@@ -6,12 +6,12 @@
         xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common"
         x:Class="Tavstal.KonkordLauncher.Desktop.Views.Dialogs.ResourceReviewWindow"
         Title="Konkord Launcher - Resource Downloader Review"
-        Width="900"
+        Width="600"
         Height="500"
-        MinWidth="900"
+        MinWidth="600"
         MinHeight="500"
         d:DesignHeight="500"
-        d:DesignWidth="900"
+        d:DesignWidth="600"
         x:DataType="vm:ResourceReviewViewModel"
         Background="Transparent"
         CanResize="True"
@@ -65,19 +65,75 @@
                         <!--  Title  -->
                         <Border Classes="ModalTitleBorder">
                             <StackPanel>
-                                <TextBlock Text="Download Content" />
-                                <TextBlock Classes="ModalSubTitle" Text="Select the resources that you want to download." />
+                                <TextBlock Text="Review Selection" />
+                                <TextBlock Classes="ModalSubTitle" Text="You are about to download the following content:" />
                             </StackPanel>
                         </Border>
 
+                        <!-- Content  -->
                         <Grid Grid.Row="1" RowDefinitions="*, Auto">
+                            <ScrollViewer Margin="15, 10, 15, 15">
+                                <ItemsControl ItemsSource="{Binding InstanceResources}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Expander Classes="InstanceResource">
+                                                <Expander.Header>
+                                                    <CheckBox Content="{Binding Name}"  />
+                                                </Expander.Header>
+
+                                                <StackPanel Margin="45, 5, 0, 5">
+                                                    <StackPanel Spacing="5" Orientation="Horizontal">
+                                                        <TextBlock Text="File:"/>
+                                                        <TextBlock Text="{Binding Path}"/>
+                                                    </StackPanel>
+                                                    <StackPanel Spacing="5" Orientation="Horizontal">
+                                                        <TextBlock Text="Provider:"/>
+                                                        <TextBlock Text="Modrinth"/>
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </Expander>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
                             
+                            <!--  Buttons  -->
+                            <Border Grid.Row="1" Classes="InstanceButtonBorder">
+                                <StackPanel Classes="InstanceButtonWrapper">
+                                    <!--  Cancel Button  -->
+                                    <Button Classes="IconBtn ErrorBtn" Command="{Binding CloseWindowCommand}">
+                                        <WrapPanel Classes="IconBtnWrapper">
+                                            <TextBlock
+                                                VerticalAlignment="Center"
+                                                Classes="FontAwesome"
+                                                Text="&#xf00d;" />
+                                            <TextBlock
+                                                VerticalAlignment="Center"
+                                                FontWeight="500"
+                                                Text="{lang:Translate common.cancel}" />
+                                        </WrapPanel>
+                                    </Button>
+                                    <!--  Ok Button  -->
+                                    <Button Classes="IconBtn SuccessBtn">
+                                        <WrapPanel Classes="IconBtnWrapper">
+                                            <TextBlock
+                                                VerticalAlignment="Center"
+                                                Classes="FontAwesome"
+                                                Text="&#xf00c;" />
+                                            <TextBlock
+                                                VerticalAlignment="Center"
+                                                FontWeight="500"
+                                                Text="{lang:Translate common.ok}" />
+                                        </WrapPanel>
+                                    </Button>
+                                </StackPanel>
+                            </Border>
                         </Grid>
                     </Grid>
                 </Grid>
             </Border>
                 
-                    <!--  Resize overlay (8px grips)  -->
+            <!--  Resize overlay (8px grips)  -->
             <Grid ColumnDefinitions="8,*,8" RowDefinitions="8,*,8">
                 <!--  Edges  -->
                 <Border

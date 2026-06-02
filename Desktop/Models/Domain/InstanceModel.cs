@@ -522,7 +522,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
 
             if (meta == null)
             {
-                UpdateJavaPath(gameInstance, defaultJavaPath, instances, instanceIndex);
+                await UpdateJavaPathAsync(gameInstance, defaultJavaPath, instances, instanceIndex);
                 return;
             }
 
@@ -550,7 +550,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
                 }
             }
 
-            UpdateJavaPath(gameInstance, defaultJavaPath, instances, instanceIndex);
+            await UpdateJavaPathAsync(gameInstance, defaultJavaPath, instances, instanceIndex);
         }
         catch (Exception ex)
         {
@@ -565,14 +565,14 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     /// <param name="javaPath">The new Java path to set.</param>
     /// <param name="instances">The list of instances to update.</param>
     /// <param name="instanceIndex">The index of the current instance in the list.</param>
-    private void UpdateJavaPath(MinecraftInstance gameInstance, string javaPath, List<Common.Models.Instance> instances, int instanceIndex)
+    private async Task UpdateJavaPathAsync(MinecraftInstance gameInstance, string javaPath, List<Common.Models.Instance> instances, int instanceIndex)
     {
         gameInstance.UpdateJavaPath(javaPath);
 
         if (instanceIndex >= 0)
         {
             instances[instanceIndex].Config.Java.JavaPath = javaPath;
-            JsonHelper.WriteJsonFile(PathHelper.LauncherInstancesPath, instances);
+            await _launcherStore.SaveInstancesAsync(instances);
         }
         GlobalEvents.InvokeInstanceUpdated(instances[instanceIndex].Id);
     }

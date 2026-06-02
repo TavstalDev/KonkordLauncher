@@ -83,7 +83,7 @@ public class ValidationService : IValidationService
             {
                 AccountData accountData = new();
 
-                await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData, cancellationToken);
+                await _launcherStore.SaveAccountDataAsync(accountData, cancellationToken);
                 return true; // No account was found to check
             }
 

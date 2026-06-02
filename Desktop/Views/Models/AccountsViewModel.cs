@@ -182,7 +182,7 @@ public partial class AccountsViewModel : KonkordObservableObject
             accountData.SelectedAccountId = microsoftAccount.Id;
         accountData.Accounts.Add(microsoftAccount);
         var settings = await _launcherStore.GetSettingsAsync();
-        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData);
+        await _launcherStore.SaveAccountDataAsync(accountData);
 
         foreach (var skin in microsoftAccount.Skins)
             await _skinService.FetchSkinsAsync(settings.Launcher.CacheDirectoryPath, microsoftAccount.Id,
@@ -309,7 +309,7 @@ public partial class AccountsViewModel : KonkordObservableObject
         account.SetRefreshToken("0");
 
         accountData.Accounts.Add(account);
-        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData, cancellationToken);
+        await _launcherStore.SaveAccountDataAsync(accountData, cancellationToken);
         GlobalEvents.InvokeAccountsChanged();
         var settings = await _launcherStore.GetSettingsAsync(cancellationToken: cancellationToken);
         await _skinService.FetchOfflineSkinsAsync(settings.Launcher.CacheDirectoryPath, id, OfflineUsername, cancellationToken);

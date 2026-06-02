@@ -96,21 +96,6 @@ class Program
         
         // Get protector immediately
         _serviceProvider = appHost.Services;
-        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30)); // tune timeout
-        try
-        {
-            _serviceProvider.InitializeAllAsync(cts.Token).GetAwaiter().GetResult();
-        }
-        catch (OperationCanceledException)
-        {
-            Console.Error.WriteLine("Service initialization timed out.");
-            return;
-        }
-        catch (Exception ex)
-        {
-            Console.Error.WriteLine($"Service initialization failed: {ex}");
-            return;
-        }
         var provider = appHost.Services.GetRequiredService<IDataProtectionProvider>();
         EncryptionUtility.SetDataProtectionProvider(provider);
 

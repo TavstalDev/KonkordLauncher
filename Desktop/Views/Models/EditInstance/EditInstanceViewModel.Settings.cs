@@ -261,7 +261,7 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
         };
         instances[index] = instanceToSave;
 
-        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances);
+        await _launcherStore.SaveInstancesAsync(instances);
         GlobalEvents.InvokeInstanceUpdated(_parent.Instance.Id);
         _logger.LogDebug("Saved instance config to file.");
     }

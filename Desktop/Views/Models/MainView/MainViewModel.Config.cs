@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -8,6 +9,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using Tavstal.KonkordLauncher.Common.Models.Config;
 using Tavstal.KonkordLauncher.Common.Models.Translation;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
 using Tavstal.KonkordLauncher.Core.Models.Logging;
@@ -23,6 +25,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.MainView;
 public partial class MainViewModel_Config : KonkordObservableObject
 {
     private readonly ICustomLogger _logger;
+    private readonly ILauncherStore _launcherStore;
     private readonly MainViewModel _parent;
 
     [ObservableProperty]
@@ -40,6 +43,7 @@ public partial class MainViewModel_Config : KonkordObservableObject
         
         var services = Program.ServiceProvider;
         _logger = services.GetRequiredService<ICustomLogger<MainViewModel_Config>>();
+        _launcherStore = services.GetRequiredService<ILauncherStore>();
     }
     
     /// <summary>
@@ -51,10 +55,18 @@ public partial class MainViewModel_Config : KonkordObservableObject
     /// The <see cref="CoreConfig"/> instance read from disk or created by default which will
     /// be wrapped by a <see cref="CoreConfigModel"/> and exposed to the UI.
     /// </param>
-    public async Task InitAsync(CoreConfig settings)
+    public Task InitAsync(CoreConfig settings)
     {
-        CoreConfig = new CoreConfigModel(settings);
-        SubscribeToCoreConfigChildren(CoreConfig);
+        try
+        {
+            CoreConfig = new CoreConfigModel(settings);
+            SubscribeToCoreConfigChildren(CoreConfig);
+            return Task.CompletedTask;
+        }
+        catch (Exception exception)
+        {
+            return Task.FromException(exception);
+        }
     }
     
     
@@ -296,6 +308,6 @@ public partial class MainViewModel_Config : KonkordObservableObject
             CacheRefreshDate = _parent.NextCacheRefresh
         };
 
-        JsonHelper.WriteJsonFile(PathHelper.LauncherConfigPath, settings);
+        _launcherStore.SaveSettings(settings);
     }
 }

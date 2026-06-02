@@ -185,7 +185,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         var index = accountData.Accounts.FindIndex(x => x.Id == account.Id);
         accountData.Accounts[index] = updatedAccount;
 
-        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherAccountsPath, accountData, cancellationToken);
+        await _launcherStore.SaveAccountDataAsync(accountData, cancellationToken);
         GlobalEvents.InvokeAccountsChanged();
         _authService.Reset();
     }
@@ -713,7 +713,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             }).ToList()
         };
 
-        JsonHelper.WriteJsonFile(PathHelper.LauncherAccountsPath, accounts);
+        _launcherStore.SaveAccountData(accounts);
     }
 
     #endregion

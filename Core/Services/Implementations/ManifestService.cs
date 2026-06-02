@@ -12,7 +12,7 @@ using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 namespace Tavstal.KonkordLauncher.Core.Services.Implementations;
 
 /// <inheritdoc cref="IManifestService" />
-public class ManifestService : IManifestService, IAsyncInitializable
+public class ManifestService : IManifestService
 {
     private readonly ICustomLogger _logger;
     private VersionManifest? _versionManifest;
@@ -29,7 +29,10 @@ public class ManifestService : IManifestService, IAsyncInitializable
     {
         _logger = logger;
     }
-    
+
+    /// <inheritdoc/>
+    public VersionManifest? GetMinecraftManifest() => _versionManifest;
+
     /// <inheritdoc/>
     public async Task<VersionManifest?> GetMinecraftManifestAsync(string manifestPath, CancellationToken cancellationToken = default)
     {
@@ -39,6 +42,9 @@ public class ManifestService : IManifestService, IAsyncInitializable
         _versionManifest = await JsonHelper.ReadJsonFileAsync<VersionManifest>(manifestPath);
         return _versionManifest;
     }
+
+    /// <inheritdoc/>
+    public List<IModManifest>? GetFabricManifest() => _fabricManifest;
 
     /// <inheritdoc/>
     public async Task<List<IModManifest>?> GetFabricManifestAsync(string manifestPath, CancellationToken cancellationToken = default)
@@ -60,7 +66,10 @@ public class ManifestService : IManifestService, IAsyncInitializable
 
         return _fabricManifest;
     }
-    
+
+    /// <inheritdoc/>
+    public List<IModManifest>? GetQuiltManifest() => _quiltManifest;
+
     /// <inheritdoc/>
     public async Task<List<IModManifest>?> GetQuiltManifestAsync(string manifestPath, CancellationToken cancellationToken = default)
     {
@@ -83,6 +92,9 @@ public class ManifestService : IManifestService, IAsyncInitializable
     }
 
     /// <inheritdoc/>
+    public List<IModManifest>? GetForgeManifest() => _forgeManifest;
+
+    /// <inheritdoc/>
     public async Task<List<IModManifest>?> GetForgeManifestAsync(string manifestPath, CancellationToken cancellationToken = default)
     {
         if (_forgeManifest != null)
@@ -100,6 +112,9 @@ public class ManifestService : IManifestService, IAsyncInitializable
     }
 
     /// <inheritdoc/>
+    public List<IModManifest>? GetNeoForgeManifest() => _neoForgeManifest;
+
+    /// <inheritdoc/>
     public async Task<List<IModManifest>?> GetNeoForgeManifestAsync(string manifestPath)
     {
         if (_neoForgeManifest != null)
@@ -114,10 +129,5 @@ public class ManifestService : IManifestService, IAsyncInitializable
             _neoForgeManifest.Add(manifest);
         
         return _neoForgeManifest;
-    }
-
-    public async Task InitializeAsync(CancellationToken cancellationToken = default)
-    {
-        
     }
 }

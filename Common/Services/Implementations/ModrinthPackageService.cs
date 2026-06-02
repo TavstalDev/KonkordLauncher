@@ -216,9 +216,9 @@ public class ModrinthPackageService : IPackageService
                     await Task.WhenAll(tasks);
 
                 instances.Add(result);
-                await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances, cancellationToken);
+                await _launcherStore.SaveInstancesAsync(instances, cancellationToken);
                 if (resources.Count > 0)
-                    await JsonHelper.WriteJsonFileAsync(resourceFile, resources, cancellationToken);
+                    await _launcherStore.SaveInstanceResourcesAsync(result, resources, cancellationToken);
             }
             catch (Exception ex)
             {

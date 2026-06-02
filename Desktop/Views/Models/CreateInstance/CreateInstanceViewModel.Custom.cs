@@ -422,7 +422,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
                 Misc =new InstanceMiscConfig()
             }
         });
-        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances);
+        await _launcherStore.SaveInstancesAsync(instances);
         GlobalEvents.InvokeInstanceAdded(instances.Last().Id);
         await _parent.CloseWindowInteraction.Handle(Unit.Default);
     }

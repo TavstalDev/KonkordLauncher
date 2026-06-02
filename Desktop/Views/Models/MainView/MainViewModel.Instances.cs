@@ -240,7 +240,7 @@ public partial class MainViewModel_Instances : KonkordObservableObject
 
         targetInstance.Name = result;
         instances[index] = targetInstance;
-        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances, cancellationToken);
+        await _launcherStore.SaveInstancesAsync(instances, cancellationToken);
         GlobalEvents.InvokeInstanceUpdated(targetInstance.Id);
     }
 
@@ -268,7 +268,7 @@ public partial class MainViewModel_Instances : KonkordObservableObject
 
         targetInstance.IconPath = result;
         instances[index] = targetInstance;
-        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances, cancellationToken);
+        await _launcherStore.SaveInstancesAsync(instances, cancellationToken);
         GlobalEvents.InvokeInstanceUpdated(targetInstance.Id);
     }
 
@@ -296,7 +296,7 @@ public partial class MainViewModel_Instances : KonkordObservableObject
 
         targetInstance.Group = result;
         instances[index] = targetInstance;
-        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances, cancellationToken);
+        await _launcherStore.SaveInstancesAsync(instances, cancellationToken);
         GlobalEvents.InvokeInstanceUpdated(targetInstance.Id);
     }
 
@@ -374,7 +374,7 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         if (Directory.Exists(targetInstance.GameDirectory))
             FileSystemHelper.DeleteDirectory(targetInstance.GameDirectory);
         instances.Remove(targetInstance);
-        await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherInstancesPath, instances, cancellationToken);
+        await _launcherStore.SaveInstancesAsync(instances, cancellationToken);
         GlobalEvents.InvokeInstanceRemoved(targetInstance.Id);
     }
 

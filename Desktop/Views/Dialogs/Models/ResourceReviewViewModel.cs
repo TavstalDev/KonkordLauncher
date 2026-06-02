@@ -162,13 +162,13 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
         string instanceConfigPath = _instance.GetResourceConfigPath();
         if (!File.Exists(instanceConfigPath))
         {
-            await JsonHelper.WriteJsonFileAsync(instanceConfigPath, newResources);
+            await _launcherStore.SaveInstanceResourcesAsync(_instance, newResources);
         }
         else
         {
-            var existingResources = await JsonHelper.ReadJsonFileAsync<List<InstanceResource>>(instanceConfigPath);
+            var existingResources = await _launcherStore.GetInstanceResourcesAsync(_instance);
             existingResources!.AddRange(newResources);
-            await JsonHelper.WriteJsonFileAsync(instanceConfigPath, existingResources);
+            await _launcherStore.SaveInstanceResourcesAsync(_instance, existingResources);
         }
         
         // TODO: Report completion

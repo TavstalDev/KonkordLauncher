@@ -132,6 +132,32 @@ public static class JsonHelper
             return false;
         }
     }
+    
+    /// <summary>
+    /// Reads and deserializes a JSON file into an object of type <typeparamref name="T"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of the object to deserialize.</typeparam>
+    /// <param name="path">The file path to read the JSON content from.</param>
+    /// <returns>The deserialized object, or default if the file does not exist or an error occurs during deserialization.</returns>
+    public static T? ReadJsonFile<T>(string path)
+    {
+        try
+        {
+            if (!File.Exists(path))
+                return default;
+            
+            using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            using var streamReader = new StreamReader(stream, Encoding.UTF8);
+            using var jsonReader = new JsonTextReader(streamReader);
+            var serializer = JsonSerializer.Create(_jsonSerializerSettings);
+            return serializer.Deserialize<T>(jsonReader);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogCritical(ex, $"Error in ReadJsonFileAsync<T> {path}:");
+            return default;
+        }
+    }
 
     /// <summary>
     /// Asynchronously reads and deserializes a JSON file into an object of type <typeparamref name="T"/>.

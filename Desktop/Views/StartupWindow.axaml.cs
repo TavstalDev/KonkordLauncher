@@ -201,7 +201,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
             await Task.Delay(_stepDelay, cancellationToken);
 
             settings.Launcher.NextUpdateCheck = DateTime.Now.AddHours(MathHelper.Clamp(settings.Launcher.UpdateInterval, 1, int.MaxValue));
-            await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherConfigPath, settings, cancellationToken);
+            await _launcherStore.SaveSettingsAsync(settings, cancellationToken);
 
             if (await CheckUpdateAsync(cancellationToken: cancellationToken))
             {
@@ -215,7 +215,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
         if (shouldRefreshCache)
         {
             settings.CacheRefreshDate = DateTime.Now.AddDays(1);
-            await JsonHelper.WriteJsonFileAsync(PathHelper.LauncherConfigPath, settings, cancellationToken);
+            await _launcherStore.SaveSettingsAsync(settings, cancellationToken);
         }
 
         // Start Main Window

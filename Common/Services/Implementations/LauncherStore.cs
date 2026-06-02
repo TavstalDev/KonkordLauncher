@@ -24,7 +24,15 @@ public class LauncherStore : ILauncherStore
     {
         _logger = logger;
     }
-    
+
+    /// <inheritdoc/>
+    public CoreConfig? GetSettings()
+    {
+        if (_cache.TryGetValue(PathHelper.LauncherConfigPath, out var cacheResult))
+            return (CoreConfig)cacheResult.data;
+        return null;
+    }
+
     /// <inheritdoc/>
     public async Task<CoreConfig> GetSettingsAsync(Resolution? screenResolution = null, CancellationToken cancellationToken = default) => 
         await ReadOrRecreateAsync(PathHelper.LauncherConfigPath, () =>
@@ -39,8 +47,20 @@ public class LauncherStore : ILauncherStore
         }, cancellationToken);
 
     /// <inheritdoc/>
+    public bool SaveSettings(CoreConfig settings) => 
+        Save(PathHelper.LauncherConfigPath, settings);
+
+    /// <inheritdoc/>
     public async Task<bool> SaveSettingsAsync(CoreConfig settings, CancellationToken cancellationToken = default) =>
         await SaveAsync(PathHelper.LauncherConfigPath, settings, cancellationToken);
+
+    /// <inheritdoc/>
+    public AccountData? GetAccountData()
+    {
+        if (_cache.TryGetValue(PathHelper.LauncherAccountsPath, out var cacheResult))
+            return (AccountData)cacheResult.data;
+        return null;
+    }
 
     /// <inheritdoc/>
     public async Task<AccountData> GetAccountDataAsync(CancellationToken cancellationToken = default)
@@ -52,16 +72,48 @@ public class LauncherStore : ILauncherStore
     }
 
     /// <inheritdoc/>
+    public bool SaveAccountData(AccountData accountData) =>
+        Save(PathHelper.LauncherAccountsPath, accountData);
+
+    /// <inheritdoc/>
     public async Task<bool> SaveAccountDataAsync(AccountData accountData, CancellationToken cancellationToken = default) =>
         await SaveAsync(PathHelper.LauncherAccountsPath, accountData, cancellationToken);
+
+    /// <inheritdoc/>
+    public List<Instance>? GetInstances()
+    {
+        if (_cache.TryGetValue(PathHelper.LauncherInstancesPath, out var cacheResult))
+            return (List<Instance>)cacheResult.data;
+        return null;
+    }
 
     /// <inheritdoc/>
     public async Task<List<Instance>> GetInstancesAsync(CancellationToken cancellationToken = default)=> 
         await ReadOrRecreateAsync<List<Instance>>(PathHelper.LauncherInstancesPath, () => [], cancellationToken);
 
     /// <inheritdoc/>
+    public bool SaveInstances(List<Instance> instances) =>
+        Save(PathHelper.LauncherInstancesPath, instances);
+
+    /// <inheritdoc/>
     public async Task<bool> SaveInstancesAsync(List<Instance> instances, CancellationToken cancellationToken = default) =>
         await SaveAsync(PathHelper.LauncherInstancesPath, instances, cancellationToken);
+
+    /// <inheritdoc/>
+    public List<InstanceResource>? GetInstanceResources(Instance instance) =>
+        ReadOrRecreate<List<InstanceResource>?>(instance.GetResourceConfigPath(), () => []);
+
+    /// <inheritdoc/>
+    public async Task<List<InstanceResource>> GetInstanceResourcesAsync(Instance instance, CancellationToken cancellationToken = default) =>
+        await ReadOrRecreateAsync<List<InstanceResource>>(instance.GetResourceConfigPath(), () => [], cancellationToken);
+
+    /// <inheritdoc/>
+    public bool SaveInstanceResources(Instance instance, List<InstanceResource> resources) =>
+        Save(instance.GetResourceConfigPath(), resources);
+
+    /// <inheritdoc/>
+    public async Task<bool> SaveInstanceResourcesAsync(Instance instance, List<InstanceResource> resources, CancellationToken cancellationToken = default) =>
+        await SaveAsync(instance.GetResourceConfigPath(), resources, cancellationToken);
 
     /// <inheritdoc/>
     public async Task<List<PatchNote>> GetPatchNotesAsync(string cacheDir, CancellationToken cancellationToken = default)
@@ -83,6 +135,33 @@ public class LauncherStore : ILauncherStore
         }
         
         return result;
+    }
+    
+    /// <summary>
+    /// Persist the given value to the specified JSON file path using <c>JsonHelper.WriteJsonFile</c>,
+    /// then update the in-memory cache for that path.
+    /// </summary>
+    /// <typeparam name="T">Type of the value being saved.</typeparam>
+    /// <param name="path">Absolute path to the JSON file to write.</param>
+    /// <param name="value">The value to serialize and save.</param>
+    /// <returns>
+    /// <see langword="true"/> if the file was written and the cache updated; otherwise <see langword="false"/>.
+    /// In error cases the method logs the exception and returns <see langword="false"/> rather than throwing.
+    /// </returns>
+    private bool Save<T>(string path, T value)
+    {
+        try
+        {
+            JsonHelper.WriteJsonFile(path, value);
+            var cacheValue = (DateTime.UtcNow, value);
+            _cache.AddOrUpdate(path, cacheValue!, (_, _) => cacheValue!);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogCritical(ex, $"Error saving file at {path}:");
+            return false;
+        }
     }
 
     /// <summary>
@@ -110,6 +189,43 @@ public class LauncherStore : ILauncherStore
         {
             _logger.LogCritical(ex, $"Error saving file at {path}:");
             return false;
+        }
+    }
+    
+    private T ReadOrRecreate<T>(string path, Func<T> factory)
+    {
+        try
+        {
+            var fileInfo = new FileInfo(path);
+            DateTime lastWritten = fileInfo.LastWriteTimeUtc;
+            if (!fileInfo.Exists)
+            {
+                T result = factory();
+                JsonHelper.WriteJsonFile(path, result);
+                return result;
+            }
+            
+            if (_cache.TryGetValue(path, out var cacheResult) && fileInfo.LastWriteTimeUtc <= lastWritten)
+                return (T)cacheResult.data;
+
+            var readResult = JsonHelper.ReadJsonFile<T>(path);
+            if (readResult == null)
+            {
+                T result = factory();
+                File.Move(path, path + ".bak", true);
+                JsonHelper.WriteJsonFile(path, result);
+                readResult = result;
+                lastWritten = DateTime.UtcNow;
+            }
+
+            var cacheValue = (lastWritten, readResult);
+            _cache.AddOrUpdate(path, cacheValue!, (_, _) => cacheValue!);
+            return readResult;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogCritical(ex, $"Error reading or creating file at {path}:");
+            return factory();
         }
     }
     

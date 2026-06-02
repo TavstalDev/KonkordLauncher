@@ -1,0 +1,22 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:templates="clr-namespace:Tavstal.KonkordLauncher.Desktop.Styles.Templates">
+    <Style Selector="templates|WindowResizer">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid ColumnDefinitions="8,*,8" RowDefinitions="8,*,8">
+                    
+                    <Border x:Name="PART_NorthHandle" Grid.Row="0" Grid.Column="1" Background="Transparent" Cursor="TopSide" Tag="North" />
+                    <Border x:Name="PART_SouthHandle" Grid.Row="2" Grid.Column="1" Background="Transparent" Cursor="BottomSide" Tag="South" />
+                    <Border x:Name="PART_WestHandle" Grid.Row="1" Grid.Column="0" Background="Transparent" Cursor="LeftSide" Tag="West" />
+                    <Border x:Name="PART_EastHandle" Grid.Row="1" Grid.Column="2" Background="Transparent" Cursor="RightSide" Tag="East" />
+
+                    <Border x:Name="PART_NorthWestHandle" Grid.Row="0" Grid.Column="0" Background="Transparent" Cursor="TopLeftCorner" Tag="NorthWest" />
+                    <Border x:Name="PART_NorthEastHandle" Grid.Row="0" Grid.Column="2" Background="Transparent" Cursor="TopRightCorner" Tag="NorthEast" />
+                    <Border x:Name="PART_SouthWestHandle" Grid.Row="2" Grid.Column="0" Background="Transparent" Cursor="BottomLeftCorner" Tag="SouthWest" />
+                    <Border x:Name="PART_SouthEastHandle" Grid.Row="2" Grid.Column="2" Background="Transparent" Cursor="BottomRightCorner" Tag="SouthEast" />
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+</Styles>

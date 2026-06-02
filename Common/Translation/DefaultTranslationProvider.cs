@@ -337,6 +337,8 @@ public static class DefaultTranslationProvider
         {"instance.resource.download.title", "Download Resource"},
         {"instance.resource.download.description", "Select the resources that you want to download."},
         {"instance.resource.download.preview", "Select a resource to see its preview."},
+        {"instance.resource.download.selected", "[Selected]"},
+        {"instance.resource.download.installed", "[Installed]"},
         {"instance.resource.review.window", "Konkord Launcher - Resource Downloader Review"},
         {"instance.resource.review.title", "Review Selection"},
         {"instance.resource.review.description", "You are about to download the following content:"},

@@ -49,6 +49,10 @@
         <StyleInclude Source="Styles/Components/Alerts.axaml" />
         <StyleInclude Source="Styles/Components/Modals.axaml" />
 
+        <!-- Templates -->
+        <StyleInclude Source="/Styles/Templates/CustomTitleBar.axaml" />
+        <StyleInclude Source="/Styles/Templates/WindowResizer.axaml" />
+        
         <!--  Layouts  -->
         <StyleInclude Source="Styles/Layout/Main/PlayPage.axaml" />
         <StyleInclude Source="Styles/Layout/Main/NewsPage.axaml" />

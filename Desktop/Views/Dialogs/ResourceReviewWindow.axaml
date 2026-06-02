@@ -4,8 +4,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
         xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common"
+        xmlns:templates="clr-namespace:Tavstal.KonkordLauncher.Desktop.Styles.Templates"
         x:Class="Tavstal.KonkordLauncher.Desktop.Views.Dialogs.ResourceReviewWindow"
-        Title="Konkord Launcher - Resource Downloader Review"
+        Title="{lang:Translate instance.resource.review.window}"
         Width="600"
         Height="500"
         MinWidth="600"
@@ -34,46 +35,21 @@
                 PointerPressed="DragStart_PointerPressed">
                 <Grid RowDefinitions="Auto, *">
                     <!--  Window Controls  -->
-                    <Border HorizontalAlignment="Stretch" PointerPressed="DragStart_PointerPressed">
-                        <Grid ColumnDefinitions="*, Auto">
-                            <!--  Window Title  -->
-                            <TextBlock Classes="WindowTitle" Text="{Binding $parent[Window].Title}" />
-
-                            <!--  Window Buttons  -->
-                            <StackPanel Grid.Column="1" Classes="WindowBtnPanel">
-                                <!--  MINIMIZE  -->
-                                <Button
-                                    Classes="WindowBtn WarningBtn"
-                                    Command="{Binding MinimizeWindowCommand}"
-                                    ToolTip.Tip="{lang:Translate main.window.minimize}" />
-                                <!--  MAXIMIZE / RESTORE  -->
-                                <Button
-                                    Classes="WindowBtn SuccessBtn"
-                                    Command="{Binding MaximizeWindowCommand}"
-                                    IsEnabled="{Binding $parent[Window].CanResize}"
-                                    ToolTip.Tip="{lang:Translate main.window.maximize}" />
-                                <!--  CLOSE  -->
-                                <Button
-                                    Classes="WindowBtn ErrorBtn"
-                                    Command="{Binding CloseWindowCommand}"
-                                    ToolTip.Tip="{lang:Translate main.window.close}" />
-                            </StackPanel>
-                        </Grid>
-                    </Border>
+                    <templates:CustomTitleBar/>
                     
                     <Grid Grid.Row="1" RowDefinitions="Auto, *">
                         <!--  Title  -->
                         <Border Classes="ModalTitleBorder">
                             <StackPanel>
-                                <TextBlock Text="Review Selection" />
-                                <TextBlock Classes="ModalSubTitle" Text="You are about to download the following content:" />
+                                <TextBlock Text="{lang:Translate instance.resource.review.title}" />
+                                <TextBlock Classes="ModalSubTitle" Text="{lang:Translate instance.resource.review.description}" />
                             </StackPanel>
                         </Border>
 
                         <!-- Content  -->
                         <Grid Grid.Row="1" RowDefinitions="*, Auto">
                             <ScrollViewer Margin="15, 10, 15, 15">
-                                <ItemsControl ItemsSource="{Binding InstanceResources}">
+                                <ItemsControl ItemsSource="{Binding Resources}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Expander Classes="InstanceResource">
@@ -83,12 +59,16 @@
 
                                                 <StackPanel Margin="45, 5, 0, 5">
                                                     <StackPanel Spacing="5" Orientation="Horizontal">
-                                                        <TextBlock Text="File:"/>
-                                                        <TextBlock Text="{Binding Path}"/>
+                                                        <TextBlock Foreground="{DynamicResource text-faded}" Text="{lang:Translate instance.resource.review.file}"/>
+                                                        <TextBlock Foreground="{DynamicResource text-faded}" Text="{Binding FileName}"/>
                                                     </StackPanel>
                                                     <StackPanel Spacing="5" Orientation="Horizontal">
-                                                        <TextBlock Text="Provider:"/>
-                                                        <TextBlock Text="Modrinth"/>
+                                                        <TextBlock Foreground="{DynamicResource text-faded}" Text="{lang:Translate instance.resource.review.version}"/>
+                                                        <TextBlock Foreground="{DynamicResource text-faded}" Text="{Binding Version}"/>
+                                                    </StackPanel>
+                                                    <StackPanel Spacing="5" Orientation="Horizontal">
+                                                        <TextBlock Foreground="{DynamicResource text-faded}" Text="{lang:Translate instance.resource.review.platform}"/>
+                                                        <TextBlock Foreground="{DynamicResource text-faded}" Text="{Binding Platform}"/>
                                                     </StackPanel>
                                                 </StackPanel>
                                             </Expander>
@@ -114,7 +94,7 @@
                                         </WrapPanel>
                                     </Button>
                                     <!--  Ok Button  -->
-                                    <Button Classes="IconBtn SuccessBtn">
+                                    <Button Classes="IconBtn SuccessBtn" Command="{Binding InstallCommand}">
                                         <WrapPanel Classes="IconBtnWrapper">
                                             <TextBlock
                                                 VerticalAlignment="Center"
@@ -133,67 +113,7 @@
                 </Grid>
             </Border>
                 
-            <!--  Resize overlay (8px grips)  -->
-            <Grid ColumnDefinitions="8,*,8" RowDefinitions="8,*,8">
-                <!--  Edges  -->
-                <Border
-                    Grid.Row="0"
-                    Grid.Column="1"
-                    Background="Transparent"
-                    Cursor="TopSide"
-                    PointerPressed="ResizeHandle_PointerPressed"
-                    Tag="North" />
-                <Border
-                    Grid.Row="2"
-                    Grid.Column="1"
-                    Background="Transparent"
-                    Cursor="BottomSide"
-                    PointerPressed="ResizeHandle_PointerPressed"
-                    Tag="South" />
-                <Border
-                    Grid.Row="1"
-                    Grid.Column="0"
-                    Background="Transparent"
-                    Cursor="LeftSide"
-                    PointerPressed="ResizeHandle_PointerPressed"
-                    Tag="West" />
-                <Border
-                    Grid.Row="1"
-                    Grid.Column="2"
-                    Background="Transparent"
-                    Cursor="RightSide"
-                    PointerPressed="ResizeHandle_PointerPressed"
-                    Tag="East" />
-
-                <!--  Corners  -->
-                <Border
-                    Grid.Row="0"
-                    Grid.Column="0"
-                    Background="Transparent"
-                    Cursor="TopLeftCorner"
-                    PointerPressed="ResizeHandle_PointerPressed"
-                    Tag="NorthWest" />
-                <Border
-                    Grid.Row="0"
-                    Grid.Column="2"
-                    Background="Transparent"
-                    Cursor="TopRightCorner"
-                    PointerPressed="ResizeHandle_PointerPressed"
-                    Tag="NorthEast" />
-                <Border
-                    Grid.Row="2"
-                    Grid.Column="0"
-                    Background="Transparent"
-                    Cursor="BottomLeftCorner"
-                    PointerPressed="ResizeHandle_PointerPressed"
-                    Tag="SouthWest" />
-                <Border
-                    Grid.Row="2"
-                    Grid.Column="2"
-                    Background="Transparent"
-                    Cursor="BottomRightCorner"
-                    PointerPressed="ResizeHandle_PointerPressed"
-                    Tag="SouthEast" />
-            </Grid>
+            <!--  Resize overlay  -->
+            <templates:WindowResizer />
         </Grid>
 </Window>

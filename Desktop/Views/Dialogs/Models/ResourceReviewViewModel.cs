@@ -5,11 +5,14 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
+using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
+using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
@@ -19,66 +22,73 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
     private readonly IManifestService _manifestService;
     private readonly IMetaCacheService _metaCacheService;
     public readonly Instance Instance;
-    public ObservableCollection<InstanceResource> InstanceResources { get; set; } = [];
+    public ObservableCollection<ResourceDownloadModel> Resources { get; set; }
     
     #region Interactions
-    public Interaction<Unit, Unit> MinimizeWindowInteraction { get; } = new();
-    public Interaction<Unit, Unit> MaximizeWindowInteraction { get; } = new();
-    public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
+    
+    
+    public Interaction<bool, Unit> CloseWindowInteraction { get; } = new();
     #endregion
 
-    public ResourceReviewViewModel()
+    public ResourceReviewViewModel(Instance instance, List<ResourceDownloadModel> resources)
     {
+        Instance = instance;
         if (Design.IsDesignMode)
         {
-            InstanceResources =
+            Resources =
             [
-                new InstanceResource
+                new ResourceDownloadModel
                 {
                     Name = "Test",
-                    ProjectId = "1",
+                    FileName = "test.jar",
+                    Version = "1.0.0",
                     Url = "",
-                    Path = "mods/test.jar"
+                    Platform = EPlatformType.MODRINTH,
+                    ShouldDownload = true,
                 },
-                new InstanceResource
+                new ResourceDownloadModel
                 {
                     Name = "Test2",
-                    ProjectId = "2",
+                    FileName = "test2.jar",
+                    Version = "1.0.0",
                     Url = "",
-                    Path = "mods/test2.jar"
+                    Platform = EPlatformType.MODRINTH,
+                    ShouldDownload = true,
                 },
-                new InstanceResource
+                new ResourceDownloadModel
                 {
                     Name = "Test3",
-                    ProjectId = "3",
+                    FileName = "test3.jar",
+                    Version = "1.0.0",
                     Url = "",
-                    Path = "mods/test3.jar"
-                }
+                    Platform = EPlatformType.MODRINTH,
+                    ShouldDownload = true,
+                },
             ];
             return;
         }
+        
+        Resources = new ObservableCollection<ResourceDownloadModel>(resources);
+
+        var services = Program.ServiceProvider;
+        _launcherStore = services.GetRequiredService<ILauncherStore>();
+        _manifestService = services.GetRequiredService<IManifestService>();
+        _metaCacheService = services.GetRequiredService<IMetaCacheService>();
     }
     
     #region Commands
 
-    /// <summary>
-    /// Requests the window to minimize by invoking the <see cref="MinimizeWindowInteraction"/> interaction.
-    /// </summary>
     [RelayCommand]
-    public async Task MinimizeWindow() => await MinimizeWindowInteraction.Handle(Unit.Default);
-
-    /// <summary>
-    /// Requests the window to toggle maximize/restore by invoking the <see cref="MaximizeWindowInteraction"/> interaction.
-    /// </summary>
-    [RelayCommand]
-    public async Task MaximizeWindow() => await MaximizeWindowInteraction.Handle(Unit.Default);
-
+    public async Task Install()
+    {
+        
+    }
+    
     /// <summary>
     /// Requests the window to close by invoking the <see cref="CloseWindowInteraction"/> interaction.
     /// </summary>
     [RelayCommand]
-    public async Task CloseWindow() => await CloseWindowInteraction.Handle(Unit.Default);
-
+    public async Task CloseWindow() => await CloseWindowInteraction.Handle(false);
     
     #endregion
 }

@@ -1,43 +1,34 @@
+using System.Collections.Generic;
 using System.Reactive;
 using System.Reactive.Disposables.Fluent;
 using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using ReactiveUI;
+using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
+using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 public partial class ResourceReviewWindow : KonkordWindow<ResourceReviewViewModel>
 {
-    public ResourceReviewWindow()
+    public ResourceReviewWindow() : this(null!, []) {}
+    
+    public ResourceReviewWindow(Instance instance, List<ResourceDownloadModel> resources)
     {
         InitializeComponent();
 
-        DataContext = new ResourceReviewViewModel();
+        DataContext = new ResourceReviewViewModel(instance, resources);
         
         if (Design.IsDesignMode)
             return;
         
         this.WhenActivated(disposables =>
         {
-            DataContext.MinimizeWindowInteraction.RegisterHandler(action =>
-            {
-                WindowState = WindowState.Minimized;
-                action.SetOutput(Unit.Default);
-                return Task.CompletedTask;
-            }).DisposeWith(disposables);
-            DataContext.MaximizeWindowInteraction.RegisterHandler(action =>
-            {
-                WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
-                action.SetOutput(Unit.Default);
-                return Task.CompletedTask;
-            }).DisposeWith(disposables);
             DataContext.CloseWindowInteraction.RegisterHandler(action =>
             {
-                Close();
+                Close(action.Input);
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             }).DisposeWith(disposables);

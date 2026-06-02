@@ -52,30 +52,6 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
             BeginMoveDrag(e);
     }
     
-    /// <summary>
-    /// Handler to begin a resize drag when the user presses on a resize handle control.
-    /// The control's <see cref="Control.Tag"/> must contain a valid <see cref="WindowEdge"/> value (case-insensitive).
-    /// </summary>
-    /// <param name="sender">Expected to be a <see cref="Control"/> with a string Tag identifying the window edge.</param>
-    /// <param name="e">Pointer event arguments.</param>
-    protected void ResizeHandle_PointerPressed(object? sender, PointerPressedEventArgs e)
-    {
-        if (!CanResize)
-            return;
-    
-        if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
-            return;
-    
-        if (sender is not Control { Tag: string tag })
-            return;
-    
-        if (!Enum.TryParse(tag, ignoreCase: true, out WindowEdge edge))
-            return;
-    
-        BeginResizeDrag(edge, e);
-        e.Handled = true; // prevent bubbling to DragStart_PointerPressed
-    }
-    
     
     /// <summary>
     /// Sets plain text on the system clipboard asynchronously.

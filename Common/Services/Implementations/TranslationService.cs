@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
@@ -10,7 +9,7 @@ using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 namespace Tavstal.KonkordLauncher.Common.Services.Implementations;
 
 /// <inheritdoc cref="ITranslationService"/>
-public class TranslationService : IHostedService, ITranslationService
+public class TranslationService : ITranslationService, IAsyncInitializable
 {
     private readonly ICustomLogger _logger;
     private readonly IHttpService _httpService;
@@ -35,10 +34,7 @@ public class TranslationService : IHostedService, ITranslationService
     }
     
     /// <inheritdoc/>
-    public async Task StartAsync(CancellationToken cancellationToken) => await ChangeLanguageAsync("en", cancellationToken);
-
-    /// <inheritdoc/>
-    public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+    public async Task InitializeAsync(CancellationToken cancellationToken = default) => await ChangeLanguageAsync("en", cancellationToken);
 
     /// <inheritdoc/>
     public async Task ChangeLanguageAsync(string language, CancellationToken cancellationToken = default)

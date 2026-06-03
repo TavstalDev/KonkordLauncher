@@ -1,9 +1,9 @@
 using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using System.Text;
-using Avalonia.Media.Imaging;
-using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Caching.Memory;
 using Modrinth.Models;
+using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.MetaCache;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
@@ -15,39 +15,49 @@ using Version = Modrinth.Models.Version;
 namespace Tavstal.KonkordLauncher.Common.Services.Implementations;
 
 /// <inheritdoc cref="IMetaCacheService" />
-public class MetaCacheService : BackgroundService, IMetaCacheService
+public class MetaCacheService : IMetaCacheService, IAsyncInitializable
 {
     private readonly ICustomLogger _logger;
     private readonly ILauncherStore _launcherStore;
+    private readonly IBitmapService _bitmapService;
     private readonly IModrinthApiClient _modrinthApiClient;
     private static readonly HttpClient _httpClient = new();
     private static readonly ConcurrentDictionary<string, MetaCache> _cache = new();
-    private static readonly ConcurrentDictionary<string, Bitmap> _bitmaps = new();
     private static readonly TimeSpan _searchCacheDuration = TimeSpan.FromHours(1);
     private static readonly TimeSpan _projectCacheDuration = TimeSpan.FromHours(24);
+    private static readonly MemoryCache _fileMemoryCache = new(new MemoryCacheOptions
+    {
+        SizeLimit = 1024
+    });
+    private static readonly MemoryCacheEntryOptions _fileCacheOptions = new()
+    {
+        SlidingExpiration = TimeSpan.FromMinutes(30),
+        AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(2),
+        Size = 1
+    };
+    private record CachedFileEntry(object Value, DateTime LastWriteUtc);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MetaCacheService"/> class.
     /// </summary>
     /// <param name="logger">Logger used to record initialization failures and other diagnostics.</param>
     /// <param name="launcherStore">Launcher store used to resolve cache directory settings.</param>
+    /// <param name="bitmapService">Bitmap service used to decode and cache images fetched from the web.</param>
     /// <param name="modrinthApiClient">API client used to fetch data from Modrinth when cache misses occur.</param>
-    public MetaCacheService(ICustomLogger<MetaCacheService> logger, ILauncherStore launcherStore, IModrinthApiClient modrinthApiClient)
+    public MetaCacheService(ICustomLogger<MetaCacheService> logger, ILauncherStore launcherStore, IBitmapService bitmapService, IModrinthApiClient modrinthApiClient)
     {
         _logger = logger;
         _launcherStore = launcherStore;
+        _bitmapService = bitmapService;
         _modrinthApiClient = modrinthApiClient;
     }
     
-    /// <summary>
-    /// Performs background initialization of the meta cache by loading persisted cache entries from disk.
-    /// </summary>
-    /// <param name="stoppingToken"> Cancellation token supplied by the hosting infrastructure for graceful shutdown.</param>
-    /// <returns>A task that completes once initialization has finished.</returns>
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    /// <inheritdoc/>
+    public async Task InitializeAsync(CancellationToken cancellationToken = default)
     {
         try
         {
+            _logger.LogInformation("Initializing meta cache");
             if (!File.Exists(PathHelper.MetaCachePath))
                 return;
 
@@ -59,6 +69,24 @@ public class MetaCacheService : BackgroundService, IMetaCacheService
                         continue;
                     
                     _cache.TryAdd(metaCache.Id, metaCache);
+                    switch (metaCache.Type)
+                    {
+                        case EMetaCacheType.SEARCH_RESULT:
+                        {
+                            await ReadCachedFileAsync<SearchResponse>(metaCache.Path);
+                            break;
+                        }
+                        case EMetaCacheType.PROJECT:
+                        {
+                            await ReadCachedFileAsync<Project>(metaCache.Path);
+                            break;
+                        }
+                        case EMetaCacheType.VERSION:
+                        {
+                            await ReadCachedFileAsync<Version>(metaCache.Path);
+                            break;
+                        }
+                    }
                 }
         }
         catch (Exception ex)
@@ -68,22 +96,12 @@ public class MetaCacheService : BackgroundService, IMetaCacheService
     }
 
     /// <inheritdoc/>
-    public async Task<Bitmap?> GetImageAsync(string imageUrl, CancellationToken cancellationToken = default)
+    public async Task<BitmapEntry?> GetImageAsync(string imageUrl, CancellationToken cancellationToken = default)
     {
         try
         {
-            var sha1 = SHA1.HashData(Encoding.UTF8.GetBytes($"image:{imageUrl}"));
-            string hash = Convert.ToHexString(sha1);
-
-            if (_cache.TryGetValue(hash, out var cached) && cached.IsValid())
-            {
-                if (_bitmaps.TryGetValue(hash, out var cachedBitmap))
-                    return cachedBitmap;
-                await using var stream = File.OpenRead(cached.Path);
-                var bitmap = new Bitmap(stream);
-                _bitmaps.TryAdd(hash, bitmap);
-                return bitmap;
-            }
+            if (_cache.TryGetValue(imageUrl, out var cached) && cached.IsValid())
+                return await _bitmapService.GetBitmapAsync(cached.Path);
             
             var response = await _httpClient.GetAsync(imageUrl, cancellationToken);
             response.EnsureSuccessStatusCode();
@@ -94,22 +112,20 @@ public class MetaCacheService : BackgroundService, IMetaCacheService
             Directory.CreateDirectory(cacheDir);
             string imagesDir = Path.Combine(cacheDir, "images");
             Directory.CreateDirectory(imagesDir);
+            var sha1 = SHA1.HashData(Encoding.UTF8.GetBytes(imageUrl));
+            string hash = Convert.ToHexString(sha1);
             string cachedFilePath = Path.Combine(imagesDir, $"{hash}.png");
             await File.WriteAllBytesAsync(cachedFilePath, data, cancellationToken);
                 
-            _cache.TryAdd(hash, new MetaCache
+            _cache.TryAdd(imageUrl, new MetaCache
             {
-                Id = hash,
+                Id = imageUrl,
                 Type = EMetaCacheType.IMAGE,
                 Path = cachedFilePath,
                 ValidUntil = DateTime.UtcNow.Add(_projectCacheDuration)
             });
             await SaveCacheAsync(cancellationToken);
-            
-            using var ms = new MemoryStream(data);
-            Bitmap image = new Bitmap(ms);
-            _bitmaps.TryAdd(hash, image);
-            return image;
+            return await _bitmapService.GetBitmapAsync(cachedFilePath);
         }
         catch (Exception ex)
         {
@@ -127,7 +143,7 @@ public class MetaCacheService : BackgroundService, IMetaCacheService
             string hash = Convert.ToHexString(sha1);
 
             if (_cache.TryGetValue(hash, out var cached) && cached.IsValid())
-                return await JsonHelper.ReadJsonFileAsync<Project>(cached.Path);
+                return await ReadCachedFileAsync<Project>(cached.Path);
             
             var response = await _modrinthApiClient.GetProjectAsync(id, cancellationToken);
             if (response != null)
@@ -166,7 +182,6 @@ public class MetaCacheService : BackgroundService, IMetaCacheService
          {
              List<string> idsToFetch = [];
              List<Project> projects = [];
-             var cacheReadTasks = new List<Task<Project>>();
 
              foreach (var id in ids)
              {
@@ -174,7 +189,13 @@ public class MetaCacheService : BackgroundService, IMetaCacheService
                  string hash = Convert.ToHexString(sha1);
 
                  if (_cache.TryGetValue(hash, out var cached) && cached.IsValid())
-                     cacheReadTasks.Add(JsonHelper.ReadJsonFileAsync<Project>(cached.Path)!);
+                 {
+                     var cache = await ReadCachedFileAsync<Project>(cached.Path);
+                     if (cache != null)
+                         projects.Add(cache);
+                     else
+                         idsToFetch.Add(id);
+                 }
                  else
                      idsToFetch.Add(id);
              }
@@ -182,10 +203,7 @@ public class MetaCacheService : BackgroundService, IMetaCacheService
              var apiTask = idsToFetch.Count > 0 
                  ? _modrinthApiClient.GetProjectsAsync(idsToFetch, cancellationToken) 
                  : Task.FromResult(Array.Empty<Project>());
-
-             await Task.WhenAll(Task.WhenAll(cacheReadTasks), apiTask);
-
-             projects.AddRange(cacheReadTasks.Select(t => t.Result));
+             
              var remaining = await apiTask;
              if (remaining.Any())
                  projects.AddRange(remaining);
@@ -215,10 +233,10 @@ public class MetaCacheService : BackgroundService, IMetaCacheService
                      return JsonHelper.WriteJsonFileAsync(cachedFilePath, x, cancellationToken);
                  });
                  await Task.WhenAll(cacheTasks);
-                 await SaveCacheAsync(
-                     cancellationToken);
+                 
              }, cancellationToken);
 
+             await SaveCacheAsync(cancellationToken);
              return projects.ToArray();
          }
          catch (Exception ex)
@@ -235,7 +253,6 @@ public class MetaCacheService : BackgroundService, IMetaCacheService
         {
             List<string> idsToFetch = [];
             List<Version> versions = [];
-            var cacheReadTasks = new List<Task<Version>>();
 
             foreach (var id in ids)
             {
@@ -243,7 +260,13 @@ public class MetaCacheService : BackgroundService, IMetaCacheService
                 string hash = Convert.ToHexString(sha1);
 
                 if (_cache.TryGetValue(hash, out var cached) && cached.IsValid())
-                    cacheReadTasks.Add(JsonHelper.ReadJsonFileAsync<Version>(cached.Path)!);
+                {
+                    var cache = await ReadCachedFileAsync<Version>(cached.Path);
+                    if (cache != null)
+                        versions.Add(cache);
+                    else
+                        idsToFetch.Add(id);
+                }
                 else
                     idsToFetch.Add(id);
             }
@@ -251,14 +274,11 @@ public class MetaCacheService : BackgroundService, IMetaCacheService
             var apiTask = idsToFetch.Any() 
                 ? _modrinthApiClient.GetVersionsAsync(idsToFetch, cancellationToken) 
                 : Task.FromResult(Array.Empty<Version>());
-
-            await Task.WhenAll(Task.WhenAll(cacheReadTasks), apiTask);
-
-            versions.AddRange(cacheReadTasks.Select(t => t.Result));
+            
             var remaining = await apiTask;
             if (remaining.Any())
                 versions.AddRange(remaining);
-
+            
             _ = Task.Run(async () =>
             {
                 var settings = await _launcherStore.GetSettingsAsync(cancellationToken: cancellationToken);
@@ -306,7 +326,7 @@ public class MetaCacheService : BackgroundService, IMetaCacheService
            string hash = BuildQueryHash("modpack", query, version, categories, offset);
            
            if (_cache.TryGetValue(hash, out var cached) && cached.IsValid())
-               return await JsonHelper.ReadJsonFileAsync<SearchResponse>(cached.Path);
+               return await ReadCachedFileAsync<SearchResponse>(cached.Path);
             
            var response = await _modrinthApiClient.SearchModpacksAsync(query, version, categories, offset, cancellationToken);
            return await HandleSearchResponse(hash, response, cancellationToken);
@@ -327,7 +347,7 @@ public class MetaCacheService : BackgroundService, IMetaCacheService
            string hash = BuildQueryHash("mod", query, version, categories, offset);
             
            if (_cache.TryGetValue(hash, out var cached) && cached.IsValid())
-               return await JsonHelper.ReadJsonFileAsync<SearchResponse>(cached.Path);
+               return await ReadCachedFileAsync<SearchResponse>(cached.Path);
             
            var response = await _modrinthApiClient.SearchModsAsync(query, version, categories, offset, cancellationToken);
            return await HandleSearchResponse(hash, response, cancellationToken);
@@ -348,7 +368,7 @@ public class MetaCacheService : BackgroundService, IMetaCacheService
             string hash = BuildQueryHash("resource_pack", query, version, categories, offset);
             
             if (_cache.TryGetValue(hash, out var cached) && cached.IsValid())
-                return await JsonHelper.ReadJsonFileAsync<SearchResponse>(cached.Path);
+                return await ReadCachedFileAsync<SearchResponse>(cached.Path);
             
             var response = await _modrinthApiClient.SearchResourcePackAsync(query, version, categories, offset, cancellationToken);
             return await HandleSearchResponse(hash, response, cancellationToken);
@@ -369,7 +389,7 @@ public class MetaCacheService : BackgroundService, IMetaCacheService
              string hash = BuildQueryHash("shader_pack", query, version, categories, offset);
             
              if (_cache.TryGetValue(hash, out var cached) && cached.IsValid())
-                 return await JsonHelper.ReadJsonFileAsync<SearchResponse>(cached.Path);
+                 return await ReadCachedFileAsync<SearchResponse>(cached.Path);
             
              var response = await _modrinthApiClient.SearchShaderPacksAsync(query, version, categories, offset, cancellationToken);
              return await HandleSearchResponse(hash, response, cancellationToken);
@@ -460,5 +480,54 @@ public class MetaCacheService : BackgroundService, IMetaCacheService
         {
             _logger.LogCritical(ex, $"Failed to save meta cache:");
         }
+    }
+    
+    private async Task<T?> ReadCachedFileAsync<T>(string path)
+        where T : class
+    {
+        if (!File.Exists(path))
+            return null;
+
+        var fullPath = Path.GetFullPath(path);
+        var lastWrite = File.GetLastWriteTimeUtc(fullPath);
+
+        if (_fileMemoryCache.TryGetValue(fullPath, out CachedFileEntry? existing))
+        {
+            if (existing != null && existing.LastWriteUtc == lastWrite && existing.Value is T typed)
+                return typed;
+        }
+        
+        T? value;
+        try
+        {
+            value = JsonHelper.ReadJsonFile<T>(fullPath);
+            if (value != null)
+            {
+                var entry = new CachedFileEntry(value, lastWrite);
+                var options = new MemoryCacheEntryOptions
+                {
+                    SlidingExpiration = _fileCacheOptions.SlidingExpiration,
+                    AbsoluteExpirationRelativeToNow = _fileCacheOptions.AbsoluteExpirationRelativeToNow,
+                    Size = _fileCacheOptions.Size
+                };
+                options.RegisterPostEvictionCallback((_, val, _, _) =>
+                {
+                    if (val is CachedFileEntry { Value: IDisposable d }) try { d.Dispose(); }
+                        catch
+                        {
+                            // ignored
+                        }
+                });
+
+                _fileMemoryCache.Set(fullPath, entry, options);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, $"Failed to read cached file {fullPath}; falling back to null");
+            value = null;
+        }
+
+        return value;
     }
 }

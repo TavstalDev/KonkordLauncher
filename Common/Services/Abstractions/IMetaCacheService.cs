@@ -1,5 +1,5 @@
-using Avalonia.Media.Imaging;
 using Modrinth.Models;
+using Tavstal.KonkordLauncher.Common.Models;
 using Version = Modrinth.Models.Version;
 
 namespace Tavstal.KonkordLauncher.Common.Services.Abstractions;
@@ -15,9 +15,9 @@ public interface IMetaCacheService
     /// <param name="imageUrl">The URL of the image to fetch.</param>
     /// <param name="cancellationToken">Cancellation token observed during the download.</param>
     /// <returns>
-    /// A task that resolves to the image as a <see cref="Bitmap"/> if successful; otherwise, <see langword="null"/>.
+    /// A task that resolves to the image as a <see cref="BitmapEntry"/> if successful; otherwise, <see langword="null"/>.
     /// </returns>
-    Task<Bitmap?> GetImageAsync(string imageUrl, CancellationToken cancellationToken = default);
+    Task<BitmapEntry?> GetImageAsync(string imageUrl, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets a cached Modrinth project by ID, fetching from the API if not cached or expired.

@@ -118,7 +118,7 @@
                                                     ColumnSpacing="20">
                                                     <!--  Icon  -->
                                                     <Button Command="{Binding Custom.CustomIconSelectorCommand}">
-                                                        <Image Classes="InstanceIcon" Source="{Binding Custom.InstanceIcon}" />
+                                                        <Image Classes="InstanceIcon" Source="{Binding Custom.InstanceIcon.Value}" />
                                                     </Button>
                                                     <!--  Name  -->
                                                     <Grid
@@ -524,7 +524,7 @@
                                                             <DataTemplate>
                                                                 <Border Classes="InstanceModCard">
                                                                     <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
-                                                                        <Image Width="35" Source="{Binding Icon}" />
+                                                                        <Image Width="35" Source="{Binding Icon.Value}" />
                                                                         <Grid Grid.Column="1" RowDefinitions="Auto, Auto">
                                                                             <TextBlock Classes="InstanceModTitle" Text="{Binding Name}" />
                                                                             <TextBlock

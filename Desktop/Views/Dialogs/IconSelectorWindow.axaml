@@ -64,7 +64,7 @@
                                             Width="64"
                                             Height="64"
                                             VerticalAlignment="Center"
-                                            Source="{Binding Image}" />
+                                            Source="{Binding Image.Value}" />
                                         <TextBlock
                                             MaxWidth="64"
                                             HorizontalAlignment="Center"

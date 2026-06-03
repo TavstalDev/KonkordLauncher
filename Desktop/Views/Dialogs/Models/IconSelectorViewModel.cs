@@ -7,7 +7,6 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
-using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,6 +24,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 public partial class IconSelectorViewModel : KonkordObservableObject
 {
     private readonly ILauncherStore _launcherStore;
+    private readonly IBitmapService _bitmapService;
     
     #region Observable Properties
     [ObservableProperty]
@@ -54,6 +54,7 @@ public partial class IconSelectorViewModel : KonkordObservableObject
         
         var services = Program.ServiceProvider;
         _launcherStore = services.GetRequiredService<ILauncherStore>();
+        _bitmapService = services.GetRequiredService<IBitmapService>();
         _ = InitAsync();
     }
     
@@ -68,9 +69,10 @@ public partial class IconSelectorViewModel : KonkordObservableObject
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
-        SelectedIcon?.Image.Dispose();
+        SelectedIcon?.Image.Dispose(_bitmapService);
         foreach (var icon in Icons)
-            icon.Image.Dispose();
+            icon.Image.Dispose(_bitmapService);
+
         Icons.Clear();
         SelectedIcon = null;
     }
@@ -82,7 +84,7 @@ public partial class IconSelectorViewModel : KonkordObservableObject
         var icons = Directory.GetFiles(settings.Launcher.IconsDirectoryPath);
         foreach (var iconPath in icons)
         {
-            var bitmap = new Bitmap(iconPath);
+            var bitmap = await _bitmapService.GetBitmapAsync(iconPath);
             Icons.Add(new IconDataModel(Path.GetFileName(iconPath), iconPath, bitmap));
         }
     }
@@ -117,7 +119,7 @@ public partial class IconSelectorViewModel : KonkordObservableObject
 
         foreach (var elem in result)
         {
-            var bitmap = new Bitmap(elem.Item2);
+            var bitmap = await _bitmapService.GetBitmapAsync(elem.Item2);
             Icons.Add(new IconDataModel(elem.Item1, elem.Item2, bitmap));
         }
     }
@@ -135,10 +137,10 @@ public partial class IconSelectorViewModel : KonkordObservableObject
         File.Delete(SelectedIcon.Path);
         
         var icon = Icons.FirstOrDefault(x => x == SelectedIcon);
-        icon?.Image.Dispose();
+        icon?.Image.Dispose(_bitmapService);
         Icons.Remove(SelectedIcon);
         
-        SelectedIcon.Image.Dispose();
+        SelectedIcon.Image.Dispose(_bitmapService);
         SelectedIcon = null;
     }
     

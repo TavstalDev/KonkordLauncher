@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
-using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Markdig;
 using Microsoft.Extensions.DependencyInjection;
 using Modrinth.Models;
+using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
@@ -24,7 +24,7 @@ public partial class ResourceBaseModel : ObservableObject
     public partial string RawPage { get; set; } = string.Empty;
     
     [ObservableProperty]
-    public partial Bitmap? Icon { get; set; }
+    public partial BitmapEntry Icon { get; set; }
     
     [ObservableProperty]
     public partial string? IconUrl { get; set; }
@@ -58,28 +58,26 @@ public partial class ResourceBaseModel : ObservableObject
     
     public static async Task<ResourceBaseModel> FromModrinthProjectAsync(Project project, List<Version> versions)
     {
-        return await Task.Run(async () => 
+        var fallback = Task.FromResult(new BitmapEntry(null, null));
+        var iconTask = project.IconUrl != null
+            ? Program.ServiceProvider.GetRequiredService<IMetaCacheService>().GetImageAsync(project.IconUrl)!
+            : fallback;
+        
+        string rawPage = await Task.Run(() => Markdown.ToHtml(project.Body));
+        
+        return new ResourceBaseModel
         {
-            var iconTask = project.IconUrl != null 
-                ? Program.ServiceProvider.GetRequiredService<IMetaCacheService>().GetImageAsync(project.IconUrl) 
-                : Task.FromResult<Bitmap?>(null);
-            
-            string rawPage = Markdown.ToHtml(project.Body);
-            
-            return new ResourceBaseModel
-            {
-                ProjectId = project.Id,
-                Name = project.Title,
-                Description = project.Description,
-                Icon = await iconTask,
-                IconUrl = project.IconUrl,
-                RawPage = rawPage,
-                Versions = new ObservableCollection<Version>(versions),
-                Tags = new ObservableCollection<string>(project.Categories),
-                IsEnabled = true,
-                Platform = EPlatformType.MODRINTH,
-                FilePath = null
-            };
-        });
+            ProjectId = project.Id,
+            Name = project.Title,
+            Description = project.Description,
+            Icon = await iconTask,
+            IconUrl = project.IconUrl,
+            RawPage = rawPage,
+            Versions = new ObservableCollection<Version>(versions),
+            Tags = new ObservableCollection<string>(project.Categories),
+            IsEnabled = true,
+            Platform = EPlatformType.MODRINTH,
+            FilePath = null
+        };
     }
 }

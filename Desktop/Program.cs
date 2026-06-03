@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
@@ -12,7 +13,6 @@ using Tavstal.KonkordLauncher.Common.Services.Implementations;
 using Tavstal.KonkordLauncher.Core.Encryption;
 using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Models.Logging;
-using Tavstal.KonkordLauncher.Core.Services;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions.Auth;
 using Tavstal.KonkordLauncher.Core.Services.Implementations;
@@ -74,13 +74,17 @@ class Program
                 // Launcher services
                 services.AddSingleton<IJavaService, JavaService>();
                 services.AddSingleton<ILauncherStore, LauncherStore>();
-                services.AddSingleton<ITranslationService, TranslationService>();
-                services.AddHostedService(sp => sp.GetRequiredService<TranslationService>());
+                services.AddSingleton<TranslationService>();
+                services.AddSingleton<ITranslationService>(sp => sp.GetRequiredService<TranslationService>());
+                services.AddSingleton<IAsyncInitializable>(sp => sp.GetRequiredService<TranslationService>());
                 services.AddSingleton<IValidationService, ValidationService>();
                 services.AddSingleton<IModrinthApiClient, ModrinthApiClient>();
                 services.AddSingleton<ModrinthPackageService, ModrinthPackageService>();
                 services.AddSingleton<CurseForgePackageService, CurseForgePackageService>();
-                services.AddSingleton<IMetaCacheService, MetaCacheService>();
+                services.AddSingleton<IBitmapService, BitmapService>();
+                services.AddSingleton<MetaCacheService>();
+                services.AddSingleton<IMetaCacheService>(sp => sp.GetRequiredService<MetaCacheService>());
+                services.AddSingleton<IAsyncInitializable>(sp => sp.GetRequiredService<MetaCacheService>());
                 
                 var keyDir = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
@@ -96,7 +100,10 @@ class Program
         
         // Get protector immediately
         _serviceProvider = appHost.Services;
-        var provider = appHost.Services.GetRequiredService<IDataProtectionProvider>();
+        var asyncInitServices = _serviceProvider.GetServices<IAsyncInitializable>().ToArray();
+        Task.WhenAll(asyncInitServices.Select(x => x.InitializeAsync())).GetAwaiter().GetResult();
+        
+        var provider = _serviceProvider.GetRequiredService<IDataProtectionProvider>();
         EncryptionUtility.SetDataProtectionProvider(provider);
 
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);

@@ -9,7 +9,6 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
-using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -20,8 +19,6 @@ using SkiaSharp;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Helpers.IO;
-using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
 using Tavstal.KonkordLauncher.Core.Models.Accounts;
 using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
@@ -44,13 +41,14 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
     private readonly ITranslationService _translationService;
     private readonly IMicrosoftAuthService _authService;
     private readonly IMojangSkinService _mojangSkinService;
+    private readonly IBitmapService _bitmapService;
     private readonly MainViewModel _parent;
 
     [ObservableProperty]
-    public partial Bitmap AccountAvatar { get; set; }
+    public partial BitmapEntry AccountAvatar { get; set; }
 
     [ObservableProperty]
-    public partial Bitmap? AccountSkinPreview { get; set; }
+    public partial BitmapEntry AccountSkinPreview { get; set; }
 
     [ObservableProperty]
     public partial bool IsAccountHasWideModel { get; set; }
@@ -82,9 +80,11 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
     public MainViewModel_Accounts(MainViewModel parent)
     {
         _parent = parent;
-        AccountAvatar = ImageHelper.LoadFromResource(new Uri("avares://Desktop/Assets/Images/placeholders/steve_head.png"));
         if (Design.IsDesignMode)
+        {
+            AccountAvatar = ImageHelper.LoadDesignTime("avares://Desktop/Assets/Images/placeholders/steve_head.png");
             return;
+        }
         
         var services = Program.ServiceProvider;
         _logger = services.GetRequiredService<ICustomLogger<MainViewModel_Accounts>>();
@@ -92,6 +92,9 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         _translationService = services.GetRequiredService<ITranslationService>();
         _authService = services.GetRequiredService<IMicrosoftAuthService>();
         _mojangSkinService = services.GetRequiredService<IMojangSkinService>();
+        _bitmapService = services.GetRequiredService<IBitmapService>();
+
+        AccountAvatar = _bitmapService.GetBitmap("avares://Desktop/Assets/Images/placeholders/steve_head.png");
     }
     
     /// <summary>
@@ -535,10 +538,10 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             foreach (AccountSkin skin in SelectedAccount.Skins)
             {
                 string path = Path.Combine(skinsDir, SelectedAccount.Id, skin.Id, "preview.png");
-                Bitmap? img = null;
+                BitmapEntry img = new BitmapEntry(null, null);
                 try
                 {
-                    img = new Bitmap(path);
+                    img = await _bitmapService.GetBitmapAsync(path);
                 }
                 catch (Exception ex)
                 {
@@ -557,11 +560,10 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
 
 
             bool hadActiveCape = false;
-            Bitmap? noCapeImg = null;
+            BitmapEntry noCapeImg = new BitmapEntry(null, null);
             try
             {
-                noCapeImg = ImageHelper.LoadFromResource(
-                    new Uri("avares://Desktop/Assets/Images/placeholders/no_cape.png"));
+                noCapeImg = await _bitmapService.GetBitmapAsync("avares://Desktop/Assets/Images/placeholders/no_cape.png");
             }
             catch (Exception ex)
             {
@@ -572,10 +574,10 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             foreach (Cape cape in SelectedAccount.MojangProfile.Capes)
             {
                 string path = Path.Combine(capesDir, $"{cape.Id}.png");
-                Bitmap? img = null;
+                BitmapEntry img = new BitmapEntry(null, null);
                 try
                 {
-                    img = new Bitmap(path);
+                    img = await _bitmapService.GetBitmapAsync(path);
                 }
                 catch (Exception ex)
                 {
@@ -602,7 +604,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
     /// <param name="cancellationToken">A token used to cancel the avatar refresh operation.</param>
     private async Task UpdateSelectedAccountAvatarAsync(CancellationToken cancellationToken = default)
     {
-        AccountAvatar.Dispose();
+        AccountAvatar.Dispose(_bitmapService);
         var settings = await _launcherStore.GetSettingsAsync(cancellationToken: cancellationToken);
         string skinsDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins");
         string? avatarPath;
@@ -625,9 +627,8 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             avatarPath = null;
         
         AccountAvatar = File.Exists(avatarPath)
-            ? new Bitmap(avatarPath)
-            : ImageHelper.LoadFromResource(
-                new Uri("avares://Desktop/Assets/Images/placeholders/steve_head.png"));
+            ? await _bitmapService.GetBitmapAsync(avatarPath)
+            : await _bitmapService.GetBitmapAsync("avares://Desktop/Assets/Images/placeholders/steve_head.png");
     }
 
     /// <summary>

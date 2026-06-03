@@ -1,7 +1,7 @@
 using System;
-using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
+using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 
@@ -55,7 +55,7 @@ public partial class WorldModel : ObservableObject
     /// The icon representing the world.
     /// </summary>
     [ObservableProperty]
-    public partial Bitmap? Icon { get; set; }
+    public partial BitmapEntry Icon { get; set; }
 
     /// <summary>
     /// Gets the formatted size of the world as a human-readable string.
@@ -99,7 +99,7 @@ public partial class WorldModel : ObservableObject
     /// <param name="lastPlayed">The last played timestamp of the world in milliseconds since the Unix epoch.</param>
     /// <param name="size">The size of the world in bytes.</param>
     /// <param name="icon">The icon representing the world.</param>
-    public WorldModel(string name, string path, string gamemode, long seed, long lastPlayed, long size, Bitmap? icon)
+    public WorldModel(string name, string path, string gamemode, long seed, long lastPlayed, long size, BitmapEntry icon)
     {
         Name = name;
         Path = path;

@@ -113,7 +113,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IProgres
     private async Task HandleTabBtn(ECreateInstanceTab tab) => await SwitchTabInteraction.Handle(tab);
 
     #region Progress Reporter
-    private InstallWindow? _installWindow;
+    private ProgressWindow? _installWindow;
 
     /// <summary>
     /// Sets the progress value for the installation window. If the window is not open, it will be shown.
@@ -171,7 +171,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IProgres
             if (_installWindow != null)
                 return;
 
-            _installWindow = new InstallWindow();
+            _installWindow = new ProgressWindow();
             _installWindow.Show();
         });
     }

@@ -8,18 +8,16 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
+using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Config;
 using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Platform;
-using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
 using Tavstal.KonkordLauncher.Core.Instances;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
@@ -27,7 +25,6 @@ using Tavstal.KonkordLauncher.Core.Models.Instance;
 using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions;
-using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
@@ -41,6 +38,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     private readonly ICustomLogger _logger;
     private readonly ILauncherStore _launcherStore;
     private readonly IManifestService _manifestService;
+    private readonly IBitmapService _bitmapService;
     private readonly ITranslationService _translationService;
     private readonly IJavaService _javaService;
     private readonly IInstanceInstallService _installService;
@@ -72,7 +70,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     /// </summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Icon))]
-    public partial string IconPath { get; set; }
+    public partial string? IconPath { get; set; }
 
     /// <summary>
     /// Gets or sets the Minecraft version associated with the instance.
@@ -120,9 +118,8 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     /// <summary>
     /// Gets the icon of the instance as a bitmap. If the icon path is not set, a default icon is used.
     /// </summary>
-    public Bitmap Icon => string.IsNullOrEmpty(IconPath)
-        ? ImageHelper.LoadFromResource(new Uri("avares://Desktop/Assets/Icons/dirt.png"))
-        : new Bitmap(IconPath);
+    [ObservableProperty]
+    public partial BitmapEntry Icon { get; set; }
     #endregion
 
     /// <summary>
@@ -138,6 +135,10 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         _javaService = services.GetRequiredService<IJavaService>();
         _installService = services.GetRequiredService<IInstanceInstallService>();
         _launchService = services.GetRequiredService<IInstanceLaunchService>();
+        _bitmapService = services.GetRequiredService<IBitmapService>();
+        
+        Icon = string.IsNullOrEmpty(IconPath) ? _bitmapService.GetBitmap("avares://Desktop/Assets/Icons/dirt.png") 
+                : _bitmapService.GetBitmap(IconPath);
     }
 
     /// <summary>
@@ -150,6 +151,8 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         Name = instance.Name;
         Group = instance.Group;
         IconPath = instance.IconPath;
+        if (!string.IsNullOrEmpty(IconPath))
+            Icon = _bitmapService.GetBitmap(IconPath);
         MinecraftVersion = instance.MinecraftVersion;
         CustomVersion = instance.CustomVersion;
         Kind = instance.Kind;
@@ -194,6 +197,10 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         Name = newData.Name;
         Group = newData.Group;
         IconPath = newData.IconPath;
+        if (Icon.Key != null)
+            Icon.Dispose(_bitmapService);
+        if (!string.IsNullOrEmpty(IconPath))
+            Icon = _bitmapService.GetBitmap(IconPath);
         MinecraftVersion = newData.MinecraftVersion;
         CustomVersion = newData.CustomVersion;
         Kind = newData.Kind;
@@ -616,7 +623,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     }
     
     #region Progress Reporter
-    private InstallWindow? _instanceInstallWindow;
+    private ProgressWindow? _instanceInstallWindow;
 
     /// <summary>
     /// Sets the progress value for the installation window. If the window is not open, it will be shown.
@@ -674,7 +681,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             if (_instanceInstallWindow != null)
                 return;
 
-            _instanceInstallWindow = new InstallWindow();
+            _instanceInstallWindow = new ProgressWindow();
             _instanceInstallWindow.Show();
         });
     }

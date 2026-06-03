@@ -9,7 +9,6 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
-using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -22,8 +21,6 @@ using Tavstal.KonkordLauncher.Common.Models.Config;
 using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Helpers.IO;
-using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
 using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
@@ -43,6 +40,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
     private readonly ICustomLogger _logger;
     private readonly ITranslationService _translationService;
     private readonly ILauncherStore _launcherStore;
+    private readonly IBitmapService _bitmapService;
     private readonly IManifestService _manifestService;
     private readonly CreateInstanceViewModel _parent;
 
@@ -59,7 +57,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))]
-    public partial Bitmap? InstanceIcon { get; set; }
+    public partial BitmapEntry InstanceIcon { get; set; }
 
     /// <summary>
     /// Gets a value indicating whether a custom instance can be created.
@@ -151,7 +149,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
         _parent = parent;
         if (Design.IsDesignMode)
         {
-            InstanceIcon = ImageHelper.Load("avares://Desktop/Assets/Icons/dirt.png").Result;
+            InstanceIcon = ImageHelper.LoadDesignTime("avares://Desktop/Assets/Icons/dirt.png");
             return;
         }
         
@@ -159,6 +157,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
         _logger = services.GetRequiredService<ICustomLogger<CreateInstanceViewModel_Custom>>();
         _translationService = services.GetRequiredService<ITranslationService>();
         _launcherStore = services.GetRequiredService<ILauncherStore>();
+        _bitmapService = services.GetRequiredService<IBitmapService>();
         _manifestService = services.GetRequiredService<IManifestService>();
     }
 
@@ -175,8 +174,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
         _modLoaderVersionCache.Dispose();
         InstanceName = string.Empty;
         InstanceGroup = string.Empty;
-        InstanceIcon?.Dispose();
-        InstanceIcon = null;
+        InstanceIcon?.Dispose(_bitmapService);
         InstanceIconPath = null;
         SearchQuery = string.Empty;
         SelectedMinecraftVersion = null;
@@ -323,7 +321,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
                 innerCache.AddOrUpdate(quiltManifestCache);
         });
         
-        var icon = await Task.Run(() => ImageHelper.Load("avares://Desktop/Assets/Icons/dirt.png"), cancellationToken);
+        var icon = await _bitmapService.GetBitmapAsync("avares://Desktop/Assets/Icons/dirt.png");
         Dispatcher.UIThread.Post(() =>
         {
             InstanceIcon = icon;
@@ -343,14 +341,14 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (result == null)
             return;
-        InstanceIcon?.Dispose();
+        //InstanceIcon?.Dispose();
         try
         {
-            InstanceIcon = new Bitmap(result);
+            InstanceIcon = await _bitmapService.GetBitmapAsync(result);
         }
         catch
         {
-            InstanceIcon = ImageHelper.Load("avares://Desktop/Assets/Icons/dirt.png").Result;
+            InstanceIcon = await _bitmapService.GetBitmapAsync("avares://Desktop/Assets/Icons/dirt.png");
         }
         InstanceIconPath = result;
     }

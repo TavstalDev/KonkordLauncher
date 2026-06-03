@@ -279,7 +279,7 @@
                                                                         <Image
                                                                             Width="32"
                                                                             Height="32"
-                                                                            Source="{Binding Icon}"
+                                                                            Source="{Binding Icon.Value}"
                                                                             Stretch="UniformToFill" />
                                                                     </DataTemplate>
                                                                 </DataGridTemplateColumn.CellTemplate>
@@ -414,7 +414,7 @@
                                                                         <Image
                                                                             Width="32"
                                                                             Height="32"
-                                                                            Source="{Binding Icon}"
+                                                                            Source="{Binding Icon.Value}"
                                                                             Stretch="UniformToFill" />
                                                                     </DataTemplate>
                                                                 </DataGridTemplateColumn.CellTemplate>
@@ -641,7 +641,7 @@
                                                                                 Height="48"
                                                                                 MaxWidth="48"
                                                                                 Margin="5"
-                                                                                Source="{Binding Icon}"
+                                                                                Source="{Binding Icon.Value}"
                                                                                 Stretch="UniformToFill" />
                                                                             <TextBlock
                                                                                 Margin="0,0,25,0"
@@ -743,7 +743,7 @@
                                                                                 Height="48"
                                                                                 MaxWidth="48"
                                                                                 Margin="5"
-                                                                                Source="{Binding Image}"
+                                                                                Source="{Binding Image.Value}"
                                                                                 Stretch="UniformToFill" />
                                                                             <TextBlock
                                                                                 Margin="0,0,25,0"

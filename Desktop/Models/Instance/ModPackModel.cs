@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
-using Avalonia.Media.Imaging;
 using Markdig;
 using Microsoft.Extensions.DependencyInjection;
 using Modrinth.Models;
+using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Instance;
@@ -27,7 +27,7 @@ public class ModPackModel
     /// <summary>
     /// Optional icon for the project as a bitmap. May be null if the project has no icon or the fetch failed.
     /// </summary>
-    public Bitmap? Icon { get; set; }
+    public BitmapEntry Icon { get; set; }
     
     /// <summary>
     /// URL to the project's icon image
@@ -57,24 +57,22 @@ public class ModPackModel
     /// <returns>A task that completes with a populated <see cref="ModPackModel"/>.</returns>
     public static async Task<ModPackModel> FromModrinthProjectAsync(Project project, List<Version> versions)
     {
-        return await Task.Run(async () => 
+        var fallback = Task.FromResult(new BitmapEntry(null, null));
+        var iconTask = project.IconUrl != null 
+            ? Program.ServiceProvider.GetRequiredService<IMetaCacheService>().GetImageAsync(project.IconUrl)!
+            : fallback;
+        
+        string rawPage = Markdown.ToHtml(project.Body);
+        
+        return new ModPackModel
         {
-            var iconTask = project.IconUrl != null 
-                ? Program.ServiceProvider.GetRequiredService<IMetaCacheService>().GetImageAsync(project.IconUrl) 
-                : Task.FromResult<Bitmap?>(null);
-            
-            string rawPage = Markdown.ToHtml(project.Body);
-
-            return new ModPackModel
-            {
-                Name = project.Title,
-                Description = project.Description,
-                Icon = await iconTask,
-                IconUrl = project.IconUrl,
-                RawPage = rawPage,
-                Versions = new ObservableCollection<Version>(versions),
-                Tags = new ObservableCollection<string>(project.Categories)
-            };
-        });
+            Name = project.Title,
+            Description = project.Description,
+            Icon = await iconTask,
+            IconUrl = project.IconUrl,
+            RawPage = rawPage,
+            Versions = new ObservableCollection<Version>(versions),
+            Tags = new ObservableCollection<string>(project.Categories)
+        };
     }
 }

@@ -1,7 +1,5 @@
-using System;
-using Avalonia.Media.Imaging;
+using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
-using Tavstal.KonkordLauncher.Desktop.Helpers;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Instance;
 
@@ -16,7 +14,7 @@ public class ServerModel : MinecraftServer
     /// Gets the bitmap representation of the server's icon.
     /// If the icon is null, this property returns null.
     /// </summary>
-    public Bitmap? Image { get; }
+    public BitmapEntry Image { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ServerModel"/> class
@@ -29,8 +27,9 @@ public class ServerModel : MinecraftServer
     /// <param name="icon">The optional icon of the Minecraft server.</param>
     public ServerModel(string name, string ip, byte acceptTextures, byte? hideAddress, string? icon) : base(name, ip, acceptTextures, hideAddress, icon)
     {
+        /* TODO:
         Image = Icon == null
             ? ImageHelper.LoadFromResource(new Uri("avares://Desktop/Assets/Images/default_world.png"))
-            : ImageHelper.Base64ToBitmap(Icon);
+            : ImageHelper.Base64ToBitmap(Icon);*/
     }
 }

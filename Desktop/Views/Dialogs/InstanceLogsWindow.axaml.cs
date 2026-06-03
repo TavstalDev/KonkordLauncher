@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using ReactiveUI;
-using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 

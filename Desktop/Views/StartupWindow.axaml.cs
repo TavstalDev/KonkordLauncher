@@ -20,7 +20,6 @@ using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Platform;
-using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
 using Tavstal.KonkordLauncher.Core.Helpers.Utils;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Accounts;
@@ -95,6 +94,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
         Task.Run(async () => {
             try
             {
+                await Task.Yield();
                 await InitAsync();
             }
             catch (Exception ex)
@@ -225,15 +225,17 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
             return;
         }
 
-        Dispatcher.UIThread.Invoke(() =>
+        await Dispatcher.UIThread.InvokeAsync(() =>
         {
-            desktop.MainWindow = new MainWindow
+            Hide();
+            var mainWindow = new MainWindow
             {
                 WindowStartupLocation = WindowStartupLocation.CenterScreen
             };
-            desktop.MainWindow.Show();
+            desktop.MainWindow = mainWindow;
+            mainWindow.Show();
             Close();
-        });
+        }, DispatcherPriority.Background, cancellationToken);
     }
 
     /// <summary>

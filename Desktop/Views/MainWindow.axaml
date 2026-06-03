@@ -43,7 +43,7 @@
                     <Image
                         Grid.Row="0"
                         Classes="PlayCardImage"
-                        Source="{Binding Icon}" />
+                        Source="{Binding Icon.Value}" />
                     <!--  Name  -->
                     <TextBlock
                         Grid.Row="1"
@@ -328,7 +328,7 @@
                     Command="{Binding $parent[Window].DataContext.Accounts.SkinSelectCommand}"
                     CommandParameter="{Binding .}">
                     <Viewbox Classes="SkinViewBox">
-                        <Image Classes="SkinPreview" Source="{Binding Image}" />
+                        <Image Classes="SkinPreview" Source="{Binding Image.Value}" />
                     </Viewbox>
                 </Button>
             </Border>
@@ -342,7 +342,7 @@
                     CommandParameter="{Binding .}"
                     ToolTip.Tip="{Binding Alias}">
                     <Viewbox MaxHeight="70" Classes="SkinViewBox">
-                        <Image Classes="SkinPreview" Source="{Binding Image}" />
+                        <Image Classes="SkinPreview" Source="{Binding Image.Value}" />
                     </Viewbox>
                 </Button>
             </Border>
@@ -472,7 +472,7 @@
                                     Margin="10"
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
-                                    Source="{Binding Accounts.AccountAvatar}" />
+                                    Source="{Binding Accounts.AccountAvatar.Value}" />
                                 <StackPanel
                                     Grid.Column="1"
                                     Margin="5"
@@ -1429,7 +1429,7 @@
                                                         <TextBlock Classes="Muted" Text="{lang:Translate main.page.skins.preview}" />
                                                         <!--  Options  -->
                                                         <Viewbox MaxHeight="280" Classes="SkinViewBox">
-                                                            <Image Classes="SkinPreview" Source="{Binding Accounts.AccountSkinPreview}" />
+                                                            <Image Classes="SkinPreview" Source="{Binding Accounts.AccountSkinPreview.Value}" />
                                                         </Viewbox>
                                                     </StackPanel>
                                                 </Border>

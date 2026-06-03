@@ -7,7 +7,6 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
-using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -15,10 +14,10 @@ using DynamicData;
 using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
 using Tavstal.KonkordLauncher.Core.Models.Logging;
-using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 
@@ -27,6 +26,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
 {
     private readonly ICustomLogger _logger;
+    private readonly IBitmapService _bitmapService;
     private readonly EditInstanceViewModel _parent;
     
     private readonly SourceCache<ResourceBaseModel, string> _modsCache = new(x => x.Name);
@@ -45,6 +45,7 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
         
         var services = Program.ServiceProvider;
         _logger = services.GetRequiredService<ICustomLogger<EditInstanceViewModel_Mods>>();
+        _bitmapService = services.GetRequiredService<IBitmapService>();
         
         // Set up a reactive filter for the SearchQuery property.
         var filter = this.WhenAnyValue(x => x.SearchQuery)
@@ -71,7 +72,7 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
     {
         base.Dispose(disposing);
         foreach (var mod in _modsCache.Items)
-            mod.Icon?.Dispose();
+            mod.Icon?.Dispose(_bitmapService);
         _modsCache.Clear();
         _modsCache.Dispose();
         SelectedMod = null;
@@ -208,7 +209,7 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
         _modsCache.Edit(innerCache =>
         {
             foreach (var mod in innerCache.Items)
-                mod.Icon?.Dispose(); // Dispose of the image to free memory
+                mod.Icon?.Dispose(_bitmapService); // Dispose of the image to free memory
             
             innerCache.Clear();
             var mods = Directory.GetFiles(modsDir, "*")
@@ -227,18 +228,18 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
                     var instanceResource = instanceResources.FirstOrDefault(x => x.Type == EResourceType.MOD &&
                         x.Name.Equals(fileName, StringComparison.OrdinalIgnoreCase));
 
-                    Bitmap? icon = null;
+                    BitmapEntry icon = new BitmapEntry(null, null);
                     try
                     {
                         if (instanceResource is { IconPath: not null })
-                            icon = ImageHelper.LoadFromResource(new Uri(instanceResource.IconPath));
+                            icon = _bitmapService.GetBitmap(instanceResource.IconPath);
                     }
                     catch (Exception ex)
                     {
                         _logger.LogWarning(ex, $"Failed to read icon from {mod}:");
                     }
 
-                    icon ??= ImageHelper.LoadFromResource(new Uri("avares://Desktop/Assets/Images/default_world.png"));
+                    icon ??= _bitmapService.GetBitmap("avares://Desktop/Assets/Images/default_world.png");
                     
                     var newMod = new ResourceBaseModel
                     {

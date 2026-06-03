@@ -1,7 +1,8 @@
 using System;
 using Avalonia.Media.Imaging;
-using Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
-using Tavstal.KonkordLauncher.Desktop.Helpers;
+using Microsoft.Extensions.DependencyInjection;
+using Tavstal.KonkordLauncher.Common.Models;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
 
@@ -26,7 +27,7 @@ public class CapeDataModel : IDisposable
     /// Gets or sets the loaded bitmap for the cape texture.
     /// May be <c>null</c> if loading failed or has not been performed.
     /// </summary>
-    public Bitmap? Image { get; set; }
+    public BitmapEntry Image { get; set; }
     
     /// <summary>
     /// Gets or sets a value indicating whether this cape is currently selected in the UI.
@@ -44,9 +45,9 @@ public class CapeDataModel : IDisposable
     /// </summary>
     /// <param name="id">The cape identifier.</param>
     /// <param name="alias">The cape alias (may be empty).</param>
-    /// <param name="image">The loaded <see cref="Bitmap"/> image for display (may be <c>null</c>).</param>
+    /// <param name="image">The loaded <see cref="BitmapEntry"/> image for display (may be <c>null</c>).</param>
     /// <param name="isSelected">Whether the cape should be initially selected.</param>
-    public CapeDataModel(string id, string alias, Bitmap? image, bool isSelected)
+    public CapeDataModel(string id, string alias, BitmapEntry image, bool isSelected)
     {
         Id = id;
         Alias = alias;
@@ -55,19 +56,17 @@ public class CapeDataModel : IDisposable
     }
     
     /// <summary>
-    /// Convenience constructor that creates a <see cref="CapeDataModel"/> from a <see cref="Cape"/> DTO.
-    /// </summary>
-    /// <param name="cape">The source cape data returned by the Mojang API.</param>
-    /// <param name="isSelected">Initial selection state (default: <c>false</c>).</param>
-    public CapeDataModel(Cape cape, bool isSelected = false) : this(cape.Id, cape.Alias, ImageHelper.Load(cape.Url).Result, isSelected) { }
-
-    /// <summary>
     /// Disposes managed resources held by this model.
     /// Specifically disposes the <see cref="Image"/> bitmap if present.
     /// Calling <see cref="Dispose"/> multiple times is safe.
     /// </summary>
     public void Dispose()
     {
-        Image?.Dispose();
+        if (Image.IsEmpty())
+            return;
+        
+        var services = Program.ServiceProvider;
+        var bitmapService = services.GetRequiredService<IBitmapService>();
+        bitmapService.Release(Image.Key!);
     }
 }

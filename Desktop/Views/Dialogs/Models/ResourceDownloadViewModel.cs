@@ -35,6 +35,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
     private readonly ILauncherStore _launcherStore;
     private readonly IManifestService _manifestService;
     private readonly IMetaCacheService _metaCacheService;
+    private readonly IBitmapService _bitmapService;
     public readonly Instance Instance;
     public readonly List<InstanceResource> InstanceResources = [];
     public readonly EResourceType ResourceType;
@@ -105,6 +106,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
         _launcherStore = services.GetRequiredService<ILauncherStore>();
         _manifestService = services.GetRequiredService<IManifestService>();
         _metaCacheService = services.GetRequiredService<IMetaCacheService>();
+        _bitmapService = services.GetRequiredService<IBitmapService>();
         
         if (IsMod)
         {
@@ -113,92 +115,92 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
                 Name = "adventure",
                 TranslationKey = "modrinth.category.adventure"
             });
-            Categories!.Add(new CategoryModel
+            Categories.Add(new CategoryModel
             {
                 Name = "cursed",
                 TranslationKey = "modrinth.category.cursed"
             });
-            Categories!.Add(new CategoryModel
+            Categories.Add(new CategoryModel
             {
                 Name = "decoration",
                 TranslationKey = "modrinth.category.decoration"
             });
-            Categories!.Add(new CategoryModel
+            Categories.Add(new CategoryModel
             {
                 Name = "economy",
                 TranslationKey = "modrinth.category.economy"
             });
-            Categories!.Add(new CategoryModel
+            Categories.Add(new CategoryModel
             {
                 Name = "equipment",
                 TranslationKey = "modrinth.category.equipment"
             });
-            Categories!.Add(new CategoryModel
+            Categories.Add(new CategoryModel
             {
                 Name = "food",
                 TranslationKey = "modrinth.category.food"
             });
-            Categories!.Add(new CategoryModel
+            Categories.Add(new CategoryModel
             {
                 Name = "game_mechanics",
                 TranslationKey = "modrinth.category.game_mechanics"
             });
-            Categories!.Add(new CategoryModel
+            Categories.Add(new CategoryModel
             {
                 Name = "library",
                 TranslationKey = "modrinth.category.library"
             });
-            Categories!.Add(new CategoryModel
+            Categories.Add(new CategoryModel
             {
                 Name = "magic",
                 TranslationKey = "modrinth.category.magic"
             });
-            Categories!.Add(new CategoryModel
+            Categories.Add(new CategoryModel
             {
                 Name = "management",
                 TranslationKey = "modrinth.category.management"
             });
-            Categories!.Add(new CategoryModel
+            Categories.Add(new CategoryModel
             {
                 Name = "minigame",
                 TranslationKey = "modrinth.category.minigame"
             });
-            Categories!.Add(new CategoryModel
+            Categories.Add(new CategoryModel
             {
                 Name = "mobs",
                 TranslationKey = "modrinth.category.mobs"
             });
-            Categories!.Add(new CategoryModel
+            Categories.Add(new CategoryModel
             {
                 Name = "optimization",
                 TranslationKey = "modrinth.category.optimization"
             });
-            Categories!.Add(new CategoryModel
+            Categories.Add(new CategoryModel
             {
                 Name = "social",
                 TranslationKey = "modrinth.category.social"
             });
-            Categories!.Add(new CategoryModel
+            Categories.Add(new CategoryModel
             {
                 Name = "storage",
                 TranslationKey = "modrinth.category.storage"
             });
-            Categories!.Add(new CategoryModel
+            Categories.Add(new CategoryModel
             {
                 Name = "technology",
                 TranslationKey = "modrinth.category.technology"
             });
-            Categories!.Add(new CategoryModel
+            Categories.Add(new CategoryModel
             {
                 Name = "transportation",
                 TranslationKey = "modrinth.category.transportation"
             });
-            Categories!.Add(new CategoryModel
+            Categories.Add(new CategoryModel
             {
                 Name = "utility",
                 TranslationKey = "modrinth.category.utility"
             });
-            Categories!.Add(new CategoryModel
+            Categories.Add(new CategoryModel
             {
                 Name = "worldgen",
                 TranslationKey = "modrinth.category.worldgen"
@@ -209,7 +211,6 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
             return;
 
         ResourcesToDownload.CollectionChanged += HandleResourcesToDownload_CollectionChanged;
-        
         _ = InitAsync();
     }
 
@@ -222,8 +223,8 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
         var resourcesCopy = Resources;
         Resources.Clear();
         foreach (var resource in resourcesCopy)
-            resource.Icon?.Dispose();
-        SelectedResource?.Icon?.Dispose();
+            resource.Icon?.Dispose(_bitmapService);
+        SelectedResource?.Icon?.Dispose(_bitmapService);
         SelectedResource = null;
     }
 
@@ -363,7 +364,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
             var resourcesCopy = Resources;
             Resources.Clear();
             foreach  (var resource in resourcesCopy)
-                resource.Icon?.Dispose();
+                resource.Icon?.Dispose(_bitmapService);
         }
 
         foreach (var model in results)

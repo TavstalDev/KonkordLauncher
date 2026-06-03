@@ -9,15 +9,15 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
-using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using NbtLib;
+using Tavstal.KonkordLauncher.Common.Models;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
-using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 
@@ -26,6 +26,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
 {
     private readonly ICustomLogger _logger;
+    private readonly IBitmapService _bitmapService;
     private readonly EditInstanceViewModel _parent;
 
     public ObservableCollection<WorldModel> Worlds { get; set; } = [];
@@ -40,6 +41,7 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
         
         var services = Program.ServiceProvider;
         _logger = services.GetRequiredService<ICustomLogger<EditInstanceViewModel_Worlds>>();
+        _bitmapService = services.GetRequiredService<IBitmapService>();
     }
     
     protected override void Dispose(bool disposing)
@@ -47,9 +49,9 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
         base.Dispose(disposing);
         Worlds.CollectionChanged -= WorldsOnCollectionChanged;
         foreach (var world in Worlds)
-            world.Icon?.Dispose();
+            world.Icon?.Dispose(_bitmapService);
         Worlds.Clear();
-        SelectedWorld?.Icon?.Dispose();
+        SelectedWorld?.Icon?.Dispose(_bitmapService);
         SelectedWorld = null;
     }
     
@@ -322,7 +324,7 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
         foreach (var world in Worlds)
         {
             // Dispose of the image to free memory
-            world.Icon?.Dispose();
+            world.Icon?.Dispose(_bitmapService);
         }
         Worlds.Clear();
         var worldDirs = Directory.GetDirectories(worldsDir);
@@ -333,7 +335,7 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
             string gamemode = "unknown";
             long lastPlayed = 0;
             long seed = 0;
-            Bitmap? icon = null;
+            BitmapEntry icon = new BitmapEntry(null ,null);
 
             if (File.Exists(levelDatPath))
             {
@@ -379,18 +381,20 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
             
             var files = Directory.EnumerateFiles(worldDir, "*", SearchOption.AllDirectories);
             long size = files.Sum(file => new FileInfo(file).Length);
-            if (File.Exists(Path.Combine(worldDir, "icon.png")))
+            string iconPath = Path.Combine(worldDir, "icon.png");
+            if (File.Exists(iconPath))
             {
                 try
                 {
-                    icon = new Bitmap(Path.Combine(worldDir, "icon.png"));
+                    icon = _bitmapService.GetBitmap(iconPath);
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError($"Failed to load world icon for {worldName}: {ex.Message}");
                 }
             }
-            icon ??= ImageHelper.LoadFromResource(new Uri("avares://Desktop/Assets/Images/default_world.png"));
+            if (icon.Key == null)
+                icon = _bitmapService.GetBitmap("avares://Desktop/Assets/Images/default_world.png");
             
             Worlds.Add(new WorldModel(worldName, worldDir, gamemode,  seed, lastPlayed, size, icon));
         }

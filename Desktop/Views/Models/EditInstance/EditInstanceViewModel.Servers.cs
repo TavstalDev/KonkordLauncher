@@ -9,6 +9,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using NbtLib;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
@@ -19,6 +20,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 public partial class EditInstanceViewModel_Servers : KonkordObservableObject
 {
     private readonly ICustomLogger _logger;
+    private readonly IBitmapService _bitmapService;
     private readonly EditInstanceViewModel _parent;
 
     [ObservableProperty]
@@ -45,9 +47,9 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
         base.Dispose(disposing);
         Servers.CollectionChanged -= ServersOnCollectionChanged;
         foreach (var server in Servers)
-            server.Image?.Dispose();
+            server.Image?.Dispose(_bitmapService);
         Servers.Clear();
-        SelectedServer?.Image?.Dispose();
+        SelectedServer?.Image?.Dispose(_bitmapService);
         SelectedServer = null;
     }
 
@@ -165,7 +167,7 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
         foreach (var server in Servers)
         {
             // Dispose of the image to free memory
-            server.Image?.Dispose();
+            server.Image?.Dispose(_bitmapService);
         }
         Servers.Clear();
         foreach (var server in serversDat.Servers)

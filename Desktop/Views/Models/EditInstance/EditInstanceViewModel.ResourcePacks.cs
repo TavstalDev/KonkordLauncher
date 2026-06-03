@@ -8,7 +8,6 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
-using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -16,6 +15,7 @@ using DynamicData;
 using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
 using Tavstal.KonkordLauncher.Core.Models.Logging;
@@ -28,6 +28,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObject
 {
     private readonly ICustomLogger _logger;
+    private readonly IBitmapService _bitmapService;
     private readonly EditInstanceViewModel _parent;
     
     private readonly SourceCache<ResourceBaseModel, string> _resourcePackCache = new(x => x.Name);
@@ -46,6 +47,7 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
         
         var services = Program.ServiceProvider;
         _logger = services.GetRequiredService<ICustomLogger<EditInstanceViewModel_ResourcePacks>>();
+        _bitmapService = services.GetRequiredService<IBitmapService>();
         
         // Set up a reactive filter for the SearchQuery property.
         var filter = this.WhenAnyValue(x => x.SearchQuery)
@@ -72,10 +74,10 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
     {
         base.Dispose(disposing);
         foreach (var resourcePack in  FilteredResourcePacks)
-            resourcePack.Icon?.Dispose();
+            resourcePack.Icon?.Dispose(_bitmapService);
         _resourcePackCache.Clear();
         _resourcePackCache.Dispose();
-        SelectedResourcePack?.Icon?.Dispose();
+        SelectedResourcePack?.Icon?.Dispose(_bitmapService);
         SelectedResourcePack = null;
     }
     
@@ -192,7 +194,7 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
         _resourcePackCache.Edit(innerCache =>
         {
             foreach (var resourcePack in innerCache.Items)
-                resourcePack.Icon?.Dispose(); // Dispose of the image to free memory
+                resourcePack.Icon?.Dispose(_bitmapService); // Dispose of the image to free memory
 
             innerCache.Clear();
             var resources = Directory.GetFiles(resourcePacksDir, "*")
@@ -208,7 +210,7 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
                         .Replace(".zip", "");
                     var size = new FileInfo(resource).Length;
 
-                    Bitmap? icon = null;
+                    BitmapEntry icon = new BitmapEntry(null, null);
                     try
                     {
                         using var zipFile = ZipFile.OpenRead(resource);
@@ -220,7 +222,7 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
                             using var iconStream = iconEntry.Open();
                             using var memoryStream = new MemoryStream();
                             iconStream.CopyTo(memoryStream);
-                            icon = ImageHelper.Base64ToBitmap(Convert.ToBase64String(memoryStream.ToArray()));
+                            icon.SetValue(resource, ImageHelper.Base64ToBitmap(Convert.ToBase64String(memoryStream.ToArray())));
                         }
                     }
                     catch (Exception ex)
@@ -228,7 +230,9 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
                         _logger.LogWarning($"Failed to read icon from {resource}: {ex.Message}");
                     }
 
-                    icon ??= ImageHelper.LoadFromResource(new Uri("avares://Desktop/Assets/Images/default_world.png"));
+                    if (icon.Key == null)
+                        icon = _bitmapService.GetBitmap("avares://Desktop/Assets/Images/default_world.png");
+                    
 
                     var instanceResource = instanceResources.FirstOrDefault(x => x.Type == EResourceType.RESOURCE_PACK &&
                         x.Name.Equals(fileName, StringComparison.OrdinalIgnoreCase));

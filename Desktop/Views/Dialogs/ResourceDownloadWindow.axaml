@@ -202,7 +202,7 @@
                                                     <DataTemplate>
                                                         <Border Classes="InstanceModCard" Opacity="{Binding !IsInstalled, Converter={StaticResource BoolToOpacityConverter}}">
                                                             <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
-                                                                <Image Width="35" Source="{Binding Icon}" />
+                                                                <Image Width="35" Source="{Binding Icon.Value}" />
                                                                 <Grid Grid.Column="1" RowDefinitions="Auto, Auto">
                                                                     <Grid ColumnDefinitions="Auto,Auto">
                                                                         <TextBlock Classes="InstanceModTitle" Text="{Binding Name}" />

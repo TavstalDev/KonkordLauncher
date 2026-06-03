@@ -178,12 +178,6 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
                 action.SetOutput(Unit.Default);
             }).DisposeWith(disposables);
         });
-        
-        var screen = Screens.Primary;
-        if (screen == null)
-            throw new InvalidOperationException("No primary screen found."); // Ensure there is a primary screen
-        var screenSize = screen.Bounds.Size;
-        App.SetScreenSize(screenSize);
     }
     
     #region Events
@@ -197,6 +191,11 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
     {
         base.OnOpened(e);
         App.UpdateRPC("Browsing instances...");
+        var screen = Screens.Primary;
+        if (screen == null)
+            throw new InvalidOperationException("No primary screen found."); // Ensure there is a primary screen
+        var screenSize = screen.Bounds.Size;
+        App.SetScreenSize(screenSize);
     }
 
     /// <summary>

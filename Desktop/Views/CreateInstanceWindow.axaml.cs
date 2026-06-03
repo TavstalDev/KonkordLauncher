@@ -33,7 +33,7 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
     public CreateInstanceWindow()
     {
         InitializeComponent();
-
+        
         DataContext = new CreateInstanceViewModel();
         _selectedTabBtn = CustomTabBtn;
         _selectedImportTypeBtn = ImportFromFileTabBtn;

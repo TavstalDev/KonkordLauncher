@@ -111,6 +111,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         Settings = new EditInstanceViewModel_Settings(this);
         ShaderPacks = new EditInstanceViewModel_ShaderPacks(this);
         Worlds = new EditInstanceViewModel_Worlds(this);
+        // TODO: Performanc issue - opening the edit window pays the cost of initializing every tab immediately.
         _  = InitAsync().ContinueWith(t =>
         { 
             if (t.IsFaulted)
@@ -186,6 +187,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
             await LogsScrollToEnd.Handle(Unit.Default);
         }
 
+        // TODO: Performanc issue - initializing all tabs together can make the edit window open slowly.
         await Task.WhenAll(
             Mods.InitAsync(cancellationToken),
             ResourcePacks.InitAsync(cancellationToken),

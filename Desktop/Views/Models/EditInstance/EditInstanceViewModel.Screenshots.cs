@@ -4,11 +4,13 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
-using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 
@@ -17,6 +19,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 public partial class EditInstanceViewModel_Screenshots  : KonkordObservableObject
 {
     private readonly EditInstanceViewModel _parent;
+    private readonly IBitmapService _bitmapService;
     
     public ObservableCollection<ScreenshotModel> Screenshots { get; set; } = [];
     [ObservableProperty]
@@ -25,6 +28,12 @@ public partial class EditInstanceViewModel_Screenshots  : KonkordObservableObjec
     public EditInstanceViewModel_Screenshots(EditInstanceViewModel parent)
     {
         _parent = parent;
+        
+        if (Design.IsDesignMode)
+            return;
+
+        var services = Program.ServiceProvider;
+        _bitmapService = services.GetRequiredService<IBitmapService>();
     }
     
     protected override void Dispose(bool disposing)
@@ -114,6 +123,7 @@ public partial class EditInstanceViewModel_Screenshots  : KonkordObservableObjec
         foreach (var screenshot in screenshots)
         {
             var bytes = File.ReadAllBytes(screenshot);
+            // TODO: Use bitmap service
             var newScreenshot = new ScreenshotModel(screenshot, new Bitmap(screenshot), bytes.LongLength);
             Screenshots.Add(newScreenshot);
         }

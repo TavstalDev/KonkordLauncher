@@ -20,6 +20,7 @@ public partial class ResourceDownloadWindow : KonkordWindow<ResourceDownloadView
     {
         InitializeComponent();
 
+        // TODO: Performanc issue - creating the view-model triggers list loading and can delay the dialog opening.
         DataContext = new ResourceDownloadViewModel(this, instance, resourceType);
 
         this.WhenActivated(disposables =>

@@ -4,8 +4,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.Extensions.DependencyInjection;
-using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.MainView;

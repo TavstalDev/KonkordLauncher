@@ -1,7 +1,7 @@
 using System;
-using Avalonia.Media.Imaging;
-using Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
-using Tavstal.KonkordLauncher.Desktop.Helpers;
+using Microsoft.Extensions.DependencyInjection;
+using Tavstal.KonkordLauncher.Common.Models;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
 
@@ -24,7 +24,7 @@ public class SkinDataModel : IDisposable
     /// Loaded image for the skin. May be null if loading failed or not provided.
     /// Dispose this object when the model is no longer used by calling <see cref="Dispose"/>.
     /// </summary>
-    public Bitmap? Image { get; set; }
+    public BitmapEntry Image { get; set; }
     
     /// <summary>
     /// Whether this skin is currently selected in the UI.
@@ -41,9 +41,9 @@ public class SkinDataModel : IDisposable
     /// </summary>
     /// <param name="id">Skin identifier.</param>
     /// <param name="variant">Skin variant (e.g. "classic" or "slim").</param>
-    /// <param name="image">Already-loaded <see cref="Bitmap"/> for the skin (can be null).</param>
+    /// <param name="image">Loaded skin image. May be null if not available.</param>
     /// <param name="isSelected">Initial selected state in the UI.</param>
-    public SkinDataModel(string id, string variant, Bitmap? image, bool isSelected)
+    public SkinDataModel(string id, string variant, BitmapEntry image, bool isSelected)
     {
         Id = id;
         Variant = variant;
@@ -52,17 +52,15 @@ public class SkinDataModel : IDisposable
     }
     
     /// <summary>
-    /// Convenience constructor that builds a <see cref="SkinDataModel"/> from a Mojang <see cref="Skin"/>.
-    /// </summary>
-    /// <param name="skin">Mojang skin object containing id, variant and URL.</param>
-    /// <param name="isSelected">Initial selected state.</param>
-    public SkinDataModel(Skin skin, bool isSelected = false) : this(skin.Id, skin.Variant, ImageHelper.Load(skin.Url).Result, isSelected) { }
-
-    /// <summary>
     /// Releases resources held by this model. Disposes the <see cref="Image"/> bitmap if present.
     /// </summary>
     public void Dispose()
     {
-        Image?.Dispose();
+        if (Image.IsEmpty())
+            return;
+        
+        var services = Program.ServiceProvider;
+        var bitmapService = services.GetRequiredService<IBitmapService>();
+        bitmapService.Release(Image.Key!);
     }
 }

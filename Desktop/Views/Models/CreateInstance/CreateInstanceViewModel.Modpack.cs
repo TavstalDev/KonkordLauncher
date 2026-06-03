@@ -31,6 +31,7 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
     private readonly ICustomLogger _logger;
     private readonly IHttpService _httpService;
     private readonly ITranslationService _translationService;
+    private readonly IBitmapService _bitmapService;
     private readonly IMetaCacheService _metaCacheService;
     private readonly ILauncherStore _launcherStore;
     private readonly ModrinthPackageService _modrinthPackageService;
@@ -117,6 +118,7 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         _logger = services.GetRequiredService<ICustomLogger<CreateInstanceViewModel_Modpack>>();
         _httpService = services.GetRequiredService<IHttpService>();
         _translationService = services.GetRequiredService<ITranslationService>();
+        _bitmapService = services.GetRequiredService<IBitmapService>();
         _metaCacheService = services.GetRequiredService<IMetaCacheService>();
         _launcherStore = services.GetRequiredService<ILauncherStore>();
         _modrinthPackageService = services.GetRequiredService<ModrinthPackageService>();
@@ -128,8 +130,8 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         var modpacksCopy = Modpacks;
         Modpacks.Clear();
         foreach (var modpack in modpacksCopy)
-            modpack.Icon?.Dispose();
-        SelectedModpack?.Icon?.Dispose();
+            modpack.Icon?.Dispose(_bitmapService);
+        SelectedModpack?.Icon?.Dispose(_bitmapService);
         SelectedModpack = null;
     }
     
@@ -143,7 +145,7 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
                 continue;
             VersionFilterSource.Add(version.Id);
         }
-
+        
         var response = await _metaCacheService.SearchModpacksAsync(cancellationToken: cancellationToken);
         if (response == null)
             throw new Exception("Modrinth search failed.");
@@ -331,7 +333,7 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
             var modpacksCopy = Modpacks;
             Modpacks.Clear();
             foreach  (var modpack in modpacksCopy)
-                modpack.Icon?.Dispose();
+                modpack.Icon?.Dispose(_bitmapService);
         }
         foreach (var model in results)
             Modpacks.Add(model);

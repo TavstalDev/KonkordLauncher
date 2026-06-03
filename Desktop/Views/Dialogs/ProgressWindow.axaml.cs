@@ -16,14 +16,14 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 /// Represents the installation window in the application, which implements the <see cref="IProgressReporter"/> interface
 /// to report progress and status updates during installation.
 /// </summary>
-public partial class InstallWindow : KonkordWindow<InstallViewModel>, IProgressReporter
+public partial class ProgressWindow : KonkordWindow<InstallViewModel>, IProgressReporter
 {
     private readonly ITranslationService _translationService;
     
     /// <summary>
-    /// Initializes a new instance of the <see cref="InstallWindow"/> class.
+    /// Initializes a new instance of the <see cref="ProgressWindow"/> class.
     /// </summary>
-    public InstallWindow()
+    public ProgressWindow()
     {
         InitializeComponent();
         DataContext = new InstallViewModel();

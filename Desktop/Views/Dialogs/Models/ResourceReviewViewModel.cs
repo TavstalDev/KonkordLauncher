@@ -13,9 +13,11 @@ using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
+using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
+using Tavstal.KonkordLauncher.Desktop.Models.Domain;
+using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
@@ -25,21 +27,23 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
     private readonly Instance _instance;
     private readonly EResourceType _resourceType;
     private readonly IHttpService _httpService;
+    private readonly ITranslationService _translationService;
     private readonly ILauncherStore _launcherStore;
     private readonly IManifestService _manifestService;
     private readonly IMetaCacheService _metaCacheService;
+    private readonly IProgressReporter _progressReporter;
     public ObservableCollection<ResourceDownloadModel> Resources { get; set; }
     
     #region Interactions
-    
-    
     public Interaction<bool, Unit> CloseWindowInteraction { get; } = new();
+    public Interaction<Alert, Unit> ShowAlertInteraction { get; } = new();
     #endregion
 
-    public ResourceReviewViewModel(Instance instance, EResourceType type, List<ResourceDownloadModel> resources)
+    public ResourceReviewViewModel(Instance instance, EResourceType type, List<ResourceDownloadModel> resources, IProgressReporter progressReporter)
     {
         _instance = instance;
         _resourceType = type;
+        _progressReporter = progressReporter;
         if (Design.IsDesignMode)
         {
             Resources =
@@ -88,6 +92,7 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
 
         var services = Program.ServiceProvider;
         _httpService = services.GetRequiredService<IHttpService>();
+        _translationService = services.GetRequiredService<ITranslationService>();
         _launcherStore = services.GetRequiredService<ILauncherStore>();
         _manifestService = services.GetRequiredService<IManifestService>();
         _metaCacheService = services.GetRequiredService<IMetaCacheService>();
@@ -126,6 +131,7 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
         
         var newResources = new List<InstanceResource>();
         
+        _progressReporter.OpenReporter();
         var tasks = Resources.Select(x =>
         {
             if (!x.ShouldDownload)
@@ -151,8 +157,8 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
 
             IProgress<double> progress = new Progress<double>(p =>
             {
-                // TODO:
-                Console.WriteLine($"Downloading {x.Name}: {p:P2} complete");
+                _progressReporter.ReportProgress(p);
+                _progressReporter.UpdateStatusTranslated("instance.download.file", x.Name, p.ToString("0.00"));
             });
 
             return _httpService.DownloadFileAsync(x.Url, targetPath, progress);
@@ -171,8 +177,11 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
             await _launcherStore.SaveInstanceResourcesAsync(_instance, existingResources);
         }
         
-        // TODO: Report completion
-        Console.WriteLine("All downloads complete!");
+        _progressReporter.CloseReporter();
+        await ShowAlertInteraction.Handle(new Alert(
+            _translationService.Translate("instance.resources.download.complete"),
+            _translationService.Translate("instance.resources.download.complete.description"),
+            EAlertType.Success));
         await CloseWindowInteraction.Handle(true);
     }
     

@@ -7,7 +7,6 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
-using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -15,10 +14,10 @@ using DynamicData;
 using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
+using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
 using Tavstal.KonkordLauncher.Core.Models.Logging;
-using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 
@@ -27,6 +26,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObject
 {
     private readonly ICustomLogger _logger;
+    private readonly IBitmapService _bitmapService;
     private readonly EditInstanceViewModel _parent;
     
     private readonly SourceCache<ResourceBaseModel, string> _shaderPackCache = new(x => x.Name);
@@ -44,6 +44,7 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
         
         var services = Program.ServiceProvider;
         _logger = services.GetRequiredService<ICustomLogger<EditInstanceViewModel_ShaderPacks>>();
+        _bitmapService = services.GetRequiredService<IBitmapService>();
         
         // Set up a reactive filter for the SearchQuery property.
         var filter = this.WhenAnyValue(x => x.SearchQuery)
@@ -70,7 +71,7 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
     {
         base.Dispose(disposing);
         foreach (var shaderPack in _shaderPackCache.Items)
-            shaderPack.Icon?.Dispose();
+            shaderPack.Icon?.Dispose(_bitmapService);
         _shaderPackCache.Clear();
         _shaderPackCache.Dispose();
         SelectedShaderPack = null;
@@ -196,7 +197,7 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
         _shaderPackCache.Edit(innerCache =>
         {
             foreach (var shader in innerCache.Items)
-                shader.Icon?.Dispose(); // Dispose of the image to free memory
+                shader.Icon?.Dispose(_bitmapService); // Dispose of the image to free memory
             
             innerCache.Clear();
             var packs = Directory.GetFiles(shaderPacksDir, "*")
@@ -215,18 +216,19 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
                     var instanceResource = instanceResources.FirstOrDefault(x => x.Type == EResourceType.SHADER_PACK &&
                         x.Name.Equals(fileName, StringComparison.OrdinalIgnoreCase));
                     
-                    Bitmap? icon = null;
+                    BitmapEntry icon = new BitmapEntry(null, null);
                     try
                     {
                         if (instanceResource is { IconPath: not null })
-                            icon = ImageHelper.LoadFromResource(new Uri(instanceResource.IconPath));
+                            icon = _bitmapService.GetBitmap(instanceResource.IconPath);
                     }
                     catch (Exception ex)
                     {
                         _logger.LogWarning(ex, $"Failed to read icon from {pack}:");
                     }
 
-                    icon ??= ImageHelper.LoadFromResource(new Uri("avares://Desktop/Assets/Images/default_world.png"));
+                    if (icon.Key == null) 
+                        icon = _bitmapService.GetBitmap("avares://Desktop/Assets/Images/default_world.png");
                     
                     var newResourcePack = new ResourceBaseModel
                     {

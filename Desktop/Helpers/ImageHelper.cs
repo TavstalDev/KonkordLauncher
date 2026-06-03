@@ -1,10 +1,10 @@
 using System;
 using System.IO;
-using System.Net.Http;
-using System.Threading.Tasks;
+using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using QRCoder;
+using Tavstal.KonkordLauncher.Common.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.Helpers;
 
@@ -13,56 +13,21 @@ namespace Tavstal.KonkordLauncher.Desktop.Helpers;
 /// </summary>
 public static class ImageHelper
 {
-    private static readonly HttpClient _httpClient = new();
-    
     /// <summary>
-    /// Loads an image from the specified file path or URI.
+    /// Loads a <see cref="Bitmap"/> from an application resource path.
     /// </summary>
-    /// <param name="path">The file path or URI of the image to load.</param>
-    /// <returns>A <see cref="Bitmap"/> object if the image is successfully loaded; otherwise, null.</returns>
-    public static async Task<Bitmap?> Load(string path) => await Load(new Uri(path));
-
-    /// <summary>
-    /// Loads an image from the specified URI, either from the web or a local resource.
-    /// </summary>
-    /// <param name="resourceUri">The URI of the image to load.</param>
-    /// <returns>A <see cref="Bitmap"/> object if the image is successfully loaded; otherwise, null.</returns>
-    public static async Task<Bitmap?> Load(Uri resourceUri)
+    /// <param name="path">
+    /// The resource URI to load. Expected to be a valid Avalonia asset URI (for example: "avares://AssemblyName/Assets/image.png")
+    /// or any URI that <see cref="Avalonia.Platform.IAssetLoader"/> supports when running in design mode.
+    /// </param>
+    /// <returns> A <see cref="Bitmap"/> created from the requested resource stream.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when called outside of design mode. This helper is intended for use in design-time scenarios only
+    /// (for example in XAML preview/design-time data) and will not attempt to resolve resources at runtime.
+    /// </exception>
+    public static BitmapEntry LoadDesignTime(string path)
     {
-        if (resourceUri.ToString().StartsWith("http"))
-            return await LoadFromWeb(resourceUri) ?? null;
-        return LoadFromResource(resourceUri);
-    }
-
-    /// <summary>
-    /// Loads an image from a local resource.
-    /// </summary>
-    /// <param name="resourceUri">The URI of the local resource to load.</param>
-    /// <returns>A <see cref="Bitmap"/> object representing the loaded image.</returns>
-    public static Bitmap LoadFromResource(Uri resourceUri)
-    {
-        return new Bitmap(AssetLoader.Open(resourceUri));
-    }
-
-    /// <summary>
-    /// Loads an image from a web URL.
-    /// </summary>
-    /// <param name="url">The URL of the image to load.</param>
-    /// <returns>A <see cref="Bitmap"/> object if the image is successfully downloaded and loaded; otherwise, null.</returns>
-    public static async Task<Bitmap?> LoadFromWeb(Uri url)
-    {
-        try
-        {
-            var response = await _httpClient.GetAsync(url);
-            response.EnsureSuccessStatusCode();
-            var data = await response.Content.ReadAsByteArrayAsync();
-            return new Bitmap(new MemoryStream(data));
-        }
-        catch (HttpRequestException ex)
-        {
-            Console.WriteLine($"An error occurred while downloading image '{url}' : {ex.Message}");
-            return null;
-        }
+        return !Design.IsDesignMode ? throw new InvalidOperationException("LoadFromResource should only be used in design mode with valid resource paths.") : new BitmapEntry(path, new Bitmap(AssetLoader.Open(new Uri(path))));
     }
     
     /// <summary>

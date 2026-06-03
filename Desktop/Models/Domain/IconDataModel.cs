@@ -1,5 +1,5 @@
-using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Tavstal.KonkordLauncher.Common.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
 
@@ -23,18 +23,19 @@ public partial class IconDataModel : ObservableObject
     /// <summary>
     /// The image associated with the icon.
     /// </summary>
-    [ObservableProperty] private Bitmap _image;
-    
+    [ObservableProperty]
+    public partial BitmapEntry Image { get; set; }
+
     /// <summary>
     /// Initializes a new instance of the <see cref="IconDataModel"/> class.
     /// </summary>
     /// <param name="name">The name of the icon.</param>
     /// <param name="path">The file path of the icon.</param>
     /// <param name="image">The image associated with the icon.</param>
-    public IconDataModel(string name, string path, Bitmap image)
+    public IconDataModel(string name, string path, BitmapEntry image)
     {
         Name = name;
         Path = path;
-        _image = image;
+        Image = image;
     }
 }

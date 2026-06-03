@@ -10,6 +10,7 @@ using Tavstal.KonkordLauncher.Core.Models.Endpoints.Modding;
 using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions;
+using Tavstal.KonkordLauncher.Core.Services.Abstractions.Auth;
 
 namespace Tavstal.KonkordLauncher.Common.Services.Implementations;
 
@@ -20,6 +21,7 @@ public class ValidationService : IValidationService
     private readonly IHttpService _httpService;
     private readonly ILauncherStore _launcherStore;
     private readonly IManifestService _manifestService;
+    private readonly IMicrosoftAuthService _microsoftAuthService;
     
     /// <summary>
     /// Initializes a new instance of the <see cref="ValidationService"/> class.
@@ -28,13 +30,14 @@ public class ValidationService : IValidationService
     /// <param name="httpService">HTTP service used to download remote manifests and related resources.</param>
     /// <param name="launcherStore">Launcher store used to read and create launcher configuration data.</param>
     /// <param name="manifestService">Manifest service used to load and cache validated manifest data.</param>
-
-    public ValidationService(ICustomLogger<ValidationService> logger, IHttpService httpService, ILauncherStore launcherStore, IManifestService manifestService)
+    /// <param name="microsoftAuthService">Microsoft authentication service used to validate Microsoft accounts.</param>
+    public ValidationService(ICustomLogger<ValidationService> logger, IHttpService httpService, ILauncherStore launcherStore, IManifestService manifestService, IMicrosoftAuthService microsoftAuthService)
     {
         _logger = logger;
         _httpService = httpService;
         _launcherStore = launcherStore;
         _manifestService = manifestService;
+        _microsoftAuthService = microsoftAuthService;
     }
     
     /// <inheritdoc/>
@@ -93,6 +96,38 @@ public class ValidationService : IValidationService
                 _logger.LogError("Failed to read accounts data, file is corrupted or empty.");
                 return false;
             }
+
+            bool shouldUpdate = false;
+            foreach (var acc in data.Accounts)
+            {
+                if (acc.Type != EAccountType.MICROSOFT)
+                    continue;
+
+                if (acc.AccessTokenExpireDate < DateTime.Now)
+                {
+                    await _microsoftAuthService.RefreshLoginAsync(acc.GetRefreshToken(), cancellationToken);
+                    acc.MojangProfile = _microsoftAuthService.MojangProfile;
+                    acc.AccessTokenExpireDate = _microsoftAuthService.Account!.AccessTokenExpireDate;
+                    acc.SetAccessToken(_microsoftAuthService.Account.GetAccessToken());
+                    acc.SetRefreshToken(_microsoftAuthService.Account.GetRefreshToken());
+                    _microsoftAuthService.Reset();
+                    shouldUpdate = true;
+                }
+                else
+                {
+                    var mojangProfile =
+                        await _microsoftAuthService.FetchMinecraftProfileAsync(acc.GetAccessToken(), cancellationToken);
+                    // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+                    if (mojangProfile?.Id == null)
+                        continue;
+
+                    acc.MojangProfile = mojangProfile;
+                    shouldUpdate = true;
+                }
+            }
+            
+            if (shouldUpdate)
+                await _launcherStore.SaveAccountDataAsync(data, cancellationToken);
 
             var account = data.Accounts.FirstOrDefault(a => a.Id == data.SelectedAccountId);
             if (account == null)

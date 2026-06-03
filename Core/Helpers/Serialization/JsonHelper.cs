@@ -57,7 +57,7 @@ public static class JsonHelper
                         using var jsonWriter = new JsonTextWriter(streamWriter);
                         var serializer = JsonSerializer.Create(_jsonSerializerSettings);
                         serializer.Serialize(jsonWriter, obj, typeof(T));
-                        streamWriter.FlushAsync();
+                        streamWriter.Flush();
                     }
                     File.Move(tempPath, path, true);
                     return true;
@@ -79,7 +79,14 @@ public static class JsonHelper
         {
             if (lockTaken)
             {
-                fileLock.Release();
+                try
+                {
+                    fileLock.Release();
+                }
+                catch (SemaphoreFullException ex)
+                {
+                    _logger.LogError(ex, $"Attempted to release semaphore for {path} but it was already at max count.");
+                }
             }
         }
     }
@@ -149,7 +156,7 @@ public static class JsonHelper
         }
         finally
         {
-            if (!lockTaken)
+            if (lockTaken)
             {
                 try
                 {
@@ -171,8 +178,19 @@ public static class JsonHelper
     /// <returns>The deserialized object, or default if the file does not exist or an error occurs during deserialization.</returns>
     public static T? ReadJsonFile<T>(string path)
     {
+        var fileLock = GetFileLock(path);
+        bool lockTaken = false;
+        
         try
         {
+            // Attempt to acquire the per-path semaphore with the specified timeout.
+            lockTaken = fileLock.Wait(_retryDelay);
+            if (!lockTaken)
+            {
+                _logger.LogError($"Failed to acquire file lock for {path} within {_retryDelay}.");
+                return default;
+            }
+            
             if (!File.Exists(path))
                 return default;
             
@@ -187,6 +205,20 @@ public static class JsonHelper
             _logger.LogCritical(ex, $"Error in ReadJsonFileAsync<T> {path}:");
             return default;
         }
+        finally
+        {
+            if (lockTaken)
+            {
+                try
+                {
+                    fileLock.Release();
+                }
+                catch (SemaphoreFullException ex)
+                {
+                    _logger.LogError(ex, $"Attempted to release semaphore for {path} but it was already at max count.");
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -197,8 +229,19 @@ public static class JsonHelper
     /// <returns>The deserialized object, or default if an error occurs.</returns>
     public static async Task<T?> ReadJsonFileAsync<T>(string path)
     {
+        var fileLock = GetFileLock(path);
+        bool lockTaken = false;
+        
         try
         {
+            // Attempt to acquire the per-path semaphore with the specified timeout.
+            lockTaken = await fileLock.WaitAsync(_retryDelay);
+            if (!lockTaken)
+            {
+                _logger.LogError($"Failed to acquire file lock for {path} within {_retryDelay}.");
+                return default;
+            }
+            
             if (!File.Exists(path))
                 return default;
             
@@ -212,6 +255,20 @@ public static class JsonHelper
         {
             _logger.LogCritical(ex, $"Error in ReadJsonFileAsync<T> {path}:");
             return default;
+        }
+        finally
+        {
+            if (lockTaken)
+            {
+                try
+                {
+                    fileLock.Release();
+                }
+                catch (SemaphoreFullException ex)
+                {
+                    _logger.LogError(ex, $"Attempted to release semaphore for {path} but it was already at max count.");
+                }
+            }
         }
     }
     

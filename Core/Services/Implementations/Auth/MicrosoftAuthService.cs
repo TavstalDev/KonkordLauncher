@@ -510,6 +510,26 @@ public class MicrosoftAuthService : IMicrosoftAuthService
             OnAuthStatusChanged?.Invoke(_authStatus);
         }
     }
+    
+    /// <inheritdoc/>
+    public async Task<MojangProfile?> FetchMinecraftProfileAsync(string mcToken, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            _progressReporter?.UpdateStatusTranslated("auth.minecraft.profile");
+            
+            HttpClient client = _httpService.CreateHttpClient();
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", mcToken);
+            var result = await client.GetAsync(MicrosoftEndpoints.MinecraftProfileUrl, cancellationToken);
+
+            return JsonConvert.DeserializeObject<MojangProfile>(await result.Content.ReadAsStringAsync(cancellationToken));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogCritical(ex, $"Error while getting Minecraft profile:");
+            return null;
+        }
+    }
 
     /// <inheritdoc/>
     public async Task<bool> RefreshLoginAsync(string token, CancellationToken cancellationToken = default)

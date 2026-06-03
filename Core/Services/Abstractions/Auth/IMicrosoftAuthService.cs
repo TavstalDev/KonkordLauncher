@@ -135,6 +135,15 @@ public interface IMicrosoftAuthService
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Retrieves the authenticated player's Minecraft profile using the provided Minecraft access token.
+    /// </summary>
+    /// <param name="mcToken">The Minecraft services access token used for authentication.</param>
+    /// <param name="cancellationToken">A token that can be used to cancel the request.</param>
+    /// <returns>A task that resolves to the player's <see cref="MojangProfile"/> if the request succeeds;
+    /// otherwise, <see langword="null"/>.</returns>
+    Task<MojangProfile?> FetchMinecraftProfileAsync(string mcToken, CancellationToken cancellationToken = default);
+    
+    /// <summary>
     /// Refreshes an expired Microsoft access token using a refresh token.
     /// </summary>
     /// <param name="token">The Microsoft refresh token obtained from a previous authentication.</param>

@@ -22,7 +22,7 @@ public static class JsonHelper
     private static readonly ConcurrentDictionary<string, SemaphoreSlim> _fileLocks =
         new(StringComparer.OrdinalIgnoreCase);
     private const int _maxRetries = 5;
-    private static readonly TimeSpan _retryDelay = TimeSpan.FromMilliseconds(75);
+    private static readonly TimeSpan _retryDelay = TimeSpan.FromMilliseconds(100);
     
     /// <summary>
     /// Writes an object to a file as JSON using an atomic write pattern with retries.
@@ -33,9 +33,17 @@ public static class JsonHelper
     /// <returns><c>true</c> if the file was written successfully; otherwise <c>false</c>.</returns>
     public static bool WriteJsonFile<T>(string path, T obj)
     {
+        var fileLock = GetFileLock(path);
+        bool lockTaken = false;
+        
         try
         {
-            string content = JsonConvert.SerializeObject(obj, _jsonSerializerSettings);
+            lockTaken = fileLock.Wait(_retryDelay);
+            if (!lockTaken)
+            {
+                _logger.LogError($"Failed to acquire file lock for sync write to {path} within {_retryDelay}.");
+                return false;
+            }
             CreateDirectory(path);
             
             for (int i = 0; i < _maxRetries; i++)
@@ -43,12 +51,13 @@ public static class JsonHelper
                 string tempPath = GetTempPath(path);
                 try
                 {
-                    File.WriteAllText(tempPath, content, Encoding.UTF8);
-
-                    if (!FileSystemHelper.DeleteFile(path))
+                    using (var fileStream = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 65536, useAsync: true))
                     {
-                        _logger.LogError($"Failed to delete file {path}.");
-                        continue;
+                        using var streamWriter = new StreamWriter(fileStream, Encoding.UTF8, bufferSize: 65536);
+                        using var jsonWriter = new JsonTextWriter(streamWriter);
+                        var serializer = JsonSerializer.Create(_jsonSerializerSettings);
+                        serializer.Serialize(jsonWriter, obj, typeof(T));
+                        streamWriter.FlushAsync();
                     }
                     File.Move(tempPath, path, true);
                     return true;
@@ -59,14 +68,19 @@ public static class JsonHelper
                     FileSystemHelper.DeleteFile(tempPath);
                 }
             }
-            
-            _logger.LogError($"Failed to acquire file lock for {path} after {_maxRetries} attempts.");
             return false;
         }
         catch (Exception ex)
         {
             _logger.LogCritical(ex, $"Error in WriteJsonFile<T> {path}:");
             return false;
+        }
+        finally
+        {
+            if (lockTaken)
+            {
+                fileLock.Release();
+            }
         }
     }
     
@@ -84,43 +98,45 @@ public static class JsonHelper
     public static async Task<bool> WriteJsonFileAsync<T>(string path, T obj, CancellationToken cancellationToken = default)
     {
         var fileLock = GetFileLock(path);
-        
+        bool lockTaken = false;
+
         try
         {
-            string content = JsonConvert.SerializeObject(obj, _jsonSerializerSettings);
-            CreateDirectory(path);
-            
-            await fileLock.WaitAsync(_retryDelay, cancellationToken);
-            try
+            // Attempt to acquire the per-path semaphore with the specified timeout.
+            lockTaken = await fileLock.WaitAsync(_retryDelay, cancellationToken);
+            if (!lockTaken)
             {
-                for (int i = 0; i < _maxRetries; i++)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    string tempPath = GetTempPath(path);
-                    try
-                    {
-                        await File.WriteAllTextAsync(tempPath, content, Encoding.UTF8, cancellationToken);
-
-                        if (!FileSystemHelper.DeleteFile(path))
-                        {
-                            _logger.LogError($"Failed to delete file {path}.");
-                            continue;
-                        }
-                        File.Move(tempPath, path, true);
-                        return true;
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, $"Failed to delete file {path}:");
-                        FileSystemHelper.DeleteFile(tempPath);
-                        if (_maxRetries - 1 > i)
-                            await Task.Delay(_retryDelay, cancellationToken);
-                    }
-                }
+                _logger.LogError($"Failed to acquire file lock for {path} within {_retryDelay}.");
+                return false;
             }
-            finally
+
+            CreateDirectory(path);
+
+            for (int i = 0; i < _maxRetries; i++)
             {
-                fileLock.Release();
+                cancellationToken.ThrowIfCancellationRequested();
+                string tempPath = GetTempPath(path);
+                try
+                {
+                    await using (var fileStream = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 65536, useAsync: true))
+                    {
+                        await using var streamWriter = new StreamWriter(fileStream, Encoding.UTF8, bufferSize: 65536);
+                        await using var jsonWriter = new JsonTextWriter(streamWriter);
+                        var serializer = JsonSerializer.Create(_jsonSerializerSettings);
+                        serializer.Serialize(jsonWriter, obj, typeof(T));
+                        await streamWriter.FlushAsync(cancellationToken);
+                    }
+
+                    File.Move(tempPath, path, overwrite: true);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"Failed to delete file {path}:");
+                    FileSystemHelper.DeleteFile(tempPath);
+                    if (_maxRetries - 1 > i)
+                        await Task.Delay(_retryDelay, cancellationToken);
+                }
             }
 
             _logger.LogError($"Failed to acquire file lock for {path} after {_maxRetries} attempts.");
@@ -130,6 +146,20 @@ public static class JsonHelper
         {
             _logger.LogCritical(ex, $"Error in WriteJsonFileAsync<T> {path}:");
             return false;
+        }
+        finally
+        {
+            if (!lockTaken)
+            {
+                try
+                {
+                    fileLock.Release();
+                }
+                catch (SemaphoreFullException ex)
+                {
+                    _logger.LogError(ex, $"Attempted to release semaphore for {path} but it was already at max count.");
+                }
+            }
         }
     }
     

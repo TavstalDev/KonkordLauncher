@@ -345,6 +345,8 @@ public static class DefaultTranslationProvider
         {"instance.resource.review.file", "File:"},
         {"instance.resource.review.version", "Version:"},
         {"instance.resource.review.platform", "Platform:"},
+        {"instance.resources.download.complete", "Download Complete"},
+        {"instance.resources.download.complete.description", "The selected resources have been downloaded and added to the instance."},
 
         #endregion
         

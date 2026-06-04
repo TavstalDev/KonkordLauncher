@@ -48,8 +48,7 @@ public static class DefaultTranslationProvider
 
         #region Main
         
-        {"main.title", "Konkord Launcher"},
-        {"main.subtitle", "Ready for Adventure?"},
+        {"main.title", "Konkord Launcher - Main Window"},
         {"main.window.minimize", "Minimize"},
         {"main.window.maximize", "Maximize / Restore"},
         {"main.window.close", "Close"},

@@ -114,7 +114,7 @@ public class BitmapService : IBitmapService
     
     private Bitmap LoadFromResource(string filePath) 
     {
-        if (filePath.StartsWith("avares://"))
+        if (filePath.StartsWith("avares://", StringComparison.OrdinalIgnoreCase))
         {
             using var stream = AssetLoader.Open(new Uri(filePath));
             return new Bitmap(stream);

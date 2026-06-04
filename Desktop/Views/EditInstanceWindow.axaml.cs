@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reactive;
 using System.Reactive.Disposables.Fluent;
@@ -43,6 +44,7 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     /// Sets up the data context, initializes components, and registers reactive handlers.
     /// </summary>
     /// <param name="instance">The instance model to be edited in this window.</param>
+    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public EditInstanceWindow(InstanceModel instance)
     {
         InitializeComponent();

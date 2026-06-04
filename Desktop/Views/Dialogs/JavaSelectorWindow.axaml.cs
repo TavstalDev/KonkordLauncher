@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reactive;
 using System.Reactive.Disposables.Fluent;
 using System.Threading.Tasks;
@@ -17,6 +18,7 @@ public partial class JavaSelectorWindow : KonkordWindow<JavaSelectorViewModel>
     /// Initializes a new instance of the <see cref="JavaSelectorWindow"/> class.
     /// Sets up the data context and handles language changes.
     /// </summary>
+    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public JavaSelectorWindow()
     {
         InitializeComponent();

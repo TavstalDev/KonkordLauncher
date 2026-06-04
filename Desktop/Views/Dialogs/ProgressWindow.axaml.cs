@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reactive;
 using System.Reactive.Disposables.Fluent;
 using System.Threading.Tasks;
@@ -23,6 +24,7 @@ public partial class ProgressWindow : KonkordWindow<InstallViewModel>, IProgress
     /// <summary>
     /// Initializes a new instance of the <see cref="ProgressWindow"/> class.
     /// </summary>
+    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public ProgressWindow()
     {
         InitializeComponent();

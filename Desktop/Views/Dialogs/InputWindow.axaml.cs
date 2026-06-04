@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reactive;
 using System.Reactive.Disposables.Fluent;
 using System.Threading.Tasks;
@@ -31,6 +32,7 @@ public partial class InputWindow : KonkordWindow<InputViewModel>
     /// Sets up the DataContext and handles window activation events.
     /// </summary>
     /// <param name="title">The title to be displayed in the input window.</param>
+    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public InputWindow(string title)
     {
         InitializeComponent();

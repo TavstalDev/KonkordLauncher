@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables.Fluent;
@@ -28,6 +29,7 @@ public partial class IconSelectorWindow : KonkordWindow<IconSelectorViewModel>
     /// Initializes a new instance of the <see cref="IconSelectorWindow"/> class.
     /// Sets up the DataContext and handles language changes.
     /// </summary>
+    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public IconSelectorWindow()
     {
         InitializeComponent();

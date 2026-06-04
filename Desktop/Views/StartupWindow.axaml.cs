@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reactive;
@@ -48,12 +49,13 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
     private readonly IJavaService _javaService;
     private readonly ISkinService _skinService;
     private const int _stepDelay = 100;
-    private const int _maxParallelDownloads = 16;
+    private const int _maxParallelDownloads = 4;
     private readonly int[] _javaVersionsToDownload = [8, 16, 17, 21, 25];
 
     /// <summary>
     /// Initializes a new instance of the <see cref="StartupWindow"/> class with default settings.
     /// </summary>
+    [RequiresUnreferencedCode("May be affected by trimming due to use of reflection for service resolution.")]
     public StartupWindow()
     {
         if (!Design.IsDesignMode)

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reactive;
 using System.Reactive.Disposables.Fluent;
 using System.Text.RegularExpressions;
@@ -32,6 +33,7 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
     /// Initializes a new instance of the AccountsWindow class.
     /// Sets up the DataContext and attaches developer tools in debug mode.
     /// </summary>
+    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public AccountsWindow()
     {
         InitializeComponent();

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reactive;
 using System.Reactive.Disposables.Fluent;
 using System.Threading.Tasks;
@@ -17,6 +18,7 @@ public partial class ResourceReviewWindow : KonkordWindow<ResourceReviewViewMode
 {
     public ResourceReviewWindow() : this(null!, EResourceType.MOD, []) {}
     
+    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public ResourceReviewWindow(Instance instance, EResourceType resourceType, List<ResourceDownloadModel> resources)
     {
         InitializeComponent();

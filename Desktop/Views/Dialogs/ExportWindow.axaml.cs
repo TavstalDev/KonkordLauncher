@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reactive;
 using System.Reactive.Disposables.Fluent;
 using System.Threading.Tasks;
@@ -27,6 +28,7 @@ public partial class ExportWindow : KonkordWindow<ExportViewModel>
     /// </summary>
     /// <param name="instance">The instance to export (maybe null for design-time).</param>
     /// <param name="provider">The provider which influences export format (e.g. CurseForge or Modrinth).</param>
+    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public ExportWindow(Instance? instance, EInstanceProvider provider)
     {
         InitializeComponent();

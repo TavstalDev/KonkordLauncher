@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reactive;
 using System.Reactive.Disposables.Fluent;
 using System.Threading.Tasks;
@@ -17,6 +18,7 @@ public partial class InstanceLogsWindow : KonkordWindow<InstanceLogsViewModel>
         DataContext = new InstanceLogsViewModel(string.Empty);
     }
     
+    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public InstanceLogsWindow(string instanceId)
     {
         InitializeComponent();

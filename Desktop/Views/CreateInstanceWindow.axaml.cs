@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reactive;
 using System.Reactive.Disposables.Fluent;
 using System.Threading.Tasks;
@@ -30,6 +31,7 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
     /// Initializes a new instance of the <see cref="CreateInstanceWindow"/> class.
     /// Sets up the data context, initializes components, and registers reactive handlers.
     /// </summary>
+    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public CreateInstanceWindow()
     {
         InitializeComponent();

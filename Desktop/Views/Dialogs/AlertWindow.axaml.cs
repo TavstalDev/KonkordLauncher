@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reactive;
 using System.Reactive.Disposables.Fluent;
 using System.Threading.Tasks;
@@ -34,6 +35,7 @@ public partial class AlertWindow : KonkordWindow<AlertViewModel>
     /// <param name="title">The title of the alert dialog.</param>
     /// <param name="message">The message content of the alert dialog.</param>
     /// <param name="type">The type of the alert, determining its appearance and behavior.</param>
+    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public AlertWindow(string title, string message, EAlertType type)
     {
         InitializeComponent();

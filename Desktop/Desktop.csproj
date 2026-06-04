@@ -1,9 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <AssemblyTitle>KonkordLauncher</AssemblyTitle>
+        <ApplicationId>KonkordLauncher</ApplicationId>
+        <AssemblyName>KonkordLauncher</AssemblyName>
         <Description>A modern, user-friendly launcher for Minecraft, designed to enhance the gaming experience with a sleek interface and powerful features.</Description>
         <Company>Tavstal</Company>
         <Product>KonkordLauncher</Product>
+        <ApplicationIcon>$(MSBuildProjectDirectory)\favicon.ico</ApplicationIcon>
         <Copyright>Copyright © 2026 Tavstal</Copyright>
         <ComVisible>false</ComVisible>
         <Guid>5C0F1C0A-2258-4DD5-B454-0ED8FFF9E5A8</Guid>
@@ -18,6 +21,13 @@
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+        
+        <PublishAot>true</PublishAot>
+        <IsAotCompatible>true</IsAotCompatible>
+        <OptimizationPreference>Size</OptimizationPreference>
+        <GCLatencyLevel>3</GCLatencyLevel>
+        <ServerGarbageCollection>false</ServerGarbageCollection>
+        <GCHeapHardLimitPercent>10</GCHeapHardLimitPercent>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -56,6 +66,7 @@
     
     <ItemGroup>
         <AvaloniaResource Include="Assets\**" />
+        <AvaloniaResource Include="favicon.ico" />
         <AvaloniaResource Include="Styles\**" />
     </ItemGroup>
     
@@ -116,5 +127,11 @@
         </EmbeddedResource>
         <EmbeddedResource Include="Assets\Icons\**\*" />
         <EmbeddedResource Include="Assets\Fmllib\**\*" />
+    </ItemGroup>
+    <ItemGroup>
+        <Reference Include="Modrinth.Net">
+            <HintPath>..\libs/Modrinth.Net.dll</HintPath>
+            <Private>True</Private>
+        </Reference>
     </ItemGroup>
 </Project>

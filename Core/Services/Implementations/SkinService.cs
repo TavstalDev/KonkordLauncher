@@ -15,7 +15,7 @@ public class SkinService : ISkinService
 {
     private readonly ICustomLogger _logger;
     private readonly IHttpService _httpService;
-    private const int MaxParallelDownloads = 10;
+    private const int MaxParallelDownloads = 4;
     
     /// <summary>
     /// Initializes a new instance of the <see cref="SkinService"/> class.

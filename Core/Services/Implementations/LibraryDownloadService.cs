@@ -23,7 +23,7 @@ public class LibraryDownloadService : ILibraryDownloadService
 {
     private readonly ICustomLogger _logger;
     private readonly IHttpService _httpService;
-    private const int MaxParallelDownloads = 16;
+    private const int MaxParallelDownloads = 4;
     
     /// <summary>
     /// Initializes a new instance of the <see cref="LibraryDownloadService"/> class.

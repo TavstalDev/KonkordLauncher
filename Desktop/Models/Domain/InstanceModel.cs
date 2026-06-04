@@ -137,7 +137,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         _launchService = services.GetRequiredService<IInstanceLaunchService>();
         _bitmapService = services.GetRequiredService<IBitmapService>();
         
-        Icon = string.IsNullOrEmpty(IconPath) ? _bitmapService.GetBitmap("avares://Desktop/Assets/Icons/dirt.png") 
+        Icon = string.IsNullOrEmpty(IconPath) ? _bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Icons/dirt.png") 
                 : _bitmapService.GetBitmap(IconPath);
     }
 

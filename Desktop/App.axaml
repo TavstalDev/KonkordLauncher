@@ -2,7 +2,8 @@
     x:Class="Tavstal.KonkordLauncher.Desktop.App"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    RequestedThemeVariant="Dark">
+    RequestedThemeVariant="Dark"
+    Name="Konkord Launcher">
 
     <Application.Resources>
         <ResourceDictionary>

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -37,6 +38,7 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
     [ObservableProperty] 
     public partial string? SearchQuery { get; set; } = string.Empty;
     
+    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public EditInstanceViewModel_Mods(EditInstanceViewModel parent)
     {
         _parent = parent;
@@ -239,7 +241,8 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
                         _logger.LogWarning(ex, $"Failed to read icon from {mod}:");
                     }
 
-                    icon ??= _bitmapService.GetBitmap("avares://Desktop/Assets/Images/default_world.png");
+                    if (icon.Key == null)
+                        icon = _bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Images/default_world.png");
                     
                     var newMod = new ResourceBaseModel
                     {

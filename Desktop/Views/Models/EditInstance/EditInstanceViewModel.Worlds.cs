@@ -394,7 +394,7 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
                 }
             }
             if (icon.Key == null)
-                icon = _bitmapService.GetBitmap("avares://Desktop/Assets/Images/default_world.png");
+                icon = _bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Images/default_world.png");
             
             Worlds.Add(new WorldModel(worldName, worldDir, gamemode,  seed, lastPlayed, size, icon));
         }

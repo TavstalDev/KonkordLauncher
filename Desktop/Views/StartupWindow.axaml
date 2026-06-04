@@ -15,8 +15,8 @@
     CanResize="False"
     CornerRadius="14"
     ExtendClientAreaToDecorationsHint="True"
-    Icon="avares://Desktop/Assets/Images/logo.png"
-    ShowInTaskbar="False"
+    Icon="avares://KonkordLauncher/Assets/Images/logo.png"
+    ShowInTaskbar="True"
     SizeToContent="Height"
     TransparencyLevelHint="Transparent"
     UseLayoutRounding="True"
@@ -43,7 +43,7 @@
                     RowDefinitions="Auto,Auto,Auto"
                     RowSpacing="10">
                     <!--  Logo  -->
-                    <Image Classes="StartupLogo" Source="avares://Desktop/Assets/Images/logo.png" />
+                    <Image Classes="StartupLogo" Source="avares://KonkordLauncher/Assets/Images/logo.png" />
                     <!--  Progress bar  -->
                     <ProgressBar
                         Name="ProgressBar"

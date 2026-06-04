@@ -22,7 +22,7 @@
     CanResize="True"
     CornerRadius="14"
     ExtendClientAreaToDecorationsHint="True"
-    Icon="avares://Desktop/Assets/Images/logo.png"
+    Icon="avares://KonkordLauncher/Assets/Images/logo.png"
     ShowInTaskbar="True"
     TransparencyLevelHint="Transparent"
     UseLayoutRounding="True"
@@ -1257,7 +1257,7 @@
                                                 <ScrollViewer>
                                                     <Grid Classes="AboutWrapper" RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto">
                                                         <!--  Logo  -->
-                                                        <Image Classes="AboutLogo" Source="avares://Desktop/Assets/Images/logo.png" />
+                                                        <Image Classes="AboutLogo" Source="avares://KonkordLauncher/Assets/Images/logo.png" />
                                                         <!--  Description  -->
                                                         <TextBlock
                                                             Grid.Row="1"

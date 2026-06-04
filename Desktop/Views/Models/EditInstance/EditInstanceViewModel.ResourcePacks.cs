@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -39,6 +40,7 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
     [ObservableProperty] 
     public partial string SearchQuery { get; set; } = string.Empty;
     
+    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public EditInstanceViewModel_ResourcePacks(EditInstanceViewModel parent)
     {
         _parent = parent;
@@ -231,7 +233,7 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
                     }
 
                     if (icon.Key == null)
-                        icon = _bitmapService.GetBitmap("avares://Desktop/Assets/Images/default_world.png");
+                        icon = _bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Images/default_world.png");
                     
 
                     var instanceResource = instanceResources.FirstOrDefault(x => x.Type == EResourceType.RESOURCE_PACK &&

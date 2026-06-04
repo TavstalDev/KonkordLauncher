@@ -17,7 +17,7 @@
     CanResize="False"
     CornerRadius="14"
     ExtendClientAreaToDecorationsHint="True"
-    Icon="avares://Desktop/Assets/Images/logo.png"
+    Icon="avares://KonkordLauncher/Assets/Images/logo.png"
     ShowInTaskbar="True"
     SizeToContent="Height"
     TransparencyLevelHint="Transparent"

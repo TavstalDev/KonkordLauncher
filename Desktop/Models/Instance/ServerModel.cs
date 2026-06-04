@@ -29,7 +29,7 @@ public class ServerModel : MinecraftServer
     {
         /* TODO:
         Image = Icon == null
-            ? ImageHelper.LoadFromResource(new Uri("avares://Desktop/Assets/Images/default_world.png"))
+            ? ImageHelper.LoadFromResource(new Uri("avares://KonkordLauncher/Assets/Images/default_world.png"))
             : ImageHelper.Base64ToBitmap(Icon);*/
     }
 }

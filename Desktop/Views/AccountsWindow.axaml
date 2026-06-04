@@ -18,7 +18,7 @@
     CanResize="False"
     CornerRadius="14"
     ExtendClientAreaToDecorationsHint="True"
-    Icon="avares://Desktop/Assets/Images/logo.png"
+    Icon="avares://KonkordLauncher/Assets/Images/logo.png"
     ShowInTaskbar="False"
     SizeToContent="Height"
     TransparencyLevelHint="Transparent"
@@ -54,7 +54,7 @@
                                         <!--  Description text  -->
                                         <TextBlock Classes="AccountsModalDescription" Text="{lang:Translate auth.microsoft.description}" />
                                         <!--  Microsoft logo  -->
-                                        <Image Classes="AccountsModalImage" Source="avares://Desktop/Assets/Images/Brands/microsoft.png" />
+                                        <Image Classes="AccountsModalImage" Source="/Assets/Images/Brands/microsoft.png" />
                                         <!--  Start login button  -->
                                         <Button
                                             HorizontalAlignment="Center"

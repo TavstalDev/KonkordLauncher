@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reactive;
@@ -149,7 +150,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
         _parent = parent;
         if (Design.IsDesignMode)
         {
-            InstanceIcon = ImageHelper.LoadDesignTime("avares://Desktop/Assets/Icons/dirt.png");
+            InstanceIcon = ImageHelper.LoadDesignTime("avares://KonkordLauncher/Assets/Icons/dirt.png");
             return;
         }
         
@@ -187,6 +188,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
     /// Sets up the reactive DynamicData pipelines used to provide filtered, sorted, and UI-bound collections
     /// for the UI.
     /// </summary>
+    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public void SetupPipeline()
     {
         #region Minecraft Version
@@ -321,7 +323,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
                 innerCache.AddOrUpdate(quiltManifestCache);
         });
         
-        var icon = await _bitmapService.GetBitmapAsync("avares://Desktop/Assets/Icons/dirt.png");
+        var icon = await _bitmapService.GetBitmapAsync("avares://KonkordLauncher/Assets/Icons/dirt.png");
         Dispatcher.UIThread.Post(() =>
         {
             InstanceIcon = icon;
@@ -348,7 +350,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
         }
         catch
         {
-            InstanceIcon = await _bitmapService.GetBitmapAsync("avares://Desktop/Assets/Icons/dirt.png");
+            InstanceIcon = await _bitmapService.GetBitmapAsync("avares://KonkordLauncher/Assets/Icons/dirt.png");
         }
         InstanceIconPath = result;
     }

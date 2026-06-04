@@ -82,7 +82,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         _parent = parent;
         if (Design.IsDesignMode)
         {
-            AccountAvatar = ImageHelper.LoadDesignTime("avares://Desktop/Assets/Images/placeholders/steve_head.png");
+            AccountAvatar = ImageHelper.LoadDesignTime("avares://KonkordLauncher/Assets/Images/placeholders/steve_head.png");
             return;
         }
         
@@ -94,7 +94,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         _mojangSkinService = services.GetRequiredService<IMojangSkinService>();
         _bitmapService = services.GetRequiredService<IBitmapService>();
 
-        AccountAvatar = _bitmapService.GetBitmap("avares://Desktop/Assets/Images/placeholders/steve_head.png");
+        AccountAvatar = _bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Images/placeholders/steve_head.png");
     }
     
     /// <summary>
@@ -563,7 +563,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             BitmapEntry noCapeImg = new BitmapEntry(null, null);
             try
             {
-                noCapeImg = await _bitmapService.GetBitmapAsync("avares://Desktop/Assets/Images/placeholders/no_cape.png");
+                noCapeImg = await _bitmapService.GetBitmapAsync("avares://KonkordLauncher/Assets/Images/placeholders/no_cape.png");
             }
             catch (Exception ex)
             {
@@ -628,7 +628,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         
         AccountAvatar = File.Exists(avatarPath)
             ? await _bitmapService.GetBitmapAsync(avatarPath)
-            : await _bitmapService.GetBitmapAsync("avares://Desktop/Assets/Images/placeholders/steve_head.png");
+            : await _bitmapService.GetBitmapAsync("avares://KonkordLauncher/Assets/Images/placeholders/steve_head.png");
     }
 
     /// <summary>

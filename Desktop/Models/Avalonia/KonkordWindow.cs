@@ -1,12 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Platform.Storage;
+using Avalonia.Threading;
 using ReactiveUI.Avalonia;
+using Tavstal.KonkordLauncher.Core.Enums;
+using Tavstal.KonkordLauncher.Core.Helpers.Platform;
+using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
@@ -19,6 +24,11 @@ namespace Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 /// <typeparam name="TViewModel">Type of the view model assigned to the window.</typeparam>
 public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> where TViewModel : class
 {
+    protected KonkordWindow()
+    {
+        this.Closed += OnClosed;
+    }
+    
     /// <summary>
     /// Strongly-typed DataContext for this window. The setter is protected-init only to allow derived
     /// windows to assign a view-model during construction while still exposing the typed getter.
@@ -26,7 +36,7 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
     public new TViewModel? DataContext
     {
         get => (TViewModel?)base.DataContext;
-        protected init => base.DataContext = value;
+        protected set => base.DataContext = value;
     }
     
     /// <summary>
@@ -38,6 +48,40 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
     {
         (DataContext as IDisposable)?.Dispose();
         base.OnClosing(e);
+    }
+
+    private void OnClosed(object? sender, EventArgs e)
+    {
+        this.Closed -= OnClosed;
+        this.DataContext = null;
+        Dispatcher.UIThread.Post(() =>
+        {
+            GC.Collect(2, GCCollectionMode.Forced, blocking: true, compacting: true);
+            GC.WaitForPendingFinalizers();
+            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+            GC.Collect(2, GCCollectionMode.Forced, blocking: true, compacting: true);
+
+            try
+            {
+                switch (OSHelper.GetOperatingSystem())
+                {
+                    case EOperatingSystem.WINDOWS:
+                    {
+                        MemoryHelper.EmptyWorkingSet(System.Diagnostics.Process.GetCurrentProcess().Handle);
+                        break;
+                    }
+                    case EOperatingSystem.LINUX:
+                    {
+                        MemoryHelper.malloc_trim(0);
+                        break;
+                    }
+                }
+            }
+            catch
+            {
+                /* Suppress */
+            }
+        }, DispatcherPriority.Background);
     }
     
     /// <summary>

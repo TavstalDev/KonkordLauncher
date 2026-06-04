@@ -196,6 +196,7 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
             throw new InvalidOperationException("No primary screen found."); // Ensure there is a primary screen
         var screenSize = screen.Bounds.Size;
         App.SetScreenSize(screenSize);
+        GC.Collect(2, GCCollectionMode.Forced, blocking: true, compacting: true);
     }
 
     /// <summary>

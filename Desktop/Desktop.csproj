@@ -22,7 +22,6 @@
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
         
-        <PublishAot>true</PublishAot>
         <IsAotCompatible>true</IsAotCompatible>
         <OptimizationPreference>Size</OptimizationPreference>
         <GCLatencyLevel>3</GCLatencyLevel>
@@ -30,6 +29,10 @@
         <GCHeapHardLimitPercent>10</GCHeapHardLimitPercent>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <PublishAot>true</PublishAot>
+    </PropertyGroup>
+    
     <PropertyGroup>
         <PublishSingleFile>true</PublishSingleFile>
         <SelfContained>true</SelfContained>
@@ -117,6 +120,10 @@
       </Compile>
       <Compile Update="Views\Dialogs\ResourceDownloadWindow.axaml.cs">
         <DependentUpon>ResourceDownloadWindow.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+      <Compile Update="Views\Dialogs\InstanceVersionSelectorWindow.axaml.cs">
+        <DependentUpon>InstanceVersionSelectorWindow.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
     </ItemGroup>

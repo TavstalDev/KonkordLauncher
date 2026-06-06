@@ -63,7 +63,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
     public partial AccountDataModel AccountData { get; set; }
 
     [ObservableProperty, NotifyPropertyChangedFor(nameof(AccountName)), NotifyPropertyChangedFor(nameof(IsMojangAccount))]
-    public partial Account? SelectedAccount { get; set; }
+    public partial AccountModel? SelectedAccount { get; set; }
     public ObservableCollection<SkinDataModel> Skins { get; } = new();
     public ObservableCollection<CapeDataModel> Capes { get; } = new();
 
@@ -114,16 +114,20 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
     /// The account data container (typically read from disk) which includes the list of accounts
     /// and the currently selected account id.
     /// </param>
-    public async Task InitAsync(AccountData accountData)
+    public Task InitAsync(AccountData accountData)
     {
         AccountData = new AccountDataModel(accountData);
         
         Account? selectedAccount = AccountData.Accounts.FirstOrDefault(x => x.Id == AccountData.SelectedAccountId);
-        SelectedAccount = selectedAccount;
-            
-        OnAccountUpdated();
-        
-        GlobalEvents.OnAccountsChanged += OnAccountUpdated;
+        SelectedAccount = selectedAccount != null ? new AccountModel(selectedAccount, true) : null;
+
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            OnAccountUpdated();
+            GlobalEvents.OnAccountsChanged += OnAccountUpdated;
+            SubscribeToAccountDataChildren(AccountData);
+        });
+        return Task.CompletedTask;
     }
 
     #region Commands
@@ -199,7 +203,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
     /// </summary>
     /// <param name="account">The account to remove.</param>
     [RelayCommand]
-    private void RemoveAccountBtn(Account account)
+    private void RemoveAccountBtn(AccountModel account)
     {
         AccountData.Accounts.Remove(account);
         if (account.Id != AccountData.SelectedAccountId)
@@ -513,7 +517,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         AccountData = new AccountDataModel(accountData);
         Account? selectedAccount = accountData.Accounts.FirstOrDefault(x => x.Id == AccountData.SelectedAccountId);
 
-        if (SelectedAccount != selectedAccount)
+        if (SelectedAccount?.Id != selectedAccount?.Id)
         {
             List<SkinDataModel> skinCopies = Skins.ToList();
             foreach (SkinDataModel skin in skinCopies)
@@ -525,7 +529,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             Capes.Clear();
         }
 
-        SelectedAccount = selectedAccount;
+        SelectedAccount = selectedAccount != null ? new AccountModel(selectedAccount, true) : null;
         if (SelectedAccount?.MojangProfile != null)
         {
             var settings = await _launcherStore.GetSettingsAsync(cancellationToken: cancellationToken);

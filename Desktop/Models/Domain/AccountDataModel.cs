@@ -1,7 +1,6 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Tavstal.KonkordLauncher.Common.Models;
-using Tavstal.KonkordLauncher.Core.Models.Accounts;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
 
@@ -16,12 +15,12 @@ public partial class AccountDataModel : ObservableObject
     [ObservableProperty]
     public partial string? SelectedAccountId { get; set; }
 
-    private ObservableCollection<Account> _accounts;
+    private ObservableCollection<AccountModel> _accounts;
 
     /// <summary>
     /// Gets or sets the collection of accounts. Updates the collection changed event handler when set.
     /// </summary>
-    public ObservableCollection<Account> Accounts
+    public ObservableCollection<AccountModel> Accounts
     {
         get => _accounts;
         set
@@ -50,25 +49,17 @@ public partial class AccountDataModel : ObservableObject
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="AccountDataModel"/> class with the specified selected account ID and accounts.
-    /// </summary>
-    /// <param name="selectedAccountId">The ID of the selected account.</param>
-    /// <param name="accounts">The collection of accounts.</param>
-    public AccountDataModel(string? selectedAccountId, ObservableCollection<Account> accounts)
-    {
-        SelectedAccountId = selectedAccountId;
-        _accounts = accounts;
-        _accounts.CollectionChanged += OnAccountsCollectionChanged;
-    }
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="AccountDataModel"/> class from an existing <see cref="AccountData"/> object.
     /// </summary>
     /// <param name="data">The account data to initialize from.</param>
     public AccountDataModel(AccountData data)
     {
         SelectedAccountId = data.SelectedAccountId;
-        _accounts = new ObservableCollection<Account>(data.Accounts);
+        _accounts = [];
+        foreach (var account in data.Accounts)
+        {
+            _accounts.Add(new AccountModel(account, account.Id == data.SelectedAccountId));
+        }
         _accounts.CollectionChanged += OnAccountsCollectionChanged;
     }
 

@@ -12,6 +12,7 @@ using DiscordRPC;
 using Microsoft.Extensions.DependencyInjection;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
+using Tavstal.KonkordLauncher.Core.Helpers;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Models.Instance;
 using Tavstal.KonkordLauncher.Core.Models.Logging;
@@ -174,6 +175,7 @@ public partial class App : Application
                 string archivePath = Path.Combine(PathHelper.LauncherLogsDir, string.Format(PathHelper.LogsFileFormat, lastModified) + ".gz");
                 FileSystemHelper.CompressFile(logPath, archivePath);
             }
+            LoggerHelper.DefaultLogFilePath = logPath;
         }
         catch (Exception)
         {

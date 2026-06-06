@@ -20,11 +20,11 @@ public static class LoggerHelper
     /// <param name="logFilePath">Optional target file path. If <see langword="null"/>, <see cref="DefaultLogFilePath"/> is used.</param>
     public static void EnqueueLog(string entry, string? logFilePath = null)
     {
-        if (string.IsNullOrEmpty(logFilePath))
+        if (string.IsNullOrEmpty(logFilePath) && string.IsNullOrEmpty(DefaultLogFilePath))
             return;
         
         string logEntry = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] {entry}";
-        var queue = _queues.GetOrAdd(logFilePath, _ => new ConcurrentQueue<string>());
+        var queue = _queues.GetOrAdd(logFilePath ?? DefaultLogFilePath, _ => new ConcurrentQueue<string>());
         queue.Enqueue(logEntry);
         _signal.Release();
     }

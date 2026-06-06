@@ -1,9 +1,11 @@
 using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json.Serialization.Metadata;
 using Microsoft.Extensions.Caching.Memory;
 using Modrinth.Models;
 using Tavstal.KonkordLauncher.Common.Models;
+using Tavstal.KonkordLauncher.Common.Models.Json;
 using Tavstal.KonkordLauncher.Common.Models.MetaCache;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
@@ -57,11 +59,10 @@ public class MetaCacheService : IMetaCacheService, IAsyncInitializable
     {
         try
         {
-            _logger.LogInformation("Initializing meta cache");
             if (!File.Exists(PathHelper.MetaCachePath))
                 return;
 
-            var result = await JsonHelper.ReadJsonFileAsync<List<MetaCache>>(PathHelper.MetaCachePath);
+            var result = await JsonHelper.ReadJsonFileAsync<List<MetaCache>>(PathHelper.MetaCachePath, CommonJsonContex.Default.ListMetaCache);
             if (result != null)
                 foreach (var metaCache in result)
                 {
@@ -73,17 +74,17 @@ public class MetaCacheService : IMetaCacheService, IAsyncInitializable
                     {
                         case EMetaCacheType.SEARCH_RESULT:
                         {
-                            await ReadCachedFileAsync<SearchResponse>(metaCache.Path);
+                            await ReadCachedFileAsync<SearchResponse>(metaCache.Path, ModrinthJsonContext.Default.SearchResponse);
                             break;
                         }
                         case EMetaCacheType.PROJECT:
                         {
-                            await ReadCachedFileAsync<Project>(metaCache.Path);
+                            await ReadCachedFileAsync<Project>(metaCache.Path, ModrinthJsonContext.Default.Project);
                             break;
                         }
                         case EMetaCacheType.VERSION:
                         {
-                            await ReadCachedFileAsync<Version>(metaCache.Path);
+                            await ReadCachedFileAsync<Version>(metaCache.Path, ModrinthJsonContext.Default.Version);
                             break;
                         }
                     }
@@ -135,6 +136,30 @@ public class MetaCacheService : IMetaCacheService, IAsyncInitializable
     }
 
     /// <inheritdoc/>
+    public string? GetImagePath(string imageUrl, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            if (_cache.TryGetValue(imageUrl, out var cached) && cached.IsValid())
+                return cached.Path;
+            
+            var settings = _launcherStore.GetSettings() ?? throw new InvalidOperationException("Failed to resolve launcher settings while getting image path from meta cache.");
+            var cacheDir = settings.Launcher.CacheDirectoryPath;
+            Directory.CreateDirectory(cacheDir);
+            string imagesDir = Path.Combine(cacheDir, "images");
+            Directory.CreateDirectory(imagesDir);
+            var sha1 = SHA1.HashData(Encoding.UTF8.GetBytes(imageUrl));
+            string hash = Convert.ToHexString(sha1);
+            return Path.Combine(imagesDir, $"{hash}.png");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogCritical(ex, $"Failed to generate image path in meta cache:");
+            return null;
+        }
+    }
+
+    /// <inheritdoc/>
     public async Task<Project?> GetProjectAsync(string id, CancellationToken cancellationToken = default)
     {
         try
@@ -143,7 +168,7 @@ public class MetaCacheService : IMetaCacheService, IAsyncInitializable
             string hash = Convert.ToHexString(sha1);
 
             if (_cache.TryGetValue(hash, out var cached) && cached.IsValid())
-                return await ReadCachedFileAsync<Project>(cached.Path);
+                return await ReadCachedFileAsync<Project>(cached.Path, ModrinthJsonContext.Default.Project);
             
             var response = await _modrinthApiClient.GetProjectAsync(id, cancellationToken);
             if (response != null)
@@ -154,7 +179,7 @@ public class MetaCacheService : IMetaCacheService, IAsyncInitializable
                 string projectDir = Path.Combine(cacheDir, "projects");
                 Directory.CreateDirectory(projectDir);
                 string cachedFilePath = Path.Combine(projectDir, $"{hash}.json");
-                await JsonHelper.WriteJsonFileAsync(cachedFilePath, response, cancellationToken);
+                await JsonHelper.WriteJsonFileAsync(cachedFilePath, response, ModrinthJsonContext.Default.Project, cancellationToken);
                 
                 _cache.TryAdd(hash, new MetaCache
                 {
@@ -190,7 +215,7 @@ public class MetaCacheService : IMetaCacheService, IAsyncInitializable
 
                  if (_cache.TryGetValue(hash, out var cached) && cached.IsValid())
                  {
-                     var cache = await ReadCachedFileAsync<Project>(cached.Path);
+                     var cache = await ReadCachedFileAsync<Project>(cached.Path, ModrinthJsonContext.Default.Project);
                      if (cache != null)
                          projects.Add(cache);
                      else
@@ -230,7 +255,7 @@ public class MetaCacheService : IMetaCacheService, IAsyncInitializable
                          ValidUntil = DateTime.UtcNow.Add(_projectCacheDuration)
                      });
 
-                     return JsonHelper.WriteJsonFileAsync(cachedFilePath, x, cancellationToken);
+                     return JsonHelper.WriteJsonFileAsync(cachedFilePath, x, ModrinthJsonContext.Default.Project, cancellationToken);
                  });
                  await Task.WhenAll(cacheTasks);
                  
@@ -261,7 +286,7 @@ public class MetaCacheService : IMetaCacheService, IAsyncInitializable
 
                 if (_cache.TryGetValue(hash, out var cached) && cached.IsValid())
                 {
-                    var cache = await ReadCachedFileAsync<Version>(cached.Path);
+                    var cache = await ReadCachedFileAsync<Version>(cached.Path, ModrinthJsonContext.Default.Version);
                     if (cache != null)
                         versions.Add(cache);
                     else
@@ -301,7 +326,7 @@ public class MetaCacheService : IMetaCacheService, IAsyncInitializable
                         ValidUntil = DateTime.UtcNow.Add(_projectCacheDuration)
                     });
 
-                    return JsonHelper.WriteJsonFileAsync(cachedFilePath, x, cancellationToken);
+                    return JsonHelper.WriteJsonFileAsync(cachedFilePath, x, ModrinthJsonContext.Default.Version, cancellationToken);
                 });
                 await Task.WhenAll(cacheTasks);
                 await SaveCacheAsync(
@@ -326,7 +351,7 @@ public class MetaCacheService : IMetaCacheService, IAsyncInitializable
            string hash = BuildQueryHash("modpack", query, version, categories, offset);
            
            if (_cache.TryGetValue(hash, out var cached) && cached.IsValid())
-               return await ReadCachedFileAsync<SearchResponse>(cached.Path);
+               return await ReadCachedFileAsync<SearchResponse>(cached.Path, ModrinthJsonContext.Default.SearchResponse);
             
            var response = await _modrinthApiClient.SearchModpacksAsync(query, version, categories, offset, cancellationToken);
            return await HandleSearchResponse(hash, response, cancellationToken);
@@ -347,7 +372,7 @@ public class MetaCacheService : IMetaCacheService, IAsyncInitializable
            string hash = BuildQueryHash("mod", query, version, categories, offset);
             
            if (_cache.TryGetValue(hash, out var cached) && cached.IsValid())
-               return await ReadCachedFileAsync<SearchResponse>(cached.Path);
+               return await ReadCachedFileAsync<SearchResponse>(cached.Path, ModrinthJsonContext.Default.SearchResponse);
             
            var response = await _modrinthApiClient.SearchModsAsync(query, version, categories, offset, cancellationToken);
            return await HandleSearchResponse(hash, response, cancellationToken);
@@ -368,7 +393,7 @@ public class MetaCacheService : IMetaCacheService, IAsyncInitializable
             string hash = BuildQueryHash("resource_pack", query, version, categories, offset);
             
             if (_cache.TryGetValue(hash, out var cached) && cached.IsValid())
-                return await ReadCachedFileAsync<SearchResponse>(cached.Path);
+                return await ReadCachedFileAsync<SearchResponse>(cached.Path, ModrinthJsonContext.Default.SearchResponse);
             
             var response = await _modrinthApiClient.SearchResourcePackAsync(query, version, categories, offset, cancellationToken);
             return await HandleSearchResponse(hash, response, cancellationToken);
@@ -389,7 +414,7 @@ public class MetaCacheService : IMetaCacheService, IAsyncInitializable
              string hash = BuildQueryHash("shader_pack", query, version, categories, offset);
             
              if (_cache.TryGetValue(hash, out var cached) && cached.IsValid())
-                 return await ReadCachedFileAsync<SearchResponse>(cached.Path);
+                 return await ReadCachedFileAsync<SearchResponse>(cached.Path, ModrinthJsonContext.Default.SearchResponse);
             
              var response = await _modrinthApiClient.SearchShaderPacksAsync(query, version, categories, offset, cancellationToken);
              return await HandleSearchResponse(hash, response, cancellationToken);
@@ -422,7 +447,7 @@ public class MetaCacheService : IMetaCacheService, IAsyncInitializable
         string searchDir = Path.Combine(cacheDir, "searchs");
         Directory.CreateDirectory(searchDir);
         string cachedFilePath = Path.Combine(searchDir, $"{hash}.json");
-        await JsonHelper.WriteJsonFileAsync(cachedFilePath, response, cancellationToken);
+        await JsonHelper.WriteJsonFileAsync(cachedFilePath, response, ModrinthJsonContext.Default.SearchResponse, cancellationToken);
                 
         _cache.TryAdd(hash, new MetaCache
         {
@@ -474,7 +499,7 @@ public class MetaCacheService : IMetaCacheService, IAsyncInitializable
         try
         {
             var cacheSnapshot = _cache.Values.ToArray();
-            await JsonHelper.WriteJsonFileAsync(PathHelper.MetaCachePath, cacheSnapshot, cancellationToken);
+            await JsonHelper.WriteJsonFileAsync(PathHelper.MetaCachePath, cacheSnapshot, CommonJsonContex.Default.MetaCacheArray, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -482,7 +507,14 @@ public class MetaCacheService : IMetaCacheService, IAsyncInitializable
         }
     }
     
-    private async Task<T?> ReadCachedFileAsync<T>(string path)
+    /// <summary>
+    /// Asynchronously reads a cached file from the specified path.
+    /// </summary>
+    /// <typeparam name="T">The type of the object to read from the cache.</typeparam>
+    /// <param name="path">The path to the file to read.</param>
+    /// <param name="typeInfo">Type information for JSON serialization and deserialization.</param>
+    /// <returns>A task that represents the asynchronous operation. The result is the cached value if found, otherwise null.</returns>
+    private async Task<T?> ReadCachedFileAsync<T>(string path, JsonTypeInfo<T> typeInfo)
         where T : class
     {
         if (!File.Exists(path))
@@ -500,7 +532,7 @@ public class MetaCacheService : IMetaCacheService, IAsyncInitializable
         T? value;
         try
         {
-            value = JsonHelper.ReadJsonFile<T>(fullPath);
+            value = await JsonHelper.ReadJsonFileAsync(fullPath, typeInfo);
             if (value != null)
             {
                 var entry = new CachedFileEntry(value, lastWrite);

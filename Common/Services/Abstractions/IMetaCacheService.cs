@@ -18,6 +18,14 @@ public interface IMetaCacheService
     /// A task that resolves to the image as a <see cref="BitmapEntry"/> if successful; otherwise, <see langword="null"/>.
     /// </returns>
     Task<BitmapEntry?> GetImageAsync(string imageUrl, CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Retrieves the image path from a given URL.
+    /// </summary>
+    /// <param name="imageUrl">The URL of the image.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation. This parameter is optional and has a default value of CancellationToken.None.</param>
+    /// <returns>The path of the image if found; otherwise, null.</returns>
+    string? GetImagePath(string imageUrl, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Gets a cached Modrinth project by ID, fetching from the API if not cached or expired.

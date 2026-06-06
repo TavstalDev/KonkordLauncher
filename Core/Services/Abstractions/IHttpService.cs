@@ -1,3 +1,5 @@
+using Tavstal.KonkordLauncher.Core.Models;
+
 namespace Tavstal.KonkordLauncher.Core.Services.Abstractions;
 
 /// <summary>
@@ -67,17 +69,6 @@ public interface IHttpService
     Task<Stream?> GetStreamAsync(string url, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Performs a GET request and deserializes the JSON response into the specified type.
-    /// </summary>
-    /// <typeparam name="T">The type to deserialize the response into.</typeparam>
-    /// <param name="url">The request URL.</param>
-    /// <param name="cancellationToken">Cancellation token observed during the request.</param>
-    /// <returns>
-    /// A task that resolves to the deserialized object if successful; otherwise, <see langword="null"/>.
-    /// </returns>
-    Task<T?> GetObjectFromJsonAsync<T>(string url, CancellationToken cancellationToken = default);
-
-    /// <summary>
     /// Downloads a file from the specified URL and saves it to the target path with progress tracking.
     /// </summary>
     /// <param name="url">The URL of the file to download.</param>
@@ -91,6 +82,14 @@ public interface IHttpService
     /// </returns>
     Task<string?> DownloadFileAsync(string url, string filePath, IProgress<double>? progress,
         CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Downloads multiple files in parallel with progress tracking for each file.
+    /// </summary>
+    /// <param name="entries">A list of <see cref="DownloadEntry"/> objects representing the files to download, including their URLs and target paths.</param>
+    /// <param name="cancellationToken">Cancellation token observed during the downloads.</param>
+    /// <returns>A task that completes when all downloads have finished.</returns>
+    Task ParallelDownloadFilesAsync(List<DownloadEntry> entries, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Performs a POST request with the specified content.
@@ -104,17 +103,4 @@ public interface IHttpService
     /// </returns>
     Task<HttpResponseMessage?> PostAsync(string url, HttpContent? content,
         CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Performs a POST request with the specified object serialized as JSON.
-    /// </summary>
-    /// <typeparam name="T">The type of the value to serialize.</typeparam>
-    /// <param name="url">The request URL.</param>
-    /// <param name="value">The object to serialize and send as JSON in the request body.</param>
-    /// <param name="cancellationToken">Cancellation token observed during the request.</param>
-    /// <returns>
-    /// A task that resolves to the <see cref="HttpResponseMessage"/> if successful; otherwise, <see langword="null"/>.
-    /// Caller is responsible for disposing the returned response.
-    /// </returns>
-    Task<HttpResponseMessage?> PostJsonAsync<T>(string url, T value, CancellationToken cancellationToken = default);
 }

@@ -1,8 +1,8 @@
 using System.Net;
-using System.Net.Http.Json;
 using System.Net.Security;
 using System.Security.Authentication;
 using Tavstal.KonkordLauncher.Core.Helpers.Platform;
+using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 
@@ -13,6 +13,7 @@ public class HttpService : IHttpService
 {
     private readonly ICustomLogger _logger;
     private readonly HttpClient _httpClient;
+    private const int MaxParallelDownloads = 4;
     
     /// <summary>
     /// Initializes a new instance of the <see cref="HttpService"/> class.
@@ -192,29 +193,6 @@ public class HttpService : IHttpService
     }
 
     /// <inheritdoc/>
-    public async Task<T?> GetObjectFromJsonAsync<T>(string url, CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            return await _httpClient.GetFromJsonAsync<T>(url, cancellationToken: cancellationToken);
-        }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (HttpRequestException ex)
-        {
-             _logger.LogError($"HTTP request to {url} failed with { ex.StatusCode}: {ex.Message}");
-            return default;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogCritical(ex, $"Failed to make GET request to {url}:");
-            return default;
-        }
-    }
-
-    /// <inheritdoc/>
     public async Task<string?> DownloadFileAsync(string url, string filePath, IProgress<double>? progress, CancellationToken cancellationToken = default)
     {
         try
@@ -262,34 +240,37 @@ public class HttpService : IHttpService
     }
 
     /// <inheritdoc/>
+    public async Task ParallelDownloadFilesAsync(List<DownloadEntry> entries, CancellationToken cancellationToken = default)
+    {
+        var semaphore = new SemaphoreSlim(MaxParallelDownloads);
+        var downloadTasks = new List<Task>();
+
+        foreach (var entry in entries)
+        {
+            await semaphore.WaitAsync(cancellationToken);
+            var task = Task.Run(async () =>
+            {
+                try
+                {
+                    await DownloadFileAsync(entry.Url, entry.Path, entry.Progress, cancellationToken);
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }, cancellationToken);
+            downloadTasks.Add(task);
+        }
+
+        await Task.WhenAll(downloadTasks);
+    }
+
+    /// <inheritdoc/>
     public async Task<HttpResponseMessage?> PostAsync(string url, HttpContent? content, CancellationToken cancellationToken = default)
     {
         try
         {
             return await _httpClient.PostAsync(url, content, cancellationToken);
-        }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (HttpRequestException ex)
-        {
-             _logger.LogError($"HTTP request to {url} failed with { ex.StatusCode}: {ex.Message}");
-            return null;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogCritical(ex, $"Failed to make POST request to {url}:");
-            return null;
-        }
-    }
-
-    /// <inheritdoc/>
-    public async Task<HttpResponseMessage?> PostJsonAsync<T>(string url, T value, CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            return await _httpClient.PostAsJsonAsync(url, value, cancellationToken: cancellationToken);
         }
         catch (OperationCanceledException)
         {

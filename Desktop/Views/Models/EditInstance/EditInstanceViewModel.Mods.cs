@@ -15,6 +15,7 @@ using DynamicData;
 using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
+using Tavstal.KonkordLauncher.Common.Models.Json;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
@@ -74,7 +75,7 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
     {
         base.Dispose(disposing);
         foreach (var mod in _modsCache.Items)
-            mod.Icon?.Dispose(_bitmapService);
+            mod.Icon.Dispose(_bitmapService);
         _modsCache.Clear();
         _modsCache.Dispose();
         SelectedMod = null;
@@ -199,19 +200,12 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
         string modsDir = Path.Combine(_parent.GameDirectory, "mods");
         Directory.CreateDirectory(modsDir);
 
-        var configPath = _parent.Instance.getInstance().GetResourceConfigPath();
-        List<InstanceResource> instanceResources = [];
-        if (File.Exists(configPath))
-        {
-            var localResources = await JsonHelper.ReadJsonFileAsync<List<InstanceResource>>(configPath);
-            if (localResources != null)
-                instanceResources = localResources;
-        }
+        List<InstanceResource> instanceResources = await _parent.Instance.getInstance().GetInstanceResourcesAsync() ?? [];
         
         _modsCache.Edit(innerCache =>
         {
             foreach (var mod in innerCache.Items)
-                mod.Icon?.Dispose(_bitmapService); // Dispose of the image to free memory
+                mod.Icon.Dispose(_bitmapService); // Dispose of the image to free memory
             
             innerCache.Clear();
             var mods = Directory.GetFiles(modsDir, "*")
@@ -228,7 +222,7 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
                     var size = new FileInfo(mod).Length;
 
                     var instanceResource = instanceResources.FirstOrDefault(x => x.Type == EResourceType.MOD &&
-                        x.Name.Equals(fileName, StringComparison.OrdinalIgnoreCase));
+                        x.Path.EndsWith(fileName, StringComparison.OrdinalIgnoreCase));
 
                     BitmapEntry icon = new BitmapEntry(null, null);
                     try
@@ -240,14 +234,11 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
                     {
                         _logger.LogWarning(ex, $"Failed to read icon from {mod}:");
                     }
-
-                    if (icon.Key == null)
-                        icon = _bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Images/default_world.png");
                     
                     var newMod = new ResourceBaseModel
                     {
                         IsEnabled = !fileName.EndsWith(".dis"),
-                        Name = resourceName,
+                        Name = instanceResource?.Name ?? resourceName,
                         Icon = icon,
                         FileSize = size,
                         FilePath = mod,

@@ -73,7 +73,7 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
     {
         base.Dispose(disposing);
         foreach (var shaderPack in _shaderPackCache.Items)
-            shaderPack.Icon?.Dispose(_bitmapService);
+            shaderPack.Icon.Dispose(_bitmapService);
         _shaderPackCache.Clear();
         _shaderPackCache.Dispose();
         SelectedShaderPack = null;
@@ -187,19 +187,12 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
         string shaderPacksDir = Path.Combine(_parent.GameDirectory, "shaderpacks");
         Directory.CreateDirectory(shaderPacksDir);
         
-        var configPath = _parent.Instance.getInstance().GetResourceConfigPath();
-        List<InstanceResource> instanceResources = [];
-        if (File.Exists(configPath))
-        {
-            var localResources = await JsonHelper.ReadJsonFileAsync<List<InstanceResource>>(configPath);
-            if (localResources != null)
-                instanceResources = localResources;
-        }
+        List<InstanceResource> instanceResources = await _parent.Instance.getInstance().GetInstanceResourcesAsync() ?? [];
 
         _shaderPackCache.Edit(innerCache =>
         {
             foreach (var shader in innerCache.Items)
-                shader.Icon?.Dispose(_bitmapService); // Dispose of the image to free memory
+                shader.Icon.Dispose(_bitmapService); // Dispose of the image to free memory
             
             innerCache.Clear();
             var packs = Directory.GetFiles(shaderPacksDir, "*")
@@ -216,7 +209,7 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
                     var size = new FileInfo(pack).Length;
                     
                     var instanceResource = instanceResources.FirstOrDefault(x => x.Type == EResourceType.SHADER_PACK &&
-                        x.Name.Equals(fileName, StringComparison.OrdinalIgnoreCase));
+                        x.Path.EndsWith(fileName, StringComparison.OrdinalIgnoreCase));
                     
                     BitmapEntry icon = new BitmapEntry(null, null);
                     try
@@ -235,7 +228,7 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
                     var newResourcePack = new ResourceBaseModel
                     {
                         IsEnabled = !fileName.EndsWith(".dis"),
-                        Name = resourceName,
+                        Name = instanceResource?.Name ?? resourceName,
                         Icon = icon,
                         FileSize = size,
                         FilePath = pack,

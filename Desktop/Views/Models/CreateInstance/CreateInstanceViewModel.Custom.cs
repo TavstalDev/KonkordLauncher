@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -70,9 +71,6 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
         get
         {
             if (string.IsNullOrEmpty(InstanceName))
-                return false;
-            
-            if (InstanceIcon == null)
                 return false;
             
             // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
@@ -148,6 +146,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
     public CreateInstanceViewModel_Custom(CreateInstanceViewModel parent)
     {
         _parent = parent;
+        InstanceIcon = new BitmapEntry(null, null);
         if (Design.IsDesignMode)
         {
             InstanceIcon = ImageHelper.LoadDesignTime("avares://KonkordLauncher/Assets/Icons/dirt.png");
@@ -175,7 +174,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
         _modLoaderVersionCache.Dispose();
         InstanceName = string.Empty;
         InstanceGroup = string.Empty;
-        InstanceIcon?.Dispose(_bitmapService);
+        InstanceIcon.Dispose(_bitmapService);
         InstanceIconPath = null;
         SearchQuery = string.Empty;
         SelectedMinecraftVersion = null;
@@ -228,7 +227,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
                 .SortAndBind(out var filteredCollection, SortExpressionComparer<MinecraftVersion>.Descending(x => x.ReleaseTime))
                 .Subscribe(
                     _ => { },
-                    ex => _logger.LogError($"Version pipeline crashed:")
+                    ex => _logger.LogError(ex, $"Version pipeline crashed:")
                 );
 
         Disposables.Add(bindingSubscription);
@@ -327,8 +326,16 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
         Dispatcher.UIThread.Post(() =>
         {
             InstanceIcon = icon;
-            SelectedMinecraftVersion = MinecraftVersions.FirstOrDefault();
         });
+        
+        await MinecraftVersions
+            .ToObservableChangeSet()
+            .ToCollection()
+            .Where(c => c.Count > 0)
+            .Take(1)
+            .ToTask(cancellationToken);
+
+        SelectedMinecraftVersion = MinecraftVersions.FirstOrDefault(v => v.Type == "release");
     }
     
     #region Commands

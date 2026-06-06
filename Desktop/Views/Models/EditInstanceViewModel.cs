@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
@@ -16,7 +17,6 @@ using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.Platform;
-using Tavstal.KonkordLauncher.Core.Models.Accounts;
 using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
@@ -49,7 +49,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     public EditInstanceViewModel_Worlds Worlds { get; private set; }
 
     public bool IsLinux => OSHelper.GetOperatingSystem() == EOperatingSystem.LINUX;
-    public List<Account> Accounts { get; private set; }
+    public List<AccountModel> Accounts { get; private set; }
 
     #region Interactions
 
@@ -94,6 +94,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     /// Initializes a new instance of the <see cref="EditInstanceViewModel"/> class.
     /// </summary>
     /// <param name="instance">The instance model representing the Minecraft instance to be edited.</param>
+    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public EditInstanceViewModel(InstanceModel instance)
     {
         if (Design.IsDesignMode)
@@ -111,9 +112,8 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         Settings = new EditInstanceViewModel_Settings(this);
         ShaderPacks = new EditInstanceViewModel_ShaderPacks(this);
         Worlds = new EditInstanceViewModel_Worlds(this);
-        // TODO: Performanc issue - opening the edit window pays the cost of initializing every tab immediately.
         _  = InitAsync().ContinueWith(t =>
-        { 
+        {
             if (t.IsFaulted)
                 _logger.LogError(t.Exception, "Error initializing EditInstanceViewModel");
         });
@@ -175,17 +175,16 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         GameDirectory = Instance.GameDirectory;
 
         IsInitialized = true;
-        Accounts = accountData.Accounts;
+        Accounts = [];
+        foreach (var account in accountData.Accounts)
+            Accounts.Add(new AccountModel(account, account.Id == accountData.SelectedAccountId));
         
 
         // Logging setup
         GlobalEvents.OnInstanceLogged += OnInstanceLogged;
         var logs = GlobalEvents.GetInstanceLogs(Instance.Id);
         if (!string.IsNullOrEmpty(logs))
-        {
             Logs.AddRange(logs.Split(Environment.NewLine));
-            await LogsScrollToEnd.Handle(Unit.Default);
-        }
 
         // TODO: Performanc issue - initializing all tabs together can make the edit window open slowly.
         await Task.WhenAll(

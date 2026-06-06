@@ -23,11 +23,9 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
     private readonly IBitmapService _bitmapService;
     private readonly EditInstanceViewModel _parent;
 
-    [ObservableProperty]
-    public partial string ServerName { get; set; }
+    [ObservableProperty] public partial string ServerName { get; set; } = string.Empty;
 
-    [ObservableProperty]
-    public partial string ServerIp { get; set; }
+    [ObservableProperty] public partial string ServerIp { get; set; } = string.Empty;
     public ObservableCollection<ServerModel> Servers { get; set; } = [];
     [ObservableProperty]
     public partial ServerModel? SelectedServer { get; set; }
@@ -40,6 +38,7 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
         
         var services = Program.ServiceProvider;
         _logger = services.GetRequiredService<ICustomLogger<EditInstanceViewModel_Servers>>();
+        _bitmapService = services.GetRequiredService<IBitmapService>();
     }
 
     protected override void Dispose(bool disposing)
@@ -47,9 +46,9 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
         base.Dispose(disposing);
         Servers.CollectionChanged -= ServersOnCollectionChanged;
         foreach (var server in Servers)
-            server.Image?.Dispose(_bitmapService);
+            server.Image.Dispose(_bitmapService);
         Servers.Clear();
-        SelectedServer?.Image?.Dispose(_bitmapService);
+        SelectedServer?.Image.Dispose(_bitmapService);
         SelectedServer = null;
     }
 
@@ -64,12 +63,17 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
     /// Adds a new server to the list of servers if both the server name and IP address are provided.
     /// </summary>
     [RelayCommand]
-    private void Add()
+    public void Add()
     {
         if (string.IsNullOrEmpty(ServerName) || string.IsNullOrEmpty(ServerIp))
             return;
 
-        Servers.Add(new ServerModel(ServerName, ServerIp, 0, 0, null));
+        var model = new ServerModel(ServerName, ServerIp, 0, 0, null)
+        {
+            Image = _bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Images/default_world.png")
+        };
+
+        Servers.Add(model);
     }
 
     /// <summary>
@@ -77,7 +81,7 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
     /// </summary>
     /// <param name="server">The server to remove.</param>
     [RelayCommand]
-    private void Remove(ServerModel server)
+    public void Remove(ServerModel server)
     {
         if (Servers.Contains(server))
             Servers.Remove(server);
@@ -167,12 +171,28 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
         foreach (var server in Servers)
         {
             // Dispose of the image to free memory
-            server.Image?.Dispose(_bitmapService);
+            server.Image.Dispose(_bitmapService);
         }
         Servers.Clear();
         foreach (var server in serversDat.Servers)
-            Servers.Add(new ServerModel(server.Name, server.Ip, server.AcceptTextures, server.HideAddress, server.Icon));
-        
+        {
+            var model = new ServerModel(server.Name, server.Ip, server.AcceptTextures, server.HideAddress,
+                server.Icon);
+            if (server.Icon != null)
+            {
+                _bitmapService.GetBitmapAsync(server.Icon).ContinueWith(t =>
+                {
+                    if (t.IsCompletedSuccessfully)
+                    {
+                        model.Image = t.Result;
+                    }
+                }, TaskScheduler.FromCurrentSynchronizationContext());
+            }
+            else
+                model.Image = _bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Images/default_world.png");
+            Servers.Add(model);
+        }
+
         Servers.CollectionChanged += ServersOnCollectionChanged;
     }
 }

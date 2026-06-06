@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -132,39 +130,44 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
         var newResources = new List<InstanceResource>();
         
         _progressReporter.OpenReporter();
-        var tasks = Resources.Select(x =>
+        List<DownloadEntry> downloadEntries = [];
+        foreach (var resource in Resources)
         {
-            if (!x.ShouldDownload)
-                return Task.CompletedTask;
+            if (!resource.ShouldDownload)
+                continue;
+            
+            string targetPath = Path.Combine(targetDir, resource.FileName);
+            string relativePath = Path.Combine(dirName, resource.FileName);
 
-            string targetPath = Path.Combine(targetDir, x.FileName);
-            string relativePath = Path.Combine(dirName, x.FileName);
-
-            newResources.Add(new InstanceResource
+            var newResource = new InstanceResource
             {
-                Name = x.Name,
+                Name = resource.Name,
                 Type = _resourceType,
                 Path = relativePath,
-                ProjectId = x.ProjectId,
-                Url = x.Url,
-                Sha1 = x.Sha1,
-                Sha512 = x.Sha512,
-                Platform = x.Platform,
+                ProjectId = resource.ProjectId,
+                Url = resource.Url,
+                Sha1 = resource.Sha1,
+                Sha512 = resource.Sha512,
+                Platform = resource.Platform,
                 Client = null,
                 Server = null,
-                IconPath = x.IconUrl
-            });
+                IconPath = null
+            };
 
-            IProgress<double> progress = new Progress<double>(p =>
+            if (resource.IconUrl != null)
             {
-                _progressReporter.ReportProgress(p);
-                _progressReporter.UpdateStatusTranslated("instance.download.file", x.Name, p.ToString("0.00"));
-            });
-
-            return _httpService.DownloadFileAsync(x.Url, targetPath, progress);
-        });
-
-        await Task.WhenAll(tasks);
+                string? iconPath = _metaCacheService.GetImagePath(resource.IconUrl);
+                if (iconPath != null)
+                {
+                    downloadEntries.Add(new DownloadEntry(resource.IconUrl, iconPath, _progressReporter));
+                    newResource.IconPath = iconPath;
+                }
+            }
+            downloadEntries.Add(new DownloadEntry(resource.Url, targetPath, _progressReporter));
+            newResources.Add(newResource);
+        }
+        
+        await _httpService.ParallelDownloadFilesAsync(downloadEntries);
         string instanceConfigPath = _instance.GetResourceConfigPath();
         if (!File.Exists(instanceConfigPath))
         {
@@ -173,7 +176,7 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
         else
         {
             var existingResources = await _launcherStore.GetInstanceResourcesAsync(_instance);
-            existingResources!.AddRange(newResources);
+            existingResources.AddRange(newResources);
             await _launcherStore.SaveInstanceResourcesAsync(_instance, existingResources);
         }
         

@@ -16,6 +16,7 @@ using DynamicData;
 using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
+using Tavstal.KonkordLauncher.Common.Models.Json;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
@@ -76,10 +77,10 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
     {
         base.Dispose(disposing);
         foreach (var resourcePack in  FilteredResourcePacks)
-            resourcePack.Icon?.Dispose(_bitmapService);
+            resourcePack.Icon.Dispose(_bitmapService);
         _resourcePackCache.Clear();
         _resourcePackCache.Dispose();
-        SelectedResourcePack?.Icon?.Dispose(_bitmapService);
+        SelectedResourcePack?.Icon.Dispose(_bitmapService);
         SelectedResourcePack = null;
     }
     
@@ -183,20 +184,13 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
 
         string resourcePacksDir = Path.Combine(_parent.GameDirectory, "resourcepacks");
         Directory.CreateDirectory(resourcePacksDir);
-
-        var configPath = _parent.Instance.getInstance().GetResourceConfigPath();
-        List<InstanceResource> instanceResources = [];
-        if (File.Exists(configPath))
-        {
-            var localResources = await JsonHelper.ReadJsonFileAsync<List<InstanceResource>>(configPath);
-            if (localResources != null)
-                instanceResources = localResources;
-        }
+        
+        List<InstanceResource> instanceResources = await _parent.Instance.getInstance().GetInstanceResourcesAsync() ?? [];
 
         _resourcePackCache.Edit(innerCache =>
         {
             foreach (var resourcePack in innerCache.Items)
-                resourcePack.Icon?.Dispose(_bitmapService); // Dispose of the image to free memory
+                resourcePack.Icon.Dispose(_bitmapService); // Dispose of the image to free memory
 
             innerCache.Clear();
             var resources = Directory.GetFiles(resourcePacksDir, "*")
@@ -237,11 +231,11 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
                     
 
                     var instanceResource = instanceResources.FirstOrDefault(x => x.Type == EResourceType.RESOURCE_PACK &&
-                        x.Name.Equals(fileName, StringComparison.OrdinalIgnoreCase));
+                        x.Path.EndsWith(fileName, StringComparison.OrdinalIgnoreCase));
                     var newResourcePack = new ResourceBaseModel
                     {
                         IsEnabled = !fileName.EndsWith(".dis"),
-                        Name = resourceName,
+                        Name = instanceResource?.Name ?? resourceName,
                         Icon = icon,
                         FileSize = size,
                         FilePath = resource,

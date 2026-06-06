@@ -16,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Modrinth.Models;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
+using Tavstal.KonkordLauncher.Common.Models.Json;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
@@ -71,9 +72,9 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
     [ObservableProperty] public partial int SelectedResourceVersionIndex { get; set; } = -1;
 
     public bool? IsResourceSelected => SelectedResource != null && ResourcesToDownload.ContainsKey(SelectedResource.Name);
-    public string? ModPreview => SelectedResource == null ? "<p>" + _translationService.Translate("instance.resource.download.preview") + "</p>" : SelectedResource.RawPage;
+    public string ModPreview => SelectedResource == null ? "<p>" + _translationService.Translate("instance.resource.download.preview") + "</p>" : SelectedResource.RawPage;
     
-    public AvaloniaDictionary<string, Version> ResourcesToDownload { get; } = new();
+    public AvaloniaDictionary<string, (Version version, string? iconUrl)> ResourcesToDownload { get; } = new();
     
     [ObservableProperty]
     public partial bool HasResources { get; set; }
@@ -223,8 +224,8 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
         var resourcesCopy = Resources;
         Resources.Clear();
         foreach (var resource in resourcesCopy)
-            resource.Icon?.Dispose(_bitmapService);
-        SelectedResource?.Icon?.Dispose(_bitmapService);
+            resource.Icon.Dispose(_bitmapService);
+        SelectedResource?.Icon.Dispose(_bitmapService);
         SelectedResource = null;
     }
 
@@ -255,7 +256,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
         VersionFilterIndex = foundInstanceVersion ? index : 0;
 
         string configPath = Instance.GetResourceConfigPath();
-        var instanceResources = await JsonHelper.ReadJsonFileAsync<List<InstanceResource>>(configPath);
+        var instanceResources = await JsonHelper.ReadJsonFileAsync<List<InstanceResource>>(configPath, CommonJsonContex.Default.ListInstanceResource);
         if (instanceResources is { Count: > 0 })
             InstanceResources.AddRange(instanceResources);
 
@@ -267,7 +268,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
     {
         var refreshGeneration = Interlocked.Increment(ref _refreshGeneration);
         AllowScrollbarRefresh = false;
-        string? version = MinecraftVersion;
+        string version = MinecraftVersion;
         
         List<string> categories = [];
         if (IsMod && ModLoader != EMinecraftKind.VANILLA)
@@ -314,8 +315,9 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
         for (int i = 0; i < response.Hits.Length; i++)
         {
             var projectId = response.Hits[i].ProjectId;
-            if (string.IsNullOrWhiteSpace(projectId) || !projectOrder.TryAdd(projectId, i))
+            if (string.IsNullOrWhiteSpace(projectId))
                 continue;
+            projectOrder.TryAdd(projectId, i);
         }
 
         projects = projects
@@ -364,7 +366,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
             var resourcesCopy = Resources;
             Resources.Clear();
             foreach  (var resource in resourcesCopy)
-                resource.Icon?.Dispose(_bitmapService);
+                resource.Icon.Dispose(_bitmapService);
         }
 
         foreach (var model in results)
@@ -400,7 +402,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
         bool shouldAdd = true;
         if (ResourcesToDownload.Remove(SelectedResource.Name, out var existingVersion))
         {
-            shouldAdd = existingVersion.Id != version.Id;
+            shouldAdd = existingVersion.version.Id != version.Id;
             SelectedResource.IsSelected = false;
         }
 
@@ -408,7 +410,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
         if (!shouldAdd)
             return;
 
-        ResourcesToDownload.Add(SelectedResource.Name, version);
+        ResourcesToDownload.Add(SelectedResource.Name, (version, SelectedResource.IconUrl));
         SelectedResource.IsSelected = true;
     }
 
@@ -423,14 +425,14 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
         foreach (var resource in ResourcesToDownload)
         {
             var version = resource.Value;
-            var file = version.Files.FirstOrDefault();
+            var file = version.version.Files.FirstOrDefault();
             if (file == null)
             {
                 _logger.LogWarning($"Resource {resource.Key} has no files, skipping.");
                 continue;
             }
 
-            var deps = version.Dependencies;
+            var deps = version.version.Dependencies;
             if (deps != null)
             {
                 foreach (var resourceDependency in deps)
@@ -444,11 +446,11 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
             }
             resources.Add(new ResourceDownloadModel
             {
-                ProjectId = version.ProjectId,
+                ProjectId = version.version.ProjectId,
                 Name = resource.Key,
-                Version = version.VersionNumber,
+                Version = version.version.VersionNumber,
                 Url = file.Url,
-                IconUrl = null, // TODO
+                IconUrl = resource.Value.iconUrl,
                 Sha1 = file.Hashes.Sha1,
                 Sha512 = file.Hashes.Sha512,
                 FileName = file.FileName,

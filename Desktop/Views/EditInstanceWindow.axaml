@@ -772,7 +772,7 @@
                                                             <ContextMenu>
                                                                 <!--  Remove  -->
                                                                 <MenuItem
-                                                                    Command="{Binding Servers.Remove}"
+                                                                    Command="{Binding Servers.RemoveCommand}"
                                                                     CommandParameter="{Binding Servers.SelectedServer}"
                                                                     Header="{lang:Translate common.remove}" />
                                                             </ContextMenu>
@@ -803,7 +803,7 @@
                                                 <Button
                                                     Grid.Column="2"
                                                     Classes="IconBtn"
-                                                    Command="{Binding Servers.Add}">
+                                                    Command="{Binding Servers.AddCommand}">
                                                     <WrapPanel Classes="IconBtnWrapper">
                                                         <TextBlock
                                                             VerticalAlignment="Center"

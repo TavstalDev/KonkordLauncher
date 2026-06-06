@@ -106,7 +106,7 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         EPlatformType.FTB
     ];
     
-    public string? ModpackPreview => SelectedModpack == null ? "<p>" + _translationService.Translate("instance.create.modpack.preview.select") +"</p>" : SelectedModpack.RawPage;
+    public string ModpackPreview => SelectedModpack == null ? "<p>" + _translationService.Translate("instance.create.modpack.preview.select") +"</p>" : SelectedModpack.RawPage;
     
     public CreateInstanceViewModel_Modpack(CreateInstanceViewModel parent)
     {
@@ -130,8 +130,8 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         var modpacksCopy = Modpacks;
         Modpacks.Clear();
         foreach (var modpack in modpacksCopy)
-            modpack.Icon?.Dispose(_bitmapService);
-        SelectedModpack?.Icon?.Dispose(_bitmapService);
+            modpack.Icon.Dispose(_bitmapService);
+        SelectedModpack?.Icon.Dispose(_bitmapService);
         SelectedModpack = null;
     }
     
@@ -218,8 +218,8 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
             _parent.OpenReporter();
             var prog = new Progress<double>(p =>
             {
-                _parent?.ReportProgress(p);
-                _parent?.UpdateStatusTranslated("instance.download.file", file.FileName, p.ToString("0.00"));
+                _parent.ReportProgress(p);
+                _parent.UpdateStatusTranslated("instance.download.file", file.FileName, p.ToString("0.00"));
             });
             
             await _httpService.DownloadFileAsync(file.Url, tempPath, prog, cancellationToken);
@@ -249,6 +249,7 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         }
     }
 
+    // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnSearchQueryChanged(string value)
     {
         if (!AllowScrollbarRefresh)
@@ -333,7 +334,7 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
             var modpacksCopy = Modpacks;
             Modpacks.Clear();
             foreach  (var modpack in modpacksCopy)
-                modpack.Icon?.Dispose(_bitmapService);
+                modpack.Icon.Dispose(_bitmapService);
         }
         foreach (var model in results)
             Modpacks.Add(model);

@@ -344,7 +344,7 @@
                                             <TextBlock
                                                 VerticalAlignment="Center"
                                                 FontWeight="500"
-                                                Text="Review" />
+                                                Text="{lang:Translate common.review}" />
                                         </WrapPanel>
                                     </Button>
                                 </StackPanel>

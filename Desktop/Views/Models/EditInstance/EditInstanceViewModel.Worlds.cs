@@ -49,9 +49,9 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
         base.Dispose(disposing);
         Worlds.CollectionChanged -= WorldsOnCollectionChanged;
         foreach (var world in Worlds)
-            world.Icon?.Dispose(_bitmapService);
+            world.Icon.Dispose(_bitmapService);
         Worlds.Clear();
-        SelectedWorld?.Icon?.Dispose(_bitmapService);
+        SelectedWorld?.Icon.Dispose(_bitmapService);
         SelectedWorld = null;
     }
     
@@ -324,7 +324,7 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
         foreach (var world in Worlds)
         {
             // Dispose of the image to free memory
-            world.Icon?.Dispose(_bitmapService);
+            world.Icon.Dispose(_bitmapService);
         }
         Worlds.Clear();
         var worldDirs = Directory.GetDirectories(worldsDir);

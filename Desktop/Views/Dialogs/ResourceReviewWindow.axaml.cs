@@ -16,6 +16,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 public partial class ResourceReviewWindow : KonkordWindow<ResourceReviewViewModel>, IProgressReporter
 {
+    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public ResourceReviewWindow() : this(null!, EResourceType.MOD, []) {}
     
     [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]

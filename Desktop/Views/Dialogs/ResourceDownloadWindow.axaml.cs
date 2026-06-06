@@ -15,14 +15,14 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 public partial class ResourceDownloadWindow : KonkordWindow<ResourceDownloadViewModel>
 {
+    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public ResourceDownloadWindow() : this(null!, EResourceType.MOD) { }
     
     [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public ResourceDownloadWindow(Instance instance, EResourceType resourceType)
     {
         InitializeComponent();
-
-        // TODO: Performanc issue - creating the view-model triggers list loading and can delay the dialog opening.
+        
         DataContext = new ResourceDownloadViewModel(this, instance, resourceType);
 
         this.WhenActivated(disposables =>

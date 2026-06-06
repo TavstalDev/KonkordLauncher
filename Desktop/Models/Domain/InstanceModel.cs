@@ -87,7 +87,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     /// <summary>
     /// Gets or sets the kind of Minecraft associated with the instance.
     /// </summary>
-    [ObservableProperty]
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsModded))]
     public partial EMinecraftKind Kind { get; set; }
 
     /// <summary>
@@ -121,6 +121,8 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     [ObservableProperty]
     public partial BitmapEntry Icon { get; set; }
     #endregion
+
+    public bool IsModded => Kind != EMinecraftKind.VANILLA;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="InstanceModel"/> class.
@@ -279,9 +281,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     public async Task LaunchAsync(Interaction<string, Unit> showLogsWindow, Interaction<string, Unit> closeLogsWindow, Interaction<Unit, Unit> closeWindow, Interaction<Alert, Unit> showAlertDialog, string? serverAddress = null)
     {
         _lastReadPosition = 0;
-        _logger.LogDebug($"Launching instance: {Name}");
         var accountData = await _launcherStore.GetAccountDataAsync();
-        _logger.LogDebug($"Selected account id: {accountData.SelectedAccountId}");
         var account = ConfigModel.Misc.OverrideAccount ? 
             accountData.Accounts.FirstOrDefault(x => x.Id == ConfigModel.Misc.AccountId) 
             : accountData.Accounts.FirstOrDefault(x => x.Id == accountData.SelectedAccountId);

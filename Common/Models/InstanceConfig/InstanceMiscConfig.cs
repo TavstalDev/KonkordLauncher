@@ -1,5 +1,6 @@
 
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 
 namespace Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
 
@@ -12,49 +13,49 @@ public class InstanceMiscConfig
     /// <summary>
     /// Gets or sets a value indicating whether a custom GLFW library should be used.
     /// </summary>
-    [JsonProperty("useCustomGlfw")]
+    [JsonPropertyName("useCustomGlfw")]
     public bool UseCustomGlfw { get; set; }
 
     /// <summary>
     /// Gets or sets the file system path to the custom GLFW library.
     /// </summary>
-    [JsonProperty("customGlfwPath")]
+    [JsonPropertyName("customGlfwPath")]
     public string CustomGlfwPath { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether a custom OpenAL library should be used.
     /// </summary>
-    [JsonProperty("useCustomOpenAL")]
+    [JsonPropertyName("useCustomOpenAL")]
     public bool UseCustomOpenAL { get; set; }
 
     /// <summary>
     /// Gets or sets the file system path to the custom OpenAL library.
     /// </summary>
-    [JsonProperty("customOpenALPath")]
+    [JsonPropertyName("customOpenALPath")]
     public string CustomOpenALPath { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the account should be overridden with a specific account ID.
     /// </summary>
-    [JsonProperty("overrideAccount")]
+    [JsonPropertyName("overrideAccount")]
     public bool OverrideAccount { get; set; }
 
     /// <summary>
     /// Gets or sets the account ID to use when overriding the account.
     /// </summary>
-    [JsonProperty("accountId")]
+    [JsonPropertyName("accountId")]
     public string AccountId { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the game should automatically join a server on launch.
     /// </summary>
-    [JsonProperty("joinServerOnLaunch")]
+    [JsonPropertyName("joinServerOnLaunch")]
     public bool JoinServerOnLaunch { get; set; }
 
     /// <summary>
     /// Gets or sets the address of the server to join on launch.
     /// </summary>
-    [JsonProperty("serverAddress")]
+    [JsonPropertyName("serverAddress")]
     public string ServerAddress { get; set; }
 
     /// <summary>

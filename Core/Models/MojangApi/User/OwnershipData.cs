@@ -1,5 +1,6 @@
 ﻿
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
 
@@ -12,19 +13,19 @@ public class OwnershipData
     /// <summary>
     /// Gets or sets the key identifier associated with this ownership payload.
     /// </summary>
-    [JsonProperty("keyId")]
+    [JsonPropertyName("keyId")]
     public string KeyId { get; set; }
 
     /// <summary>
     /// Gets or sets the signature that validates the ownership data.
     /// </summary>
-    [JsonProperty("signature")]
+    [JsonPropertyName("signature")]
     public string Signature { get; set; }
 
     /// <summary>
     /// Gets or sets the collection of ownership items contained in this payload.
     /// </summary>
-    [JsonProperty("items")]
+    [JsonPropertyName("items")]
     public List<OwnershipItem> Items {  get; set; }
 
     /// <summary>

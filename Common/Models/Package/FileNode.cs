@@ -1,4 +1,5 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 
 namespace Tavstal.KonkordLauncher.Common.Models.Package;
 
@@ -11,25 +12,25 @@ public class FileNode
     /// <summary>
     /// Gets or sets the display name of the file or directory.
     /// </summary>
-    [JsonProperty("name")]
+    [JsonPropertyName("name")]
     public string Name { get; set; }
     
     /// <summary>
     /// Gets or sets the full or relative path of the file or directory within the package.
     /// </summary>
-    [JsonProperty("path")]
+    [JsonPropertyName("path")]
     public string Path { get; set; }
     
     /// <summary>
     /// Gets or sets a value indicating whether this node represents a directory.
     /// </summary>
-    [JsonProperty("isDirectory")]
+    [JsonPropertyName("isDirectory")]
     public bool IsDirectory { get; set; }
     
     /// <summary>
     /// Gets or sets the child entries of this node.
     /// </summary>
-    [JsonProperty("children")]
+    [JsonPropertyName("children")]
     public List<FileNode> Children { get; set; }
     
     /// <summary>

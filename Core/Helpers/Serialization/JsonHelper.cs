@@ -1,9 +1,10 @@
 ﻿using System.Collections.Concurrent;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
-using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Logging;
 
 namespace Tavstal.KonkordLauncher.Core.Helpers.Serialization;
@@ -14,11 +15,6 @@ namespace Tavstal.KonkordLauncher.Core.Helpers.Serialization;
 public static class JsonHelper
 {
     private static readonly ICustomLogger _logger = new CustomLogger(nameof(JsonHelper), LogLevel.Error);
-    private static readonly JsonSerializerSettings _jsonSerializerSettings = new()
-    {
-        Formatting = Formatting.Indented,
-        ContractResolver = new IgnoreReadOnlyContractResolver()
-    };
     private static readonly ConcurrentDictionary<string, SemaphoreSlim> _fileLocks =
         new(StringComparer.OrdinalIgnoreCase);
     private const int _maxRetries = 5;
@@ -30,8 +26,9 @@ public static class JsonHelper
     /// <typeparam name="T">Type of the object to serialize to JSON.</typeparam>
     /// <param name="path">Destination file path. If necessary the parent directory will be created.</param>
     /// <param name="obj">Object to serialize and write.</param>
+    /// <param name="typeInfo">Type information of the object.</param>
     /// <returns><c>true</c> if the file was written successfully; otherwise <c>false</c>.</returns>
-    public static bool WriteJsonFile<T>(string path, T obj)
+    public static bool WriteJsonFile<T>(string path, T obj, JsonTypeInfo<T> typeInfo)
     {
         var fileLock = GetFileLock(path);
         bool lockTaken = false;
@@ -52,12 +49,8 @@ public static class JsonHelper
                 try
                 {
                     using (var fileStream = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 65536, useAsync: true))
-                    {
-                        using var streamWriter = new StreamWriter(fileStream, Encoding.UTF8, bufferSize: 65536);
-                        using var jsonWriter = new JsonTextWriter(streamWriter);
-                        var serializer = JsonSerializer.Create(_jsonSerializerSettings);
-                        serializer.Serialize(jsonWriter, obj, typeof(T));
-                        streamWriter.Flush();
+                    { 
+                        JsonSerializer.Serialize(fileStream, obj, typeInfo);
                     }
                     File.Move(tempPath, path, true);
                     return true;
@@ -98,11 +91,12 @@ public static class JsonHelper
     /// <typeparam name="T">Type of the object to serialize to JSON.</typeparam>
     /// <param name="path">Destination file path.</param>
     /// <param name="obj">The object to serialize and write.</param>
+    /// <param name="typeInfo">The type information used for deserialization.</param>
     /// <param name="cancellationToken">Token used to request cancellation of the operation.</param>
     /// <returns>
     /// A task that resolves to <c>true</c> when the file was written successfully; <c>false</c> otherwise.
     /// </returns>
-    public static async Task<bool> WriteJsonFileAsync<T>(string path, T obj, CancellationToken cancellationToken = default)
+    public static async Task<bool> WriteJsonFileAsync<T>(string path, T obj, JsonTypeInfo<T> typeInfo, CancellationToken cancellationToken = default)
     {
         var fileLock = GetFileLock(path);
         bool lockTaken = false;
@@ -127,11 +121,7 @@ public static class JsonHelper
                 {
                     await using (var fileStream = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 65536, useAsync: true))
                     {
-                        await using var streamWriter = new StreamWriter(fileStream, Encoding.UTF8, bufferSize: 65536);
-                        await using var jsonWriter = new JsonTextWriter(streamWriter);
-                        var serializer = JsonSerializer.Create(_jsonSerializerSettings);
-                        serializer.Serialize(jsonWriter, obj, typeof(T));
-                        await streamWriter.FlushAsync(cancellationToken);
+                        await JsonSerializer.SerializeAsync(fileStream, obj, typeInfo, cancellationToken);
                     }
 
                     File.Move(tempPath, path, overwrite: true);
@@ -175,8 +165,9 @@ public static class JsonHelper
     /// </summary>
     /// <typeparam name="T">The type of the object to deserialize.</typeparam>
     /// <param name="path">The file path to read the JSON content from.</param>
+    /// <param name="typeInfo">The type information used for deserialization.</param>
     /// <returns>The deserialized object, or default if the file does not exist or an error occurs during deserialization.</returns>
-    public static T? ReadJsonFile<T>(string path)
+    public static T? ReadJsonFile<T>(string path, JsonTypeInfo<T> typeInfo)
     {
         var fileLock = GetFileLock(path);
         bool lockTaken = false;
@@ -196,9 +187,7 @@ public static class JsonHelper
             
             using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             using var streamReader = new StreamReader(stream, Encoding.UTF8);
-            using var jsonReader = new JsonTextReader(streamReader);
-            var serializer = JsonSerializer.Create(_jsonSerializerSettings);
-            return serializer.Deserialize<T>(jsonReader);
+            return JsonSerializer.Deserialize(stream, typeInfo);
         }
         catch (Exception ex)
         {
@@ -226,8 +215,10 @@ public static class JsonHelper
     /// </summary>
     /// <typeparam name="T">The type of the object to deserialize.</typeparam>
     /// <param name="path">The file path to read the JSON content from.</param>
+    /// <param name="typeInfo">The type information used for deserialization.</param>
+    /// <param name="cancellationToken">The cancellation token to use for asynchronous operations"></param>
     /// <returns>The deserialized object, or default if an error occurs.</returns>
-    public static async Task<T?> ReadJsonFileAsync<T>(string path)
+    public static async Task<T?> ReadJsonFileAsync<T>(string path, JsonTypeInfo<T> typeInfo, CancellationToken cancellationToken = default)
     {
         var fileLock = GetFileLock(path);
         bool lockTaken = false;
@@ -235,7 +226,7 @@ public static class JsonHelper
         try
         {
             // Attempt to acquire the per-path semaphore with the specified timeout.
-            lockTaken = await fileLock.WaitAsync(_retryDelay);
+            lockTaken = await fileLock.WaitAsync(_retryDelay, cancellationToken);
             if (!lockTaken)
             {
                 _logger.LogError($"Failed to acquire file lock for {path} within {_retryDelay}.");
@@ -247,9 +238,7 @@ public static class JsonHelper
             
             await using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             using var streamReader = new StreamReader(stream, Encoding.UTF8);
-            await using var jsonReader = new JsonTextReader(streamReader);
-            var serializer = JsonSerializer.Create(_jsonSerializerSettings);
-            return serializer.Deserialize<T>(jsonReader);
+            return JsonSerializer.Deserialize(stream, typeInfo);
         }
         catch (Exception ex)
         {

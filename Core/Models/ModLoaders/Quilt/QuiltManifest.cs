@@ -1,5 +1,6 @@
 
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 using Tavstal.KonkordLauncher.Core.Enums;
 
 namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Quilt;
@@ -11,11 +12,11 @@ namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Quilt;
 public class QuiltManifest : IModManifest
 {
     /// <inheritdoc/>
-    [JsonProperty("gameVersion")]
+    [JsonPropertyName("gameVersion")]
     public string GameVersion { get; set; }
 
     /// <inheritdoc/>
-    [JsonProperty("version")]
+    [JsonPropertyName("version")]
     public string Version { get; set; }
     
     /// <inheritdoc/>

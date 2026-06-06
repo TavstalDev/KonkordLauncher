@@ -1,4 +1,5 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 
 namespace Tavstal.KonkordLauncher.Common.Models.Java;
 
@@ -10,24 +11,24 @@ public class JavaVersion
     /// <summary>
     /// Gets or sets the major version of Java.
     /// </summary>
-    [JsonProperty("major")]
+    [JsonPropertyName("major")]
     public int Major { get; set; }
 
     /// <summary>
     /// Gets or sets the full version string of Java.
     /// </summary>
-    [JsonProperty("version")]
+    [JsonPropertyName("version")]
     public required string Version { get; set; }
 
     /// <summary>
     /// Gets or sets the architecture of the Java installation (e.g., x86, x64).
     /// </summary>
-    [JsonProperty("architecture")]
+    [JsonPropertyName("architecture")]
     public required string Architecture { get; set; }
 
     /// <summary>
     /// Gets or sets the file system path to the Java installation.
     /// </summary>
-    [JsonProperty("path")]
+    [JsonPropertyName("path")]
     public required string Path { get; set; }
 }

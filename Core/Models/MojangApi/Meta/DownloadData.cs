@@ -1,5 +1,6 @@
 ﻿
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 
@@ -11,19 +12,19 @@ public class DownloadData
     /// <summary>
     /// Gets or sets the SHA-1 hash of the downloadable resource.
     /// </summary>
-    [JsonProperty("sha1")]
+    [JsonPropertyName("sha1")]
     public string Sha1 { get; set; }
 
     /// <summary>
     /// Gets or sets the URL of the downloadable resource.
     /// </summary>
-    [JsonProperty("url")]
+    [JsonPropertyName("url")]
     public string Url { get; set; }
 
     /// <summary>
     /// Gets or sets the size of the downloadable resource in bytes.
     /// </summary>
-    [JsonProperty("size")]
+    [JsonPropertyName("size")]
     public int Size { get; set; }
 
     /// <summary>

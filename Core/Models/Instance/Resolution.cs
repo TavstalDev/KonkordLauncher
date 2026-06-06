@@ -1,5 +1,6 @@
 ﻿
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 
 namespace Tavstal.KonkordLauncher.Core.Models.Instance;
 
@@ -12,13 +13,13 @@ public class Resolution
     /// <summary>
     /// Gets or sets the width of the resolution in pixels.
     /// </summary>
-    [JsonProperty("x")]
+    [JsonPropertyName("x")]
     public uint X { get; set; }
 
     /// <summary>
     /// Gets or sets the height of the resolution in pixels.
     /// </summary>
-    [JsonProperty("y")]
+    [JsonPropertyName("y")]
     public uint Y { get; set; }
 
     /// <summary>

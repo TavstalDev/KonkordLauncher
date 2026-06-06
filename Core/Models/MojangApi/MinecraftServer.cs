@@ -1,6 +1,7 @@
 
+using System.Text.Json.Serialization;
 using NbtLib;
-using Newtonsoft.Json;
+
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi;
 
@@ -14,21 +15,21 @@ public class MinecraftServer
     /// Gets or sets the name of the Minecraft server.
     /// </summary>
     [NbtProperty(PropertyName="name")]
-    [JsonProperty("name")]
+    [JsonPropertyName("name")]
     public string Name { get; set; }
 
     /// <summary>
     /// Gets or sets the IP address of the Minecraft server.
     /// </summary>
     [NbtProperty(PropertyName="ip")]
-    [JsonProperty("ip")]
+    [JsonPropertyName("ip")]
     public string Ip { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the server accepts textures.
     /// </summary>
     [NbtProperty(PropertyName="acceptTextures")]
-    [JsonProperty("acceptTextures")]
+    [JsonPropertyName("acceptTextures")]
     public byte AcceptTextures { get; set; }
 
     /// <summary>
@@ -36,14 +37,14 @@ public class MinecraftServer
     /// This property is nullable.
     /// </summary>
     [NbtProperty(PropertyName="hideAddress")]
-    [JsonProperty("hideAddress")]
+    [JsonPropertyName("hideAddress")]
     public byte? HideAddress { get; set; }
 
     /// <summary>
     /// Gets or sets the optional icon of the Minecraft server.
     /// </summary>
     [NbtProperty(PropertyName="icon")]
-    [JsonProperty("icon")]
+    [JsonPropertyName("icon")]
     public string? Icon { get; set; }
 
     /// <summary>

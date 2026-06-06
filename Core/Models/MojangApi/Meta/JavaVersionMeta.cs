@@ -1,5 +1,6 @@
 ﻿
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 
@@ -11,13 +12,13 @@ public class JavaVersionMeta
     /// <summary>
     /// Gets or sets the component name of the Java version.
     /// </summary>
-    [JsonProperty("component")]
+    [JsonPropertyName("component")]
     public string Component { get; set; }
 
     /// <summary>
     /// Gets or sets the major version number of the Java version.
     /// </summary>
-    [JsonProperty("majorVersion")]
+    [JsonPropertyName("majorVersion")]
     public int MajorVersion { get; set; }
 
     /// <summary>

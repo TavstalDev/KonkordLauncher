@@ -1,6 +1,7 @@
 
+using System.Text.Json.Serialization;
 using NbtLib;
-using Newtonsoft.Json;
+
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi;
 
@@ -13,7 +14,7 @@ public class ServersDat
     /// Gets or sets the list of Minecraft servers.
     /// </summary>
     [NbtProperty(PropertyName="servers")]
-    [JsonProperty("servers")]
+    [JsonPropertyName("servers")]
     public List<MinecraftServer> Servers { get; set; }
 
     /// <summary>

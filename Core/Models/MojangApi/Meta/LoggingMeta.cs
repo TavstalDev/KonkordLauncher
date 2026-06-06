@@ -1,5 +1,6 @@
 ﻿
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 
@@ -11,7 +12,7 @@ public class LoggingMeta
     /// <summary>
     /// Gets or sets the logging client configuration.
     /// </summary>
-    [JsonProperty("client")]
+    [JsonPropertyName("client")]
     public LoggingClient Client { get; set; }
 
     /// <summary>

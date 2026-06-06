@@ -1,6 +1,7 @@
 
+using System.Text.Json.Serialization;
 using NbtLib;
-using Newtonsoft.Json;
+
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi;
 
@@ -13,7 +14,7 @@ public class Level
     /// Gets or sets the level data, which includes various properties of the Minecraft level.
     /// </summary>
     [NbtProperty(PropertyName = "Data")]
-    [JsonProperty("data")]
+    [JsonPropertyName("data")]
     public LevelData Data { get; set; }
 
     /// <summary>
@@ -21,7 +22,7 @@ public class Level
     /// This property is currently unused but may be utilized in the future.
     /// </summary>
     [NbtProperty(PropertyName = "DataPacks")]
-    [JsonProperty("dataPacks")]
+    [JsonPropertyName("dataPacks")]
     public object? DataPacks { get; set; }
 
     /// <summary>

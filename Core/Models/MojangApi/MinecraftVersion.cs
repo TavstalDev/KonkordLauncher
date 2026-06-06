@@ -1,5 +1,6 @@
 ﻿
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi;
 
@@ -11,31 +12,31 @@ public class MinecraftVersion
     /// <summary>
     /// Gets or sets the unique identifier of the Minecraft version.
     /// </summary>
-    [JsonProperty("id")]
+    [JsonPropertyName("id")]
     public string Id { get; set; }
 
     /// <summary>
     /// Gets or sets the type of the Minecraft version (e.g., "release", "snapshot").
     /// </summary>
-    [JsonProperty("type")]
+    [JsonPropertyName("type")]
     public string Type { get; set; }
 
     /// <summary>
     /// Gets or sets the URL for the version's metadata or resources.
     /// </summary>
-    [JsonProperty("url")]
+    [JsonPropertyName("url")]
     public string Url { get; set; }
 
     /// <summary>
     /// Gets or sets the time the version was created or last updated.
     /// </summary>
-    [JsonProperty("time")]
+    [JsonPropertyName("time")]
     public DateTime Time { get; set; }
 
     /// <summary>
     /// Gets or sets the release time of the Minecraft version.
     /// </summary>
-    [JsonProperty("releaseTime")]
+    [JsonPropertyName("releaseTime")]
     public DateTime ReleaseTime { get; set; }
 
     /// <summary>

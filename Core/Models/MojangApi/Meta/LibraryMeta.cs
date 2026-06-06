@@ -1,5 +1,6 @@
 ﻿
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.Platform;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta.Library;
@@ -14,25 +15,25 @@ public class LibraryMeta
     /// <summary>
     /// Gets or sets the name of the library.
     /// </summary>
-    [JsonProperty("name")]
+    [JsonPropertyName("name")]
     public string Name { get; set; }
 
     /// <summary>
     /// Gets or sets the download information for the library.
     /// </summary>
-    [JsonProperty("downloads")]
+    [JsonPropertyName("downloads")]
     public LibraryDownloads Downloads { get; set; }
 
     /// <summary>
     /// Gets or sets the rules that determine whether the library is allowed or disallowed.
     /// </summary>
-    [JsonProperty("rules")]
+    [JsonPropertyName("rules")]
     public List<Rule> Rules { get; set; }
 
     /// <summary>
     /// Gets or sets the native configurations for the library, if applicable.
     /// </summary>
-    [JsonProperty("natives")]
+    [JsonPropertyName("natives")]
     public Natives? Natives { get; set; }
 
     /// <summary>

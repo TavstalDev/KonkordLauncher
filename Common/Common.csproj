@@ -28,8 +28,8 @@
       <PackageReference Include="Avalonia" Version="12.0.2" />
       <PackageReference Include="Markdig" Version="1.1.3" />
       <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.8" />
-      <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     </ItemGroup>
+    <!-- TODO: Add Modrinth.Net back from nuget after my PR gets merged. -->
     <ItemGroup>
         <Reference Include="Modrinth.Net">
             <HintPath>..\libs/Modrinth.Net.dll</HintPath>

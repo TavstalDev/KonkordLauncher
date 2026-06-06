@@ -1,5 +1,6 @@
 ﻿
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 
 namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Fabric;
 
@@ -16,7 +17,7 @@ public class FabricLibrary
     /// Example: "net.fabricmc:fabric-loader:0.14.8".
     /// This value is parsed by <see cref="GetURL"/> and <see cref="GetPath"/>.
     /// </summary>
-    [JsonProperty("name")]
+    [JsonPropertyName("name")]
     public string Name { get; set; }
 
     /// <summary>
@@ -24,37 +25,37 @@ public class FabricLibrary
     /// Example: "https://maven.fabricmc.net/".
     /// The final artifact URL returned by <see cref="GetURL"/> is <c>Url + path</c>.
     /// </summary>
-    [JsonProperty("url")]
+    [JsonPropertyName("url")]
     public string Url { get; set; }
 
     /// <summary>
     /// Gets or sets the MD5 checksum of the artifact, if provided.
     /// </summary>
-    [JsonProperty("md5")]
+    [JsonPropertyName("md5")]
     public string Md5 { get; set; }
 
     /// <summary>
     /// Gets or sets the SHA-1 checksum of the artifact, if provided.
     /// </summary>
-    [JsonProperty("sha1")]
+    [JsonPropertyName("sha1")]
     public string Sha1 { get; set; }
 
     /// <summary>
     /// Gets or sets the SHA-256 checksum of the artifact, if provided.
     /// </summary>
-    [JsonProperty("sha256")]
+    [JsonPropertyName("sha256")]
     public string Sha256 { get; set; }
 
     /// <summary>
     /// Gets or sets the SHA-512 checksum of the artifact, if provided.
     /// </summary>
-    [JsonProperty("sha512")]
+    [JsonPropertyName("sha512")]
     public string Sha512 { get; set; }
 
     /// <summary>
     /// Gets or sets the artifact size in bytes as reported by the metadata.
     /// </summary>
-    [JsonProperty("size")]
+    [JsonPropertyName("size")]
     public int Size { get; set; }
 
     /// <summary>

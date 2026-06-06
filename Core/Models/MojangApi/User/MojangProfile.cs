@@ -1,5 +1,6 @@
 ﻿
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
 
@@ -12,25 +13,25 @@ public class MojangProfile
     /// <summary>
     /// Gets or sets the unique identifier of the Mojang profile.
     /// </summary>
-    [JsonProperty("id")]
+    [JsonPropertyName("id")]
     public string Id { get; set; }
 
     /// <summary>
     /// Gets or sets the player's display name.
     /// </summary>
-    [JsonProperty("name")]
+    [JsonPropertyName("name")]
     public string Name { get; set; }
 
     /// <summary>
     /// Gets or sets the list of skins associated with this profile.
     /// </summary>
-    [JsonProperty("skins")]
+    [JsonPropertyName("skins")]
     public List<Skin> Skins {  get; set; }
 
     /// <summary>
     /// Gets or sets the list of capes associated with this profile.
     /// </summary>
-    [JsonProperty("capes")]
+    [JsonPropertyName("capes")]
     public List<Cape> Capes { get; set; }
 
     /// <summary>

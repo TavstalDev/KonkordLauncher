@@ -1,4 +1,5 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 using Tavstal.KonkordLauncher.Core.Enums;
 
 namespace Tavstal.KonkordLauncher.Common.Models;
@@ -12,72 +13,72 @@ public class InstanceResource
     /// <summary>
     /// Gets or sets the project identifier this resource belongs to.
     /// </summary>
-    [JsonProperty("projectId")]
+    [JsonPropertyName("projectId")]
     public required string ProjectId { get; set; }
     
     /// <summary>
     /// Gets or sets the instance identifier or name associated with this resource.
     /// </summary>
-    [JsonProperty("instanceId")]
+    [JsonPropertyName("name")]
     public required string Name { get; set; }
     
     /// <summary>
     /// Gets or sets the primary download URL for the resource.
     /// </summary>
-    [JsonProperty("url")]
+    [JsonPropertyName("url")]
     public required string Url { get; set; }
     
     /// <summary>
     /// Gets or sets the optional icon path for the resource.
     /// </summary>
-    [JsonProperty("iconPath")]
+    [JsonPropertyName("iconPath")]
     public string? IconPath { get; set; }
     
     /// <summary>
     /// Gets or sets the relative or absolute path where the resource should be stored or resolved.
     /// </summary>
-    [JsonProperty("path")]
+    [JsonPropertyName("path")]
     public required string Path { get; set; }
     
     /// <summary>
     /// Gets or sets the optional client-specific resource URL or reference.
     /// </summary>
-    [JsonProperty("client")]
+    [JsonPropertyName("client")]
     public string? Client { get; set; }
     
     /// <summary>
     /// Gets or sets the optional server-specific resource URL or reference.
     /// </summary>
-    [JsonProperty("server")]
+    [JsonPropertyName("server")]
     public string? Server { get; set; }
     
     /// <summary>
     /// Gets or sets the SHA-1 checksum for validating the resource, if available.
     /// </summary>
-    [JsonProperty("sha1")]
+    [JsonPropertyName("sha1")]
     public string? Sha1 { get; set; }
     
     /// <summary>
     /// Gets or sets the SHA-512 checksum for validating the resource, if available.
     /// </summary>
-    [JsonProperty("sha256")]
+    [JsonPropertyName("sha256")]
     public string? Sha512 { get; set; }
     
     /// <summary>
     /// Gets or sets the platform type that this resource targets.
     /// </summary>
-    [JsonProperty("platform")]
+    [JsonPropertyName("platform")]
     public EPlatformType Platform { get; set; }
     
     /// <summary>
     /// Gets or sets the type of resource represented by this object.
     /// </summary>
-    [JsonProperty("type")]
+    [JsonPropertyName("type")]
     public EResourceType Type { get; set; }
     
     /// <summary>
     /// Gets or sets the size of the resource in bytes.
     /// </summary>
-    [JsonProperty("fileSize")]
+    [JsonPropertyName("fileSize")]
     public long FileSize { get; set; }
 }

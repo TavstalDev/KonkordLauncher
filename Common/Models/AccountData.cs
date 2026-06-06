@@ -1,5 +1,5 @@
 ﻿
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using Tavstal.KonkordLauncher.Core.Models.Accounts;
 
 namespace Tavstal.KonkordLauncher.Common.Models;
@@ -12,12 +12,12 @@ public class AccountData
     /// <summary>
     /// Gets or sets the ID of the selected account.
     /// </summary>
-    [JsonProperty("selectedAccountId")]
+    [JsonPropertyName("selectedAccountId")]
     public string SelectedAccountId { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the list of accounts
     /// </summary>
-    [JsonProperty("accounts")]
+    [JsonPropertyName("accounts")]
     public List<Account> Accounts { get; set; } = [];
 }

@@ -1,5 +1,6 @@
 
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 
 namespace Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
 
@@ -11,13 +12,13 @@ public class EnvironmentVariable
     /// <summary>
     /// Gets or sets the key of the environment variable.
     /// </summary>
-    [JsonProperty("key")]
+    [JsonPropertyName("key")]
     public string Key { get; set; }
 
     /// <summary>
     /// Gets or sets the value of the environment variable.
     /// </summary>
-    [JsonProperty("value")]
+    [JsonPropertyName("value")]
     public string Value { get; set; }
 
     /// <summary>

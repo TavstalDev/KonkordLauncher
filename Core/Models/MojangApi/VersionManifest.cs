@@ -1,5 +1,6 @@
 ﻿
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi;
 
@@ -12,13 +13,13 @@ public class VersionManifest
     /// <summary>
     /// Gets or sets the latest release and snapshot version information.
     /// </summary>
-    [JsonProperty("latest")]
+    [JsonPropertyName("latest")]
     public VersionManifestLatest Latest {  get; set; }
 
     /// <summary>
     /// Gets or sets the list of available Minecraft versions.
     /// </summary>
-    [JsonProperty("versions")]
+    [JsonPropertyName("versions")]
     public List<MinecraftVersion> Versions { get; set; }
 
     /// <summary>

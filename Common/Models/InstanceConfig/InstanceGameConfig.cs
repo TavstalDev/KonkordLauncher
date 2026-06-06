@@ -1,5 +1,6 @@
 
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 
 namespace Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
 
@@ -12,55 +13,55 @@ public class InstanceGameConfig
     /// <summary>
     /// Gets or sets a value indicating whether the game should start in maximized window mode.
     /// </summary>
-    [JsonProperty("startMaximized")]
+    [JsonPropertyName("startMaximized")]
     public bool StartMaximized { get; set; }
 
     /// <summary>
     /// Gets or sets the width of the game window in pixels.
     /// </summary>
-    [JsonProperty("windowWidth")]
+    [JsonPropertyName("windowWidth")]
     public uint WindowWidth { get; set; }
 
     /// <summary>
     /// Gets or sets the height of the game window in pixels.
     /// </summary>
-    [JsonProperty("windowHeight")]
+    [JsonPropertyName("windowHeight")]
     public uint WindowHeight { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the console should be shown while the game is running.
     /// </summary>
-    [JsonProperty("showConsoleWhileGameRunning")]
+    [JsonPropertyName("showConsoleWhileGameRunning")]
     public bool ShowConsoleWhileGameRunning { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the console should close automatically when the game exits.
     /// </summary>
-    [JsonProperty("closeConsoleOnGameExit")]
+    [JsonPropertyName("closeConsoleOnGameExit")]
     public bool CloseConsoleOnGameExit { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the console should be shown when the game crashes.
     /// </summary>
-    [JsonProperty("showConsoleWhenGameCrashes")]
+    [JsonPropertyName("showConsoleWhenGameCrashes")]
     public bool ShowConsoleWhenGameCrashes { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether MangoHud (a performance overlay) should be enabled.
     /// </summary>
-    [JsonProperty("enableMangoHud")]
+    [JsonPropertyName("enableMangoHud")]
     public bool EnableMangoHud { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether Feral GameMode (a performance optimization tool) should be enabled.
     /// </summary>
-    [JsonProperty("enableFeralGameMode")]
+    [JsonPropertyName("enableFeralGameMode")]
     public bool EnableFeralGameMode { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether a dedicated GPU should be used for the game.
     /// </summary>
-    [JsonProperty("useDedicatedGpu")]
+    [JsonPropertyName("useDedicatedGpu")]
     public bool UseDedicatedGpu { get; set; }
 
     /// <summary>

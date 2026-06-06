@@ -1,5 +1,6 @@
 
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 
 namespace Tavstal.KonkordLauncher.Common.Models.Java;
 
@@ -11,37 +12,37 @@ public class JavaMirrorJdks
     /// <summary>
     /// Gets or sets the Java mirror for JDK 7.
     /// </summary>
-    [JsonProperty("java_7")]
+    [JsonPropertyName("java_7")]
     public JavaMirrorArchitecture Jdk7 { get; set; }
 
     /// <summary>
     /// Gets or sets the Java mirror for JDK 8.
     /// </summary>
-    [JsonProperty("java_8")]
+    [JsonPropertyName("java_8")]
     public JavaMirrorArchitecture Jdk8 { get; set; }
     
     /// <summary>
     /// Gets or sets the Java mirror for JDK 16.
     /// </summary>
-    [JsonProperty("java_16")]
+    [JsonPropertyName("java_16")]
     public JavaMirrorArchitecture Jdk16 { get; set; }
 
     /// <summary>
     /// Gets or sets the Java mirror for JDK 17.
     /// </summary>
-    [JsonProperty("java_17")]
+    [JsonPropertyName("java_17")]
     public JavaMirrorArchitecture Jdk17 { get; set; }
 
     /// <summary>
     /// Gets or sets the Java mirror for JDK 21.
     /// </summary>
-    [JsonProperty("java_21")]
+    [JsonPropertyName("java_21")]
     public JavaMirrorArchitecture Jdk21 { get; set; }
     
     /// <summary>
     /// Gets or sets the Java mirror for JDK 25.
     /// </summary>
-    [JsonProperty("java_25")]
+    [JsonPropertyName("java_25")]
     public JavaMirrorArchitecture Jdk25 { get; set; }
 
     /// <summary>

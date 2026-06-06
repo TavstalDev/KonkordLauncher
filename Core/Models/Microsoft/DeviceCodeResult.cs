@@ -1,5 +1,6 @@
 
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 
 namespace Tavstal.KonkordLauncher.Core.Models.Microsoft;
 
@@ -12,31 +13,31 @@ public class DeviceCodeResult
     /// <summary>
     /// Gets or sets the device code used for authentication.
     /// </summary>
-    [JsonProperty("device_code")]
+    [JsonPropertyName("device_code")]
     public string DeviceCode { get; set; }
 
     /// <summary>
     /// Gets or sets the user code displayed to the user for authentication.
     /// </summary>
-    [JsonProperty("user_code")]
+    [JsonPropertyName("user_code")]
     public string UserCode { get; set; }
 
     /// <summary>
     /// Gets or sets the URI where the user can verify their device code.
     /// </summary>
-    [JsonProperty("verification_uri")]
+    [JsonPropertyName("verification_uri")]
     public string VerificationUri { get; set; }
 
     /// <summary>
     /// Gets or sets the time in seconds until the device code expires.
     /// </summary>
-    [JsonProperty("expires_in")]
+    [JsonPropertyName("expires_in")]
     public int ExpiresIn { get; set; }
 
     /// <summary>
     /// Gets or sets the interval in seconds at which the client should poll for token updates.
     /// </summary>
-    [JsonProperty("interval")]
+    [JsonPropertyName("interval")]
     public int Interval { get; set; }
 
     /// <summary>

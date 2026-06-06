@@ -1,5 +1,6 @@
 
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 
 namespace Tavstal.KonkordLauncher.Common.Models.MetaCache;
 
@@ -11,31 +12,31 @@ public class MetaCache
     /// <summary>
     /// Gets or sets the unique identifier of the cached item.
     /// </summary>
-    [JsonProperty("id")]
+    [JsonPropertyName("id")]
     public required string Id { get; set; }
     
     /// <summary>
     /// Gets or sets the type of cached metadata.
     /// </summary>
-    [JsonProperty("type")]
+    [JsonPropertyName("type")]
     public required EMetaCacheType Type { get; set; }
     
     /// <summary>
     /// Gets or sets the file path where the cached data is stored.
     /// </summary>
-    [JsonProperty("path")]
+    [JsonPropertyName("path")]
     public required string Path { get; set; }
     
     /// <summary>
     /// Gets or sets the UTC timestamp at which the cache entry expires.
     /// </summary>
-    [JsonProperty("valid_until")]
+    [JsonPropertyName("valid_until")]
     public required DateTime ValidUntil { get; set; }
     
     /// <summary>
     /// Gets or sets the last modification timestamp known for the cached resource.
     /// </summary>
-    [JsonProperty("last_modified_at")]
+    [JsonPropertyName("last_modified_at")]
     public DateTime? LastModifiedAt { get; set; }
     
     /// <summary>

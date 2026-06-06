@@ -1,5 +1,6 @@
 ﻿
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi;
 
@@ -11,13 +12,13 @@ public class VersionManifestLatest
     /// <summary>
     /// Gets or sets the latest stable release version.
     /// </summary>
-    [JsonProperty("release")]
+    [JsonPropertyName("release")]
     public string Release { get; set; }
 
     /// <summary>
     /// Gets or sets the latest snapshot version.
     /// </summary>
-    [JsonProperty("snapshot")]
+    [JsonPropertyName("snapshot")]
     public string Snapshot { get; set; }
 
     /// <summary>

@@ -1,5 +1,6 @@
 ﻿
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 
@@ -11,25 +12,25 @@ public class LoggingFile
     /// <summary>
     /// Gets or sets the SHA-1 hash of the logging file.
     /// </summary>
-    [JsonProperty("sha1")]
+    [JsonPropertyName("sha1")]
     public string Sha1 { get; set; }
 
     /// <summary>
     /// Gets or sets the URL of the logging file.
     /// </summary>
-    [JsonProperty("url")]
+    [JsonPropertyName("url")]
     public string Url { get; set; }
 
     /// <summary>
     /// Gets or sets the size of the logging file in bytes.
     /// </summary>
-    [JsonProperty("size")]
+    [JsonPropertyName("size")]
     public int Size { get; set; }
 
     /// <summary>
     /// Gets or sets the unique identifier of the logging file.
     /// </summary>
-    [JsonProperty("id")]
+    [JsonPropertyName("id")]
     public string Id { get; set; }
 
     /// <summary>

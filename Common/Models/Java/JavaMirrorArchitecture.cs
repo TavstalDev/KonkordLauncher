@@ -1,5 +1,6 @@
 
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 
 namespace Tavstal.KonkordLauncher.Common.Models.Java;
 
@@ -11,13 +12,13 @@ public class JavaMirrorArchitecture
     /// <summary>
     /// Gets or sets the download URL for the x86_64 architecture.
     /// </summary>
-    [JsonProperty("x86_64")]
+    [JsonPropertyName("x86_64")]
     public string X86_64 { get; set; }
 
     /// <summary>
     /// Gets or sets the download URL for the ARM architecture.
     /// </summary>
-    [JsonProperty("arm")]
+    [JsonPropertyName("arm")]
     public string Arm { get; set; }
 
     /// <summary>

@@ -1,5 +1,6 @@
 ﻿
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
 
@@ -12,31 +13,31 @@ public class Skin
     /// <summary>
     /// Gets or sets the unique identifier of the skin.
     /// </summary>
-    [JsonProperty("id")]
+    [JsonPropertyName("id")]
     public string Id { get; set; }
 
     /// <summary>
     /// Gets or sets the current state of the skin, such as active or inactive.
     /// </summary>
-    [JsonProperty("state")]
+    [JsonPropertyName("state")]
     public string State { get; set; }
 
     /// <summary>
     /// Gets or sets the URL where the skin texture can be downloaded.
     /// </summary>
-    [JsonProperty("url")]
+    [JsonPropertyName("url")]
     public string Url { get; set; }
 
     /// <summary>
     /// Gets or sets the skin variant, such as classic or slim.
     /// </summary>
-    [JsonProperty("variant")]
+    [JsonPropertyName("variant")]
     public string Variant { get; set; }
 
     /// <summary>
     /// Gets or sets the optional alias associated with the skin.
     /// </summary>
-    [JsonProperty("alias")]
+    [JsonPropertyName("alias")]
     public string? Alias { get; set; }
 
     /// <summary>

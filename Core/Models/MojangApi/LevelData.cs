@@ -1,6 +1,7 @@
 
+using System.Text.Json.Serialization;
 using NbtLib;
-using Newtonsoft.Json;
+
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi;
 
@@ -13,56 +14,56 @@ public class LevelData
     /// Gets or sets the game mode of the level.
     /// </summary>
     [NbtProperty(PropertyName = "GameMode")]
-    [JsonProperty("gameMode")]
+    [JsonPropertyName("gameMode")]
     public int? GameMode { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the level is in hardcore mode.
     /// </summary>
     [NbtProperty(PropertyName = "Hardcore")]
-    [JsonProperty("hardcore")]
+    [JsonPropertyName("hardcore")]
     public bool? Hardcore { get; set; }
 
     /// <summary>
     /// Gets or sets the timestamp of the last time the level was played.
     /// </summary>
     [NbtProperty(PropertyName = "LastPlayed")]
-    [JsonProperty("lastPlayed")]
+    [JsonPropertyName("lastPlayed")]
     public long LastPlayed { get; set; }
 
     /// <summary>
     /// Gets or sets the name of the level.
     /// </summary>
     [NbtProperty(PropertyName = "LevelName")]
-    [JsonProperty("levelName")]
+    [JsonPropertyName("levelName")]
     public string? LevelName { get; set; }
 
     /// <summary>
     /// Gets or sets the random seed used to generate the level.
     /// </summary>
     [NbtProperty(PropertyName = "RandomSeed")]
-    [JsonProperty("randomSeed")]
+    [JsonPropertyName("randomSeed")]
     public long? RandomSeed { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the level's size on disk is tracked.
     /// </summary>
     [NbtProperty(PropertyName = "SizeOnDisk")]
-    [JsonProperty("sizeOnDisk")]
+    [JsonPropertyName("sizeOnDisk")]
     public bool SizeOnDisk { get; set; }
 
     /// <summary>
     /// Gets or sets the difficulty level of the game.
     /// </summary>
     [NbtProperty(PropertyName = "Difficulty")]
-    [JsonProperty("difficulty")]
+    [JsonPropertyName("difficulty")]
     public byte Difficulty { get; set; }
 
     /// <summary>
     /// Gets or sets the game type of the level.
     /// </summary>
     [NbtProperty(PropertyName = "GameType")]
-    [JsonProperty("gameType")]
+    [JsonPropertyName("gameType")]
     public int? GameType { get; set; }
 
     /// <summary>

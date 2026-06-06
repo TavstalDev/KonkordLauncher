@@ -1,8 +1,9 @@
-﻿
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.Platform;
+using Tavstal.KonkordLauncher.Core.Models.Json;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta.Library;
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
@@ -15,13 +16,13 @@ public class ArgumentMeta
     /// <summary>
     /// Gets or sets the list of game arguments.
     /// </summary>
-    [JsonProperty("game")]
+    [JsonPropertyName("game")]
     public List<object> Game { get; set; }
 
     /// <summary>
     /// Gets or sets the list of JVM arguments.
     /// </summary>
-    [JsonProperty("jvm")]
+    [JsonPropertyName("jvm")]
     public List<object> Jvm { get; set; }
 
     /// <summary>
@@ -82,14 +83,20 @@ public class ArgumentMeta
         {
             if (item is string s)
                 local.Add(s);
+            else if (item is JsonElement element)
+            {
+                if (element.ValueKind != JsonValueKind.String)
+                    continue;
+                string? value = element.GetString();
+                if (string.IsNullOrEmpty(value))
+                    continue;
+                local.Add(value);
+            }
         }
 
         string result = string.Empty;
         for (int i = 0; i < local.Count; i += 2)
-        {
             result += $"{local[i]} {local[i + 1]} ";
-        }
-
         return result;
     }
 
@@ -168,58 +175,88 @@ public class ArgumentMeta
     /// </returns>
     public string? GetRuleResult(string json)
     {
-        JObject jobj = JObject.Parse(json);
-        string value = jobj["value"]?.ToString() ?? string.Empty;
-        if (string.IsNullOrEmpty(value))
+        if (string.IsNullOrEmpty(json))
             return null;
-                
-        var rawRules = jobj["rules"]?.ToString() ?? string.Empty;
-        if (string.IsNullOrEmpty(rawRules))
-            return null;
-        List<Rule>? rules =  JsonConvert.DeserializeObject<List<Rule>>(rawRules);
-        if (rules == null || rules.Count == 0)
-            return null;
-                
-        bool localResult = false;
-        var operatingSystem = OSHelper.GetOperatingSystem();
-        foreach (Rule rule in rules)
+        
+        if (!(json.StartsWith('{') && json.EndsWith('}') || json.StartsWith('[') && json.EndsWith(']')))
+            return json;
+
+        try
         {
-            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-            if (rule.Os == null)
+            JsonNode? node = JsonNode.Parse(json);
+            if (node == null)
+                return null;
+            
+            JsonObject jobj = node.AsObject();
+            if (!jobj.TryGetPropertyValue("value", out var valueResult))
+                return null;
+            
+            string? value = null;
+            if (valueResult is JsonArray valueArray)
             {
-                localResult = rule.Action == "allow";
-                continue;
+                var parts = valueArray
+                    .Select(v => v?.GetValue<string>())
+                    .Where(v => v != null)
+                    .ToList();
+                value = string.Join(" ", parts);
+            }
+            else if (valueResult is not null)
+            {
+                value = valueResult.GetValue<string>();
             }
             
-            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-            if (rule.Os.Name == null)
+            if (string.IsNullOrEmpty(value))
+                return null;
+
+            if (!jobj.TryGetPropertyValue("rules", out var rulesResult) || rulesResult == null)
+                return null;
+
+            var rawRules = rulesResult.ToJsonString();
+            if (string.IsNullOrEmpty(rawRules))
+                return null;
+            
+            List<Rule>? rules = JsonSerializer.Deserialize(rawRules, CoreJsonContext.Default.ListRule);
+            if (rules == null || rules.Count == 0)
+                return null;
+
+            bool localResult = false;
+            var operatingSystem = OSHelper.GetOperatingSystem();
+            foreach (Rule rule in rules)
             {
-                localResult = rule.Action == "allow";
-                continue;
+                if (string.IsNullOrEmpty(rule.Os.Name))
+                {
+                    localResult = rule.Action == "allow";
+                    continue;
+                }
+
+                if (rule.Os.Name == "x86" && !OSHelper.Is64BitOperatingSystem())
+                {
+                    localResult = rule.Action == "allow";
+                    continue;
+                }
+
+                if (rule.Os.Name == "windows" && operatingSystem == EOperatingSystem.WINDOWS)
+                {
+                    localResult = rule.Action == "allow";
+                    continue;
+                }
+
+                if (rule.Os.Name == "linux" && operatingSystem == EOperatingSystem.LINUX)
+                {
+                    localResult = rule.Action == "allow";
+                    continue;
+                }
+
+                if (rule.Os.Name.StartsWith("osx") && operatingSystem == EOperatingSystem.MACOS)
+                    localResult = rule.Action == "allow";
             }
 
-            if (rule.Os.Name == "x86" && !OSHelper.Is64BitOperatingSystem())
-            {
-                localResult = rule.Action == "allow";
-                continue;
-            }
-                
-            if (rule.Os.Name == "windows" && operatingSystem == EOperatingSystem.WINDOWS)
-            {
-                localResult = rule.Action == "allow";
-                continue;
-            }
-
-            if (rule.Os.Name == "linux" && operatingSystem == EOperatingSystem.LINUX)
-            {
-                localResult = rule.Action == "allow";
-                continue;
-            }
-
-            if (rule.Os.Name.StartsWith("osx") && operatingSystem == EOperatingSystem.MACOS)
-                localResult = rule.Action == "allow";
+            return localResult ? value : null;
         }
-        
-        return localResult ? value : null;
+        catch (Exception)
+        {
+            /* ignored */
+            return null;
+        }
     }
 }

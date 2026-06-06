@@ -1,5 +1,6 @@
 
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 
 namespace Tavstal.KonkordLauncher.Core.Models.Accounts;
 
@@ -11,25 +12,25 @@ public class AccountSkin
     /// <summary>
     /// Gets or sets the unique identifier for the account skin.
     /// </summary>
-    [JsonProperty("id")]
+    [JsonPropertyName("id")]
     public string Id { get; set; }
     
     /// <summary>
     /// Gets or sets the model type of the account skin.
     /// </summary>
-    [JsonProperty("model")]
+    [JsonPropertyName("model")]
     public string Model { get; set; }
     
     /// <summary>
     /// Gets or sets the optional cape identifier for the account skin.
     /// </summary>
-    [JsonProperty("capeId")]
+    [JsonPropertyName("capeId")]
     public string? CapeId { get; set; }
     
     /// <summary>
     /// Gets or sets the optional Mojang identifier for the account skin.
     /// </summary>
-    [JsonProperty("mojangId")]
+    [JsonPropertyName("mojangId")]
     public string? MojangId { get; set; }
     
     /// <summary>

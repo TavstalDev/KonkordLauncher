@@ -1,5 +1,6 @@
 
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 
 namespace Tavstal.KonkordLauncher.Common.Models.Package.Modrinth;
 
@@ -12,30 +13,30 @@ public class PackageFile
     /// <summary>
     /// Gets or sets the relative path of the file in the package.
     /// </summary>
-    [JsonProperty("path")]
+    [JsonPropertyName("path")]
     public required string Path { get; set; }
     
     /// <summary>
     /// Gets or sets the hash map for the file.
     /// </summary>
-    [JsonProperty("hashes")]
+    [JsonPropertyName("hashes")]
     public Dictionary<string, string> Hashes { get; set; } = new();
 
     /// <summary>
     /// Gets or sets the environment flags for the file.
     /// </summary>
-    [JsonProperty("env")]
+    [JsonPropertyName("env")]
     public Dictionary<string, string> Env { get; set; } = new();
 
     /// <summary>
     /// Gets or sets the list of download URLs for the file.
     /// </summary>
-    [JsonProperty("downloads")]
+    [JsonPropertyName("downloads")]
     public List<string> Downloads { get; set; } = [];
     
     /// <summary>
     /// Gets or sets the file size in bytes.
     /// </summary>
-    [JsonProperty("fileSize")]
+    [JsonPropertyName("fileSize")]
     public long FileSize { get; set; }
 }

@@ -1,7 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using System.ComponentModel;
+using System.Text.Json.Serialization;
 using Tavstal.KonkordLauncher.Core.Encryption;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
+#pragma warning disable CS0618 // Type or member is obsolete
 
 namespace Tavstal.KonkordLauncher.Core.Models.Accounts;
 
@@ -15,67 +17,63 @@ public class Account
     /// <summary>
     /// Gets or sets the unique identifier of the account.
     /// </summary>
-    [JsonProperty("id")]
+    [JsonPropertyName("id")]
     public string Id { get; set; }
 
     /// <summary>
     /// Gets or sets the UUID of the account.
     /// </summary>
-    [JsonProperty("uuid")]
+    [JsonPropertyName("uuid")]
     public string Uuid { get; set; }
 
     /// <summary>
     /// Gets or sets the display name of the account.
     /// </summary>
-    [JsonProperty("displayName")]
+    [JsonPropertyName("displayName")]
     public string DisplayName { get; set; }
 
     /// <summary>
     /// Gets or sets the type of the account.
     /// </summary>
-    [JsonProperty("type")]
+    [JsonPropertyName("type")]
     public EAccountType Type { get; set; }
 
     /// <summary>
     /// Gets or sets the encrypted access token. 
     /// This property is obsolete and should not be used directly.
     /// </summary>
-    [Obsolete("Use GetAccessToken() instead. This property should not be used directly.")]
-    [JsonProperty("accessToken")]
-    private string EncryptedAccessToken { get; set; }
+    [JsonPropertyName("accessToken")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [Obsolete("Use GetAccessToken() instead.")]
+    public string EncryptedAccessToken { get; set; }
 
     /// <summary>
     /// Gets or sets the encrypted refresh token. 
     /// This property is obsolete and should not be used directly.
     /// </summary>
-    [Obsolete("Use GetRefreshToken() instead. This property should not be used directly.")]
-    [JsonProperty("refreshToken")]
-    private string EncryptedRefreshToken { get; set; }
+    [JsonPropertyName("refreshToken")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [Obsolete("Use GetRefreshToken() instead.")]
+    public string EncryptedRefreshToken { get; set; }
 
     /// <summary>
     /// Gets or sets the expiration date of the access token.
     /// </summary>
-    [JsonProperty("accessTokenExpDate")]
+    [JsonPropertyName("accessTokenExpDate")]
     public DateTime AccessTokenExpireDate { get; set; }
 
     /// <summary>
     /// Gets or sets the list of skins associated with the account.
     /// </summary>
-    [JsonProperty("skins")]
+    [JsonPropertyName("skins")]
     public List<AccountSkin> Skins { get; set; } = new();
 
     /// <summary>
     /// Gets or sets the Mojang profile associated with the account.
     /// </summary>
-    [JsonProperty("mojangProfile")]
+    [JsonPropertyName("mojangProfile")]
     public MojangProfile? MojangProfile { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the account is selected.
-    /// </summary>
-    [JsonIgnore]
-    public bool IsSelected { get; set; }
-
+    
     /// <summary>
     /// Gets a value indicating whether the account can expire.
     /// </summary>
@@ -85,7 +83,7 @@ public class Account
     /// Initializes a new instance of the <see cref="Account"/> class.
     /// </summary>
     public Account() {}
-
+    
     private string _accessTokenCache = string.Empty;
 
     /// <summary>

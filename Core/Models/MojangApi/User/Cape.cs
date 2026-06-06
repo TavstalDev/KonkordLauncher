@@ -1,5 +1,6 @@
 ﻿
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
 
@@ -12,25 +13,25 @@ public class Cape
     /// <summary>
     /// Gets or sets the unique identifier of the cape.
     /// </summary>
-    [JsonProperty("id")]
+    [JsonPropertyName("id")]
     public string Id {  get; set; }
 
     /// <summary>
     /// Gets or sets the current state of the cape.
     /// </summary>
-    [JsonProperty("state")]
+    [JsonPropertyName("state")]
     public string State {  get; set; }
 
     /// <summary>
     /// Gets or sets the URL where the cape texture can be downloaded.
     /// </summary>
-    [JsonProperty("url")]
+    [JsonPropertyName("url")]
     public string Url {  get; set; }
 
     /// <summary>
     /// Gets or sets the optional alias of the cape.
     /// </summary>
-    [JsonProperty("alias")]
+    [JsonPropertyName("alias")]
     public string Alias {  get; set; }
 
     /// <summary>

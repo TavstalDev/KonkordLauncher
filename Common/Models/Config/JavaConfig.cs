@@ -1,5 +1,6 @@
 
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 
 namespace Tavstal.KonkordLauncher.Common.Models.Config;
 
@@ -11,31 +12,31 @@ public class JavaConfig
     /// <summary>
     /// Gets or sets the minimum memory allocation for the Java process, in megabytes.
     /// </summary>
-    [JsonProperty("minMemory")]
+    [JsonPropertyName("minMemory")]
     public uint MinMemory { get; set; }
 
     /// <summary>
     /// Gets or sets the maximum memory allocation for the Java process, in megabytes.
     /// </summary>
-    [JsonProperty("maxMemory")]
+    [JsonPropertyName("maxMemory")]
     public uint MaxMemory { get; set; }
 
     /// <summary>
     /// Gets or sets the size of the permanent generation (PermGen) memory, in megabytes.
     /// </summary>
-    [JsonProperty("permaGen")]
+    [JsonPropertyName("permaGen")]
     public uint PermaGen { get; set; }
 
     /// <summary>
     /// Gets or sets the file system path to the Java executable.
     /// </summary>
-    [JsonProperty("javaPath")]
+    [JsonPropertyName("javaPath")]
     public string JavaPath { get; set; }
 
     /// <summary>
     /// Gets or sets the additional JVM arguments to be passed to the Java process.
     /// </summary>
-    [JsonProperty("jvmArguments")]
+    [JsonPropertyName("jvmArguments")]
     public string JvmArguments { get; set; }
 
     /// <summary>

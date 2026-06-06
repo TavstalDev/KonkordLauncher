@@ -1,4 +1,5 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 
 namespace Tavstal.KonkordLauncher.Common.Models;
 
@@ -10,20 +11,50 @@ public class PatchNote
     /// <summary>
     /// Gets or sets the title of the patch note.
     /// </summary>
-    [JsonProperty("title")]
+    [JsonPropertyName("title")]
     public string Title { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the title of the patch note. This is used for display purposes.
+    /// </summary>
+    [JsonPropertyName("tag_name")]
+    [JsonInclude]
+    public string TitleAlternate 
+    { 
+        set => Title = value; 
+    }
 
     /// <summary>
     /// Gets or sets the content or description of the patch note.
     /// </summary>
-    [JsonProperty("content")]
+    [JsonPropertyName("content")]
     public string Content { get; set; }
+
+    /// <summary>
+    /// Gets or sets the content or description of the patch note.
+    /// </summary>
+    [JsonPropertyName("body")]
+    [JsonInclude]
+    public string ContentAlternate
+    {
+        set => Content = value; 
+    }
 
     /// <summary>
     /// Gets or sets the URL for more information about the patch note.
     /// </summary>
-    [JsonProperty("url")]
+    [JsonPropertyName("url")]
     public string Url { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the URL for more information about the patch note.
+    /// </summary>
+    [JsonPropertyName("html_url")]
+    [JsonInclude]
+    public string UrlAlternate
+    {
+        set => Url = value;
+    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="PatchNote"/> class with the specified title, content, and URL.
@@ -34,7 +65,8 @@ public class PatchNote
     public PatchNote(string title, string content, string url)
     {
         Title = title;
-        Content = Markdig.Markdown.ToHtml(content);
+        string safeMarkdown = content ?? string.Empty;
+        Content = Markdig.Markdown.ToHtml(safeMarkdown);
         Url = url;
     }
 }

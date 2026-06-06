@@ -1,5 +1,6 @@
 ﻿
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 
 namespace Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
 
@@ -12,13 +13,13 @@ public class OwnershipItem
     /// <summary>
     /// Gets or sets the name of the owned product or entitlement.
     /// </summary>
-    [JsonProperty("name")]
+    [JsonPropertyName("name")]
     public string Name { get; set; }
 
     /// <summary>
     /// Gets or sets the signature associated with this ownership record.
     /// </summary>
-    [JsonProperty("signature")]
+    [JsonPropertyName("signature")]
     public string Signature { get; set; }
 
     /// <summary>

@@ -1,5 +1,6 @@
 ﻿
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 
 namespace Tavstal.KonkordLauncher.Core.Models.ModLoaders.Fabric;
@@ -16,27 +17,27 @@ public class FabricVersionMeta
     /// This typically includes JVM and game argument definitions parsed from the underlying
     /// Mojang version metadata and any Fabric-specific additions.
     /// </summary>
-    [JsonProperty("arguments")]
+    [JsonPropertyName("arguments")]
     public ArgumentMeta Arguments { get; set; }
 
     /// <summary>
     /// Gets or sets the version identifier for this Fabric version meta (e.g. "1.18.2+build.1").
     /// </summary>
-    [JsonProperty("id")]
+    [JsonPropertyName("id")]
     public string Id { get; set; }
 
     /// <summary>
     /// Gets or sets the ID of the Mojang version this Fabric meta inherits from.
     /// When present, the runner should merge or fall back to the inherited Mojang version's metadata.
     /// </summary>
-    [JsonProperty("inheritsFrom")]
+    [JsonPropertyName("inheritsFrom")]
     public string InheritsFrom { get; set; }
 
     /// <summary>
     /// Gets or sets the list of libraries required by this Fabric version. These are Fabric-specific
     /// or additional libraries that must be present on the classpath alongside the vanilla libraries.
     /// </summary>
-    [JsonProperty("libraries")]
+    [JsonPropertyName("libraries")]
     public List<FabricLibrary> Libraries { get; set; }
 
     /// <summary>
@@ -44,13 +45,13 @@ public class FabricVersionMeta
     /// Fabric often requires a specific main class to boot its loader; use this value when
     /// constructing the launch arguments if present.
     /// </summary>
-    [JsonProperty("mainClass")]
+    [JsonPropertyName("mainClass")]
     public string MainClass { get; set; }
 
     /// <summary>
     /// Gets or sets the type of this version metadata (commonly "release", "snapshot", or fabric-specific types).
     /// Consumers may use this to differentiate between stable and experimental metadata.
     /// </summary>
-    [JsonProperty("type")]
+    [JsonPropertyName("type")]
     public string Type { get; set; }
 }

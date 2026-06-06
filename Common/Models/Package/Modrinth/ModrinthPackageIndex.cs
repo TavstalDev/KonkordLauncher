@@ -1,5 +1,6 @@
 
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 
 namespace Tavstal.KonkordLauncher.Common.Models.Package.Modrinth;
 
@@ -11,42 +12,42 @@ public class ModrinthPackageIndex
     /// <summary>
     /// Gets or sets the target game identifier.
     /// </summary>
-    [JsonProperty("game")]
+    [JsonPropertyName("game")]
     public string Game { get; set; } = "minecraft";
 
     /// <summary>
     /// Gets or sets the package format version.
     /// </summary>
-    [JsonProperty("formatVersion")]
+    [JsonPropertyName("formatVersion")]
     public int FormatVersion { get; set; } = 1;
     
     /// <summary>
     /// Gets or sets the unique version identifier for this package.
     /// </summary>
-    [JsonProperty("versionId")]
+    [JsonPropertyName("versionId")]
     public required string VersionId { get; set; }
     
     /// <summary>
     /// Gets or sets the display name of the package version.
     /// </summary>
-    [JsonProperty("name")]
+    [JsonPropertyName("name")]
     public required string Name { get; set; }
     
     /// <summary>
     /// Gets or sets the package summary or description.
     /// </summary>
-    [JsonProperty("summary")]
+    [JsonPropertyName("summary")]
     public required string Summary { get; set; }
 
     /// <summary>
     /// Gets or sets the dependency map for the package.
     /// </summary>
-    [JsonProperty("dependencies")]
+    [JsonPropertyName("dependencies")]
     public Dictionary<string, string> Dependencies { get; set; } = new();
 
     /// <summary>
     /// Gets or sets the list of files included in the package.
     /// </summary>
-    [JsonProperty("files")]
+    [JsonPropertyName("files")]
     public List<PackageFile> Files { get; set; } = [];
 }

@@ -1,5 +1,6 @@
 
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+
 
 namespace Tavstal.KonkordLauncher.Common.Models.Java;
 
@@ -11,19 +12,19 @@ public class JavaMirrorConfig
     /// <summary>
     /// Gets or sets the Java mirror configuration for Windows.
     /// </summary>
-    [JsonProperty("windows")]
+    [JsonPropertyName("windows")]
     public JavaMirrorJdks Windows { get; set; }
     
     /// <summary>
     /// Gets or sets the Java mirror configuration for Linux.
     /// </summary>
-    [JsonProperty("linux")]
+    [JsonPropertyName("linux")]
     public JavaMirrorJdks Linux { get; set; }
     
     /// <summary>
     /// Gets or sets the Java mirror configuration for macOS.
     /// </summary>
-    [JsonProperty("mac")]
+    [JsonPropertyName("mac")]
     public JavaMirrorJdks Mac { get; set; }
     
     /// <summary>

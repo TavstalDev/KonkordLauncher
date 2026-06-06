@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 using Tavstal.KonkordLauncher.Core.Helpers.Domain;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Instances;
@@ -46,7 +46,7 @@ public abstract class ForgeInstanceBase(
         // Maps the processor data for the client side.
         Dictionary<string, string?> mapData = [];
         if (installProfile.Data != null)
-            mapData = MapProcessorData(installProfile.Data, VersionData.VanillaJarPath, installerDir);
+            mapData = MapProcessorData(installProfile.Data.Value, VersionData.VanillaJarPath, installerDir);
         // Starts the processors using the mapped data.
         await StartProcessors(installProfile.Processors, mapData);
     }
@@ -58,19 +58,20 @@ public abstract class ForgeInstanceBase(
     /// <param name="minecraftJar">The path to the Minecraft jar file.</param>
     /// <param name="installDir">The directory where the installation is taking place.</param>
     /// <returns>A dictionary containing the mapped processor data.</returns>
-    protected Dictionary<string, string?> MapProcessorData(JObject data, string minecraftJar, string installDir)
+    protected Dictionary<string, string?> MapProcessorData(JsonElement data, string minecraftJar, string installDir)
     {
         var dataMapping = new Dictionary<string, string?>();
         // Iterates through the data and maps each item to its full path
-        foreach (var item in data)
+        foreach (var item in data.EnumerateObject())
         {
-            string? value = item.Value?["client"]?.ToString();
+            var key = item.Name;
+            var value = item.Value.GetProperty("client").GetString();
 
             if (string.IsNullOrEmpty(value))
                 continue;
 
             var fullPath = ForgeMapper.ToFullPath(value, PathDetails.LibrariesDir);
-            dataMapping[item.Key] = fullPath == value 
+            dataMapping[key] = fullPath == value 
                 ? Path.Combine(installDir, value.Trim('/')) 
                 : fullPath;
         }
@@ -90,31 +91,50 @@ public abstract class ForgeInstanceBase(
     /// </summary>
     /// <param name="processors">The array of processors to execute.</param>
     /// <param name="mapData">The mapped processor data.</param>
-    protected async Task StartProcessors(JArray? processors, Dictionary<string, string?> mapData)
+    protected async Task StartProcessors(JsonElement processors, Dictionary<string, string?> mapData)
     {
-        if (processors == null || processors.Count == 0)
+        if (processors.ValueKind != JsonValueKind.Array)
             return;
-
+        
+        var count = processors.EnumerateArray().Count();
+        double processed = 0;
         // Iterates through each processor and starts it if necessary.
-        for (int i = 0; i < processors.Count; i++)
+        foreach (var processor in processors.EnumerateArray())
         {
-            JToken item = processors[i];
-
             // Checks if the processor outputs are valid.
-            JObject? outputs = item["outputs"] as JObject;
-            if (outputs == null || !CheckProcessorOutputs(outputs, mapData))
+            if (processor.TryGetProperty("outputs", out var outputs) && CheckProcessorOutputs(outputs, mapData))
             {
-                // Skips server-side processors.
-                JArray? sides = item["sides"] as JArray;
-                bool isServerOnly = sides is { Count: > 0 }
-                                    && sides.All(s => s.ToString() == "server");
-                if (!isServerOnly)
-                    await StartProcessor(item, mapData);
+                processed++;
+                continue;
             }
+            
+            if (!processor.TryGetProperty("sides", out var sides) || CheckClientSides(sides))
+                await StartProcessor(processor, mapData);
+            
             // Updates the progress reporter with the current progress.
-            double percent = i / (double)processors.Count * 100d;
+            double percent = processed / count * 100d;
             _progressReporter?.UpdateStatusTranslated("instance.building", "forge", percent.ToString("0.00"));
         }
+    }
+    
+    /// <summary>
+    /// Checks if the client sides array contains any "server" entries.
+    /// </summary>
+    /// <param name="sides">The JSON element containing the client sides.</param>
+    /// <returns>True if no "server" entries are found, otherwise false.</returns>
+    private bool CheckClientSides(JsonElement sides)
+    {
+        if (sides.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var item in sides.EnumerateArray())
+            {
+                if (item.GetString() == "server")
+                    return false;
+                break;
+            }
+        }
+
+        return true;
     }
     
     /// <summary>
@@ -123,15 +143,16 @@ public abstract class ForgeInstanceBase(
     /// <param name="outputs">The JSON object containing the processor outputs.</param>
     /// <param name="mapData">The mapped processor data.</param>
     /// <returns>True if all outputs are valid; otherwise, false.</returns>
-    private bool CheckProcessorOutputs(JObject outputs, Dictionary<string, string?> mapData)
+    private bool CheckProcessorOutputs(JsonElement outputs, Dictionary<string, string?> mapData)
     {
-        foreach (var item in outputs)
+        if (outputs.ValueKind != JsonValueKind.Object)
+            return true;
+        
+        foreach (var item in outputs.EnumerateObject())
         {
-            if (item.Value == null)
-                continue;
-
+            
             // Interpolates the key and value using the mapped data.
-            string key = ForgeMapper.Interpolation(item.Key, mapData, true);
+            string key = ForgeMapper.Interpolation(item.Name, mapData, true);
             string value = ForgeMapper.Interpolation(item.Value.ToString(), mapData, true);
 
             // Verifies the file existence and SHA1 hash.
@@ -147,10 +168,13 @@ public abstract class ForgeInstanceBase(
     /// </summary>
     /// <param name="processor">The JSON token representing the processor.</param>
     /// <param name="mapData">The mapped processor data.</param>
-    private async Task StartProcessor(JToken processor, Dictionary<string, string?> mapData)
+    private async Task StartProcessor(JsonElement processor, Dictionary<string, string?> mapData)
     {
-        string? name = processor["jar"]?.ToString();
-        if (name == null)
+        string? name = null;
+        if (processor.TryGetProperty("jar", out var jarProp) && jarProp.ValueKind == JsonValueKind.String)
+            name = jarProp.GetString();
+        
+        if (string.IsNullOrEmpty(name))
             return;
 
         var jarPath = Path.Combine(PathDetails.LibrariesDir, PackageName.Parse(name).GetPath());
@@ -160,18 +184,31 @@ public abstract class ForgeInstanceBase(
             return;
 
         // Constructs the classpath for the processor.
-        var classpath = (processor["classpath"] as JArray)?
-            .Select(libName => Path.Combine(PathDetails.LibrariesDir, PackageName.Parse(libName.ToString()).GetPath()))
-            .ToList() ?? [];
+        var classpath = new List<string>();
+        if (processor.TryGetProperty("classpath", out var classpathProp) && 
+            classpathProp.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var libName in classpathProp.EnumerateArray())
+            {
+                var libNameString = libName.GetString();
+                if (string.IsNullOrEmpty(libNameString))
+                    continue;
+
+                var lib = Path.Combine(PathDetails.LibrariesDir, PackageName.Parse(libNameString).GetPath());
+                classpath.Add(lib);
+            }
+        }
         classpath.Add(jarPath);
 
         // Constructs the arguments for the processor.
         string[] args = [];
-        if (processor["args"] is JArray jarray)
+        if (processor.TryGetProperty("args", out var argsProp) && 
+            argsProp.ValueKind == JsonValueKind.Array)
         {
-            var rawArgs = jarray.Select(arg => arg.ToString()).ToArray();
-            args = ForgeMapper.Map(rawArgs, mapData, PathDetails.LibrariesDir);
+            var arrStrs = argsProp.EnumerateArray().Select(x => x.ToString()).ToArray();
+            args = ForgeMapper.Map(arrStrs, mapData, PathDetails.LibrariesDir);
         }
+
 
         await StartJava(classpath.ToArray(), mainClass, args);
     }

@@ -4,6 +4,7 @@ using System.Text;
 using ICSharpCode.SharpZipLib.GZip;
 using ICSharpCode.SharpZipLib.Tar;
 using Tavstal.KonkordLauncher.Common.Models.Java;
+using Tavstal.KonkordLauncher.Common.Models.Json;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
@@ -67,11 +68,11 @@ public class JavaService : IJavaService
                 if (!File.Exists(PathHelper.JavaMirrorsPath))
                 {
                     _mirrorConfig = new JavaMirrorConfig();
-                    await JsonHelper.WriteJsonFileAsync(PathHelper.JavaMirrorsPath, _mirrorConfig, cancellationToken);
+                    await JsonHelper.WriteJsonFileAsync(PathHelper.JavaMirrorsPath, _mirrorConfig, CommonJsonContex.Default.JavaMirrorConfig, cancellationToken);
                 }
                 else
                 {
-                    _mirrorConfig = await JsonHelper.ReadJsonFileAsync<JavaMirrorConfig>(PathHelper.JavaMirrorsPath) ??
+                    _mirrorConfig = await JsonHelper.ReadJsonFileAsync<JavaMirrorConfig>(PathHelper.JavaMirrorsPath, CommonJsonContex.Default.JavaMirrorConfig) ??
                                     new JavaMirrorConfig();
                 }
             }

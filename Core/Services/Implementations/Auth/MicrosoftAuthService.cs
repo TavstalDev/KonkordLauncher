@@ -1,12 +1,12 @@
 using System.Net;
 using System.Net.Http.Headers;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.Platform;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Accounts;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints;
+using Tavstal.KonkordLauncher.Core.Models.Json;
 using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.Microsoft;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
@@ -139,8 +139,8 @@ public class MicrosoftAuthService : IMicrosoftAuthService
             }
             
             var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
-            JObject obj = JObject.Parse(responseString);
-            if (!obj.TryGetValue("access_token", out var value))
+            JsonElement obj = JsonElement.Parse(responseString);
+            if (!obj.TryGetProperty("access_token", out var value))
             {
                 _logger.LogError("Access token not found in the Microsoft authentication response.\"");
                 _authStatus = EAuthStatus.FAILED;
@@ -148,7 +148,7 @@ public class MicrosoftAuthService : IMicrosoftAuthService
                 return;
             }
             
-            if (!obj.TryGetValue("refresh_token", out var refreshToken))
+            if (!obj.TryGetProperty("refresh_token", out var refreshToken))
             {
                 _logger.LogError("Refresh token not found in the Microsoft authentication response.");
                 _authStatus = EAuthStatus.FAILED;
@@ -189,7 +189,7 @@ public class MicrosoftAuthService : IMicrosoftAuthService
             var result = await client.PostAsync(MicrosoftEndpoints.MicrosoftDeviceUrl, formContent, cancellationToken);
             
             var rawJson = await result.Content.ReadAsStringAsync(cancellationToken);
-            return JsonConvert.DeserializeObject<DeviceCodeResult>(rawJson);
+            return JsonSerializer.Deserialize<DeviceCodeResult>(rawJson, CoreJsonContext.Default.DeviceCodeResult);
         }
         catch (Exception ex)
         {
@@ -219,11 +219,11 @@ public class MicrosoftAuthService : IMicrosoftAuthService
             var response = await client.PostAsync(MicrosoftEndpoints.MicrosoftDeviceTokenUrl, formContent, cancellationToken);
             
             var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
-            JObject obj = JObject.Parse(responseString);
-            if (!obj.TryGetValue("access_token", out var value))
+            JsonElement obj = JsonElement.Parse(responseString);
+            if (!obj.TryGetProperty("access_token", out var value))
                 return;
             
-            if (!obj.TryGetValue("refresh_token", out var refreshToken))
+            if (!obj.TryGetProperty("refresh_token", out var refreshToken))
                 return;
             
             _authStatus = EAuthStatus.PROCESSING;
@@ -246,9 +246,9 @@ public class MicrosoftAuthService : IMicrosoftAuthService
         {
             _progressReporter?.UpdateStatusTranslated("auth.xbox.authenticating");
             
-            object body = new
+            var body = new XboxTokenRequestBody
             {
-                Properties = new
+                Properties = new XboxTokenProperties
                 {
                     AuthMethod = "RPS",
                     SiteName = "user.auth.xboxlive.com",
@@ -259,7 +259,7 @@ public class MicrosoftAuthService : IMicrosoftAuthService
             };
 
             var reqContent = new StringContent(
-                JsonConvert.SerializeObject(body), 
+                JsonSerializer.Serialize(body, CoreJsonContext.Default.XboxTokenRequestBody), 
                 System.Text.Encoding.UTF8, 
                 "application/json"
             );
@@ -267,8 +267,8 @@ public class MicrosoftAuthService : IMicrosoftAuthService
             HttpClient client = _httpService.CreateHttpClient();
             var result = await client.PostAsync(MicrosoftEndpoints.XboxAuthUrl, reqContent, cancellationToken);
             
-            JObject resultObj = JObject.Parse(await result.Content.ReadAsStringAsync(cancellationToken));
-            if (!resultObj.TryGetValue("Token", out var value))
+            JsonElement resultObj = JsonElement.Parse(await result.Content.ReadAsStringAsync(cancellationToken));
+            if (!resultObj.TryGetProperty("Token", out var value))
             {
                 _logger.LogError("Token not found in the Xbox authentication response.");
                 _authStatus = EAuthStatus.FAILED;
@@ -293,19 +293,19 @@ public class MicrosoftAuthService : IMicrosoftAuthService
          {
              _progressReporter?.UpdateStatusTranslated("auth.xbox.xsts");
             
-             object body = new
+             var body = new XboxXstsRequestBody
              {
-                 Properties = new
+                 Properties = new XboxXstsProperties
                  {
                      SandboxId = "RETAIL",
-                     UserTokens = new[] { token }
+                     UserTokens = [token]
                  },
                  RelyingParty = "rp://api.minecraftservices.com/",
                  TokenType = "JWT"
              };
 
              var reqContent = new StringContent(
-                 JsonConvert.SerializeObject(body), 
+                JsonSerializer.Serialize(body, CoreJsonContext.Default.XboxXstsRequestBody), 
                  System.Text.Encoding.UTF8, 
                  "application/json"
              );
@@ -314,8 +314,8 @@ public class MicrosoftAuthService : IMicrosoftAuthService
              var result = await client.PostAsync(MicrosoftEndpoints.XboxXstsUrl, reqContent, cancellationToken);
 
              var rawJson = await result.Content.ReadAsStringAsync(cancellationToken);
-             JObject resultObj = JObject.Parse(rawJson);
-             if (!resultObj.TryGetValue("Token", out var value))
+             JsonElement resultObj = JsonElement.Parse(rawJson);
+             if (!resultObj.TryGetProperty("Token", out var value))
              {
                  _logger.LogError("Token not found in the Xbox XSTS response.");
                  _authStatus = EAuthStatus.FAILED;
@@ -323,16 +323,15 @@ public class MicrosoftAuthService : IMicrosoftAuthService
                  return;
              }
 
-             if (!resultObj.TryGetValue("DisplayClaims", out var displayClaims))
+             if (!resultObj.TryGetProperty("DisplayClaims", out var displayClaims))
              {
                  _logger.LogError("DisplayClaims not found in the Xbox XSTS response.");
                  _authStatus = EAuthStatus.FAILED;
                  OnAuthStatusChanged?.Invoke(_authStatus);
                  return;
              }
-
-             var xui = displayClaims["xui"];
-             if (xui == null)
+             
+             if (!displayClaims.TryGetProperty("xui", out var xui))
              {
                  _logger.LogError("xui not found or empty in the Xbox XSTS response.");
                  _authStatus = EAuthStatus.FAILED;
@@ -340,7 +339,7 @@ public class MicrosoftAuthService : IMicrosoftAuthService
                  return;
              }
 
-             var firstXui = xui.First;
+             JsonElement? firstXui = xui.GetArrayLength() > 0 ? xui[0] : null;
              if (firstXui == null)
              {
                  _logger.LogError("User hash (uhs) not found in the Xbox XSTS response.");
@@ -348,9 +347,8 @@ public class MicrosoftAuthService : IMicrosoftAuthService
                  OnAuthStatusChanged?.Invoke(_authStatus);
                  return;
              }
-            
-             var userHash = firstXui["uhs"];
-             if (userHash == null)
+             
+             if (!firstXui.Value.TryGetProperty("uhs", out var userHash))
              {
                  _logger.LogError("User hash (uhs) is null in the Xbox XSTS response.");
                  _authStatus = EAuthStatus.FAILED;
@@ -376,14 +374,14 @@ public class MicrosoftAuthService : IMicrosoftAuthService
         {
             _progressReporter?.UpdateStatusTranslated("auth.minecraft.authenticating");
             
-            object body = new
+            var body = new MinecraftAccessRequestBody
             {
-                identityToken = $"XBL3.0 x={userHash};{token}",
-                ensureLegacyEnabled = true
+                IdentityToken = $"XBL3.0 x={userHash};{token}",
+                EnsureLegacyEnabled = true
             };
 
             var reqContent = new StringContent(
-                JsonConvert.SerializeObject(body), 
+                JsonSerializer.Serialize(body, CoreJsonContext.Default.MinecraftAccessRequestBody), 
                 System.Text.Encoding.UTF8, 
                 "application/json"
             );
@@ -391,8 +389,8 @@ public class MicrosoftAuthService : IMicrosoftAuthService
             HttpClient client = _httpService.CreateHttpClient();
             var result = await client.PostAsync(MicrosoftEndpoints.MinecraftAuthUrl, reqContent, cancellationToken);
             
-            JObject resultObj = JObject.Parse(await result.Content.ReadAsStringAsync(cancellationToken));
-            if (!resultObj.TryGetValue("access_token", out var minecraftToken))
+            JsonElement resultObj = JsonElement.Parse(await result.Content.ReadAsStringAsync(cancellationToken));
+            if (!resultObj.TryGetProperty("access_token", out var minecraftToken))
             {
                 _logger.LogError("Access token not found in the Minecraft authentication response.");
                 _authStatus = EAuthStatus.FAILED;
@@ -400,7 +398,7 @@ public class MicrosoftAuthService : IMicrosoftAuthService
                 return;
             }
             
-            if (!resultObj.TryGetValue("expires_in", out var expiresIn))
+            if (!resultObj.TryGetProperty("expires_in", out var expiresIn))
             {
                 _logger.LogError("Expiration time not found in the Minecraft authentication response.");
                 _authStatus = EAuthStatus.FAILED;
@@ -430,8 +428,7 @@ public class MicrosoftAuthService : IMicrosoftAuthService
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", mcToken);
             var result = await client.GetAsync(MicrosoftEndpoints.MinecraftOwnershipUrl, cancellationToken);
 
-            OwnershipData? ownershipData =
-                JsonConvert.DeserializeObject<OwnershipData>(await result.Content.ReadAsStringAsync(cancellationToken));
+            OwnershipData? ownershipData = JsonSerializer.Deserialize(await result.Content.ReadAsStringAsync(cancellationToken), CoreJsonContext.Default.OwnershipData);
             
             OwnershipItem? gameOwnership = ownershipData?.Items.Find(x => 
                 x.Name is "game_minecraft" or "game_minecraft_bedrock" ||
@@ -469,7 +466,7 @@ public class MicrosoftAuthService : IMicrosoftAuthService
             var result = await client.GetAsync(MicrosoftEndpoints.MinecraftProfileUrl, cancellationToken);
 
             _mojangProfile =
-                JsonConvert.DeserializeObject<MojangProfile>(await result.Content.ReadAsStringAsync(cancellationToken));
+                JsonSerializer.Deserialize(await result.Content.ReadAsStringAsync(cancellationToken), CoreJsonContext.Default.MojangProfile);
 
             if (_mojangProfile == null)
             {
@@ -522,7 +519,7 @@ public class MicrosoftAuthService : IMicrosoftAuthService
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", mcToken);
             var result = await client.GetAsync(MicrosoftEndpoints.MinecraftProfileUrl, cancellationToken);
 
-            return JsonConvert.DeserializeObject<MojangProfile>(await result.Content.ReadAsStringAsync(cancellationToken));
+            return JsonSerializer.Deserialize(await result.Content.ReadAsStringAsync(cancellationToken), CoreJsonContext.Default.MojangProfile);
         }
         catch (Exception ex)
         {
@@ -567,8 +564,8 @@ public class MicrosoftAuthService : IMicrosoftAuthService
             
            var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
 
-           JObject obj = JObject.Parse(responseString);
-           if (!obj.TryGetValue("access_token", out var value))
+           JsonElement obj = JsonElement.Parse(responseString);
+           if (!obj.TryGetProperty("access_token", out var value))
            {
                _logger.LogError("Access token not found in the Microsoft authentication response.\"");
                _authStatus = EAuthStatus.FAILED;
@@ -576,7 +573,7 @@ public class MicrosoftAuthService : IMicrosoftAuthService
                return false;
            }
             
-           if (!obj.TryGetValue("refresh_token", out var refreshToken))
+           if (!obj.TryGetProperty("refresh_token", out var refreshToken))
            {
                _logger.LogError("Refresh token not found in the Microsoft authentication response.");
                _authStatus = EAuthStatus.FAILED;

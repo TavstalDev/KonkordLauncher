@@ -142,14 +142,12 @@ public class InstanceLaunchService : IInstanceLaunchService
         _logger.LogDebug("Starting Java process with arguments:");
         _logger.LogDebug("Java: " + finalJavaPath);
         _logger.LogDebug("FileName: " + psi.FileName);
-        string argumentsToPrint = string.Join(" ", psi.ArgumentList);
-#if DEBUG
+        string argumentsToPrint = string.Join(" ", psi.ArgumentList.Count == 0 ? psi.Arguments : psi.ArgumentList);
         if (sensitiveDataToReplace != null)
         {
             foreach (var sen in sensitiveDataToReplace)
                 argumentsToPrint = argumentsToPrint.Replace(sen, "*****");
         }
-#endif
         _logger.LogDebug("Arguments: " + argumentsToPrint);
 
         // Handle existing logs file

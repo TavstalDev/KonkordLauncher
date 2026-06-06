@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
-using Tavstal.KonkordLauncher.Desktop.Models;
+using Tavstal.KonkordLauncher.Common.Services.Implementations;
 
 namespace Tavstal.KonkordLauncher.Common.Helpers;
 

@@ -1,9 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿
+using System.Text.Json;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
+using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints.Modding;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.Instance;
+using Tavstal.KonkordLauncher.Core.Models.Json;
 using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Fabric;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
@@ -77,7 +80,7 @@ public class FabricInstance(
 
             // Add the libraries
             _progressReporter?.UpdateStatusTranslated("instance.reading.version_json");
-            fabricVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(resultJson);
+            fabricVersionMeta = JsonSerializer.Deserialize<FabricVersionMeta>(resultJson, CoreJsonContext.Default.FabricVersionMeta);
             if (fabricVersionMeta == null)
             {
                 FileSystemHelper.DeleteFile(VersionData.CustomJsonPath!); // Delete it because this if part won't be executed again if it exists
@@ -91,7 +94,7 @@ public class FabricInstance(
         else
         {
             _progressReporter?.UpdateStatusTranslated("instance.reading.version_json");
-            fabricVersionMeta = JsonConvert.DeserializeObject<FabricVersionMeta>(await File.ReadAllTextAsync(VersionData.CustomJsonPath!, cancellationToken));
+            fabricVersionMeta = await JsonHelper.ReadJsonFileAsync(VersionData.CustomJsonPath!, CoreJsonContext.Default.FabricVersionMeta);
             if (fabricVersionMeta == null)
             {
                 _logger.LogError("Fabric version meta is null after deserialization. Invalid JSON format.");

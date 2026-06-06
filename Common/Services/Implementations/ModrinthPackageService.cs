@@ -1,8 +1,9 @@
 using System.IO.Compression;
-using Newtonsoft.Json.Linq;
+using System.Text.Json.Nodes;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Config;
 using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
+using Tavstal.KonkordLauncher.Common.Models.Json;
 using Tavstal.KonkordLauncher.Common.Models.Package;
 using Tavstal.KonkordLauncher.Common.Models.Package.Modrinth;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
@@ -100,7 +101,10 @@ public class ModrinthPackageService : IPackageService
                     return null;
                 }
                 
-                JObject indexJson = JObject.Parse(await File.ReadAllTextAsync(indexJsonPath, cancellationToken));
+                JsonNode? indexJson = JsonNode.Parse(await File.ReadAllTextAsync(indexJsonPath, cancellationToken));
+                if (indexJson == null)
+                    throw new InvalidOperationException("Failed to parse index.json");
+                
                 result.Name = customName ?? indexJson["name"]?.ToString() ?? "Unnamed Instance";
                 result.Group = customGroup ?? null;
                 
@@ -141,7 +145,6 @@ public class ModrinthPackageService : IPackageService
 
                 result.GameDirectory = Path.Combine(settings.Launcher.InstancesDirectoryPath, result.Name);
                 Directory.CreateDirectory(result.GameDirectory);
-                string resourceFile = result.GetResourceConfigPath();
                 List<InstanceResource> resources = [];
                 
                 // Copy overrides
@@ -155,13 +158,16 @@ public class ModrinthPackageService : IPackageService
                 result.IconPath = File.Exists(iconPath) ? iconPath : string.Empty;
                 
                 // Download Mods
-                var tasks = indexJson["files"]?.Select(f =>
+                var tasks = indexJson["files"]?.AsArray().Select(f =>
                 {
+                    if (f == null)
+                        return Task.CompletedTask;
+                    
                     string? env = f["env"]?["client"]?.ToString();
                     if (!string.IsNullOrEmpty(env) && env != "required")
                         return Task.CompletedTask;
                     
-                    string? url = f["downloads"]?.FirstOrDefault()?.Value<string>();
+                    string? url = f["downloads"]?.AsArray().FirstOrDefault()?.ToString();
                     if (string.IsNullOrEmpty(url))
                     {
                         _logger.LogWarning("No download URL found for a file in modrinth.index.json");
@@ -199,7 +205,7 @@ public class ModrinthPackageService : IPackageService
                         Url = url,
                         Type = resourceType,
                         Platform = EPlatformType.MODRINTH,
-                        FileSize = f["size"]?.ToObject<long>() ?? 0,
+                        FileSize = long.Parse(f["size"]?.ToString() ?? "0"),
                         Sha1 = f["hashes"]?["sha1"]?.ToString() ?? string.Empty,
                         Sha512 = f["hashes"]?["sha512"]?.ToString() ?? string.Empty,
                         Client = f["env"]?["client"]?.ToString() ?? string.Empty,
@@ -248,7 +254,7 @@ public class ModrinthPackageService : IPackageService
         List<FileNode> localNodes = new (fileNodes);
         if (File.Exists(resourceFile))
         {
-            var res = await JsonHelper.ReadJsonFileAsync<List<InstanceResource>>(resourceFile);
+            var res = await JsonHelper.ReadJsonFileAsync<List<InstanceResource>>(resourceFile, CommonJsonContex.Default.ListInstanceResource);
             if (res != null)
                 resources = res;
         }
@@ -321,7 +327,7 @@ public class ModrinthPackageService : IPackageService
                 await CopyNodeToOverridesAsync(overridesDir, instance.GameDirectory!, node, cancellationToken);
             
             // Write package index
-            await JsonHelper.WriteJsonFileAsync(indexJson, packageIndex, cancellationToken);
+            await JsonHelper.WriteJsonFileAsync(indexJson, packageIndex, ModrinthJsonContext.Default.ModrinthPackageIndex, cancellationToken);
             
             await ZipFile.CreateFromDirectoryAsync(tmpDir, targetPath, CompressionLevel.Optimal, false, cancellationToken);
             _logger.LogDebug($"Exported modrinth package to {targetPath}");

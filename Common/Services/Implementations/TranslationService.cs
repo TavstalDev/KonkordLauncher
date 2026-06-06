@@ -1,8 +1,10 @@
-using Newtonsoft.Json;
+
+using System.Text.Json;
 using Tavstal.KonkordLauncher.Common.Helpers;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Common.Translation;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
+using Tavstal.KonkordLauncher.Core.Models.Json;
 using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 
@@ -48,7 +50,7 @@ public class TranslationService : ITranslationService, IAsyncInitializable
             string localePath = Path.Combine(settings.Launcher.TranslationsDirectoryPath, $"{language}.json");
             if (File.Exists(localePath))
             {
-                Dictionary<string, string>? translations = await JsonHelper.ReadJsonFileAsync<Dictionary<string, string>>(localePath);
+                Dictionary<string, string>? translations = await JsonHelper.ReadJsonFileAsync<Dictionary<string, string>>(localePath, GenericJsonContext.Default.DictionaryStringString);
                 if (translations is null)
                 {
                     _logger.LogError("Failed to read local translation file.");
@@ -70,7 +72,7 @@ public class TranslationService : ITranslationService, IAsyncInitializable
             if (language == "en")
             {
                 _translations = DefaultTranslationProvider.Translations;
-                await JsonHelper.WriteJsonFileAsync(localePath, _translations, cancellationToken);
+                await JsonHelper.WriteJsonFileAsync(localePath, _translations, GenericJsonContext.Default.DictionaryStringString, cancellationToken);
                 LanguageChanged?.Invoke(language);
                 return;
             }
@@ -85,7 +87,7 @@ public class TranslationService : ITranslationService, IAsyncInitializable
                 return;
             }
 
-            Dictionary<string, string>? translation = JsonConvert.DeserializeObject<Dictionary<string, string>>(resultJson);
+            Dictionary<string, string>? translation = JsonSerializer.Deserialize<Dictionary<string, string>>(resultJson, GenericJsonContext.Default.DictionaryStringString);
             if (translation == null)
             {
                 _logger.LogError("Failed to deserialize translations from the URL.");
@@ -99,7 +101,7 @@ public class TranslationService : ITranslationService, IAsyncInitializable
                     continue;
                 _translations[pair.Key] = pair.Value;
             }
-            await JsonHelper.WriteJsonFileAsync(localePath, translation, cancellationToken);
+            await JsonHelper.WriteJsonFileAsync(localePath, translation, GenericJsonContext.Default.DictionaryStringString, cancellationToken);
             LanguageChanged?.Invoke(language);
         }
         catch (Exception ex)

@@ -1,7 +1,7 @@
 using System.Text;
+using System.Text.Json;
 using MinecraftSkinRender;
 using MinecraftSkinRender.Image;
-using Newtonsoft.Json.Linq;
 using SkiaSharp;
 using Tavstal.KonkordLauncher.Core.Models.Accounts;
 using Tavstal.KonkordLauncher.Core.Models.Logging;
@@ -60,7 +60,12 @@ public class SkinService : ISkinService
            if (profileResult == null)
                return;
 
-           string? uuid = JObject.Parse(Encoding.UTF8.GetString(profileResult))["id"]?.Value<string>();
+           string? uuid = null;
+           using (JsonDocument doc = JsonDocument.Parse(profileResult))
+           {
+               if (doc.RootElement.TryGetProperty("id", out JsonElement idElement))
+                   uuid = idElement.GetString();
+           }
            if (uuid == null)
                return;
 
@@ -84,17 +89,35 @@ public class SkinService : ISkinService
                    return;
                }
 
-               JObject textureJson = JObject.Parse(textureResult);
-               string? base64Texture = textureJson["properties"]?.FirstOrDefault()?["value"]?.Value<string>();
+               string? base64Texture = null;
+               using (JsonDocument doc = JsonDocument.Parse(textureResult))
+               {
+                   if (doc.RootElement.TryGetProperty("properties", out JsonElement element))
+                   {
+                       if (element.GetArrayLength() > 0 && element[0].TryGetProperty("value", out var value))
+                       {
+                           base64Texture = value.ToString();
+                       }
+                   }
+               }
+               
                if (base64Texture == null)
                {
                    _logger.LogWarning("Failed to parse skin texture for UUID: " + uuid);
                    return;
                }
-
+               
                byte[] textureBytes = Convert.FromBase64String(base64Texture);
-               JObject textureData = JObject.Parse(Encoding.UTF8.GetString(textureBytes));
-               string? skinUrl = textureData["textures"]?["SKIN"]?["url"]?.Value<string>();
+               string? skinUrl = null;
+               using (JsonDocument textureData = JsonDocument.Parse(textureBytes))
+               {
+                   if (textureData.RootElement.TryGetProperty("textures", out JsonElement texturesElement) &&
+                       texturesElement.TryGetProperty("SKIN", out JsonElement skinElement) &&
+                       skinElement.TryGetProperty("url", out JsonElement urlElement))
+                   {
+                       skinUrl = urlElement.GetString();
+                   }
+               }
                if (skinUrl == null)
                {
                    _logger.LogWarning("No skin URL found for UUID: " + uuid);
@@ -155,8 +178,18 @@ public class SkinService : ISkinService
                     return;
                 }
 
-                JObject textureJson = JObject.Parse(textureResult);
-                string? base64Texture = textureJson["properties"]?.FirstOrDefault()?["value"]?.Value<string>();
+                string? base64Texture = null;
+                using (JsonDocument doc = JsonDocument.Parse(textureResult))
+                {
+                    if (doc.RootElement.TryGetProperty("properties", out JsonElement element))
+                    {
+                        if (element.GetArrayLength() > 0 && element[0].TryGetProperty("value", out var value))
+                        {
+                            base64Texture = value.ToString();
+                        }
+                    }
+                }
+                
                 if (base64Texture == null)
                 {
                     _logger.LogWarning("Failed to parse skin texture for UUID: " + uuid);
@@ -164,8 +197,16 @@ public class SkinService : ISkinService
                 }
 
                 byte[] textureBytes = Convert.FromBase64String(base64Texture);
-                JObject textureData = JObject.Parse(Encoding.UTF8.GetString(textureBytes));
-                string? skinUrl = textureData["textures"]?["SKIN"]?["url"]?.Value<string>();
+                string? skinUrl = null;
+                using (JsonDocument textureData = JsonDocument.Parse(textureBytes))
+                {
+                    if (textureData.RootElement.TryGetProperty("textures", out JsonElement texturesElement) &&
+                        texturesElement.TryGetProperty("SKIN", out JsonElement skinElement) &&
+                        skinElement.TryGetProperty("url", out JsonElement urlElement))
+                    {
+                        skinUrl = urlElement.GetString();
+                    }
+                }
                 if (skinUrl == null)
                 {
                     _logger.LogWarning("No skin URL found for UUID: " + uuid);

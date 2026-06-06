@@ -1,7 +1,7 @@
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Common.Translation;
 
-namespace Tavstal.KonkordLauncher.Desktop.Models;
+namespace Tavstal.KonkordLauncher.Common.Services.Implementations;
 
 public class DesignTimeTranslationService : ITranslationService
 {

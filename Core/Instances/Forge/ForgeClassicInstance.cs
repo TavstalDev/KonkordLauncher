@@ -1,10 +1,11 @@
 ﻿using System.IO.Compression;
-using Newtonsoft.Json;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
+using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints.Modding;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.Instance;
+using Tavstal.KonkordLauncher.Core.Models.Json;
 using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Legacy;
@@ -129,22 +130,21 @@ public class ForgeClassicInstance(string forgeVersionName,
         ArgumentBuilder.AddClass(forgeUniversalPath);
         
         // Read Forge Install Profile
-        var rawInstallProfile = await File.ReadAllTextAsync(installerProfilePath, cancellationToken);
-        var installProfile = JsonConvert.DeserializeObject<ForgeProfile>(rawInstallProfile);
+        var installProfile = await JsonHelper.ReadJsonFileAsync(installerProfilePath, CoreJsonContext.Default.ForgeProfile);
         if (installProfile == null)
             throw new FileNotFoundException("Failed to get the forge install profile meta.");
 
         // Fix 1.6.1 Forge Version
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-        if (GameDetails.MinecraftVersion == "1.6.1" && !File.Exists(VersionData.CustomJsonPath) && installProfile.VersionInfo != null)
-            await File.WriteAllTextAsync(VersionData.CustomJsonPath!, JsonConvert.SerializeObject(installProfile.VersionInfo), cancellationToken);
+        if (GameDetails.MinecraftVersion == "1.6.1" && !File.Exists(VersionData.CustomJsonPath) &&
+            installProfile.VersionInfo != null)
+            await JsonHelper.WriteJsonFileAsync(VersionData.CustomJsonPath!, installProfile.VersionInfo, CoreJsonContext.Default.ForgeVersionMetaLegacy, cancellationToken);
 
         // Read Forge Version Meta
         string? mainClass = null;
         if (File.Exists(VersionData.CustomJsonPath))
         {
-            var rawForgeVersionMeta = await File.ReadAllTextAsync(VersionData.CustomJsonPath, cancellationToken);
-            var forgeVersionMeta = JsonConvert.DeserializeObject<ForgeVersionMeta>(rawForgeVersionMeta);
+            var forgeVersionMeta = await JsonHelper.ReadJsonFileAsync(VersionData.CustomJsonPath, CoreJsonContext.Default.ForgeVersionMetaLegacy);
             if (forgeVersionMeta == null)
                 throw new FileNotFoundException("Failed to get the forge version meta.");
             mainClass = forgeVersionMeta.MainClass;

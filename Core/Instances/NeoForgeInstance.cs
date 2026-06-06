@@ -1,9 +1,10 @@
 using System.IO.Compression;
-using Newtonsoft.Json;
+using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints.Modding;
 using Tavstal.KonkordLauncher.Core.Models.Installer;
 using Tavstal.KonkordLauncher.Core.Models.Instance;
+using Tavstal.KonkordLauncher.Core.Models.Json;
 using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Modern;
@@ -115,8 +116,7 @@ public class NeoForgeInstance(
         }
         
         // Read Forge Version Meta
-        var rawForgeVersionMeta = await File.ReadAllTextAsync(VersionData.CustomJsonPath!, cancellationToken);
-        var forgeVersionMeta = JsonConvert.DeserializeObject<ForgeVersionMeta>(rawForgeVersionMeta);
+        var forgeVersionMeta = await JsonHelper.ReadJsonFileAsync(VersionData.CustomJsonPath!, CoreJsonContext.Default.ForgeVersionMetaModern);
         if (forgeVersionMeta == null)
             throw new FileNotFoundException("Failed to get the neoforge version meta.");
         
@@ -124,8 +124,7 @@ public class NeoForgeInstance(
         localLibraries.AddRange(forgeVersionMeta.Libraries);
 
         // Read Forge Install Profile
-        var rawInstallProfile = await File.ReadAllTextAsync(installerProfilePath, cancellationToken);
-        var installProfile = JsonConvert.DeserializeObject<ForgeVersionProfile>(rawInstallProfile);
+        var installProfile = await JsonHelper.ReadJsonFileAsync(installerProfilePath, CoreJsonContext.Default.ForgeVersionProfile);
         if (installProfile == null)
             throw new FileNotFoundException("Failed to get the neoforge install profile meta.");
         

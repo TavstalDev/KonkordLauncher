@@ -7,6 +7,7 @@ using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints.Modding;
+using Tavstal.KonkordLauncher.Core.Models.Json;
 using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions;
@@ -82,21 +83,7 @@ public class ValidationService : IValidationService
     {
         try
         {
-            if (!File.Exists(PathHelper.LauncherAccountsPath))
-            {
-                AccountData accountData = new();
-
-                await _launcherStore.SaveAccountDataAsync(accountData, cancellationToken);
-                return true; // No account was found to check
-            }
-
-            AccountData? data = await JsonHelper.ReadJsonFileAsync<AccountData>(PathHelper.LauncherAccountsPath);
-            if (data == null)
-            {
-                _logger.LogError("Failed to read accounts data, file is corrupted or empty.");
-                return false;
-            }
-
+            AccountData data = await _launcherStore.GetAccountDataAsync(cancellationToken);
             bool shouldUpdate = false;
             foreach (var acc in data.Accounts)
             {
@@ -212,7 +199,7 @@ public class ValidationService : IValidationService
                     manifest.Add(new ForgeManifest(splittedVersion[1], splittedVersion[0]));
                 }
                 
-                await JsonHelper.WriteJsonFileAsync(settings.Launcher.GetForgeManifestPath(), manifest, cancellationToken);
+                await JsonHelper.WriteJsonFileAsync(settings.Launcher.GetForgeManifestPath(), manifest, CoreJsonContext.Default.ListForgeManifest, cancellationToken);
             }
             if (await _manifestService.GetForgeManifestAsync(settings.Launcher.GetForgeManifestPath(), cancellationToken) == null)
                 _logger.LogError("Failed to load Forge manifest");
@@ -254,7 +241,7 @@ public class ValidationService : IValidationService
                         manifest.Add(new ForgeManifest(version, gameVersion));
                     }
 
-                    await JsonHelper.WriteJsonFileAsync(settings.Launcher.GetNeoForgeManifestPath(), manifest, cancellationToken);
+                    await JsonHelper.WriteJsonFileAsync(settings.Launcher.GetNeoForgeManifestPath(), manifest, CoreJsonContext.Default.ListForgeManifest, cancellationToken);
                 }
 
                 if (await _manifestService.GetNeoForgeManifestAsync(settings.Launcher.GetNeoForgeManifestPath()) == null)

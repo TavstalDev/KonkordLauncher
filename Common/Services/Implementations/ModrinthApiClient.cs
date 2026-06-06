@@ -1,7 +1,7 @@
 using Modrinth;
 using Modrinth.Models;
 using Modrinth.Models.Enums.Project;
-using Tavstal.KonkordLauncher.Common.Models;
+using Tavstal.KonkordLauncher.Common.Models.Json;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Version = Modrinth.Models.Version;
@@ -19,6 +19,10 @@ public class ModrinthApiClient : IModrinthApiClient
         JsonSerializerContext = ModrinthJsonContext.Default
     });
     
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ModrinthApiClient"/> class.
+    /// </summary>
+    /// <param name="logger">The logger used for logging information and errors.</param>
     public ModrinthApiClient(ICustomLogger<ModrinthApiClient> logger)
     {
         _logger = logger;

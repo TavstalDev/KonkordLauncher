@@ -14,7 +14,7 @@ public class ServerModel : MinecraftServer
     /// Gets the bitmap representation of the server's icon.
     /// If the icon is null, this property returns null.
     /// </summary>
-    public BitmapEntry Image { get; }
+    public BitmapEntry Image { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ServerModel"/> class
@@ -25,11 +25,5 @@ public class ServerModel : MinecraftServer
     /// <param name="acceptTextures">Indicates whether the server accepts textures.</param>
     /// <param name="hideAddress">Indicates whether the server address is hidden.</param>
     /// <param name="icon">The optional icon of the Minecraft server.</param>
-    public ServerModel(string name, string ip, byte acceptTextures, byte? hideAddress, string? icon) : base(name, ip, acceptTextures, hideAddress, icon)
-    {
-        /* TODO:
-        Image = Icon == null
-            ? ImageHelper.LoadFromResource(new Uri("avares://KonkordLauncher/Assets/Images/default_world.png"))
-            : ImageHelper.Base64ToBitmap(Icon);*/
-    }
+    public ServerModel(string name, string ip, byte acceptTextures, byte? hideAddress, string? icon) : base(name, ip, acceptTextures, hideAddress, icon) { }
 }

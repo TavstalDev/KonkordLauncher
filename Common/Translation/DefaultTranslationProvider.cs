@@ -125,6 +125,7 @@ public static class DefaultTranslationProvider
         {"common.error", "Error"},
         {"common.warning", "Warning"},
         {"common.success", "Success"},
+        {"common.review", "Review"},
         
         {"common.time.pass.minute", "{0} minutes ago"},
         {"common.time.pass.hour", "{0} hours ago"},
@@ -187,6 +188,7 @@ public static class DefaultTranslationProvider
         {"instance.view.logs", "View Logs"},
         {"instance.change.group", "Change Group"},
         {"instance.change.icon", "Change Icon"},
+        {"instance.change.version", "Change Version"},
         {"instance.logs.title", "Latest Logs of"},
         
         {"instance.rename.title", "New name of the instance"},
@@ -348,6 +350,10 @@ public static class DefaultTranslationProvider
         {"instance.resources.download.complete.description", "The selected resources have been downloaded and added to the instance."},
 
         #endregion
+        
+        {"instance.version.selector.window", "Konkord Launcher - Version Selector"},
+        {"instance.version.selector.title", "Version Selector"},
+        {"instance.version.selector.description", "Change the version of the instance."},
         
         #endregion
         

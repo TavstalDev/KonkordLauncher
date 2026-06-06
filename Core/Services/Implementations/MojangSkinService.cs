@@ -1,7 +1,9 @@
 using System.Net.Http.Headers;
-using Newtonsoft.Json;
+using System.Text.Json;
 using Tavstal.KonkordLauncher.Core.Models.Endpoints;
+using Tavstal.KonkordLauncher.Core.Models.Json;
 using Tavstal.KonkordLauncher.Core.Models.Logging;
+using Tavstal.KonkordLauncher.Core.Models.MojangApi.Requests;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 
@@ -30,14 +32,14 @@ public class MojangSkinService : IMojangSkinService
         try
         {
             const string endpoint = $"{MicrosoftEndpoints.PlayerConfigUrl}/skins";
-            object body = new
+            object body = new ChangeSkinRequestBody
             {
-                variant,
-                url
+               Variant = variant,
+                Url = url
             };
 
             var reqContent = new StringContent(
-                JsonConvert.SerializeObject(body), 
+                JsonSerializer.Serialize(body, CoreJsonContext.Default.ChangeSkinRequestBody), 
                 System.Text.Encoding.UTF8, 
                 "application/json"
             );
@@ -50,7 +52,7 @@ public class MojangSkinService : IMojangSkinService
                 _logger.LogError($"Failed to change skin (HTTP {result.StatusCode}): " + await result.Content.ReadAsStringAsync(cancellationToken));
                 return null;
             }
-            return JsonConvert.DeserializeObject<MojangProfile>(await result.Content.ReadAsStringAsync(cancellationToken));
+            return JsonSerializer.Deserialize<MojangProfile>(await result.Content.ReadAsStringAsync(cancellationToken), CoreJsonContext.Default.MojangProfile);
         }
         catch (Exception ex)
         {
@@ -81,7 +83,7 @@ public class MojangSkinService : IMojangSkinService
                 _logger.LogError($"Failed to upload skin (HTTP {result.StatusCode}): " + await result.Content.ReadAsStringAsync(cancellationToken));
                 return null;
             }
-            return JsonConvert.DeserializeObject<MojangProfile>(await result.Content.ReadAsStringAsync(cancellationToken));
+            return JsonSerializer.Deserialize<MojangProfile>(await result.Content.ReadAsStringAsync(cancellationToken), CoreJsonContext.Default.MojangProfile);
         }
         catch (Exception ex)
         {
@@ -104,7 +106,7 @@ public class MojangSkinService : IMojangSkinService
                 _logger.LogError($"Failed to reset skin (HTTP {result.StatusCode}): " + await result.Content.ReadAsStringAsync(cancellationToken));
                 return null;
             }
-            return JsonConvert.DeserializeObject<MojangProfile>(await result.Content.ReadAsStringAsync(cancellationToken));
+            return JsonSerializer.Deserialize<MojangProfile>(await result.Content.ReadAsStringAsync(cancellationToken), CoreJsonContext.Default.MojangProfile);
         }
         catch (Exception ex)
         {
@@ -119,13 +121,13 @@ public class MojangSkinService : IMojangSkinService
         try
         {
             const string endpoint = $"{MicrosoftEndpoints.PlayerConfigUrl}/capes/active";
-            object body = new
+            object body = new ShowCapeRequestBody
             {
-                capeId
+                CapeId = capeId
             };
 
             var reqContent = new StringContent(
-                JsonConvert.SerializeObject(body), 
+                JsonSerializer.Serialize(body, CoreJsonContext.Default.ShowCapeRequestBody), 
                 System.Text.Encoding.UTF8, 
                 "application/json"
             );
@@ -137,7 +139,7 @@ public class MojangSkinService : IMojangSkinService
                 _logger.LogError($"Failed to show cape (HTTP {result.StatusCode}): " + await result.Content.ReadAsStringAsync(cancellationToken));
                 return null;
             }
-            return JsonConvert.DeserializeObject<MojangProfile>(await result.Content.ReadAsStringAsync(cancellationToken));
+            return JsonSerializer.Deserialize<MojangProfile>(await result.Content.ReadAsStringAsync(cancellationToken), CoreJsonContext.Default.MojangProfile);
         }
         catch (Exception ex)
         {
@@ -160,7 +162,7 @@ public class MojangSkinService : IMojangSkinService
                 _logger.LogError($"Failed to hide cape (HTTP {result.StatusCode}): " + await result.Content.ReadAsStringAsync(cancellationToken));
                 return null;
             }
-            return JsonConvert.DeserializeObject<MojangProfile>(await result.Content.ReadAsStringAsync(cancellationToken));
+            return JsonSerializer.Deserialize<MojangProfile>(await result.Content.ReadAsStringAsync(cancellationToken), CoreJsonContext.Default.MojangProfile);
         }
         catch (Exception ex)
         {

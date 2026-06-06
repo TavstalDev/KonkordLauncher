@@ -19,7 +19,7 @@ public class BoolToOpacityConverter : IValueConverter
     /// <param name="parameter">Optional converter parameter; not used.</param>
     /// <param name="culture">Culture information; not used.</param>
     /// <returns><c>1.0</c> for <c>true</c> or non-boolean values, <c>0.5</c> for <c>false</c>.</returns>
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is bool isEnabled)
             return isEnabled ? 1.0 : 0.5;

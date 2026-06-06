@@ -19,7 +19,7 @@ public class FileIconConverter : IMultiValueConverter
     /// <param name="parameter">Optional converter parameter; not used.</param>
     /// <param name="culture">Culture information; not used.</param>
     /// <returns>A string containing a glyph code for the appropriate icon.</returns>
-    public object? Convert(IList<object?> values,
+    public object Convert(IList<object?> values,
         Type targetType,
         object? parameter,
         CultureInfo culture)

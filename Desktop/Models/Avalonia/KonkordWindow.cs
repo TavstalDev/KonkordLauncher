@@ -24,13 +24,16 @@ namespace Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 /// <typeparam name="TViewModel">Type of the view model assigned to the window.</typeparam>
 public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> where TViewModel : class
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="KonkordWindow{TViewModel}"/> class and subscribes to the <see cref="Window.Closed"/> event.
+    /// </summary>
     protected KonkordWindow()
     {
         this.Closed += OnClosed;
     }
     
     /// <summary>
-    /// Strongly-typed DataContext for this window. The setter is protected-init only to allow derived
+    /// Strongly-typed DataContext for this window. The setter is protected to allow derived
     /// windows to assign a view-model during construction while still exposing the typed getter.
     /// </summary>
     public new TViewModel? DataContext
@@ -50,6 +53,13 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
         base.OnClosing(e);
     }
 
+    /// <summary>
+    /// Handles the window closed event. Unsubscribes from the event, clears the data context,
+    /// forces garbage collection with large object heap compaction, and attempts to trim the
+    /// working set (platform-specific).
+    /// </summary>
+    /// <param name="sender">The event source.</param>
+    /// <param name="e">Event arguments.</param>
     private void OnClosed(object? sender, EventArgs e)
     {
         this.Closed -= OnClosed;

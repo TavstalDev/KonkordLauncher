@@ -93,7 +93,7 @@ public static class EncryptionUtility
         {
             if (_protector == null)
                 throw new CryptographicException("Data protector is not set for DP encrypted text");
-            return _protector!.Unprotect(text[DP_PREFIX.Length..]);
+            return _protector.Unprotect(text[DP_PREFIX.Length..]);
         }
 
         if (text.StartsWith(WIN_PREFIX))

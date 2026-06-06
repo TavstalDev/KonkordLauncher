@@ -10,6 +10,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Styles.Templates;
 /// A templated control that provides window resizing functionality through styled resize handles.
 /// Automatically wires up resize handles for all eight window edges (cardinal and diagonal directions).
 /// </summary>
+// ReSharper disable once PartialTypeWithSinglePart
 public partial class WindowResizer : TemplatedControl
 {
     /// <summary>

@@ -89,10 +89,10 @@ public class CustomLogger<T> : CustomLogger, ICustomLogger<T> where T : class
     /// </summary>
 #if DEBUG
     public CustomLogger() 
-        : this(LogLevel.Debug, true, null) { }
+        : this(LogLevel.Debug) { }
 #else 
     public CustomLogger() 
-        : this(LogLevel.Information, true, null) { }
+        : this(LogLevel.Information) { }
 #endif
 
     /// <summary>

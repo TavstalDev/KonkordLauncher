@@ -1,7 +1,8 @@
 using System.Collections.Concurrent;
-using Newtonsoft.Json.Linq;
+using System.Text.Json.Serialization.Metadata;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Config;
+using Tavstal.KonkordLauncher.Common.Models.Json;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
 using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
@@ -28,9 +29,10 @@ public class LauncherStore : ILauncherStore
     /// <inheritdoc/>
     public CoreConfig? GetSettings()
     {
+        CoreConfig? result = null;
         if (_cache.TryGetValue(PathHelper.LauncherConfigPath, out var cacheResult))
-            return (CoreConfig)cacheResult.data;
-        return null;
+            result = (CoreConfig)cacheResult.data;
+        return result;
     }
 
     /// <inheritdoc/>
@@ -44,15 +46,15 @@ public class LauncherStore : ILauncherStore
                 config.Minecraft.WindowHeight = screenResolution.Y;
             }
             return config;
-        }, cancellationToken);
+        }, CommonJsonContex.Default.CoreConfig, cancellationToken);
 
     /// <inheritdoc/>
     public bool SaveSettings(CoreConfig settings) => 
-        Save(PathHelper.LauncherConfigPath, settings);
+        Save(PathHelper.LauncherConfigPath, settings, CommonJsonContex.Default.CoreConfig);
 
     /// <inheritdoc/>
     public async Task<bool> SaveSettingsAsync(CoreConfig settings, CancellationToken cancellationToken = default) =>
-        await SaveAsync(PathHelper.LauncherConfigPath, settings, cancellationToken);
+        await SaveAsync(PathHelper.LauncherConfigPath, settings, CommonJsonContex.Default.CoreConfig, cancellationToken);
 
     /// <inheritdoc/>
     public AccountData? GetAccountData()
@@ -65,19 +67,17 @@ public class LauncherStore : ILauncherStore
     /// <inheritdoc/>
     public async Task<AccountData> GetAccountDataAsync(CancellationToken cancellationToken = default)
     {
-        var result = await ReadOrRecreateAsync(PathHelper.LauncherAccountsPath, () => new AccountData(), cancellationToken);
-        foreach (var account in result.Accounts)
-            account.IsSelected = result.SelectedAccountId == account.Id;
+        var result = await ReadOrRecreateAsync(PathHelper.LauncherAccountsPath, () => new AccountData(), CommonJsonContex.Default.AccountData, cancellationToken);
         return result;
     }
 
     /// <inheritdoc/>
     public bool SaveAccountData(AccountData accountData) =>
-        Save(PathHelper.LauncherAccountsPath, accountData);
+        Save(PathHelper.LauncherAccountsPath, accountData, CommonJsonContex.Default.AccountData);
 
     /// <inheritdoc/>
     public async Task<bool> SaveAccountDataAsync(AccountData accountData, CancellationToken cancellationToken = default) =>
-        await SaveAsync(PathHelper.LauncherAccountsPath, accountData, cancellationToken);
+        await SaveAsync(PathHelper.LauncherAccountsPath, accountData, CommonJsonContex.Default.AccountData, cancellationToken);
 
     /// <inheritdoc/>
     public List<Instance>? GetInstances()
@@ -89,31 +89,31 @@ public class LauncherStore : ILauncherStore
 
     /// <inheritdoc/>
     public async Task<List<Instance>> GetInstancesAsync(CancellationToken cancellationToken = default)=> 
-        await ReadOrRecreateAsync<List<Instance>>(PathHelper.LauncherInstancesPath, () => [], cancellationToken);
+        await ReadOrRecreateAsync<List<Instance>>(PathHelper.LauncherInstancesPath, () => [], CommonJsonContex.Default.ListInstance, cancellationToken);
 
     /// <inheritdoc/>
     public bool SaveInstances(List<Instance> instances) =>
-        Save(PathHelper.LauncherInstancesPath, instances);
+        Save(PathHelper.LauncherInstancesPath, instances, CommonJsonContex.Default.ListInstance);
 
     /// <inheritdoc/>
     public async Task<bool> SaveInstancesAsync(List<Instance> instances, CancellationToken cancellationToken = default) =>
-        await SaveAsync(PathHelper.LauncherInstancesPath, instances, cancellationToken);
+        await SaveAsync(PathHelper.LauncherInstancesPath, instances, CommonJsonContex.Default.ListInstance, cancellationToken);
 
     /// <inheritdoc/>
     public List<InstanceResource>? GetInstanceResources(Instance instance) =>
-        ReadOrRecreate<List<InstanceResource>?>(instance.GetResourceConfigPath(), () => []);
+        ReadOrRecreate<List<InstanceResource>?>(instance.GetResourceConfigPath(), () => [], CommonJsonContex.Default.ListInstanceResource);
 
     /// <inheritdoc/>
     public async Task<List<InstanceResource>> GetInstanceResourcesAsync(Instance instance, CancellationToken cancellationToken = default) =>
-        await ReadOrRecreateAsync<List<InstanceResource>>(instance.GetResourceConfigPath(), () => [], cancellationToken);
+        await ReadOrRecreateAsync<List<InstanceResource>>(instance.GetResourceConfigPath(), () => [], CommonJsonContex.Default.ListInstanceResource, cancellationToken);
 
     /// <inheritdoc/>
     public bool SaveInstanceResources(Instance instance, List<InstanceResource> resources) =>
-        Save(instance.GetResourceConfigPath(), resources);
+        Save(instance.GetResourceConfigPath(), resources, CommonJsonContex.Default.ListInstanceResource);
 
     /// <inheritdoc/>
     public async Task<bool> SaveInstanceResourcesAsync(Instance instance, List<InstanceResource> resources, CancellationToken cancellationToken = default) =>
-        await SaveAsync(instance.GetResourceConfigPath(), resources, cancellationToken);
+        await SaveAsync(instance.GetResourceConfigPath(), resources, CommonJsonContex.Default.ListInstanceResource, cancellationToken);
 
     /// <inheritdoc/>
     public async Task<List<PatchNote>> GetPatchNotesAsync(string cacheDir, CancellationToken cancellationToken = default)
@@ -122,19 +122,10 @@ public class LauncherStore : ILauncherStore
         if (!File.Exists(githubFilePath))
             return [];
 
-        List<PatchNote> result = [];
-        string rawJson = await File.ReadAllTextAsync(githubFilePath, cancellationToken);
-        JArray jArray = JArray.Parse(rawJson);
-        // ReSharper disable once LoopCanBeConvertedToQuery
-        foreach (var patchNote in jArray)
-        {
-            string tagName = patchNote["tag_name"]?.ToString() ?? "Unknown Version";
-            string body = patchNote["body"]?.ToString() ?? "No description available.";
-            string url = patchNote["html_url"]?.ToString() ?? "";
-            result.Add(new PatchNote(tagName, body, url));
-        }
+        List<PatchNote>? result =
+            await JsonHelper.ReadJsonFileAsync(githubFilePath, CommonJsonContex.Default.ListPatchNote, cancellationToken);
         
-        return result;
+        return result ?? [];
     }
     
     /// <summary>
@@ -144,15 +135,16 @@ public class LauncherStore : ILauncherStore
     /// <typeparam name="T">Type of the value being saved.</typeparam>
     /// <param name="path">Absolute path to the JSON file to write.</param>
     /// <param name="value">The value to serialize and save.</param>
+    /// <param name="typeInfo">Type information for the value.</param>
     /// <returns>
     /// <see langword="true"/> if the file was written and the cache updated; otherwise <see langword="false"/>.
     /// In error cases the method logs the exception and returns <see langword="false"/> rather than throwing.
     /// </returns>
-    private bool Save<T>(string path, T value)
+    private bool Save<T>(string path, T value, JsonTypeInfo<T> typeInfo)
     {
         try
         {
-            JsonHelper.WriteJsonFile(path, value);
+            JsonHelper.WriteJsonFile(path, value, typeInfo);
             var cacheValue = (DateTime.UtcNow, value);
             _cache.AddOrUpdate(path, cacheValue!, (_, _) => cacheValue!);
             return true;
@@ -171,16 +163,17 @@ public class LauncherStore : ILauncherStore
     /// <typeparam name="T">Type of the value being saved.</typeparam>
     /// <param name="path">Absolute path to the JSON file to write.</param>
     /// <param name="value">The value to serialize and save.</param>
+    /// <param name="typeInfo">Type information for the value.</param>
     /// <param name="cancellationToken">Cancellation token observed while performing the write operation.</param>
     /// <returns>
     /// <see langword="true"/> if the file was written and the cache updated; otherwise <see langword="false"/>.
     /// In error cases the method logs the exception and returns <see langword="false"/> rather than throwing.
     /// </returns>
-    private async Task<bool> SaveAsync<T>(string path, T value, CancellationToken cancellationToken = default)
+    private async Task<bool> SaveAsync<T>(string path, T value, JsonTypeInfo<T> typeInfo, CancellationToken cancellationToken = default)
     {
         try
         {
-            await JsonHelper.WriteJsonFileAsync(path, value, cancellationToken);
+            await JsonHelper.WriteJsonFileAsync(path, value, typeInfo, cancellationToken);
             var cacheValue = (DateTime.UtcNow, value);
             _cache.AddOrUpdate(path, cacheValue!, (_, _) => cacheValue!);
             return true;
@@ -192,7 +185,15 @@ public class LauncherStore : ILauncherStore
         }
     }
     
-    private T ReadOrRecreate<T>(string path, Func<T> factory)
+    /// <summary>
+    /// Reads data from a JSON file if it exists; otherwise, recreates the file using a factory method.
+    /// </summary>
+    /// <typeparam name="T">The type of data to read or write.</typeparam>
+    /// <param name="path">The path to the JSON file.</param>
+    /// <param name="factory">A delegate that creates new instances of T if the file does not exist.</param>
+    /// <param name="typeInfo">JSON serialization information for the type T.</param>
+    /// <returns>The data read from the file, or newly created data if the file did not exist.</returns>
+    private T ReadOrRecreate<T>(string path, Func<T> factory, JsonTypeInfo<T> typeInfo)
     {
         try
         {
@@ -201,19 +202,19 @@ public class LauncherStore : ILauncherStore
             if (!fileInfo.Exists)
             {
                 T result = factory();
-                JsonHelper.WriteJsonFile(path, result);
+                JsonHelper.WriteJsonFile(path, result, typeInfo);
                 return result;
             }
             
-            if (_cache.TryGetValue(path, out var cacheResult) && fileInfo.LastWriteTimeUtc <= lastWritten)
+            if (_cache.TryGetValue(path, out var cacheResult) && lastWritten <= cacheResult.lastWritten)
                 return (T)cacheResult.data;
 
-            var readResult = JsonHelper.ReadJsonFile<T>(path);
+            var readResult = JsonHelper.ReadJsonFile(path, typeInfo);
             if (readResult == null)
             {
                 T result = factory();
                 File.Move(path, path + ".bak", true);
-                JsonHelper.WriteJsonFile(path, result);
+                JsonHelper.WriteJsonFile(path, result, typeInfo);
                 readResult = result;
                 lastWritten = DateTime.UtcNow;
             }
@@ -236,9 +237,10 @@ public class LauncherStore : ILauncherStore
     /// <typeparam name="T">The type to deserialize from the JSON file.</typeparam>
     /// <param name="path">Absolute path to the JSON file to read or create.</param>
     /// <param name="factory">Factory function called to create a new instance of <typeparamref name="T"/>.</param>
+    /// <param name="typeInfo">Type information for the value.</param>
     /// <param name="cancellationToken">A token to observe while writing a newly created file to disk.</param>
     /// <returns>A task that resolves to the read or newly created instance of <typeparamref name="T"/>.</returns>
-    private async Task<T> ReadOrRecreateAsync<T>(string path, Func<T> factory, CancellationToken cancellationToken = default)
+    private async Task<T> ReadOrRecreateAsync<T>(string path, Func<T> factory, JsonTypeInfo<T> typeInfo, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -247,19 +249,19 @@ public class LauncherStore : ILauncherStore
             if (!fileInfo.Exists)
             {
                 T result = factory();
-                await JsonHelper.WriteJsonFileAsync(path, result, cancellationToken);
+                await JsonHelper.WriteJsonFileAsync(path, result, typeInfo, cancellationToken);
                 return result;
             }
             
-            if (_cache.TryGetValue(path, out var cacheResult) && fileInfo.LastWriteTimeUtc <= lastWritten)
+            if (_cache.TryGetValue(path, out var cacheResult) && lastWritten <= cacheResult.lastWritten)
                 return (T)cacheResult.data;
 
-            var readResult = await JsonHelper.ReadJsonFileAsync<T>(path);
+            var readResult = await JsonHelper.ReadJsonFileAsync(path, typeInfo, cancellationToken);
             if (readResult == null)
             {
                 T result = factory();
                 File.Move(path, path + ".bak", true);
-                await JsonHelper.WriteJsonFileAsync(path, result, cancellationToken);
+                await JsonHelper.WriteJsonFileAsync(path, result,  typeInfo, cancellationToken);
                 readResult = result;
                 lastWritten = DateTime.UtcNow;
             }

@@ -30,5 +30,8 @@ public enum ESidebarType
     /// </summary>
     About = 4,
     
+    /// <summary>
+    /// The "Skins" sidebar option, for managing character skins.
+    /// </summary>
     Skins = 5
 }

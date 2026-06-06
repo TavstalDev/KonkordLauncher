@@ -351,7 +351,7 @@ public static class FileSystemHelper
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Unexpected error while testing write permissions at {targetDir}:");
+            _logger.LogError(ex, $"Unexpected error while testing write permissions at {targetDir}:");
             return false;
         }
     }
@@ -382,7 +382,7 @@ public static class FileSystemHelper
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Unexpected error while testing write permissions at {targetDir}:");
+            _logger.LogError(ex, $"Unexpected error while testing write permissions at {targetDir}:");
             return false;
         }
     }
@@ -402,7 +402,7 @@ public static class FileSystemHelper
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Unexpected error while checking free space at {targetDir}:");
+            _logger.LogError(ex, $"Unexpected error while checking free space at {targetDir}:");
             return false;
         }
     }

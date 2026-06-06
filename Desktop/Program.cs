@@ -49,6 +49,11 @@ class Program
     [STAThread]
     public static void Main(string[] args)
     {
+        string appDir = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "KonkordLauncher"
+        );
+        
         VelopackApp.Build().Run();
         
         _ = Task.Run(() => LoggerHelper.ProcessLogQueueAsync(LogCts.Token));
@@ -86,11 +91,7 @@ class Program
                 services.AddSingleton<IMetaCacheService>(sp => sp.GetRequiredService<MetaCacheService>());
                 services.AddSingleton<IAsyncInitializable>(sp => sp.GetRequiredService<MetaCacheService>());
                 
-                var keyDir = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                    "KonkordLauncher",
-                    "keys"
-                );
+                var keyDir = Path.Combine(appDir, "keys");
                 Directory.CreateDirectory(keyDir);
                 services.AddDataProtection()
                     .PersistKeysToFileSystem(new DirectoryInfo(keyDir))

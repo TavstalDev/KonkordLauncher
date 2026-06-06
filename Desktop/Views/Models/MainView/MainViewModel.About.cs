@@ -13,6 +13,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.MainView;
 /// </summary>
 public partial class MainViewModel_About : KonkordObservableObject
 {
+    // ReSharper disable once NotAccessedField.Local
     private readonly MainViewModel _parent;
         
     public string Version { get; } =  App.Version;

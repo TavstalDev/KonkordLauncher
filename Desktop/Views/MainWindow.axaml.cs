@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reactive;
 using System.Reactive.Disposables.Fluent;
 using System.Threading.Tasks;
@@ -22,7 +23,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 // ReSharper disable once PartialTypeWithSinglePart
 public partial class MainWindow : KonkordWindow<MainViewModel>
 {
-    // This window should not use KonkordWindow as long as it can only be opened once.
+    // ReSharper disable once NotAccessedField.Local
     private readonly ICustomLogger _logger;
     private readonly Dictionary<string, InstanceLogsWindow> _logWindows = new(); 
     private readonly Dictionary<string, EditInstanceWindow> _openEditWindows = new();
@@ -30,6 +31,7 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
     private Button _selectedSettingsTabButton;
     private Button _selectedAboutTabButton;
     
+    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public MainWindow()
     {
         InitializeComponent();
@@ -176,6 +178,13 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
                 ExportWindow exportWindow = new ExportWindow(instance, EInstanceProvider.CURSE_FORGE);
                 await exportWindow.ShowDialog(this);
                 action.SetOutput(Unit.Default);
+            }).DisposeWith(disposables);
+            DataContext.ShowInstanceVersionSelectorInteraction.RegisterHandler(async action =>
+            {
+                var instance = action.Input;
+                InstanceVersionSelectorWindow selectorWindow = new InstanceVersionSelectorWindow(instance);
+                var result = await selectorWindow.ShowDialog<bool>(this);
+                action.SetOutput(result);
             }).DisposeWith(disposables);
         });
     }

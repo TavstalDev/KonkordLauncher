@@ -59,6 +59,7 @@ public partial class MainViewModel : KonkordObservableObject
     public Interaction<EAboutTab, Unit> SwitchAboutTabInteractionInteraction { get; } = new();
     public Interaction<Instance, Unit> ExportModrinthInstanceInteraction { get; } = new();
     public Interaction<Instance, Unit> ExportCurseForgeInstanceInteraction { get; } = new();
+    public Interaction<Instance, bool> ShowInstanceVersionSelectorInteraction { get; } = new();
     #endregion
 
     [ObservableProperty]

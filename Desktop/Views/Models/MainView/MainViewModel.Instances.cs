@@ -271,6 +271,14 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         GlobalEvents.InvokeInstanceUpdated(targetInstance.Id);
     }
 
+    [RelayCommand]
+    private async Task ChangeInstanceVersion(InstanceModel? instance, CancellationToken cancellationToken = default)
+    {
+        if (instance == null)
+            return;
+        await _parent.ShowInstanceVersionSelectorInteraction.Handle(instance.getInstance());
+    }
+
     /// <summary>
     /// Changes the group of the specified Minecraft instance asynchronously.
     /// Prompts the user for a new group name, validates it, and updates the instance if valid.

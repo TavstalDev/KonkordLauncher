@@ -1,0 +1,162 @@
+<Window
+    x:Class="Tavstal.KonkordLauncher.Desktop.Views.Dialogs.InstanceVersionSelectorWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
+    xmlns:templates="clr-namespace:Tavstal.KonkordLauncher.Desktop.Styles.Templates"
+    Title="{lang:Translate instance.version.selector.window}"
+    Width="500"
+    Height="510"
+    MinWidth="500"
+    MinHeight="510"
+    d:DesignHeight="510"
+    d:DesignWidth="500"
+    x:DataType="models:InstanceVersionSelectorViewModel"
+    Background="Transparent"
+    CanResize="False"
+    CornerRadius="14"
+    ExtendClientAreaToDecorationsHint="True"
+    Icon="avares://KonkordLauncher/Assets/Images/logo.png"
+    ShowInTaskbar="True"
+    TransparencyLevelHint="Transparent"
+    UseLayoutRounding="True"
+    WindowDecorations="None"
+    WindowStartupLocation="CenterScreen"
+    mc:Ignorable="d">
+    <Grid>
+        <!--  Main Window Content  -->
+        <Border
+            Background="{DynamicResource base-200}"
+            BorderBrush="{DynamicResource border-one}"
+            BorderThickness="1"
+            CornerRadius="14"
+            PointerPressed="DragStart_PointerPressed">
+            <Grid RowDefinitions="Auto, *">
+                <!--  Window Controls  -->
+                <templates:CustomTitleBar />
+
+                <!--  Main Content  -->
+                <Grid Grid.Row="1" RowDefinitions="Auto, *, Auto">
+
+                    <!--  Title  -->
+                    <Border Classes="ModalTitleBorder">
+                        <StackPanel>
+                            <TextBlock Text="{lang:Translate instance.version.selector.title}" />
+                            <TextBlock Classes="ModalSubTitle" Text="{lang:Translate instance.version.selector.description}" />
+                        </StackPanel>
+                    </Border>
+
+                    <!--  Content  -->
+                    <ScrollViewer Grid.Row="1" Margin="25,15">
+                        <Grid RowDefinitions="Auto, Auto" RowSpacing="15">
+                            <Border Classes="SettingsCategoryBorder">
+                                <Grid RowDefinitions="Auto, Auto, Auto">
+                                    <!--  Category Title  -->
+                                    <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.category.minecraft.version.title}" />
+
+                                    <ComboBox
+                                        Grid.Row="1"
+                                        Margin="5"
+                                        HorizontalAlignment="Stretch"
+                                        ItemsSource="{Binding MinecraftVersions}"
+                                        SelectedItem="{Binding SelectedMinecraftVersion}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Margin="0" Text="{Binding Id}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+
+                                    <WrapPanel
+                                        Grid.Row="2"
+                                        Margin="7.5"
+                                        ItemSpacing="10"
+                                        Orientation="Horizontal">
+                                        <!--  Release  -->
+                                        <CheckBox Content="{lang:Translate instance.create.releases}" IsChecked="{Binding ShowReleases, Mode=TwoWay}" />
+                                        <!--  Snapshot  -->
+                                        <CheckBox Content="{lang:Translate instance.create.snapshots}" IsChecked="{Binding ShowSnapshots, Mode=TwoWay}" />
+                                        <!--  Beta  -->
+                                        <CheckBox Content="{lang:Translate instance.create.betas}" IsChecked="{Binding ShowBetas, Mode=TwoWay}" />
+                                        <!--  Alpha  -->
+                                        <CheckBox Content="{lang:Translate instance.create.alphas}" IsChecked="{Binding ShowAlphas, Mode=TwoWay}" />
+                                        <!--  Experiment  -->
+                                        <CheckBox Content="{lang:Translate instance.create.experiments}" IsChecked="{Binding ShowExperiments, Mode=TwoWay}" />
+                                    </WrapPanel>
+                                </Grid>
+                            </Border>
+
+                            <Border
+                                Grid.Row="1"
+                                Classes="SettingsCategoryBorder"
+                                IsEnabled="{Binding IsModded}">
+                                <Grid RowDefinitions="Auto, Auto">
+                                    <!--  Category Title  -->
+                                    <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.category.mod_loader.title}" />
+
+                                    <ComboBox
+                                        Grid.Row="1"
+                                        Margin="5"
+                                        HorizontalAlignment="Stretch"
+                                        ItemsSource="{Binding ModLoaderVersionResult}"
+                                        SelectedItem="{Binding SelectedModLoader}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Margin="0" Text="{Binding Version}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </ScrollViewer>
+
+                    <!--  Bottom Wrapper  -->
+                    <Border Grid.Row="2" Classes="InstanceButtonBorder">
+                        <Grid ColumnDefinitions="200, *" ColumnSpacing="10">
+                            <!--  Action buttons  -->
+                            <StackPanel Grid.Column="1" Classes="InstanceButtonWrapper">
+                                <!--  Cancel Button  -->
+                                <Button Classes="IconBtn ErrorBtn" Command="{Binding CloseCommand}">
+                                    <WrapPanel Classes="IconBtnWrapper">
+                                        <TextBlock
+                                            VerticalAlignment="Center"
+                                            Classes="FontAwesome"
+                                            Text="&#xf00d;" />
+                                        <TextBlock
+                                            VerticalAlignment="Center"
+                                            FontWeight="500"
+                                            Text="{lang:Translate common.cancel}" />
+                                    </WrapPanel>
+                                </Button>
+                                <!--  Save Button  -->
+                                <Button
+                                    Classes="IconBtn SuccessBtn"
+                                    Command="{Binding SaveCommand}"
+                                    IsEnabled="{Binding CanSaveChanges}">
+                                    <WrapPanel Classes="IconBtnWrapper">
+                                        <TextBlock
+                                            VerticalAlignment="Center"
+                                            Classes="FontAwesome"
+                                            Text="&#xf0c7;" />
+                                        <TextBlock
+                                            VerticalAlignment="Center"
+                                            FontWeight="500"
+                                            Text="{lang:Translate common.save}" />
+                                    </WrapPanel>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!--  Resize overlay  -->
+        <templates:WindowResizer />
+    </Grid>
+</Window>

@@ -27,10 +27,14 @@ public partial class InstallViewModel : ObservableObject
     [ObservableProperty]
     public partial double ProgressValue { get; set; }
     
-    
+    /// <summary>
+    /// An interaction representing the close window action.
+    /// </summary>
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
     
-
+    /// <summary>
+    /// Closes the window by invoking the close window interaction.
+    /// </summary>
     [RelayCommand]
     public async Task CloseWindow() => await CloseWindowInteraction.Handle(Unit.Default);
 }

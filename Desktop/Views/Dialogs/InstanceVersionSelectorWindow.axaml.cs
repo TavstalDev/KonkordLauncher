@@ -13,16 +13,26 @@ using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
+/// <summary>
+/// Represents a window for selecting the version of an instance.
+/// </summary>
 public partial class InstanceVersionSelectorWindow : KonkordWindow<InstanceVersionSelectorViewModel>
 {
     private readonly ICustomLogger _logger;
     private readonly ITranslationService _translationService;
     private readonly ILauncherStore _launcherStore;
 
+    /// <summary>
+    /// Initializes a new instance of the InstanceVersionSelectorWindow class with no parameters.
+    /// </summary>
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public InstanceVersionSelectorWindow() : this(null!) { }
     
+    /// <summary>
+    /// Initializes a new instance of the InstanceVersionSelectorWindow class with an instance parameter.
+    /// </summary>
+    /// <param name="instance">The instance for which the version is being selected.</param>
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public InstanceVersionSelectorWindow(Instance instance)

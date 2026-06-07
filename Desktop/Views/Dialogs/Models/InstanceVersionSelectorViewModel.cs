@@ -29,12 +29,15 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
 {
     private readonly Instance _instance;
-    private readonly ICustomLogger _logger;
-    private readonly ILauncherStore _launcherStore;
-    private readonly IManifestService _manifestService;
+    private readonly ICustomLogger _logger = null!;
+    private readonly ILauncherStore _launcherStore = null!;
+    private readonly IManifestService _manifestService = null!;
     public EMinecraftKind Kind { get; }
     public bool IsModded => Kind != EMinecraftKind.VANILLA;
     
+    /// <summary>
+    /// Determines if changes can be saved.
+    /// </summary>
     public bool CanSaveChanges
     {
         get
@@ -52,7 +55,7 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
     
     #region Vanilla
     private readonly SourceCache<MinecraftVersion, string> _minecraftVersionCache = new(x => x.Id);
-    public ReadOnlyObservableCollection<MinecraftVersion> MinecraftVersions { get; private set; }
+    public ReadOnlyObservableCollection<MinecraftVersion> MinecraftVersions { get; private set; } = null!;
     [ObservableProperty]
     public partial string SearchQuery { get; set; } = string.Empty;
 
@@ -105,6 +108,10 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
     
     public Interaction<bool, Unit> CloseWindowInteraction { get; } = new();
 
+    /// <summary>
+    /// Initializes a new instance of the InstanceVersionSelectorViewModel class.
+    /// </summary>
+    /// <param name="instance">The current instance being managed.</param>
     public InstanceVersionSelectorViewModel(Instance instance)
     {
         _instance = instance;
@@ -125,6 +132,10 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
         }, TaskScheduler.Default);
     }
     
+    /// <summary>
+    /// Disposes of the resources used by the InstanceVersionSelectorViewModel.
+    /// </summary>
+    /// <param name="disposing">True if disposing explicitly; false otherwise.</param>
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
@@ -139,6 +150,9 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
         SelectedModLoader = null;
     }
     
+    /// <summary>
+    /// Sets up the data pipeline for version and mod loader selection.
+    /// </summary>
     public void SetupPipeline()
     {
         #region Minecraft Version
@@ -238,6 +252,10 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
         #endregion
     }
     
+    /// <summary>
+    /// Initializes the data for the instance version selector.
+    /// </summary>
+    /// <param name="cancellationToken">CancellationToken to support cancellation.</param>
     public async Task InitAsync(CancellationToken cancellationToken = default)
     {
         var settings = _launcherStore.GetSettings() ?? throw new InvalidOperationException("Settings cannot be null");
@@ -275,7 +293,7 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
             .ToTask(cancellationToken);
 
         SelectedMinecraftVersion = MinecraftVersions
-                                       .FirstOrDefault(v => v.Id == _instance?.MinecraftVersion)
+                                       .FirstOrDefault(v => v.Id == _instance.MinecraftVersion)
                                    ?? MinecraftVersions.FirstOrDefault(v => v.Type == "release");
         
         await ModLoaderVersionResult
@@ -286,18 +304,36 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
             .ToTask(cancellationToken);
         
         SelectedModLoader = ModLoaderVersionResult
-                                .FirstOrDefault(m => m.Version == _instance?.CustomVersion && m.LoaderKind == Kind);
+                                .FirstOrDefault(m => m.Version == _instance.CustomVersion && m.LoaderKind == Kind);
 
     }
     
+    /// <summary>
+    /// Closes the window.
+    /// </summary>
     [RelayCommand]
     private async Task Close() => await CloseWindowInteraction.Handle(false);
 
+    /// <summary>
+    /// Saves the selected instance settings.
+    /// </summary>
     [RelayCommand]
     private async Task Save()
     {
         if (!CanSaveChanges)
             return;
+
+        if (_instance.MinecraftVersion == SelectedMinecraftVersion!.Id && Kind == EMinecraftKind.VANILLA)
+        {
+            await CloseWindowInteraction.Handle(true);
+            return;
+        }
+
+        if (Kind != EMinecraftKind.VANILLA && _instance.CustomVersion == SelectedModLoader?.Version)
+        {
+            await CloseWindowInteraction.Handle(true);
+            return;
+        }
 
         var instances = await _launcherStore.GetInstancesAsync();
         int instanceIndex = instances.FindIndex(x => x.Id == _instance.Id);

@@ -17,8 +17,8 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 /// </summary>
 public partial class JavaSelectorViewModel : ObservableObject
 {
-    private readonly ILauncherStore _launcherStore;
-    private readonly IJavaService _javaService;
+    private readonly ILauncherStore _launcherStore = null!;
+    private readonly IJavaService _javaService = null!;
     
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasSelectedJavaVersion))]
@@ -32,10 +32,14 @@ public partial class JavaSelectorViewModel : ObservableObject
     /// </summary>
     public bool HasSelectedJavaVersion => SelectedJavaVersion != null;
     
-    
-    
+    /// <summary>
+    /// Represents the interaction for closing a window with a model of Java version.
+    /// </summary>
     public Interaction<JavaVersionModel?, Unit> CloseWindowInteraction { get; } = new();
     
+    /// <summary>
+    /// Initializes a new instance of the <see cref="JavaSelectorViewModel"/> class.
+    /// </summary>
     public JavaSelectorViewModel()
     {
         Versions = [];
@@ -76,6 +80,9 @@ public partial class JavaSelectorViewModel : ObservableObject
     [RelayCommand]
     public async Task CancelBtn() => await CloseWindowInteraction.Handle(null);
     
+    /// <summary>
+    /// Closes the current window.
+    /// </summary>
     [RelayCommand]
     public async Task CloseWindow() => await CloseWindowInteraction.Handle(null);
 }

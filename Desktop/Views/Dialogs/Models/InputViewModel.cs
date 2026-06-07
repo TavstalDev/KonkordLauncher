@@ -13,8 +13,6 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 /// </summary>
 public partial class InputViewModel : ObservableObject
 {
-    
-    
     public Interaction<string?, Unit> CloseWindowInteraction { get; } = new();
 
     /// <summary>
@@ -59,6 +57,10 @@ public partial class InputViewModel : ObservableObject
         await CloseWindowInteraction.Handle(InputText);
     }
     
+    /// <summary>
+    /// Closes the window.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
     [RelayCommand]
     public async Task CloseWindow() => await CloseWindowInteraction.Handle(null);
 }

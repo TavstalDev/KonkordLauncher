@@ -26,22 +26,22 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 /// </summary>
 public partial class ExportViewModel : KonkordObservableObject
 {
-    private readonly ITranslationService  _translationService;
-    private readonly ModrinthPackageService _modrinthPackageService;
-    public Instance Instance { get; }
-    public EInstanceProvider Provider { get; }
+    private readonly ITranslationService  _translationService = null!;
+    private readonly ModrinthPackageService _modrinthPackageService = null!;
+    private Instance Instance { get; } = null!;
+    private EInstanceProvider Provider { get; }
     
     [ObservableProperty]
     public partial bool IsInitialized { get; set; }
     [ObservableProperty]
     public partial bool IsExporting { get; set; }
     [ObservableProperty]
-    public partial string InstanceName { get; set; }
+    public partial string InstanceName { get; set; } = null!;
     [ObservableProperty]
-    public partial string InstanceVersion { get; set; }
+    public partial string InstanceVersion { get; set; }  = null!;
     [ObservableProperty]
-    public partial string InstanceSummary { get; set; }
-    public ObservableCollection<ObservableFileNode> Items { get; } = new();
+    public partial string InstanceSummary { get; set; } = null!;
+    public ObservableCollection<ObservableFileNode> Items { get; } = [];
     
     #region Interactions
     

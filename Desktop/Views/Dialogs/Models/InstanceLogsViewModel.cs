@@ -19,8 +19,8 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 public partial class InstanceLogsViewModel : KonkordObservableObject
 {
     private readonly string _instanceId;
-    private readonly ICustomLogger _logger;
-    private readonly ILauncherStore _launcherStore;
+    private readonly ICustomLogger _logger = null!;
+    private readonly ILauncherStore _launcherStore = null!;
     
     #region Interactions
     
@@ -34,13 +34,13 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
     #region Observable Properties
 
     [ObservableProperty]
-    public partial string InstanceName { get; set; }
+    public partial string InstanceName { get; set; } = null!;
 
     [ObservableProperty]
     public partial string? GameDirectory { get; set; }
 
     [ObservableProperty]
-    public partial string Logs { get; set; }
+    public partial string Logs { get; set; } = null!;
 
     #endregion
 
@@ -146,6 +146,10 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
         GlobalEvents.CleareInstanceLogs(_instanceId);
     }
     
+    /// <summary>
+    /// Closes the window using a command interaction.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     [RelayCommand]
     public async Task CloseWindow() => await CloseWindowInteraction.Handle(Unit.Default);
 }

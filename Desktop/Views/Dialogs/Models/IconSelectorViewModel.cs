@@ -23,8 +23,8 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 /// </summary>
 public partial class IconSelectorViewModel : KonkordObservableObject
 {
-    private readonly ILauncherStore _launcherStore;
-    private readonly IBitmapService _bitmapService;
+    private readonly ILauncherStore _launcherStore = null!;
+    private readonly IBitmapService _bitmapService = null!;
     
     #region Observable Properties
     [ObservableProperty]
@@ -77,6 +77,10 @@ public partial class IconSelectorViewModel : KonkordObservableObject
         SelectedIcon = null;
     }
 
+    /// <summary>
+    /// Initializes the view model by loading available icons.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token to allow the operation to be cancelled.</param>
     private async Task InitAsync(CancellationToken cancellationToken = default)
     {
         // Load available icons
@@ -91,6 +95,9 @@ public partial class IconSelectorViewModel : KonkordObservableObject
     
     #region Commands
 
+    /// <summary>
+    /// Closes the current window.
+    /// </summary>
     [RelayCommand]
     public async Task CloseWindow() => await CloseWindowInteraction.Handle(null);
 

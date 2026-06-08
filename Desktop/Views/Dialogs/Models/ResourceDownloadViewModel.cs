@@ -28,21 +28,26 @@ using Version = Modrinth.Models.Version;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
+/// <summary>
+/// ViewModel for handling the resource download process.
+/// </summary>
 public partial class ResourceDownloadViewModel : KonkordObservableObject
 {
     private readonly Window _parent;
-    private readonly ICustomLogger _logger;
-    private readonly ITranslationService _translationService;
-    private readonly ILauncherStore _launcherStore;
-    private readonly IManifestService _manifestService;
-    private readonly IMetaCacheService _metaCacheService;
-    private readonly IBitmapService _bitmapService;
-    public readonly Instance Instance;
-    public readonly List<InstanceResource> InstanceResources = [];
-    public readonly EResourceType ResourceType;
+    private readonly ICustomLogger _logger = null!;
+    private readonly ITranslationService _translationService = null!;
+    private readonly ILauncherStore _launcherStore = null!;
+    private readonly IManifestService _manifestService = null!;
+    private readonly IMetaCacheService _metaCacheService = null!;
+    private readonly IBitmapService _bitmapService = null!;
+    private readonly Instance? _instance;
+    private readonly List<InstanceResource> _instanceResources = [];
+    private readonly EResourceType _resourceType;
     public bool IsMod { get; }
     private long _refreshGeneration;
 
+    #region Observable Properties
+    
     [ObservableProperty]
     public partial bool AllowScrollbarRefresh { get; set; } = false;
     [ObservableProperty] 
@@ -70,14 +75,15 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(ModPreview)), NotifyPropertyChangedFor(nameof(IsResourceSelected))]
     public partial ResourceBaseModel? SelectedResource { get; set; }
     [ObservableProperty] public partial int SelectedResourceVersionIndex { get; set; } = -1;
+    
+    [ObservableProperty]
+    public partial bool HasResources { get; set; }
+    #endregion
 
     public bool? IsResourceSelected => SelectedResource != null && ResourcesToDownload.ContainsKey(SelectedResource.Name);
     public string ModPreview => SelectedResource == null ? "<p>" + _translationService.Translate("instance.resource.download.preview") + "</p>" : SelectedResource.RawPage;
     
     public AvaloniaDictionary<string, (Version version, string? iconUrl)> ResourcesToDownload { get; } = new();
-    
-    [ObservableProperty]
-    public partial bool HasResources { get; set; }
     
     public List<EPlatformType> AvailablePlatforms =>
     [
@@ -87,18 +93,27 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
         EPlatformType.FTB
     ];
     
+    /// <summary>
+    /// Interaction for closing the window.
+    /// </summary>
     public Interaction<bool, Unit> CloseWindowInteraction { get; } = new();
     
-    public ResourceDownloadViewModel(Window parent, Instance instance, EResourceType resourceType)
+    /// <summary>
+    /// Initializes a new instance of the ResourceDownloadViewModel class.
+    /// </summary>
+    /// <param name="parent">The parent window associated with this view model.</param>
+    /// <param name="instance">The instance associated with this view model, or null if it's not an instance.</param>
+    /// <param name="resourceType">Type of resource being downloaded, e.g., mod or resource pack.</param>
+    public ResourceDownloadViewModel(Window parent, Instance? instance, EResourceType resourceType)
     {
         _parent = parent;
-        Instance = instance;
-        ResourceType = resourceType;
+        _instance = instance;
+        _resourceType = resourceType;
         IsMod = resourceType == EResourceType.MOD;
-        ModLoader = Instance?.Kind ?? EMinecraftKind.FABRIC;
+        ModLoader = _instance?.Kind ?? EMinecraftKind.FABRIC;
         ModLoaderIndex = (int)ModLoader;
         
-        if (Design.IsDesignMode)
+        if (Design.IsDesignMode || instance == null)
             return;
         
         var services = Program.ServiceProvider;
@@ -214,7 +229,11 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
         ResourcesToDownload.CollectionChanged += HandleResourcesToDownload_CollectionChanged;
         _ = InitAsync();
     }
-
+    
+    /// <summary>
+    /// Disposes of the resources associated with this view model.
+    /// </summary>
+    /// <param name="disposing">True if disposing resources, false otherwise.</param>
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
@@ -228,7 +247,12 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
         SelectedResource?.Icon.Dispose(_bitmapService);
         SelectedResource = null;
     }
-
+    
+    /// <summary>                                                                                                                                                                                                                                                  
+    /// Initializes the resource browser by loading the Minecraft version manifest, setting up the version filter,                                                                                                           ⬖ Getting started                ✕    
+    /// reading installed instance resources, and performing the initial resource refresh.                                                                                                                                                                         
+    /// </summary>                                                                                                                                                                                                             OpenCode includes free models       
+    /// <param name="cancellationToken">Token to cancel the operation.</param>
     private async Task InitAsync(CancellationToken  cancellationToken = default)
     {
         await Task.Yield();
@@ -247,7 +271,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
             if (version.Type != "release")
                 continue;
             VersionFilterSource.Add(version.Id);
-            foundInstanceVersion = version.Id == Instance.MinecraftVersion;
+            foundInstanceVersion = version.Id == _instance!.MinecraftVersion;
             if (foundInstanceVersion)
                 continue;
             
@@ -255,15 +279,22 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
         }
         VersionFilterIndex = foundInstanceVersion ? index : 0;
 
-        string configPath = Instance.GetResourceConfigPath();
-        var instanceResources = await JsonHelper.ReadJsonFileAsync<List<InstanceResource>>(configPath, CommonJsonContex.Default.ListInstanceResource);
+        string configPath = _instance!.GetResourceConfigPath();
+        var instanceResources = await JsonHelper.ReadJsonFileAsync<List<InstanceResource>>(configPath, CommonJsonContex.Default.ListInstanceResource, cancellationToken);
         if (instanceResources is { Count: > 0 })
-            InstanceResources.AddRange(instanceResources);
+            _instanceResources.AddRange(instanceResources);
 
         await RefreshResourcesAsync(true, cancellationToken);
         AllowScrollbarRefresh = true;
     }
 
+    /// <summary>
+    /// Refreshes the resource list by querying the Modrinth API with the current search filters (query, version, categories).
+    /// Supports cancellation via <paramref name="cancellationToken"/> and guards against stale results using a generation counter.
+    /// When <paramref name="resetSearch"/> is true, existing resources are cleared and the offset starts from 0.
+    /// </summary>
+    /// <param name="resetSearch">If true, clears the current resource list and resets the search offset.</param>
+    /// <param name="cancellationToken">Token to cancel the operation.</param>
     public async Task RefreshResourcesAsync(bool resetSearch = false, CancellationToken cancellationToken = default)
     {
         var refreshGeneration = Interlocked.Increment(ref _refreshGeneration);
@@ -281,7 +312,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
         }
         
         SearchResponse? response = null;
-        switch (ResourceType)
+        switch (_resourceType)
         {
             case EResourceType.RESOURCE_PACK:
             {
@@ -371,7 +402,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
 
         foreach (var model in results)
         {
-            if (InstanceResources.Any(r => r.ProjectId == model.ProjectId))
+            if (_instanceResources.Any(r => r.ProjectId == model.ProjectId))
                 model.IsInstalled = true;
             if (ResourcesToDownload.ContainsKey(model.Name))
                 model.IsSelected = true;
@@ -389,31 +420,47 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
     [RelayCommand]
     public async Task CloseWindow() => await CloseWindowInteraction.Handle(false);
 
+    /// <summary>
+    /// Toggles the selection state of the currently selected resource for download.
+    /// </summary>
     [RelayCommand]
-    public async Task ToggleResourceSelect()
+    public Task ToggleResourceSelect()
     {
-        if (SelectedResource == null)
-            return;
-        
-        if (SelectedResourceVersionIndex < 0)
-            return;
-        
-        var version = SelectedResource.Versions[SelectedResourceVersionIndex];
-        bool shouldAdd = true;
-        if (ResourcesToDownload.Remove(SelectedResource.Name, out var existingVersion))
+        try
         {
-            shouldAdd = existingVersion.version.Id != version.Id;
-            SelectedResource.IsSelected = false;
+            if (SelectedResource == null)
+                return Task.CompletedTask;
+        
+            if (SelectedResourceVersionIndex < 0)
+                return Task.CompletedTask;
+        
+            var version = SelectedResource.Versions[SelectedResourceVersionIndex];
+            bool shouldAdd = true;
+            if (ResourcesToDownload.Remove(SelectedResource.Name, out var existingVersion))
+            {
+                shouldAdd = existingVersion.version.Id != version.Id;
+                SelectedResource.IsSelected = false;
+            }
+
+            HasResources = ResourcesToDownload.Count + (shouldAdd ? 1 : 0) > 0;
+            if (!shouldAdd)
+                return Task.CompletedTask;
+
+            ResourcesToDownload.Add(SelectedResource.Name, (version, SelectedResource.IconUrl));
+            SelectedResource.IsSelected = true;
+            return Task.CompletedTask;
         }
-
-        HasResources = ResourcesToDownload.Count + (shouldAdd ? 1 : 0) > 0;
-        if (!shouldAdd)
-            return;
-
-        ResourcesToDownload.Add(SelectedResource.Name, (version, SelectedResource.IconUrl));
-        SelectedResource.IsSelected = true;
+        catch (Exception exception)
+        {
+            return Task.FromException(exception);
+        }
     }
 
+    /// <summary>
+    /// Opens the resource review window for the selected resources and their dependencies.
+    /// Collects download models for each selected resource, resolves missing dependencies,
+    /// and passes them to <see cref="ResourceReviewWindow"/> for user confirmation.
+    /// </summary>
     [RelayCommand]
     public async Task ReviewInstall()
     {
@@ -437,7 +484,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
             {
                 foreach (var resourceDependency in deps)
                 {
-                    if (resourceDependency.ProjectId == null || resourceDependency.VersionId == null || InstanceResources.Any(x => x.ProjectId == resourceDependency.ProjectId) 
+                    if (resourceDependency.ProjectId == null || resourceDependency.VersionId == null || _instanceResources.Any(x => x.ProjectId == resourceDependency.ProjectId) 
                         || resources.Any(x => x.ProjectId == resourceDependency.ProjectId))
                         continue;
                     
@@ -483,12 +530,15 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
             });
         }
 
-        var reviewWindow = new ResourceReviewWindow(Instance, ResourceType, resources);
+        var reviewWindow = new ResourceReviewWindow(_instance!, _resourceType, resources);
         bool result = await reviewWindow.ShowDialog<bool>(_parent);
         if (result)
             await CloseWindowInteraction.Handle(true);
     }
     
+    /// <summary>
+    /// Triggers a resource refresh with reset when the search query changes.
+    /// </summary>
     // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnSearchQueryChanged(string value)
     {
@@ -498,6 +548,9 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
         Dispatcher.UIThread.Invoke(async () => await RefreshResourcesAsync(true));
     }
 
+    /// <summary>
+    /// Resets the selected resource version index after a brief delay when the selection changes.
+    /// </summary>
     partial void OnSelectedResourceChanged(ResourceBaseModel? value)
     {
         Dispatcher.UIThread.Invoke(async () =>
@@ -507,6 +560,9 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
         });
     }
 
+    /// <summary>
+    /// Notifies the UI when <see cref="IsResourceSelected"/> has changed due to collection modifications.
+    /// </summary>
     private void HandleResourcesToDownload_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         OnPropertyChanged(nameof(IsResourceSelected));

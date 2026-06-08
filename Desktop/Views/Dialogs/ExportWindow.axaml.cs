@@ -20,6 +20,7 @@ public partial class ExportWindow : KonkordWindow<ExportViewModel>
     /// <summary>
     /// Default ctor that initializes the window for preview/design use.
     /// </summary>
+    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public ExportWindow() : this(null, EInstanceProvider.MODRINTH) { }
     
     /// <summary>

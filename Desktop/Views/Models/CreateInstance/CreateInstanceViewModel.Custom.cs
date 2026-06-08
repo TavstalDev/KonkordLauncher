@@ -39,11 +39,11 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.CreateInstance;
 /// </summary>
 public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
 {
-    private readonly ICustomLogger _logger;
-    private readonly ITranslationService _translationService;
-    private readonly ILauncherStore _launcherStore;
-    private readonly IBitmapService _bitmapService;
-    private readonly IManifestService _manifestService;
+    private readonly ICustomLogger _logger = null!;
+    private readonly ITranslationService _translationService = null!;
+    private readonly ILauncherStore _launcherStore = null!;
+    private readonly IBitmapService _bitmapService = null!;
+    private readonly IManifestService _manifestService = null!;
     private readonly CreateInstanceViewModel _parent;
 
     [ObservableProperty]
@@ -87,7 +87,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
     
     #region Vanilla
     private readonly SourceCache<MinecraftVersion, string> _minecraftVersionCache = new(x => x.Id);
-    public ReadOnlyObservableCollection<MinecraftVersion> MinecraftVersions { get; private set; }
+    public ReadOnlyObservableCollection<MinecraftVersion> MinecraftVersions { get; private set; } = null!;
     [ObservableProperty]
     public partial string SearchQuery { get; set; } = string.Empty;
 

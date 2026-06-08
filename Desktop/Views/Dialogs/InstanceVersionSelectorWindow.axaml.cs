@@ -18,10 +18,6 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 /// </summary>
 public partial class InstanceVersionSelectorWindow : KonkordWindow<InstanceVersionSelectorViewModel>
 {
-    private readonly ICustomLogger _logger;
-    private readonly ITranslationService _translationService;
-    private readonly ILauncherStore _launcherStore;
-
     /// <summary>
     /// Initializes a new instance of the InstanceVersionSelectorWindow class with no parameters.
     /// </summary>
@@ -42,11 +38,6 @@ public partial class InstanceVersionSelectorWindow : KonkordWindow<InstanceVersi
 
         if (Design.IsDesignMode)
             return;
-
-        var services = Program.ServiceProvider;
-        _logger = services.GetRequiredService<ICustomLogger<InstanceVersionSelectorWindow>>();
-        _translationService = services.GetRequiredService<ITranslationService>();
-        _launcherStore = services.GetRequiredService<ILauncherStore>();
 
         this.WhenActivated(disposables =>
         {

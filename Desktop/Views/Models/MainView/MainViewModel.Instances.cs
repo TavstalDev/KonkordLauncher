@@ -25,12 +25,12 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.MainView;
 /// </summary>
 public partial class MainViewModel_Instances : KonkordObservableObject
 {
-    private readonly ICustomLogger _logger;
-    private readonly ILauncherStore _launcherStore;
-    private readonly ITranslationService _translationService;
+    private readonly ICustomLogger _logger = null!;
+    private readonly ILauncherStore _launcherStore = null!;
+    private readonly ITranslationService _translationService = null!;
     private readonly MainViewModel _parent;
     
-    public ObservableCollection<InstanceGroup> InstanceGroups { get; } = new();
+    public ObservableCollection<InstanceGroup> InstanceGroups { get; } = [];
     [ObservableProperty]
     public partial bool HasInstances { get; set; }
 

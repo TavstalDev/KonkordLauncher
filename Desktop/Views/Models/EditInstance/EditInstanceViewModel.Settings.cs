@@ -25,14 +25,14 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
 public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
 {
-    private readonly ICustomLogger _logger;
-    private readonly ITranslationService _translationService;
-    private readonly ILauncherStore _launcherStore;
+    private readonly ICustomLogger _logger = null!;
+    private readonly ITranslationService _translationService = null!;
+    private readonly ILauncherStore _launcherStore = null!;
     private readonly EditInstanceViewModel _parent;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanRemoveEnvironmentVariable))]
-    public partial InstanceConfigModel InstanceConfig { get; set; }
+    public partial InstanceConfigModel InstanceConfig { get; set; } = null!;
 
     [ObservableProperty]
     public partial int? OverridenAccountIndex { get; set; } = 0;

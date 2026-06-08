@@ -28,7 +28,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 /// </summary>
 public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
 {
-    private readonly ICustomLogger _logger;
+    private readonly ICustomLogger _logger = null!;
     private readonly string _instanceId;
     private Button _selectedInstanceTab;
     private Button _selectedSettingsTab;

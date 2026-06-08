@@ -19,7 +19,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 /// </summary>
 public partial class ProgressWindow : KonkordWindow<InstallViewModel>, IProgressReporter
 {
-    private readonly ITranslationService _translationService;
+    private readonly ITranslationService _translationService = null!;
     
     /// <summary>
     /// Initializes a new instance of the <see cref="ProgressWindow"/> class.
@@ -47,6 +47,10 @@ public partial class ProgressWindow : KonkordWindow<InstallViewModel>, IProgress
         });
     }
     
+    /// <summary>
+    /// Ensures the progress bar is not indeterminate when closing to reduce resource usage.
+    /// </summary>
+    /// <param name="e">The event arguments for the closing event.</param>
     protected override void OnClosing(WindowClosingEventArgs e)
     {
         base.OnClosing(e);

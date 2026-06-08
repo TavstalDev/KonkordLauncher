@@ -22,8 +22,8 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 
 public partial class CreateInstanceViewModel : KonkordObservableObject, IProgressReporter
 {
-    private readonly ILauncherStore _launcherStore;
-    private readonly IManifestService _manifestService;
+    private readonly ILauncherStore _launcherStore = null!;
+    private readonly IManifestService _manifestService = null!;
     public CreateInstanceViewModel_Custom Custom { get;  }
     public CreateInstanceViewModel_Modpack Modpack { get;  }
     public CreateInstanceViewModel_Import Import { get;  }

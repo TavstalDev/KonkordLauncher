@@ -41,13 +41,13 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 /// </summary>
 public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressReporter
 {
-    private readonly ICustomLogger _logger;
-    private readonly IHttpService _httpService;
-    private readonly ITranslationService _translationService;
-    private readonly ILauncherStore _launcherStore;
-    private readonly IValidationService _validationService;
-    private readonly IJavaService _javaService;
-    private readonly ISkinService _skinService;
+    private readonly ICustomLogger _logger = null!;
+    private readonly IHttpService _httpService = null!;
+    private readonly ITranslationService _translationService = null!;
+    private readonly ILauncherStore _launcherStore = null!;
+    private readonly IValidationService _validationService = null!;
+    private readonly IJavaService _javaService = null!;
+    private readonly ISkinService _skinService = null!;
     private const int _stepDelay = 100;
     private const int _maxParallelDownloads = 4;
     private readonly int[] _javaVersionsToDownload = [8, 16, 17, 21, 25];

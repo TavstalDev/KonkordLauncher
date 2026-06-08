@@ -24,7 +24,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 public partial class MainWindow : KonkordWindow<MainViewModel>
 {
     // ReSharper disable once NotAccessedField.Local
-    private readonly ICustomLogger _logger;
+    private readonly ICustomLogger _logger = null!;
     private readonly Dictionary<string, InstanceLogsWindow> _logWindows = new(); 
     private readonly Dictionary<string, EditInstanceWindow> _openEditWindows = new();
     private Button _selectedSideBarButton;

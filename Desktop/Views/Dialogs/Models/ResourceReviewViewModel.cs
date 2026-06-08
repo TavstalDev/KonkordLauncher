@@ -20,15 +20,18 @@ using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
+/// <summary>
+/// ViewModel for reviewing and installing selected resources (mods, resource packs, shader packs).
+/// Handles downloading files, saving instance resource configuration, and dependency resolution.
+/// </summary>
 public partial class ResourceReviewViewModel : KonkordObservableObject
 {
     private readonly Instance _instance;
     private readonly EResourceType _resourceType;
-    private readonly IHttpService _httpService;
-    private readonly ITranslationService _translationService;
-    private readonly ILauncherStore _launcherStore;
-    private readonly IManifestService _manifestService;
-    private readonly IMetaCacheService _metaCacheService;
+    private readonly IHttpService _httpService = null!;
+    private readonly ITranslationService _translationService = null!;
+    private readonly ILauncherStore _launcherStore = null!;
+    private readonly IMetaCacheService _metaCacheService = null!;
     private readonly IProgressReporter _progressReporter;
     public ObservableCollection<ResourceDownloadModel> Resources { get; set; }
     
@@ -37,6 +40,13 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
     public Interaction<Alert, Unit> ShowAlertInteraction { get; } = new();
     #endregion
 
+    /// <summary>
+    /// Initializes a new instance of the ResourceReviewViewModel class.
+    /// </summary>
+    /// <param name="instance">The target instance for resource installation.</param>
+    /// <param name="type">The type of resources being installed.</param>
+    /// <param name="resources">The list of resources to review and install.</param>
+    /// <param name="progressReporter">Reporter for download progress.</param>
     public ResourceReviewViewModel(Instance instance, EResourceType type, List<ResourceDownloadModel> resources, IProgressReporter progressReporter)
     {
         _instance = instance;
@@ -92,12 +102,15 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
         _httpService = services.GetRequiredService<IHttpService>();
         _translationService = services.GetRequiredService<ITranslationService>();
         _launcherStore = services.GetRequiredService<ILauncherStore>();
-        _manifestService = services.GetRequiredService<IManifestService>();
         _metaCacheService = services.GetRequiredService<IMetaCacheService>();
     }
     
     #region Commands
 
+    /// <summary>
+    /// Downloads all selected resources, saves the instance resource configuration,
+    /// and closes the window upon success. Shows an alert when complete.
+    /// </summary>
     [RelayCommand]
     public async Task Install()
     {

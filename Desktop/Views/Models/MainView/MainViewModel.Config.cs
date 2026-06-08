@@ -22,12 +22,12 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.MainView;
 /// </summary>
 public partial class MainViewModel_Config : KonkordObservableObject
 {
-    private readonly ICustomLogger _logger;
-    private readonly ILauncherStore _launcherStore;
+    private readonly ICustomLogger _logger = null!;
+    private readonly ILauncherStore _launcherStore = null!;
     private readonly MainViewModel _parent;
 
     [ObservableProperty]
-    public partial CoreConfigModel CoreConfig { get; set; }
+    public partial CoreConfigModel CoreConfig { get; set; } = null!;
 
     /// <summary>
     /// Creates a new instance of <see cref="MainViewModel_Config"/>.

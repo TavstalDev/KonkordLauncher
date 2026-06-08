@@ -28,13 +28,13 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.CreateInstance;
 
 public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
 {
-    private readonly ICustomLogger _logger;
-    private readonly IHttpService _httpService;
-    private readonly ITranslationService _translationService;
-    private readonly IBitmapService _bitmapService;
-    private readonly IMetaCacheService _metaCacheService;
-    private readonly ILauncherStore _launcherStore;
-    private readonly ModrinthPackageService _modrinthPackageService;
+    private readonly ICustomLogger _logger = null!;
+    private readonly IHttpService _httpService = null!;
+    private readonly ITranslationService _translationService = null!;
+    private readonly IBitmapService _bitmapService = null!;
+    private readonly IMetaCacheService _metaCacheService = null!;
+    private readonly ILauncherStore _launcherStore = null!;
+    private readonly ModrinthPackageService _modrinthPackageService = null!;
     private readonly CreateInstanceViewModel _parent;
 
     [ObservableProperty]
@@ -92,8 +92,7 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
     [ObservableProperty]
     public partial int SelectedModpackVersionIndex { get; set; }
 
-    [ObservableProperty]
-    public partial string InstanceName { get; set; }
+    [ObservableProperty] public partial string InstanceName { get; set; } = string.Empty;
 
     [ObservableProperty]
     public partial bool CanCreateInstance { get; set; } = false;

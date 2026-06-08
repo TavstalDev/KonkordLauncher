@@ -26,8 +26,8 @@ namespace Tavstal.KonkordLauncher.Desktop;
 // ReSharper disable once PartialTypeWithSinglePart - Avalonia code generation
 public partial class App : Application
 {
-    // ReSharper disable once NotAccessedField.Local - Used to ensure the task is not garbage collected before completion
     private static ICustomLogger? _logger;
+    // ReSharper disable once NotAccessedField.Local - Used to ensure the task is not garbage collected before completion
     private static Task? _initializeTask;
     private static DiscordRpcClient? _rpcClient;
 

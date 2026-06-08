@@ -26,6 +26,9 @@ using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
+/// <summary>
+/// ViewModel for managing the selection of instance versions and mod loaders.
+/// </summary>
 public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
 {
     private readonly Instance _instance;
@@ -33,6 +36,10 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IManifestService _manifestService = null!;
     public EMinecraftKind Kind { get; }
+    
+    /// <summary>
+    /// Indicates if the instance is modded.
+    /// </summary>
     public bool IsModded => Kind != EMinecraftKind.VANILLA;
     
     /// <summary>
@@ -323,13 +330,8 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
         if (!CanSaveChanges)
             return;
 
-        if (_instance.MinecraftVersion == SelectedMinecraftVersion!.Id && Kind == EMinecraftKind.VANILLA)
-        {
-            await CloseWindowInteraction.Handle(true);
-            return;
-        }
-
-        if (Kind != EMinecraftKind.VANILLA && _instance.CustomVersion == SelectedModLoader?.Version)
+        if (_instance.MinecraftVersion == SelectedMinecraftVersion!.Id && Kind == EMinecraftKind.VANILLA 
+            || Kind != EMinecraftKind.VANILLA && _instance.CustomVersion == SelectedModLoader?.Version)
         {
             await CloseWindowInteraction.Handle(true);
             return;

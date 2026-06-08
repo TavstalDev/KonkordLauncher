@@ -19,7 +19,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 public partial class EditInstanceViewModel_Screenshots  : KonkordObservableObject
 {
     private readonly EditInstanceViewModel _parent;
-    private readonly IBitmapService _bitmapService;
+    private readonly IBitmapService _bitmapService = null!;
     
     public ObservableCollection<ScreenshotModel> Screenshots { get; set; } = [];
     [ObservableProperty]

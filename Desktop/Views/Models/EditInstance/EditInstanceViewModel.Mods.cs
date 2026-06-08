@@ -27,12 +27,12 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
 public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
 {
-    private readonly ICustomLogger _logger;
-    private readonly IBitmapService _bitmapService;
+    private readonly ICustomLogger _logger = null!;
+    private readonly IBitmapService _bitmapService = null!;
     private readonly EditInstanceViewModel _parent;
     
     private readonly SourceCache<ResourceBaseModel, string> _modsCache = new(x => x.Name);
-    public ReadOnlyObservableCollection<ResourceBaseModel> FilteredMods { get; private set; }
+    public ReadOnlyObservableCollection<ResourceBaseModel> FilteredMods { get; private set; } = null!;
 
     [ObservableProperty]
     public partial ResourceBaseModel? SelectedMod { get; set; }

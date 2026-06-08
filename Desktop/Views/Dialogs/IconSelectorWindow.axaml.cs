@@ -21,9 +21,9 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 /// </summary>
 public partial class IconSelectorWindow : KonkordWindow<IconSelectorViewModel>
 {
-    private readonly ICustomLogger _logger;
-    private readonly ITranslationService _translationService;
-    private readonly ILauncherStore _launcherStore;
+    private readonly ICustomLogger _logger = null!;
+    private readonly ITranslationService _translationService = null!;
+    private readonly ILauncherStore _launcherStore = null!;
     
     /// <summary>
     /// Initializes a new instance of the <see cref="IconSelectorWindow"/> class.

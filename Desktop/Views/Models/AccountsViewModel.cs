@@ -35,13 +35,13 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 /// </summary>
 public partial class AccountsViewModel : KonkordObservableObject
 {
-    private readonly ICustomLogger _logger;
-    private readonly ITranslationService _translationService;
-    private readonly ILauncherStore _launcherStore;
-    private readonly IMicrosoftAuthService _authService;
-    private readonly IMicrosoftDeviceAuthService _deviceAuthService;
-    private readonly IMicrosoftHttpAuthService _httpAuthService;
-    private readonly ISkinService _skinService;
+    private readonly ICustomLogger _logger = null!;
+    private readonly ITranslationService _translationService = null!;
+    private readonly ILauncherStore _launcherStore = null!;
+    private readonly IMicrosoftAuthService _authService = null!;
+    private readonly IMicrosoftDeviceAuthService _deviceAuthService = null!;
+    private readonly IMicrosoftHttpAuthService _httpAuthService = null!;
+    private readonly ISkinService _skinService = null!;
     private readonly IProgressReporter _progressReporter;
 
     #region Interactions

@@ -19,13 +19,8 @@ public partial class InputWindow : KonkordWindow<InputViewModel>
     /// Initializes a new instance of the <see cref="InputWindow"/> class for design-time use.
     /// Sets the DataContext to a design-time instance of <see cref="InputViewModel"/>.
     /// </summary>
-    public InputWindow()
-    {
-        InitializeComponent();
-
-        if (Design.IsDesignMode)
-            DataContext = new InputViewModel("Design Time Title");
-    }
+    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    public InputWindow() : this("Design Time Title") {}
 
     /// <summary>
     /// Initializes a new instance of the <see cref="InputWindow"/> class with the specified title.
@@ -39,7 +34,7 @@ public partial class InputWindow : KonkordWindow<InputViewModel>
 
         if (Design.IsDesignMode)
         {
-            DataContext = new InputViewModel("Design Time Title");
+            DataContext = new InputViewModel(title);
             return;
         }
 

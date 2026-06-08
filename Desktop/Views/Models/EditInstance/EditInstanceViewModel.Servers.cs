@@ -19,8 +19,8 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
 public partial class EditInstanceViewModel_Servers : KonkordObservableObject
 {
-    private readonly ICustomLogger _logger;
-    private readonly IBitmapService _bitmapService;
+    private readonly ICustomLogger _logger = null!;
+    private readonly IBitmapService _bitmapService = null!;
     private readonly EditInstanceViewModel _parent;
 
     [ObservableProperty] public partial string ServerName { get; set; } = string.Empty;

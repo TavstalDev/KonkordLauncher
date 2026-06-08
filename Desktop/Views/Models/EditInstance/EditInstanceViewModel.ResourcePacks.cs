@@ -29,12 +29,12 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
 public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObject
 {
-    private readonly ICustomLogger _logger;
-    private readonly IBitmapService _bitmapService;
+    private readonly ICustomLogger _logger = null!;
+    private readonly IBitmapService _bitmapService = null!;
     private readonly EditInstanceViewModel _parent;
     
     private readonly SourceCache<ResourceBaseModel, string> _resourcePackCache = new(x => x.Name);
-    public ReadOnlyObservableCollection<ResourceBaseModel> FilteredResourcePacks { get; }
+    public ReadOnlyObservableCollection<ResourceBaseModel> FilteredResourcePacks { get; } = null!;
 
     [ObservableProperty]
     public partial ResourceBaseModel? SelectedResourcePack { get; set; }

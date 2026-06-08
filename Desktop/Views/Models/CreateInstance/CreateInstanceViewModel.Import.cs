@@ -22,11 +22,11 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.CreateInstance;
 
 public partial class CreateInstanceViewModel_Import : KonkordObservableObject
 {
-    private readonly ICustomLogger _logger;
-    private readonly IHttpService _httpService;
-    private readonly ITranslationService _translationService;
-    private readonly ILauncherStore _launcherStore;
-    private readonly ModrinthPackageService _modrinthPackageService;
+    private readonly ICustomLogger _logger = null!;
+    private readonly IHttpService _httpService = null!;
+    private readonly ITranslationService _translationService = null!;
+    private readonly ILauncherStore _launcherStore = null!;
+    private readonly ModrinthPackageService _modrinthPackageService = null!;
     private readonly CreateInstanceViewModel _parent;
 
     [ObservableProperty]

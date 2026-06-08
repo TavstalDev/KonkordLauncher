@@ -22,8 +22,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 /// </summary>
 public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewModel>
 {
-    private readonly ICustomLogger _logger;
-    private readonly ITranslationService _translationService;
+    private readonly ICustomLogger _logger = null!;
     private Button _selectedTabBtn;
     private Button _selectedImportTypeBtn;
 
@@ -45,7 +44,7 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
            
         var services = Program.ServiceProvider;
         _logger = services.GetRequiredService<ICustomLogger<CreateInstanceWindow>>();
-        _translationService = services.GetRequiredService<ITranslationService>();
+        var translationService = services.GetRequiredService<ITranslationService>();
         
         this.WhenActivated(disposables =>
         {
@@ -81,7 +80,7 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
             }).DisposeWith(disposables);
             DataContext.ShowFileSelectorInteraction.RegisterHandler(async action =>
             {
-                string title = _translationService.Translate("common.select.file");
+                string title = translationService.Translate("common.select.file");
                 string? result = await OpenFilePickerAsync(title, ".zip, .mrpack, .json", ["*.zip", "*.mrpack", "*.json"]);
                 action.SetOutput(result);
             }).DisposeWith(disposables);

@@ -36,19 +36,19 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.MainView;
 /// </summary>
 public partial class MainViewModel_Accounts : KonkordObservableObject
 {
-    private readonly ICustomLogger _logger;
-    private readonly ILauncherStore _launcherStore;
-    private readonly ITranslationService _translationService;
-    private readonly IMicrosoftAuthService _authService;
-    private readonly IMojangSkinService _mojangSkinService;
-    private readonly IBitmapService _bitmapService;
+    private readonly ICustomLogger _logger = null!;
+    private readonly ILauncherStore _launcherStore = null!;
+    private readonly ITranslationService _translationService = null!;
+    private readonly IMicrosoftAuthService _authService = null!;
+    private readonly IMojangSkinService _mojangSkinService = null!;
+    private readonly IBitmapService _bitmapService = null!;
     private readonly MainViewModel _parent;
 
     [ObservableProperty]
     public partial BitmapEntry AccountAvatar { get; set; }
 
     [ObservableProperty]
-    public partial BitmapEntry AccountSkinPreview { get; set; }
+    public partial BitmapEntry AccountSkinPreview { get; set; } = null!;
 
     [ObservableProperty]
     public partial bool IsAccountHasWideModel { get; set; }
@@ -57,15 +57,15 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
     public partial bool IsAccountSkinProcessing { get; set; }
 
     [ObservableProperty]
-    public partial AccountSkin SelectedSkin { get; set; }
+    public partial AccountSkin SelectedSkin { get; set; } = null!;
 
     [ObservableProperty]
-    public partial AccountDataModel AccountData { get; set; }
+    public partial AccountDataModel AccountData { get; set; } = null!;
 
     [ObservableProperty, NotifyPropertyChangedFor(nameof(AccountName)), NotifyPropertyChangedFor(nameof(IsMojangAccount))]
     public partial AccountModel? SelectedAccount { get; set; }
-    public ObservableCollection<SkinDataModel> Skins { get; } = new();
-    public ObservableCollection<CapeDataModel> Capes { get; } = new();
+    public ObservableCollection<SkinDataModel> Skins { get; } = [];
+    public ObservableCollection<CapeDataModel> Capes { get; } = [];
 
     public string AccountName => SelectedAccount != null
         ? SelectedAccount.DisplayName

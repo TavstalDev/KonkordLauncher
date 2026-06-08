@@ -24,10 +24,10 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 /// </summary>
 public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgressReporter
 {
-    private readonly ITranslationService _translationService;
-    private readonly IMicrosoftAuthService _microsoftAuthService;
-    private readonly IMicrosoftDeviceAuthService _microsoftDeviceAuthService;
-    private readonly IMicrosoftHttpAuthService _microsoftHttpAuthService;
+    private readonly ITranslationService _translationService = null!;
+    private readonly IMicrosoftAuthService _microsoftAuthService = null!;
+    private readonly IMicrosoftDeviceAuthService _microsoftDeviceAuthService = null!;
+    private readonly IMicrosoftHttpAuthService _microsoftHttpAuthService = null!;
 
     /// <summary>
     /// Initializes a new instance of the AccountsWindow class.

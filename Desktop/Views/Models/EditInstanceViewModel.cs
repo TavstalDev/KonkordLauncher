@@ -33,23 +33,23 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 /// </summary>
 public partial class EditInstanceViewModel : KonkordObservableObject
 {
-    public readonly InstanceModel Instance;
-    private readonly ICustomLogger _logger;
-    private readonly ILauncherStore _launcherStore;
+    public readonly InstanceModel Instance = null!;
+    private readonly ICustomLogger _logger = null!;
+    private readonly ILauncherStore _launcherStore = null!;
     private const int MaxLogLines = 1000;
     
     public bool IsClosing;
     public bool IsInitialized;
-    public EditInstanceViewModel_Mods Mods { get; private set; }
-    public EditInstanceViewModel_ResourcePacks ResourcePacks { get; private set; }
-    public EditInstanceViewModel_Screenshots Screenshots { get; private set; }
-    public EditInstanceViewModel_Servers Servers { get; private set; }
-    public EditInstanceViewModel_Settings Settings { get; private set; }
-    public EditInstanceViewModel_ShaderPacks ShaderPacks { get; private set; }
-    public EditInstanceViewModel_Worlds Worlds { get; private set; }
+    public EditInstanceViewModel_Mods Mods { get; private set; }  = null!;
+    public EditInstanceViewModel_ResourcePacks ResourcePacks { get; private set; }  = null!;
+    public EditInstanceViewModel_Screenshots Screenshots { get; private set; }  = null!;
+    public EditInstanceViewModel_Servers Servers { get; private set; }  = null!;
+    public EditInstanceViewModel_Settings Settings { get; private set; }  = null!;
+    public EditInstanceViewModel_ShaderPacks ShaderPacks { get; private set; }  = null!;
+    public EditInstanceViewModel_Worlds Worlds { get; private set; }  = null!;
 
     public bool IsLinux => OSHelper.GetOperatingSystem() == EOperatingSystem.LINUX;
-    public List<AccountModel> Accounts { get; private set; }
+    public List<AccountModel> Accounts { get; private set; }  = null!;
 
     #region Interactions
 

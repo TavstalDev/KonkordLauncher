@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Reactive;
 using System.Reactive.Disposables.Fluent;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
@@ -25,10 +26,17 @@ public partial class ProgressWindow : KonkordWindow<ProgressViewModel>, IProgres
     /// Initializes a new instance of the <see cref="ProgressWindow"/> class.
     /// </summary>
     [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public ProgressWindow()
+    public ProgressWindow() : this(null) { }
+    
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ProgressWindow"/> class.
+    /// </summary>
+    /// <param name="cancellationTokenSource">An optional cancellation token source to allow cancellation of the installation process.</param>
+    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    public ProgressWindow(CancellationTokenSource? cancellationTokenSource)
     {
         InitializeComponent();
-        DataContext = new ProgressViewModel();
+        DataContext = new ProgressViewModel(cancellationTokenSource);
         
         if (Design.IsDesignMode)
             return;
@@ -40,23 +48,11 @@ public partial class ProgressWindow : KonkordWindow<ProgressViewModel>, IProgres
         {
             DataContext.CloseWindowInteraction.RegisterHandler(action =>
             {
-                Close();
                 action.SetOutput(Unit.Default);
+                Close(action.Input);
                 return Task.CompletedTask;
             }).DisposeWith(disposables);
         });
-    }
-    
-    /// <summary>
-    /// Ensures the progress bar is not indeterminate when closing to reduce resource usage.
-    /// </summary>
-    /// <param name="e">The event arguments for the closing event.</param>
-    protected override void OnClosing(WindowClosingEventArgs e)
-    {
-        base.OnClosing(e);
-        // Ensure the progress bar is not indeterminate when closing
-        // it may use more resources than necessary otherwise
-        ProgressBar.IsIndeterminate = false;
     }
 
     #region  IProgressReporter Implementation
@@ -102,15 +98,15 @@ public partial class ProgressWindow : KonkordWindow<ProgressViewModel>, IProgres
             DataContext.ProgressText = _translationService.Translate(key, args);
         });
     }
-    
+
     /// <summary>
     /// Opens or displays the progress reporter UI for this view model.
     /// </summary>
-    public void OpenReporter() { /* unused */ } 
+    public void OpenReporter() => Show(); 
     
     /// <summary>
     /// Closes or hides the progress reporter UI for this view model.
     /// </summary>
-    public void CloseReporter() { /* unused */ }
+    public void CloseReporter() => Close(!DataContext?.IsCancellable);
     #endregion
 }

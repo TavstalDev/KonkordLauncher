@@ -80,6 +80,8 @@
                                 <StackPanel Grid.Column="1" Classes="InstanceButtonWrapper">
                                     <!--  Cancel Button  -->
                                     <Button
+                                        IsEnabled="{Binding IsCancellable}"
+                                        Command="{Binding CloseWindowCommand}"
                                         Classes="IconBtn ErrorBtn">
                                         <WrapPanel Classes="IconBtnWrapper">
                                             <TextBlock

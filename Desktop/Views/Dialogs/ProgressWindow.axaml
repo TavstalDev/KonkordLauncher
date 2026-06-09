@@ -12,7 +12,7 @@
     MinHeight="175"
     d:DesignHeight="175"
     d:DesignWidth="400"
-    x:DataType="models:InstallViewModel"
+    x:DataType="models:ProgressViewModel"
     Background="Transparent"
     CanResize="False"
     CornerRadius="14"
@@ -25,34 +25,82 @@
     WindowDecorations="None"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
-    <Border
-        Background="{DynamicResource base-200}"
-        BorderBrush="{DynamicResource border-one}"
-        BorderThickness="1"
-        CornerRadius="14"
-        PointerPressed="DragStart_PointerPressed">
-        <Grid RowDefinitions="Auto, *">
-            <!--  Window Controls  -->
-            <templates:CustomTitleBar/>
-            
-            <!--  Main Content  -->
-            <Border
-                Grid.Row="1"
-                Padding="20,5,20,35"
-                Classes="ModalView"
-                PointerPressed="DragStart_PointerPressed">
-                <StackPanel Classes="ModalWrapper" Spacing="15">
+    <Grid>
+        <!--  Main window body  -->
+        <Border
+            Background="{DynamicResource base-200}"
+            BorderBrush="{DynamicResource border-one}"
+            BorderThickness="1"
+            CornerRadius="14"
+            PointerPressed="DragStart_PointerPressed">
+            <Grid RowDefinitions="Auto, *">
+                <!--  Window Controls  -->
+                <templates:CustomTitleBar/>
+
+                <!--  Main Content  -->
+                <Grid Grid.Row="1" RowDefinitions="Auto, *">
                     <!--  Title  -->
-                    <TextBlock Classes="InstallTitleText" Text="{lang:Translate instance.install.title}" />
-                    <!--  Step  -->
-                    <TextBlock Classes="InstallStepText" Text="{Binding ProgressText}" />
-                    <!--  Progress bar  -->
-                    <ProgressBar
-                        Name="ProgressBar"
-                        Classes="InstallProgress"
-                        Value="{Binding ProgressValue}" />
-                </StackPanel>
-            </Border>
-        </Grid>
-    </Border>
+                    <Border Classes="ModalTitleBorder">
+                        <StackPanel>
+                            <TextBlock Text="{lang:Translate instance.install.title}" />
+                            <TextBlock Classes="ModalSubTitle" Text="{lang:Translate instance.install.description}" />
+                        </StackPanel>
+                    </Border>
+
+                    <Grid Grid.Row="1" RowDefinitions="*, Auto">
+                        <!--  Content  -->
+                        <Grid Margin="25,20,25,20" RowDefinitions="Auto, Auto, Auto" RowSpacing="10">
+                                
+                            <Grid Grid.Row="0" ColumnDefinitions="*, *" ColumnSpacing="5">
+                                <TextBlock Grid.Column="0" TextAlignment="Left"
+                                           Text="{lang:Translate install.overall.progress}" />
+                                
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <TextBlock Text="{Binding ProgressValue}" />
+                                    <TextBlock Text="%" />
+                                </StackPanel>
+                                
+                            </Grid>
+                                
+                            <ProgressBar Grid.Row="1"
+                                         Name="ProgressBar"
+                                         Classes="InstallProgress"
+                                         Value="{Binding ProgressValue}" />
+
+                            <TextBlock Grid.Row="2" Foreground="{DynamicResource text-faded}"
+                                       TextAlignment="Center"
+                                       Text="{Binding ProgressText}" />
+
+                        </Grid>
+
+                        <!--  Bottom Wrapper  -->
+                        <Border Grid.Row="1" Classes="InstanceButtonBorder">
+                            <Grid ColumnDefinitions="*, Auto">
+                                <!--  Buttons  -->
+                                <StackPanel Grid.Column="1" Classes="InstanceButtonWrapper">
+                                    <!--  Cancel Button  -->
+                                    <Button
+                                        Classes="IconBtn ErrorBtn">
+                                        <WrapPanel Classes="IconBtnWrapper">
+                                            <TextBlock
+                                                VerticalAlignment="Center"
+                                                Classes="FontAwesome"
+                                                Text="&#xf00d;" />
+                                            <TextBlock
+                                                VerticalAlignment="Center"
+                                                FontWeight="500"
+                                                Text="{lang:Translate common.cancel}" />
+                                        </WrapPanel>
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!--  Resize overlay  -->
+        <templates:WindowResizer />
+    </Grid>
 </Window>

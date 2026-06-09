@@ -9,7 +9,7 @@ using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
-using InstallViewModel = Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models.InstallViewModel;
+using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
@@ -17,7 +17,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 /// Represents the installation window in the application, which implements the <see cref="IProgressReporter"/> interface
 /// to report progress and status updates during installation.
 /// </summary>
-public partial class ProgressWindow : KonkordWindow<InstallViewModel>, IProgressReporter
+public partial class ProgressWindow : KonkordWindow<ProgressViewModel>, IProgressReporter
 {
     private readonly ITranslationService _translationService = null!;
     
@@ -28,7 +28,7 @@ public partial class ProgressWindow : KonkordWindow<InstallViewModel>, IProgress
     public ProgressWindow()
     {
         InitializeComponent();
-        DataContext = new InstallViewModel();
+        DataContext = new ProgressViewModel();
         
         if (Design.IsDesignMode)
             return;

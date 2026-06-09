@@ -44,12 +44,6 @@ public partial class AccountsViewModel : KonkordObservableObject
     private readonly ISkinService _skinService = null!;
     private readonly IProgressReporter _progressReporter;
 
-    #region Interactions
-    public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
-    public Interaction<Alert, Unit> ShowAlertDialog { get; } = new();
-    public Interaction<string, Unit> SetClipboardText { get; } = new();
-    #endregion
-
     #region Observable Properties
     [ObservableProperty]
     public partial bool IsLoggingInMicrosoftAccount { get; set; }
@@ -74,6 +68,12 @@ public partial class AccountsViewModel : KonkordObservableObject
 
     [ObservableProperty] 
     public partial bool IsQrCodeLoading { get; set; } = true;
+    #endregion
+    
+    #region Interactions
+    public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
+    public Interaction<Alert, Unit> ShowAlertDialog { get; } = new();
+    public Interaction<string, Unit> SetClipboardText { get; } = new();
     #endregion
 
     /// <summary>
@@ -103,6 +103,8 @@ public partial class AccountsViewModel : KonkordObservableObject
         _deviceAuthService = services.GetRequiredService<IMicrosoftDeviceAuthService>();
         _httpAuthService = services.GetRequiredService<IMicrosoftHttpAuthService>();
         _skinService = services.GetRequiredService<ISkinService>();
+
+        ProgressText = _translationService.Translate("auth.logging_in");
     }
 
     /// <summary>

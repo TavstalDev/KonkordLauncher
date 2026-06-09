@@ -41,7 +41,7 @@
                 <!--  Main Content  -->
                 <StackPanel
                     Grid.Row="1"
-                    Margin="20,5,20,20"
+                    Margin="20,10,20,20"
                     IsVisible="{Binding !IsProcessingLogin}">
                     <TextBlock Classes="ModalTitle" Text="{lang:Translate auth.add.account}" />
                     <TabControl Classes="ModalTab">
@@ -226,18 +226,24 @@
                 <StackPanel
                     Grid.Row="1"
                     Margin="20,0,20,20"
+                    Spacing="20"
                     IsVisible="{Binding IsProcessingLogin}">
-                    <TextBlock Classes="ModalTitle" Text="{lang:Translate auth.title}" />
+                    <TextBlock
+                        Margin="10"
+                            HorizontalAlignment="Center" 
+                               Foreground="{DynamicResource text-faded}" 
+                               Text="{lang:Translate auth.creating.title}" />
                     <avalonia:LoadingIndicator
-                        Height="200"
+                        Height="120"
                         Margin="0,-40,0,0"
+                        Foreground="{DynamicResource primary-content}"
                         IsActive="{Binding IsProcessingLogin}"
                         Mode="Arc"
                         SpeedRatio="1.2" />
                     <TextBlock
                         Margin="0,-30,0,20"
                         HorizontalAlignment="Center"
-                        Text="{lang:Translate auth.logging_in}" />
+                        Text="{Binding ProgressText}" />
                 </StackPanel>
             </Grid>
         </Border>

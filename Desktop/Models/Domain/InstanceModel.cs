@@ -281,7 +281,9 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     public async Task LaunchAsync(Interaction<string, Unit> showLogsWindow, Interaction<string, Unit> closeLogsWindow, Interaction<Unit, Unit> closeWindow, Interaction<Alert, bool> showAlertDialog, string? serverAddress = null)
     {
         _lastReadPosition = 0;
-        var accountData = await _launcherStore.GetAccountDataAsync();
+        _cancellationTokenSource = new CancellationTokenSource();
+        var cts = _cancellationTokenSource.Token;
+        var accountData = await _launcherStore.GetAccountDataAsync(cts);
         var account = ConfigModel.Misc.OverrideAccount ? 
             accountData.Accounts.FirstOrDefault(x => x.Id == ConfigModel.Misc.AccountId) 
             : accountData.Accounts.FirstOrDefault(x => x.Id == accountData.SelectedAccountId);
@@ -295,7 +297,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         try
         {
             List<string> command = [];
-            var customCommands =  ConfigModel.Commands.WrapperCommand.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            var customCommands = ConfigModel.Commands.WrapperCommand.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
             // Add gamemoderun if enabled
             if (ConfigModel.Game.EnableFeralGameMode && !ConfigModel.Commands.WrapperCommand.Contains("gamemoderun"))
@@ -332,6 +334,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
                                 break;
                             }
                         }
+
                         break;
                     }
                     case EOperatingSystem.LINUX:
@@ -357,6 +360,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
                                 break;
                             }
                         }
+
                         break;
                     }
                 }
@@ -375,7 +379,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
 
             // Set up the game instance with the provided details
             MinecraftInstance? gameInstance = null;
-            var settings = await _launcherStore.GetSettingsAsync();
+            var settings = await _launcherStore.GetSettingsAsync(cancellationToken: cts);
             var gameDetails = new GameDetails(
                 ConfigModel.Java.JavaPath,
                 ConfigModel.Java.MinMemory,
@@ -389,9 +393,8 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
                 command,
                 ConfigModel.Commands.PostExitCommand,
                 envDic,
-                !string.IsNullOrEmpty(serverAddress) ?
-                    serverAddress 
-                    : ConfigModel.Misc.JoinServerOnLaunch ? ConfigModel.Misc.ServerAddress : null
+                !string.IsNullOrEmpty(serverAddress) ? serverAddress
+                : ConfigModel.Misc.JoinServerOnLaunch ? ConfigModel.Misc.ServerAddress : null
             );
             var launcherDetails = new LauncherDetails("KonkordLauncher", App.Version);
             var clientDetails = new ClientDetails(
@@ -411,14 +414,16 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
                     : ConfigModel.Game.WindowHeight
             );
 
-            var minecraftManifest = await _manifestService.GetMinecraftManifestAsync(settings.Launcher.GetVanillaManifestPath());
+            var minecraftManifest =
+                await _manifestService.GetMinecraftManifestAsync(settings.Launcher.GetVanillaManifestPath(), cts);
             if (minecraftManifest == null)
                 throw new InvalidOperationException("Failed to load Minecraft manifest.");
-            
+
             var minecraftVersion = minecraftManifest.Versions.FirstOrDefault(x => x.Id == gameDetails.MinecraftVersion);
             if (minecraftVersion == null)
-                throw new InvalidOperationException($"Minecraft version {gameDetails.MinecraftVersion} not found in manifest.");
-            
+                throw new InvalidOperationException(
+                    $"Minecraft version {gameDetails.MinecraftVersion} not found in manifest.");
+
             gameInstance = Kind switch
             {
                 EMinecraftKind.VANILLA => new MinecraftInstance(Id, minecraftVersion, gameDetails,
@@ -430,67 +435,76 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
                     new PathDetails(settings.Launcher.AssetsDirectoryPath, settings.Launcher.CacheDirectoryPath,
                         settings.Launcher.LibrariesDirectoryPath, settings.Launcher.VersionsDirectoryPath,
                         settings.Launcher.GetVanillaManifestPath(), settings.Launcher.GetNeoForgeManifestPath(),
-                        nativeLibraries), launcherDetails, clientDetails, new CustomLogger<NeoForgeInstance>(_logger.GetLogLevel()), resolution, this),
+                        nativeLibraries), launcherDetails, clientDetails,
+                    new CustomLogger<NeoForgeInstance>(_logger.GetLogLevel()), resolution, this),
                 EMinecraftKind.FORGE => ForgeInstance.GetForgeInstance(Id, minecraftVersion, gameDetails,
                     new PathDetails(settings.Launcher.AssetsDirectoryPath, settings.Launcher.CacheDirectoryPath,
                         settings.Launcher.LibrariesDirectoryPath, settings.Launcher.VersionsDirectoryPath,
                         settings.Launcher.GetVanillaManifestPath(), settings.Launcher.GetForgeManifestPath(),
-                        nativeLibraries), launcherDetails, clientDetails, new CustomLogger<MinecraftInstance>(_logger.GetLogLevel()),  resolution, this),
+                        nativeLibraries), launcherDetails, clientDetails,
+                    new CustomLogger<MinecraftInstance>(_logger.GetLogLevel()), resolution, this),
                 EMinecraftKind.FABRIC => new FabricInstance(Id, minecraftVersion, gameDetails,
                     new PathDetails(settings.Launcher.AssetsDirectoryPath, settings.Launcher.CacheDirectoryPath,
                         settings.Launcher.LibrariesDirectoryPath, settings.Launcher.VersionsDirectoryPath,
                         settings.Launcher.GetVanillaManifestPath(), settings.Launcher.GetFabricManifestPath(),
-                        nativeLibraries), launcherDetails, clientDetails,  new CustomLogger<FabricInstance>(_logger.GetLogLevel()), resolution, this),
+                        nativeLibraries), launcherDetails, clientDetails,
+                    new CustomLogger<FabricInstance>(_logger.GetLogLevel()), resolution, this),
                 EMinecraftKind.QUILT => new QuiltInstance(Id, minecraftVersion, gameDetails,
                     new PathDetails(settings.Launcher.AssetsDirectoryPath, settings.Launcher.CacheDirectoryPath,
                         settings.Launcher.LibrariesDirectoryPath, settings.Launcher.VersionsDirectoryPath,
                         settings.Launcher.GetVanillaManifestPath(), settings.Launcher.GetQuiltManifestPath(),
-                        nativeLibraries), launcherDetails, clientDetails, new CustomLogger<QuiltInstance>(_logger.GetLogLevel()), resolution, this),
+                        nativeLibraries), launcherDetails, clientDetails,
+                    new CustomLogger<QuiltInstance>(_logger.GetLogLevel()), resolution, this),
                 _ => gameInstance
             };
 
             if (gameInstance == null)
                 return;
             
-            if (!await _installService.InstallAsync(gameInstance, this))
+            cts.ThrowIfCancellationRequested();
+            if (!await _installService.InstallAsync(gameInstance, this, cts))
             {
                 _logger.LogWarning("Installation failed or was cancelled.");
                 await showAlertDialog.Handle(new Alert(
-                    _translationService.Translate("instance.launch.install_failed.title"), 
-                    _translationService.Translate("instance.launch.install_failed.message"), 
+                    _translationService.Translate("instance.launch.install_failed.title"),
+                    _translationService.Translate("instance.launch.install_failed.message"),
                     EAlertType.Error));
                 return;
             }
 
             // Handle Java
             int requiredJavaVersion = gameInstance.MinecraftVersionMeta.JavaVersionMeta.MajorVersion;
+            cts.ThrowIfCancellationRequested();
             if (string.IsNullOrWhiteSpace(gameInstance.GameDetails.JavaPath) ||
                 string.IsNullOrEmpty(gameInstance.GameDetails.JavaPath))
             {
-                string? javaPath = await _javaService.GetJavaVersionAsync(requiredJavaVersion);
+                string? javaPath = await _javaService.GetJavaVersionAsync(requiredJavaVersion, cts);
                 if (string.IsNullOrEmpty(javaPath))
                 {
                     var alertResult = await showAlertDialog.Handle(new Alert(
                         _translationService.Translate("instance.java.missing.title", requiredJavaVersion),
                         _translationService.Translate("instance.java.missing.message"),
                         EAlertType.Confirm
-                        ));
-                    
+                    ));
+
                     if (!alertResult)
                         return;
 
                     var prog = new Progress<double>(p =>
                     {
                         ReportProgress(p);
-                        UpdateStatusTranslated("instance.download.file", $"java {requiredJavaVersion}", p.ToString("0.00"));
+                        UpdateStatusTranslated("instance.download.file", $"java {requiredJavaVersion}",
+                            p.ToString("0.00"));
                     });
 
+                    cts.ThrowIfCancellationRequested();
                     OpenReporter();
-                    javaPath = await _javaService.DownloadJavaVersionAsync(requiredJavaVersion, settings.Launcher.JavaDirectoryPath, prog);
+                    javaPath = await _javaService.DownloadJavaVersionAsync(requiredJavaVersion,
+                        settings.Launcher.JavaDirectoryPath, prog, cts);
                     CloseReporter();
                     if (string.IsNullOrEmpty(javaPath))
                     {
-                         await showAlertDialog.Handle(new Alert(
+                        await showAlertDialog.Handle(new Alert(
                             _translationService.Translate("instance.java.error.title", requiredJavaVersion),
                             _translationService.Translate("instance.java.error.message"),
                             EAlertType.Error
@@ -500,13 +514,13 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
                 }
 
                 gameInstance.GameDetails.JavaPath = javaPath;
-                var instances = await _launcherStore.GetInstancesAsync();
+                var instances = await _launcherStore.GetInstancesAsync(cts);
                 int instanceIndex = instances.FindIndex(x => x.Id == Id);
                 await UpdateJavaPathAsync(gameInstance, javaPath, instances, instanceIndex);
             }
             else
             {
-                var javaDetails = await _javaService.GetJavaVersionDetailsAsync(gameInstance.GameDetails.JavaPath);
+                var javaDetails = await _javaService.GetJavaVersionDetailsAsync(gameInstance.GameDetails.JavaPath, cts);
                 if (javaDetails == null || javaDetails.Major != requiredJavaVersion)
                 {
                     await showAlertDialog.Handle(new Alert(
@@ -516,8 +530,9 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
                     return;
                 }
             }
-            
-            var process = await _launchService.LaunchAsync(gameInstance, this);
+
+            cts.ThrowIfCancellationRequested();
+            var process = await _launchService.LaunchAsync(gameInstance, this, cts);
             if (process == null)
             {
                 _logger.LogError("Failed to launch the  Process is null.");
@@ -532,7 +547,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             {
                 await showLogsWindow.Handle(Id);
             }
-            
+
             if (settings.Minecraft.CloseLauncherOnGameStart)
             {
                 await closeWindow.Handle(Unit.Default);
@@ -541,7 +556,6 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
 
             GameProcess.Exited += (_, _) =>
             {
-                App.UpdateRPC("Browsing instances...");
                 if (settings.Minecraft.CloseLauncherOnGameExit)
                 {
                     Dispatcher.UIThread.Invoke<Task>(async () =>
@@ -556,6 +570,10 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
                 }
             };
             IsGameRunning = !process.HasExited;
+        }
+        catch (OperationCanceledException)
+        {
+            CloseReporter();
         }
         catch (Exception ex)
         {
@@ -621,6 +639,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     
     #region Progress Reporter
     private ProgressWindow? _instanceInstallWindow;
+    private CancellationTokenSource _cancellationTokenSource = new();
 
     /// <summary>
     /// Sets the progress value for the installation window. If the window is not open, it will be shown.
@@ -678,7 +697,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             if (_instanceInstallWindow != null)
                 return;
 
-            _instanceInstallWindow = new ProgressWindow();
+            _instanceInstallWindow = new ProgressWindow(_cancellationTokenSource);
             _instanceInstallWindow.Show();
         });
     }

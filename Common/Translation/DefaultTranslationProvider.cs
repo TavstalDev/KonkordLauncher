@@ -147,10 +147,15 @@ public static class DefaultTranslationProvider
         {"instance.duplicate.title", "Instance Already Exists"},
         {"instance.duplicate.message", "An instance with this name already exists. Please choose a different name."},
         
-        {"instance.java.notfound.title", "No Java {0} Version Found"},
+        {"instance.java.notfound.title", "No Java {0} Found"},
         {"instance.java.notfound.message", "The instance needs Java {0}. Please install it manually."},
+        {"instance.java.missing.title", "Java {0} Missing"},
+        {"instance.java.missing.message", "Do you want to install it ?"},
+        {"instance.java.error.title", "Fail"},
+        {"instance.java.error.message", "Failed to download java."},
         
-        {"instance.install.title", "Downloading Game Files..."},
+        {"instance.install.title", "Downloading"},
+        {"instance.install.description", "Downloading and installing files"},
         
         {"instance.reading.version_json", "Reading version json..."},
         {"instance.downloading.version_json", "Downloading version json {1}%..."},
@@ -456,6 +461,7 @@ public static class DefaultTranslationProvider
         {"auth.tab.offline", "Offline"},
         {"auth.tab.custom", "Custom"},
         {"auth.logging_in", "Logging in..."},
+        {"auth.creating.title", "Creating New Account"},
         
         {"auth.microsoft.description", "Sign in with your Microsoft Account to access official Minecraft servers and features."},
         {"auth.microsoft.login", "Sign in with Microsoft"},
@@ -548,7 +554,9 @@ public static class DefaultTranslationProvider
         {"iconSelector.subtitle", "Select a icon for an instance."},
         {"alert.title", "KonkordLauncher - Alert"},
         {"input.title", "KonkordLauncher - Input"},
-        {"install.title", "KonkordLauncher - Install"},
+        
+        {"install.title", "KonkordLauncher - Progress"},
+        {"install.overall.progress", "Overall Progress"},
     };
 
     /// <summary>

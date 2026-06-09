@@ -142,10 +142,6 @@ public class InstanceInstallService : IInstanceInstallService
                 instance.MinecraftVersionMeta.JavaVersionMeta.MajorVersion = 7;
         }
         
-        if (instance.GameDetails.JavaPath == "LAUNCH_ME_FIRST" || string.IsNullOrEmpty(instance.GameDetails.JavaPath))
-            // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract - It can be null if the event has no subscribers
-            instance.InvokeSetupDefaultJava(instance.MinecraftVersionMeta);
-        
         await _libraryDownloadService.DownloadMappingsAsync(instance.MinecraftVersionMeta, instance.VersionData, progressReporter, cancellationToken);
         await _libraryDownloadService.DownloadAssetsAsync(instance.MinecraftVersionMeta, instance.PathDetails.AssetsDir, instance.VersionData.GameDir, progressReporter, cancellationToken);
     }

@@ -6,7 +6,7 @@
 
     <!--  Title Style  -->
     <Style Selector="TextBlock.ModalTitle">
-        <Setter Property="FontSize" Value="24" />
+        <Setter Property="FontSize" Value="20" />
         <Setter Property="FontWeight" Value="600" />
         <Setter Property="Foreground" Value="{DynamicResource default-content}" />
         <Setter Property="Margin" Value="0, 0, 0, 25" />
@@ -25,7 +25,7 @@
     </Style>
     <Style Selector="Border.ModalTitleBorder &gt; TextBlock, Border.ModalTitleBorder &gt; StackPanel &gt; TextBlock">
         <Setter Property="HorizontalAlignment" Value="Left" />
-        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontSize" Value="18" />
         <Setter Property="FontWeight" Value="500" />
         <Setter Property="Foreground" Value="{DynamicResource default-content}" />
     </Style>

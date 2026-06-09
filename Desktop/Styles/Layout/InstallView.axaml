@@ -29,8 +29,9 @@
     </Style>
 
     <Style Selector="ProgressBar.InstallProgress">
-        <Setter Property="Margin" Value="0, 0, 0, 20" />
-        <Setter Property="IsIndeterminate" Value="True" />
+        <Setter Property="Foreground" Value="{DynamicResource primary}" />
+        <Setter Property="Height" Value="8" />
+        <Setter Property="Margin" Value="0" />
         <Setter Property="HorizontalAlignment" Value="Stretch" />
     </Style>
 </Styles>

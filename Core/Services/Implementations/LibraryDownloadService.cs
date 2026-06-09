@@ -46,6 +46,7 @@ public class LibraryDownloadService : ILibraryDownloadService
         var versionResult = await DownloadAndSaveFileAsync(
             versionData.VanillaJsonPath,
             minecraftVersion.Url,
+            string.Empty,
             "version_json",
             progressReporter,
             CoreJsonContext.Default.VersionMeta, cancellationToken);
@@ -56,6 +57,7 @@ public class LibraryDownloadService : ILibraryDownloadService
         await DownloadAndSaveBinaryFileAsync(
             versionData.VanillaJarPath,
             versionResult.Downloads.Client.Url,
+            string.Empty, // allow modified jar usage
             "version_jar",
             progressReporter, cancellationToken);
 
@@ -82,6 +84,7 @@ public class LibraryDownloadService : ILibraryDownloadService
         string? resultJson = await DownloadAndSaveFileAsync(
             assetPath,
             versionMeta.Index.Url,
+            versionMeta.Index.Sha1,
             "asset_index_json",
             progressReporter,
             cancellationToken);
@@ -314,6 +317,7 @@ public class LibraryDownloadService : ILibraryDownloadService
         string? logContent = await DownloadAndSaveFileAsync(
             logFilePath,
             versionMeta.LoggingMeta.Client.File.Url,
+            string.Empty,
             "logging",
             progressReporter,
             cancellationToken);
@@ -342,6 +346,7 @@ public class LibraryDownloadService : ILibraryDownloadService
         await DownloadAndSaveFileAsync(
             clientMappinsPath,
             versionMeta.Downloads.ClientMappings.Url,
+            versionMeta.Downloads.ClientMappings.Sha1,
             "client_mappings",
             progressReporter,
              cancellationToken); // Deserialize to string
@@ -534,24 +539,33 @@ public class LibraryDownloadService : ILibraryDownloadService
     private async Task DownloadNativeFileAsync(string url, string filePath, string libName, string nativeDir,
         IProgressReporter? progressReporter, CancellationToken cancellationToken = default)
     {
-        string libDir = Path.GetDirectoryName(filePath)!;
-        Directory.CreateDirectory(libDir);
-
-        if (File.Exists(filePath))
+        try
         {
+            string libDir = Path.GetDirectoryName(filePath)!;
+            Directory.CreateDirectory(libDir);
+
+            if (File.Exists(filePath))
+            {
+                ExtractNativeFiles(filePath, nativeDir);
+                return;
+            }
+
+            Progress<double> progress = new Progress<double>();
+            progress.ProgressChanged += (_, e) =>
+            {
+                progressReporter?.ReportProgress(e);
+                progressReporter?.UpdateStatusTranslated("instance.downloading.natives", libName, e.ToString("0.00"));
+            };
+
+            await _httpService.DownloadFileAsync(url, filePath, progress, cancellationToken);
             ExtractNativeFiles(filePath, nativeDir);
-            return;
         }
-
-        Progress<double> progress = new Progress<double>();
-        progress.ProgressChanged += (_, e) =>
+        catch (OperationCanceledException)
         {
-            progressReporter?.ReportProgress(e);
-            progressReporter?.UpdateStatusTranslated("instance.downloading.natives", libName, e.ToString("0.00"));
-        };
-
-        await _httpService.DownloadFileAsync(url, filePath, progress, cancellationToken);
-        ExtractNativeFiles(filePath, nativeDir);
+            if (File.Exists(filePath))
+                FileSystemHelper.DeleteFile(filePath);
+            throw;
+        }
     }
 
     /// <summary>
@@ -560,39 +574,50 @@ public class LibraryDownloadService : ILibraryDownloadService
     /// <typeparam name="T">The type to which the file content will be deserialized.</typeparam>
     /// <param name="filePath">The local file path where the file will be saved.</param>
     /// <param name="url">The URL from which the file will be downloaded.</param>
+    /// <param name="sha1">The expected SHA1 hash of the file for integrity verification. If null or empty, the hash check is skipped.</param>
     /// <param name="statusKey">A key used for progress reporting and status messages.</param>
     /// <param name="progressReporter">An optional progress reporter for tracking download progress.</param>
     /// <param name="jsonTypeInfo">A JSON type information provider for customizing JSON serialization behavior.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>The deserialized object of type <typeparamref name="T"/> or null if the operation fails.</returns>
-    private async Task<T?> DownloadAndSaveFileAsync<T>(string filePath, string url, string statusKey,
+    private async Task<T?> DownloadAndSaveFileAsync<T>(string filePath, string url, string sha1, string statusKey,
         IProgressReporter? progressReporter, JsonTypeInfo<T> jsonTypeInfo, CancellationToken cancellationToken = default)
     {
-        if (File.Exists(filePath))
+        try
         {
-            progressReporter?.UpdateStatusTranslated($"instance.reading.{statusKey}", Path.GetFileName(filePath));
-            string jsonResult = await File.ReadAllTextAsync(filePath, cancellationToken);
-            return JsonSerializer.Deserialize(jsonResult, jsonTypeInfo);
+            if (File.Exists(filePath) && (string.IsNullOrEmpty(sha1) || FileSystemHelper.CheckSHA1(filePath, sha1)))
+            {
+                progressReporter?.UpdateStatusTranslated($"instance.reading.{statusKey}", Path.GetFileName(filePath));
+                string jsonResult = await File.ReadAllTextAsync(filePath, cancellationToken);
+                return JsonSerializer.Deserialize(jsonResult, jsonTypeInfo);
+            }
+
+            progressReporter?.ReportProgress(0);
+            Progress<double> progress = new Progress<double>();
+            progress.ProgressChanged += (_, e) =>
+            {
+                progressReporter?.ReportProgress(e);
+                progressReporter?.UpdateStatusTranslated($"instance.downloading.{statusKey}",
+                    Path.GetFileName(filePath),
+                    e.ToString("0.00"));
+            };
+
+            string? result = await _httpService.GetStringAsync(url, progress, cancellationToken);
+            if (result == null)
+                return default;
+
+            T? deserializedResult = JsonSerializer.Deserialize(result, jsonTypeInfo);
+            if (deserializedResult != null)
+                await File.WriteAllTextAsync(filePath, result, cancellationToken);
+
+            return deserializedResult;
         }
-
-        progressReporter?.ReportProgress(0);
-        Progress<double> progress = new Progress<double>();
-        progress.ProgressChanged += (_, e) =>
+        catch (OperationCanceledException)
         {
-            progressReporter?.ReportProgress(e);
-            progressReporter?.UpdateStatusTranslated($"instance.downloading.{statusKey}", Path.GetFileName(filePath),
-                e.ToString("0.00"));
-        };
-
-        string? result = await _httpService.GetStringAsync(url, progress, cancellationToken);
-        if (result == null)
-            return default;
-
-        T? deserializedResult = JsonSerializer.Deserialize(result, jsonTypeInfo);
-        if (deserializedResult != null)
-            await File.WriteAllTextAsync(filePath, result, cancellationToken);
-
-        return deserializedResult;
+            if (File.Exists(filePath))
+                FileSystemHelper.DeleteFile(filePath);
+            throw;
+        }
     }
     
     /// <summary>
@@ -601,33 +626,44 @@ public class LibraryDownloadService : ILibraryDownloadService
     /// </summary>
     /// <param name="filePath">The path where the file will be saved.</param>
     /// <param name="url">The URL of the file to download.</param>
+    /// <param name="sha1">The expected SHA1 hash of the file for integrity verification. If null or empty, the hash check is skipped.</param>
     /// <param name="statusKey">A key used for status updates.</param>
     /// <param name="progressReporter">An optional progress reporter for reporting download progress.</param>
     /// <param name="cancellationToken">A token to allow cancellation of the operation.</param>
     /// <returns>The content of the downloaded file, or null if the download fails.</returns>
-    private async Task<string?> DownloadAndSaveFileAsync(string filePath, string url, string statusKey,
+    private async Task<string?> DownloadAndSaveFileAsync(string filePath, string url, string sha1, string statusKey,
         IProgressReporter? progressReporter, CancellationToken cancellationToken = default)
     {
-        if (File.Exists(filePath))
+        try
         {
-            progressReporter?.UpdateStatusTranslated($"instance.reading.{statusKey}", Path.GetFileName(filePath));
-            return await File.ReadAllTextAsync(filePath, cancellationToken);
+            if (File.Exists(filePath) && (string.IsNullOrEmpty(sha1) || FileSystemHelper.CheckSHA1(filePath, sha1)))
+            {
+                progressReporter?.UpdateStatusTranslated($"instance.reading.{statusKey}", Path.GetFileName(filePath));
+                return await File.ReadAllTextAsync(filePath, cancellationToken);
+            }
+
+            progressReporter?.ReportProgress(0);
+            Progress<double> progress = new Progress<double>();
+            progress.ProgressChanged += (_, e) =>
+            {
+                progressReporter?.ReportProgress(e);
+                progressReporter?.UpdateStatusTranslated($"instance.downloading.{statusKey}",
+                    Path.GetFileName(filePath),
+                    e.ToString("0.00"));
+            };
+
+            string? result = await _httpService.GetStringAsync(url, progress, cancellationToken);
+            if (result == null)
+                return null;
+            await File.WriteAllTextAsync(filePath, result, cancellationToken);
+            return result;
         }
-
-        progressReporter?.ReportProgress(0);
-        Progress<double> progress = new Progress<double>();
-        progress.ProgressChanged += (_, e) =>
+        catch (OperationCanceledException)
         {
-            progressReporter?.ReportProgress(e);
-            progressReporter?.UpdateStatusTranslated($"instance.downloading.{statusKey}", Path.GetFileName(filePath),
-                e.ToString("0.00"));
-        };
-
-        string? result = await _httpService.GetStringAsync(url, progress, cancellationToken);
-        if (result == null)
-            return null;
-        await File.WriteAllTextAsync(filePath, result, cancellationToken);
-        return result;
+            if (File.Exists(filePath))
+                FileSystemHelper.DeleteFile(filePath);
+            throw;
+        }
     }
 
     /// <summary>
@@ -635,29 +671,40 @@ public class LibraryDownloadService : ILibraryDownloadService
     /// </summary>
     /// <param name="filePath">The local file path where the file will be saved.</param>
     /// <param name="url">The URL from which the file will be downloaded.</param>
+    /// <param name="sha1">The expected SHA1 hash of the file for integrity verification. If null or empty, the hash check is skipped.</param>
     /// <param name="statusKey">A key used for progress reporting and status messages.</param>
     /// <param name="progressReporter">An optional progress reporter for tracking download progress.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A byte array containing the file content or null if the operation fails.</returns>
-    private async Task DownloadAndSaveBinaryFileAsync(string filePath, string url, string statusKey,
+    private async Task DownloadAndSaveBinaryFileAsync(string filePath, string url, string sha1, string statusKey,
         IProgressReporter? progressReporter, CancellationToken cancellationToken = default)
     {
-        if (File.Exists(filePath))
+        try
         {
-            progressReporter?.UpdateStatusTranslated($"instance.reading.{statusKey}", Path.GetFileName(filePath));
-            return;
+            if (File.Exists(filePath) && (string.IsNullOrEmpty(sha1) || FileSystemHelper.CheckSHA1(filePath, sha1)))
+            {
+                progressReporter?.UpdateStatusTranslated($"instance.reading.{statusKey}", Path.GetFileName(filePath));
+                return;
+            }
+
+            progressReporter?.ReportProgress(0);
+            Progress<double> progress = new Progress<double>();
+            progress.ProgressChanged += (_, e) =>
+            {
+                progressReporter?.ReportProgress(e);
+                progressReporter?.UpdateStatusTranslated($"instance.downloading.{statusKey}",
+                    Path.GetFileName(filePath),
+                    e.ToString("0.00"));
+            };
+
+            await _httpService.DownloadFileAsync(url, filePath, progress, cancellationToken);
         }
-
-        progressReporter?.ReportProgress(0);
-        Progress<double> progress = new Progress<double>();
-        progress.ProgressChanged += (_, e) =>
+        catch (OperationCanceledException)
         {
-            progressReporter?.ReportProgress(e);
-            progressReporter?.UpdateStatusTranslated($"instance.downloading.{statusKey}", Path.GetFileName(filePath),
-                e.ToString("0.00"));
-        };
-
-        await _httpService.DownloadFileAsync(url, filePath, progress, cancellationToken);
+            if (File.Exists(filePath))
+                FileSystemHelper.DeleteFile(filePath);
+            throw;
+        }
     }
     
     /// <summary>

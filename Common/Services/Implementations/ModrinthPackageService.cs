@@ -76,7 +76,7 @@ public class ModrinthPackageService : IPackageService
                     Java = new JavaConfig
                     {
                         JvmArguments = string.IsNullOrEmpty(settings.Java.JvmArguments) ? Instance.GetDefaultJVMArgs() : settings.Java.JvmArguments,
-                        JavaPath = "LAUNCH_ME_FIRST",
+                        JavaPath = string.Empty,
                         MinMemory = settings.Java.MinMemory,
                         MaxMemory = settings.Java.MaxMemory,
                         PermaGen = settings.Java.PermaGen,

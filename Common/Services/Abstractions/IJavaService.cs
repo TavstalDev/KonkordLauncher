@@ -15,11 +15,22 @@ public interface IJavaService
     /// <param name="progress">An optional progress reporter that receives download progress as a percentage (0–100).</param>
     /// <param name="cancellationToken">A cancellation token observed during the download and extraction operations.</param>
     /// <returns>
-    /// A task that resolves to <see langword="true"/> if the download and extraction completed successfully;
-    /// otherwise, <see langword="false"/>.
+    /// A task that resolves to the file path of the downloaded Java executable if the download and extraction succeed;
+    /// otherwise, <see langword="null"/> if the operation fails or is canceled.
     /// </returns>
-    Task<bool> DownloadJavaVersionAsync(int majorVersion, string targetPath,
+    Task<string?> DownloadJavaVersionAsync(int majorVersion, string targetPath,
         Progress<double>? progress = null, CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Retrieves a Java version path for the requested major version.
+    /// </summary>
+    /// <param name="majorVersion">The required Java major version to look up (for example: 8, 11, 17, or 21).</param>
+    /// <param name="cancellationToken">A cancellation token used to cancel the lookup operation.</param>
+    /// <returns>
+    /// A task that resolves to the matching Java version string if found;
+    /// otherwise, <see langword="null"/>.
+    /// </returns>
+    Task<string?> GetJavaVersionAsync(int majorVersion, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Checks whether Java is installed and accessible on the system.

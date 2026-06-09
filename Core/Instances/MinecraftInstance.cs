@@ -107,7 +107,6 @@ public class MinecraftInstance
         return libraries;
     }
     
-    
     /// <summary>
     /// Performs modloader-specific installation steps (if applicable) and returns any modded launch metadata.
     /// </summary>
@@ -118,7 +117,6 @@ public class MinecraftInstance
     /// A <see cref="ModdedData"/> instance containing a custom main class and additional libraries when a modloader is used,
     /// or <c>null</c> for vanilla instances. Derived classes override this method to implement installation logic.
     /// </returns>
-
     public virtual Task<ModdedData?> InstallModdedAsync(string tempDir, IHttpService httpService, CancellationToken cancellationToken = default)
     {
         // Vanilla installer, do nothing
@@ -142,35 +140,4 @@ public class MinecraftInstance
             _ => VersionData.MinecraftVersion
         };
     }
-    
-    #region  Events
-
-    /// <summary>
-    /// Delegate for handling the setup of the default Java path based on the provided version metadata.
-    /// </summary>
-    /// <param name="versionMeta">The metadata of the Minecraft version used to determine the default Java path.</param>
-    public delegate void SetupDefaultJavaEventHandler(VersionMeta versionMeta);
-
-    /// <summary>
-    /// Event triggered when the default Java path needs to be set up.
-    /// Subscribers can handle this event to configure the Java path based on the provided version metadata.
-    /// </summary>
-    public event SetupDefaultJavaEventHandler? OnSetupDefaultJava;
-
-    /// <summary>
-    /// Invokes the <see cref="OnSetupDefaultJava"/> event with the provided version metadata.
-    /// </summary>
-    /// <param name="versionMeta">The version metadata used to determine Java requirements.</param>
-    public void InvokeSetupDefaultJava(VersionMeta versionMeta) => OnSetupDefaultJava?.Invoke(versionMeta);
-    
-    /// <summary>
-    /// Updates the Java path used by the game and logs the change.
-    /// </summary>
-    /// <param name="javaPath">The new Java path to be used by the game.</param>
-    public void UpdateJavaPath(string javaPath)
-    {
-        GameDetails.JavaPath = javaPath;
-        _logger.LogDebug($"Java path updated to: {javaPath}");
-    }
-    #endregion
 }

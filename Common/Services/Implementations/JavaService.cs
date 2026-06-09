@@ -58,7 +58,7 @@ public class JavaService : IJavaService
     }
     
     /// <inheritdoc/>
-    public async Task<bool> DownloadJavaVersionAsync(int majorVersion, string targetPath, Progress<double>? progress = null,
+    public async Task<string?> DownloadJavaVersionAsync(int majorVersion, string targetPath, Progress<double>? progress = null,
         CancellationToken cancellationToken = default)
     {
         try
@@ -72,7 +72,7 @@ public class JavaService : IJavaService
                 }
                 else
                 {
-                    _mirrorConfig = await JsonHelper.ReadJsonFileAsync<JavaMirrorConfig>(PathHelper.JavaMirrorsPath, CommonJsonContex.Default.JavaMirrorConfig) ??
+                    _mirrorConfig = await JsonHelper.ReadJsonFileAsync<JavaMirrorConfig>(PathHelper.JavaMirrorsPath, CommonJsonContex.Default.JavaMirrorConfig, cancellationToken) ??
                                     new JavaMirrorConfig();
                 }
             }
@@ -87,7 +87,7 @@ public class JavaService : IJavaService
                 _ => null
             };
             if (osMirror == null)
-                return false;
+                return null;
 
             var javaMirror = majorVersion switch
             {
@@ -101,14 +101,14 @@ public class JavaService : IJavaService
             };
 
             if (javaMirror == null)
-                return false;
+                return null;
 
             string url = isArmBased ? javaMirror.Arm : javaMirror.X86_64;
             if (string.IsNullOrEmpty(url))
             {
                 _logger.LogWarning(
                     $"No download URL found for Java {majorVersion} on {operatingSystem} OS {(isArmBased ? "arm" : "x64")}.");
-                return false;
+                return null;
             }
 
             string tempDir = Path.Combine(PathHelper.TempDir, "java");
@@ -122,7 +122,7 @@ public class JavaService : IJavaService
                 if (!File.Exists(zipFilePath))
                 {
                     _logger.LogError($"Java download failed: {url}");
-                    return false;
+                    return null;
                 }
                 
                 if (extension == "tar.gz")
@@ -134,19 +134,56 @@ public class JavaService : IJavaService
                 }
                 else
                     await ZipFile.ExtractToDirectoryAsync(zipFilePath, targetPath, cancellationToken);
+
+                string javaExecutablePath;
+                if (OSHelper.GetOperatingSystem() != EOperatingSystem.WINDOWS)
+                {
+                    javaExecutablePath = Path.Combine(targetPath, "bin", "java");
+                    if (!File.Exists(javaExecutablePath))
+                    {
+                        _logger.LogWarning($"Failed to get java executable from: {javaExecutablePath}");
+                        return null;
+                    }
+                    if (!await FileSystemHelper.MakeExecutableAsync(javaExecutablePath))
+                        _logger.LogError($"Failed to make java executable at: {javaExecutablePath}");
+                }
+                else
+                {
+                    javaExecutablePath = Path.Combine(targetPath, "bin", "javaw.exe");
+                    if (!File.Exists(javaExecutablePath))
+                    {
+                        _logger.LogWarning($"Failed to get java executable from: {javaExecutablePath}");
+                        return null;
+                    }
+                }
+
+                return javaExecutablePath;
             }
             finally
             {
                 FileSystemHelper.DeleteDirectory(tempDir);
             }
-
-            return true;
         }
         catch (Exception ex)
         {
             _logger.LogCritical(ex, $"Failed to download Java '{majorVersion}'.");
             _logger.LogCritical(ex.ToString());
-            return false;
+            return null;
+        }
+    }
+
+    /// <inheritdoc/>
+    public Task<string?> GetJavaVersionAsync(int majorVersion, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var result = _cachedJavaVersions.FirstOrDefault(x => x.Major == majorVersion);
+            return Task.FromResult(result?.Path);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogCritical(ex, "Failed to get Java version.");
+            return Task.FromResult<string?>(null);
         }
     }
 

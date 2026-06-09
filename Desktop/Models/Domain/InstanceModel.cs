@@ -278,7 +278,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     /// <param name="showAlertDialog">Interaction used to show an alert dialog to the user (e.g. when no account is selected or Java is missing).</param>
     /// <param name="serverAddress">Optional server address to connect to on launch.</param>
     /// <returns>A task that completes when the launch sequence has finished (not when the game exits).</returns>
-    public async Task LaunchAsync(Interaction<string, Unit> showLogsWindow, Interaction<string, Unit> closeLogsWindow, Interaction<Unit, Unit> closeWindow, Interaction<Alert, Unit> showAlertDialog, string? serverAddress = null)
+    public async Task LaunchAsync(Interaction<string, Unit> showLogsWindow, Interaction<string, Unit> closeLogsWindow, Interaction<Unit, Unit> closeWindow, Interaction<Alert, bool> showAlertDialog, string? serverAddress = null)
     {
         _lastReadPosition = 0;
         var accountData = await _launcherStore.GetAccountDataAsync();
@@ -452,8 +452,6 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             if (gameInstance == null)
                 return;
             
-            gameInstance.OnSetupDefaultJava += meta => Dispatcher.UIThread.Invoke(async () => await SetupDefaultJavaPathAsync(gameInstance, meta, settings, showAlertDialog));
-
             if (!await _installService.InstallAsync(gameInstance, this))
             {
                 _logger.LogWarning("Installation failed or was cancelled.");
@@ -462,6 +460,61 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
                     _translationService.Translate("instance.launch.install_failed.message"), 
                     EAlertType.Error));
                 return;
+            }
+
+            // Handle Java
+            int requiredJavaVersion = gameInstance.MinecraftVersionMeta.JavaVersionMeta.MajorVersion;
+            if (string.IsNullOrWhiteSpace(gameInstance.GameDetails.JavaPath) ||
+                string.IsNullOrEmpty(gameInstance.GameDetails.JavaPath))
+            {
+                string? javaPath = await _javaService.GetJavaVersionAsync(requiredJavaVersion);
+                if (string.IsNullOrEmpty(javaPath))
+                {
+                    var alertResult = await showAlertDialog.Handle(new Alert(
+                        _translationService.Translate("instance.java.missing.title", requiredJavaVersion),
+                        _translationService.Translate("instance.java.missing.message"),
+                        EAlertType.Confirm
+                        ));
+                    
+                    if (!alertResult)
+                        return;
+
+                    var prog = new Progress<double>(p =>
+                    {
+                        ReportProgress(p);
+                        UpdateStatusTranslated("instance.download.file", $"java {requiredJavaVersion}", p.ToString("0.00"));
+                    });
+
+                    OpenReporter();
+                    javaPath = await _javaService.DownloadJavaVersionAsync(requiredJavaVersion, settings.Launcher.JavaDirectoryPath, prog);
+                    CloseReporter();
+                    if (string.IsNullOrEmpty(javaPath))
+                    {
+                         await showAlertDialog.Handle(new Alert(
+                            _translationService.Translate("instance.java.error.title", requiredJavaVersion),
+                            _translationService.Translate("instance.java.error.message"),
+                            EAlertType.Error
+                        ));
+                        return;
+                    }
+                }
+
+                gameInstance.GameDetails.JavaPath = javaPath;
+                var instances = await _launcherStore.GetInstancesAsync();
+                int instanceIndex = instances.FindIndex(x => x.Id == Id);
+                await UpdateJavaPathAsync(gameInstance, javaPath, instances, instanceIndex);
+            }
+            else
+            {
+                var javaDetails = await _javaService.GetJavaVersionDetailsAsync(gameInstance.GameDetails.JavaPath);
+                if (javaDetails == null || javaDetails.Major != requiredJavaVersion)
+                {
+                    await showAlertDialog.Handle(new Alert(
+                        _translationService.Translate("instance.java.notfound.title", requiredJavaVersion),
+                        _translationService.Translate("instance.java.notfound.message", requiredJavaVersion),
+                        EAlertType.Error));
+                    return;
+                }
             }
             
             var process = await _launchService.LaunchAsync(gameInstance, this);
@@ -511,61 +564,6 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     }
     
     /// <summary>
-    /// Sets up the default Java path for the given Minecraft instance. If the required Java version
-    /// is not available, it attempts to handle the situation by either downloading it or notifying the user.
-    /// </summary>
-    /// <param name="gameInstance">The Minecraft instance for which the Java path is being set up.</param>
-    /// <param name="meta">The metadata containing the required Java version information.</param>
-    /// <param name="settings">The core configuration settings of the launcher.</param>
-    /// <param name="showAlertDialog">An interaction to display an alert dialog in case the required Java version is not found.</param>
-    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-    private async Task SetupDefaultJavaPathAsync(MinecraftInstance gameInstance, VersionMeta? meta, CoreConfig settings, Interaction<Alert, Unit> showAlertDialog, CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            string defaultJavaPath = settings.Java.JavaPath;
-            var instances = await _launcherStore.GetInstancesAsync(cancellationToken);
-            var instanceIndex = instances.FindIndex(x => x.Id == Id);
-
-            if (meta == null)
-            {
-                await UpdateJavaPathAsync(gameInstance, defaultJavaPath, instances, instanceIndex);
-                return;
-            }
-
-            // Check if the Java version specified in the metadata is available, if not attempt to download it
-            var javaInstallations = await _javaService.LocateJavaInstallationsAsync(settings.Launcher.JavaDirectoryPath, cancellationToken: cancellationToken);
-            if (javaInstallations.All(x => x.Major != meta.JavaVersionMeta.MajorVersion) &&
-                string.IsNullOrEmpty(defaultJavaPath))
-            {
-                if (IsGameRunning && GameProcess != null)
-                    GameProcess.Kill();
-                
-                await showAlertDialog.Handle(new Alert(
-                    _translationService.Translate("instance.java.notfound.title", meta.JavaVersionMeta.MajorVersion),
-                    _translationService.Translate("instance.java.notfound.message", meta.JavaVersionMeta.MajorVersion),
-                    EAlertType.Warning));
-                return;
-            }
-
-            foreach (var javaInstallation in javaInstallations)
-            {
-                if (meta.JavaVersionMeta != null && javaInstallation.Major == meta.JavaVersionMeta.MajorVersion)
-                {
-                    defaultJavaPath = javaInstallation.Path;
-                    break;
-                }
-            }
-
-            await UpdateJavaPathAsync(gameInstance, defaultJavaPath, instances, instanceIndex);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogCritical(ex, "Error while setting up default Java path:");
-        }
-    }
-    
-    /// <summary>
     /// Updates the Java path for the game instance and saves the updated configuration.
     /// </summary>
     /// <param name="gameInstance">The game instance to update.</param>
@@ -574,8 +572,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     /// <param name="instanceIndex">The index of the current instance in the list.</param>
     private async Task UpdateJavaPathAsync(MinecraftInstance gameInstance, string javaPath, List<Common.Models.Instance> instances, int instanceIndex)
     {
-        gameInstance.UpdateJavaPath(javaPath);
-
+        gameInstance.GameDetails.JavaPath = javaPath;
         if (instanceIndex >= 0)
         {
             instances[instanceIndex].Config.Java.JavaPath = javaPath;

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables.Fluent;
 using System.Reflection;
@@ -18,9 +17,6 @@ using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Config;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
-using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Helpers.IO;
-using Tavstal.KonkordLauncher.Core.Helpers.Platform;
 using Tavstal.KonkordLauncher.Core.Helpers.Utils;
 using Tavstal.KonkordLauncher.Core.Models;
 using Tavstal.KonkordLauncher.Core.Models.Accounts;
@@ -28,8 +24,6 @@ using Tavstal.KonkordLauncher.Core.Models.Endpoints;
 using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
-using Tavstal.KonkordLauncher.Desktop.Models.Enums;
-using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
 using Velopack;
 
@@ -50,7 +44,6 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
     private readonly ISkinService _skinService = null!;
     private const int _stepDelay = 100;
     private const int _maxParallelDownloads = 4;
-    private readonly int[] _javaVersionsToDownload = [8, 16, 17, 21, 25];
 
     /// <summary>
     /// Initializes a new instance of the <see cref="StartupWindow"/> class with default settings.
@@ -190,8 +183,8 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
             return;
         }
 
-        // Validate Java
-        await ValidateJavaAsync(settings, cancellationToken);
+        // Fill java installation cache
+        await _javaService.LocateJavaInstallationsAsync(settings.Launcher.JavaDirectoryPath, cancellationToken: cancellationToken);
 
         // Refresh GitHub Cache & Skins Cache
         bool shouldRefreshCache = await ValidateCachesAsync(settings, cancellationToken);
@@ -238,61 +231,6 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
             mainWindow.Show();
             Close();
         }, DispatcherPriority.Background, cancellationToken);
-    }
-
-    /// <summary>
-    /// Ensures that the required Java runtimes are present in the launcher Java directory,
-    /// downloads any missing versions, and updates executable permissions on non-Windows systems.
-    /// </summary>
-    /// <param name="settings">The launcher configuration containing the Java directory path.</param>
-    /// <param name="cancellationToken">A token used to cancel Java download operations and related asynchronous work.</param>
-    private async Task ValidateJavaAsync(CoreConfig settings, CancellationToken cancellationToken = default)
-    {
-        UpdateStatusTranslated("startup.validation.java");
-        await Task.Delay(_stepDelay, cancellationToken);
-        var javaInstallations = await _javaService.LocateJavaInstallationsAsync(settings.Launcher.JavaDirectoryPath, cancellationToken: cancellationToken);
-        bool wasJavaUpdated = false;
-        foreach (int javaVersion in _javaVersionsToDownload)
-        {
-            var jdkResult = javaInstallations.FirstOrDefault(x => x.Major == javaVersion);
-            if (jdkResult != null)
-                continue;
-
-            Progress<double> progress = new Progress<double>();
-            progress.ProgressChanged += (_, prog) =>
-            {
-                UpdateStatusTranslated("startup.validation.java.download", javaVersion,
-                    prog.ToString("0.00"));
-            };
-            await _javaService.DownloadJavaVersionAsync(javaVersion, settings.Launcher.JavaDirectoryPath, progress, cancellationToken);
-            wasJavaUpdated = true;
-        }
-
-        if (!wasJavaUpdated)
-            return;
-        
-        if (OSHelper.GetOperatingSystem() != EOperatingSystem.WINDOWS)
-        {
-            string[] directories = Directory.GetDirectories(settings.Launcher.JavaDirectoryPath);
-            foreach (string directory in directories)
-            {
-                string javaExecutablePath = Path.Combine(directory, "bin", "java");
-                if (!File.Exists(javaExecutablePath))
-                    continue;
-                if (!await FileSystemHelper.MakeExecutableAsync(javaExecutablePath))
-                {
-                    AlertWindow window = new AlertWindow(
-                        _translationService.Translate("startup.validation.java.exec.failedTitle"),
-                        _translationService.Translate("startup.validation.java.exec.failedMessage",
-                            javaExecutablePath),
-                        EAlertType.Error
-                    );
-                    await window.ShowDialog(this);
-                }
-            }
-        }
-
-        await _javaService.LocateJavaInstallationsAsync(settings.Launcher.JavaDirectoryPath, true, cancellationToken);
     }
 
     /// <summary>

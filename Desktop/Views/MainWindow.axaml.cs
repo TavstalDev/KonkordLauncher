@@ -75,8 +75,8 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
             DataContext.ShowAlertDialogInteraction.RegisterHandler(async action =>
             {
                 AlertWindow alertWindow = new(action.Input.Title, action.Input.Message, action.Input.Type);
-                await alertWindow.ShowDialog(this);
-                action.SetOutput(Unit.Default);
+                var result = await alertWindow.ShowDialog<bool>(this);
+                action.SetOutput(result);
             }).DisposeWith(disposables);
             DataContext.ShowConfirmDialogInteraction.RegisterHandler(async action =>
             {

@@ -42,7 +42,7 @@ public partial class MainViewModel : KonkordObservableObject
     
     
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
-    public Interaction<Alert, Unit> ShowAlertDialogInteraction { get; } = new();
+    public Interaction<Alert, bool> ShowAlertDialogInteraction { get; } = new();
     public Interaction<Alert, bool> ShowConfirmDialogInteraction { get; } = new();
     public Interaction<ESidebarType, Unit> SwitchSidebarBtnInteraction { get; } = new();
     public Interaction<Unit, string?> OpenFolderPickerInteraction { get; } = new();

@@ -589,7 +589,7 @@
                                         Classes="MainContentArea"
                                         RowDefinitions="Auto, Auto, *">
                                         <!--  Title  -->
-                                        <TextBlock Classes="MainContentTitle" Text="{lang:Translate main.page.patch.title}" />
+                                        <TextBlock Classes="MainContentTitle" Margin="0,0,0,20" Text="{lang:Translate main.page.patch.title}" />
                                         <!--  Empty text  -->
                                         <TextBlock
                                             Grid.Row="1"

@@ -171,6 +171,14 @@ public class InstanceLaunchService : IInstanceLaunchService
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
             process.EnableRaisingEvents = true;
+#if DEBUG
+            process.OutputDataReceived += (_, e) =>
+            {
+                if (string.IsNullOrEmpty(e.Data))
+                    return;
+                _logger.LogDebug($"[JVM Process Output] {e.Data}");
+            };
+#endif
             process.ErrorDataReceived += (_, e) =>
             {
                 if (string.IsNullOrEmpty(e.Data))
@@ -179,6 +187,7 @@ public class InstanceLaunchService : IInstanceLaunchService
             };
             process.Exited += (_, _) =>
             {
+                _runningProcesses.Remove(instance.Id);
                 switch (process.ExitCode)
                 {
                     case 0:

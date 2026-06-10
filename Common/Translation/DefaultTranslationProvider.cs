@@ -556,7 +556,7 @@ public static class DefaultTranslationProvider
         {"input.title", "KonkordLauncher - Input"},
         
         {"install.title", "KonkordLauncher - Progress"},
-        {"install.overall.progress", "Overall Progress"},
+        {"install.progress", "Progress"},
     };
 
     /// <summary>

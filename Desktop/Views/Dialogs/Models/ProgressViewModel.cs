@@ -42,6 +42,18 @@ public partial class ProgressViewModel : ObservableObject
     [ObservableProperty]
     public partial double ProgressValue { get; set; }
     
+    [ObservableProperty]
+    public partial int? CompletedTasks { get; set; }
+    
+    [ObservableProperty]
+    public partial int? TotalTasks { get; set; }
+    
+    [ObservableProperty]
+    public partial long? CompletedBytes { get; set; }
+    
+    [ObservableProperty]
+    public partial long? TotalBytes { get; set; }
+    
     /// <summary>
     /// An interaction representing the close window action.
     /// </summary>

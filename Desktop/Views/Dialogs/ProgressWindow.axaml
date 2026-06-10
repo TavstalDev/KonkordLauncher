@@ -35,7 +35,7 @@
             PointerPressed="DragStart_PointerPressed">
             <Grid RowDefinitions="Auto, *">
                 <!--  Window Controls  -->
-                <templates:CustomTitleBar/>
+                <templates:CustomTitleBar />
 
                 <!--  Main Content  -->
                 <Grid Grid.Row="1" RowDefinitions="Auto, *">
@@ -49,27 +49,83 @@
 
                     <Grid Grid.Row="1" RowDefinitions="*, Auto">
                         <!--  Content  -->
-                        <Grid Margin="25,20,25,20" RowDefinitions="Auto, Auto, Auto" RowSpacing="10">
-                                
-                            <Grid Grid.Row="0" ColumnDefinitions="*, *" ColumnSpacing="5">
-                                <TextBlock Grid.Column="0" TextAlignment="Left"
-                                           Text="{lang:Translate install.overall.progress}" />
-                                
-                                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Grid
+                            Margin="25,20,25,20"
+                            RowDefinitions="Auto, Auto, Auto"
+                            RowSpacing="10">
+
+                            <!--  Progress Header  -->
+                            <Grid
+                                Grid.Row="0"
+                                ColumnDefinitions="*, *"
+                                ColumnSpacing="5">
+                                <TextBlock
+                                    Grid.Column="0"
+                                    Text="{lang:Translate install.progress}"
+                                    TextAlignment="Left" />
+
+                                <StackPanel
+                                    Grid.Column="1"
+                                    HorizontalAlignment="Right"
+                                    Orientation="Horizontal">
                                     <TextBlock Text="{Binding ProgressValue, StringFormat={}{0:0.00}}" />
                                     <TextBlock Text="%" />
                                 </StackPanel>
-                                
-                            </Grid>
-                                
-                            <ProgressBar Grid.Row="1"
-                                         Name="ProgressBar"
-                                         Classes="InstallProgress"
-                                         Value="{Binding ProgressValue}" />
 
-                            <TextBlock Grid.Row="2" Foreground="{DynamicResource text-faded}"
-                                       TextAlignment="Center"
-                                       Text="{Binding ProgressText}" />
+                            </Grid>
+
+                            <!-- Progress Bar and Details -->
+                            <StackPanel Grid.Row="1" Spacing="5">
+                                <!--  Progress bar  -->
+                                <ProgressBar
+                                    Name="ProgressBar"
+                                    Classes="InstallProgress"
+                                    Value="{Binding ProgressValue}" />
+
+                                <Grid ColumnDefinitions="*, *">
+                                    <!--  Task display  -->
+                                    <StackPanel
+                                        Grid.Column="0"
+                                        HorizontalAlignment="Left"
+                                        IsVisible="{Binding TotalTasks, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                        Orientation="Horizontal">
+                                        <TextBlock
+                                            FontSize="12"
+                                            Foreground="{DynamicResource text-muted}"
+                                            Text="Task" />
+                                        <TextBlock FontSize="12" Foreground="{DynamicResource text-muted}">
+                                            <TextBlock.Text>
+                                                <MultiBinding StringFormat=" {0} / {1}">
+                                                    <Binding Path="CompletedTasks" TargetNullValue="0" />
+                                                    <Binding Path="TotalTasks" TargetNullValue="0" />
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
+                                    </StackPanel>
+
+                                    <!--  Byte display  -->
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        HorizontalAlignment="Right"
+                                        FontSize="12"
+                                        Foreground="{DynamicResource text-muted}"
+                                        IsVisible="{Binding TotalBytes, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                        <TextBlock.Text>
+                                            <MultiBinding StringFormat="{}{0} MB / {1} MB">
+                                                <Binding Path="CompletedBytes" TargetNullValue="0" />
+                                                <Binding Path="TotalBytes" TargetNullValue="0" />
+                                            </MultiBinding>
+                                        </TextBlock.Text>
+                                    </TextBlock>
+                                </Grid>
+                            </StackPanel>
+
+                            <!-- Progress Text -->
+                            <TextBlock
+                                Grid.Row="2"
+                                Foreground="{DynamicResource text-faded}"
+                                Text="{Binding ProgressText}"
+                                TextAlignment="Center" />
 
                         </Grid>
 
@@ -80,9 +136,9 @@
                                 <StackPanel Grid.Column="1" Classes="InstanceButtonWrapper">
                                     <!--  Cancel Button  -->
                                     <Button
-                                        IsEnabled="{Binding IsCancellable}"
+                                        Classes="IconBtn ErrorBtn"
                                         Command="{Binding CloseWindowCommand}"
-                                        Classes="IconBtn ErrorBtn">
+                                        IsEnabled="{Binding IsCancellable}">
                                         <WrapPanel Classes="IconBtnWrapper">
                                             <TextBlock
                                                 VerticalAlignment="Center"

@@ -49,10 +49,7 @@ public partial class ResourceReviewWindow : KonkordWindow<ResourceReviewViewMode
     #region Progress Reporter
     private ProgressWindow? _installWindow;
 
-    /// <summary>
-    /// Sets the progress value for the installation window. If the window is not open, it will be shown.
-    /// </summary>
-    /// <param name="progress">The progress value to set, typically between 0.0 and 1.0.</param>
+    /// <inheritdoc/>
     public void ReportProgress(double progress)
     {
         Dispatcher.UIThread.Post(() =>
@@ -64,10 +61,55 @@ public partial class ResourceReviewWindow : KonkordWindow<ResourceReviewViewMode
         });
     }
 
-    /// <summary>
-    /// Sets the status message for the installation window. If the window is not open, it will be shown.
-    /// </summary>
-    /// <param name="status">The status message to display.</param>
+    /// <inheritdoc/>
+    public void SetTargetTasks(int? count)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (_installWindow == null)
+                OpenReporter();
+
+            _installWindow?.SetTargetTasks(count);
+        });
+    }
+
+    /// <inheritdoc/>
+    public void CompleteTask()
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (_installWindow == null)
+                OpenReporter();
+
+            _installWindow?.CompleteTask();
+        });
+    }
+
+    /// <inheritdoc/>
+    public void SetTargetBytes(long? bytes)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (_installWindow == null)
+                OpenReporter();
+
+            _installWindow?.SetTargetBytes(bytes);
+        });
+    }
+
+    /// <inheritdoc/>
+    public void CompleteBytes(long bytes)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (_installWindow == null)
+                OpenReporter();
+
+            _installWindow?.CompleteBytes(bytes);
+        });
+    }
+
+    /// <inheritdoc/>
     public void UpdateStatus(string status)
     {
         Dispatcher.UIThread.Post(() =>
@@ -79,11 +121,7 @@ public partial class ResourceReviewWindow : KonkordWindow<ResourceReviewViewMode
         });
     }
 
-    /// <summary>
-    /// Sets a translated status message for the installation window. If the window is not open, it will be shown.
-    /// </summary>
-    /// <param name="key">The translation key for the status message.</param>
-    /// <param name="args">Optional arguments to format the translated message.</param>
+    /// <inheritdoc/>
     public void UpdateStatusTranslated(string key, params object[]? args)
     {
         Dispatcher.UIThread.Post(() =>
@@ -95,9 +133,7 @@ public partial class ResourceReviewWindow : KonkordWindow<ResourceReviewViewMode
         });
     }
 
-    /// <summary>
-    /// Displays the installation window as a modal dialog. If the window is already open, this method does nothing.
-    /// </summary>
+    /// <inheritdoc/>
     public void OpenReporter()
     {
         Dispatcher.UIThread.Post(() =>
@@ -110,9 +146,7 @@ public partial class ResourceReviewWindow : KonkordWindow<ResourceReviewViewMode
         });
     }
 
-    /// <summary>
-    /// Hides the installation window if it is currently open.
-    /// </summary>
+    /// <inheritdoc/>
     public void CloseReporter()
     {
         Dispatcher.UIThread.Post(() =>

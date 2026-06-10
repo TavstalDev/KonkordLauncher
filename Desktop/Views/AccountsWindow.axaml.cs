@@ -134,10 +134,7 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
 
     #region Progress Reporter
 
-    /// <summary>
-    /// Updates the progress value in the associated view model.
-    /// </summary>
-    /// <param name="progress">The progress value to set, typically between 0 and 1.</param>
+    /// <inheritdoc/>
     public void ReportProgress(double progress)
     {
         Dispatcher.UIThread.Post(() =>
@@ -149,10 +146,19 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
         });
     }
 
-    /// <summary>
-    /// Updates the status text in the associated view model.
-    /// </summary>
-    /// <param name="status">The status message to display.</param>
+    /// <inheritdoc/>
+    public void SetTargetTasks(int? count) { /* unused */ }
+
+    /// <inheritdoc/>
+    public void CompleteTask() { /* unused */ }
+
+    /// <inheritdoc/>
+    public void SetTargetBytes(long? bytes) { /* unused */ }
+
+    /// <inheritdoc/>
+    public void CompleteBytes(long bytes) { /* unused */ }
+
+    /// <inheritdoc/>
     public void UpdateStatus(string status)
     {
         Dispatcher.UIThread.Post(() =>
@@ -164,11 +170,7 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
         });
     }
 
-    /// <summary>
-    /// Updates the status text in the associated view model using a translated string.
-    /// </summary>
-    /// <param name="key">The translation key for the status message.</param>
-    /// <param name="args">Optional arguments to format the translated string.</param>
+    /// <inheritdoc/>
     public void UpdateStatusTranslated(string key, params object[]? args)
     {
         Dispatcher.UIThread.Post(() =>
@@ -180,14 +182,10 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
         });
     }
     
-    /// <summary>
-    /// Opens or displays the progress reporter UI for this view model.
-    /// </summary>
+    /// <inheritdoc/>
     public void OpenReporter() { /* unused */ } 
     
-    /// <summary>
-    /// Closes or hides the progress reporter UI for this view model.
-    /// </summary>
+    /// <inheritdoc/>
     public void CloseReporter() { /* unused */ }
 
     #endregion

@@ -56,10 +56,8 @@ public partial class ProgressWindow : KonkordWindow<ProgressViewModel>, IProgres
     }
 
     #region  IProgressReporter Implementation
-    /// <summary>
-    /// Updates the progress value in the associated view model.
-    /// </summary>
-    /// <param name="progress">The progress value to set, typically a percentage (0-100).</param>
+    
+    /// <inheritdoc/>
     public void ReportProgress(double progress)
     {
         Dispatcher.UIThread.Post(() =>
@@ -70,10 +68,61 @@ public partial class ProgressWindow : KonkordWindow<ProgressViewModel>, IProgres
         });
     }
 
-    /// <summary>
-    /// Updates the status text in the associated view model.
-    /// </summary>
-    /// <param name="status">The status message to display.</param>
+    /// <inheritdoc/>
+    public void SetTargetTasks(int? count)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (DataContext == null)
+                return;
+            if (count == null)
+                DataContext.CompletedTasks = null;
+            DataContext.TotalTasks = count;
+        });
+    }
+
+    /// <inheritdoc/>
+    public void CompleteTask()
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (DataContext == null)
+                return;
+            if (DataContext.CompletedTasks == null)
+                DataContext.CompletedTasks = 1;
+            DataContext.CompletedTasks++;
+        });
+    }
+
+    /// <inheritdoc/>
+    public void SetTargetBytes(long? bytes)
+    {
+        
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (DataContext == null)
+                return;
+            if (bytes == null)
+                DataContext.TotalBytes = null;
+            DataContext.TotalBytes = bytes;
+        });
+    }
+
+    /// <inheritdoc/>
+    public void CompleteBytes(long bytes)
+    {
+        
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (DataContext == null)
+                return;
+            if (DataContext.CompletedBytes == null)
+                DataContext.CompletedBytes = 1;
+            DataContext.CompletedBytes++;
+        });
+    }
+
+    /// <inheritdoc/>
     public void UpdateStatus(string status)
     {
         Dispatcher.UIThread.Post(() =>
@@ -84,11 +133,7 @@ public partial class ProgressWindow : KonkordWindow<ProgressViewModel>, IProgres
         });
     }
 
-    /// <summary>
-    /// Updates the status text in the associated view model using a translated string.
-    /// </summary>
-    /// <param name="key">The translation key for the status message.</param>
-    /// <param name="args">Optional arguments to format the translated message.</param>
+    /// <inheritdoc/>
     public void UpdateStatusTranslated(string key, params object[]? args)
     {
         Dispatcher.UIThread.Post(() =>
@@ -99,14 +144,10 @@ public partial class ProgressWindow : KonkordWindow<ProgressViewModel>, IProgres
         });
     }
 
-    /// <summary>
-    /// Opens or displays the progress reporter UI for this view model.
-    /// </summary>
+    /// <inheritdoc/>
     public void OpenReporter() => Show(); 
     
-    /// <summary>
-    /// Closes or hides the progress reporter UI for this view model.
-    /// </summary>
+    /// <inheritdoc/>
     public void CloseReporter() => Close(!DataContext?.IsCancellable);
     #endregion
 }

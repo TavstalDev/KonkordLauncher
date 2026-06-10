@@ -478,12 +478,16 @@ public class LibraryDownloadService : ILibraryDownloadService
                 {
                     progressReporter?.ReportProgress(downloadedBytes / (double)overallLibrarySize * 100d);
                     semaphore.Release();
+                    progressReporter?.CompleteTask();
                 }
             }, cancellationToken);
             tasks.Add(t);
         }
 
+        progressReporter?.SetTargetTasks(null);
+        progressReporter?.SetTargetTasks(tasks.Count);
         await Task.WhenAll(tasks);
+        progressReporter?.SetTargetTasks(null);
         return safeClassPath.ToList();
     }
 
@@ -522,7 +526,6 @@ public class LibraryDownloadService : ILibraryDownloadService
 
             await _httpService.DownloadFileAsync(lib.Downloads.Artifact.Url, libFilePath, progress, cancellationToken);
         }
-
         return libFilePath;
     }
 
@@ -609,7 +612,7 @@ public class LibraryDownloadService : ILibraryDownloadService
             T? deserializedResult = JsonSerializer.Deserialize(result, jsonTypeInfo);
             if (deserializedResult != null)
                 await File.WriteAllTextAsync(filePath, result, cancellationToken);
-
+            
             return deserializedResult;
         }
         catch (OperationCanceledException)

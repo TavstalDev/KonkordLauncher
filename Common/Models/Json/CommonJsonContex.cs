@@ -7,6 +7,9 @@ using Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
 
 namespace Tavstal.KonkordLauncher.Common.Models.Json;
 
+/// <summary>
+/// Source generation context for JSON serialization/deserialization of common models.
+/// </summary>
 [JsonSerializable(typeof(CoreConfig))]
 [JsonSerializable(typeof(AccountData))]
 [JsonSerializable(typeof(Account))]
@@ -30,7 +33,4 @@ namespace Tavstal.KonkordLauncher.Common.Models.Json;
 [JsonSerializable(typeof(JavaMirrorConfig))]
 [JsonSourceGenerationOptions(WriteIndented = true, IgnoreReadOnlyProperties = true, IgnoreReadOnlyFields = true,
     Converters = [typeof(JsonStringEnumConverter<EAccountType>)])]
-public partial class CommonJsonContex : JsonSerializerContext
-{
-    
-}
+public partial class CommonJsonContex : JsonSerializerContext;

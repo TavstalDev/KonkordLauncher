@@ -18,7 +18,4 @@ namespace Tavstal.KonkordLauncher.Common.Models.Json;
 [JsonSerializable(typeof(ModrinthPackageIndex))]
 [JsonSourceGenerationOptions(PropertyNameCaseInsensitive = true,
     PropertyNamingPolicy = JsonKnownNamingPolicy.SnakeCaseLower, WriteIndented = true, IgnoreReadOnlyFields = true, IgnoreReadOnlyProperties = true)]
-public partial class ModrinthJsonContext : JsonSerializerContext
-{
-    
-}
+public partial class ModrinthJsonContext : JsonSerializerContext;

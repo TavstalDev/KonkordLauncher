@@ -58,19 +58,21 @@ public class ModPackModel
     public static async Task<ModPackModel> FromModrinthProjectAsync(Project project, List<Version> versions)
     {
         var fallback = Task.FromResult(new BitmapEntry(null, null));
-        var iconTask = project.IconUrl != null 
+        var iconTask = project.IconUrl != null
             ? Program.ServiceProvider.GetRequiredService<IMetaCacheService>().GetImageAsync(project.IconUrl)!
             : fallback;
         
-        string rawPage = Markdown.ToHtml(project.Body);
+        var markdownTask = Task.Run(() => Markdown.ToHtml(project.Body));
+
+        await Task.WhenAll(iconTask, markdownTask);
         
         return new ModPackModel
         {
             Name = project.Title,
             Description = project.Description,
-            Icon = await iconTask,
+            Icon = iconTask.Result,
             IconUrl = project.IconUrl,
-            RawPage = rawPage,
+            RawPage = markdownTask.Result,
             Versions = new ObservableCollection<Version>(versions),
             Tags = new ObservableCollection<string>(project.Categories)
         };

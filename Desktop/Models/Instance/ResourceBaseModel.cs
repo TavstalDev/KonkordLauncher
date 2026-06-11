@@ -117,16 +117,18 @@ public partial class ResourceBaseModel : ObservableObject
             ? Program.ServiceProvider.GetRequiredService<IMetaCacheService>().GetImageAsync(project.IconUrl)!
             : fallback;
         
-        string rawPage = await Task.Run(() => Markdown.ToHtml(project.Body));
+        var markdownTask = Task.Run(() => Markdown.ToHtml(project.Body));
+
+        await Task.WhenAll(iconTask, markdownTask);
         
         return new ResourceBaseModel
         {
             ProjectId = project.Id,
             Name = project.Title,
             Description = project.Description,
-            Icon = await iconTask,
+            Icon = iconTask.Result,
             IconUrl = project.IconUrl,
-            RawPage = rawPage,
+            RawPage = markdownTask.Result,
             Versions = new ObservableCollection<Version>(versions),
             Tags = new ObservableCollection<string>(project.Categories),
             IsEnabled = true,

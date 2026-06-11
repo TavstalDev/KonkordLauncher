@@ -37,6 +37,7 @@ public class MetaCacheService : IMetaCacheService, IAsyncInitializable
         AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(2),
         Size = 1
     };
+    private static readonly SemaphoreSlim _saveLock = new(1, 1);
     private record CachedFileEntry(object Value, DateTime LastWriteUtc);
 
     /// <summary>
@@ -62,7 +63,7 @@ public class MetaCacheService : IMetaCacheService, IAsyncInitializable
             if (!File.Exists(PathHelper.MetaCachePath))
                 return;
 
-            var result = await JsonHelper.ReadJsonFileAsync<List<MetaCache>>(PathHelper.MetaCachePath, CommonJsonContex.Default.ListMetaCache);
+            var result = await JsonHelper.ReadJsonFileAsync<List<MetaCache>>(PathHelper.MetaCachePath, CommonJsonContex.Default.ListMetaCache, cancellationToken);
             if (result != null)
                 foreach (var metaCache in result)
                 {
@@ -498,12 +499,18 @@ public class MetaCacheService : IMetaCacheService, IAsyncInitializable
     {
         try
         {
+            await _saveLock.WaitAsync(cancellationToken);
             var cacheSnapshot = _cache.Values.ToArray();
-            await JsonHelper.WriteJsonFileAsync(PathHelper.MetaCachePath, cacheSnapshot, CommonJsonContex.Default.MetaCacheArray, cancellationToken);
+            await JsonHelper.WriteJsonFileAsync(PathHelper.MetaCachePath, cacheSnapshot,
+                CommonJsonContex.Default.MetaCacheArray, cancellationToken);
         }
         catch (Exception ex)
         {
             _logger.LogCritical(ex, $"Failed to save meta cache:");
+        }
+        finally
+        {
+            _saveLock.Release();
         }
     }
     

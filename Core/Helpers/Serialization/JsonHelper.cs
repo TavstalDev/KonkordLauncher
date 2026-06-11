@@ -18,7 +18,7 @@ public static class JsonHelper
     private static readonly ConcurrentDictionary<string, SemaphoreSlim> _fileLocks =
         new(StringComparer.OrdinalIgnoreCase);
     private const int _maxRetries = 5;
-    private static readonly TimeSpan _retryDelay = TimeSpan.FromMilliseconds(100);
+    private static readonly TimeSpan _retryDelay = TimeSpan.FromMilliseconds(1000);
     
     /// <summary>
     /// Writes an object to a file as JSON using an atomic write pattern with retries.

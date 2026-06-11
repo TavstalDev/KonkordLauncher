@@ -185,12 +185,6 @@ public class ModrinthPackageService : IPackageService
                     string fileName =  Path.GetFileName(finalPath);
                     string? directory = Path.GetDirectoryName(finalPath);
                     
-                    var prog = new Progress<double>(p =>
-                    {
-                        progress?.ReportProgress(p);
-                        progress?.UpdateStatusTranslated("instance.download.file", path, p.ToString("0.00"));
-                    });
-                    
                     EResourceType resourceType = EResourceType.RESOURCE_PACK;
                     if (path.StartsWith("mods"))
                         resourceType = EResourceType.MOD;
@@ -215,6 +209,11 @@ public class ModrinthPackageService : IPackageService
                     if (!string.IsNullOrEmpty(directory))
                         Directory.CreateDirectory(directory);
                     
+                    var prog = new Progress<double>(p =>
+                    {
+                        progress?.ReportProgress(p);
+                        progress?.UpdateStatusTranslated("instance.download.file", path, p.ToString("0.00"));
+                    });
                     return _httpService.DownloadFileAsync(url, finalPath, prog, cancellationToken);
                 });
                 
@@ -254,7 +253,7 @@ public class ModrinthPackageService : IPackageService
         List<FileNode> localNodes = new (fileNodes);
         if (File.Exists(resourceFile))
         {
-            var res = await JsonHelper.ReadJsonFileAsync<List<InstanceResource>>(resourceFile, CommonJsonContex.Default.ListInstanceResource);
+            var res = await JsonHelper.ReadJsonFileAsync<List<InstanceResource>>(resourceFile, CommonJsonContex.Default.ListInstanceResource, cancellationToken);
             if (res != null)
                 resources = res;
         }
@@ -299,8 +298,11 @@ public class ModrinthPackageService : IPackageService
 
             foreach (var resource in resources)
             {
+                if (resource.Platform != EPlatformType.MODRINTH)
+                    continue;
+                
                 // Remove the resource file node from localNodes to avoid copying it to overrides
-                var localNode = localNodes.Find(x => !x.IsDirectory && x.Path.EndsWith(resource.Path));
+                var localNode = localNodes.Find(x => !x.IsDirectory && (x.Path.EndsWith(resource.Path) || x.Path.EndsWith(resource.Path + ".dis")));
                 if (localNode != null)
                     localNodes.Remove(localNode);
                 

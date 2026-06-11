@@ -23,6 +23,9 @@ public class FabricManifest : IModManifest
     [JsonIgnore]
     public EMinecraftKind LoaderKind { get;  } = EMinecraftKind.FABRIC;
 
+    /// <inheritdoc/>
+    public bool EqualsGameVersion(string gameVersion) => true; // Fabric loader versions are generally compatible across multiple game versions.
+
     /// <summary>
     /// Initializes a new instance of the <see cref="FabricManifest"/> class with default values.
     /// </summary>

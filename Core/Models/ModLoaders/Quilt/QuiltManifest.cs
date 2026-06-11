@@ -23,6 +23,9 @@ public class QuiltManifest : IModManifest
     [JsonIgnore]
     public EMinecraftKind LoaderKind { get;  } = EMinecraftKind.QUILT;
 
+    /// <inheritdoc/>
+    public bool EqualsGameVersion(string gameVersion) => true; // Quilt loader versions are generally compatible across multiple game versions.
+    
     /// <summary>
     /// Initializes a new instance of the <see cref="QuiltManifest"/> class with default values.
     /// </summary>

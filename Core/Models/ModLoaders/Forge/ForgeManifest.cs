@@ -23,6 +23,9 @@ public class ForgeManifest : IModManifest
     [JsonIgnore]
     public EMinecraftKind LoaderKind { get;  } = EMinecraftKind.FORGE;
     
+    /// <inheritdoc/>
+    public bool EqualsGameVersion(string gameVersion) => GameVersion == gameVersion;
+    
     /// <summary>
     /// Initializes a new instance of the <see cref="ForgeManifest"/> class with default values.
     /// </summary>

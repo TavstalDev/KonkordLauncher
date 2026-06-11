@@ -252,16 +252,14 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
                 var selectedVersion = SelectedMinecraftVersion.Id;
                 var searchQuery = ModLoaderSearchQuery;
                 var modLoaderType = ModLoaderType;
-                
                 return (Func<IModManifest, bool>)(manifest =>
                 {
                     // Return empty if no mod loader is selected or the mod loader type does not match
                     if (modLoaderType == EMinecraftKind.VANILLA || modLoaderType != manifest.LoaderKind)
                         return false;
 
-                    // Filter by mod loader type
-                    if ((modLoaderType == EMinecraftKind.NEOFORGE || modLoaderType == EMinecraftKind.QUILT) &&
-                        manifest.GameVersion != selectedVersion)
+                    // Filter by game version
+                    if (!manifest.EqualsGameVersion(selectedVersion))
                         return false;
 
                     // Filter by search query
@@ -339,6 +337,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
     }
     
     #region Commands
+    
     /// <summary>
     /// Opens a window to select a custom icon for the instance. 
     /// If an icon is selected, it updates the instance's icon and its path.

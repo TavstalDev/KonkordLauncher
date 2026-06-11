@@ -6,6 +6,7 @@ using Tavstal.KonkordLauncher.Core.Models.ModLoaders;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Fabric;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.NeoForge;
+using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Quilt;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions;
 
@@ -86,7 +87,7 @@ public class ManifestService : IManifestService
         {
             if (!mapping.TryGetProperty("version", out var version))
                 continue;
-            _quiltManifest.Add(new FabricManifest(version.ToString()));
+            _quiltManifest.Add(new QuiltManifest(version.ToString()));
         }
 
         return _quiltManifest;
@@ -102,7 +103,7 @@ public class ManifestService : IManifestService
             return _forgeManifest;
 
         _forgeManifest = [];
-        var localManifests = await JsonHelper.ReadJsonFileAsync<List<ForgeManifest>>(manifestPath, CoreJsonContext.Default.ListForgeManifest);
+        var localManifests = await JsonHelper.ReadJsonFileAsync<List<ForgeManifest>>(manifestPath, CoreJsonContext.Default.ListForgeManifest, cancellationToken);
         if (localManifests == null)
             throw new  InvalidOperationException("Forge manifest loader not found in the JSON.");
         

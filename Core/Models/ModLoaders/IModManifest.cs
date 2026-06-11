@@ -21,4 +21,11 @@ public interface IModManifest
     /// Gets the kind of mod loader this manifest represents.
     /// </summary>
     EMinecraftKind LoaderKind { get; }
+
+    /// <summary>
+    /// Determines whether the provided game version is compatible with this mod manifest's game version.
+    /// </summary>
+    /// <param name="gameVersion">The game version to compare against the manifest's game version.</param>
+    /// <returns>True if the provided game version is considered compatible; otherwise, false.</returns>
+    public abstract bool EqualsGameVersion(string gameVersion);
 }

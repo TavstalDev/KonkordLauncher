@@ -21,7 +21,19 @@ public class NeoForgeManifest : IModManifest
     
     /// <inheritdoc/>
     [JsonIgnore]
-    public EMinecraftKind LoaderKind { get;  } = EMinecraftKind.NEOFORGE;
+    public EMinecraftKind LoaderKind { get; } = EMinecraftKind.NEOFORGE;
+
+    /// <inheritdoc/>
+    public bool EqualsGameVersion(string gameVersion)
+    {
+        // Check if minecraft is modern
+        if (gameVersion.StartsWith("1."))
+            return gameVersion == GameVersion;
+        
+        if (gameVersion.Split('.').Length == 2)
+            return Version.StartsWith(gameVersion + ".0");
+        return Version.StartsWith(gameVersion);
+    }
     
     /// <summary>
     /// Initializes a new instance of the <see cref="NeoForgeManifest"/> class with default values.

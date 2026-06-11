@@ -230,9 +230,8 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
                     if (modLoaderType == EMinecraftKind.VANILLA || modLoaderType != manifest.LoaderKind)
                         return false;
 
-                    // Filter by mod loader type
-                    if ((modLoaderType == EMinecraftKind.NEOFORGE || modLoaderType == EMinecraftKind.QUILT) &&
-                        manifest.GameVersion != selectedVersion)
+                    // Filter by game version
+                    if (!manifest.EqualsGameVersion(selectedVersion))
                         return false;
 
                     // Filter by search query

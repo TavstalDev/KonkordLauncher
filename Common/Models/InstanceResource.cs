@@ -81,4 +81,13 @@ public class InstanceResource
     /// </summary>
     [JsonPropertyName("fileSize")]
     public long FileSize { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the optional file identifier for this resource, which can be used for tracking or referencing the file in storage or download systems.
+    /// </summary>
+    /// <remarks>
+    /// This field can be used to store the CurseForge file ID, which is a unique identifier for files hosted on CurseForge.
+    /// </remarks>
+    [JsonPropertyName("fileId")]
+    public string? FileId { get; set; }
 }

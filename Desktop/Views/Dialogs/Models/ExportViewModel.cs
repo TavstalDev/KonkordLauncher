@@ -28,6 +28,7 @@ public partial class ExportViewModel : KonkordObservableObject
 {
     private readonly ITranslationService  _translationService = null!;
     private readonly ModrinthPackageService _modrinthPackageService = null!;
+    private readonly CurseForgePackageService _curseForgePackageService = null!;
     private Instance Instance { get; } = null!;
     private EInstanceProvider Provider { get; }
     
@@ -98,6 +99,7 @@ public partial class ExportViewModel : KonkordObservableObject
         var services = Program.ServiceProvider;
         _translationService = services.GetRequiredService<ITranslationService>();
         _modrinthPackageService = services.GetRequiredService<ModrinthPackageService>();
+        _curseForgePackageService = services.GetRequiredService<CurseForgePackageService>();
         
         Instance = instance;
         InstanceName = instance.Name;
@@ -197,12 +199,30 @@ public partial class ExportViewModel : KonkordObservableObject
 
         IsExporting = true;
         List<FileNode> selectedFiles = ObservableFileNode.ToFileNodes(Items.ToList());
-        if (await _modrinthPackageService.ExportAsync(Instance, selectedFiles, exportPath,InstanceVersion, InstanceSummary))
+        switch (Provider)
         {
-            IsExporting = false;
-            await ShowAlertDialogInteraction.Handle(new Alert(_translationService.Translate("common.error"), _translationService.Translate("instance.export.alert.error"), EAlertType.Error));
-            return;
+            case EInstanceProvider.CURSE_FORGE:
+            {
+                if (await _curseForgePackageService.ExportAsync(Instance, selectedFiles, exportPath,InstanceVersion, InstanceSummary))
+                {
+                    IsExporting = false;
+                    await ShowAlertDialogInteraction.Handle(new Alert(_translationService.Translate("common.error"), _translationService.Translate("instance.export.alert.error"), EAlertType.Error));
+                    return;
+                }
+                break;
+            }
+            case EInstanceProvider.MODRINTH:
+            {
+                if (await _modrinthPackageService.ExportAsync(Instance, selectedFiles, exportPath,InstanceVersion, InstanceSummary))
+                {
+                    IsExporting = false;
+                    await ShowAlertDialogInteraction.Handle(new Alert(_translationService.Translate("common.error"), _translationService.Translate("instance.export.alert.error"), EAlertType.Error));
+                    return;
+                }
+                break;
+            }
         }
+       
         IsExporting = false;
         
         await ShowAlertDialogInteraction.Handle(new Alert(_translationService.Translate("common.success"), _translationService.Translate("instance.export.alert.success", exportPath), EAlertType.Success));

@@ -189,7 +189,7 @@
                                 <!--  Mod List  -->
                                 <Border Classes="SettingsCategoryBorder">
                                     <Grid>
-                                        <ScrollViewer ScrollChanged="ScrollViewer_OnScrollChanged">
+                                        <ScrollViewer ScrollChanged="ScrollViewer_OnScrollChanged" IsEnabled="{Binding AllowScrollbarRefresh}">
                                             <!--  Content  -->
                                             <ListBox
                                                 Margin="0,0,10,0"

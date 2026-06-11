@@ -43,6 +43,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
     private readonly Instance? _instance;
     private readonly List<InstanceResource> _instanceResources = [];
     private readonly EResourceType _resourceType;
+    private CancellationTokenSource? _refreshCancellationTokenSource = null;
     public bool IsMod { get; }
     private long _refreshGeneration;
 
@@ -284,132 +285,154 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
         if (instanceResources is { Count: > 0 })
             _instanceResources.AddRange(instanceResources);
 
-        await RefreshResourcesAsync(true, cancellationToken);
+        await RefreshResourcesAsync(true);
         AllowScrollbarRefresh = true;
     }
 
     /// <summary>
     /// Refreshes the resource list by querying the Modrinth API with the current search filters (query, version, categories).
-    /// Supports cancellation via <paramref name="cancellationToken"/> and guards against stale results using a generation counter.
     /// When <paramref name="resetSearch"/> is true, existing resources are cleared and the offset starts from 0.
     /// </summary>
     /// <param name="resetSearch">If true, clears the current resource list and resets the search offset.</param>
-    /// <param name="cancellationToken">Token to cancel the operation.</param>
-    public async Task RefreshResourcesAsync(bool resetSearch = false, CancellationToken cancellationToken = default)
+    public async Task RefreshResourcesAsync(bool resetSearch = false)
     {
-        var refreshGeneration = Interlocked.Increment(ref _refreshGeneration);
-        AllowScrollbarRefresh = false;
-        string version = MinecraftVersion;
+        if (_refreshCancellationTokenSource != null)
+            await _refreshCancellationTokenSource.CancelAsync();
         
-        List<string> categories = [];
-        if (IsMod && ModLoader != EMinecraftKind.VANILLA)
-            categories.Add(ModLoader.ToString().ToLower());
-        foreach (var category in Categories)
+        _refreshCancellationTokenSource = new CancellationTokenSource();
+        var cancellationToken = _refreshCancellationTokenSource.Token;
+
+        try
         {
-            if (!category.IsChecked)
-                continue;
-            categories.Add(category.Name);
-        }
-        
-        SearchResponse? response = null;
-        switch (_resourceType)
-        {
-            case EResourceType.RESOURCE_PACK:
+            var refreshGeneration = Interlocked.Increment(ref _refreshGeneration);
+            AllowScrollbarRefresh = false;
+            string version = MinecraftVersion;
+
+            List<string> categories = [];
+            if (IsMod && ModLoader != EMinecraftKind.VANILLA)
+                categories.Add(ModLoader.ToString().ToLower());
+            foreach (var category in Categories)
             {
-                response = await _metaCacheService.SearchResourcePacksAsync(SearchQuery, version, categories,
-                    resetSearch ? 0 : Resources.Count, cancellationToken);
-                break;
+                cancellationToken.ThrowIfCancellationRequested();
+                if (!category.IsChecked)
+                    continue;
+                categories.Add(category.Name);
             }
-            case EResourceType.MOD:
+
+            SearchResponse? response = null;
+            switch (_resourceType)
             {
-                response = await _metaCacheService.SearchModsAsync(SearchQuery, version, categories,
-                    resetSearch ? 0 : Resources.Count, cancellationToken);
-                break;
+                case EResourceType.RESOURCE_PACK:
+                {
+                    response = await _metaCacheService.SearchResourcePacksAsync(SearchQuery, version, categories,
+                        resetSearch ? 0 : Resources.Count, cancellationToken);
+                    break;
+                }
+                case EResourceType.MOD:
+                {
+                    response = await _metaCacheService.SearchModsAsync(SearchQuery, version, categories,
+                        resetSearch ? 0 : Resources.Count, cancellationToken);
+                    break;
+                }
+                case EResourceType.SHADER_PACK:
+                {
+                    response = await _metaCacheService.SearchShaderPacksAsync(SearchQuery, version, categories,
+                        resetSearch ? 0 : Resources.Count, cancellationToken);
+                    break;
+                }
             }
-            case EResourceType.SHADER_PACK:
+
+            if (response == null)
+                throw new Exception("Modrinth search failed.");
+
+            var projectIds = response.Hits.Select(h => h.ProjectId).ToList();
+            var projects = await _metaCacheService.GetProjectsAsync(projectIds, cancellationToken);
+            if (refreshGeneration != _refreshGeneration)
+                return;
+
+            cancellationToken.ThrowIfCancellationRequested();
+            var projectOrder = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            for (int i = 0; i < response.Hits.Length; i++)
             {
-                response = await _metaCacheService.SearchShaderPacksAsync(SearchQuery, version, categories,
-                    resetSearch ? 0 : Resources.Count, cancellationToken);
-                break;
+                var projectId = response.Hits[i].ProjectId;
+                if (string.IsNullOrWhiteSpace(projectId))
+                    continue;
+                projectOrder.TryAdd(projectId, i);
             }
-        }
-        
-        if (response == null)
-            throw new Exception("Modrinth search failed.");
 
-        var projectIds = response.Hits.Select(h => h.ProjectId).ToList();
-        var projects = await _metaCacheService.GetProjectsAsync(projectIds, cancellationToken);
-        if (refreshGeneration != _refreshGeneration)
-            return;
+            projects = projects
+                .OrderBy(project => projectOrder.GetValueOrDefault(project.Id, int.MaxValue))
+                .ToArray();
 
-        var projectOrder = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-        for (int i = 0; i < response.Hits.Length; i++)
-        {
-            var projectId = response.Hits[i].ProjectId;
-            if (string.IsNullOrWhiteSpace(projectId))
-                continue;
-            projectOrder.TryAdd(projectId, i);
-        }
+            cancellationToken.ThrowIfCancellationRequested();
+            var versionIds = projects.SelectMany(p => p.Versions).Distinct().ToList();
+            var versions = await _metaCacheService.GetVersionsAsync(versionIds, cancellationToken);
+            if (refreshGeneration != _refreshGeneration)
+                return;
 
-        projects = projects
-            .OrderBy(project => projectOrder.GetValueOrDefault(project.Id, int.MaxValue))
-            .ToArray();
-        
-        var versionIds = projects.SelectMany(p => p.Versions).Distinct().ToList();
-        var versions = await _metaCacheService.GetVersionsAsync(versionIds, cancellationToken);
-        if (refreshGeneration != _refreshGeneration)
-            return;
-
-        if (IsMod)
-        {
-            string modLoader = ModLoader switch
+            cancellationToken.ThrowIfCancellationRequested();
+            if (IsMod)
             {
-                EMinecraftKind.NEOFORGE => "neoforge",
-                EMinecraftKind.FORGE => "forge",
-                EMinecraftKind.FABRIC => "fabric",
-                EMinecraftKind.QUILT => "quilt",
-                _ => ""
-            };
-            versions = versions.Where(v => v.Loaders.Contains(modLoader) && v.GameVersions.Contains(MinecraftVersion)).ToArray();
-        }
-        else 
-            versions = versions.Where(v => v.GameVersions.Contains(MinecraftVersion)).ToArray();
-        
-        var versionDict = versions.ToDictionary(v => v.Id);
-        
-        var tasks = projects.Select(project =>
-        {
-            var projectVersions = project.Versions
-                .Where(versionDict.ContainsKey)
-                .Select(id => versionDict[id])
-                .OrderByDescending(v => v.DatePublished)
-                .ToList();
+                string modLoader = ModLoader switch
+                {
+                    EMinecraftKind.NEOFORGE => "neoforge",
+                    EMinecraftKind.FORGE => "forge",
+                    EMinecraftKind.FABRIC => "fabric",
+                    EMinecraftKind.QUILT => "quilt",
+                    _ => ""
+                };
+                versions = versions
+                    .Where(v => v.Loaders.Contains(modLoader) && v.GameVersions.Contains(MinecraftVersion)).ToArray();
+            }
+            else
+                versions = versions.Where(v => v.GameVersions.Contains(MinecraftVersion)).ToArray();
+
+            var versionDict = versions.ToDictionary(v => v.Id);
+
+            cancellationToken.ThrowIfCancellationRequested();
+            var tasks = projects.Select(project =>
+            {
+                var projectVersions = project.Versions
+                    .Where(versionDict.ContainsKey)
+                    .Select(id => versionDict[id])
+                    .OrderByDescending(v => v.DatePublished)
+                    .ToList();
+
+                return ResourceBaseModel.FromModrinthProjectAsync(project, projectVersions);
+            });
+
+            cancellationToken.ThrowIfCancellationRequested();
+            var results = await Task.WhenAll(tasks);
+            if (refreshGeneration != _refreshGeneration)
+                return;
+
+            if (resetSearch)
+            {
+                var resourcesCopy = Resources;
+                Resources.Clear();
+                foreach (var resource in resourcesCopy)
+                    resource.Icon.Dispose(_bitmapService);
+            }
             
-            return ResourceBaseModel.FromModrinthProjectAsync(project, projectVersions);
-        });
-        
-        var results = await Task.WhenAll(tasks);
-        if (refreshGeneration != _refreshGeneration)
-            return;
-
-        if (resetSearch)
-        {
-            var resourcesCopy = Resources;
-            Resources.Clear();
-            foreach  (var resource in resourcesCopy)
-                resource.Icon.Dispose(_bitmapService);
+            foreach (var model in results)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                if (_instanceResources.Any(r => r.ProjectId == model.ProjectId))
+                    model.IsInstalled = true;
+                if (ResourcesToDownload.ContainsKey(model.Name))
+                    model.IsSelected = true;
+                Resources.Add(model);
+            }
         }
-
-        foreach (var model in results)
+        catch (OperationCanceledException)
         {
-            if (_instanceResources.Any(r => r.ProjectId == model.ProjectId))
-                model.IsInstalled = true;
-            if (ResourcesToDownload.ContainsKey(model.Name))
-                model.IsSelected = true;
-            Resources.Add(model);
+            /* Ignored */
+            _logger.LogDebug("Resource refresh operation was canceled.");
         }
-
-        AllowScrollbarRefresh = true;
+        finally
+        {
+            AllowScrollbarRefresh = true;   
+        }
     }
     
     #region Commands

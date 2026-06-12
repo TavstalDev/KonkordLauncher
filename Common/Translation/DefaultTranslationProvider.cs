@@ -308,6 +308,7 @@ public static class DefaultTranslationProvider
         {"instance.edit.table.image", "Image"},
         {"instance.edit.table.name", "Name"},
         {"instance.edit.table.version", "Version"},
+        {"instance.edit.table.versionUnknown", "Unknown"},
         {"instance.edit.table.lastModified", "Last Modified"},
         {"instance.edit.table.type", "Type"},
         {"instance.edit.table.size", "Size"},

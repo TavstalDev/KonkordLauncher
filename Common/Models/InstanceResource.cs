@@ -17,6 +17,12 @@ public class InstanceResource
     public required string ProjectId { get; set; }
     
     /// <summary>
+    /// Gets or sets the optional version identifier this resource is associated with, if applicable.
+    /// </summary>
+    [JsonPropertyName("versionId")]
+    public string? VersionId { get; set; }
+    
+    /// <summary>
     /// Gets or sets the instance identifier or name associated with this resource.
     /// </summary>
     [JsonPropertyName("name")]

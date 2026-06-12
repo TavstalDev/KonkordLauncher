@@ -88,7 +88,13 @@ public partial class ResourceBaseModel : ObservableObject
     /// </summary>
     [ObservableProperty]
     public partial string? ProjectId { get; set; }
-
+    
+    /// <summary>
+    /// Gets or sets the identifier of the currently selected version, if applicable.
+    /// </summary>
+    [ObservableProperty]
+    public partial string? SelectedVersionId { get; set; }
+    
     /// <summary>
     /// Gets or sets the collection of available versions for this resource.
     /// </summary>

@@ -15,6 +15,11 @@ public partial class ResourceDownloadModel : KonkordObservableObject
     public required string ProjectId { get; set; }
     
     /// <summary>
+    /// Gets or sets the version identifier for the resource.
+    /// </summary>
+    public required string VersionId { get; set; }
+    
+    /// <summary>
     /// Gets or sets the display name of the resource.
     /// </summary>
     public required string Name { get; set; }

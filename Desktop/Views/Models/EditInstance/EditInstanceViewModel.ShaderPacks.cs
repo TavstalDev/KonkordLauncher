@@ -252,6 +252,7 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
                         IsInstalled = true,
                         Platform = instanceResource?.Platform,
                         ProjectId = instanceResource?.ProjectId,
+                        SelectedVersionId = instanceResource?.VersionId
                     };
                     innerCache.AddOrUpdate(newResourcePack);
                 }

@@ -262,6 +262,7 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
                         IsInstalled = true,
                         Platform = instanceResource?.Platform,
                         ProjectId = instanceResource?.ProjectId,
+                        SelectedVersionId = instanceResource?.VersionId
                     };
                     innerCache.AddOrUpdate(newMod);
                 }

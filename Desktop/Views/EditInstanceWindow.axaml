@@ -289,11 +289,6 @@
                                                                 Width="*"
                                                                 Binding="{Binding Name}"
                                                                 Header="{lang:Translate instance.edit.table.name}" />
-                                                            <!--  Version  -->
-                                                            <!-- TODO <DataGridTextColumn
-                                                                    Width="Auto"
-                                                                    Binding="{Binding Version}"
-                                                                    Header="{lang:Translate instance.edit.table.version}" />-->
                                                             <!--  Provider  -->
                                                             <DataGridTextColumn
                                                                 Width="Auto"

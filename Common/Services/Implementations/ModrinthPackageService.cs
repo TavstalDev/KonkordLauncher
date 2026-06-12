@@ -20,6 +20,7 @@ namespace Tavstal.KonkordLauncher.Common.Services.Implementations;
 /// <summary>
 /// Implements Modrinth package import and export operations for <c>.mrpack</c> archives.
 /// </summary>
+// ReSharper disable once ClassNeverInstantiated.Global
 public class ModrinthPackageService : IPackageService
 {
     private readonly ICustomLogger _logger;
@@ -158,28 +159,52 @@ public class ModrinthPackageService : IPackageService
                 result.IconPath = File.Exists(iconPath) ? iconPath : string.Empty;
                 
                 // Download Mods
-                var tasks = indexJson["files"]?.AsArray().Select(f =>
+                var validFilesData = indexJson["files"]?.AsArray()
+                    .Where(x => x != null)
+                    .Select(x =>
+                    {
+                        if (x == null)
+                            return null;
+                        
+                        string? env = x["env"]?["client"]?.ToString();
+                        if (!string.IsNullOrEmpty(env) && env != "required")
+                            return null;
+                        
+                        string? url = x["downloads"]?.AsArray().FirstOrDefault()?.ToString();
+                        if (string.IsNullOrEmpty(url))
+                            return null;
+                        
+                        string? path = x["path"]?.ToString();
+                        if (string.IsNullOrEmpty(path))
+                            return null;
+                        
+                        string[] urlParts = url.Replace("https://", "").Split('/');
+                        string projetId = urlParts.Length - 1 >= 2 ? urlParts[2] : string.Empty;
+                        string versionId = urlParts.Length - 1 >= 4 ? urlParts[4] : string.Empty;
+                        
+                        return new
+                        {
+                            JsonNode = x, 
+                            Url = url, 
+                            Path = path,
+                            ProjectId = projetId,
+                            VersionId = versionId,
+                        };
+                    })
+                    .Where(x => x != null)
+                    .ToList();
+                
+                List<Task> tasks = [];
+                foreach (var node in validFilesData!)
                 {
-                    if (f == null)
-                        return Task.CompletedTask;
+                    if (node == null)
+                        continue;
                     
-                    string? env = f["env"]?["client"]?.ToString();
-                    if (!string.IsNullOrEmpty(env) && env != "required")
-                        return Task.CompletedTask;
-                    
-                    string? url = f["downloads"]?.AsArray().FirstOrDefault()?.ToString();
-                    if (string.IsNullOrEmpty(url))
-                    {
-                        _logger.LogWarning("No download URL found for a file in modrinth.index.json");
-                        return Task.CompletedTask;
-                    }
-                    
-                    string? path = f["path"]?.ToString();
-                    if (string.IsNullOrEmpty(path))
-                    {
-                        _logger.LogWarning("No path found for a file in modrinth.index.json");
-                        return Task.CompletedTask;
-                    }
+                    JsonNode jsonNode = node.JsonNode;
+                    string path = node.Path;
+                    string url = node.Url;
+                    string projetId = node.ProjectId;
+                    string versionId = node.VersionId;
                     
                     string finalPath = Path.Combine(result.GameDirectory, path);
                     string fileName =  Path.GetFileName(finalPath);
@@ -193,17 +218,18 @@ public class ModrinthPackageService : IPackageService
                     
                     resources.Add(new InstanceResource
                     {
-                        ProjectId = url.Replace("https://cdn.modrinth.com/data/", "").Split('/').FirstOrDefault() ?? string.Empty,
+                        ProjectId = projetId,
+                        VersionId = versionId,
                         Name = fileName,
                         Path = path,
                         Url = url,
                         Type = resourceType,
                         Platform = EPlatformType.MODRINTH,
-                        FileSize = long.Parse(f["size"]?.ToString() ?? "0"),
-                        Sha1 = f["hashes"]?["sha1"]?.ToString() ?? string.Empty,
-                        Sha512 = f["hashes"]?["sha512"]?.ToString() ?? string.Empty,
-                        Client = f["env"]?["client"]?.ToString() ?? string.Empty,
-                        Server = f["env"]?["server"]?.ToString() ?? string.Empty,
+                        FileSize = long.Parse(jsonNode["size"]?.ToString() ?? "0"),
+                        Sha1 = jsonNode["hashes"]?["sha1"]?.ToString() ?? string.Empty,
+                        Sha512 = jsonNode["hashes"]?["sha512"]?.ToString() ?? string.Empty,
+                        Client = jsonNode["env"]?["client"]?.ToString() ?? string.Empty,
+                        Server = jsonNode["env"]?["server"]?.ToString() ?? string.Empty,
                     });
                     
                     if (!string.IsNullOrEmpty(directory))
@@ -214,11 +240,10 @@ public class ModrinthPackageService : IPackageService
                         progress?.ReportProgress(p);
                         progress?.UpdateStatusTranslated("instance.download.file", path, p.ToString("0.00"));
                     });
-                    return _httpService.DownloadFileAsync(url, finalPath, prog, cancellationToken);
-                });
+                    tasks.Add(_httpService.DownloadFileAsync(url, finalPath, prog, cancellationToken));
+                }
                 
-                if (tasks != null)
-                    await Task.WhenAll(tasks);
+                await Task.WhenAll(tasks);
 
                 instances.Add(result);
                 await _launcherStore.SaveInstancesAsync(instances, cancellationToken);

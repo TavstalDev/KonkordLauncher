@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Modrinth.Models;
+using Modrinth.Models.Errors;
 using Tavstal.KonkordLauncher.Common.Models.Package.Modrinth;
 using Version = Modrinth.Models.Version;
 
@@ -16,6 +17,7 @@ namespace Tavstal.KonkordLauncher.Common.Models.Json;
 [JsonSerializable(typeof(List<string[]>))]
 [JsonSerializable(typeof(PackageFile))]
 [JsonSerializable(typeof(ModrinthPackageIndex))]
+[JsonSerializable(typeof(ResponseError))]
 [JsonSourceGenerationOptions(PropertyNameCaseInsensitive = true,
     PropertyNamingPolicy = JsonKnownNamingPolicy.SnakeCaseLower, WriteIndented = true, IgnoreReadOnlyFields = true, IgnoreReadOnlyProperties = true)]
 public partial class ModrinthJsonContext : JsonSerializerContext;

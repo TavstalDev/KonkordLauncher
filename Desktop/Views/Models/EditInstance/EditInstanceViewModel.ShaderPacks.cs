@@ -27,6 +27,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObject
 {
     private readonly ICustomLogger _logger = null!;
+    private readonly ILauncherStore _launcherStore = null!;
     private readonly IBitmapService _bitmapService = null!;
     private readonly EditInstanceViewModel _parent;
     
@@ -46,6 +47,7 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
         
         var services = Program.ServiceProvider;
         _logger = services.GetRequiredService<ICustomLogger<EditInstanceViewModel_ShaderPacks>>();
+        _launcherStore = services.GetRequiredService<ILauncherStore>();
         _bitmapService = services.GetRequiredService<IBitmapService>();
         
         // Set up a reactive filter for the SearchQuery property.
@@ -110,7 +112,22 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
         if (!File.Exists(shader.FilePath))
             return;
 
-        File.Delete(shader.FilePath);
+        if (!FileSystemHelper.DeleteFile(shader.FilePath))
+        {
+            _logger.LogError("Failed to delete resource pack file: " + shader.FilePath);
+            return;
+        }
+
+        var instance = _parent.Instance.getInstance();
+        var resources = await instance.GetInstanceResourcesAsync();
+        var targetResource =
+            resources?.FirstOrDefault(x => x.Name == shader.Name && x.Type == EResourceType.SHADER_PACK);
+        if (targetResource != null && resources != null)
+        {
+            resources.Remove(targetResource);
+            await _launcherStore.SaveInstanceResourcesAsync(instance, resources);
+        }
+        
         await RefreshShaderPacksAsync();
     }
 

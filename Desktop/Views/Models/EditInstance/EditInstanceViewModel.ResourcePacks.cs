@@ -30,6 +30,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObject
 {
     private readonly ICustomLogger _logger = null!;
+    private readonly ILauncherStore _launcherStore = null!;
     private readonly IBitmapService _bitmapService = null!;
     private readonly EditInstanceViewModel _parent;
     
@@ -50,6 +51,7 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
         
         var services = Program.ServiceProvider;
         _logger = services.GetRequiredService<ICustomLogger<EditInstanceViewModel_ResourcePacks>>();
+        _launcherStore = services.GetRequiredService<ILauncherStore>();
         _bitmapService = services.GetRequiredService<IBitmapService>();
         
         // Set up a reactive filter for the SearchQuery property.
@@ -110,7 +112,22 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
         if (!File.Exists(resourcePack.FilePath))
             return;
 
-        File.Delete(resourcePack.FilePath);
+        if (!FileSystemHelper.DeleteFile(resourcePack.FilePath))
+        {
+            _logger.LogError("Failed to delete resource pack file: " + resourcePack.FilePath);
+            return;
+        }
+
+        var instance = _parent.Instance.getInstance();
+        var resources = await instance.GetInstanceResourcesAsync();
+        var targetResource =
+            resources?.FirstOrDefault(x => x.Name == resourcePack.Name && x.Type == EResourceType.RESOURCE_PACK);
+        if (targetResource != null && resources != null)
+        {
+            resources.Remove(targetResource);
+            await _launcherStore.SaveInstanceResourcesAsync(instance, resources);
+        }
+
         await RefreshResourcePacksAsync();
     }
 

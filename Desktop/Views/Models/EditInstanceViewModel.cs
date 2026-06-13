@@ -52,8 +52,6 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     public List<AccountModel> Accounts { get; private set; }  = null!;
 
     #region Interactions
-
-    
     
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
     public Interaction<EEditInstanceTab, Unit> TabSwitchInteraction { get; } = new();

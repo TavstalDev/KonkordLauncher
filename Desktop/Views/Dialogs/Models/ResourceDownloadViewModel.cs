@@ -228,7 +228,11 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
             return;
 
         ResourcesToDownload.CollectionChanged += HandleResourcesToDownload_CollectionChanged;
-        _ = InitAsync();
+        _ = InitAsync().ContinueWith(t =>
+        {
+            if (t.IsFaulted)
+                _logger.LogError(t.Exception, "Failed to initialize ResourceDownloadViewModel:");
+        }, TaskScheduler.Default);
     }
     
     /// <summary>
@@ -525,6 +529,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
                 Sha1 = file.Hashes.Sha1,
                 Sha512 = file.Hashes.Sha512,
                 FileName = file.FileName,
+                FileSize = file.Size,
                 Platform = SelectedPlatform,
                 ShouldDownload = true
             });
@@ -550,6 +555,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
                 Sha1 = file.Hashes.Sha1,
                 Sha512 = file.Hashes.Sha512,
                 FileName = file.FileName,
+                FileSize = file.Size,
                 Platform = SelectedPlatform,
                 ShouldDownload = true
             });

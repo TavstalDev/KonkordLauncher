@@ -166,6 +166,7 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
                 Sha1 = resource.Sha1,
                 Sha512 = resource.Sha512,
                 Platform = resource.Platform,
+                FileSize = resource.FileSize,
                 Client = null,
                 Server = null,
                 IconPath = null

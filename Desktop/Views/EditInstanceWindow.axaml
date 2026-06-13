@@ -307,19 +307,6 @@
                                                                     Command="{Binding Mods.ToggleCommand}"
                                                                     CommandParameter="{Binding Mods.SelectedMod}"
                                                                     Header="{lang:Translate common.toggle}" />
-                                                                <Separator />
-                                                                <!--  Check For Updates  -->
-                                                                <MenuItem
-                                                                    Command="{Binding Mods.CheckUpdateCommand}"
-                                                                    CommandParameter="{Binding Mods.SelectedMod}"
-                                                                    Header="{lang:Translate instance.update.check}" />
-                                                                <Separator />
-                                                                <!--  Change Version  -->
-                                                                <MenuItem
-                                                                    Command="{Binding Mods.ChangeVersionCommand}"
-                                                                    CommandParameter="{Binding Mods.SelectedMod}"
-                                                                    Header="{lang:Translate instance.version.change}" />
-                                                                <Separator />
                                                                 <!--  Remove  -->
                                                                 <MenuItem
                                                                     Command="{Binding Mods.RemoveCommand}"

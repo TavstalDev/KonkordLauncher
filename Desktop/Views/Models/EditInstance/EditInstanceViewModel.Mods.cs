@@ -15,10 +15,8 @@ using DynamicData;
 using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
-using Tavstal.KonkordLauncher.Common.Models.Json;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
-using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
 using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
@@ -102,18 +100,6 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
     {
         mod.IsEnabled = !mod.IsEnabled;
         SaveMods();
-    }
-
-    [RelayCommand]
-    public void CheckUpdate(ResourceBaseModel mod)
-    {
-        // TODO: Implement mod update check logic
-    }
-
-    [RelayCommand]
-    public void ChangeVersion(ResourceBaseModel mod)
-    {
-        // TODO: Implement mod version change logic
     }
 
     /// <summary>
@@ -260,9 +246,10 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
                         FileSize = size,
                         FilePath = mod,
                         IsInstalled = true,
+                        Type = instanceResource?.Type ?? EResourceType.MOD,
                         Platform = instanceResource?.Platform,
                         ProjectId = instanceResource?.ProjectId,
-                        SelectedVersionId = instanceResource?.VersionId
+                        SelectedVersionId = instanceResource?.VersionId,
                     };
                     innerCache.AddOrUpdate(newMod);
                 }

@@ -16,10 +16,8 @@ using DynamicData;
 using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
-using Tavstal.KonkordLauncher.Common.Models.Json;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
-using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
 using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
@@ -257,6 +255,7 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
                         FileSize = size,
                         FilePath = resource,
                         IsInstalled = true,
+                        Type = instanceResource?.Type ?? EResourceType.RESOURCE_PACK,
                         Platform = instanceResource?.Platform,
                         ProjectId = instanceResource?.ProjectId,
                         SelectedVersionId = instanceResource?.VersionId

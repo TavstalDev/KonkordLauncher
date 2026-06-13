@@ -17,7 +17,6 @@ using ReactiveUI;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
-using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
 using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
@@ -250,6 +249,7 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
                         FileSize = size,
                         FilePath = pack,
                         IsInstalled = true,
+                        Type = instanceResource?.Type ?? EResourceType.SHADER_PACK,
                         Platform = instanceResource?.Platform,
                         ProjectId = instanceResource?.ProjectId,
                         SelectedVersionId = instanceResource?.VersionId

@@ -39,10 +39,10 @@
 - [x] Resize instance edit settings, it feels too big
 - [ ] Fix java version selection width, it should be scrollable but not like now
 - [ ] Fix light theme
-- [ ] Implement Modrinth
-- - [ ] Mod download and installation
-- - [ ] Resource pack download and installation
-- - [ ] Shader pack download and installation
+- [x] Implement Modrinth
+- - [x] Mod download and installation
+- - [x] Resource pack download and installation
+- - [x] Shader pack download and installation
 
 ## Description
 KonkordLauncher is a free and open-source Minecraft launcher written in C# using .NET 9 and Avalonia UI. It is designed to be lightweight, fast, and user-friendly, providing a seamless experience for launching and managing Minecraft instances.

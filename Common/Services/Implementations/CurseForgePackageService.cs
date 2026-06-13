@@ -1,5 +1,4 @@
 using System.IO.Compression;
-using System.Text.Json.Nodes;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Models.Config;
 using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;

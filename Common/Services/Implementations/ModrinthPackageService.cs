@@ -225,7 +225,7 @@ public class ModrinthPackageService : IPackageService
                         Url = url,
                         Type = resourceType,
                         Platform = EPlatformType.MODRINTH,
-                        FileSize = long.Parse(jsonNode["size"]?.ToString() ?? "0"),
+                        FileSize = long.Parse(jsonNode["fileSize"]?.ToString() ?? "0"),
                         Sha1 = jsonNode["hashes"]?["sha1"]?.ToString() ?? string.Empty,
                         Sha512 = jsonNode["hashes"]?["sha512"]?.ToString() ?? string.Empty,
                         Client = jsonNode["env"]?["client"]?.ToString() ?? string.Empty,

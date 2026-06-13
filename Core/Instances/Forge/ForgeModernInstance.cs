@@ -9,7 +9,6 @@ using Tavstal.KonkordLauncher.Core.Models.Instance;
 using Tavstal.KonkordLauncher.Core.Models.Json;
 using Tavstal.KonkordLauncher.Core.Models.Logging;
 using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge;
-using Tavstal.KonkordLauncher.Core.Models.ModLoaders.Forge.Modern;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi;
 using Tavstal.KonkordLauncher.Core.Models.MojangApi.Meta;
 using Tavstal.KonkordLauncher.Core.Services.Abstractions;

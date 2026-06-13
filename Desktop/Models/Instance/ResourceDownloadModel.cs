@@ -30,6 +30,11 @@ public partial class ResourceDownloadModel : KonkordObservableObject
     public required string FileName { get; set; }
     
     /// <summary>
+    /// Gets or sets the size of the resource file in bytes.
+    /// </summary>
+    public long FileSize { get; set; }
+    
+    /// <summary>
     /// Gets or sets the version string of the resource.
     /// </summary>
     public required string Version { get; set; }

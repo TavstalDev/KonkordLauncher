@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
@@ -5,10 +6,12 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Markdig;
 using Microsoft.Extensions.DependencyInjection;
 using Modrinth.Models;
+using Modrinth.Models.Enums.Project;
 using Tavstal.KonkordLauncher.Common.Models;
 using Tavstal.KonkordLauncher.Common.Services.Abstractions;
 using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Core.Helpers.IO;
+using Version = Modrinth.Models.Version;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Instance;
 
@@ -78,6 +81,12 @@ public partial class ResourceBaseModel : ObservableObject
     public partial bool IsInstalled { get; set; }
     
     /// <summary>
+    /// Gets or sets the type of the resource (e.g., mod, texture pack).
+    /// </summary>
+    [ObservableProperty]
+    public partial EResourceType Type { get; set; }
+    
+    /// <summary>
     /// Gets or sets the target platform type (e.g. Modrinth).
     /// </summary>
     [ObservableProperty]
@@ -126,6 +135,13 @@ public partial class ResourceBaseModel : ObservableObject
         var markdownTask = Task.Run(() => Markdown.ToHtml(project.Body));
 
         await Task.WhenAll(iconTask, markdownTask);
+        var type = project.ProjectType switch
+        {
+            ProjectType.Mod => EResourceType.MOD,
+            ProjectType.Resourcepack => EResourceType.RESOURCE_PACK,
+            ProjectType.Shader => EResourceType.SHADER_PACK,
+            _ => throw new ArgumentOutOfRangeException()
+        };
         
         return new ResourceBaseModel
         {
@@ -138,6 +154,7 @@ public partial class ResourceBaseModel : ObservableObject
             Versions = new ObservableCollection<Version>(versions),
             Tags = new ObservableCollection<string>(project.Categories),
             IsEnabled = true,
+            Type = type,
             Platform = EPlatformType.MODRINTH,
             FilePath = null
         };

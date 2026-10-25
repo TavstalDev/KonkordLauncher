@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Markdig;
 using Modrinth.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services.Content;
 using Version = Modrinth.Models.Version;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Instance;

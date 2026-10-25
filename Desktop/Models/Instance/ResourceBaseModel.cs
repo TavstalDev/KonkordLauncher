@@ -9,7 +9,7 @@ using Modrinth.Models.Enums.Project;
 using Tavstal.BeaconSDK.Helpers.IO;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services.Content;
 using Version = Modrinth.Models.Version;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Instance;

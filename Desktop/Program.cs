@@ -9,8 +9,19 @@ using ReactiveUI.Avalonia;
 using Tavstal.BeaconSDK;
 using Tavstal.BeaconSDK.Helpers.IO;
 using Tavstal.BeaconSDK.Models.Config;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
-using Tavstal.KonkordLauncher.Desktop.Services.Implementations;
+using Tavstal.KonkordLauncher.Desktop.Services;
+using Tavstal.KonkordLauncher.Desktop.Services.Accounts;
+using Tavstal.KonkordLauncher.Desktop.Services.Content;
+using Tavstal.KonkordLauncher.Desktop.Services.Instances;
+using Tavstal.KonkordLauncher.Desktop.Services.Localization;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Startup;
+using Tavstal.KonkordLauncher.Desktop.Services.Storage;
+using Tavstal.KonkordLauncher.Desktop.Services.Update;
+using Tavstal.KonkordLauncher.Desktop.Views;
+using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
+using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
+using Tavstal.KonkordLauncher.Desktop.Views.Models;
 using Velopack;
 
 namespace Tavstal.KonkordLauncher.Desktop;
@@ -142,10 +153,15 @@ class Program
             .ConfigureServices(services =>
             {
                 services.AddBeaconServices(beaconConfig);
-
                 services.AddSingleton<IEventService,  EventService>();
-                // TODO: services.AddSingleton<ISkinService, SkinService>();
+                services.AddSingleton<IUpdateService, UpdateService>();
+                services.AddSingleton<IDiscordPresenceService, DiscordPresenceService>();
+
+                services.AddSingleton<ISkinService, SkinService>();
                 services.AddSingleton<ILauncherStore, LauncherStore>();
+                services.AddSingleton<IScreenService, ScreenService>();
+                services.AddSingleton<IWindowFactory, WindowFactory>();
+                services.AddSingleton<IInstanceModelFactory, InstanceModelFactory>();
 
                 services.AddSingleton<ITranslationService, TranslationService>();
                 services.AddHostedService(sp => sp.GetRequiredService<TranslationService>());
@@ -157,6 +173,19 @@ class Program
                 services.AddSingleton<IBitmapService, BitmapService>();
                 services.AddSingleton<IMetaCacheService, MetaCacheService>();
                 services.AddHostedService(sp => sp.GetRequiredService<MetaCacheService>());
+
+                services.AddTransient<StartupViewModel>();
+                services.AddTransient<StartupWindow>();
+                services.AddTransient<MainViewModel>();
+                services.AddTransient<MainWindow>();
+                services.AddTransient<CreateInstanceViewModel>();
+                services.AddTransient<CreateInstanceWindow>();
+                services.AddTransient<AccountsViewModel>();
+                services.AddTransient<AccountsWindow>();
+                services.AddTransient<JavaSelectorViewModel>();
+                services.AddTransient<JavaSelectorWindow>();
+                services.AddTransient<IconSelectorViewModel>();
+                services.AddTransient<IconSelectorWindow>();
             })
             .Build();
 

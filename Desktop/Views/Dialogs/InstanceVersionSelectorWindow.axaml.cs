@@ -10,7 +10,7 @@ using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 /// <summary>
-/// Represents a window for selecting the version of an instance.
+///     Represents a window for selecting the version of an instance.
 /// </summary>
 public partial class InstanceVersionSelectorWindow : KonkordWindow<InstanceVersionSelectorViewModel>
 {

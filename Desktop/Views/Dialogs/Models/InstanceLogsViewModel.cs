@@ -17,40 +17,18 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 public partial class InstanceLogsViewModel : KonkordObservableObject
 {
-    private readonly string _instanceId;
-    private readonly IBeaconLogger _logger = null!;
-    private readonly ILauncherStore _launcherStore = null!;
     private readonly IEventService _eventService = null!;
-    
-    #region Interactions
-    
-    
-    public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
-    public Interaction<string, Unit> SetClipboardText { get; } = new();
-    public Interaction<Unit, Unit> LogsScrollToEnd { get; } = new();
-
-    #endregion
-
-    #region Observable Properties
-
-    [ObservableProperty]
-    public partial string InstanceName { get; set; } = null!;
-
-    [ObservableProperty]
-    public partial string? GameDirectory { get; set; }
-
-    [ObservableProperty]
-    public partial string Logs { get; set; } = null!;
-
-    #endregion
+    private readonly string _instanceId;
+    private readonly ILauncherStore _launcherStore = null!;
+    private readonly IBeaconLogger _logger = null!;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="InstanceLogsViewModel"/> class with the specified instance ID.
-    /// Retrieves the instance details and sets up logging for the instance.
+    ///     Initializes a new instance of the <see cref="InstanceLogsViewModel" /> class with the specified instance ID.
+    ///     Retrieves the instance details and sets up logging for the instance.
     /// </summary>
     /// <param name="instanceId">The unique identifier of the instance to be managed by this view model.</param>
     /// <exception cref="KeyNotFoundException">
-    /// Thrown when an instance with the specified ID cannot be found.
+    ///     Thrown when an instance with the specified ID cannot be found.
     /// </exception>
     public InstanceLogsViewModel()
     {
@@ -75,7 +53,7 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
     }
 
     /// <summary>
-    /// Asynchronously initializes log-related state for the instance identified by <c>_instanceId</c>.
+    ///     Asynchronously initializes log-related state for the instance identified by <c>_instanceId</c>.
     /// </summary>
     /// <param name="cancellationToken">An optional token to cancel the initialization process.</param>
     /// <returns>A task that completes when initialization is finished.</returns>
@@ -100,8 +78,8 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
     }
 
     /// <summary>
-    /// Handles log messages for a specific instance by updating the Logs property
-    /// and triggering the LogsScrollToEnd interaction to scroll to the end of the logs.
+    ///     Handles log messages for a specific instance by updating the Logs property
+    ///     and triggering the LogsScrollToEnd interaction to scroll to the end of the logs.
     /// </summary>
     /// <param name="instanceId">The ID of the instance that generated the log message.</param>
     /// <param name="logMessage">The log message to be handled.</param>
@@ -113,28 +91,28 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
         Logs += logMessage;
         Dispatcher.UIThread.Invoke(async () => await LogsScrollToEnd.Handle(Unit.Default));
     }
-    
+
     /// <summary>
-    /// Disposes of the resources used by the <see cref="InstanceLogsViewModel"/>.
-    /// Unsubscribes from global events and clears instance-related data to free memory.
+    ///     Disposes of the resources used by the <see cref="InstanceLogsViewModel" />.
+    ///     Unsubscribes from global events and clears instance-related data to free memory.
     /// </summary>
     /// <param name="disposing">
-    /// A boolean value indicating whether the method is being called directly or by the garbage collector.
-    /// If true, the method has been called directly and managed resources can be disposed.
+    ///     A boolean value indicating whether the method is being called directly or by the garbage collector.
+    ///     If true, the method has been called directly and managed resources can be disposed.
     /// </param>
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
         _logger.LogDebug("Freeing memory in EditInstanceViewModel...");
         _eventService.OnInstanceLogged -= OnInstanceLogged;
-        
+
         InstanceName = string.Empty;
         GameDirectory = null;
         Logs = string.Empty;
     }
-    
+
     /// <summary>
-    /// Scrolls the logs to the end by triggering the LogsScrollToEnd interaction.
+    ///     Scrolls the logs to the end by triggering the LogsScrollToEnd interaction.
     /// </summary>
     [RelayCommand]
     private async Task ScrollLogsToEnd()
@@ -143,7 +121,7 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
     }
 
     /// <summary>
-    /// Copies the current logs to the system clipboard by triggering the SetClipboardText interaction.
+    ///     Copies the current logs to the system clipboard by triggering the SetClipboardText interaction.
     /// </summary>
     [RelayCommand]
     private async Task CopyLogs()
@@ -152,7 +130,7 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
     }
 
     /// <summary>
-    /// Clears the logs for the current instance and updates the global log storage.
+    ///     Clears the logs for the current instance and updates the global log storage.
     /// </summary>
     [RelayCommand]
     private void ClearLogs()
@@ -160,9 +138,9 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
         Logs = string.Empty;
         _eventService.CleareInstanceLogs(_instanceId);
     }
-    
+
     /// <summary>
-    /// Closes the window using a command interaction.
+    ///     Closes the window using a command interaction.
     /// </summary>
     /// <returns>A task that represents the asynchronous operation.</returns>
     [RelayCommand]
@@ -170,4 +148,22 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
     {
         await CloseWindowInteraction.Handle(Unit.Default);
     }
+
+    #region Interactions
+
+    public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
+    public Interaction<string, Unit> SetClipboardText { get; } = new();
+    public Interaction<Unit, Unit> LogsScrollToEnd { get; } = new();
+
+    #endregion
+
+    #region Observable Properties
+
+    [ObservableProperty] public partial string InstanceName { get; set; } = null!;
+
+    [ObservableProperty] public partial string? GameDirectory { get; set; }
+
+    [ObservableProperty] public partial string Logs { get; set; } = null!;
+
+    #endregion
 }

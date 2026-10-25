@@ -5,14 +5,13 @@ using Avalonia.Data.Converters;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Avalonia.Converters;
 
-
 /// <summary>
-/// Converts a boolean value into an opacity value for UI bindings.
+///     Converts a boolean value into an opacity value for UI bindings.
 /// </summary>
 public class BoolToOpacityConverter : IValueConverter
 {
     /// <summary>
-    /// Converts a boolean into an opacity value.
+    ///     Converts a boolean into an opacity value.
     /// </summary>
     /// <param name="value">The source value to convert.</param>
     /// <param name="targetType">The target binding type.</param>
@@ -27,7 +26,7 @@ public class BoolToOpacityConverter : IValueConverter
     }
 
     /// <summary>
-    /// Reverse conversion is not supported.
+    ///     Reverse conversion is not supported.
     /// </summary>
     /// <param name="value">The target value to convert back.</param>
     /// <param name="targetType">The source binding type.</param>

@@ -25,95 +25,102 @@
         WindowDecorations="None"
         WindowStartupLocation="CenterScreen"
         mc:Ignorable="d">
-        <Grid>
-            <!--  Main window body  -->
-            <Border
-                Background="{DynamicResource base-200}"
-                BorderBrush="{DynamicResource border-one}"
-                BorderThickness="1"
-                CornerRadius="14"
-                PointerPressed="DragStart_PointerPressed">
-                <Grid RowDefinitions="Auto, *">
-                    <!--  Window Controls  -->
-                    <templates:CustomTitleBar/>
+    <Grid>
+        <!--  Main window body  -->
+        <Border
+            Background="{DynamicResource base-200}"
+            BorderBrush="{DynamicResource border-one}"
+            BorderThickness="1"
+            CornerRadius="14"
+            PointerPressed="DragStart_PointerPressed">
+            <Grid RowDefinitions="Auto, *">
+                <!--  Window Controls  -->
+                <templates:CustomTitleBar />
 
-                    <Grid Grid.Row="1" RowDefinitions="Auto, *">
-                        <!--  Title  -->
-                        <Border Classes="ModalTitleBorder">
-                            <StackPanel>
-                                <TextBlock Text="{lang:Translate instance.resource.review.title}" />
-                                <TextBlock Classes="ModalSubTitle" Text="{lang:Translate instance.resource.review.description}" />
+                <Grid Grid.Row="1" RowDefinitions="Auto, *">
+                    <!--  Title  -->
+                    <Border Classes="ModalTitleBorder">
+                        <StackPanel>
+                            <TextBlock Text="{lang:Translate instance.resource.review.title}" />
+                            <TextBlock Classes="ModalSubTitle"
+                                       Text="{lang:Translate instance.resource.review.description}" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Content  -->
+                    <Grid Grid.Row="1" RowDefinitions="*, Auto">
+                        <ScrollViewer Margin="15, 10, 15, 15">
+                            <ItemsControl ItemsSource="{Binding Resources}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Expander Classes="InstanceResource">
+                                            <Expander.Header>
+                                                <CheckBox Content="{Binding Name}" IsChecked="{Binding ShouldDownload}" />
+                                            </Expander.Header>
+
+                                            <StackPanel Margin="45, 5, 0, 5">
+                                                <StackPanel Spacing="5" Orientation="Horizontal">
+                                                    <TextBlock Foreground="{DynamicResource text-faded}"
+                                                               Text="{lang:Translate instance.resource.review.file}" />
+                                                    <TextBlock Foreground="{DynamicResource text-faded}"
+                                                               Text="{Binding FileName}" />
+                                                </StackPanel>
+                                                <StackPanel Spacing="5" Orientation="Horizontal">
+                                                    <TextBlock Foreground="{DynamicResource text-faded}"
+                                                               Text="{lang:Translate instance.resource.review.version}" />
+                                                    <TextBlock Foreground="{DynamicResource text-faded}"
+                                                               Text="{Binding Version}" />
+                                                </StackPanel>
+                                                <StackPanel Spacing="5" Orientation="Horizontal">
+                                                    <TextBlock Foreground="{DynamicResource text-faded}"
+                                                               Text="{lang:Translate instance.resource.review.platform}" />
+                                                    <TextBlock Foreground="{DynamicResource text-faded}"
+                                                               Text="{Binding Platform}" />
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Expander>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+
+                        <!--  Buttons  -->
+                        <Border Grid.Row="1" Classes="InstanceButtonBorder">
+                            <StackPanel Classes="InstanceButtonWrapper">
+                                <!--  Cancel Button  -->
+                                <Button Classes="IconBtn ErrorBtn" Command="{Binding CloseWindowCommand}">
+                                    <WrapPanel Classes="IconBtnWrapper">
+                                        <TextBlock
+                                            VerticalAlignment="Center"
+                                            Classes="FontAwesome"
+                                            Text="&#xf00d;" />
+                                        <TextBlock
+                                            VerticalAlignment="Center"
+                                            FontWeight="500"
+                                            Text="{lang:Translate common.cancel}" />
+                                    </WrapPanel>
+                                </Button>
+                                <!--  Ok Button  -->
+                                <Button Classes="IconBtn SuccessBtn" Command="{Binding InstallCommand}">
+                                    <WrapPanel Classes="IconBtnWrapper">
+                                        <TextBlock
+                                            VerticalAlignment="Center"
+                                            Classes="FontAwesome"
+                                            Text="&#xf00c;" />
+                                        <TextBlock
+                                            VerticalAlignment="Center"
+                                            FontWeight="500"
+                                            Text="{lang:Translate common.ok}" />
+                                    </WrapPanel>
+                                </Button>
                             </StackPanel>
                         </Border>
-
-                        <!-- Content  -->
-                        <Grid Grid.Row="1" RowDefinitions="*, Auto">
-                            <ScrollViewer Margin="15, 10, 15, 15">
-                                <ItemsControl ItemsSource="{Binding Resources}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Expander Classes="InstanceResource">
-                                                <Expander.Header>
-                                                    <CheckBox Content="{Binding Name}" IsChecked="{Binding ShouldDownload}"  />
-                                                </Expander.Header>
-
-                                                <StackPanel Margin="45, 5, 0, 5">
-                                                    <StackPanel Spacing="5" Orientation="Horizontal">
-                                                        <TextBlock Foreground="{DynamicResource text-faded}" Text="{lang:Translate instance.resource.review.file}"/>
-                                                        <TextBlock Foreground="{DynamicResource text-faded}" Text="{Binding FileName}"/>
-                                                    </StackPanel>
-                                                    <StackPanel Spacing="5" Orientation="Horizontal">
-                                                        <TextBlock Foreground="{DynamicResource text-faded}" Text="{lang:Translate instance.resource.review.version}"/>
-                                                        <TextBlock Foreground="{DynamicResource text-faded}" Text="{Binding Version}"/>
-                                                    </StackPanel>
-                                                    <StackPanel Spacing="5" Orientation="Horizontal">
-                                                        <TextBlock Foreground="{DynamicResource text-faded}" Text="{lang:Translate instance.resource.review.platform}"/>
-                                                        <TextBlock Foreground="{DynamicResource text-faded}" Text="{Binding Platform}"/>
-                                                    </StackPanel>
-                                                </StackPanel>
-                                            </Expander>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </ScrollViewer>
-
-                            <!--  Buttons  -->
-                            <Border Grid.Row="1" Classes="InstanceButtonBorder">
-                                <StackPanel Classes="InstanceButtonWrapper">
-                                    <!--  Cancel Button  -->
-                                    <Button Classes="IconBtn ErrorBtn" Command="{Binding CloseWindowCommand}">
-                                        <WrapPanel Classes="IconBtnWrapper">
-                                            <TextBlock
-                                                VerticalAlignment="Center"
-                                                Classes="FontAwesome"
-                                                Text="&#xf00d;" />
-                                            <TextBlock
-                                                VerticalAlignment="Center"
-                                                FontWeight="500"
-                                                Text="{lang:Translate common.cancel}" />
-                                        </WrapPanel>
-                                    </Button>
-                                    <!--  Ok Button  -->
-                                    <Button Classes="IconBtn SuccessBtn" Command="{Binding InstallCommand}">
-                                        <WrapPanel Classes="IconBtnWrapper">
-                                            <TextBlock
-                                                VerticalAlignment="Center"
-                                                Classes="FontAwesome"
-                                                Text="&#xf00c;" />
-                                            <TextBlock
-                                                VerticalAlignment="Center"
-                                                FontWeight="500"
-                                                Text="{lang:Translate common.ok}" />
-                                        </WrapPanel>
-                                    </Button>
-                                </StackPanel>
-                            </Border>
-                        </Grid>
                     </Grid>
                 </Grid>
-            </Border>
+            </Grid>
+        </Border>
 
-            <!--  Resize overlay  -->
-            <templates:WindowResizer />
-        </Grid>
+        <!--  Resize overlay  -->
+        <templates:WindowResizer />
+    </Grid>
 </Window>

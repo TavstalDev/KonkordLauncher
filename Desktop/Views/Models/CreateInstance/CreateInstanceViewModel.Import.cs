@@ -25,35 +25,14 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.CreateInstance;
 
 public partial class CreateInstanceViewModel_Import : KonkordObservableObject
 {
-    private readonly IBeaconLogger _logger = null!;
-    private readonly IHttpService _httpService = null!;
-    private readonly ITranslationService _translationService = null!;
-    private readonly ILauncherStore _launcherStore = null!;
     private readonly IEventService _eventService = null!;
+    private readonly IHttpService _httpService = null!;
+    private readonly ILauncherStore _launcherStore = null!;
+    private readonly IBeaconLogger _logger = null!;
     private readonly ModrinthPackageService _modrinthPackageService = null!;
     private readonly CreateInstanceViewModel _parent;
     private readonly IScreenService _screenService = null!;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsSourceFromFile))]
-    public partial int SelectedImportSourceIndex { get; set; } = 0;
-
-    public bool IsSourceFromFile => SelectedImportSourceIndex == 0;
-
-    [ObservableProperty]
-    public partial string? ImportPath { get; set; }
-
-    [ObservableProperty]
-    public partial bool HasImportPath { get; set; }
-
-    [ObservableProperty]
-    public partial string ImportPreviewName { get; set; } = "---";
-
-    [ObservableProperty]
-    public partial string ImportPreviewVersion { get; set; } = "---";
-
-    [ObservableProperty]
-    public partial string ImportPreviewModLoader { get; set; } = "---";
+    private readonly ITranslationService _translationService = null!;
 
     public CreateInstanceViewModel_Import()
     {
@@ -61,7 +40,8 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
         _screenService = null!;
     }
 
-    public CreateInstanceViewModel_Import(CreateInstanceViewModel parent, IScreenService screenService, ILauncherStore launcherStore, ITranslationService translationService,
+    public CreateInstanceViewModel_Import(CreateInstanceViewModel parent, IScreenService screenService,
+        ILauncherStore launcherStore, ITranslationService translationService,
         IHttpService httpService, IEventService eventService, ModrinthPackageService modrinthPackageService)
     {
         _parent = parent;
@@ -77,74 +57,21 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
         _eventService = eventService;
     }
 
-    #region Commands
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsSourceFromFile))]
+    public partial int SelectedImportSourceIndex { get; set; } = 0;
 
-    partial void OnImportPathChanged(string? value)
-    {
-        if (IsSourceFromFile)
-            return;
+    public bool IsSourceFromFile => SelectedImportSourceIndex == 0;
 
-        if (Uri.TryCreate(value, UriKind.Absolute, out _))
-        {
-            HasImportPath = true;
-            if (ImportUrlTextChangedCommand.CanExecute(value))
-                ImportUrlTextChangedCommand.Execute(value);
-        }
-        else
-        {
-            HasImportPath = false;
-        }
-    }
+    [ObservableProperty] public partial string? ImportPath { get; set; }
 
-    [RelayCommand]
-    private async Task ChangeImportType(int index)
-    {
-        await _parent.SwitchImportTabInteraction.Handle(index);
-    }
+    [ObservableProperty] public partial bool HasImportPath { get; set; }
 
-    [RelayCommand]
-    private async Task SelectFileToImport()
-    {
-        string? path = await _parent.ShowFileSelectorInteraction.Handle(Unit.Default);
-        if (string.IsNullOrEmpty(path))
-        {
-            HasImportPath = false;
-            return;
-        }
+    [ObservableProperty] public partial string ImportPreviewName { get; set; } = "---";
 
-        if (!File.Exists(path))
-        {
-            HasImportPath = false;
-            return;
-        }
+    [ObservableProperty] public partial string ImportPreviewVersion { get; set; } = "---";
 
-        string extension = Path.GetExtension(path);
-        if (!(extension == ".zip" || extension == ".mrpack"))
-        {
-            HasImportPath = false;
-            return;
-        }
-
-        HasImportPath = true;
-        ImportPath = path;
-        await FetchImportPreviewFromFile();
-    }
-
-    [RelayCommand]
-    private async Task ImportUrlTextChanged(string path)
-    {
-        await FetchImportPreviewFromUrl();
-    }
-
-    [RelayCommand]
-    private async Task CreateInstanceFromImport()
-    {
-        if (IsSourceFromFile)
-            await ImportFromFileAsync();
-        else
-            await ImportFromUrlAsync();
-    }
-    #endregion
+    [ObservableProperty] public partial string ImportPreviewModLoader { get; set; } = "---";
 
     private async Task ImportFromFileAsync(CancellationToken cancellationToken = default)
     {
@@ -159,8 +86,12 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
             return;
         }
 
-        if (await _modrinthPackageService.ImportAsync(ImportPath, new Resolution { X = (uint)_screenService.ScreenSize.Width, Y = (uint)_screenService.ScreenSize.Height },
-                null, null, null, _parent, cancellationToken) != null )
+        if (await _modrinthPackageService.ImportAsync(ImportPath,
+                new Resolution
+                {
+                    X = (uint)_screenService.ScreenSize.Width, Y = (uint)_screenService.ScreenSize.Height
+                },
+                null, null, null, _parent, cancellationToken) != null)
         {
             //_parent.CloseReporter();
             var instances = await _launcherStore.GetInstancesAsync(cancellationToken);
@@ -194,8 +125,8 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
         if (!Uri.TryCreate(ImportPath, UriKind.Absolute, out var uri))
             return;
 
-        string fileName = Path.GetFileName(uri.LocalPath);
-        string tempPath = Path.Combine(_launcherStore.GetTempDir(), fileName);
+        var fileName = Path.GetFileName(uri.LocalPath);
+        var tempPath = Path.Combine(_launcherStore.GetTempDir(), fileName);
         try
         {
             //_parent.OpenReporter();
@@ -207,7 +138,11 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
             await _httpService.DownloadFileAsync(ImportPath, tempPath, null, progress, cancellationToken);
             //_parent.CloseReporter();
 
-            if (await _modrinthPackageService.ImportAsync(tempPath, new Resolution { X = (uint)_screenService.ScreenSize.Width, Y = (uint)_screenService.ScreenSize.Height },
+            if (await _modrinthPackageService.ImportAsync(tempPath,
+                    new Resolution
+                    {
+                        X = (uint)_screenService.ScreenSize.Width, Y = (uint)_screenService.ScreenSize.Height
+                    },
                     null, null, null, _parent, cancellationToken) != null)
             {
                 //_parent.CloseReporter();
@@ -227,7 +162,7 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"Failed to import instance from URL:");
+            _logger.LogError(ex, "Failed to import instance from URL:");
             await _parent.ShowAlertDialogInteraction.Handle(new Alert(
                 _translationService.Translate("instance.create.import.error.import_failed.title"),
                 _translationService.Translate("instance.create.import.error.import_failed.message"),
@@ -250,4 +185,74 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
     {
         // TODO
     }
+
+    #region Commands
+
+    partial void OnImportPathChanged(string? value)
+    {
+        if (IsSourceFromFile)
+            return;
+
+        if (Uri.TryCreate(value, UriKind.Absolute, out _))
+        {
+            HasImportPath = true;
+            if (ImportUrlTextChangedCommand.CanExecute(value))
+                ImportUrlTextChangedCommand.Execute(value);
+        }
+        else
+        {
+            HasImportPath = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task ChangeImportType(int index)
+    {
+        await _parent.SwitchImportTabInteraction.Handle(index);
+    }
+
+    [RelayCommand]
+    private async Task SelectFileToImport()
+    {
+        var path = await _parent.ShowFileSelectorInteraction.Handle(Unit.Default);
+        if (string.IsNullOrEmpty(path))
+        {
+            HasImportPath = false;
+            return;
+        }
+
+        if (!File.Exists(path))
+        {
+            HasImportPath = false;
+            return;
+        }
+
+        var extension = Path.GetExtension(path);
+        if (!(extension == ".zip" || extension == ".mrpack"))
+        {
+            HasImportPath = false;
+            return;
+        }
+
+        HasImportPath = true;
+        ImportPath = path;
+        await FetchImportPreviewFromFile();
+    }
+
+    [RelayCommand]
+    private async Task ImportUrlTextChanged(string path)
+    {
+        await FetchImportPreviewFromUrl();
+    }
+
+    [RelayCommand]
+    private async Task CreateInstanceFromImport()
+    {
+        if (IsSourceFromFile)
+            await ImportFromFileAsync();
+        else
+            await ImportFromUrlAsync();
+    }
+
+    #endregion
 }

@@ -17,17 +17,17 @@ using Tavstal.KonkordLauncher.Desktop.Views.Models;
 namespace Tavstal.KonkordLauncher.Desktop.Views;
 
 /// <summary>
-/// Represents the window for creating a new instance in the Konkord Launcher.
+///     Represents the window for creating a new instance in the Konkord Launcher.
 /// </summary>
 public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewModel>
 {
     private readonly IDiscordPresenceService _discordPresenceService = null!;
-    private Button _selectedTabBtn;
     private Button _selectedImportTypeBtn;
+    private Button _selectedTabBtn;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CreateInstanceWindow"/> class.
-    /// Sets up the data context, initializes components, and registers reactive handlers.
+    ///     Initializes a new instance of the <see cref="CreateInstanceWindow" /> class.
+    ///     Sets up the data context, initializes components, and registers reactive handlers.
     /// </summary>
     public CreateInstanceWindow()
     {
@@ -36,7 +36,8 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
         _selectedImportTypeBtn = ImportFromFileTabBtn;
     }
 
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    [RequiresUnreferencedCode(
+        "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public CreateInstanceWindow(CreateInstanceViewModel viewModel, ITranslationService translationService,
         IWindowFactory windowFactory, IDiscordPresenceService discordPresenceService)
     {
@@ -78,97 +79,21 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
             }).DisposeWith(disposables);
             DataContext.ShowIconSelectorInteraction.RegisterHandler(async action =>
             {
-                IconSelectorWindow window = windowFactory.CreateIconSelectorWindow();
+                var window = windowFactory.CreateIconSelectorWindow();
                 var result = await window.ShowDialog<string?>(this);
                 action.SetOutput(result);
             }).DisposeWith(disposables);
             DataContext.ShowFileSelectorInteraction.RegisterHandler(async action =>
             {
-                string title = translationService.Translate("common.select.file");
-                string? result = await OpenFilePickerAsync(title, ".zip, .mrpack, .json", ["*.zip", "*.mrpack", "*.json"]);
+                var title = translationService.Translate("common.select.file");
+                var result = await OpenFilePickerAsync(title, ".zip, .mrpack, .json", ["*.zip", "*.mrpack", "*.json"]);
                 action.SetOutput(result);
             }).DisposeWith(disposables);
         });
     }
 
-    #region Events
-
-    /// <inheritdoc/>
-    protected override void OnOpened(EventArgs e)
-    {
-        base.OnOpened(e);
-        _discordPresenceService.Update("Creating instance...");
-    }
-
-    /// <inheritdoc/>
-    protected override void OnClosed(EventArgs e)
-    {
-        base.OnClosed(e);
-        _discordPresenceService.Update("Browsing instances...");
-    }
-
     /// <summary>
-    /// Handles scroll changes for the modpack list ScrollViewer and triggers loading more modpacks when the user
-    /// scrolls near the bottom (infinite-scroll behavior).
-    /// </summary>
-    /// <param name="sender">The event sender. Expected to be an <see cref="Avalonia.Controls.ScrollViewer"/> instance that raised the event.</param>
-    /// <param name="e">Event data for the scroll change (unused by this implementation).</param>
-    private void ScrollViewer_OnScrollChanged(object? sender, ScrollChangedEventArgs e)
-    {
-        if (DataContext is not { } viewModel)
-            return;
-
-        if (!viewModel.Modpack.AllowScrollbarRefresh)
-            return;
-
-        if (sender is ScrollViewer scrollViewer)
-        {
-            double verticalOffset = scrollViewer.Offset.Y;
-            double maxVerticalOffset = scrollViewer.Extent.Height - scrollViewer.Viewport.Height;
-
-            if (maxVerticalOffset < 0 || Math.Abs(verticalOffset - maxVerticalOffset) < 0.1)
-                Dispatcher.UIThread.Invoke(async () => await viewModel.Modpack.RefreshModpacksAsync());
-        }
-    }
-
-    /// <summary>
-    /// Handler invoked when a modpack category checkbox changes state (checked/unchecked).
-    /// Triggers a full refresh of modpacks with the new category filters applied.
-    /// </summary>
-    /// <param name="sender">The control that raised the event (not used by this implementation).</param>
-    /// <param name="e">Event args for the routed event (not used).</param>
-    private void ModPackCategory_OnIsCheckedChanged(object? sender, RoutedEventArgs e)
-    {
-        if (DataContext is not { } viewModel)
-            return;
-
-        if (!viewModel.Modpack.AllowScrollbarRefresh)
-            return;
-
-        Dispatcher.UIThread.Invoke(async () =>  await viewModel.Modpack.RefreshModpacksAsync(true));
-    }
-
-    /// <summary>
-    /// Handler invoked when the modpack version/filter selection changes (e.g. ComboBox selection).
-    /// Triggers a full refresh of modpacks to apply the newly selected filters.
-    /// </summary>
-    /// <param name="sender">The control that raised the event (expected to be a selector control).</param>
-    /// <param name="e">Selection changed event data (not used in the handler).</param>
-    private void ModPackFilter_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
-    {
-        if (DataContext is not { } viewModel)
-            return;
-
-        if (!viewModel.Modpack.AllowScrollbarRefresh)
-            return;
-
-        Dispatcher.UIThread.Invoke(async () =>  await viewModel.Modpack.RefreshModpacksAsync(true));
-    }
-
-    #endregion
-
-    /// <summary>
-    /// Handles switching the visible/create-instance tab and updates the visual state of the tab buttons.
+    ///     Handles switching the visible/create-instance tab and updates the visual state of the tab buttons.
     /// </summary>
     /// <param name="tab">The tab to switch to.</param>
     private void HandleTabChange(ECreateInstanceTab tab)
@@ -199,11 +124,12 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
                 break;
             }
         }
+
         _selectedTabBtn.Classes.Add("SettingsTabBtnActive");
     }
 
     /// <summary>
-    /// Handles switching the import type selection (file vs. URL) and updates related view model state and visual state.
+    ///     Handles switching the import type selection (file vs. URL) and updates related view model state and visual state.
     /// </summary>
     /// <param name="index">The index representing the chosen import source (0 = file, 1 = url).</param>
     private void HandleImportTypeChange(int index)
@@ -211,7 +137,7 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
         if (DataContext is not { } viewModel)
             return;
 
-        if (viewModel.Import.SelectedImportSourceIndex  == index)
+        if (viewModel.Import.SelectedImportSourceIndex == index)
             return;
 
         viewModel.Import.SelectedImportSourceIndex = index;
@@ -231,6 +157,86 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
                 break;
             }
         }
+
         _selectedImportTypeBtn.Classes.Add("SuccessBtn");
     }
+
+    #region Events
+
+    /// <inheritdoc />
+    protected override void OnOpened(EventArgs e)
+    {
+        base.OnOpened(e);
+        _discordPresenceService.Update("Creating instance...");
+    }
+
+    /// <inheritdoc />
+    protected override void OnClosed(EventArgs e)
+    {
+        base.OnClosed(e);
+        _discordPresenceService.Update("Browsing instances...");
+    }
+
+    /// <summary>
+    ///     Handles scroll changes for the modpack list ScrollViewer and triggers loading more modpacks when the user
+    ///     scrolls near the bottom (infinite-scroll behavior).
+    /// </summary>
+    /// <param name="sender">
+    ///     The event sender. Expected to be an <see cref="Avalonia.Controls.ScrollViewer" /> instance that
+    ///     raised the event.
+    /// </param>
+    /// <param name="e">Event data for the scroll change (unused by this implementation).</param>
+    private void ScrollViewer_OnScrollChanged(object? sender, ScrollChangedEventArgs e)
+    {
+        if (DataContext is not { } viewModel)
+            return;
+
+        if (!viewModel.Modpack.AllowScrollbarRefresh)
+            return;
+
+        if (sender is ScrollViewer scrollViewer)
+        {
+            var verticalOffset = scrollViewer.Offset.Y;
+            var maxVerticalOffset = scrollViewer.Extent.Height - scrollViewer.Viewport.Height;
+
+            if (maxVerticalOffset < 0 || Math.Abs(verticalOffset - maxVerticalOffset) < 0.1)
+                Dispatcher.UIThread.Invoke(async () => await viewModel.Modpack.RefreshModpacksAsync());
+        }
+    }
+
+    /// <summary>
+    ///     Handler invoked when a modpack category checkbox changes state (checked/unchecked).
+    ///     Triggers a full refresh of modpacks with the new category filters applied.
+    /// </summary>
+    /// <param name="sender">The control that raised the event (not used by this implementation).</param>
+    /// <param name="e">Event args for the routed event (not used).</param>
+    private void ModPackCategory_OnIsCheckedChanged(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not { } viewModel)
+            return;
+
+        if (!viewModel.Modpack.AllowScrollbarRefresh)
+            return;
+
+        Dispatcher.UIThread.Invoke(async () => await viewModel.Modpack.RefreshModpacksAsync(true));
+    }
+
+    /// <summary>
+    ///     Handler invoked when the modpack version/filter selection changes (e.g. ComboBox selection).
+    ///     Triggers a full refresh of modpacks to apply the newly selected filters.
+    /// </summary>
+    /// <param name="sender">The control that raised the event (expected to be a selector control).</param>
+    /// <param name="e">Selection changed event data (not used in the handler).</param>
+    private void ModPackFilter_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (DataContext is not { } viewModel)
+            return;
+
+        if (!viewModel.Modpack.AllowScrollbarRefresh)
+            return;
+
+        Dispatcher.UIThread.Invoke(async () => await viewModel.Modpack.RefreshModpacksAsync(true));
+    }
+
+    #endregion
 }

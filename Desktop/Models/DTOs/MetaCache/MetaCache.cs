@@ -1,4 +1,3 @@
-
 using System;
 using System.IO;
 using System.Text.Json.Serialization;
@@ -6,46 +5,46 @@ using System.Text.Json.Serialization;
 namespace Tavstal.KonkordLauncher.Desktop.Models.DTOs.MetaCache;
 
 /// <summary>
-/// Represents a cached metadata entry stored on disk.
+///     Represents a cached metadata entry stored on disk.
 /// </summary>
 public class MetaCache
 {
     /// <summary>
-    /// Gets or sets the unique identifier of the cached item.
+    ///     Gets or sets the unique identifier of the cached item.
     /// </summary>
     [JsonPropertyName("id")]
     public required string Id { get; set; }
 
     /// <summary>
-    /// Gets or sets the type of cached metadata.
+    ///     Gets or sets the type of cached metadata.
     /// </summary>
     [JsonPropertyName("type")]
     public required EMetaCacheType Type { get; set; }
 
     /// <summary>
-    /// Gets or sets the file path where the cached data is stored.
+    ///     Gets or sets the file path where the cached data is stored.
     /// </summary>
     [JsonPropertyName("path")]
     public required string Path { get; set; }
 
     /// <summary>
-    /// Gets or sets the UTC timestamp at which the cache entry expires.
+    ///     Gets or sets the UTC timestamp at which the cache entry expires.
     /// </summary>
     [JsonPropertyName("valid_until")]
     public required DateTime ValidUntil { get; set; }
 
     /// <summary>
-    /// Gets or sets the last modification timestamp known for the cached resource.
+    ///     Gets or sets the last modification timestamp known for the cached resource.
     /// </summary>
     [JsonPropertyName("last_modified_at")]
     public DateTime? LastModifiedAt { get; set; }
 
     /// <summary>
-    /// Determines whether the cache entry is still valid.
+    ///     Determines whether the cache entry is still valid.
     /// </summary>
     /// <returns>
-    /// <see langword="true"/> if the current UTC time is earlier than <see cref="ValidUntil"/>
-    /// and the cached file exists at <see cref="Path"/>; otherwise, <see langword="false"/>.
+    ///     <see langword="true" /> if the current UTC time is earlier than <see cref="ValidUntil" />
+    ///     and the cached file exists at <see cref="Path" />; otherwise, <see langword="false" />.
     /// </returns>
     public bool IsValid()
     {

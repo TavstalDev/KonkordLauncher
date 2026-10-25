@@ -20,22 +20,23 @@ using Tavstal.KonkordLauncher.Desktop.Views.Models;
 namespace Tavstal.KonkordLauncher.Desktop.Views;
 
 /// <summary>
-/// Represents the AccountsWindow, a partial class that serves as the main window for managing accounts.
-/// Implements the IProgressReporter interface to handle progress updates.
+///     Represents the AccountsWindow, a partial class that serves as the main window for managing accounts.
+///     Implements the IProgressReporter interface to handle progress updates.
 /// </summary>
 public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IKonkordProgress
 {
-    private readonly ITranslationService _translationService = null!;
     private readonly IMicrosoftAuthService _microsoftAuthService = null!;
     private readonly IMicrosoftDeviceAuthService _microsoftDeviceAuthService = null!;
     private readonly IMicrosoftHttpAuthService _microsoftHttpAuthService = null!;
+    private readonly ITranslationService _translationService = null!;
 
     public AccountsWindow()
     {
         InitializeComponent();
     }
 
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    [RequiresUnreferencedCode(
+        "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public AccountsWindow(AccountsViewModel viewModel, ITranslationService translationService,
         IMicrosoftAuthService microsoftAuthService, IMicrosoftDeviceAuthService microsoftDeviceAuthService,
         IMicrosoftHttpAuthService microsoftHttpAuthService)
@@ -75,11 +76,26 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IKonkord
         });
     }
 
+    /// <summary>
+    ///     Handles changes in the authentication status for Microsoft accounts.
+    ///     Updates the UI and performs necessary actions based on the new status.
+    /// </summary>
+    /// <param name="status">The new authentication status.</param>
+    private void OnAuthStatusChanged(EAuthStatus status)
+    {
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            if (DataContext == null)
+                return;
+            DataContext.OnAuthStatusChange(status);
+        });
+    }
+
     #region Events
 
     /// <summary>
-    /// Handles the cleanup and resource deallocation when the window is closing.
-    /// Unsubscribes from events and stops any active listeners to ensure proper disposal.
+    ///     Handles the cleanup and resource deallocation when the window is closing.
+    ///     Unsubscribes from events and stops any active listeners to ensure proper disposal.
     /// </summary>
     /// <param name="e">Provides data for the window closing event.</param>
     protected override void OnClosing(WindowClosingEventArgs e)
@@ -95,9 +111,9 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IKonkord
     }
 
     /// <summary>
-    /// Handles the text changed event for the offline username input field.
-    /// Ensures that the input contains only alphanumeric characters and underscores.
-    /// If invalid characters are detected, they are removed, and the caret position is adjusted accordingly.
+    ///     Handles the text changed event for the offline username input field.
+    ///     Ensures that the input contains only alphanumeric characters and underscores.
+    ///     If invalid characters are detected, they are removed, and the caret position is adjusted accordingly.
     /// </summary>
     /// <param name="sender">The source of the event, expected to be a TextBox.</param>
     /// <param name="e">The event data.</param>
@@ -109,30 +125,16 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IKonkord
         if (textBox.Text == null)
             return;
 
-        string allowed = Regex.Replace(textBox.Text, @"[^A-Za-z0-9_]", "");
+        var allowed = Regex.Replace(textBox.Text, @"[^A-Za-z0-9_]", "");
         if (textBox.Text != allowed)
         {
-            int caret = textBox.CaretIndex;
+            var caret = textBox.CaretIndex;
             textBox.Text = allowed;
             textBox.CaretIndex = Math.Min(caret - 1, allowed.Length);
         }
     }
-    #endregion
 
-    /// <summary>
-    /// Handles changes in the authentication status for Microsoft accounts.
-    /// Updates the UI and performs necessary actions based on the new status.
-    /// </summary>
-    /// <param name="status">The new authentication status.</param>
-    private void OnAuthStatusChanged(EAuthStatus status)
-    {
-        Dispatcher.UIThread.Invoke(() =>
-        {
-            if (DataContext == null)
-                return;
-            DataContext.OnAuthStatusChange(status);
-        });
-    }
+    #endregion
 
     #region Progress Reporter
 
@@ -164,7 +166,8 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IKonkord
             if (DataContext == null)
                 return;
             DataContext.Progress = progress;
-            DataContext.ProgressText = _translationService.Translate(TranslationHelper.GetProgressKey(kind), progress.ToString("0.00"));
+            DataContext.ProgressText =
+                _translationService.Translate(TranslationHelper.GetProgressKey(kind), progress.ToString("0.00"));
         });
     }
 
@@ -189,9 +192,15 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IKonkord
         });
     }
 
-    public void ReportExpectedTask(int? count) { /* ignored */ }
+    public void ReportExpectedTask(int? count)
+    {
+        /* ignored */
+    }
 
-    public void ReportTaskCompleted() { /* ignored */ }
+    public void ReportTaskCompleted()
+    {
+        /* ignored */
+    }
 
     #endregion
 }

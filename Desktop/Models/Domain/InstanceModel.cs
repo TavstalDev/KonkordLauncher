@@ -29,106 +29,28 @@ using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
 
 /// <summary>
-/// Represents a model for a Minecraft instance, including its properties and behaviors.
+///     Represents a model for a Minecraft instance, including its properties and behaviors.
 /// </summary>
 public partial class InstanceModel : ObservableObject, IKonkordProgress
 {
-    private readonly IBeaconLogger _logger;
-    private readonly ILauncherStore _launcherStore;
-    private readonly IManifestService _manifestService;
-    private readonly IBitmapService _bitmapService;
-    private readonly ITranslationService _translationService;
-    private readonly IJavaService _javaService;
-    private readonly IInstanceInstallService _installService;
-    private readonly IInstanceLaunchService _launchService;
-    private readonly IEventService _eventService;
-    private readonly IEncryptionService _encryptionService;
     private readonly BeaconConfiguration _beaconConfiguration;
+    private readonly IBitmapService _bitmapService;
+    private readonly IEncryptionService _encryptionService;
+    private readonly IEventService _eventService;
+    private readonly IInstanceInstallService _installService;
+    private readonly IJavaService _javaService;
+    private readonly IInstanceLaunchService _launchService;
+    private readonly ILauncherStore _launcherStore;
+    private readonly IBeaconLogger _logger;
+    private readonly IManifestService _manifestService;
     private readonly IScreenService _screenService;
+    private readonly ITranslationService _translationService;
     private readonly IWindowFactory _windowFactory;
     private long _lastReadPosition;
     private FileSystemWatcher? _watcher;
 
-    #region Observable Properties
     /// <summary>
-    /// Gets or sets the unique identifier of the instance.
-    /// </summary>
-    [ObservableProperty]
-    public partial string Id { get; set; }
-
-    /// <summary>
-    /// Gets or sets the name of the instance.
-    /// </summary>
-    [ObservableProperty]
-    public partial string Name { get; set; }
-
-    /// <summary>
-    /// Gets or sets the group to which the instance belongs.
-    /// </summary>
-    [ObservableProperty]
-    public partial string? Group { get; set; }
-
-    /// <summary>
-    /// Gets or sets the file path to the icon of the instance.
-    /// </summary>
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Icon))]
-    public partial string? IconPath { get; set; }
-
-    /// <summary>
-    /// Gets or sets the Minecraft version associated with the instance.
-    /// </summary>
-    [ObservableProperty]
-    public partial string MinecraftVersion { get; set; }
-
-    /// <summary>
-    /// Gets or sets the custom version of the instance, if any.
-    /// </summary>
-    [ObservableProperty]
-    public partial string? CustomVersion { get; set; }
-
-    /// <summary>
-    /// Gets or sets the kind of Minecraft associated with the instance.
-    /// </summary>
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsModded))]
-    public partial EMinecraftKind Kind { get; set; }
-
-    /// <summary>
-    /// Gets or sets the custom game directory for the instance, if specified.
-    /// </summary>
-    [ObservableProperty]
-    public partial string? GameDirectory { get; set; }
-
-    /// <summary>
-    /// Gets or sets the configuration of the instance.
-    /// </summary>
-    [ObservableProperty]
-    public partial InstanceConfig ConfigModel { get; set; }
-
-    /// <summary>
-    /// Gets or sets the process associated with the running game.
-    /// </summary>
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsGameRunning))]
-    public partial Process? GameProcess { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the game is currently running.
-    /// </summary>
-    [ObservableProperty]
-    public partial bool IsGameRunning { get; set; }
-
-    /// <summary>
-    /// Gets the icon of the instance as a bitmap. If the icon path is not set, a default icon is used.
-    /// </summary>
-    [ObservableProperty]
-    public partial BitmapEntry Icon { get; set; }
-    #endregion
-
-    public bool IsModded => Kind != EMinecraftKind.VANILLA;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="InstanceModel"/> class using the specified common instance model.
+    ///     Initializes a new instance of the <see cref="InstanceModel" /> class using the specified common instance model.
     /// </summary>
     /// <param name="instance">The common instance model to initialize from.</param>
     public InstanceModel(DTOs.Instance instance, IBeaconLogger<InstanceModel> logger, ILauncherStore launcherStore,
@@ -166,12 +88,14 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
         ConfigModel = instance.Config;
     }
 
+    public bool IsModded => Kind != EMinecraftKind.VANILLA;
+
     /// <summary>
-    /// Converts the current instance model into a common instance model.
+    ///     Converts the current instance model into a common instance model.
     /// </summary>
     /// <returns>
-    /// A new instance of <see cref="Instance"/> populated with the properties
-    /// of the current instance model.
+    ///     A new instance of <see cref="Instance" /> populated with the properties
+    ///     of the current instance model.
     /// </returns>
     public DTOs.Instance getInstance()
     {
@@ -190,10 +114,10 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
     }
 
     /// <summary>
-    /// Updates this view-model instance from a common instance data model.
+    ///     Updates this view-model instance from a common instance data model.
     /// </summary>
     /// <param name="newData">
-    /// The source instance data to copy from. The update is only applied when the IDs match.
+    ///     The source instance data to copy from. The update is only applied when the IDs match.
     /// </param>
     public void UpdateDetails(DTOs.Instance newData)
     {
@@ -215,7 +139,7 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
     }
 
     /// <summary>
-    /// Attaches event handlers to the game process to handle its exit and disposal events.
+    ///     Attaches event handlers to the game process to handle its exit and disposal events.
     /// </summary>
     public void AttachProcessEvent()
     {
@@ -226,7 +150,7 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
         {
             Dispatcher.UIThread.Post(() =>
             {
-                _logger.LogDebug($"The instance has exited.");
+                _logger.LogDebug("The instance has exited.");
                 GameProcess = null;
                 IsGameRunning = false;
             });
@@ -236,7 +160,7 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
         {
             Dispatcher.UIThread.Post(() =>
             {
-                _logger.LogDebug($"The instance process has been disposed.");
+                _logger.LogDebug("The instance process has been disposed.");
                 GameProcess = null;
                 IsGameRunning = false;
             });
@@ -245,7 +169,7 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
         if (string.IsNullOrEmpty(GameDirectory))
             return;
 
-        string logsDir = Path.Combine(GameDirectory, "logs");
+        var logsDir = Path.Combine(GameDirectory, "logs");
 
         if (_watcher != null)
         {
@@ -258,8 +182,7 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
 
         _watcher = new FileSystemWatcher
         {
-            Path = logsDir,
-            NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite
+            Path = logsDir, NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite
         };
         _watcher.EnableRaisingEvents = true;
         _watcher.Changed += OnLogFileChanged;
@@ -271,30 +194,38 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
     }
 
     /// <summary>
-    /// Launches this Minecraft instance.
+    ///     Launches this Minecraft instance.
     /// </summary>
     /// <param name="showLogsWindow">
-    /// Interaction used to request showing the logs/console window for this instance. The view-model
-    /// will call <c>Handle</c> on this interaction when it wants the UI to open the logs' dialog.
+    ///     Interaction used to request showing the logs/console window for this instance. The view-model
+    ///     will call <c>Handle</c> on this interaction when it wants the UI to open the logs' dialog.
     /// </param>
     /// <param name="closeLogsWindow">Interaction used to request closing the logs/console window for this instance.</param>
-    /// <param name="closeWindow">Interaction used to request closing the launcher main window (used when the launcher is configured to close on game start/exit).</param>
-    /// <param name="showAlertDialog">Interaction used to show an alert dialog to the user (e.g. when no account is selected or Java is missing).</param>
+    /// <param name="closeWindow">
+    ///     Interaction used to request closing the launcher main window (used when the launcher is
+    ///     configured to close on game start/exit).
+    /// </param>
+    /// <param name="showAlertDialog">
+    ///     Interaction used to show an alert dialog to the user (e.g. when no account is selected or
+    ///     Java is missing).
+    /// </param>
     /// <param name="serverAddress">Optional server address to connect to on launch.</param>
     /// <returns>A task that completes when the launch sequence has finished (not when the game exits).</returns>
-    public async Task LaunchAsync(Interaction<string, Unit> showLogsWindow, Interaction<string, Unit> closeLogsWindow, Interaction<Unit, Unit> closeWindow, Interaction<Alert, bool> showAlertDialog, string? serverAddress = null)
+    public async Task LaunchAsync(Interaction<string, Unit> showLogsWindow, Interaction<string, Unit> closeLogsWindow,
+        Interaction<Unit, Unit> closeWindow, Interaction<Alert, bool> showAlertDialog, string? serverAddress = null)
     {
         _lastReadPosition = 0;
         _cancellationTokenSource = new CancellationTokenSource();
         var cts = _cancellationTokenSource.Token;
         var accountData = await _launcherStore.GetAccountDataAsync(cts);
-        var account = ConfigModel.Misc.OverrideAccount ?
-            accountData.Accounts.FirstOrDefault(x => x.Id == ConfigModel.Misc.AccountId)
+        var account = ConfigModel.Misc.OverrideAccount
+            ? accountData.Accounts.FirstOrDefault(x => x.Id == ConfigModel.Misc.AccountId)
             : accountData.Accounts.FirstOrDefault(x => x.Id == accountData.SelectedAccountId);
 
         if (account == null)
         {
-            await showAlertDialog.Handle(new Alert(_translationService.Translate("account.none.title"), _translationService.Translate("account.none.message"), EAlertType.Warning));
+            await showAlertDialog.Handle(new Alert(_translationService.Translate("account.none.title"),
+                _translationService.Translate("account.none.message"), EAlertType.Warning));
             return;
         }
 
@@ -316,10 +247,8 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
 
             var envDic = new Dictionary<string, string>();
             if (ConfigModel.EnableEnvironment)
-            {
                 foreach (var env in ConfigModel.Environment)
                     envDic[env.Key] = env.Value;
-            }
 
             // Add custom native libraries if configured
             List<string> nativeLibraries = [];
@@ -413,12 +342,12 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
             }
 
             // Handle Java
-            int requiredJavaVersion = gameInstance.MinecraftVersionMeta.JavaVersionMeta?.MajorVersion ?? 8;
+            var requiredJavaVersion = gameInstance.MinecraftVersionMeta.JavaVersionMeta?.MajorVersion ?? 8;
             cts.ThrowIfCancellationRequested();
             if (string.IsNullOrWhiteSpace(gameInstance.Config.Game.JavaPath) ||
                 string.IsNullOrEmpty(gameInstance.Config.Game.JavaPath))
             {
-                string? javaPath = await _javaService.GetJavaVersionAsync(requiredJavaVersion, cts);
+                var javaPath = await _javaService.GetJavaVersionAsync(requiredJavaVersion, cts);
                 if (string.IsNullOrEmpty(javaPath))
                 {
                     var alertResult = await showAlertDialog.Handle(new Alert(
@@ -455,7 +384,7 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
 
                 gameInstance.Config.Game.JavaPath = javaPath;
                 var instances = await _launcherStore.GetInstancesAsync(cts);
-                int instanceIndex = instances.FindIndex(x => x.Id == Id);
+                var instanceIndex = instances.FindIndex(x => x.Id == Id);
                 await UpdateJavaPathAsync(gameInstance, javaPath, instances, instanceIndex);
             }
             else
@@ -483,10 +412,7 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
             AttachProcessEvent();
             //App.ClearRPC();
 
-            if (ConfigModel.Game.ShowConsoleWhileGameRunning)
-            {
-                await showLogsWindow.Handle(Id);
-            }
+            if (ConfigModel.Game.ShowConsoleWhileGameRunning) await showLogsWindow.Handle(Id);
 
             if (settings.Minecraft.CloseLauncherOnGameStart)
             {
@@ -497,7 +423,6 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
             GameProcess.Exited += (_, _) =>
             {
                 if (settings.Minecraft.CloseLauncherOnGameExit)
-                {
                     Dispatcher.UIThread.Invoke<Task>(async () =>
                     {
                         if (ConfigModel.Game.ShowConsoleWhenGameCrashes && GameProcess?.ExitCode != 0)
@@ -507,7 +432,6 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
 
                         await closeWindow.Handle(Unit.Default);
                     });
-                }
             };
             IsGameRunning = !process.HasExited;
         }
@@ -522,13 +446,14 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
     }
 
     /// <summary>
-    /// Updates the Java path for the game instance and saves the updated configuration.
+    ///     Updates the Java path for the game instance and saves the updated configuration.
     /// </summary>
     /// <param name="gameInstance">The game instance to update.</param>
     /// <param name="javaPath">The new Java path to set.</param>
     /// <param name="instances">The list of instances to update.</param>
     /// <param name="instanceIndex">The index of the current instance in the list.</param>
-    private async Task UpdateJavaPathAsync(MinecraftInstance gameInstance, string javaPath, List<DTOs.Instance> instances, int instanceIndex)
+    private async Task UpdateJavaPathAsync(MinecraftInstance gameInstance, string javaPath,
+        List<DTOs.Instance> instances, int instanceIndex)
     {
         gameInstance.Config.Game.JavaPath = javaPath;
         ConfigModel.Java.JavaPath = javaPath;
@@ -541,7 +466,7 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
     }
 
     /// <summary>
-    /// Handles the event when the log file is changed. Reads the content of the updated log file.
+    ///     Handles the event when the log file is changed. Reads the content of the updated log file.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The event data containing information about the changed file.</param>
@@ -568,7 +493,7 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
             while (sr.ReadLine() is { } newLine)
                 newLines.AppendLine(newLine);
 
-            string logs = string.Join("\n", newLines);
+            var logs = string.Join("\n", newLines);
             _eventService.RaiseInstanceLogged(Id, logs);
             _lastReadPosition = fs.Position;
         }
@@ -578,7 +503,87 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
         }
     }
 
+    #region Observable Properties
+
+    /// <summary>
+    ///     Gets or sets the unique identifier of the instance.
+    /// </summary>
+    [ObservableProperty]
+    public partial string Id { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the name of the instance.
+    /// </summary>
+    [ObservableProperty]
+    public partial string Name { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the group to which the instance belongs.
+    /// </summary>
+    [ObservableProperty]
+    public partial string? Group { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the file path to the icon of the instance.
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Icon))]
+    public partial string? IconPath { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the Minecraft version associated with the instance.
+    /// </summary>
+    [ObservableProperty]
+    public partial string MinecraftVersion { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the custom version of the instance, if any.
+    /// </summary>
+    [ObservableProperty]
+    public partial string? CustomVersion { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the kind of Minecraft associated with the instance.
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsModded))]
+    public partial EMinecraftKind Kind { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the custom game directory for the instance, if specified.
+    /// </summary>
+    [ObservableProperty]
+    public partial string? GameDirectory { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the configuration of the instance.
+    /// </summary>
+    [ObservableProperty]
+    public partial InstanceConfig ConfigModel { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the process associated with the running game.
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsGameRunning))]
+    public partial Process? GameProcess { get; set; }
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether the game is currently running.
+    /// </summary>
+    [ObservableProperty]
+    public partial bool IsGameRunning { get; set; }
+
+    /// <summary>
+    ///     Gets the icon of the instance as a bitmap. If the icon path is not set, a default icon is used.
+    /// </summary>
+    [ObservableProperty]
+    public partial BitmapEntry Icon { get; set; }
+
+    #endregion
+
     #region Progress Reporter
+
     private CancellationTokenSource _cancellationTokenSource = new();
     private ProgressWindow? _installWindow;
 

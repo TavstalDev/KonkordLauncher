@@ -23,15 +23,11 @@ using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
-public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
+public partial class EditInstanceViewModel_Worlds : KonkordObservableObject
 {
-    private readonly IBeaconLogger _logger = null!;
     private readonly IBitmapService _bitmapService = null!;
+    private readonly IBeaconLogger _logger = null!;
     private readonly EditInstanceViewModel _parent;
-
-    public ObservableCollection<WorldModel> Worlds { get; set; } = [];
-    [ObservableProperty]
-    public partial WorldModel? SelectedWorld { get; set; }
 
     public EditInstanceViewModel_Worlds()
     {
@@ -52,6 +48,10 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
         _bitmapService = bitmapService;
     }
 
+    public ObservableCollection<WorldModel> Worlds { get; set; } = [];
+
+    [ObservableProperty] public partial WorldModel? SelectedWorld { get; set; }
+
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
@@ -68,71 +68,9 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
         RefreshWorlds();
     }
 
-    #region Commands
-
     /// <summary>
-    /// Duplicates the specified Minecraft world by creating a copy of its directory
-    /// and refreshing the list of worlds.
-    /// </summary>
-    /// <param name="world">The world to duplicate.</param>
-    [RelayCommand]
-    private async Task Duplicate(WorldModel world)
-    {
-        await DuplicateWorldAsync(world);
-        RefreshWorlds();
-    }
-
-    /// <summary>
-    /// Initiates the renaming process for the specified Minecraft world by enabling
-    /// edit mode in the worlds table.
-    /// </summary>
-    /// <param name="world">The world to rename.</param>
-    [RelayCommand]
-    private async Task Rename(WorldModel world)
-    {
-        await _parent.BeginWorldRename.Handle(Unit.Default);
-    }
-
-    /// <summary>
-    /// Deletes the specified Minecraft world by removing its directory from the file system
-    /// and refreshing the list of worlds.
-    /// </summary>
-    /// <param name="world">The world to delete.</param>
-    [RelayCommand]
-    private void Delete(WorldModel world)
-    {
-        FileSystemHelper.DeleteDirectory(world.Path);
-        RefreshWorlds();
-    }
-
-    /// <summary>
-    /// Copies the seed of the specified Minecraft world to the system clipboard.
-    /// </summary>
-    /// <param name="world">The world whose seed is to be copied.</param>
-    [RelayCommand]
-    private async Task CopySeed(WorldModel world)
-    {
-        await _parent.SetClipboardText.Handle(world.Seed.ToString());
-    }
-
-    /// <summary>
-    /// Opens the directory of the specified Minecraft world in the file explorer.
-    /// </summary>
-    /// <param name="world">The world whose directory is to be opened.</param>
-    [RelayCommand]
-    private void OpenDir(WorldModel world)
-    {
-        if (!Directory.Exists(world.Path))
-            return;
-
-        FileSystemHelper.OpenFolderInFileExplorer(world.Path);
-    }
-
-    #endregion
-
-    /// <summary>
-    /// Duplicates a Minecraft world by creating a copy of its directory and updating its metadata.
-    /// Generates a unique name for the duplicated world and updates the "LevelName" tag in the `level.dat` file.
+    ///     Duplicates a Minecraft world by creating a copy of its directory and updating its metadata.
+    ///     Generates a unique name for the duplicated world and updates the "LevelName" tag in the `level.dat` file.
     /// </summary>
     /// <param name="world">The world to duplicate.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
@@ -142,7 +80,7 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
         if (_parent.GameDirectory == null)
             return;
 
-        string worldsDir = Path.Combine(_parent.GameDirectory, "saves");
+        var worldsDir = Path.Combine(_parent.GameDirectory, "saves");
         if (!Directory.Exists(worldsDir))
             return;
 
@@ -151,7 +89,7 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
 
         string? newPath = null;
         string? newName = null;
-        for (int i = 0; i < 100; i++)
+        for (var i = 0; i < 100; i++)
         {
             // Generate a new path with a unique name
             newName = $"{world.Name}({i})";
@@ -159,6 +97,7 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
             if (!Directory.Exists(newPath))
                 break;
         }
+
         if (newPath == null)
         {
             _logger.LogError("Failed to generate a unique path for the duplicated world.");
@@ -169,7 +108,7 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
         {
             FileSystemHelper.MoveDirectory(world.Path, newPath, true, false);
 
-            string levelDatPath = Path.Combine(newPath, "level.dat");
+            var levelDatPath = Path.Combine(newPath, "level.dat");
             await using var inputStream = File.OpenRead(levelDatPath);
             await using var gzip = new GZipStream(inputStream, CompressionMode.Decompress);
             using var mem = new MemoryStream();
@@ -223,8 +162,8 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
     }
 
     /// <summary>
-    /// Saves the current list of Minecraft worlds by updating their metadata and renaming their directories
-    /// if necessary. This method ensures that the world's name in the `level.dat` file matches the directory name.
+    ///     Saves the current list of Minecraft worlds by updating their metadata and renaming their directories
+    ///     if necessary. This method ensures that the world's name in the `level.dat` file matches the directory name.
     /// </summary>
     public void SaveWorlds()
     {
@@ -234,7 +173,7 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
 
         try
         {
-            string worldsDir = Path.Combine(_parent.GameDirectory, "saves");
+            var worldsDir = Path.Combine(_parent.GameDirectory, "saves");
             if (!Directory.Exists(worldsDir))
                 return;
 
@@ -243,19 +182,19 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
                 if (!Directory.Exists(world.Path))
                     continue;
 
-                string? oldName = Path.GetDirectoryName(world.Path);
+                var oldName = Path.GetDirectoryName(world.Path);
                 // This should be changed if other properties will be changed in the future
                 if (oldName == world.Name)
                     continue;
 
-                string newPath = Path.Combine(worldsDir, world.Name);
+                var newPath = Path.Combine(worldsDir, world.Name);
                 if (Directory.Exists(newPath))
                 {
                     _logger.LogWarning("World with the same name already exists, skipping save.");
                     continue;
                 }
 
-                string levelDatPath = Path.Combine(world.Path, "level.dat");
+                var levelDatPath = Path.Combine(world.Path, "level.dat");
                 using var inputStream = File.OpenRead(levelDatPath);
                 using var gzip = new GZipStream(inputStream, CompressionMode.Decompress);
                 using var mem = new MemoryStream();
@@ -312,8 +251,8 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
     }
 
     /// <summary>
-    /// Handles changes to the `Worlds` collection by saving the updated list of worlds.
-    /// This method is triggered whenever the `Worlds` collection is modified.
+    ///     Handles changes to the `Worlds` collection by saving the updated list of worlds.
+    ///     This method is triggered whenever the `Worlds` collection is modified.
     /// </summary>
     /// <param name="sender">The source of the event, typically the `Worlds` collection.</param>
     /// <param name="e">The event data containing details about the collection change.</param>
@@ -323,36 +262,34 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
     }
 
     /// <summary>
-    /// Refreshes the list of Minecraft worlds by scanning the game directory for saved worlds.
-    /// Updates the Worlds collection with metadata such as name, game mode, last played timestamp,
-    /// seed, size, and icon for each world.
+    ///     Refreshes the list of Minecraft worlds by scanning the game directory for saved worlds.
+    ///     Updates the Worlds collection with metadata such as name, game mode, last played timestamp,
+    ///     seed, size, and icon for each world.
     /// </summary>
     public void RefreshWorlds()
     {
         if (_parent.GameDirectory == null)
             return;
 
-        string worldsDir = Path.Combine(_parent.GameDirectory, "saves");
+        var worldsDir = Path.Combine(_parent.GameDirectory, "saves");
         if (!Directory.Exists(worldsDir))
             return;
 
         Worlds.CollectionChanged -= WorldsOnCollectionChanged;
 
         foreach (var world in Worlds)
-        {
             // Dispose of the image to free memory
             world.Icon.Dispose(_bitmapService);
-        }
         Worlds.Clear();
         var worldDirs = Directory.GetDirectories(worldsDir);
         foreach (var worldDir in worldDirs)
         {
             var worldName = "unknown";
-            string levelDatPath = Path.Combine(worldDir, "level.dat");
-            string gamemode = "unknown";
+            var levelDatPath = Path.Combine(worldDir, "level.dat");
+            var gamemode = "unknown";
             long lastPlayed = 0;
             long seed = 0;
-            BitmapEntry icon = new BitmapEntry(null ,null);
+            var icon = new BitmapEntry(null, null);
 
             if (File.Exists(levelDatPath))
             {
@@ -397,10 +334,9 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
             }
 
             var files = Directory.EnumerateFiles(worldDir, "*", SearchOption.AllDirectories);
-            long size = files.Sum(file => new FileInfo(file).Length);
-            string iconPath = Path.Combine(worldDir, "icon.png");
+            var size = files.Sum(file => new FileInfo(file).Length);
+            var iconPath = Path.Combine(worldDir, "icon.png");
             if (File.Exists(iconPath))
-            {
                 try
                 {
                     icon = _bitmapService.GetBitmap(iconPath);
@@ -409,12 +345,75 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
                 {
                     _logger.LogError($"Failed to load world icon for {worldName}: {ex.Message}");
                 }
-            }
+
             if (icon.Key == null)
                 icon = _bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Images/default_world.png");
 
-            Worlds.Add(new WorldModel(worldName, worldDir, gamemode,  seed, lastPlayed, size, icon));
+            Worlds.Add(new WorldModel(worldName, worldDir, gamemode, seed, lastPlayed, size, icon));
         }
+
         Worlds.CollectionChanged += WorldsOnCollectionChanged;
     }
+
+    #region Commands
+
+    /// <summary>
+    ///     Duplicates the specified Minecraft world by creating a copy of its directory
+    ///     and refreshing the list of worlds.
+    /// </summary>
+    /// <param name="world">The world to duplicate.</param>
+    [RelayCommand]
+    private async Task Duplicate(WorldModel world)
+    {
+        await DuplicateWorldAsync(world);
+        RefreshWorlds();
+    }
+
+    /// <summary>
+    ///     Initiates the renaming process for the specified Minecraft world by enabling
+    ///     edit mode in the worlds table.
+    /// </summary>
+    /// <param name="world">The world to rename.</param>
+    [RelayCommand]
+    private async Task Rename(WorldModel world)
+    {
+        await _parent.BeginWorldRename.Handle(Unit.Default);
+    }
+
+    /// <summary>
+    ///     Deletes the specified Minecraft world by removing its directory from the file system
+    ///     and refreshing the list of worlds.
+    /// </summary>
+    /// <param name="world">The world to delete.</param>
+    [RelayCommand]
+    private void Delete(WorldModel world)
+    {
+        FileSystemHelper.DeleteDirectory(world.Path);
+        RefreshWorlds();
+    }
+
+    /// <summary>
+    ///     Copies the seed of the specified Minecraft world to the system clipboard.
+    /// </summary>
+    /// <param name="world">The world whose seed is to be copied.</param>
+    [RelayCommand]
+    private async Task CopySeed(WorldModel world)
+    {
+        await _parent.SetClipboardText.Handle(world.Seed.ToString());
+    }
+
+    /// <summary>
+    ///     Opens the directory of the specified Minecraft world in the file explorer.
+    /// </summary>
+    /// <param name="world">The world whose directory is to be opened.</param>
+    [RelayCommand]
+    private void OpenDir(WorldModel world)
+    {
+        if (!Directory.Exists(world.Path))
+            return;
+
+        FileSystemHelper.OpenFolderInFileExplorer(world.Path);
+    }
+
+    #endregion
 }

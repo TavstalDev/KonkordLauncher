@@ -7,7 +7,6 @@
     xmlns:dto="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.DTOs"
     xmlns:enums="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Enums"
     xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
-    xmlns:local="clr-namespace:Tavstal.KonkordLauncher.Desktop"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
     xmlns:templates="clr-namespace:Tavstal.KonkordLauncher.Desktop.Styles.Templates"
@@ -103,9 +102,11 @@
                                             <StackPanel Orientation="Vertical">
                                                 <TextBlock Text="{Binding Name}" />
                                                 <StackPanel Orientation="Horizontal" Spacing="5">
-                                                    <TextBlock Text="{lang:Translate instance.create.import.preview.version}" />
+                                                    <TextBlock
+                                                        Text="{lang:Translate instance.create.import.preview.version}" />
                                                     <TextBlock Text="{Binding MinecraftVersion}" />
-                                                    <StackPanel Orientation="Horizontal" Spacing="5" IsVisible="{Binding IsModded}">
+                                                    <StackPanel Orientation="Horizontal" Spacing="5"
+                                                                IsVisible="{Binding IsModded}">
                                                         <TextBlock Text="{Binding Kind}" />
                                                         <TextBlock Text="{Binding CustomVersion}" />
                                                     </StackPanel>
@@ -119,13 +120,13 @@
                                         CommandParameter="{Binding .}"
                                         IsVisible="{Binding !IsGameRunning}">
                                         <MenuItem.Header>
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock
-                                                        Padding="4,0"
-                                                        Classes="FontAwesome"
-                                                        Text="&#xf04b;" />
-                                                    <TextBlock Margin="5,0,0,0" Text="{lang:Translate common.launch}" />
-                                                </StackPanel>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock
+                                                    Padding="4,0"
+                                                    Classes="FontAwesome"
+                                                    Text="&#xf04b;" />
+                                                <TextBlock Margin="5,0,0,0" Text="{lang:Translate common.launch}" />
+                                            </StackPanel>
                                         </MenuItem.Header>
                                     </MenuItem>
                                     <!--  Stop Btn  -->
@@ -134,87 +135,103 @@
                                         CommandParameter="{Binding .}"
                                         IsVisible="{Binding IsGameRunning}">
                                         <MenuItem.Header>
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock
-                                                        Padding="4,0"
-                                                        Classes="FontAwesome"
-                                                        Text="&#xf04d;" />
-                                                    <TextBlock Margin="5,0,0,0" Text="{lang:Translate common.stop}" />
-                                                </StackPanel>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock
+                                                    Padding="4,0"
+                                                    Classes="FontAwesome"
+                                                    Text="&#xf04d;" />
+                                                <TextBlock Margin="5,0,0,0" Text="{lang:Translate common.stop}" />
+                                            </StackPanel>
                                         </MenuItem.Header>
                                     </MenuItem>
                                     <!--  Logs Btn  -->
-                                    <MenuItem Command="{Binding $parent[Window].DataContext.Instances.ViewInstanceLogsCommand}" CommandParameter="{Binding .}">
+                                    <MenuItem
+                                        Command="{Binding $parent[Window].DataContext.Instances.ViewInstanceLogsCommand}"
+                                        CommandParameter="{Binding .}">
                                         <MenuItem.Header>
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock
-                                                        Padding="4,0"
-                                                        Classes="FontAwesome"
-                                                        Text="&#xf15c;" />
-                                                    <TextBlock Margin="5,0,0,0" Text="{lang:Translate instance.view.logs}" />
-                                                </StackPanel>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock
+                                                    Padding="4,0"
+                                                    Classes="FontAwesome"
+                                                    Text="&#xf15c;" />
+                                                <TextBlock Margin="5,0,0,0" Text="{lang:Translate instance.view.logs}" />
+                                            </StackPanel>
                                         </MenuItem.Header>
                                     </MenuItem>
                                     <Separator />
                                     <!--  Rename Btn  -->
-                                    <MenuItem Command="{Binding $parent[Window].DataContext.Instances.RenameInstanceCommand}" CommandParameter="{Binding .}">
+                                    <MenuItem
+                                        Command="{Binding $parent[Window].DataContext.Instances.RenameInstanceCommand}"
+                                        CommandParameter="{Binding .}">
                                         <MenuItem.Header>
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock
-                                                        Padding="4,0"
-                                                        Classes="FontAwesome"
-                                                        Text="&#xf044;" />
-                                                    <TextBlock Margin="5,0,0,0" Text="{lang:Translate common.rename}" />
-                                                </StackPanel>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock
+                                                    Padding="4,0"
+                                                    Classes="FontAwesome"
+                                                    Text="&#xf044;" />
+                                                <TextBlock Margin="5,0,0,0" Text="{lang:Translate common.rename}" />
+                                            </StackPanel>
                                         </MenuItem.Header>
                                     </MenuItem>
                                     <!--  Change Icon Btn  -->
-                                    <MenuItem Command="{Binding $parent[Window].DataContext.Instances.ChangeInstanceIconCommand}" CommandParameter="{Binding .}">
+                                    <MenuItem
+                                        Command="{Binding $parent[Window].DataContext.Instances.ChangeInstanceIconCommand}"
+                                        CommandParameter="{Binding .}">
                                         <MenuItem.Header>
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock
-                                                        Padding="4,0"
-                                                        Classes="FontAwesome"
-                                                        Text="&#xf03e;" />
-                                                    <TextBlock Margin="5,0,0,0" Text="{lang:Translate instance.change.icon}" />
-                                                </StackPanel>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock
+                                                    Padding="4,0"
+                                                    Classes="FontAwesome"
+                                                    Text="&#xf03e;" />
+                                                <TextBlock Margin="5,0,0,0"
+                                                           Text="{lang:Translate instance.change.icon}" />
+                                            </StackPanel>
                                         </MenuItem.Header>
                                     </MenuItem>
                                     <!--  Change Group Btn  -->
-                                    <MenuItem Command="{Binding $parent[Window].DataContext.Instances.ChangeInstanceGroupCommand}" CommandParameter="{Binding .}">
+                                    <MenuItem
+                                        Command="{Binding $parent[Window].DataContext.Instances.ChangeInstanceGroupCommand}"
+                                        CommandParameter="{Binding .}">
                                         <MenuItem.Header>
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock
-                                                        Padding="4,0"
-                                                        Classes="FontAwesome"
-                                                        Text="&#xf5fd;" />
-                                                    <TextBlock Margin="5,0,0,0" Text="{lang:Translate instance.change.group.action}" />
-                                                </StackPanel>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock
+                                                    Padding="4,0"
+                                                    Classes="FontAwesome"
+                                                    Text="&#xf5fd;" />
+                                                <TextBlock Margin="5,0,0,0"
+                                                           Text="{lang:Translate instance.change.group.action}" />
+                                            </StackPanel>
                                         </MenuItem.Header>
                                     </MenuItem>
                                     <!--  Change Version Btn  -->
-                                    <MenuItem Command="{Binding $parent[Window].DataContext.Instances.ChangeInstanceVersionCommand}" CommandParameter="{Binding .}">
+                                    <MenuItem
+                                        Command="{Binding $parent[Window].DataContext.Instances.ChangeInstanceVersionCommand}"
+                                        CommandParameter="{Binding .}">
                                         <MenuItem.Header>
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock
                                                     Padding="4,0"
                                                     Classes="FontAwesome"
                                                     Text="&#xf126;" />
-                                                <TextBlock Margin="5,0,0,0" Text="{lang:Translate instance.change.version}" />
+                                                <TextBlock Margin="5,0,0,0"
+                                                           Text="{lang:Translate instance.change.version}" />
                                             </StackPanel>
                                         </MenuItem.Header>
                                     </MenuItem>
                                     <Separator />
                                     <!--  Open Folder Btn  -->
-                                    <MenuItem Command="{Binding $parent[Window].DataContext.Instances.OpenInstanceDirCommand}" CommandParameter="{Binding .}">
+                                    <MenuItem
+                                        Command="{Binding $parent[Window].DataContext.Instances.OpenInstanceDirCommand}"
+                                        CommandParameter="{Binding .}">
                                         <MenuItem.Header>
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock
-                                                        Padding="4,0"
-                                                        Classes="FontAwesome"
-                                                        Text="&#xf07c;" />
-                                                    <TextBlock Margin="5,0,0,0" Text="{lang:Translate common.open.directory}" />
-                                                </StackPanel>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock
+                                                    Padding="4,0"
+                                                    Classes="FontAwesome"
+                                                    Text="&#xf07c;" />
+                                                <TextBlock Margin="5,0,0,0"
+                                                           Text="{lang:Translate common.open.directory}" />
+                                            </StackPanel>
                                         </MenuItem.Header>
                                     </MenuItem>
                                     <!--  Export Btn  -->
@@ -241,7 +258,9 @@
                                     </MenuItem>
                                     <Separator />
                                     <!--  Delete Btn  -->
-                                    <MenuItem Command="{Binding $parent[Window].DataContext.Instances.DeleteInstanceCommand}" CommandParameter="{Binding .}">
+                                    <MenuItem
+                                        Command="{Binding $parent[Window].DataContext.Instances.DeleteInstanceCommand}"
+                                        CommandParameter="{Binding .}">
                                         <MenuItem.HeaderTemplate>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
@@ -423,7 +442,8 @@
                                         VerticalAlignment="Center"
                                         Classes="FontAwesome"
                                         Text="&#xf0c0;" />
-                                    <TextBlock VerticalAlignment="Center" Text="{lang:Translate main.sidebar.accounts.label}" />
+                                    <TextBlock VerticalAlignment="Center"
+                                               Text="{lang:Translate main.sidebar.accounts.label}" />
                                 </WrapPanel>
                             </Button>
                             <Button
@@ -514,7 +534,7 @@
                     PointerPressed="DragStart_PointerPressed">
                     <Grid RowDefinitions="Auto, *">
                         <!--  Window Controls  -->
-                        <templates:CustomTitleBar/>
+                        <templates:CustomTitleBar />
 
                         <!--  Content Area  -->
                         <Border Grid.Row="1" Margin="0,0,0,20">
@@ -588,7 +608,8 @@
                                         Classes="MainContentArea"
                                         RowDefinitions="Auto, Auto, *">
                                         <!--  Title  -->
-                                        <TextBlock Classes="MainContentTitle" Margin="0,0,0,20" Text="{lang:Translate main.page.patch.title}" />
+                                        <TextBlock Classes="MainContentTitle" Margin="0,0,0,20"
+                                                   Text="{lang:Translate main.page.patch.title}" />
                                         <!--  Empty text  -->
                                         <TextBlock
                                             Grid.Row="1"
@@ -610,7 +631,8 @@
                                     <StackPanel Classes="MainContentArea">
                                         <Grid ColumnDefinitions="*, Auto">
                                             <!--  Title  -->
-                                            <TextBlock Classes="MainContentTitle" Text="{lang:Translate main.page.accounts.title}" />
+                                            <TextBlock Classes="MainContentTitle"
+                                                       Text="{lang:Translate main.page.accounts.title}" />
                                             <!--  Add account button  -->
                                             <Button
                                                 Grid.Column="1"
@@ -620,7 +642,8 @@
                                             </Button>
                                         </Grid>
                                         <!--  No accounts text  -->
-                                        <TextBlock IsVisible="{Binding !Accounts.AccountData.HasAccounts}" Text="{lang:Translate main.page.accounts.empty}" />
+                                        <TextBlock IsVisible="{Binding !Accounts.AccountData.HasAccounts}"
+                                                   Text="{lang:Translate main.page.accounts.empty}" />
                                         <!--  Accounts Grid  -->
                                         <Grid>
                                             <ScrollViewer>
@@ -638,7 +661,8 @@
                                     <!--  Settings Page  -->
                                     <Grid Margin="20,20,20,0" RowDefinitions="Auto, Auto, *">
                                         <!--  Title  -->
-                                        <TextBlock Classes="MainContentTitle" Text="{lang:Translate main.page.settings.title}" />
+                                        <TextBlock Classes="MainContentTitle"
+                                                   Text="{lang:Translate main.page.settings.title}" />
 
                                         <!--  Settings Buttons  -->
                                         <Border Grid.Row="1" Classes="SettingsTabBorder">
@@ -692,11 +716,14 @@
                                                         <Border Classes="SettingsCategoryBorder">
                                                             <StackPanel>
                                                                 <!--  Category Title  -->
-                                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.launcher.subtitle.general}" />
+                                                                <TextBlock Classes="SettingsCategoryText"
+                                                                           Text="{lang:Translate settings.launcher.subtitle.general}" />
 
                                                                 <!--  Enable Launcher Updates  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.autoUpdate}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.launcher.autoUpdate}" />
                                                                     <ToggleSwitch
                                                                         Grid.Column="1"
                                                                         Classes="SettingsSwitch"
@@ -704,8 +731,10 @@
                                                                 </Grid>
 
                                                                 <!--  Update Interval  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.updateInterval}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.launcher.updateInterval}" />
                                                                     <NumericUpDown
                                                                         Grid.Column="1"
                                                                         Classes="NumericInput"
@@ -718,8 +747,10 @@
                                                                 </Grid>
 
                                                                 <!--  Language  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.language}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.launcher.language}" />
                                                                     <ComboBox
                                                                         Grid.Column="1"
                                                                         Classes="TextDropdown"
@@ -729,7 +760,8 @@
                                                                         <ComboBox.ItemTemplate>
                                                                             <DataTemplate>
                                                                                 <StackPanel Orientation="Horizontal">
-                                                                                    <TextBlock Margin="0" Text="{Binding Name}" />
+                                                                                    <TextBlock Margin="0"
+                                                                                        Text="{Binding Name}" />
                                                                                 </StackPanel>
                                                                             </DataTemplate>
                                                                         </ComboBox.ItemTemplate>
@@ -737,8 +769,10 @@
                                                                 </Grid>
 
                                                                 <!--  Theme  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.theme}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.launcher.theme}" />
                                                                     <ComboBox
                                                                         Grid.Column="1"
                                                                         Classes="TextDropdown"
@@ -754,11 +788,14 @@
                                                         <Border Classes="SettingsCategoryBorder">
                                                             <StackPanel>
                                                                 <!--  Category Title  -->
-                                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.launcher.subtitle.directories}" />
+                                                                <TextBlock Classes="SettingsCategoryText"
+                                                                           Text="{lang:Translate settings.launcher.subtitle.directories}" />
 
                                                                 <!--  Assets Directory  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400, Auto">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.dir.assets}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 400, Auto">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.launcher.dir.assets}" />
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
@@ -769,13 +806,16 @@
                                                                         Classes="IconBtn"
                                                                         Command="{Binding Config.ConfigDirSelectCommand}"
                                                                         CommandParameter="0">
-                                                                        <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                                                        <TextBlock Classes="FontAwesome"
+                                                                                Text="&#xf07c;" />
                                                                     </Button>
                                                                 </Grid>
 
                                                                 <!--  Cache Directory  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400, Auto">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.dir.cache}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 400, Auto">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.launcher.dir.cache}" />
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
@@ -786,13 +826,16 @@
                                                                         Classes="IconBtn"
                                                                         Command="{Binding Config.ConfigDirSelectCommand}"
                                                                         CommandParameter="1">
-                                                                        <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                                                        <TextBlock Classes="FontAwesome"
+                                                                                Text="&#xf07c;" />
                                                                     </Button>
                                                                 </Grid>
 
                                                                 <!--  Icons Directory  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400, Auto">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.dir.icons}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 400, Auto">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.launcher.dir.icons}" />
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
@@ -803,13 +846,16 @@
                                                                         Classes="IconBtn"
                                                                         Command="{Binding Config.ConfigDirSelectCommand}"
                                                                         CommandParameter="3">
-                                                                        <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                                                        <TextBlock Classes="FontAwesome"
+                                                                                Text="&#xf07c;" />
                                                                     </Button>
                                                                 </Grid>
 
                                                                 <!--  Instances Directory  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400, Auto">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.dir.instances}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 400, Auto">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.launcher.dir.instances}" />
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
@@ -820,13 +866,16 @@
                                                                         Classes="IconBtn"
                                                                         Command="{Binding Config.ConfigDirSelectCommand}"
                                                                         CommandParameter="2">
-                                                                        <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                                                        <TextBlock Classes="FontAwesome"
+                                                                                Text="&#xf07c;" />
                                                                     </Button>
                                                                 </Grid>
 
                                                                 <!--  Java Directory  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400, Auto">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.dir.java}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 400, Auto">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.launcher.dir.java}" />
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
@@ -837,13 +886,16 @@
                                                                         Classes="IconBtn"
                                                                         Command="{Binding Config.ConfigDirSelectCommand}"
                                                                         CommandParameter="4">
-                                                                        <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                                                        <TextBlock Classes="FontAwesome"
+                                                                                Text="&#xf07c;" />
                                                                     </Button>
                                                                 </Grid>
 
                                                                 <!--  Libraries Directory  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400, Auto">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.dir.libraries}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 400, Auto">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.launcher.dir.libraries}" />
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
@@ -854,13 +906,16 @@
                                                                         Classes="IconBtn"
                                                                         Command="{Binding Config.ConfigDirSelectCommand}"
                                                                         CommandParameter="5">
-                                                                        <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                                                        <TextBlock Classes="FontAwesome"
+                                                                                Text="&#xf07c;" />
                                                                     </Button>
                                                                 </Grid>
 
                                                                 <!--  Manifests Directory  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400, Auto">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.dir.manifests}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 400, Auto">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.launcher.dir.manifests}" />
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
@@ -871,13 +926,16 @@
                                                                         Classes="IconBtn"
                                                                         Command="{Binding Config.ConfigDirSelectCommand}"
                                                                         CommandParameter="6">
-                                                                        <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                                                        <TextBlock Classes="FontAwesome"
+                                                                                Text="&#xf07c;" />
                                                                     </Button>
                                                                 </Grid>
 
                                                                 <!--  Translations Directory  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400, Auto">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.dir.translations}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 400, Auto">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.launcher.dir.translations}" />
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
@@ -888,13 +946,16 @@
                                                                         Classes="IconBtn"
                                                                         Command="{Binding Config.ConfigDirSelectCommand}"
                                                                         CommandParameter="7">
-                                                                        <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                                                        <TextBlock Classes="FontAwesome"
+                                                                                Text="&#xf07c;" />
                                                                     </Button>
                                                                 </Grid>
 
                                                                 <!--  Versions Directory  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400, Auto">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.dir.versions}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 400, Auto">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.launcher.dir.versions}" />
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
@@ -905,7 +966,8 @@
                                                                         Classes="IconBtn"
                                                                         Command="{Binding Config.ConfigDirSelectCommand}"
                                                                         CommandParameter="8">
-                                                                        <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                                                        <TextBlock Classes="FontAwesome"
+                                                                                Text="&#xf07c;" />
                                                                     </Button>
                                                                 </Grid>
                                                             </StackPanel>
@@ -920,11 +982,14 @@
                                                         <Border Classes="SettingsCategoryBorder">
                                                             <StackPanel>
                                                                 <!--  Category Title  -->
-                                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.launcher.subtitle.general}" />
+                                                                <TextBlock Classes="SettingsCategoryText"
+                                                                           Text="{lang:Translate settings.launcher.subtitle.general}" />
 
                                                                 <!--  Start Maximized  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.minecraft.startMaximized}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.minecraft.startMaximized}" />
                                                                     <ToggleSwitch
                                                                         Grid.Column="1"
                                                                         Classes="SettingsSwitch"
@@ -932,8 +997,10 @@
                                                                 </Grid>
 
                                                                 <!--  Window Width  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.minecraft.windowWidth}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.minecraft.windowWidth}" />
                                                                     <NumericUpDown
                                                                         Grid.Column="1"
                                                                         Classes="NumericInput"
@@ -946,8 +1013,10 @@
                                                                 </Grid>
 
                                                                 <!--  Window Height  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.minecraft.windowHeight}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.minecraft.windowHeight}" />
                                                                     <NumericUpDown
                                                                         Grid.Column="1"
                                                                         Classes="NumericInput"
@@ -960,8 +1029,10 @@
                                                                 </Grid>
 
                                                                 <!--  Close Launcher after game opens  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.minecraft.closeOpen}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.minecraft.closeOpen}" />
                                                                     <ToggleSwitch
                                                                         Grid.Column="1"
                                                                         Classes="SettingsSwitch"
@@ -969,8 +1040,10 @@
                                                                 </Grid>
 
                                                                 <!--  Close Launcher after game closes  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.minecraft.closeExit}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.minecraft.closeExit}" />
                                                                     <ToggleSwitch
                                                                         Grid.Column="1"
                                                                         Classes="SettingsSwitch"
@@ -989,11 +1062,14 @@
                                                         <Border Classes="SettingsCategoryBorder">
                                                             <StackPanel>
                                                                 <!--  Category Title  -->
-                                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.launcher.subtitle.general}" />
+                                                                <TextBlock Classes="SettingsCategoryText"
+                                                                           Text="{lang:Translate settings.launcher.subtitle.general}" />
 
                                                                 <!--  Minimum Memory  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.java.minMemory}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.java.minMemory}" />
                                                                     <NumericUpDown
                                                                         Grid.Column="1"
                                                                         Classes="NumericInput"
@@ -1005,8 +1081,10 @@
                                                                 </Grid>
 
                                                                 <!--  Maximum Memory  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.java.maxMemory}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.java.maxMemory}" />
                                                                     <NumericUpDown
                                                                         Grid.Column="1"
                                                                         Classes="NumericInput"
@@ -1018,8 +1096,10 @@
                                                                 </Grid>
 
                                                                 <!--  PermGen  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.java.permaGen}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.java.permaGen}" />
                                                                     <NumericUpDown
                                                                         Grid.Column="1"
                                                                         Classes="NumericInput"
@@ -1031,8 +1111,10 @@
                                                                 </Grid>
 
                                                                 <!--  Java Path  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 350, Auto">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.java.path}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 350, Auto">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.java.path}" />
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
@@ -1046,10 +1128,13 @@
                                                                             Classes="IconBtn"
                                                                             Command="{Binding Config.ConfigDirSelectCommand}"
                                                                             CommandParameter="9">
-                                                                            <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                                                            <TextBlock Classes="FontAwesome"
+                                                                                    Text="&#xf07c;" />
                                                                         </Button>
-                                                                        <Button Classes="IconBtn" Command="{Binding Config.JavaPathSelectorCommand}">
-                                                                            <TextBlock Classes="FontAwesome" Text="&#xf126;" />
+                                                                        <Button Classes="IconBtn"
+                                                                                Command="{Binding Config.JavaPathSelectorCommand}">
+                                                                            <TextBlock Classes="FontAwesome"
+                                                                                    Text="&#xf126;" />
                                                                         </Button>
                                                                     </StackPanel>
                                                                 </Grid>
@@ -1060,7 +1145,8 @@
                                                         <Border Classes="SettingsCategoryBorder">
                                                             <StackPanel Spacing="10">
                                                                 <!--  Category Title  -->
-                                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.java.jvmArgs}" />
+                                                                <TextBlock Classes="SettingsCategoryText"
+                                                                           Text="{lang:Translate settings.java.jvmArgs}" />
 
                                                                 <!--  Input  -->
                                                                 <TextBox
@@ -1080,12 +1166,16 @@
                                                         <Border Classes="SettingsCategoryBorder">
                                                             <StackPanel>
                                                                 <!--  Category Title  -->
-                                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.misc.subtitle.customCommands}" />
+                                                                <TextBlock Classes="SettingsCategoryText"
+                                                                           Text="{lang:Translate settings.misc.subtitle.customCommands}" />
 
                                                                 <!--  Pre-launch Command  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
-                                                                    <StackPanel MaxWidth="200" HorizontalAlignment="Left">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.prelaunchCommand.label}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 400">
+                                                                    <StackPanel MaxWidth="200"
+                                                                            HorizontalAlignment="Left">
+                                                                        <TextBlock Classes="SettingsName"
+                                                                                Text="{lang:Translate settings.misc.prelaunchCommand.label}" />
                                                                         <TextBlock
                                                                             Classes="SettingsDescription"
                                                                             Text="{lang:Translate settings.misc.prelaunchCommand.description}"
@@ -1098,9 +1188,12 @@
                                                                 </Grid>
 
                                                                 <!--  Wrapper Command  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
-                                                                    <StackPanel MaxWidth="200" HorizontalAlignment="Left">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.wrapperCommand.label}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 400">
+                                                                    <StackPanel MaxWidth="200"
+                                                                            HorizontalAlignment="Left">
+                                                                        <TextBlock Classes="SettingsName"
+                                                                                Text="{lang:Translate settings.misc.wrapperCommand.label}" />
                                                                         <TextBlock
                                                                             Classes="SettingsDescription"
                                                                             Text="{lang:Translate settings.misc.wrapperCommand.description}"
@@ -1113,9 +1206,12 @@
                                                                 </Grid>
 
                                                                 <!--  Post-exit Command  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
-                                                                    <StackPanel MaxWidth="200" HorizontalAlignment="Left">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.postExitCommand.label}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 400">
+                                                                    <StackPanel MaxWidth="200"
+                                                                            HorizontalAlignment="Left">
+                                                                        <TextBlock Classes="SettingsName"
+                                                                                Text="{lang:Translate settings.misc.postExitCommand.label}" />
                                                                         <TextBlock
                                                                             Classes="SettingsDescription"
                                                                             Text="{lang:Translate settings.misc.postExitCommand.description}"
@@ -1134,11 +1230,14 @@
                                                         <Border Classes="SettingsCategoryBorder">
                                                             <StackPanel>
                                                                 <!--  Category Title  -->
-                                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.misc.subtitle.nativeLibraries}" />
+                                                                <TextBlock Classes="SettingsCategoryText"
+                                                                           Text="{lang:Translate settings.misc.subtitle.nativeLibraries}" />
 
                                                                 <!--  Use custom GLFW  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.customGLFW}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.misc.customGLFW}" />
                                                                     <ToggleSwitch
                                                                         Grid.Column="1"
                                                                         Classes="SettingsSwitch"
@@ -1146,8 +1245,10 @@
                                                                 </Grid>
 
                                                                 <!--  GLFW library path  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.pathGLFW}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 400">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.misc.pathGLFW}" />
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
@@ -1157,8 +1258,10 @@
                                                                 </Grid>
 
                                                                 <!--  Use custom OpenAL  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.customOpenAL}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.misc.customOpenAL}" />
                                                                     <ToggleSwitch
                                                                         Grid.Column="1"
                                                                         Classes="SettingsSwitch"
@@ -1166,8 +1269,10 @@
                                                                 </Grid>
 
                                                                 <!--  OpenAL library path  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.pathOpenAL}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 400">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.misc.pathOpenAL}" />
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
@@ -1182,11 +1287,14 @@
                                                         <Border Classes="SettingsCategoryBorder">
                                                             <StackPanel>
                                                                 <!--  Category Title  -->
-                                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.misc.subtitle.performance}" />
+                                                                <TextBlock Classes="SettingsCategoryText"
+                                                                           Text="{lang:Translate settings.misc.subtitle.performance}" />
 
                                                                 <!--  Enable Feral GameMode  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.enableGameMode}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.misc.enableGameMode}" />
                                                                     <ToggleSwitch
                                                                         Grid.Column="1"
                                                                         Classes="SettingsSwitch"
@@ -1195,8 +1303,10 @@
                                                                 </Grid>
 
                                                                 <!--  Enable MangoHud  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.enableMangoHud}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.misc.enableMangoHud}" />
                                                                     <ToggleSwitch
                                                                         Grid.Column="1"
                                                                         Classes="SettingsSwitch"
@@ -1205,8 +1315,10 @@
                                                                 </Grid>
 
                                                                 <!--  Use dedicated GPU  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.useDedicatedGpu}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.misc.useDedicatedGpu}" />
                                                                     <ToggleSwitch
                                                                         Grid.Column="1"
                                                                         Classes="SettingsSwitch"
@@ -1266,9 +1378,11 @@
 
                                                 <!--  About  -->
                                                 <ScrollViewer>
-                                                    <Grid Classes="AboutWrapper" RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto">
+                                                    <Grid Classes="AboutWrapper"
+                                                          RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto">
                                                         <!--  Logo  -->
-                                                        <Image Classes="AboutLogo" Source="avares://KonkordLauncher/Assets/Images/logo.png" />
+                                                        <Image Classes="AboutLogo"
+                                                               Source="avares://KonkordLauncher/Assets/Images/logo.png" />
                                                         <!--  Description  -->
                                                         <TextBlock
                                                             Grid.Row="1"
@@ -1296,29 +1410,37 @@
                                                         <Border Grid.Row="4" Classes="BreakLine" />
                                                         <!--  Version  -->
                                                         <WrapPanel Grid.Row="5" Classes="AboutVersionWrapper">
-                                                            <TextBlock Classes="CreditText" Text="{lang:Translate about.version}" />
-                                                            <TextBlock Classes="CreditText" Text="{Binding About.Version}" />
+                                                            <TextBlock Classes="CreditText"
+                                                                       Text="{lang:Translate about.version}" />
+                                                            <TextBlock Classes="CreditText"
+                                                                       Text="{Binding About.Version}" />
                                                         </WrapPanel>
                                                         <!--  Build Date  -->
                                                         <WrapPanel Grid.Row="6" Classes="AboutVersionWrapper">
-                                                            <TextBlock Classes="CreditText" Text="{lang:Translate about.buildDate}" />
-                                                            <TextBlock Classes="CreditText" Text="{Binding About.BuildDate}" />
+                                                            <TextBlock Classes="CreditText"
+                                                                       Text="{lang:Translate about.buildDate}" />
+                                                            <TextBlock Classes="CreditText"
+                                                                       Text="{Binding About.BuildDate}" />
                                                         </WrapPanel>
                                                         <!--  Branch  -->
                                                         <WrapPanel Grid.Row="7" Classes="AboutVersionWrapper">
-                                                            <TextBlock Classes="CreditText" Text="{lang:Translate about.branch}" />
-                                                            <TextBlock Classes="CreditText" Text="{Binding About.Branch}" />
+                                                            <TextBlock Classes="CreditText"
+                                                                       Text="{lang:Translate about.branch}" />
+                                                            <TextBlock Classes="CreditText"
+                                                                       Text="{Binding About.Branch}" />
                                                         </WrapPanel>
                                                     </Grid>
                                                 </ScrollViewer>
 
                                                 <!--  Credits  -->
                                                 <ScrollViewer>
-                                                    <Grid Classes="AboutWrapper" RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto">
+                                                    <Grid Classes="AboutWrapper"
+                                                          RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto">
                                                         <!--  Project Maintainers  -->
                                                         <WrapPanel Classes="CreditWrapper">
                                                             <!--  Subtitle  -->
-                                                            <TextBlock Classes="AboutCategory" Text="{lang:Translate about.credits.projectMaintainers}" />
+                                                            <TextBlock Classes="AboutCategory"
+                                                                       Text="{lang:Translate about.credits.projectMaintainers}" />
                                                             <TextBlock Classes="CreditText">
                                                                 Tavstal
                                                             </TextBlock>
@@ -1328,7 +1450,8 @@
                                                         <!--  Contributors  -->
                                                         <WrapPanel Grid.Row="2" Classes="CreditWrapper">
                                                             <!--  Subtitle  -->
-                                                            <TextBlock Classes="AboutCategory" Text="{lang:Translate about.credits.contributors}" />
+                                                            <TextBlock Classes="AboutCategory"
+                                                                       Text="{lang:Translate about.credits.contributors}" />
                                                             <TextBlock Classes="CreditText">
                                                                 -
                                                             </TextBlock>
@@ -1341,7 +1464,8 @@
                                                         <!--  Special Thanks  -->
                                                         <WrapPanel Grid.Row="4" Classes="CreditWrapper">
                                                             <!--  Subtitle  -->
-                                                            <TextBlock Classes="AboutCategory" Text="{lang:Translate about.credits.specialThanks}" />
+                                                            <TextBlock Classes="AboutCategory"
+                                                                       Text="{lang:Translate about.credits.specialThanks}" />
                                                             <TextBlock Classes="CreditText">
                                                                 -
                                                             </TextBlock>
@@ -1354,7 +1478,8 @@
                                                         <!--  Third-Party  -->
                                                         <WrapPanel Grid.Row="6" Classes="CreditWrapper">
                                                             <!--  Subtitle  -->
-                                                            <TextBlock Classes="AboutCategory" Text="{lang:Translate about.credits.thirdParty}" />
+                                                            <TextBlock Classes="AboutCategory"
+                                                                       Text="{lang:Translate about.credits.thirdParty}" />
                                                             <!--  AvaloniaUI  -->
                                                             <TextBlock Classes="CreditText">
                                                                 AvaloniaUI: Cross-platform UI framework.
@@ -1422,7 +1547,8 @@
                                         RowDefinitions="Auto, *"
                                         RowSpacing="10">
                                         <!--  Title  -->
-                                        <TextBlock Classes="MainContentTitle" Text="{lang:Translate main.page.skins.title}" />
+                                        <TextBlock Classes="MainContentTitle"
+                                                   Text="{lang:Translate main.page.skins.title}" />
                                         <!--  Content  -->
                                         <Grid
                                             Grid.Row="1"
@@ -1437,10 +1563,12 @@
                                                     CornerRadius="14">
                                                     <StackPanel Spacing="10">
                                                         <!--  Title  -->
-                                                        <TextBlock Classes="Muted" Text="{lang:Translate main.page.skins.preview}" />
+                                                        <TextBlock Classes="Muted"
+                                                                   Text="{lang:Translate main.page.skins.preview}" />
                                                         <!--  Options  -->
                                                         <Viewbox MaxHeight="280" Classes="SkinViewBox">
-                                                            <Image Classes="SkinPreview" Source="{Binding Accounts.AccountSkinPreview.Value}" />
+                                                            <Image Classes="SkinPreview"
+                                                                   Source="{Binding Accounts.AccountSkinPreview.Value}" />
                                                         </Viewbox>
                                                     </StackPanel>
                                                 </Border>
@@ -1451,7 +1579,8 @@
                                                     CornerRadius="14">
                                                     <StackPanel Spacing="10">
                                                         <!--  Title  -->
-                                                        <TextBlock Classes="Muted" Text="{lang:Translate main.page.skins.model.label}" />
+                                                        <TextBlock Classes="Muted"
+                                                                   Text="{lang:Translate main.page.skins.model.label}" />
                                                         <!--  Options  -->
                                                         <Grid ColumnDefinitions="*, *" ColumnSpacing="10">
                                                             <!--  Wide Model  -->
@@ -1461,7 +1590,8 @@
                                                                 Command="{Binding Accounts.ModelSelectCommand}"
                                                                 CommandParameter="classic"
                                                                 IsEnabled="{Binding !Accounts.IsAccountSkinProcessing}">
-                                                                <TextBlock Foreground="{DynamicResource base-content}" Text="{lang:Translate main.page.skins.model.wide}" />
+                                                                <TextBlock Foreground="{DynamicResource base-content}"
+                                                                           Text="{lang:Translate main.page.skins.model.wide}" />
                                                             </Button>
                                                             <!--  Slim Model  -->
                                                             <Button
@@ -1471,7 +1601,8 @@
                                                                 Command="{Binding Accounts.ModelSelectCommand}"
                                                                 CommandParameter="slim"
                                                                 IsEnabled="{Binding !Accounts.IsAccountSkinProcessing}">
-                                                                <TextBlock Foreground="{DynamicResource base-content}" Text="{lang:Translate main.page.skins.model.slim}" />
+                                                                <TextBlock Foreground="{DynamicResource base-content}"
+                                                                           Text="{lang:Translate main.page.skins.model.slim}" />
                                                             </Button>
                                                         </Grid>
                                                     </StackPanel>
@@ -1488,7 +1619,8 @@
                                                         <StackPanel Spacing="10">
                                                             <!--  Title  -->
                                                             <Grid ColumnDefinitions="*, Auto">
-                                                                <TextBlock Classes="Muted" Text="{lang:Translate main.page.skins.skins}" />
+                                                                <TextBlock Classes="Muted"
+                                                                           Text="{lang:Translate main.page.skins.skins}" />
                                                                 <!--  Upload Button  -->
                                                                 <Button
                                                                     Grid.Column="1"
@@ -1515,9 +1647,11 @@
                                                         CornerRadius="14">
                                                         <StackPanel Spacing="10">
                                                             <!--  Title  -->
-                                                            <TextBlock Classes="Muted" Text="{lang:Translate main.page.skins.capes}" />
+                                                            <TextBlock Classes="Muted"
+                                                                       Text="{lang:Translate main.page.skins.capes}" />
                                                             <!--  Options  -->
-                                                            <ItemsControl HorizontalAlignment="Center" ItemsSource="{Binding Accounts.Capes}">
+                                                            <ItemsControl HorizontalAlignment="Center"
+                                                                          ItemsSource="{Binding Accounts.Capes}">
                                                                 <ItemsControl.ItemsPanel>
                                                                     <ItemsPanelTemplate>
                                                                         <WrapPanel

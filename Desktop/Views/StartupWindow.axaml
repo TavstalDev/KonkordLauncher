@@ -31,7 +31,7 @@
         PointerPressed="DragStart_PointerPressed">
         <Grid RowDefinitions="Auto, *">
             <!--  Window Controls  -->
-            <templates:CustomTitleBar/>
+            <templates:CustomTitleBar />
             <!--  Main Content  -->
             <Border
                 Grid.Row="1"

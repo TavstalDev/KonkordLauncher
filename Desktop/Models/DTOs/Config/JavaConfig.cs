@@ -1,45 +1,14 @@
-
 using System.Text.Json.Serialization;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.DTOs.Config;
 
 /// <summary>
-/// Represents the configuration for Java settings, including memory allocation, Java path, and JVM arguments.
+///     Represents the configuration for Java settings, including memory allocation, Java path, and JVM arguments.
 /// </summary>
 public class JavaConfig
 {
     /// <summary>
-    /// Gets or sets the minimum memory allocation for the Java process, in megabytes.
-    /// </summary>
-    [JsonPropertyName("minMemory")]
-    public uint MinMemory { get; set; }
-
-    /// <summary>
-    /// Gets or sets the maximum memory allocation for the Java process, in megabytes.
-    /// </summary>
-    [JsonPropertyName("maxMemory")]
-    public uint MaxMemory { get; set; }
-
-    /// <summary>
-    /// Gets or sets the size of the permanent generation (PermGen) memory, in megabytes.
-    /// </summary>
-    [JsonPropertyName("permaGen")]
-    public uint PermaGen { get; set; }
-
-    /// <summary>
-    /// Gets or sets the file system path to the Java executable.
-    /// </summary>
-    [JsonPropertyName("javaPath")]
-    public string JavaPath { get; set; }
-
-    /// <summary>
-    /// Gets or sets the additional JVM arguments to be passed to the Java process.
-    /// </summary>
-    [JsonPropertyName("jvmArguments")]
-    public string JvmArguments { get; set; }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="JavaConfig"/> class with default values.
+    ///     Initializes a new instance of the <see cref="JavaConfig" /> class with default values.
     /// </summary>
     public JavaConfig()
     {
@@ -51,7 +20,7 @@ public class JavaConfig
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="JavaConfig"/> class with specified values.
+    ///     Initializes a new instance of the <see cref="JavaConfig" /> class with specified values.
     /// </summary>
     /// <param name="minMemory">The minimum memory allocation for the Java process, in megabytes.</param>
     /// <param name="maxMemory">The maximum memory allocation for the Java process, in megabytes.</param>
@@ -66,4 +35,34 @@ public class JavaConfig
         JavaPath = defaultJavaPath;
         JvmArguments = jvmArguments;
     }
+
+    /// <summary>
+    ///     Gets or sets the minimum memory allocation for the Java process, in megabytes.
+    /// </summary>
+    [JsonPropertyName("minMemory")]
+    public uint MinMemory { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the maximum memory allocation for the Java process, in megabytes.
+    /// </summary>
+    [JsonPropertyName("maxMemory")]
+    public uint MaxMemory { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the size of the permanent generation (PermGen) memory, in megabytes.
+    /// </summary>
+    [JsonPropertyName("permaGen")]
+    public uint PermaGen { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the file system path to the Java executable.
+    /// </summary>
+    [JsonPropertyName("javaPath")]
+    public string JavaPath { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the additional JVM arguments to be passed to the Java process.
+    /// </summary>
+    [JsonPropertyName("jvmArguments")]
+    public string JvmArguments { get; set; }
 }

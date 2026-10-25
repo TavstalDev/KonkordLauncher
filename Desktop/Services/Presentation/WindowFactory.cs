@@ -70,7 +70,8 @@ public class WindowFactory : IWindowFactory
 
         return new EditInstanceWindow(viewModel,
             _services.GetRequiredService<IBeaconLogger<EditInstanceWindow>>(),
-            _services.GetRequiredService<IEventService>(), this, _services.GetRequiredService<IDiscordPresenceService>());
+            _services.GetRequiredService<IEventService>(), this,
+            _services.GetRequiredService<IDiscordPresenceService>());
     }
 
     public InstanceLogsWindow CreateInstanceLogsWindow(string instanceId)

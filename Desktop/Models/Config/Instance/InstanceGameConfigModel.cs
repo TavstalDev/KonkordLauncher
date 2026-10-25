@@ -3,66 +3,12 @@ using CommunityToolkit.Mvvm.ComponentModel;
 namespace Tavstal.KonkordLauncher.Desktop.Models.Config.Instance;
 
 /// <summary>
-/// Represents the configuration model for game-specific settings of a Minecraft instance.
+///     Represents the configuration model for game-specific settings of a Minecraft instance.
 /// </summary>
 public partial class InstanceGameConfigModel : ObservableObject
 {
     /// <summary>
-    /// Gets or sets a value indicating whether the game should start maximized.
-    /// </summary>
-    [ObservableProperty]
-    public partial bool StartMaximized { get; set; }
-
-    /// <summary>
-    /// Gets or sets the width of the game window.
-    /// </summary>
-    [ObservableProperty]
-    public partial uint WindowWidth { get; set; }
-
-    /// <summary>
-    /// Gets or sets the height of the game window.
-    /// </summary>
-    [ObservableProperty]
-    public partial uint WindowHeight { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the console should be shown while the game is running.
-    /// </summary>
-    [ObservableProperty]
-    public partial bool ShowConsoleWhileGameRunning { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the console should close automatically when the game exits.
-    /// </summary>
-    [ObservableProperty]
-    public partial bool CloseConsoleOnGameExit { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the console should be shown when the game crashes.
-    /// </summary>
-    [ObservableProperty]
-    public partial bool ShowConsoleWhenGameCrashes { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether MangoHud should be enabled.
-    /// </summary>
-    [ObservableProperty]
-    public partial bool EnableMangoHud { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether Feral GameMode should be enabled.
-    /// </summary>
-    [ObservableProperty]
-    public partial bool EnableFeralGameMode { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether a dedicated GPU should be used.
-    /// </summary>
-    [ObservableProperty]
-    public partial bool UseDedicatedGpu { get; set; }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="InstanceGameConfigModel"/> class with default values.
+    ///     Initializes a new instance of the <see cref="InstanceGameConfigModel" /> class with default values.
     /// </summary>
     public InstanceGameConfigModel()
     {
@@ -78,7 +24,7 @@ public partial class InstanceGameConfigModel : ObservableObject
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="InstanceGameConfigModel"/> class with specified values.
+    ///     Initializes a new instance of the <see cref="InstanceGameConfigModel" /> class with specified values.
     /// </summary>
     /// <param name="startMaximized">Whether the game should start maximized.</param>
     /// <param name="windowWidth">The width of the game window.</param>
@@ -89,7 +35,9 @@ public partial class InstanceGameConfigModel : ObservableObject
     /// <param name="enableMangoHud">Whether MangoHud should be enabled.</param>
     /// <param name="enableFeralGameMode">Whether Feral GameMode should be enabled.</param>
     /// <param name="useDedicatedGpu">Whether a dedicated GPU should be used.</param>
-    public InstanceGameConfigModel(bool startMaximized, uint windowWidth, uint windowHeight, bool showConsoleWhileGameRunning, bool closeConsoleOnGameExit, bool showConsoleWhenGameCrashes, bool enableMangoHud, bool enableFeralGameMode, bool useDedicatedGpu)
+    public InstanceGameConfigModel(bool startMaximized, uint windowWidth, uint windowHeight,
+        bool showConsoleWhileGameRunning, bool closeConsoleOnGameExit, bool showConsoleWhenGameCrashes,
+        bool enableMangoHud, bool enableFeralGameMode, bool useDedicatedGpu)
     {
         StartMaximized = startMaximized;
         WindowWidth = windowWidth;
@@ -101,4 +49,58 @@ public partial class InstanceGameConfigModel : ObservableObject
         EnableFeralGameMode = enableFeralGameMode;
         UseDedicatedGpu = useDedicatedGpu;
     }
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether the game should start maximized.
+    /// </summary>
+    [ObservableProperty]
+    public partial bool StartMaximized { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the width of the game window.
+    /// </summary>
+    [ObservableProperty]
+    public partial uint WindowWidth { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the height of the game window.
+    /// </summary>
+    [ObservableProperty]
+    public partial uint WindowHeight { get; set; }
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether the console should be shown while the game is running.
+    /// </summary>
+    [ObservableProperty]
+    public partial bool ShowConsoleWhileGameRunning { get; set; }
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether the console should close automatically when the game exits.
+    /// </summary>
+    [ObservableProperty]
+    public partial bool CloseConsoleOnGameExit { get; set; }
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether the console should be shown when the game crashes.
+    /// </summary>
+    [ObservableProperty]
+    public partial bool ShowConsoleWhenGameCrashes { get; set; }
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether MangoHud should be enabled.
+    /// </summary>
+    [ObservableProperty]
+    public partial bool EnableMangoHud { get; set; }
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether Feral GameMode should be enabled.
+    /// </summary>
+    [ObservableProperty]
+    public partial bool EnableFeralGameMode { get; set; }
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether a dedicated GPU should be used.
+    /// </summary>
+    [ObservableProperty]
+    public partial bool UseDedicatedGpu { get; set; }
 }

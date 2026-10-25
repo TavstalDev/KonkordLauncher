@@ -5,8 +5,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Linq;
 using System.Reactive.Concurrency;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -36,123 +36,30 @@ using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.CreateInstance;
 
 /// <summary>
-/// Partial view-model that encapsulates the "Custom" tab logic for creating an instance in the UI.
+///     Partial view-model that encapsulates the "Custom" tab logic for creating an instance in the UI.
 /// </summary>
 public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
 {
-    private readonly IBeaconLogger _logger = null!;
-    private readonly ITranslationService _translationService = null!;
-    private readonly ILauncherStore _launcherStore = null!;
     private readonly IBitmapService _bitmapService = null!;
-    private readonly IManifestService _manifestService = null!;
     private readonly IEventService _eventService = null!;
+    private readonly ILauncherStore _launcherStore = null!;
+    private readonly IBeaconLogger _logger = null!;
+    private readonly IManifestService _manifestService = null!;
     private readonly CreateInstanceViewModel _parent;
     private readonly IScreenService _screenService = null!;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))]
-    public partial string InstanceName { get; set; } = string.Empty;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))]
-    public partial string InstanceGroup { get; set; } = string.Empty;
-
-    [ObservableProperty]
-    public partial string? InstanceIconPath { get; set; }
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))]
-    public partial BitmapEntry InstanceIcon { get; set; }
-
-    /// <summary>
-    /// Gets a value indicating whether a custom instance can be created.
-    /// Returns true if all required fields (instance name, icon, selected Minecraft version,
-    /// and, if applicable, selected mod loader) are set; otherwise, false.
-    /// </summary>
-    public bool CanCreateCustomInstance
-    {
-        get
-        {
-            if (string.IsNullOrEmpty(InstanceName))
-                return false;
-
-            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-            if (SelectedMinecraftVersion == null)
-                return false;
-
-            if (ModLoaderType != EMinecraftKind.VANILLA && SelectedModLoader == null)
-                return false;
-
-            return true;
-        }
-    }
-
-
-    #region Vanilla
-    private readonly SourceCache<MinecraftVersion, string> _minecraftVersionCache = new(x => x.Id);
-    public ReadOnlyObservableCollection<MinecraftVersion> MinecraftVersions { get; private set; } = null!;
-    [ObservableProperty]
-    public partial string SearchQuery { get; set; } = string.Empty;
-
-    [ObservableProperty]
-    public partial bool ShowReleases { get; set; } = true;
-
-    [ObservableProperty]
-    public partial bool ShowSnapshots { get; set; }
-
-    [ObservableProperty]
-    public partial bool ShowAlphas { get; set; }
-
-    [ObservableProperty]
-    public partial bool ShowBetas { get; set; }
-
-    [ObservableProperty]
-    public partial bool ShowExperiments { get; set; }
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))]
-    public partial MinecraftVersion? SelectedMinecraftVersion { get; set; }
-    #endregion
-    #region  Mod Loader
-    [ObservableProperty]
-    public partial string ModLoaderSearchQuery { get; set; } = string.Empty;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))]
-    public partial EMinecraftKind ModLoaderType { get; set; } = EMinecraftKind.VANILLA;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))]
-    public partial IModManifest? SelectedModLoader { get; set; }
-
-    private readonly SourceCache<IModManifest, string> _modLoaderVersionCache = new(x => $"{x.LoaderKind}:{x.GameVersion}:{x.Version}");
-    public ReadOnlyObservableCollection<IModManifest> ModLoaderVersionResult { get; private set; } = new([]);
-
-    private static readonly IComparer<IModManifest> ModVersionComparer =
-        Comparer<IModManifest>.Create((x, y) =>
-        {
-            // Descending sort: compare y to x instead of x to y
-            return Parse(y.Version).CompareTo(Parse(x.Version));
-
-            Version Parse(string v) {
-                if (string.IsNullOrEmpty(v)) return new Version(0, 0, 0);
-                // Split once for both '+' and '-' metadata
-                var clean = v.Split(['+', '-'], StringSplitOptions.RemoveEmptyEntries)[0];
-                return Version.TryParse(clean, out var parsed) ? parsed : new Version(0, 0, 0);
-            }
-        });
-
-    #endregion
+    private readonly ITranslationService _translationService = null!;
 
     public CreateInstanceViewModel_Custom()
     {
         _parent = null!;
         _screenService = null!;
-        MinecraftVersions = new ReadOnlyObservableCollection<MinecraftVersion>(new ObservableCollection<MinecraftVersion>());
+        MinecraftVersions =
+            new ReadOnlyObservableCollection<MinecraftVersion>(new ObservableCollection<MinecraftVersion>());
         InstanceIcon = ImageHelper.LoadDesignTime("avares://KonkordLauncher/Assets/Icons/dirt.png");
     }
 
-    public CreateInstanceViewModel_Custom(CreateInstanceViewModel parent, IScreenService screenService, ILauncherStore launcherStore, ITranslationService translationService,
+    public CreateInstanceViewModel_Custom(CreateInstanceViewModel parent, IScreenService screenService,
+        ILauncherStore launcherStore, ITranslationService translationService,
         IManifestService manifestService, IBitmapService bitmapService, IEventService eventService)
     {
         _parent = parent;
@@ -172,8 +79,45 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
         _eventService = eventService;
     }
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))]
+    public partial string InstanceName { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))]
+    public partial string InstanceGroup { get; set; } = string.Empty;
+
+    [ObservableProperty] public partial string? InstanceIconPath { get; set; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))]
+    public partial BitmapEntry InstanceIcon { get; set; }
+
     /// <summary>
-    /// Releases resources used by this view-model and resets transient state.
+    ///     Gets a value indicating whether a custom instance can be created.
+    ///     Returns true if all required fields (instance name, icon, selected Minecraft version,
+    ///     and, if applicable, selected mod loader) are set; otherwise, false.
+    /// </summary>
+    public bool CanCreateCustomInstance
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(InstanceName))
+                return false;
+
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+            if (SelectedMinecraftVersion == null)
+                return false;
+
+            if (ModLoaderType != EMinecraftKind.VANILLA && SelectedModLoader == null)
+                return false;
+
+            return true;
+        }
+    }
+
+    /// <summary>
+    ///     Releases resources used by this view-model and resets transient state.
     /// </summary>
     /// <param name="disposing">True when called from user code / IDisposable.Dispose; false when called from a finalizer.</param>
     protected override void Dispose(bool disposing)
@@ -195,10 +139,11 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
     }
 
     /// <summary>
-    /// Sets up the reactive DynamicData pipelines used to provide filtered, sorted, and UI-bound collections
-    /// for the UI.
+    ///     Sets up the reactive DynamicData pipelines used to provide filtered, sorted, and UI-bound collections
+    ///     for the UI.
     /// </summary>
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    [RequiresUnreferencedCode(
+        "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public void SetupPipeline()
     {
         #region Minecraft Version
@@ -222,10 +167,10 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
 
                 return (Func<MinecraftVersion, bool>)(x =>
                         (string.IsNullOrWhiteSpace(query) || x.Id.StartsWith(query)) &&
-                        (x.Type != "release"    || showReleases) &&
-                        (x.Type != "snapshot"   || showSnapshots) &&
-                        (x.Type != "old_alpha"  || showAlphas) &&
-                        (x.Type != "old_beta"   || showBetas) &&
+                        (x.Type != "release" || showReleases) &&
+                        (x.Type != "snapshot" || showSnapshots) &&
+                        (x.Type != "old_alpha" || showAlphas) &&
+                        (x.Type != "old_beta" || showBetas) &&
                         (x.Type != "experiment" || showExperiments)
                     );
             });
@@ -235,10 +180,11 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
                 .Connect()
                 .Filter(filter)
                 .ObserveOnMainThread()
-                .SortAndBind(out var filteredCollection, SortExpressionComparer<MinecraftVersion>.Descending(x => x.ReleaseTime))
+                .SortAndBind(out var filteredCollection,
+                    SortExpressionComparer<MinecraftVersion>.Descending(x => x.ReleaseTime))
                 .Subscribe(
                     _ => { },
-                    ex => _logger.LogError(ex, $"Version pipeline crashed:")
+                    ex => _logger.LogError(ex, "Version pipeline crashed:")
                 );
 
         Disposables.Add(bindingSubscription);
@@ -288,7 +234,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
             .SortAndBind(out var filteredModLoaders, ModVersionComparer)
             .Subscribe(
                 _ => { },
-                ex => _logger.LogError(ex, $"ModLoader pipeline crashed:")
+                ex => _logger.LogError(ex, "ModLoader pipeline crashed:")
             );
 
         Disposables.Add(modLoaderSubscription);
@@ -298,18 +244,34 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
     }
 
     /// <summary>
-    /// Initializes the view-model's version and modloader data caches and sets default UI state (icon and selected version).
+    ///     Initializes the view-model's version and modloader data caches and sets default UI state (icon and selected
+    ///     version).
     /// </summary>
-    /// <param name="settings">The application's <see cref="CoreConfig"/> containing launcher paths (used to locate manifests).</param>
-    /// <param name="versionManifest">The already-loaded <see cref="VersionManifest"/> (vanilla Minecraft versions) to populate the vanilla versions cache.</param>
-    /// <param name="cancellationToken">Optional <see cref="CancellationToken"/> used to cancel asynchronous IO operations started by this method.</param>
-    /// <returns>A <see cref="Task"/> that completes when initialization has finished.</returns>
-    public async Task InitAsync(CoreConfig settings, VersionManifest versionManifest,  CancellationToken cancellationToken = default)
+    /// <param name="settings">
+    ///     The application's <see cref="CoreConfig" /> containing launcher paths (used to locate
+    ///     manifests).
+    /// </param>
+    /// <param name="versionManifest">
+    ///     The already-loaded <see cref="VersionManifest" /> (vanilla Minecraft versions) to
+    ///     populate the vanilla versions cache.
+    /// </param>
+    /// <param name="cancellationToken">
+    ///     Optional <see cref="CancellationToken" /> used to cancel asynchronous IO operations
+    ///     started by this method.
+    /// </param>
+    /// <returns>A <see cref="Task" /> that completes when initialization has finished.</returns>
+    public async Task InitAsync(CoreConfig settings, VersionManifest versionManifest,
+        CancellationToken cancellationToken = default)
     {
-        List<IModManifest>? fabricManifestCache = await _manifestService.GetFabricManifestAsync(settings.Launcher.GetFabricManifestPath(), cancellationToken);
-        List<IModManifest>? forgeManifestCache = await _manifestService.GetForgeManifestAsync(settings.Launcher.GetForgeManifestPath(), cancellationToken);
-        List<IModManifest>? neoForgeManifestCache = await _manifestService.GetNeoForgeManifestAsync(settings.Launcher.GetNeoForgeManifestPath(), cancellationToken);
-        List<IModManifest>? quiltManifestCache = await _manifestService.GetQuiltManifestAsync(settings.Launcher.GetQuiltManifestPath(), cancellationToken);
+        var fabricManifestCache =
+            await _manifestService.GetFabricManifestAsync(settings.Launcher.GetFabricManifestPath(), cancellationToken);
+        var forgeManifestCache =
+            await _manifestService.GetForgeManifestAsync(settings.Launcher.GetForgeManifestPath(), cancellationToken);
+        var neoForgeManifestCache =
+            await _manifestService.GetNeoForgeManifestAsync(settings.Launcher.GetNeoForgeManifestPath(),
+                cancellationToken);
+        var quiltManifestCache =
+            await _manifestService.GetQuiltManifestAsync(settings.Launcher.GetQuiltManifestPath(), cancellationToken);
 
         _minecraftVersionCache.Edit(innerCache =>
         {
@@ -347,11 +309,69 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
         SelectedMinecraftVersion = MinecraftVersions.FirstOrDefault(v => v.Type == "release");
     }
 
+
+    #region Vanilla
+
+    private readonly SourceCache<MinecraftVersion, string> _minecraftVersionCache = new(x => x.Id);
+    public ReadOnlyObservableCollection<MinecraftVersion> MinecraftVersions { get; private set; } = null!;
+
+    [ObservableProperty] public partial string SearchQuery { get; set; } = string.Empty;
+
+    [ObservableProperty] public partial bool ShowReleases { get; set; } = true;
+
+    [ObservableProperty] public partial bool ShowSnapshots { get; set; }
+
+    [ObservableProperty] public partial bool ShowAlphas { get; set; }
+
+    [ObservableProperty] public partial bool ShowBetas { get; set; }
+
+    [ObservableProperty] public partial bool ShowExperiments { get; set; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))]
+    public partial MinecraftVersion? SelectedMinecraftVersion { get; set; }
+
+    #endregion
+
+    #region Mod Loader
+
+    [ObservableProperty] public partial string ModLoaderSearchQuery { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))]
+    public partial EMinecraftKind ModLoaderType { get; set; } = EMinecraftKind.VANILLA;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))]
+    public partial IModManifest? SelectedModLoader { get; set; }
+
+    private readonly SourceCache<IModManifest, string> _modLoaderVersionCache =
+        new(x => $"{x.LoaderKind}:{x.GameVersion}:{x.Version}");
+
+    public ReadOnlyObservableCollection<IModManifest> ModLoaderVersionResult { get; private set; } = new([]);
+
+    private static readonly IComparer<IModManifest> ModVersionComparer =
+        Comparer<IModManifest>.Create((x, y) =>
+        {
+            // Descending sort: compare y to x instead of x to y
+            return Parse(y.Version).CompareTo(Parse(x.Version));
+
+            Version Parse(string v)
+            {
+                if (string.IsNullOrEmpty(v)) return new Version(0, 0, 0);
+                // Split once for both '+' and '-' metadata
+                var clean = v.Split(['+', '-'], StringSplitOptions.RemoveEmptyEntries)[0];
+                return Version.TryParse(clean, out var parsed) ? parsed : new Version(0, 0, 0);
+            }
+        });
+
+    #endregion
+
     #region Commands
 
     /// <summary>
-    /// Opens a window to select a custom icon for the instance.
-    /// If an icon is selected, it updates the instance's icon and its path.
+    ///     Opens a window to select a custom icon for the instance.
+    ///     If an icon is selected, it updates the instance's icon and its path.
     /// </summary>
     [RelayCommand]
     private async Task CustomIconSelectorAsync()
@@ -369,11 +389,12 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
         {
             InstanceIcon = await _bitmapService.GetBitmapAsync("avares://KonkordLauncher/Assets/Icons/dirt.png");
         }
+
         InstanceIconPath = result;
     }
 
     /// <summary>
-    /// Sets the mod loader type for the custom instance creation process.
+    ///     Sets the mod loader type for the custom instance creation process.
     /// </summary>
     /// <param name="modLoaderType">The type of mod loader to set.</param>
     [RelayCommand]
@@ -383,8 +404,8 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
     }
 
     /// <summary>
-    /// Creates a new custom instance with the specified settings and adds it to the list of instances.
-    /// Displays an error message if an instance with the same name already exists.
+    ///     Creates a new custom instance with the specified settings and adds it to the list of instances.
+    ///     Displays an error message if an instance with the same name already exists.
     /// </summary>
     [RelayCommand]
     private async Task CustomCreateAsync()
@@ -396,7 +417,8 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
         var instances = await _launcherStore.GetInstancesAsync();
         if (instances.Any(x => x.Name == InstanceName))
         {
-            await _parent.ShowAlertDialogInteraction.Handle(new Alert(_translationService.Translate("instance.duplicate.title"),
+            await _parent.ShowAlertDialogInteraction.Handle(new Alert(
+                _translationService.Translate("instance.duplicate.title"),
                 _translationService.Translate("instance.duplicate.message"),
                 EAlertType.Error));
             return;
@@ -427,16 +449,19 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
                 },
                 Java = new JavaConfig
                 {
-                    JvmArguments = string.IsNullOrEmpty(settings.Java.JvmArguments) ? Instance.GetDefaultJVMArgs() : settings.Java.JvmArguments,
+                    JvmArguments =
+                        string.IsNullOrEmpty(settings.Java.JvmArguments)
+                            ? Instance.GetDefaultJVMArgs()
+                            : settings.Java.JvmArguments,
                     JavaPath = string.Empty,
                     MinMemory = settings.Java.MinMemory,
                     MaxMemory = settings.Java.MaxMemory,
-                    PermaGen = settings.Java.PermaGen,
+                    PermaGen = settings.Java.PermaGen
                 },
                 Commands = new InstanceCommandsConfig(),
                 EnableEnvironment = false,
                 Environment = [],
-                Misc =new InstanceMiscConfig()
+                Misc = new InstanceMiscConfig()
             }
         });
         await _launcherStore.SaveInstancesAsync(instances);
@@ -445,7 +470,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
     }
 
     /// <summary>
-    /// Cancels the custom instance creation process and closes the parent window.
+    ///     Cancels the custom instance creation process and closes the parent window.
     /// </summary>
     [RelayCommand]
     private async Task CustomCancelCreate()

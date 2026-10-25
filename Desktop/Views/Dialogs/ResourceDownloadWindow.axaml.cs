@@ -13,8 +13,8 @@ using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 /// <summary>
-/// Represents the dialog window used to browse and download resources (for example, mods)
-/// for a specific launcher instance.
+///     Represents the dialog window used to browse and download resources (for example, mods)
+///     for a specific launcher instance.
 /// </summary>
 public partial class ResourceDownloadWindow : KonkordWindow<ResourceDownloadViewModel>
 {
@@ -23,7 +23,8 @@ public partial class ResourceDownloadWindow : KonkordWindow<ResourceDownloadView
         InitializeComponent();
     }
 
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    [RequiresUnreferencedCode(
+        "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public ResourceDownloadWindow(ResourceDownloadViewModel viewModel)
     {
         InitializeComponent();
@@ -46,7 +47,7 @@ public partial class ResourceDownloadWindow : KonkordWindow<ResourceDownloadView
     }
 
     /// <summary>
-    /// Handles filter selection changes and refreshes the resource list from the first page.
+    ///     Handles filter selection changes and refreshes the resource list from the first page.
     /// </summary>
     private void Filter_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
@@ -60,7 +61,7 @@ public partial class ResourceDownloadWindow : KonkordWindow<ResourceDownloadView
     }
 
     /// <summary>
-    /// Handles category checkbox state changes and refreshes the resource list from the first page.
+    ///     Handles category checkbox state changes and refreshes the resource list from the first page.
     /// </summary>
     private void Category_OnIsCheckedChanged(object? sender, RoutedEventArgs e)
     {
@@ -74,7 +75,7 @@ public partial class ResourceDownloadWindow : KonkordWindow<ResourceDownloadView
     }
 
     /// <summary>
-    /// Handles scroll changes and triggers incremental loading when the user reaches the bottom.
+    ///     Handles scroll changes and triggers incremental loading when the user reaches the bottom.
     /// </summary>
     private void ScrollViewer_OnScrollChanged(object? sender, ScrollChangedEventArgs e)
     {
@@ -86,8 +87,8 @@ public partial class ResourceDownloadWindow : KonkordWindow<ResourceDownloadView
 
         if (sender is ScrollViewer scrollViewer)
         {
-            double verticalOffset = scrollViewer.Offset.Y;
-            double maxVerticalOffset = scrollViewer.Extent.Height - scrollViewer.Viewport.Height;
+            var verticalOffset = scrollViewer.Offset.Y;
+            var maxVerticalOffset = scrollViewer.Extent.Height - scrollViewer.Viewport.Height;
 
             if (maxVerticalOffset < 0 || Math.Abs(verticalOffset - maxVerticalOffset) < 0.1)
                 Dispatcher.UIThread.Invoke(async () => await viewModel.RefreshResourcesAsync());

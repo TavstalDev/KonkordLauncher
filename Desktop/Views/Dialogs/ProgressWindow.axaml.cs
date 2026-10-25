@@ -16,8 +16,9 @@ using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 /// <summary>
-/// Represents the installation window in the application, which implements the <see cref="IProgressReporter"/> interface
-/// to report progress and status updates during installation.
+///     Represents the installation window in the application, which implements the <see cref="IProgressReporter" />
+///     interface
+///     to report progress and status updates during installation.
 /// </summary>
 public partial class ProgressWindow : KonkordWindow<ProgressViewModel>, IKonkordProgress
 {
@@ -30,7 +31,8 @@ public partial class ProgressWindow : KonkordWindow<ProgressViewModel>, IKonkord
             DataContext = new ProgressViewModel();
     }
 
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    [RequiresUnreferencedCode(
+        "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public ProgressWindow(ITranslationService translationService, CancellationTokenSource? cancellationTokenSource)
     {
         InitializeComponent();
@@ -52,7 +54,7 @@ public partial class ProgressWindow : KonkordWindow<ProgressViewModel>, IKonkord
         });
     }
 
-    #region  IProgressReporter Implementation
+    #region IProgressReporter Implementation
 
     public void Report(double progress)
     {
@@ -82,7 +84,8 @@ public partial class ProgressWindow : KonkordWindow<ProgressViewModel>, IKonkord
             if (DataContext == null)
                 return;
             DataContext.ProgressValue = progress;
-            DataContext.ProgressText = _translationService.Translate(TranslationHelper.GetProgressKey(kind), progress.ToString("0.00"));
+            DataContext.ProgressText =
+                _translationService.Translate(TranslationHelper.GetProgressKey(kind), progress.ToString("0.00"));
         });
     }
 

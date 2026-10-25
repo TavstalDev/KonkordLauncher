@@ -22,6 +22,7 @@ public interface IWindowFactory
     ExportWindow CreateExportWindow(Instance instance, EInstanceProvider provider);
     InstanceVersionSelectorWindow CreateInstanceVersionSelectorWindow(Instance instance);
     ResourceDownloadWindow CreateResourceDownloadWindow(Instance instance, EResourceType resourceType);
+
     ResourceReviewWindow CreateResourceReviewWindow(Instance instance, EResourceType resourceType,
         List<ResourceDownloadModel> resources);
 }

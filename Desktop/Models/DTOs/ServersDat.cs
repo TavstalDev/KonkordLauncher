@@ -7,15 +7,8 @@ namespace Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 public class ServersDat
 {
     /// <summary>
-    /// Gets or sets the list of Minecraft servers.
-    /// </summary>
-    [NbtProperty(PropertyName="servers")]
-    [JsonPropertyName("servers")]
-    public List<MinecraftServer> Servers { get; set; }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ServersDat"/> class
-    /// with an empty list of servers.
+    ///     Initializes a new instance of the <see cref="ServersDat" /> class
+    ///     with an empty list of servers.
     /// </summary>
     public ServersDat()
     {
@@ -23,12 +16,19 @@ public class ServersDat
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ServersDat"/> class
-    /// with the specified list of servers.
+    ///     Initializes a new instance of the <see cref="ServersDat" /> class
+    ///     with the specified list of servers.
     /// </summary>
     /// <param name="servers">The list of Minecraft servers.</param>
     public ServersDat(List<MinecraftServer> servers)
     {
         Servers = servers;
     }
+
+    /// <summary>
+    ///     Gets or sets the list of Minecraft servers.
+    /// </summary>
+    [NbtProperty(PropertyName = "servers")]
+    [JsonPropertyName("servers")]
+    public List<MinecraftServer> Servers { get; set; }
 }

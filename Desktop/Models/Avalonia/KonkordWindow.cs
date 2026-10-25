@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime;
 using System.Threading.Tasks;
@@ -17,24 +18,26 @@ using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 namespace Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 
 /// <summary>
-/// Base window class used across the Konkord desktop UI that extends ReactiveUI's <see cref="ReactiveWindow{TViewModel}"/>.
-/// Provides common window helpers (drag/resize, clipboard helpers, file/folder pickers) and ensures the view-model
-/// is disposed when the window closes.
+///     Base window class used across the Konkord desktop UI that extends ReactiveUI's
+///     <see cref="ReactiveWindow{TViewModel}" />.
+///     Provides common window helpers (drag/resize, clipboard helpers, file/folder pickers) and ensures the view-model
+///     is disposed when the window closes.
 /// </summary>
 /// <typeparam name="TViewModel">Type of the view model assigned to the window.</typeparam>
 public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> where TViewModel : class
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="KonkordWindow{TViewModel}"/> class and subscribes to the <see cref="Window.Closed"/> event.
+    ///     Initializes a new instance of the <see cref="KonkordWindow{TViewModel}" /> class and subscribes to the
+    ///     <see cref="Window.Closed" /> event.
     /// </summary>
     protected KonkordWindow()
     {
-        this.Closed += OnClosed;
+        Closed += OnClosed;
     }
 
     /// <summary>
-    /// Strongly-typed DataContext for this window. The setter is protected to allow derived
-    /// windows to assign a view-model during construction while still exposing the typed getter.
+    ///     Strongly-typed DataContext for this window. The setter is protected to allow derived
+    ///     windows to assign a view-model during construction while still exposing the typed getter.
     /// </summary>
     public new TViewModel? DataContext
     {
@@ -43,8 +46,9 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
     }
 
     /// <summary>
-    /// Called when the window is closing. If the assigned <see cref="DataContext"/> implements <see cref="IDisposable"/>,
-    /// it will be disposed here to release resources held by the view-model.
+    ///     Called when the window is closing. If the assigned <see cref="DataContext" /> implements <see cref="IDisposable" />
+    ///     ,
+    ///     it will be disposed here to release resources held by the view-model.
     /// </summary>
     /// <param name="e">Window closing event arguments.</param>
     protected override void OnClosing(WindowClosingEventArgs e)
@@ -54,22 +58,22 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
     }
 
     /// <summary>
-    /// Handles the window closed event. Unsubscribes from the event, clears the data context,
-    /// forces garbage collection with large object heap compaction, and attempts to trim the
-    /// working set (platform-specific).
+    ///     Handles the window closed event. Unsubscribes from the event, clears the data context,
+    ///     forces garbage collection with large object heap compaction, and attempts to trim the
+    ///     working set (platform-specific).
     /// </summary>
     /// <param name="sender">The event source.</param>
     /// <param name="e">Event arguments.</param>
     private void OnClosed(object? sender, EventArgs e)
     {
-        this.Closed -= OnClosed;
-        this.DataContext = null;
+        Closed -= OnClosed;
+        DataContext = null;
         Dispatcher.UIThread.Post(() =>
         {
-            GC.Collect(2, GCCollectionMode.Forced, blocking: true, compacting: true);
+            GC.Collect(2, GCCollectionMode.Forced, true, true);
             GC.WaitForPendingFinalizers();
             GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-            GC.Collect(2, GCCollectionMode.Forced, blocking: true, compacting: true);
+            GC.Collect(2, GCCollectionMode.Forced, true, true);
 
             try
             {
@@ -77,7 +81,7 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
                 {
                     case EOperatingSystem.WINDOWS:
                     {
-                        MemoryHelper.EmptyWorkingSet(System.Diagnostics.Process.GetCurrentProcess().Handle);
+                        MemoryHelper.EmptyWorkingSet(Process.GetCurrentProcess().Handle);
                         break;
                     }
                     case EOperatingSystem.LINUX:
@@ -95,8 +99,8 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
     }
 
     /// <summary>
-    /// Handler to start moving the window when the left mouse button is pressed on a draggable surface.
-    /// Intended to be wired to pointer pressed events on title bars or custom drag handles.
+    ///     Handler to start moving the window when the left mouse button is pressed on a draggable surface.
+    ///     Intended to be wired to pointer pressed events on title bars or custom drag handles.
     /// </summary>
     /// <param name="sender">Event source (unused).</param>
     /// <param name="e">Pointer event args.</param>
@@ -108,8 +112,8 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
 
 
     /// <summary>
-    /// Sets plain text on the system clipboard asynchronously.
-    /// Safely returns without throwing when the provided text is null/empty or clipboard is unavailable.
+    ///     Sets plain text on the system clipboard asynchronously.
+    ///     Safely returns without throwing when the provided text is null/empty or clipboard is unavailable.
     /// </summary>
     /// <param name="text">Text to set on the clipboard.</param>
     protected async Task SetClipboardTextAsync(string text)
@@ -125,9 +129,12 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
     }
 
     /// <summary>
-    /// Copies the provided screenshot image to the system clipboard as a PNG byte payload.
+    ///     Copies the provided screenshot image to the system clipboard as a PNG byte payload.
     /// </summary>
-    /// <param name="screenshot">Screenshot model that contains an image to copy. If <see cref="ScreenshotModel.Image"/> is null, no action is taken.</param>
+    /// <param name="screenshot">
+    ///     Screenshot model that contains an image to copy. If <see cref="ScreenshotModel.Image" /> is
+    ///     null, no action is taken.
+    /// </param>
     protected async Task SetClipboardImageAsync(ScreenshotModel screenshot)
     {
         if (screenshot.Image == null)
@@ -145,7 +152,7 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
     }
 
     /// <summary>
-    /// Opens a native file picker dialog and returns a single selected file path or null.
+    ///     Opens a native file picker dialog and returns a single selected file path or null.
     /// </summary>
     /// <param name="title">Dialog title to display.</param>
     /// <param name="filterName">User-visible filter name (e.g. "Images").</param>
@@ -163,13 +170,7 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
         {
             Title = title,
             AllowMultiple = false,
-            FileTypeFilter = new List<FilePickerFileType>
-            {
-                new(filterName)
-                {
-                    Patterns = patterns
-                }
-            }
+            FileTypeFilter = new List<FilePickerFileType> { new(filterName) { Patterns = patterns } }
         };
 
         var files = await storageProvider.OpenFilePickerAsync(options);
@@ -177,7 +178,7 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
     }
 
     /// <summary>
-    /// Opens a native folder picker dialog and returns the selected folder path or null.
+    ///     Opens a native folder picker dialog and returns the selected folder path or null.
     /// </summary>
     /// <param name="title">Dialog title to display.</param>
     /// <returns>Local folder path of the selected folder, or null if none selected.</returns>
@@ -193,18 +194,14 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
         if (!storageProvider.CanPickFolder)
             throw new NotSupportedException("No folder was selected.");
 
-        var options = new FolderPickerOpenOptions
-        {
-            Title = title,
-            AllowMultiple = false
-        };
+        var options = new FolderPickerOpenOptions { Title = title, AllowMultiple = false };
 
-        IReadOnlyList<IStorageFolder> folders = await storageProvider.OpenFolderPickerAsync(options);
+        var folders = await storageProvider.OpenFolderPickerAsync(options);
 
         if (!folders.Any())
             return null;
 
-        IStorageFolder? selectedFolder = folders.FirstOrDefault();
+        var selectedFolder = folders.FirstOrDefault();
         return selectedFolder?.TryGetLocalPath();
     }
 }

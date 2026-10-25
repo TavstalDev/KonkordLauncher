@@ -7,12 +7,12 @@ using Avalonia.Data.Converters;
 namespace Tavstal.KonkordLauncher.Desktop.Models.Avalonia.Converters;
 
 /// <summary>
-/// Converts file metadata into a FontAwesome-style icon glyph for display in the UI.
+///     Converts file metadata into a FontAwesome-style icon glyph for display in the UI.
 /// </summary>
 public class FileIconConverter : IMultiValueConverter
 {
     /// <summary>
-    /// Converts the supplied values into a glyph string representing the file type.
+    ///     Converts the supplied values into a glyph string representing the file type.
     /// </summary>
     /// <param name="values">Input values from the binding expression.</param>
     /// <param name="targetType">The expected target type of the binding result.</param>
@@ -27,13 +27,13 @@ public class FileIconConverter : IMultiValueConverter
         if (values.Count < 2)
             return "\uf15b";
 
-        bool isDir = values[0] as bool? == true;
-        string? path = values[1]?.ToString();
+        var isDir = values[0] as bool? == true;
+        var path = values[1]?.ToString();
 
         if (isDir)
             return "\uf07b";
 
-        string ext = Path.GetExtension(path ?? "").ToLowerInvariant();
+        var ext = Path.GetExtension(path ?? "").ToLowerInvariant();
 
         return ext switch
         {
@@ -48,7 +48,8 @@ public class FileIconConverter : IMultiValueConverter
             // pdf
             ".pdf" => "\uf1c1",
             // text
-            ".txt" or ".json" or ".json5" or ".properties" or ".cfg" or ".yml" or ".yaml" or ".xml" or ".xaml" => "\uf15c",
+            ".txt" or ".json" or ".json5" or ".properties" or ".cfg" or ".yml" or ".yaml" or ".xml"
+                or ".xaml" => "\uf15c",
             // code
             ".cs" or ".java" or ".jar" => "\uf1c9",
             // env

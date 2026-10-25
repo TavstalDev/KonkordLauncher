@@ -7,14 +7,14 @@ using Avalonia.VisualTree;
 namespace Tavstal.KonkordLauncher.Desktop.Styles.Templates;
 
 /// <summary>
-/// Custom title bar control for templated windows in the Konkord launcher.
-/// Provides window control functionality including minimize, maximize, close, and drag-to-move operations.
+///     Custom title bar control for templated windows in the Konkord launcher.
+///     Provides window control functionality including minimize, maximize, close, and drag-to-move operations.
 /// </summary>
 public class CustomTitleBar : TemplatedControl
 {
     /// <summary>
-    /// Wires up event handlers for title bar controls when the template is applied.
-    /// Connects the drag area for window moving and buttons for window state management.
+    ///     Wires up event handlers for title bar controls when the template is applied.
+    ///     Connects the drag area for window moving and buttons for window state management.
     /// </summary>
     /// <param name="e">The template applied event arguments containing the name scope of template elements.</param>
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -23,7 +23,7 @@ public class CustomTitleBar : TemplatedControl
         var dragArea = e.NameScope.Find<Border>("PART_DragArea");
         if (dragArea != null)
             dragArea.PointerPressed += DragStart_PointerPressed;
-        
+
         // Minimize Button
         var minBtn = e.NameScope.Find<Button>("PART_MinimizeButton");
         if (minBtn is not null)
@@ -41,8 +41,8 @@ public class CustomTitleBar : TemplatedControl
     }
 
     /// <summary>
-    /// Handles the minimize button click event.
-    /// Sets the parent window's state to Minimized.
+    ///     Handles the minimize button click event.
+    ///     Sets the parent window's state to Minimized.
     /// </summary>
     /// <param name="sender">The minimize button control that triggered the event.</param>
     /// <param name="e">The routed event arguments.</param>
@@ -53,22 +53,22 @@ public class CustomTitleBar : TemplatedControl
     }
 
     /// <summary>
-    /// Handles the maximize button click event.
-    /// Toggles the parent window between maximized and normal states.
+    ///     Handles the maximize button click event.
+    ///     Toggles the parent window between maximized and normal states.
     /// </summary>
     /// <param name="sender">The maximize button control that triggered the event.</param>
     /// <param name="e">The routed event arguments.</param>
     private void MaxBtnOnClick(object? sender, RoutedEventArgs e)
     {
         var window = this.FindAncestorOfType<Window>();
-        window?.WindowState = window.WindowState == WindowState.Maximized 
-                ? WindowState.Normal 
-                : WindowState.Maximized;
+        window?.WindowState = window.WindowState == WindowState.Maximized
+            ? WindowState.Normal
+            : WindowState.Maximized;
     }
 
     /// <summary>
-    /// Handles the close button click event.
-    /// Closes the parent window.
+    ///     Handles the close button click event.
+    ///     Closes the parent window.
     /// </summary>
     /// <param name="sender">The close button control that triggered the event.</param>
     /// <param name="e">The routed event arguments.</param>
@@ -79,8 +79,8 @@ public class CustomTitleBar : TemplatedControl
     }
 
     /// <summary>
-    /// Handles pointer press events on the drag area to enable window dragging.
-    /// Initiates a drag operation that allows the user to move the window by its title bar.
+    ///     Handles pointer press events on the drag area to enable window dragging.
+    ///     Initiates a drag operation that allows the user to move the window by its title bar.
     /// </summary>
     /// <param name="sender">The drag area Border control that triggered the event.</param>
     /// <param name="e">The pointer press event arguments containing pointer information.</param>

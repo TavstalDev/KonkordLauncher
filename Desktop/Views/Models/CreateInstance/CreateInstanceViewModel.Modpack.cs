@@ -32,90 +32,22 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.CreateInstance;
 
 public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
 {
-    private readonly IBeaconLogger _logger = null!;
-    private readonly IHttpService _httpService = null!;
-    private readonly ITranslationService _translationService = null!;
     private readonly IBitmapService _bitmapService = null!;
-    private readonly IMetaCacheService _metaCacheService = null!;
-    private readonly ILauncherStore _launcherStore = null!;
     private readonly IEventService _eventService = null!;
+    private readonly IHttpService _httpService = null!;
+    private readonly ILauncherStore _launcherStore = null!;
+    private readonly IBeaconLogger _logger = null!;
+    private readonly IMetaCacheService _metaCacheService = null!;
     private readonly ModrinthPackageService _modrinthPackageService = null!;
     private readonly CreateInstanceViewModel _parent;
     private readonly IScreenService _screenService = null!;
-
-    [ObservableProperty]
-    public partial bool AllowScrollbarRefresh { get; set; } = false;
-
-    [ObservableProperty]
-    public partial ObservableCollection<ModPackModel> Modpacks { get; set; } = new();
-    public ObservableCollection<string> VersionFilterSource { get; } = new();
-    [ObservableProperty]
-    public partial int VersionFilterIndex { get; set; } = -1;
-
-    [ObservableProperty] private string _searchQuery = string.Empty;
-
-    [ObservableProperty]
-    public partial EMinecraftKind ModLoader { get; set; } = EMinecraftKind.VANILLA;
+    private readonly ITranslationService _translationService = null!;
 
     [ObservableProperty] private string? _minecraftVersion;
 
-    [ObservableProperty]
-    public partial bool CategoryAdventure { get; set; }
-
-    [ObservableProperty]
-    public partial bool CategoryChallenging { get; set; }
-
-    [ObservableProperty]
-    public partial bool CategoryCombat { get; set; }
-
-    [ObservableProperty]
-    public partial bool CategoryKitchenSink { get; set; }
-
-    [ObservableProperty]
-    public partial bool CategoryLightweight { get; set; }
-
-    [ObservableProperty]
-    public partial bool CategoryMagic { get; set; }
-
-    [ObservableProperty]
-    public partial bool CategoryMultiplayer { get; set; }
-
-    [ObservableProperty]
-    public partial bool CategoryOptimization { get; set; }
-
-    [ObservableProperty]
-    public partial bool CategoryQuests { get; set; }
-
-    [ObservableProperty]
-    public partial bool CategoryTechnology { get; set; }
+    [ObservableProperty] private string _searchQuery = string.Empty;
 
     [ObservableProperty] private EPlatformType _selectedPlatform = EPlatformType.MODRINTH;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ModpackPreview))]
-    public partial ModPackModel? SelectedModpack { get; set; }
-
-    [ObservableProperty]
-    public partial int SelectedModpackVersionIndex { get; set; }
-
-    [ObservableProperty] public partial string InstanceName { get; set; } = string.Empty;
-
-    [ObservableProperty]
-    public partial bool CanCreateInstance { get; set; } = false;
-
-    public List<EPlatformType> AvailablePlatforms =>
-    [
-        EPlatformType.MODRINTH,
-        EPlatformType.CURSE_FORGE,
-        EPlatformType.TECHNIC,
-        EPlatformType.FTB
-    ];
-
-    public string ModpackPreview => SelectedModpack != null
-        ? SelectedModpack.RawPage
-        : Design.IsDesignMode
-            ? "<p>Select a modpack</p>"
-            : "<p>" + _translationService.Translate("instance.create.modpack.preview.select") + "</p>";
 
     public CreateInstanceViewModel_Modpack()
     {
@@ -123,7 +55,8 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         _screenService = null!;
     }
 
-    public CreateInstanceViewModel_Modpack(CreateInstanceViewModel parent, IScreenService screenService, ILauncherStore launcherStore,
+    public CreateInstanceViewModel_Modpack(CreateInstanceViewModel parent, IScreenService screenService,
+        ILauncherStore launcherStore,
         ITranslationService translationService, IHttpService httpService, IMetaCacheService metaCacheService,
         IBitmapService bitmapService, IEventService eventService, ModrinthPackageService modrinthPackageService)
     {
@@ -141,6 +74,60 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         _eventService = eventService;
         _modrinthPackageService = modrinthPackageService;
     }
+
+    [ObservableProperty] public partial bool AllowScrollbarRefresh { get; set; } = false;
+
+    [ObservableProperty] public partial ObservableCollection<ModPackModel> Modpacks { get; set; } = new();
+
+    public ObservableCollection<string> VersionFilterSource { get; } = new();
+
+    [ObservableProperty] public partial int VersionFilterIndex { get; set; } = -1;
+
+    [ObservableProperty] public partial EMinecraftKind ModLoader { get; set; } = EMinecraftKind.VANILLA;
+
+    [ObservableProperty] public partial bool CategoryAdventure { get; set; }
+
+    [ObservableProperty] public partial bool CategoryChallenging { get; set; }
+
+    [ObservableProperty] public partial bool CategoryCombat { get; set; }
+
+    [ObservableProperty] public partial bool CategoryKitchenSink { get; set; }
+
+    [ObservableProperty] public partial bool CategoryLightweight { get; set; }
+
+    [ObservableProperty] public partial bool CategoryMagic { get; set; }
+
+    [ObservableProperty] public partial bool CategoryMultiplayer { get; set; }
+
+    [ObservableProperty] public partial bool CategoryOptimization { get; set; }
+
+    [ObservableProperty] public partial bool CategoryQuests { get; set; }
+
+    [ObservableProperty] public partial bool CategoryTechnology { get; set; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ModpackPreview))]
+    public partial ModPackModel? SelectedModpack { get; set; }
+
+    [ObservableProperty] public partial int SelectedModpackVersionIndex { get; set; }
+
+    [ObservableProperty] public partial string InstanceName { get; set; } = string.Empty;
+
+    [ObservableProperty] public partial bool CanCreateInstance { get; set; } = false;
+
+    public List<EPlatformType> AvailablePlatforms =>
+    [
+        EPlatformType.MODRINTH,
+        EPlatformType.CURSE_FORGE,
+        EPlatformType.TECHNIC,
+        EPlatformType.FTB
+    ];
+
+    public string ModpackPreview => SelectedModpack != null
+        ? SelectedModpack.RawPage
+        : Design.IsDesignMode
+            ? "<p>Select a modpack</p>"
+            : "<p>" + _translationService.Translate("instance.create.modpack.preview.select") + "</p>";
 
     protected override void Dispose(bool disposing)
     {
@@ -195,6 +182,75 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         AllowScrollbarRefresh = true;
     }
 
+    public async Task RefreshModpacksAsync(bool resetSearch = false, CancellationToken cancellationToken = default)
+    {
+        AllowScrollbarRefresh = false;
+        var version = MinecraftVersion is null or "Any" ? null : MinecraftVersion;
+
+        List<string> categories = [];
+        if (ModLoader != EMinecraftKind.VANILLA)
+            categories.Add(ModLoader.ToString().ToLower());
+        if (CategoryAdventure)
+            categories.Add("adventure");
+        if (CategoryChallenging)
+            categories.Add("challenging");
+        if (CategoryCombat)
+            categories.Add("combat");
+        if (CategoryKitchenSink)
+            categories.Add("kitchen_sink");
+        if (CategoryLightweight)
+            categories.Add("lightweight");
+        if (CategoryMagic)
+            categories.Add("magic");
+        if (CategoryMultiplayer)
+            categories.Add("multiplayer");
+        if (CategoryOptimization)
+            categories.Add("optimization");
+        if (CategoryQuests)
+            categories.Add("quests");
+        if (CategoryTechnology)
+            categories.Add("technology");
+
+        var response = await _metaCacheService.SearchModpacksAsync(SearchQuery, version, categories,
+            resetSearch ? 0 : Modpacks.Count, cancellationToken);
+        if (response == null)
+            throw new Exception("Modrinth search failed.");
+
+        var projectIds = response.Hits.Select(h => h.ProjectId).ToList();
+        var projects = await _metaCacheService.GetProjectsAsync(projectIds, cancellationToken);
+
+        var versionIds = projects.SelectMany(p => p.Versions).Distinct().ToList();
+        var versions = await _metaCacheService.GetVersionsAsync(versionIds, cancellationToken);
+
+        var versionDict = versions.ToDictionary(v => v.Id);
+
+        var tasks = projects.Select(project =>
+        {
+            var projectVersions = project.Versions
+                .Where(versionDict.ContainsKey)
+                .Select(id => versionDict[id])
+                .OrderByDescending(v => v.DatePublished)
+                .ToList();
+
+            return ModPackModel.FromModrinthProjectAsync(project, projectVersions, _metaCacheService);
+        });
+
+        var results = await Task.WhenAll(tasks);
+
+        if (resetSearch)
+        {
+            var modpacksCopy = Modpacks;
+            Modpacks.Clear();
+            foreach (var modpack in modpacksCopy)
+                modpack.Icon.Dispose(_bitmapService);
+        }
+
+        foreach (var model in results)
+            Modpacks.Add(model);
+
+        AllowScrollbarRefresh = true;
+    }
+
     #region Commands
 
     [RelayCommand]
@@ -218,7 +274,8 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         }
 
         var file = selectedVersion.Files.FirstOrDefault(x => x.Primary);
-        if (file == null)        {
+        if (file == null)
+        {
             _logger.LogError("Selected modpack version does not have a primary file.");
             await _parent.ShowAlertDialogInteraction.Handle(new Alert(
                 _translationService.Translate("instance.create.modpack.error.no_primary_file.title"),
@@ -228,11 +285,11 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
             return;
         }
 
-        string tempDir = Path.Combine(_launcherStore.GetTempDir(), "modpacks");
+        var tempDir = Path.Combine(_launcherStore.GetTempDir(), "modpacks");
         Directory.CreateDirectory(tempDir);
         try
         {
-            string tempPath = Path.Combine(tempDir, file.FileName);
+            var tempPath = Path.Combine(tempDir, file.FileName);
             //_parent.OpenReporter();
             var prog = new Progress<double>(p =>
             {
@@ -243,7 +300,11 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
 
             //_parent.CloseReporter();
 
-            if (await _modrinthPackageService.ImportAsync(tempPath, new Resolution { X = (uint)_screenService.ScreenSize.Width, Y = (uint)_screenService.ScreenSize.Height },
+            if (await _modrinthPackageService.ImportAsync(tempPath,
+                    new Resolution
+                    {
+                        X = (uint)_screenService.ScreenSize.Width, Y = (uint)_screenService.ScreenSize.Height
+                    },
                     InstanceName, null, modpack.IconUrl, _parent, cancellationToken) != null)
             {
                 //_parent.CloseReporter();
@@ -292,71 +353,4 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
     }
 
     #endregion
-
-    public async Task RefreshModpacksAsync(bool resetSearch = false, CancellationToken cancellationToken = default)
-    {
-        AllowScrollbarRefresh = false;
-        string? version = MinecraftVersion is null or "Any" ? null : MinecraftVersion;
-
-        List<string> categories = [];
-        if (ModLoader != EMinecraftKind.VANILLA)
-            categories.Add(ModLoader.ToString().ToLower());
-        if (CategoryAdventure)
-            categories.Add("adventure");
-        if (CategoryChallenging)
-            categories.Add("challenging");
-        if (CategoryCombat)
-            categories.Add("combat");
-        if (CategoryKitchenSink)
-            categories.Add("kitchen_sink");
-        if (CategoryLightweight)
-            categories.Add("lightweight");
-        if (CategoryMagic)
-            categories.Add("magic");
-        if (CategoryMultiplayer)
-            categories.Add("multiplayer");
-        if (CategoryOptimization)
-            categories.Add("optimization");
-        if (CategoryQuests)
-            categories.Add("quests");
-        if (CategoryTechnology)
-            categories.Add("technology");
-
-        var response = await _metaCacheService.SearchModpacksAsync(SearchQuery, version, categories, resetSearch ? 0 : Modpacks.Count, cancellationToken);
-        if (response == null)
-            throw new Exception("Modrinth search failed.");
-
-        var projectIds = response.Hits.Select(h => h.ProjectId).ToList();
-        var projects = await _metaCacheService.GetProjectsAsync(projectIds, cancellationToken);
-
-        var versionIds = projects.SelectMany(p => p.Versions).Distinct().ToList();
-        var versions = await _metaCacheService.GetVersionsAsync(versionIds, cancellationToken);
-
-        var versionDict = versions.ToDictionary(v => v.Id);
-
-        var tasks = projects.Select(project =>
-        {
-            var projectVersions = project.Versions
-                .Where(versionDict.ContainsKey)
-                .Select(id => versionDict[id])
-                .OrderByDescending(v => v.DatePublished)
-                .ToList();
-
-            return ModPackModel.FromModrinthProjectAsync(project, projectVersions, _metaCacheService);
-        });
-
-        var results = await Task.WhenAll(tasks);
-
-        if (resetSearch)
-        {
-            var modpacksCopy = Modpacks;
-            Modpacks.Clear();
-            foreach  (var modpack in modpacksCopy)
-                modpack.Icon.Dispose(_bitmapService);
-        }
-        foreach (var model in results)
-            Modpacks.Add(model);
-
-        AllowScrollbarRefresh = true;
-    }
 }

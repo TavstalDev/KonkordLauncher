@@ -17,33 +17,17 @@ using IconDataModel = Tavstal.KonkordLauncher.Desktop.Models.Domain.IconDataMode
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 /// <summary>
-/// ViewModel for managing and selecting icons in the application.
+///     ViewModel for managing and selecting icons in the application.
 /// </summary>
 public partial class IconSelectorViewModel : KonkordObservableObject
 {
-    private readonly ILauncherStore _launcherStore = null!;
     private readonly IBitmapService _bitmapService = null!;
-    
-    #region Observable Properties
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasSelectedIcon))]
-    public partial IconDataModel? SelectedIcon { get; set; }
-    public ObservableCollection<IconDataModel> Icons { get; } = new();
-    
-    public bool HasSelectedIcon => SelectedIcon != null;
-    #endregion
-    
-    #region Interaction
-    
-    
-    public Interaction<string?, Unit> CloseWindowInteraction { get; } = new();
-    public Interaction<Unit, List<(string, string)>?> ShowFilePicker { get; }  = new();
-    #endregion
-    
-    
+    private readonly ILauncherStore _launcherStore = null!;
+
+
     /// <summary>
-    /// Initializes a new instance of the <see cref="IconSelectorViewModel"/> class.
-    /// Loads the available icons from the configured directory and populates the icons collection.
+    ///     Initializes a new instance of the <see cref="IconSelectorViewModel" /> class.
+    ///     Loads the available icons from the configured directory and populates the icons collection.
     /// </summary>
     public IconSelectorViewModel()
     {
@@ -60,14 +44,16 @@ public partial class IconSelectorViewModel : KonkordObservableObject
 
         _ = InitAsync();
     }
-    
+
     /// <summary>
-    /// Releases the resources used by the <see cref="IconSelectorViewModel"/> and performs cleanup operations.
+    ///     Releases the resources used by the <see cref="IconSelectorViewModel" /> and performs cleanup operations.
     /// </summary>
     /// <param name="disposing">
-    /// A boolean value indicating whether the method is being called directly or indirectly by a finalizer.
-    /// If true, the method has been called directly or indirectly by a user's code. Managed and unmanaged resources can be disposed.
-    /// If false, the method has been called by the runtime from inside the finalizer, and only unmanaged resources can be disposed.
+    ///     A boolean value indicating whether the method is being called directly or indirectly by a finalizer.
+    ///     If true, the method has been called directly or indirectly by a user's code. Managed and unmanaged resources can be
+    ///     disposed.
+    ///     If false, the method has been called by the runtime from inside the finalizer, and only unmanaged resources can be
+    ///     disposed.
     /// </param>
     protected override void Dispose(bool disposing)
     {
@@ -81,7 +67,7 @@ public partial class IconSelectorViewModel : KonkordObservableObject
     }
 
     /// <summary>
-    /// Initializes the view model by loading available icons.
+    ///     Initializes the view model by loading available icons.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token to allow the operation to be cancelled.</param>
     private async Task InitAsync(CancellationToken cancellationToken = default)
@@ -95,11 +81,30 @@ public partial class IconSelectorViewModel : KonkordObservableObject
             Icons.Add(new IconDataModel(Path.GetFileName(iconPath), iconPath, bitmap));
         }
     }
-    
+
+    #region Observable Properties
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasSelectedIcon))]
+    public partial IconDataModel? SelectedIcon { get; set; }
+
+    public ObservableCollection<IconDataModel> Icons { get; } = new();
+
+    public bool HasSelectedIcon => SelectedIcon != null;
+
+    #endregion
+
+    #region Interaction
+
+    public Interaction<string?, Unit> CloseWindowInteraction { get; } = new();
+    public Interaction<Unit, List<(string, string)>?> ShowFilePicker { get; } = new();
+
+    #endregion
+
     #region Commands
 
     /// <summary>
-    /// Closes the current window.
+    ///     Closes the current window.
     /// </summary>
     [RelayCommand]
     public async Task CloseWindow()
@@ -108,7 +113,7 @@ public partial class IconSelectorViewModel : KonkordObservableObject
     }
 
     /// <summary>
-    /// Closes the parent window and returns the currently selected icon as the result.
+    ///     Closes the parent window and returns the currently selected icon as the result.
     /// </summary>
     [RelayCommand]
     public async Task OkBtn()
@@ -117,7 +122,7 @@ public partial class IconSelectorViewModel : KonkordObservableObject
     }
 
     /// <summary>
-    /// Closes the parent window without returning any result.
+    ///     Closes the parent window without returning any result.
     /// </summary>
     [RelayCommand]
     public async Task CancelBtn()
@@ -126,8 +131,8 @@ public partial class IconSelectorViewModel : KonkordObservableObject
     }
 
     /// <summary>
-    /// Opens a file picker dialog to allow the user to add new icons.
-    /// Adds the selected icons to the collection after loading their bitmap data.
+    ///     Opens a file picker dialog to allow the user to add new icons.
+    ///     Adds the selected icons to the collection after loading their bitmap data.
     /// </summary>
     [RelayCommand]
     public async Task AddBtnAsync()
@@ -144,8 +149,8 @@ public partial class IconSelectorViewModel : KonkordObservableObject
     }
 
     /// <summary>
-    /// Removes the currently selected icon from the collection and deletes its file.
-    /// Disposes of the icon's image and resets the selected icon.
+    ///     Removes the currently selected icon from the collection and deletes its file.
+    ///     Disposes of the icon's image and resets the selected icon.
     /// </summary>
     [RelayCommand]
     public void RemoveBtn()
@@ -154,17 +159,17 @@ public partial class IconSelectorViewModel : KonkordObservableObject
             return;
 
         File.Delete(SelectedIcon.Path);
-        
+
         var icon = Icons.FirstOrDefault(x => x == SelectedIcon);
         icon?.Image.Dispose(_bitmapService);
         Icons.Remove(SelectedIcon);
-        
+
         SelectedIcon.Image.Dispose(_bitmapService);
         SelectedIcon = null;
     }
-    
+
     /// <summary>
-    /// Opens the directory containing the icons in the system's file explorer.
+    ///     Opens the directory containing the icons in the system's file explorer.
     /// </summary>
     [RelayCommand]
     public async Task OpenDirectoryAsync()
@@ -172,5 +177,6 @@ public partial class IconSelectorViewModel : KonkordObservableObject
         var settings = await _launcherStore.GetSettingsAsync();
         FileSystemHelper.OpenFolderInFileExplorer(settings.Launcher.IconsDirectoryPath);
     }
+
     #endregion
 }

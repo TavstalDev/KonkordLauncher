@@ -11,8 +11,8 @@ using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 /// <summary>
-/// Window that displays logs for a specific Minecraft instance.
-/// Registers reactive handlers for close, clipboard copy, and auto-scroll interactions.
+///     Window that displays logs for a specific Minecraft instance.
+///     Registers reactive handlers for close, clipboard copy, and auto-scroll interactions.
 /// </summary>
 public partial class InstanceLogsWindow : KonkordWindow<InstanceLogsViewModel>
 {
@@ -21,7 +21,8 @@ public partial class InstanceLogsWindow : KonkordWindow<InstanceLogsViewModel>
         InitializeComponent();
     }
 
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    [RequiresUnreferencedCode(
+        "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public InstanceLogsWindow(InstanceLogsViewModel viewModel)
     {
         InitializeComponent();

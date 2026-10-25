@@ -9,19 +9,19 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 public partial class StartupViewModel : KonkordObservableObject
 {
     /// <summary>
-    /// The progress value, represented as a double.
+    ///     The progress value, represented as a double.
     /// </summary>
     [ObservableProperty]
     public partial double Progress { get; set; }
 
     /// <summary>
-    /// The progress text, initialized with a default value of "Starting...".
+    ///     The progress text, initialized with a default value of "Starting...".
     /// </summary>
     [ObservableProperty]
     public partial string ProgressText { get; set; } = "Starting...";
-    
+
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
-    
+
     [RelayCommand]
     public async Task CloseWindow()
     {

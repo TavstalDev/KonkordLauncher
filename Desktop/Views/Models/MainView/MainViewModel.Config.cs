@@ -20,13 +20,10 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.MainView;
 
 public partial class MainViewModel_Config : KonkordObservableObject
 {
-    private readonly IBeaconLogger _logger = null!;
-    private readonly ILauncherStore _launcherStore = null!;
     private readonly IEventService _eventService = null!;
+    private readonly ILauncherStore _launcherStore = null!;
+    private readonly IBeaconLogger _logger = null!;
     private readonly MainViewModel? _parent;
-
-    [ObservableProperty]
-    public partial CoreConfigModel CoreConfig { get; set; } = null!;
 
     public MainViewModel_Config()
     {
@@ -45,6 +42,8 @@ public partial class MainViewModel_Config : KonkordObservableObject
         _launcherStore = launcherStore;
         _eventService = eventService;
     }
+
+    [ObservableProperty] public partial CoreConfigModel CoreConfig { get; set; } = null!;
 
     public Task InitAsync(CoreConfig settings)
     {
@@ -70,21 +69,21 @@ public partial class MainViewModel_Config : KonkordObservableObject
     }
 
     /// <summary>
-    /// Opens a folder picker dialog to select a directory and updates the corresponding configuration path
-    /// based on the provided index.
+    ///     Opens a folder picker dialog to select a directory and updates the corresponding configuration path
+    ///     based on the provided index.
     /// </summary>
     /// <param name="rawIndex">
-    /// The index representing the configuration path to update:
-    /// <br/>0 - AssetsDirectoryPath,
-    /// <br/>1 - CacheDirectoryPath,
-    /// <br/>2 - InstancesDirectoryPath,
-    /// <br/>3 - IconsDirectoryPath,
-    /// <br/>4 - JavaDirectoryPath,
-    /// <br/>5 - LibrariesDirectoryPath,
-    /// <br/>6 - ManifestsDirectoryPath,
-    /// <br/>7 - TranslationsDirectoryPath,
-    /// <br/>8 - VersionsDirectoryPath,
-    /// <br/>9 - DefaultJavaPath.
+    ///     The index representing the configuration path to update:
+    ///     <br />0 - AssetsDirectoryPath,
+    ///     <br />1 - CacheDirectoryPath,
+    ///     <br />2 - InstancesDirectoryPath,
+    ///     <br />3 - IconsDirectoryPath,
+    ///     <br />4 - JavaDirectoryPath,
+    ///     <br />5 - LibrariesDirectoryPath,
+    ///     <br />6 - ManifestsDirectoryPath,
+    ///     <br />7 - TranslationsDirectoryPath,
+    ///     <br />8 - VersionsDirectoryPath,
+    ///     <br />9 - DefaultJavaPath.
     /// </param>
     [RelayCommand]
     public async Task ConfigDirSelectAsync(string rawIndex)
@@ -154,8 +153,8 @@ public partial class MainViewModel_Config : KonkordObservableObject
     }
 
     /// <summary>
-    /// Opens a Java selector window to choose a Java version and updates the default Java path
-    /// in the configuration with the selected version's path.
+    ///     Opens a Java selector window to choose a Java version and updates the default Java path
+    ///     in the configuration with the selected version's path.
     /// </summary>
     [RelayCommand]
     private async Task JavaPathSelectorAsync()
@@ -171,7 +170,7 @@ public partial class MainViewModel_Config : KonkordObservableObject
     }
 
     /// <summary>
-    /// Subscribes to property change events for the child configuration objects.
+    ///     Subscribes to property change events for the child configuration objects.
     /// </summary>
     /// <param name="config">The core configuration model to subscribe to.</param>
     private void SubscribeToCoreConfigChildren(CoreConfigModel config)
@@ -183,7 +182,7 @@ public partial class MainViewModel_Config : KonkordObservableObject
     }
 
     /// <summary>
-    /// Unsubscribes from property change events for the child configuration objects.
+    ///     Unsubscribes from property change events for the child configuration objects.
     /// </summary>
     /// <param name="config">The core configuration model to unsubscribe from.</param>
     private void UnsubscribeFromCoreConfigChildren(CoreConfigModel config)
@@ -195,7 +194,7 @@ public partial class MainViewModel_Config : KonkordObservableObject
     }
 
     /// <summary>
-    /// Handles changes to the core configuration model, unsubscribing from the old value and subscribing to the new value.
+    ///     Handles changes to the core configuration model, unsubscribing from the old value and subscribing to the new value.
     /// </summary>
     /// <param name="oldValue">The previous core configuration model.</param>
     /// <param name="newValue">The new core configuration model.</param>
@@ -218,7 +217,7 @@ public partial class MainViewModel_Config : KonkordObservableObject
     }
 
     /// <summary>
-    /// Handles property change events for child configuration objects and saves the updated configuration to a file.
+    ///     Handles property change events for child configuration objects and saves the updated configuration to a file.
     /// </summary>
     /// <param name="sender">The object that triggered the property change event.</param>
     /// <param name="e">The event data associated with the property change.</param>
@@ -250,7 +249,7 @@ public partial class MainViewModel_Config : KonkordObservableObject
     }
 
     /// <summary>
-    /// Saves the core configuration model to a file, preserving non-observable properties.
+    ///     Saves the core configuration model to a file, preserving non-observable properties.
     /// </summary>
     /// <param name="newValue">The updated core configuration model to save.</param>
     private void SaveCoreConfigToFile(CoreConfigModel newValue)
@@ -266,38 +265,41 @@ public partial class MainViewModel_Config : KonkordObservableObject
 
         var settings = new CoreConfig
         {
-            Launcher = new LauncherConfig
-            {
-                EnableAutomaticUpdates = newValue.Launcher.EnableAutomaticUpdates,
-                UpdateInterval = newValue.Launcher.UpdateInterval,
-                NextUpdateCheck = _parent.NextUpdate,
-                Language = newValue.Launcher.Language,
-                Theme = newValue.Launcher.Theme,
-                AssetsDirectoryPath = newValue.Launcher.AssetsDirectoryPath,
-                InstancesDirectoryPath = newValue.Launcher.InstancesDirectoryPath,
-                CacheDirectoryPath = newValue.Launcher.CacheDirectoryPath,
-                IconsDirectoryPath = newValue.Launcher.IconsDirectoryPath,
-                LibrariesDirectoryPath = newValue.Launcher.LibrariesDirectoryPath,
-                ManifestsDirectoryPath = newValue.Launcher.ManifestsDirectoryPath,
-                TranslationsDirectoryPath = newValue.Launcher.TranslationsDirectoryPath,
-                VersionsDirectoryPath = newValue.Launcher.VersionsDirectoryPath,
-            },
-            Java = new JavaConfig
-            {
-                MinMemory = newValue.Java.MinMemory,
-                MaxMemory = newValue.Java.MaxMemory,
-                PermaGen = newValue.Java.PermaGen,
-                JavaPath = newValue.Java.DefaultJavaPath,
-                JvmArguments = newValue.Java.JvmArguments,
-            },
-            Minecraft = new MinecraftConfig
-            {
-                StartMaximized = newValue.Minecraft.StartMaximized,
-                WindowHeight = newValue.Minecraft.WindowHeight,
-                WindowWidth = newValue.Minecraft.WindowWidth,
-                CloseLauncherOnGameStart = newValue.Minecraft.CloseLauncherOnGameStart,
-                CloseLauncherOnGameExit = newValue.Minecraft.CloseLauncherOnGameExit,
-            },
+            Launcher =
+                new LauncherConfig
+                {
+                    EnableAutomaticUpdates = newValue.Launcher.EnableAutomaticUpdates,
+                    UpdateInterval = newValue.Launcher.UpdateInterval,
+                    NextUpdateCheck = _parent.NextUpdate,
+                    Language = newValue.Launcher.Language,
+                    Theme = newValue.Launcher.Theme,
+                    AssetsDirectoryPath = newValue.Launcher.AssetsDirectoryPath,
+                    InstancesDirectoryPath = newValue.Launcher.InstancesDirectoryPath,
+                    CacheDirectoryPath = newValue.Launcher.CacheDirectoryPath,
+                    IconsDirectoryPath = newValue.Launcher.IconsDirectoryPath,
+                    LibrariesDirectoryPath = newValue.Launcher.LibrariesDirectoryPath,
+                    ManifestsDirectoryPath = newValue.Launcher.ManifestsDirectoryPath,
+                    TranslationsDirectoryPath = newValue.Launcher.TranslationsDirectoryPath,
+                    VersionsDirectoryPath = newValue.Launcher.VersionsDirectoryPath
+                },
+            Java =
+                new JavaConfig
+                {
+                    MinMemory = newValue.Java.MinMemory,
+                    MaxMemory = newValue.Java.MaxMemory,
+                    PermaGen = newValue.Java.PermaGen,
+                    JavaPath = newValue.Java.DefaultJavaPath,
+                    JvmArguments = newValue.Java.JvmArguments
+                },
+            Minecraft =
+                new MinecraftConfig
+                {
+                    StartMaximized = newValue.Minecraft.StartMaximized,
+                    WindowHeight = newValue.Minecraft.WindowHeight,
+                    WindowWidth = newValue.Minecraft.WindowWidth,
+                    CloseLauncherOnGameStart = newValue.Minecraft.CloseLauncherOnGameStart,
+                    CloseLauncherOnGameExit = newValue.Minecraft.CloseLauncherOnGameExit
+                },
             Misc = new MiscConfig
             {
                 PreLaunchCommand = newValue.Misc.PreLaunchCommand,
@@ -309,7 +311,7 @@ public partial class MainViewModel_Config : KonkordObservableObject
                 CustomOpenAlPath = newValue.Misc.CustomOpenAlPath,
                 UseDedicatedGpu = newValue.Misc.UseDedicatedGpu,
                 EnableMangoHud = newValue.Misc.EnableMangoHud,
-                EnableFeralGameMode = newValue.Misc.EnableFeralGameMode,
+                EnableFeralGameMode = newValue.Misc.EnableFeralGameMode
             },
             CacheRefreshDate = _parent.NextCacheRefresh
         };

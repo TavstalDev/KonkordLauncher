@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Tavstal.KonkordLauncher.Desktop.Services.Presentation;
 
-/// <inheritdoc/>
+/// <inheritdoc />
 public class DiscordPresenceService : IDiscordPresenceService
 {
     private readonly ILogger<DiscordPresenceService> _logger;
@@ -19,21 +19,18 @@ public class DiscordPresenceService : IDiscordPresenceService
             _logger.LogWarning("Design mode is active, skipping RPC setup to prevent issues.");
             return;
         }
+
         _rpcClient = new DiscordRpcClient("1178002101561995416");
         _rpcClient.Initialize();
         _rpcClient.SetPresence(new RichPresence
         {
             Details = "Starting...",
             Timestamps = Timestamps.Now,
-            Assets = new Assets
-            {
-                LargeImageKey = "logo",
-                LargeImageText = "Konkord Launcher",
-            }
+            Assets = new Assets { LargeImageKey = "logo", LargeImageText = "Konkord Launcher" }
         });
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public void Update(string details, Timestamps? timestamps = null)
     {
         try
@@ -62,7 +59,7 @@ public class DiscordPresenceService : IDiscordPresenceService
         }
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public void Clear()
     {
         try

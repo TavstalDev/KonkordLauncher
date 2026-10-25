@@ -10,18 +10,18 @@ namespace Tavstal.KonkordLauncher.Desktop.Services.Instances;
 
 public class InstanceModelFactory : IInstanceModelFactory
 {
-    private readonly IBeaconLogger<InstanceModel> _logger;
-    private readonly ILauncherStore _launcherStore;
-    private readonly IManifestService _manifestService;
-    private readonly IBitmapService _bitmapService;
-    private readonly ITranslationService _translationService;
-    private readonly IJavaService _javaService;
-    private readonly IInstanceInstallService _installService;
-    private readonly IInstanceLaunchService _launchService;
-    private readonly IEventService _eventService;
-    private readonly IEncryptionService _encryptionService;
     private readonly BeaconConfiguration _beaconConfiguration;
+    private readonly IBitmapService _bitmapService;
+    private readonly IEncryptionService _encryptionService;
+    private readonly IEventService _eventService;
+    private readonly IInstanceInstallService _installService;
+    private readonly IJavaService _javaService;
+    private readonly IInstanceLaunchService _launchService;
+    private readonly ILauncherStore _launcherStore;
+    private readonly IBeaconLogger<InstanceModel> _logger;
+    private readonly IManifestService _manifestService;
     private readonly IScreenService _screenService;
+    private readonly ITranslationService _translationService;
     private readonly IWindowFactory _windowFactory;
 
     public InstanceModelFactory(

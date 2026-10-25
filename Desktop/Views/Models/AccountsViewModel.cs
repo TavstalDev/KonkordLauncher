@@ -18,7 +18,6 @@ using Tavstal.BeaconSDK.Services.Abstractions.Auth;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
-using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Services;
 using Tavstal.KonkordLauncher.Desktop.Services.Accounts;
@@ -28,73 +27,36 @@ using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 
 /// <summary>
-/// Represents the ViewModel for managing accounts in the application.
-/// Provides functionality for logging in with Microsoft and offline accounts,
-/// and handles related operations such as memory cleanup and progress tracking.
+///     Represents the ViewModel for managing accounts in the application.
+///     Provides functionality for logging in with Microsoft and offline accounts,
+///     and handles related operations such as memory cleanup and progress tracking.
 /// </summary>
 public partial class AccountsViewModel : KonkordObservableObject
 {
-    private readonly IBeaconLogger _logger = null!;
-    private readonly ITranslationService _translationService = null!;
-    private readonly ILauncherStore _launcherStore = null!;
     private readonly IMicrosoftAuthService _authService = null!;
     private readonly IMicrosoftDeviceAuthService _deviceAuthService = null!;
-    private readonly IMicrosoftHttpAuthService _httpAuthService = null!;
-    private readonly ISkinService _skinService = null!;
     private readonly IEncryptionService _encryptionService = null!;
     private readonly IEventService _eventService = null!;
-
-    #region Observable Properties
-    [ObservableProperty]
-    public partial bool IsLoggingInMicrosoftAccount { get; set; }
-
-    [ObservableProperty]
-    public partial bool IsProcessingLogin { get; set; }
-
-    [ObservableProperty]
-    public partial double Progress { get; set; }
-
-    [ObservableProperty]
-    public partial string ProgressText { get; set; } = "Loading...";
-
-    [ObservableProperty]
-    public partial string? OfflineUsername { get; set; }
-
-    [ObservableProperty]
-    public partial DeviceCodeResult? DeviceData { get; set; }
-
-    [ObservableProperty]
-    public partial Bitmap? QrCode { get; set; }
-
-    [ObservableProperty]
-    public partial bool IsQrCodeLoading { get; set; } = true;
-    #endregion
-
-    #region Interactions
-    public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
-    public Interaction<Alert, Unit> ShowAlertDialog { get; } = new();
-    public Interaction<string, Unit> SetClipboardText { get; } = new();
-    #endregion
+    private readonly IMicrosoftHttpAuthService _httpAuthService = null!;
+    private readonly ILauncherStore _launcherStore = null!;
+    private readonly IBeaconLogger _logger = null!;
+    private readonly ISkinService _skinService = null!;
+    private readonly ITranslationService _translationService = null!;
 
     public AccountsViewModel()
     {
-        DeviceData = new DeviceCodeResult
-        {
-            UserCode = "DEBUG",
-        };
+        DeviceData = new DeviceCodeResult { UserCode = "DEBUG" };
     }
 
     public AccountsViewModel(IBeaconLogger<AccountsViewModel> logger,
-        ILauncherStore launcherStore, ITranslationService translationService, IMicrosoftAuthService microsoftAuthService,
+        ILauncherStore launcherStore, ITranslationService translationService,
+        IMicrosoftAuthService microsoftAuthService,
         IMicrosoftDeviceAuthService microsoftDeviceAuthService, IMicrosoftHttpAuthService microsoftHttpAuthService,
         ISkinService skinService, IEncryptionService encryptionService, IEventService eventService)
     {
         if (Design.IsDesignMode)
         {
-            DeviceData = new DeviceCodeResult
-            {
-                UserCode = "DEBUG",
-            };
+            DeviceData = new DeviceCodeResult { UserCode = "DEBUG" };
             return;
         }
 
@@ -112,12 +74,12 @@ public partial class AccountsViewModel : KonkordObservableObject
     }
 
     /// <summary>
-    /// Releases the resources used by the ViewModel, including the QR code bitmap.
-    /// Ensures proper cleanup of unmanaged resources when disposing.
+    ///     Releases the resources used by the ViewModel, including the QR code bitmap.
+    ///     Ensures proper cleanup of unmanaged resources when disposing.
     /// </summary>
     /// <param name="disposing">
-    /// A boolean value indicating whether the method is called explicitly
-    /// (true) or by the garbage collector (false).
+    ///     A boolean value indicating whether the method is called explicitly
+    ///     (true) or by the garbage collector (false).
     /// </param>
     protected override void Dispose(bool disposing)
     {
@@ -126,7 +88,7 @@ public partial class AccountsViewModel : KonkordObservableObject
     }
 
     /// <summary>
-    /// Stops the Microsoft authentication process and resets related states.
+    ///     Stops the Microsoft authentication process and resets related states.
     /// </summary>
     public void StopMicrosoftAuth()
     {
@@ -146,7 +108,7 @@ public partial class AccountsViewModel : KonkordObservableObject
     private async Task HandleAuthStatusChange(EAuthStatus status)
     {
         _logger.LogDebug($"Microsoft Status result: {status}");
-        IsProcessingLogin = status == EAuthStatus.PROCESSING || status ==  EAuthStatus.SUCCESS;
+        IsProcessingLogin = status == EAuthStatus.PROCESSING || status == EAuthStatus.SUCCESS;
         if (status == EAuthStatus.FAILED)
         {
             IsLoggingInMicrosoftAccount = false;
@@ -169,7 +131,7 @@ public partial class AccountsViewModel : KonkordObservableObject
             return;
         }
 
-        AccountData accountData = await _launcherStore.GetAccountDataAsync();
+        var accountData = await _launcherStore.GetAccountDataAsync();
         var account = accountData.Accounts.FirstOrDefault(x => x.Uuid == microsoftAccount.Uuid);
         if (account != null)
         {
@@ -189,7 +151,8 @@ public partial class AccountsViewModel : KonkordObservableObject
         foreach (var skin in microsoftAccount.Skins)
             await _skinService.FetchSkinsAsync(settings.Launcher.CacheDirectoryPath, microsoftAccount.Id,
                 microsoftAccount.Uuid, skin);
-        await _skinService.FetchCapesAsync(settings.Launcher.CacheDirectoryPath, microsoftAccount.MojangProfile?.Capes ?? []);
+        await _skinService.FetchCapesAsync(settings.Launcher.CacheDirectoryPath,
+            microsoftAccount.MojangProfile?.Capes ?? []);
 
         _eventService.RaiseAccountsChanged();
         _authService.Reset();
@@ -203,82 +166,14 @@ public partial class AccountsViewModel : KonkordObservableObject
     {
         await CloseWindowInteraction.Handle(Unit.Default);
     }
-    #endregion
-
-    #region Microsoft Commands
-
-    /// <summary>
-    /// Initiates the Microsoft account login process asynchronously.
-    /// Handles authentication, error reporting, and account data updates.
-    /// </summary>
-    [RelayCommand]
-    private async Task LoginMicrosoftAccountAsync()
-    {
-        IsLoggingInMicrosoftAccount = true;
-        var codeResult = await _authService.CreateDeviceCodeAsync();
-        if (codeResult == null)
-        {
-            _logger.LogError("Failed to create Microsoft device code.");
-            return;
-        }
-
-        IsQrCodeLoading = true;
-        QrCode?.Dispose();
-        DeviceData = codeResult;
-        QrCode = ImageHelper.GenerateQrCode(DeviceData.VerificationUri);
-        await Task.Delay(200); // Small delay to ensure the code is loaded
-        IsQrCodeLoading = false;
-
-        await Task.WhenAny(
-            Task.Run(async () => await _httpAuthService.StartListeningAsync()),
-            Task.Run(async () => await _deviceAuthService.StartListeningAsync(DeviceData.DeviceCode, TimeSpan.FromSeconds(DeviceData.Interval)))
-        );
-    }
-
-    /// <summary>
-    /// Opens the Microsoft login URL in the default browser.
-    /// </summary>
-    [RelayCommand]
-    private void MicrosoftOpenLoginLink()
-    {
-        _authService.OpenAuthenticationUrl();
-    }
-
-    /// <summary>
-    /// Opens the Microsoft device code verification URL in the default browser.
-    /// </summary>
-    [RelayCommand]
-    private void MicrosoftOpenCodeLink()
-    {
-        OSHelper.OpenUrl(DeviceData!.VerificationUri);
-    }
-
-    /// <summary>
-    /// Copies the Microsoft device code to the clipboard.
-    /// </summary>
-    [RelayCommand]
-    private async Task MicrosoftCopyCode()
-    {
-        await SetClipboardText.Handle(DeviceData!.UserCode);
-    }
-
-    /// <summary>
-    /// Cancels the Microsoft login process and stops the authentication listener.
-    /// </summary>
-    [RelayCommand]
-    private async Task MicrosoftCancelLogin()
-    {
-        await _httpAuthService.StopListeningAsync();
-        await _deviceAuthService.StopListeningAsync();
-        StopMicrosoftAuth();
-    }
 
     #endregion
 
     #region Offline Commands
+
     /// <summary>
-    /// Logs in with an offline account asynchronously.
-    /// Validates the username, checks for duplicate accounts, and updates account data.
+    ///     Logs in with an offline account asynchronously.
+    ///     Validates the username, checks for duplicate accounts, and updates account data.
     /// </summary>
     [RelayCommand]
     public async Task OfflineLoginAsync(CancellationToken cancellationToken = default)
@@ -291,8 +186,8 @@ public partial class AccountsViewModel : KonkordObservableObject
             return;
         }
 
-        string uuid = GameHelper.GetOfflinePlayerUUID(OfflineUsername);
-        AccountData accountData = await _launcherStore.GetAccountDataAsync(cancellationToken);
+        var uuid = GameHelper.GetOfflinePlayerUUID(OfflineUsername);
+        var accountData = await _launcherStore.GetAccountDataAsync(cancellationToken);
         var account = accountData.Accounts.FirstOrDefault(x => x.Uuid == uuid);
         if (account != null)
         {
@@ -323,9 +218,110 @@ public partial class AccountsViewModel : KonkordObservableObject
         await _launcherStore.SaveAccountDataAsync(accountData, cancellationToken);
         _eventService.RaiseAccountsChanged();
         var settings = await _launcherStore.GetSettingsAsync(cancellationToken: cancellationToken);
-        await _skinService.FetchOfflineSkinsAsync(settings.Launcher.CacheDirectoryPath, id, OfflineUsername, cancellationToken);
+        await _skinService.FetchOfflineSkinsAsync(settings.Launcher.CacheDirectoryPath, id, OfflineUsername,
+            cancellationToken);
 
         await CloseWindowInteraction.Handle(Unit.Default);
+    }
+
+    #endregion
+
+    #region Observable Properties
+
+    [ObservableProperty] public partial bool IsLoggingInMicrosoftAccount { get; set; }
+
+    [ObservableProperty] public partial bool IsProcessingLogin { get; set; }
+
+    [ObservableProperty] public partial double Progress { get; set; }
+
+    [ObservableProperty] public partial string ProgressText { get; set; } = "Loading...";
+
+    [ObservableProperty] public partial string? OfflineUsername { get; set; }
+
+    [ObservableProperty] public partial DeviceCodeResult? DeviceData { get; set; }
+
+    [ObservableProperty] public partial Bitmap? QrCode { get; set; }
+
+    [ObservableProperty] public partial bool IsQrCodeLoading { get; set; } = true;
+
+    #endregion
+
+    #region Interactions
+
+    public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
+    public Interaction<Alert, Unit> ShowAlertDialog { get; } = new();
+    public Interaction<string, Unit> SetClipboardText { get; } = new();
+
+    #endregion
+
+    #region Microsoft Commands
+
+    /// <summary>
+    ///     Initiates the Microsoft account login process asynchronously.
+    ///     Handles authentication, error reporting, and account data updates.
+    /// </summary>
+    [RelayCommand]
+    private async Task LoginMicrosoftAccountAsync()
+    {
+        IsLoggingInMicrosoftAccount = true;
+        var codeResult = await _authService.CreateDeviceCodeAsync();
+        if (codeResult == null)
+        {
+            _logger.LogError("Failed to create Microsoft device code.");
+            return;
+        }
+
+        IsQrCodeLoading = true;
+        QrCode?.Dispose();
+        DeviceData = codeResult;
+        QrCode = ImageHelper.GenerateQrCode(DeviceData.VerificationUri);
+        await Task.Delay(200); // Small delay to ensure the code is loaded
+        IsQrCodeLoading = false;
+
+        await Task.WhenAny(
+            Task.Run(async () => await _httpAuthService.StartListeningAsync()),
+            Task.Run(async () =>
+                await _deviceAuthService.StartListeningAsync(DeviceData.DeviceCode,
+                    TimeSpan.FromSeconds(DeviceData.Interval)))
+        );
+    }
+
+    /// <summary>
+    ///     Opens the Microsoft login URL in the default browser.
+    /// </summary>
+    [RelayCommand]
+    private void MicrosoftOpenLoginLink()
+    {
+        _authService.OpenAuthenticationUrl();
+    }
+
+    /// <summary>
+    ///     Opens the Microsoft device code verification URL in the default browser.
+    /// </summary>
+    [RelayCommand]
+    private void MicrosoftOpenCodeLink()
+    {
+        OSHelper.OpenUrl(DeviceData!.VerificationUri);
+    }
+
+    /// <summary>
+    ///     Copies the Microsoft device code to the clipboard.
+    /// </summary>
+    [RelayCommand]
+    private async Task MicrosoftCopyCode()
+    {
+        await SetClipboardText.Handle(DeviceData!.UserCode);
+    }
+
+    /// <summary>
+    ///     Cancels the Microsoft login process and stops the authentication listener.
+    /// </summary>
+    [RelayCommand]
+    private async Task MicrosoftCancelLogin()
+    {
+        await _httpAuthService.StopListeningAsync();
+        await _deviceAuthService.StopListeningAsync();
+        StopMicrosoftAuth();
     }
 
     #endregion

@@ -26,61 +26,16 @@ using JavaVersionModel = Tavstal.KonkordLauncher.Desktop.Models.Domain.JavaVersi
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 
 /// <summary>
-/// Represents the main view model for the application, managing the state and behavior of the UI.
+///     Represents the main view model for the application, managing the state and behavior of the UI.
 /// </summary>
 public partial class MainViewModel : KonkordObservableObject
 {
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IScreenService _screenService = null!;
-
-    public bool IsLinux { get; } = OSHelper.GetOperatingSystem() == EOperatingSystem.LINUX;
-    public DateTime NextCacheRefresh { get; private set; }
-    public DateTime NextUpdate { get; private set; }
-    public Task Initialization { get; } = null!;
-
-    public MainViewModel_Accounts Accounts { get; } = null!;
-    public MainViewModel_About About { get; } = null!;
-    public MainViewModel_Config Config { get; } = null!;
-    public MainViewModel_Instances Instances { get; } = null!;
-
-    #region Interactions
-
-
-    public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
-    public Interaction<Alert, bool> ShowAlertDialogInteraction { get; } = new();
-    public Interaction<Alert, bool> ShowConfirmDialogInteraction { get; } = new();
-    public Interaction<ESidebarType, Unit> SwitchSidebarBtnInteraction { get; } = new();
-    public Interaction<Unit, string?> OpenFolderPickerInteraction { get; } = new();
-    public Interaction<Unit, string?> OpenImagePickerInteraction { get; } = new();
-    public Interaction<Unit, Unit> ShowInstanceCreationDialogInteraction { get; } = new();
-    public Interaction<InstanceModel, Unit> ShowInstanceEditDialogInteraction { get; } = new();
-    public Interaction<Unit, Unit> ShowAccountsDialogInteraction { get; } = new();
-    public Interaction<Unit, JavaVersionModel> ShowJavaSelectorDialogInteraction { get; } = new();
-    public Interaction<string, Unit> ShowLogsWindowInteraction { get; } = new();
-    public Interaction<string, Unit> CloseLogsWindowInteraction { get; } = new();
-    public Interaction<string, string?> ShowTextInputDialogInteraction { get; } = new();
-    public Interaction<Unit, string?> ShowIconSelectorDialogInteraction { get; } = new();
-    public Interaction<ESettingsTab, Unit> UpdateSettingsTabButtonInteraction { get; } = new();
-    public Interaction<EAboutTab, Unit> SwitchAboutTabInteractionInteraction { get; } = new();
-    public Interaction<Instance, Unit> ExportModrinthInstanceInteraction { get; } = new();
-    public Interaction<Instance, Unit> ExportCurseForgeInstanceInteraction { get; } = new();
-    public Interaction<Instance, bool> ShowInstanceVersionSelectorInteraction { get; } = new();
-    #endregion
-
-    [ObservableProperty]
-    public partial bool IsLoading { get; set; }
-
-    [ObservableProperty]
-    public partial ESidebarType CurrentPageIndex { get; set; } = ESidebarType.Play;
-
-    [ObservableProperty] private ESettingsTab _currentSettingsTab = ESettingsTab.LAUNCHER;
     [ObservableProperty] private EAboutTab _currentAboutTab = EAboutTab.ABOUT;
 
-    public ObservableCollection<PatchNote> Patches { get; } = new();
+    [ObservableProperty] private ESettingsTab _currentSettingsTab = ESettingsTab.LAUNCHER;
     [ObservableProperty] private bool _hasPatches;
-
-    public int ScreenWidth => Design.IsDesignMode ? 950 : _screenService.ScreenSize.Width;
-    public int ScreenHeight => Design.IsDesignMode ? 600 : _screenService.ScreenSize.Height;
 
     public MainViewModel()
     {
@@ -119,6 +74,25 @@ public partial class MainViewModel : KonkordObservableObject
         }, TaskScheduler.Default);
     }
 
+    public bool IsLinux { get; } = OSHelper.GetOperatingSystem() == EOperatingSystem.LINUX;
+    public DateTime NextCacheRefresh { get; private set; }
+    public DateTime NextUpdate { get; private set; }
+    public Task Initialization { get; } = null!;
+
+    public MainViewModel_Accounts Accounts { get; } = null!;
+    public MainViewModel_About About { get; } = null!;
+    public MainViewModel_Config Config { get; } = null!;
+    public MainViewModel_Instances Instances { get; } = null!;
+
+    [ObservableProperty] public partial bool IsLoading { get; set; }
+
+    [ObservableProperty] public partial ESidebarType CurrentPageIndex { get; set; } = ESidebarType.Play;
+
+    public ObservableCollection<PatchNote> Patches { get; } = new();
+
+    public int ScreenWidth => Design.IsDesignMode ? 950 : _screenService.ScreenSize.Width;
+    public int ScreenHeight => Design.IsDesignMode ? 600 : _screenService.ScreenSize.Height;
+
     public async Task InitAsync(CancellationToken cancellationToken = default)
     {
         IsLoading = true;
@@ -153,12 +127,14 @@ public partial class MainViewModel : KonkordObservableObject
     }
 
     /// <summary>
-    /// Releases the resources used by the MainViewModel and unsubscribes from global events.
+    ///     Releases the resources used by the MainViewModel and unsubscribes from global events.
     /// </summary>
     /// <param name="disposing">
-    /// A boolean value indicating whether the method is being called directly or indirectly by a finalizer.
-    /// If true, the method has been called directly or indirectly by a user's code. Managed and unmanaged resources can be disposed.
-    /// If false, the method has been called by the runtime from inside the finalizer, and only unmanaged resources can be disposed.
+    ///     A boolean value indicating whether the method is being called directly or indirectly by a finalizer.
+    ///     If true, the method has been called directly or indirectly by a user's code. Managed and unmanaged resources can be
+    ///     disposed.
+    ///     If false, the method has been called by the runtime from inside the finalizer, and only unmanaged resources can be
+    ///     disposed.
     /// </param>
     protected override void Dispose(bool disposing)
     {
@@ -169,6 +145,30 @@ public partial class MainViewModel : KonkordObservableObject
         Config.Dispose();
         Instances.Dispose();
     }
+
+    #region Interactions
+
+    public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
+    public Interaction<Alert, bool> ShowAlertDialogInteraction { get; } = new();
+    public Interaction<Alert, bool> ShowConfirmDialogInteraction { get; } = new();
+    public Interaction<ESidebarType, Unit> SwitchSidebarBtnInteraction { get; } = new();
+    public Interaction<Unit, string?> OpenFolderPickerInteraction { get; } = new();
+    public Interaction<Unit, string?> OpenImagePickerInteraction { get; } = new();
+    public Interaction<Unit, Unit> ShowInstanceCreationDialogInteraction { get; } = new();
+    public Interaction<InstanceModel, Unit> ShowInstanceEditDialogInteraction { get; } = new();
+    public Interaction<Unit, Unit> ShowAccountsDialogInteraction { get; } = new();
+    public Interaction<Unit, JavaVersionModel> ShowJavaSelectorDialogInteraction { get; } = new();
+    public Interaction<string, Unit> ShowLogsWindowInteraction { get; } = new();
+    public Interaction<string, Unit> CloseLogsWindowInteraction { get; } = new();
+    public Interaction<string, string?> ShowTextInputDialogInteraction { get; } = new();
+    public Interaction<Unit, string?> ShowIconSelectorDialogInteraction { get; } = new();
+    public Interaction<ESettingsTab, Unit> UpdateSettingsTabButtonInteraction { get; } = new();
+    public Interaction<EAboutTab, Unit> SwitchAboutTabInteractionInteraction { get; } = new();
+    public Interaction<Instance, Unit> ExportModrinthInstanceInteraction { get; } = new();
+    public Interaction<Instance, Unit> ExportCurseForgeInstanceInteraction { get; } = new();
+    public Interaction<Instance, bool> ShowInstanceVersionSelectorInteraction { get; } = new();
+
+    #endregion
 
 
     #region Commands

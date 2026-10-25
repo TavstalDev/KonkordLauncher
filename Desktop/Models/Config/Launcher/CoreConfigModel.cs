@@ -6,59 +6,25 @@ using Tavstal.KonkordLauncher.Desktop.Models.DTOs.Config;
 namespace Tavstal.KonkordLauncher.Desktop.Models.Config.Launcher;
 
 /// <summary>
-/// Represents the core configuration model for the launcher, including launcher, Java, Minecraft, and miscellaneous settings.
+///     Represents the core configuration model for the launcher, including launcher, Java, Minecraft, and miscellaneous
+///     settings.
 /// </summary>
 public partial class CoreConfigModel : ObservableObject
 {
     /// <summary>
-    /// Gets or sets the launcher configuration.
+    ///     Initializes a new instance of the <see cref="CoreConfigModel" /> class with default values.
     /// </summary>
-    [ObservableProperty]
-    public partial LauncherConfigModel Launcher { get; set; }
+    public CoreConfigModel() { }
 
     /// <summary>
-    /// Gets or sets the Java configuration.
-    /// </summary>
-    [ObservableProperty]
-    public partial JavaConfigModel Java { get; set; }
-
-    /// <summary>
-    /// Gets or sets the Minecraft configuration.
-    /// </summary>
-    [ObservableProperty]
-    public partial MinecraftConfigModel Minecraft { get; set; }
-
-    /// <summary>
-    /// Gets or sets the miscellaneous configuration.
-    /// </summary>
-    [ObservableProperty]
-    public partial MiscConfigModel Misc { get; set; }
-
-    /// <summary>
-    /// Gets the list of available languages for the launcher.
-    /// </summary>
-    public List<Language> AvailableLanguages => [
-        new()
-        {
-            Name = "English",
-            TwoLetterCode = "en",
-            IsDefault = true,
-        }
-    ];
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="CoreConfigModel"/> class with default values.
-    /// </summary>
-    public CoreConfigModel() {}
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="CoreConfigModel"/> class with specified configurations.
+    ///     Initializes a new instance of the <see cref="CoreConfigModel" /> class with specified configurations.
     /// </summary>
     /// <param name="launcher">The launcher configuration.</param>
     /// <param name="java">The Java configuration.</param>
     /// <param name="minecraft">The Minecraft configuration.</param>
     /// <param name="misc">The miscellaneous configuration.</param>
-    public CoreConfigModel(LauncherConfigModel launcher, JavaConfigModel java, MinecraftConfigModel minecraft, MiscConfigModel misc)
+    public CoreConfigModel(LauncherConfigModel launcher, JavaConfigModel java, MinecraftConfigModel minecraft,
+        MiscConfigModel misc)
     {
         Launcher = launcher;
         Java = java;
@@ -67,12 +33,13 @@ public partial class CoreConfigModel : ObservableObject
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CoreConfigModel"/> class using a core configuration object.
+    ///     Initializes a new instance of the <see cref="CoreConfigModel" /> class using a core configuration object.
     /// </summary>
     /// <param name="config">The core configuration object to initialize from.</param>
     public CoreConfigModel(CoreConfig config)
     {
-        Launcher = new LauncherConfigModel {
+        Launcher = new LauncherConfigModel
+        {
             EnableAutomaticUpdates = config.Launcher.EnableAutomaticUpdates,
             UpdateInterval = config.Launcher.UpdateInterval,
             Language = config.Launcher.Language,
@@ -87,7 +54,8 @@ public partial class CoreConfigModel : ObservableObject
             TranslationsDirectoryPath = config.Launcher.TranslationsDirectoryPath,
             VersionsDirectoryPath = config.Launcher.VersionsDirectoryPath
         };
-        Java = new JavaConfigModel {
+        Java = new JavaConfigModel
+        {
             MinMemory = config.Java.MinMemory,
             MaxMemory = config.Java.MaxMemory,
             PermaGen = config.Java.PermaGen,
@@ -116,4 +84,36 @@ public partial class CoreConfigModel : ObservableObject
             UseDedicatedGpu = config.Misc.UseDedicatedGpu
         };
     }
+
+    /// <summary>
+    ///     Gets or sets the launcher configuration.
+    /// </summary>
+    [ObservableProperty]
+    public partial LauncherConfigModel Launcher { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the Java configuration.
+    /// </summary>
+    [ObservableProperty]
+    public partial JavaConfigModel Java { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the Minecraft configuration.
+    /// </summary>
+    [ObservableProperty]
+    public partial MinecraftConfigModel Minecraft { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the miscellaneous configuration.
+    /// </summary>
+    [ObservableProperty]
+    public partial MiscConfigModel Misc { get; set; }
+
+    /// <summary>
+    ///     Gets the list of available languages for the launcher.
+    /// </summary>
+    public List<Language> AvailableLanguages =>
+    [
+        new() { Name = "English", TwoLetterCode = "en", IsDefault = true }
+    ];
 }

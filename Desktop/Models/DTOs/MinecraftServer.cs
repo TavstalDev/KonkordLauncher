@@ -6,44 +6,8 @@ namespace Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 public class MinecraftServer
 {
     /// <summary>
-    /// Gets or sets the name of the Minecraft server.
-    /// </summary>
-    [NbtProperty(PropertyName="name")]
-    [JsonPropertyName("name")]
-    public string Name { get; set; }
-
-    /// <summary>
-    /// Gets or sets the IP address of the Minecraft server.
-    /// </summary>
-    [NbtProperty(PropertyName="ip")]
-    [JsonPropertyName("ip")]
-    public string Ip { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the server accepts textures.
-    /// </summary>
-    [NbtProperty(PropertyName="acceptTextures")]
-    [JsonPropertyName("acceptTextures")]
-    public byte AcceptTextures { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the server address is hidden.
-    /// This property is nullable.
-    /// </summary>
-    [NbtProperty(PropertyName="hideAddress")]
-    [JsonPropertyName("hideAddress")]
-    public byte? HideAddress { get; set; }
-
-    /// <summary>
-    /// Gets or sets the optional icon of the Minecraft server.
-    /// </summary>
-    [NbtProperty(PropertyName="icon")]
-    [JsonPropertyName("icon")]
-    public string? Icon { get; set; }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="MinecraftServer"/> class
-    /// with default values.
+    ///     Initializes a new instance of the <see cref="MinecraftServer" /> class
+    ///     with default values.
     /// </summary>
     public MinecraftServer()
     {
@@ -53,8 +17,8 @@ public class MinecraftServer
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="MinecraftServer"/> class
-    /// with the specified properties.
+    ///     Initializes a new instance of the <see cref="MinecraftServer" /> class
+    ///     with the specified properties.
     /// </summary>
     /// <param name="name">The name of the Minecraft server.</param>
     /// <param name="ip">The IP address of the Minecraft server.</param>
@@ -69,4 +33,40 @@ public class MinecraftServer
         HideAddress = hideAddress;
         Icon = icon;
     }
+
+    /// <summary>
+    ///     Gets or sets the name of the Minecraft server.
+    /// </summary>
+    [NbtProperty(PropertyName = "name")]
+    [JsonPropertyName("name")]
+    public string Name { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the IP address of the Minecraft server.
+    /// </summary>
+    [NbtProperty(PropertyName = "ip")]
+    [JsonPropertyName("ip")]
+    public string Ip { get; set; }
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether the server accepts textures.
+    /// </summary>
+    [NbtProperty(PropertyName = "acceptTextures")]
+    [JsonPropertyName("acceptTextures")]
+    public byte AcceptTextures { get; set; }
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether the server address is hidden.
+    ///     This property is nullable.
+    /// </summary>
+    [NbtProperty(PropertyName = "hideAddress")]
+    [JsonPropertyName("hideAddress")]
+    public byte? HideAddress { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the optional icon of the Minecraft server.
+    /// </summary>
+    [NbtProperty(PropertyName = "icon")]
+    [JsonPropertyName("icon")]
+    public string? Icon { get; set; }
 }

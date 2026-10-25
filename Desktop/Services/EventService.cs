@@ -5,56 +5,62 @@ using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 
 namespace Tavstal.KonkordLauncher.Desktop.Services;
 
-/// <inheritdoc/>
+/// <inheritdoc />
 public class EventService : IEventService
 {
+    public const int MaxLogSizeBytes = 10 * 1024 * 1024;
     private readonly Dictionary<string, string> _instanceLogs = new();
     private readonly Lock _instanceLogsLock = new();
-    public const int MaxLogSizeBytes = 10 * 1024 * 1024;
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public event IEventService.ThemeChangedEventHandler? OnThemeChanged;
-    /// <inheritdoc/>
+
+    /// <inheritdoc />
     public void RaiseThemeChanged(EThemeType newTheme)
     {
         OnThemeChanged?.Invoke(newTheme);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public event IEventService.AccountsChangedEventHandler? OnAccountsChanged;
-    /// <inheritdoc/>
+
+    /// <inheritdoc />
     public void RaiseAccountsChanged()
     {
         OnAccountsChanged?.Invoke();
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public event IEventService.InstanceAddedEventHandler? OnInstanceAdded;
-    /// <inheritdoc/>
+
+    /// <inheritdoc />
     public void RaiseInstanceAdded(string instanceId)
     {
         OnInstanceAdded?.Invoke(instanceId);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public event IEventService.InstanceUpdatedEventHandler? OnInstanceUpdated;
-    /// <inheritdoc/>
+
+    /// <inheritdoc />
     public void RaiseInstanceUpdated(string instanceId)
     {
         OnInstanceUpdated?.Invoke(instanceId);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public event IEventService.InstanceRemovedEventHandler? OnInstanceRemoved;
-    /// <inheritdoc/>
+
+    /// <inheritdoc />
     public void RaiseInstanceRemoved(string instanceId)
     {
         OnInstanceRemoved?.Invoke(instanceId);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public event IEventService.InstanceLoggedEventHandler? OnInstanceLogged;
-    /// <inheritdoc/>
+
+    /// <inheritdoc />
     public void RaiseInstanceLogged(string instanceId, string logMessage)
     {
         lock (_instanceLogsLock)
@@ -64,7 +70,7 @@ public class EventService : IEventService
                 var log = existing + logMessage;
                 if (Encoding.UTF8.GetByteCount(log) > MaxLogSizeBytes)
                 {
-                    int trimIndex = log.IndexOf('\n', log.Length / 2);
+                    var trimIndex = log.IndexOf('\n', log.Length / 2);
                     if (trimIndex > 0)
                         log = log[(trimIndex + 1)..];
                 }
@@ -80,14 +86,16 @@ public class EventService : IEventService
         OnInstanceLogged?.Invoke(instanceId, logMessage);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public string GetInstanceLogs(string instanceId)
     {
         lock (_instanceLogsLock)
+        {
             return _instanceLogs.TryGetValue(instanceId, out var log) ? log : string.Empty;
+        }
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public void CleareInstanceLogs(string instanceId)
     {
         lock (_instanceLogsLock)

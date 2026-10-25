@@ -10,24 +10,26 @@ using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 /// <summary>
-/// Represents a window for user input in the application.
-/// Provides constructors for design-time and runtime initialization.
+///     Represents a window for user input in the application.
+///     Provides constructors for design-time and runtime initialization.
 /// </summary>
 public partial class InputWindow : KonkordWindow<InputViewModel>
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="InputWindow"/> class for design-time use.
-    /// Sets the DataContext to a design-time instance of <see cref="InputViewModel"/>.
+    ///     Initializes a new instance of the <see cref="InputWindow" /> class for design-time use.
+    ///     Sets the DataContext to a design-time instance of <see cref="InputViewModel" />.
     /// </summary>
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public InputWindow() : this("Design Time Title") {}
+    [RequiresUnreferencedCode(
+        "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    public InputWindow() : this("Design Time Title") { }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="InputWindow"/> class with the specified title.
-    /// Sets up the DataContext and handles window activation events.
+    ///     Initializes a new instance of the <see cref="InputWindow" /> class with the specified title.
+    ///     Sets up the DataContext and handles window activation events.
     /// </summary>
     /// <param name="title">The title to be displayed in the input window.</param>
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    [RequiresUnreferencedCode(
+        "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public InputWindow(string title)
     {
         InitializeComponent();

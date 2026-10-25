@@ -62,7 +62,8 @@
         <Setter Property="Background" Value="{DynamicResource base-300}" />
     </Style>
 
-    <Style Selector="Expander.InstanceExpander /template/ ToggleButton#ExpanderHeader:pointerover /template/ Border#ToggleButtonBackground">
+    <Style
+        Selector="Expander.InstanceExpander /template/ ToggleButton#ExpanderHeader:pointerover /template/ Border#ToggleButtonBackground">
         <Setter Property="Background" Value="{DynamicResource base-300}" />
     </Style>
 </Styles>

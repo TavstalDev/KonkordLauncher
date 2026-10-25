@@ -3,13 +3,13 @@ using Tavstal.BeaconSDK.Models.Instance;
 
 namespace Tavstal.KonkordLauncher.Desktop.Services.Presentation;
 
-/// <inheritdoc/>
+/// <inheritdoc />
 public class ScreenService : IScreenService
 {
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public PixelSize ScreenSize { get; set; } = new(1920, 1080);
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public Resolution GetResolution()
     {
         return new Resolution((uint)ScreenSize.Width, (uint)ScreenSize.Height);

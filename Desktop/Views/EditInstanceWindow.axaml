@@ -5,7 +5,6 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:enums="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Enums"
     xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
-    xmlns:local="clr-namespace:Tavstal.KonkordLauncher.Desktop"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
     xmlns:templates="clr-namespace:Tavstal.KonkordLauncher.Desktop.Styles.Templates"
@@ -38,7 +37,7 @@
             PointerPressed="DragStart_PointerPressed">
             <Grid RowDefinitions="Auto, *">
                 <!--  Window Controls  -->
-                <templates:CustomTitleBar/>
+                <templates:CustomTitleBar />
 
                 <!--  Main Content  -->
                 <Grid Grid.Row="1" RowDefinitions="Auto, *">
@@ -216,7 +215,8 @@
                                                             VerticalAlignment="Center"
                                                             Classes="FontAwesome"
                                                             Text="&#xe4b8;" />
-                                                        <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.bottom}" />
+                                                        <TextBlock VerticalAlignment="Center"
+                                                                   Text="{lang:Translate common.bottom}" />
                                                     </WrapPanel>
                                                 </Button>
                                                 <!--  Copy button  -->
@@ -229,7 +229,8 @@
                                                             VerticalAlignment="Center"
                                                             Classes="FontAwesome"
                                                             Text="&#xf0c5;" />
-                                                        <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.copy}" />
+                                                        <TextBlock VerticalAlignment="Center"
+                                                                   Text="{lang:Translate common.copy}" />
                                                     </WrapPanel>
                                                 </Button>
                                                 <!--  Clear button  -->
@@ -242,7 +243,8 @@
                                                             VerticalAlignment="Center"
                                                             Classes="FontAwesome"
                                                             Text="&#xf1b8;" />
-                                                        <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.clear}" />
+                                                        <TextBlock VerticalAlignment="Center"
+                                                                   Text="{lang:Translate common.clear}" />
                                                     </WrapPanel>
                                                 </Button>
                                             </Grid>
@@ -260,7 +262,8 @@
 
                                             <!--  Content  -->
                                             <Border Grid.Row="1">
-                                                <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
+                                                <ScrollViewer Classes="TableScrollViewer"
+                                                              HorizontalScrollBarVisibility="Disabled">
                                                     <DataGrid
                                                         Classes="InstanceMultiTable"
                                                         ItemsSource="{Binding Mods.FilteredMods}"
@@ -273,7 +276,8 @@
                                                                 Header="{lang:Translate instance.edit.table.enabled}"
                                                                 IsReadOnly="False" />
                                                             <!--  Image  -->
-                                                            <DataGridTemplateColumn Width="Auto" Header="{lang:Translate instance.edit.table.image}">
+                                                            <DataGridTemplateColumn Width="Auto"
+                                                                    Header="{lang:Translate instance.edit.table.image}">
                                                                 <DataGridTemplateColumn.CellTemplate>
                                                                     <DataTemplate>
                                                                         <Image
@@ -314,9 +318,12 @@
                                                                     Header="{lang:Translate common.remove}" />
                                                                 <Separator />
                                                                 <!--  Download Mods  -->
-                                                                <MenuItem Command="{Binding Mods.DownloadCommand}" Header="{lang:Translate instance.download.mods}" />
+                                                                <MenuItem Command="{Binding Mods.DownloadCommand}"
+                                                                          Header="{lang:Translate instance.download.mods}" />
                                                                 <!--  Open Folder  -->
-                                                                <MenuItem Command="{Binding Mods.ModOpenDirectoryCommand}" Header="{lang:Translate common.open.directory}" />
+                                                                <MenuItem
+                                                                    Command="{Binding Mods.ModOpenDirectoryCommand}"
+                                                                    Header="{lang:Translate common.open.directory}" />
                                                             </ContextMenu>
                                                         </DataGrid.ContextMenu>
                                                     </DataGrid>
@@ -344,7 +351,8 @@
                                                             VerticalAlignment="Center"
                                                             Classes="FontAwesome"
                                                             Text="&#xf0ed;" />
-                                                        <TextBlock VerticalAlignment="Center" Text="{lang:Translate instance.edit.downloadMods}" />
+                                                        <TextBlock VerticalAlignment="Center"
+                                                                   Text="{lang:Translate instance.edit.downloadMods}" />
                                                     </WrapPanel>
                                                 </Button>
                                                 <!--  View Folder  -->
@@ -357,7 +365,8 @@
                                                             VerticalAlignment="Center"
                                                             Classes="FontAwesome"
                                                             Text="&#xf07c;" />
-                                                        <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.open.directory}" />
+                                                        <TextBlock VerticalAlignment="Center"
+                                                                   Text="{lang:Translate common.open.directory}" />
                                                     </WrapPanel>
                                                 </Button>
                                             </Grid>
@@ -375,7 +384,8 @@
 
                                             <!--  Content  -->
                                             <Border Grid.Row="1">
-                                                <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
+                                                <ScrollViewer Classes="TableScrollViewer"
+                                                              HorizontalScrollBarVisibility="Disabled">
                                                     <DataGrid
                                                         CellEditEnded="ResourcePacksDataGrid_OnCellEditEnded"
                                                         Classes="InstanceMultiTable"
@@ -390,7 +400,8 @@
                                                                 Header="{lang:Translate instance.edit.table.enabled}"
                                                                 IsReadOnly="False" />
                                                             <!--  Image  -->
-                                                            <DataGridTemplateColumn Width="Auto" Header="{lang:Translate instance.edit.table.image}">
+                                                            <DataGridTemplateColumn Width="Auto"
+                                                                    Header="{lang:Translate instance.edit.table.image}">
                                                                 <DataGridTemplateColumn.CellTemplate>
                                                                     <DataTemplate>
                                                                         <Image
@@ -440,7 +451,9 @@
                                                                     CommandParameter="{Binding ResourcePacks.SelectedResourcePack}"
                                                                     Header="{lang:Translate instance.download.resourcePacks}" />
                                                                 <!--  Open Folder  -->
-                                                                <MenuItem Command="{Binding ResourcePacks.OpenDirCommand}" Header="{lang:Translate common.open.directory}" />
+                                                                <MenuItem
+                                                                    Command="{Binding ResourcePacks.OpenDirCommand}"
+                                                                    Header="{lang:Translate common.open.directory}" />
                                                             </ContextMenu>
                                                         </DataGrid.ContextMenu>
                                                     </DataGrid>
@@ -469,7 +482,8 @@
                                                             VerticalAlignment="Center"
                                                             Classes="FontAwesome"
                                                             Text="&#xf0ed;" />
-                                                        <TextBlock VerticalAlignment="Center" Text="{lang:Translate instance.edit.downloadPacks}" />
+                                                        <TextBlock VerticalAlignment="Center"
+                                                                   Text="{lang:Translate instance.edit.downloadPacks}" />
                                                     </WrapPanel>
                                                 </Button>
                                                 <!--  View Folder  -->
@@ -482,7 +496,8 @@
                                                             VerticalAlignment="Center"
                                                             Classes="FontAwesome"
                                                             Text="&#xf07c;" />
-                                                        <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.open.directory}" />
+                                                        <TextBlock VerticalAlignment="Center"
+                                                                   Text="{lang:Translate common.open.directory}" />
                                                     </WrapPanel>
                                                 </Button>
                                             </Grid>
@@ -500,7 +515,8 @@
 
                                             <!--  Content  -->
                                             <Border Grid.Row="1">
-                                                <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
+                                                <ScrollViewer Classes="TableScrollViewer"
+                                                              HorizontalScrollBarVisibility="Disabled">
                                                     <DataGrid
                                                         Classes="InstanceMultiTable"
                                                         ItemsSource="{Binding ShaderPacks.FilteredShaderPacks}"
@@ -543,9 +559,13 @@
                                                                     Header="{lang:Translate common.remove}" />
                                                                 <Separator />
                                                                 <!--  Download Packs  -->
-                                                                <MenuItem Command="{Binding ShaderPacks.DownloadCommand}" Header="{lang:Translate instance.download.shaders}" />
+                                                                <MenuItem
+                                                                    Command="{Binding ShaderPacks.DownloadCommand}"
+                                                                    Header="{lang:Translate instance.download.shaders}" />
                                                                 <!--  Open Folder  -->
-                                                                <MenuItem Command="{Binding ShaderPacks.OpenDirCommand}" Header="{lang:Translate common.open.directory}" />
+                                                                <MenuItem
+                                                                    Command="{Binding ShaderPacks.OpenDirCommand}"
+                                                                    Header="{lang:Translate common.open.directory}" />
                                                             </ContextMenu>
                                                         </DataGrid.ContextMenu>
                                                     </DataGrid>
@@ -573,7 +593,8 @@
                                                             VerticalAlignment="Center"
                                                             Classes="FontAwesome"
                                                             Text="&#xf0ed;" />
-                                                        <TextBlock VerticalAlignment="Center" Text="{lang:Translate instance.edit.downloadPacks}" />
+                                                        <TextBlock VerticalAlignment="Center"
+                                                                   Text="{lang:Translate instance.edit.downloadPacks}" />
                                                     </WrapPanel>
                                                 </Button>
                                                 <!--  View Folder  -->
@@ -586,7 +607,8 @@
                                                             VerticalAlignment="Center"
                                                             Classes="FontAwesome"
                                                             Text="&#xf07c;" />
-                                                        <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.open.directory}" />
+                                                        <TextBlock VerticalAlignment="Center"
+                                                                   Text="{lang:Translate common.open.directory}" />
                                                     </WrapPanel>
                                                 </Button>
                                             </Grid>
@@ -604,7 +626,8 @@
 
                                             <!--  Content  -->
                                             <Border Grid.Row="1">
-                                                <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
+                                                <ScrollViewer Classes="TableScrollViewer"
+                                                              HorizontalScrollBarVisibility="Disabled">
                                                     <DataGrid
                                                         Name="WorldsTable"
                                                         CellEditEnded="WorldDataGrid_OnCellEditEnded"
@@ -615,10 +638,12 @@
                                                         SelectedItem="{Binding Worlds.SelectedWorld}">
                                                         <DataGrid.Columns>
                                                             <!--  Icon & Name  -->
-                                                            <DataGridTemplateColumn Width="*" Header="{lang:Translate instance.edit.table.name}">
+                                                            <DataGridTemplateColumn Width="*"
+                                                                    Header="{lang:Translate instance.edit.table.name}">
                                                                 <DataGridTemplateColumn.CellTemplate>
                                                                     <DataTemplate>
-                                                                        <StackPanel Orientation="Horizontal" Spacing="5">
+                                                                        <StackPanel Orientation="Horizontal"
+                                                                                Spacing="5">
                                                                             <Image
                                                                                 Height="48"
                                                                                 MaxWidth="48"
@@ -708,7 +733,8 @@
 
                                             <!--  Content  -->
                                             <Border Grid.Row="1">
-                                                <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
+                                                <ScrollViewer Classes="TableScrollViewer"
+                                                              HorizontalScrollBarVisibility="Disabled">
                                                     <DataGrid
                                                         Classes="InstanceMultiTable"
                                                         IsReadOnly="False"
@@ -717,10 +743,12 @@
                                                         SelectedItem="{Binding Servers.SelectedServer}">
                                                         <DataGrid.Columns>
                                                             <!--  Icon & Name  -->
-                                                            <DataGridTemplateColumn Width="*" Header="{lang:Translate instance.edit.table.name}">
+                                                            <DataGridTemplateColumn Width="*"
+                                                                    Header="{lang:Translate instance.edit.table.name}">
                                                                 <DataGridTemplateColumn.CellTemplate>
                                                                     <DataTemplate>
-                                                                        <StackPanel Orientation="Horizontal" Spacing="5">
+                                                                        <StackPanel Orientation="Horizontal"
+                                                                                Spacing="5">
                                                                             <Image
                                                                                 Height="48"
                                                                                 MaxWidth="48"
@@ -791,7 +819,8 @@
                                                             VerticalAlignment="Center"
                                                             Classes="FontAwesome"
                                                             Text="&#x2b;" />
-                                                        <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.add}" />
+                                                        <TextBlock VerticalAlignment="Center"
+                                                                   Text="{lang:Translate common.add}" />
                                                     </WrapPanel>
                                                 </Button>
                                             </Grid>
@@ -809,7 +838,8 @@
 
                                             <!--  Content  -->
                                             <Border Grid.Row="1">
-                                                <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
+                                                <ScrollViewer Classes="TableScrollViewer"
+                                                              HorizontalScrollBarVisibility="Disabled">
                                                     <DataGrid
                                                         Name="ScreenshotsTable"
                                                         CellEditEnded="ScreenshotCell_OnEditEnded"
@@ -952,11 +982,14 @@
                                                         <Border Classes="SettingsCategoryBorder">
                                                             <StackPanel>
                                                                 <!--  Category Title  -->
-                                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.launcher.subtitle.general}" />
+                                                                <TextBlock Classes="SettingsCategoryText"
+                                                                           Text="{lang:Translate settings.launcher.subtitle.general}" />
 
                                                                 <!--  Minimum Memory  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.java.minMemory}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.java.minMemory}" />
                                                                     <NumericUpDown
                                                                         Grid.Column="1"
                                                                         Classes="NumericInput"
@@ -968,8 +1001,10 @@
                                                                 </Grid>
 
                                                                 <!--  Maximum Memory  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.java.maxMemory}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.java.maxMemory}" />
                                                                     <NumericUpDown
                                                                         Grid.Column="1"
                                                                         Classes="NumericInput"
@@ -981,8 +1016,10 @@
                                                                 </Grid>
 
                                                                 <!--  PermGen  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.java.permaGen}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.java.permaGen}" />
                                                                     <NumericUpDown
                                                                         Grid.Column="1"
                                                                         Classes="NumericInput"
@@ -994,8 +1031,10 @@
                                                                 </Grid>
 
                                                                 <!--  Java Path  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 350, Auto">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.java.path}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 350, Auto">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.java.path}" />
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
@@ -1009,10 +1048,13 @@
                                                                             Classes="IconBtn"
                                                                             Command="{Binding Settings.JavaDirSelectCommand}"
                                                                             CommandParameter="9">
-                                                                            <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                                                            <TextBlock Classes="FontAwesome"
+                                                                                    Text="&#xf07c;" />
                                                                         </Button>
-                                                                        <Button Classes="IconBtn" Command="{Binding Settings.JavaPathSelectorCommand}">
-                                                                            <TextBlock Classes="FontAwesome" Text="&#xf126;" />
+                                                                        <Button Classes="IconBtn"
+                                                                                Command="{Binding Settings.JavaPathSelectorCommand}">
+                                                                            <TextBlock Classes="FontAwesome"
+                                                                                    Text="&#xf126;" />
                                                                         </Button>
                                                                     </StackPanel>
                                                                 </Grid>
@@ -1023,7 +1065,8 @@
                                                         <Border Classes="SettingsCategoryBorder">
                                                             <StackPanel Spacing="10">
                                                                 <!--  Category Title  -->
-                                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.java.jvmArgs}" />
+                                                                <TextBlock Classes="SettingsCategoryText"
+                                                                           Text="{lang:Translate settings.java.jvmArgs}" />
 
                                                                 <!--  Input  -->
                                                                 <TextBox
@@ -1043,11 +1086,14 @@
                                                         <Border Classes="SettingsCategoryBorder">
                                                             <StackPanel>
                                                                 <!--  Category Title  -->
-                                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.edit.subTitle.window}" />
+                                                                <TextBlock Classes="SettingsCategoryText"
+                                                                           Text="{lang:Translate instance.edit.subTitle.window}" />
 
                                                                 <!--  Start Maximized  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.minecraft.startMaximized}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.minecraft.startMaximized}" />
                                                                     <ToggleSwitch
                                                                         Grid.Column="1"
                                                                         Classes="SettingsSwitch"
@@ -1055,8 +1101,10 @@
                                                                 </Grid>
 
                                                                 <!--  Window Width  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.minecraft.windowWidth}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.minecraft.windowWidth}" />
                                                                     <NumericUpDown
                                                                         Grid.Column="1"
                                                                         Classes="NumericInput"
@@ -1069,8 +1117,10 @@
                                                                 </Grid>
 
                                                                 <!--  Window Height  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.minecraft.windowHeight}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.minecraft.windowHeight}" />
                                                                     <NumericUpDown
                                                                         Grid.Column="1"
                                                                         Classes="NumericInput"
@@ -1088,11 +1138,14 @@
                                                         <Border Classes="SettingsCategoryBorder">
                                                             <StackPanel>
                                                                 <!--  Category Title  -->
-                                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.edit.subTitle.console}" />
+                                                                <TextBlock Classes="SettingsCategoryText"
+                                                                           Text="{lang:Translate instance.edit.subTitle.console}" />
 
                                                                 <!--  Show console  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate instance.edit.settings.console.showStart}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate instance.edit.settings.console.showStart}" />
                                                                     <ToggleSwitch
                                                                         Grid.Column="1"
                                                                         Classes="SettingsSwitch"
@@ -1100,8 +1153,10 @@
                                                                 </Grid>
 
                                                                 <!--  Auto close console  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate instance.edit.settings.console.closeExit}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate instance.edit.settings.console.closeExit}" />
                                                                     <ToggleSwitch
                                                                         Grid.Column="1"
                                                                         Classes="SettingsSwitch"
@@ -1109,8 +1164,10 @@
                                                                 </Grid>
 
                                                                 <!--  Show console on crash  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate instance.edit.settings.console.showCrash}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate instance.edit.settings.console.showCrash}" />
                                                                     <ToggleSwitch
                                                                         Grid.Column="1"
                                                                         Classes="SettingsSwitch"
@@ -1124,11 +1181,14 @@
                                                         <Border Classes="SettingsCategoryBorder">
                                                             <StackPanel>
                                                                 <!--  Category Title  -->
-                                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.edit.subTitle.performance}" />
+                                                                <TextBlock Classes="SettingsCategoryText"
+                                                                           Text="{lang:Translate instance.edit.subTitle.performance}" />
 
                                                                 <!--  Enable Feral GameMode  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.enableGameMode}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.misc.enableGameMode}" />
                                                                     <ToggleSwitch
                                                                         Grid.Column="1"
                                                                         Classes="SettingsSwitch"
@@ -1137,8 +1197,10 @@
                                                                 </Grid>
 
                                                                 <!--  Enable MangoHud  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.enableMangoHud}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.misc.enableMangoHud}" />
                                                                     <ToggleSwitch
                                                                         Grid.Column="1"
                                                                         Classes="SettingsSwitch"
@@ -1147,8 +1209,10 @@
                                                                 </Grid>
 
                                                                 <!--  Use dedicated GPU  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.useDedicatedGpu}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.misc.useDedicatedGpu}" />
                                                                     <ToggleSwitch
                                                                         Grid.Column="1"
                                                                         Classes="SettingsSwitch"
@@ -1165,12 +1229,16 @@
                                                         <Border Classes="SettingsCategoryBorder">
                                                             <StackPanel>
                                                                 <!--  Category Title  -->
-                                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.misc.subtitle.customCommands}" />
+                                                                <TextBlock Classes="SettingsCategoryText"
+                                                                           Text="{lang:Translate settings.misc.subtitle.customCommands}" />
 
                                                                 <!--  Pre-launch Command  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
-                                                                    <StackPanel MaxWidth="200" HorizontalAlignment="Left">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.prelaunchCommand.label}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 400">
+                                                                    <StackPanel MaxWidth="200"
+                                                                            HorizontalAlignment="Left">
+                                                                        <TextBlock Classes="SettingsName"
+                                                                                Text="{lang:Translate settings.misc.prelaunchCommand.label}" />
                                                                         <TextBlock
                                                                             Classes="SettingsDescription"
                                                                             Text="{lang:Translate settings.misc.prelaunchCommand.description}"
@@ -1183,9 +1251,12 @@
                                                                 </Grid>
 
                                                                 <!--  Wrapper Command  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
-                                                                    <StackPanel MaxWidth="200" HorizontalAlignment="Left">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.wrapperCommand.label}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 400">
+                                                                    <StackPanel MaxWidth="200"
+                                                                            HorizontalAlignment="Left">
+                                                                        <TextBlock Classes="SettingsName"
+                                                                                Text="{lang:Translate settings.misc.wrapperCommand.label}" />
                                                                         <TextBlock
                                                                             Classes="SettingsDescription"
                                                                             Text="{lang:Translate settings.misc.wrapperCommand.description}"
@@ -1198,9 +1269,12 @@
                                                                 </Grid>
 
                                                                 <!--  Post-exit Command  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
-                                                                    <StackPanel MaxWidth="200" HorizontalAlignment="Left">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.postExitCommand.label}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 400">
+                                                                    <StackPanel MaxWidth="200"
+                                                                            HorizontalAlignment="Left">
+                                                                        <TextBlock Classes="SettingsName"
+                                                                                Text="{lang:Translate settings.misc.postExitCommand.label}" />
                                                                         <TextBlock
                                                                             Classes="SettingsDescription"
                                                                             Text="{lang:Translate settings.misc.postExitCommand.description}"
@@ -1221,14 +1295,16 @@
                                                     <Border Classes="SettingsCategoryBorder">
                                                         <Grid RowDefinitions="Auto, Auto, *, Auto">
                                                             <!--  Category Title  -->
-                                                            <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.environment.subtitle}" />
+                                                            <TextBlock Classes="SettingsCategoryText"
+                                                                       Text="{lang:Translate settings.environment.subtitle}" />
 
                                                             <!--  Enable  -->
                                                             <Grid
                                                                 Grid.Row="1"
                                                                 Classes="SettingsContentGrid"
                                                                 ColumnDefinitions="*, 150">
-                                                                <TextBlock Classes="SettingsName" Text="{lang:Translate settings.environment.enable}" />
+                                                                <TextBlock Classes="SettingsName"
+                                                                           Text="{lang:Translate settings.environment.enable}" />
                                                                 <ToggleSwitch
                                                                     Grid.Column="1"
                                                                     Classes="SettingsSwitch"
@@ -1277,7 +1353,8 @@
                                                                             VerticalAlignment="Center"
                                                                             Classes="FontAwesome"
                                                                             Text="&#x2b;" />
-                                                                        <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.add}" />
+                                                                        <TextBlock VerticalAlignment="Center"
+                                                                                Text="{lang:Translate common.add}" />
                                                                     </WrapPanel>
                                                                 </Button>
                                                                 <!--  Remove button  -->
@@ -1291,7 +1368,8 @@
                                                                             VerticalAlignment="Center"
                                                                             Classes="FontAwesome"
                                                                             Text="&#xf068;" />
-                                                                        <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.remove}" />
+                                                                        <TextBlock VerticalAlignment="Center"
+                                                                                Text="{lang:Translate common.remove}" />
                                                                     </WrapPanel>
                                                                 </Button>
                                                                 <!--  Clear button  -->
@@ -1305,7 +1383,8 @@
                                                                             VerticalAlignment="Center"
                                                                             Classes="FontAwesome"
                                                                             Text="&#xf1f8;" />
-                                                                        <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.clear}" />
+                                                                        <TextBlock VerticalAlignment="Center"
+                                                                                Text="{lang:Translate common.clear}" />
                                                                     </WrapPanel>
                                                                 </Button>
                                                             </Grid>
@@ -1321,11 +1400,14 @@
                                                         <Border Classes="SettingsCategoryBorder">
                                                             <StackPanel>
                                                                 <!--  Category Title  -->
-                                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.misc.subtitle.nativeLibraries}" />
+                                                                <TextBlock Classes="SettingsCategoryText"
+                                                                           Text="{lang:Translate settings.misc.subtitle.nativeLibraries}" />
 
                                                                 <!--  Use custom GLFW  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.customGLFW}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.misc.customGLFW}" />
                                                                     <ToggleSwitch
                                                                         Grid.Column="1"
                                                                         Classes="SettingsSwitch"
@@ -1333,8 +1415,10 @@
                                                                 </Grid>
 
                                                                 <!--  GLFW library path  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.pathGLFW}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 400">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.misc.pathGLFW}" />
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
@@ -1344,8 +1428,10 @@
                                                                 </Grid>
 
                                                                 <!--  Use custom OpenAL  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.customOpenAL}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.misc.customOpenAL}" />
                                                                     <ToggleSwitch
                                                                         Grid.Column="1"
                                                                         Classes="SettingsSwitch"
@@ -1353,8 +1439,10 @@
                                                                 </Grid>
 
                                                                 <!--  OpenAL library path  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.pathOpenAL}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 400">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.misc.pathOpenAL}" />
                                                                     <TextBox
                                                                         Grid.Column="1"
                                                                         Classes="TextInput"
@@ -1369,11 +1457,14 @@
                                                         <Border Classes="SettingsCategoryBorder">
                                                             <StackPanel>
                                                                 <!--  Category Title  -->
-                                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.misc.subtitle.preferences}" />
+                                                                <TextBlock Classes="SettingsCategoryText"
+                                                                           Text="{lang:Translate settings.misc.subtitle.preferences}" />
 
                                                                 <!--  Override Account  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.overrideAccount}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.misc.overrideAccount}" />
                                                                     <ToggleSwitch
                                                                         Grid.Column="1"
                                                                         Classes="SettingsSwitch"
@@ -1381,9 +1472,11 @@
                                                                 </Grid>
 
                                                                 <!--  Account  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 400">
                                                                     <!--  Text  -->
-                                                                    <TextBlock Classes="TextDropdown" Text="{lang:Translate settings.misc.account}" />
+                                                                    <TextBlock Classes="TextDropdown"
+                                                                               Text="{lang:Translate settings.misc.account}" />
                                                                     <!--  Input  -->
                                                                     <ComboBox
                                                                         Grid.Column="1"
@@ -1397,8 +1490,10 @@
                                                                 </Grid>
 
                                                                 <!--  Set target server  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.serverQuickPlay}" />
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 150">
+                                                                    <TextBlock Classes="SettingsName"
+                                                                               Text="{lang:Translate settings.misc.serverQuickPlay}" />
                                                                     <ToggleSwitch
                                                                         Grid.Column="1"
                                                                         Classes="SettingsSwitch"
@@ -1406,9 +1501,11 @@
                                                                 </Grid>
 
                                                                 <!--  Server address  -->
-                                                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
+                                                                <Grid Classes="SettingsContentGrid"
+                                                                      ColumnDefinitions="*, 400">
                                                                     <!--  Text  -->
-                                                                    <TextBlock Classes="TextDropdown" Text="{lang:Translate settings.misc.serverAddress}" />
+                                                                    <TextBlock Classes="TextDropdown"
+                                                                               Text="{lang:Translate settings.misc.serverAddress}" />
                                                                     <!--  Input  -->
                                                                     <TextBox
                                                                         Grid.Column="1"

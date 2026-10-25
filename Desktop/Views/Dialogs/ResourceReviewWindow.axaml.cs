@@ -30,7 +30,8 @@ public partial class ResourceReviewWindow : KonkordWindow<ResourceReviewViewMode
         InitializeComponent();
     }
 
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    [RequiresUnreferencedCode(
+        "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public ResourceReviewWindow(Instance instance, EResourceType resourceType,
         List<ResourceDownloadModel> resources, IHttpService httpService, ITranslationService translationService,
         ILauncherStore launcherStore, IMetaCacheService metaCacheService, IWindowFactory windowFactory)

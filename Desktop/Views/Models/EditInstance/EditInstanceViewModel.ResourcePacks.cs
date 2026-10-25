@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -27,28 +26,24 @@ using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
-public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObject
+public partial class EditInstanceViewModel_ResourcePacks : KonkordObservableObject
 {
-    private readonly IBeaconLogger _logger = null!;
-    private readonly ILauncherStore _launcherStore = null!;
     private readonly IBitmapService _bitmapService = null!;
+    private readonly ILauncherStore _launcherStore = null!;
+    private readonly IBeaconLogger _logger = null!;
     private readonly EditInstanceViewModel _parent;
 
     private readonly SourceCache<ResourceBaseModel, string> _resourcePackCache = new(x => x.Name);
-    public ReadOnlyObservableCollection<ResourceBaseModel> FilteredResourcePacks { get; } = null!;
-
-    [ObservableProperty]
-    public partial ResourceBaseModel? SelectedResourcePack { get; set; }
-    [ObservableProperty]
-    public partial string SearchQuery { get; set; } = string.Empty;
 
     public EditInstanceViewModel_ResourcePacks()
     {
         _parent = null!;
-        FilteredResourcePacks = new ReadOnlyObservableCollection<ResourceBaseModel>(new ObservableCollection<ResourceBaseModel>());
+        FilteredResourcePacks =
+            new ReadOnlyObservableCollection<ResourceBaseModel>(new ObservableCollection<ResourceBaseModel>());
     }
 
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    [RequiresUnreferencedCode(
+        "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public EditInstanceViewModel_ResourcePacks(EditInstanceViewModel parent)
     {
         _parent = parent;
@@ -78,7 +73,8 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
 
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public EditInstanceViewModel_ResourcePacks(EditInstanceViewModel parent, ILauncherStore launcherStore, IBitmapService bitmapService) : this(parent)
+    public EditInstanceViewModel_ResourcePacks(EditInstanceViewModel parent, ILauncherStore launcherStore,
+        IBitmapService bitmapService) : this(parent)
     {
         if (Design.IsDesignMode)
             return;
@@ -88,10 +84,16 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
         _bitmapService = bitmapService;
     }
 
+    public ReadOnlyObservableCollection<ResourceBaseModel> FilteredResourcePacks { get; } = null!;
+
+    [ObservableProperty] public partial ResourceBaseModel? SelectedResourcePack { get; set; }
+
+    [ObservableProperty] public partial string SearchQuery { get; set; } = string.Empty;
+
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
-        foreach (var resourcePack in  FilteredResourcePacks)
+        foreach (var resourcePack in FilteredResourcePacks)
             resourcePack.Icon.Dispose(_bitmapService);
         _resourcePackCache.Clear();
         _resourcePackCache.Dispose();
@@ -104,11 +106,135 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
         await Dispatcher.UIThread.Invoke(async () => await RefreshResourcePacksAsync());
     }
 
+    /// <summary>
+    ///     Saves the current state of resource packs by renaming their file extensions
+    ///     based on their enabled or disabled status. Enabled resource packs have the
+    ///     `.zip` extension, while disabled ones have `.zip.dis`.
+    /// </summary>
+    public void SaveResourcePacks()
+    {
+        _logger.LogDebug("Saving resource packs...");
+        if (_parent.GameDirectory == null)
+            return;
+
+        var resourcePacksDir = Path.Combine(_parent.GameDirectory, "resourcepacks");
+        if (!Directory.Exists(resourcePacksDir))
+            return;
+
+        foreach (var resourcePack in _resourcePackCache.Items)
+        {
+            string? newPath = null;
+            if (resourcePack.FilePath == null)
+                continue;
+
+            if (resourcePack.IsEnabled && resourcePack.FilePath.EndsWith(".zip.dis"))
+                newPath = resourcePack.FilePath.Replace(".dis", "");
+            else if (!resourcePack.IsEnabled && resourcePack.FilePath.EndsWith(".zip"))
+                newPath = resourcePack.FilePath.Replace(".zip", ".zip.dis");
+
+            if (newPath == null)
+                continue;
+
+            if (File.Exists(newPath))
+            {
+                _logger.LogWarning("Skipping save... Resource pack file already exists: " + newPath);
+                continue;
+            }
+
+            File.Move(resourcePack.FilePath, newPath);
+            resourcePack.FilePath = newPath;
+        }
+    }
+
+    /// <summary>
+    ///     Refreshes the list of resource packs by scanning the game directory for resource pack files.
+    ///     Updates the `ResourcePacks` collection with metadata such as name, size, and icon for each resource pack.
+    /// </summary>
+    public async Task RefreshResourcePacksAsync()
+    {
+        if (_parent.GameDirectory == null)
+            return;
+
+        var resourcePacksDir = Path.Combine(_parent.GameDirectory, "resourcepacks");
+        Directory.CreateDirectory(resourcePacksDir);
+
+        var instanceResources = await _parent.Instance.getInstance().GetInstanceResourcesAsync() ?? [];
+
+        _resourcePackCache.Edit(innerCache =>
+        {
+            foreach (var resourcePack in innerCache.Items)
+                resourcePack.Icon.Dispose(_bitmapService); // Dispose of the image to free memory
+
+            innerCache.Clear();
+            var resources = Directory.GetFiles(resourcePacksDir, "*")
+                .Where(x => x.EndsWith(".zip") || x.EndsWith(".zip.dis")).ToList();
+
+            foreach (var resource in resources)
+                try
+                {
+                    var fileName = Path.GetFileName(resource);
+                    var resourceName = fileName
+                        .Replace(".zip.dis", "")
+                        .Replace(".zip", "");
+                    var size = new FileInfo(resource).Length;
+
+                    var icon = new BitmapEntry(null, null);
+                    try
+                    {
+                        using var zipFile = ZipFile.OpenRead(resource);
+                        var iconEntry = zipFile.Entries.FirstOrDefault(x =>
+                            x.FullName.Equals("pack.png", StringComparison.OrdinalIgnoreCase));
+
+                        if (iconEntry != null)
+                        {
+                            using var iconStream = iconEntry.Open();
+                            using var memoryStream = new MemoryStream();
+                            iconStream.CopyTo(memoryStream);
+                            icon.SetValue(resource,
+                                ImageHelper.Base64ToBitmap(Convert.ToBase64String(memoryStream.ToArray())));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning($"Failed to read icon from {resource}: {ex.Message}");
+                    }
+
+                    if (icon.Key == null)
+                        icon = _bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Images/default_world.png");
+
+
+                    var instanceResource = instanceResources.FirstOrDefault(x =>
+                        x.Type == EResourceType.RESOURCE_PACK &&
+                        x.Path.EndsWith(fileName, StringComparison.OrdinalIgnoreCase));
+                    var newResourcePack = new ResourceBaseModel
+                    {
+                        IsEnabled = !fileName.EndsWith(".dis"),
+                        Name = instanceResource?.Name ?? resourceName,
+                        Icon = icon,
+                        FileSize = size,
+                        FilePath = resource,
+                        IsInstalled = true,
+                        Type = instanceResource?.Type ?? EResourceType.RESOURCE_PACK,
+                        Platform = instanceResource?.Platform,
+                        ProjectId = instanceResource?.ProjectId,
+                        SelectedVersionId = instanceResource?.VersionId
+                    };
+                    innerCache.AddOrUpdate(newResourcePack);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"Failed to load resource pack from {resource}:");
+                }
+        });
+
+        _logger.LogDebug($"Cache now contains {_resourcePackCache.Count} items");
+    }
+
 
     #region Commands
 
     /// <summary>
-    /// Toggles the enabled state of a resource pack and saves the updated state.
+    ///     Toggles the enabled state of a resource pack and saves the updated state.
     /// </summary>
     /// <param name="resourcePack">The resource pack to toggle.</param>
     [RelayCommand]
@@ -119,7 +245,7 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
     }
 
     /// <summary>
-    /// Removes a resource pack file from the file system and refreshes the resource pack list.
+    ///     Removes a resource pack file from the file system and refreshes the resource pack list.
     /// </summary>
     /// <param name="resourcePack">The resource pack to remove.</param>
     [RelayCommand]
@@ -154,7 +280,7 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
     }
 
     /// <summary>
-    /// Opens the directory containing the resource packs in the file explorer.
+    ///     Opens the directory containing the resource packs in the file explorer.
     /// </summary>
     [RelayCommand]
     public void OpenDir()
@@ -162,134 +288,10 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
         if (_parent.GameDirectory == null)
             return;
 
-        string resourcePacksDir = Path.Combine(_parent.GameDirectory, "resourcepacks");
+        var resourcePacksDir = Path.Combine(_parent.GameDirectory, "resourcepacks");
         Directory.CreateDirectory(resourcePacksDir);
         FileSystemHelper.OpenFolderInFileExplorer(resourcePacksDir);
     }
 
     #endregion
-
-    /// <summary>
-    /// Saves the current state of resource packs by renaming their file extensions
-    /// based on their enabled or disabled status. Enabled resource packs have the
-    /// `.zip` extension, while disabled ones have `.zip.dis`.
-    /// </summary>
-    public void SaveResourcePacks()
-    {
-        _logger.LogDebug("Saving resource packs...");
-        if (_parent.GameDirectory == null)
-            return;
-
-        string resourcePacksDir = Path.Combine(_parent.GameDirectory, "resourcepacks");
-        if (!Directory.Exists(resourcePacksDir))
-            return;
-
-        foreach (var resourcePack in _resourcePackCache.Items)
-        {
-            string? newPath = null;
-            if (resourcePack.FilePath == null)
-                continue;
-
-            if (resourcePack.IsEnabled && resourcePack.FilePath.EndsWith(".zip.dis"))
-                newPath = resourcePack.FilePath.Replace(".dis", "");
-            else if (!resourcePack.IsEnabled && resourcePack.FilePath.EndsWith(".zip"))
-                newPath = resourcePack.FilePath.Replace(".zip", ".zip.dis");
-
-            if (newPath == null)
-                continue;
-
-            if (File.Exists(newPath))
-            {
-                _logger.LogWarning("Skipping save... Resource pack file already exists: " + newPath);
-                continue;
-            }
-
-            File.Move(resourcePack.FilePath, newPath);
-            resourcePack.FilePath = newPath;
-        }
-    }
-
-    /// <summary>
-    /// Refreshes the list of resource packs by scanning the game directory for resource pack files.
-    /// Updates the `ResourcePacks` collection with metadata such as name, size, and icon for each resource pack.
-    /// </summary>
-    public async Task RefreshResourcePacksAsync()
-    {
-        if (_parent.GameDirectory == null)
-            return;
-
-        string resourcePacksDir = Path.Combine(_parent.GameDirectory, "resourcepacks");
-        Directory.CreateDirectory(resourcePacksDir);
-
-        List<InstanceResource> instanceResources = await _parent.Instance.getInstance().GetInstanceResourcesAsync() ?? [];
-
-        _resourcePackCache.Edit(innerCache =>
-        {
-            foreach (var resourcePack in innerCache.Items)
-                resourcePack.Icon.Dispose(_bitmapService); // Dispose of the image to free memory
-
-            innerCache.Clear();
-            var resources = Directory.GetFiles(resourcePacksDir, "*")
-                .Where(x => x.EndsWith(".zip") || x.EndsWith(".zip.dis")).ToList();
-
-            foreach (var resource in resources)
-            {
-                try
-                {
-                    string fileName = Path.GetFileName(resource);
-                    string resourceName = fileName
-                        .Replace(".zip.dis", "")
-                        .Replace(".zip", "");
-                    var size = new FileInfo(resource).Length;
-
-                    BitmapEntry icon = new BitmapEntry(null, null);
-                    try
-                    {
-                        using var zipFile = ZipFile.OpenRead(resource);
-                        var iconEntry = zipFile.Entries.FirstOrDefault(x =>
-                            x.FullName.Equals("pack.png", StringComparison.OrdinalIgnoreCase));
-
-                        if (iconEntry != null)
-                        {
-                            using var iconStream = iconEntry.Open();
-                            using var memoryStream = new MemoryStream();
-                            iconStream.CopyTo(memoryStream);
-                            icon.SetValue(resource, ImageHelper.Base64ToBitmap(Convert.ToBase64String(memoryStream.ToArray())));
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogWarning($"Failed to read icon from {resource}: {ex.Message}");
-                    }
-
-                    if (icon.Key == null)
-                        icon = _bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Images/default_world.png");
-
-
-                    var instanceResource = instanceResources.FirstOrDefault(x => x.Type == EResourceType.RESOURCE_PACK &&
-                        x.Path.EndsWith(fileName, StringComparison.OrdinalIgnoreCase));
-                    var newResourcePack = new ResourceBaseModel
-                    {
-                        IsEnabled = !fileName.EndsWith(".dis"),
-                        Name = instanceResource?.Name ?? resourceName,
-                        Icon = icon,
-                        FileSize = size,
-                        FilePath = resource,
-                        IsInstalled = true,
-                        Type = instanceResource?.Type ?? EResourceType.RESOURCE_PACK,
-                        Platform = instanceResource?.Platform,
-                        ProjectId = instanceResource?.ProjectId,
-                        SelectedVersionId = instanceResource?.VersionId
-                    };
-                    innerCache.AddOrUpdate(newResourcePack);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, $"Failed to load resource pack from {resource}:");
-                }
-            }
-        });
-
-        _logger.LogDebug($"Cache now contains {_resourcePackCache.Count} items");
-    }
 }

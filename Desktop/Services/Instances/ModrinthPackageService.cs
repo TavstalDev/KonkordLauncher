@@ -26,30 +26,32 @@ using ModrinthJsonContext = Tavstal.KonkordLauncher.Desktop.Serialization.Modrin
 namespace Tavstal.KonkordLauncher.Desktop.Services.Instances;
 
 /// <summary>
-/// Implements Modrinth package import and export operations for <c>.mrpack</c> archives.
+///     Implements Modrinth package import and export operations for <c>.mrpack</c> archives.
 /// </summary>
 // ReSharper disable once ClassNeverInstantiated.Global
 public class ModrinthPackageService : IPackageService
 {
-    private readonly IBeaconLogger _logger;
     private readonly IHttpService _httpService;
     private readonly ILauncherStore _launcherStore;
+    private readonly IBeaconLogger _logger;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ModrinthPackageService"/> class.
+    ///     Initializes a new instance of the <see cref="ModrinthPackageService" /> class.
     /// </summary>
     /// <param name="logger">Logger instance for recording diagnostic, warning, and error messages.</param>
     /// <param name="httpService">Service for performing HTTP operations such as downloading files from URLs.</param>
     /// <param name="launcherStore">Service for accessing and modifying launcher data such as instances and settings.</param>
-    public ModrinthPackageService(IBeaconLogger<ModrinthPackageService> logger, IHttpService httpService, ILauncherStore launcherStore)
+    public ModrinthPackageService(IBeaconLogger<ModrinthPackageService> logger, IHttpService httpService,
+        ILauncherStore launcherStore)
     {
         _logger = logger;
         _httpService = httpService;
         _launcherStore = launcherStore;
     }
 
-    /// <inheritdoc/>
-    public async Task<Instance?> ImportAsync(string sourcePath, Resolution resolution, string? customName = null, string? customGroup = null,
+    /// <inheritdoc />
+    public async Task<Instance?> ImportAsync(string sourcePath, Resolution resolution, string? customName = null,
+        string? customGroup = null,
         string? customIconUrl = null, IKonkordProgress? progress = null, CancellationToken cancellationToken = default)
     {
         try
@@ -62,7 +64,7 @@ public class ModrinthPackageService : IPackageService
 
             var settings = await _launcherStore.GetSettingsAsync(cancellationToken: cancellationToken);
             var instances = await _launcherStore.GetInstancesAsync(cancellationToken);
-            Instance result = new Instance
+            var result = new Instance
             {
                 Id = Guid.NewGuid().ToString(),
                 Name = string.Empty,
@@ -84,33 +86,36 @@ public class ModrinthPackageService : IPackageService
                     },
                     Java = new JavaConfig
                     {
-                        JvmArguments = string.IsNullOrEmpty(settings.Java.JvmArguments) ? Instance.GetDefaultJVMArgs() : settings.Java.JvmArguments,
+                        JvmArguments =
+                            string.IsNullOrEmpty(settings.Java.JvmArguments)
+                                ? Instance.GetDefaultJVMArgs()
+                                : settings.Java.JvmArguments,
                         JavaPath = string.Empty,
                         MinMemory = settings.Java.MinMemory,
                         MaxMemory = settings.Java.MaxMemory,
-                        PermaGen = settings.Java.PermaGen,
+                        PermaGen = settings.Java.PermaGen
                     },
                     Commands = new InstanceCommandsConfig(),
                     EnableEnvironment = false,
                     Environment = [],
-                    Misc =new InstanceMiscConfig()
+                    Misc = new InstanceMiscConfig()
                 }
             };
 
-            string tempDir = Path.Combine(_launcherStore.GetTempDir(), "import-" + Guid.NewGuid());
+            var tempDir = Path.Combine(_launcherStore.GetTempDir(), "import-" + Guid.NewGuid());
             try
             {
                 Directory.CreateDirectory(tempDir);
                 await ZipFile.ExtractToDirectoryAsync(sourcePath, tempDir, cancellationToken);
 
-                string indexJsonPath = Path.Combine(tempDir, "modrinth.index.json");
+                var indexJsonPath = Path.Combine(tempDir, "modrinth.index.json");
                 if (!File.Exists(indexJsonPath))
                 {
                     _logger.LogError("modrinth.index.json not found in package");
                     return null;
                 }
 
-                JsonNode? indexJson = JsonNode.Parse(await File.ReadAllTextAsync(indexJsonPath, cancellationToken));
+                var indexJson = JsonNode.Parse(await File.ReadAllTextAsync(indexJsonPath, cancellationToken));
                 if (indexJson == null)
                     throw new InvalidOperationException("Failed to parse index.json");
 
@@ -157,11 +162,11 @@ public class ModrinthPackageService : IPackageService
                 List<InstanceResource> resources = [];
 
                 // Copy overrides
-                string overridesDir = Path.Combine(tempDir, "overrides");
+                var overridesDir = Path.Combine(tempDir, "overrides");
                 if (Directory.Exists(overridesDir))
                     FileSystemHelper.MoveDirectory(overridesDir, result.GameDirectory, true);
 
-                string iconPath = Path.Combine(result.GameDirectory, "icon.png");
+                var iconPath = Path.Combine(result.GameDirectory, "icon.png");
                 if (!File.Exists(iconPath) && !string.IsNullOrEmpty(customIconUrl))
                     await _httpService.DownloadFileAsync(customIconUrl, iconPath, null, null, cancellationToken);
                 result.IconPath = File.Exists(iconPath) ? iconPath : string.Empty;
@@ -174,21 +179,21 @@ public class ModrinthPackageService : IPackageService
                         if (x == null)
                             return null;
 
-                        string? env = x["env"]?["client"]?.ToString();
+                        var env = x["env"]?["client"]?.ToString();
                         if (!string.IsNullOrEmpty(env) && env != "required")
                             return null;
 
-                        string? url = x["downloads"]?.AsArray().FirstOrDefault()?.ToString();
+                        var url = x["downloads"]?.AsArray().FirstOrDefault()?.ToString();
                         if (string.IsNullOrEmpty(url))
                             return null;
 
-                        string? path = x["path"]?.ToString();
+                        var path = x["path"]?.ToString();
                         if (string.IsNullOrEmpty(path))
                             return null;
 
-                        string[] urlParts = url.Replace("https://", "").Split('/');
-                        string projetId = urlParts.Length - 1 >= 2 ? urlParts[2] : string.Empty;
-                        string versionId = urlParts.Length - 1 >= 4 ? urlParts[4] : string.Empty;
+                        var urlParts = url.Replace("https://", "").Split('/');
+                        var projetId = urlParts.Length - 1 >= 2 ? urlParts[2] : string.Empty;
+                        var versionId = urlParts.Length - 1 >= 4 ? urlParts[4] : string.Empty;
 
                         return new
                         {
@@ -196,7 +201,7 @@ public class ModrinthPackageService : IPackageService
                             Url = url,
                             Path = path,
                             ProjectId = projetId,
-                            VersionId = versionId,
+                            VersionId = versionId
                         };
                     })
                     .Where(x => x != null)
@@ -208,17 +213,17 @@ public class ModrinthPackageService : IPackageService
                     if (node == null)
                         continue;
 
-                    JsonNode jsonNode = node.JsonNode;
-                    string path = node.Path;
-                    string url = node.Url;
-                    string projetId = node.ProjectId;
-                    string versionId = node.VersionId;
+                    var jsonNode = node.JsonNode;
+                    var path = node.Path;
+                    var url = node.Url;
+                    var projetId = node.ProjectId;
+                    var versionId = node.VersionId;
 
-                    string finalPath = Path.Combine(result.GameDirectory, path);
-                    string fileName =  Path.GetFileName(finalPath);
-                    string? directory = Path.GetDirectoryName(finalPath);
+                    var finalPath = Path.Combine(result.GameDirectory, path);
+                    var fileName = Path.GetFileName(finalPath);
+                    var directory = Path.GetDirectoryName(finalPath);
 
-                    EResourceType resourceType = EResourceType.RESOURCE_PACK;
+                    var resourceType = EResourceType.RESOURCE_PACK;
                     if (path.StartsWith("mods"))
                         resourceType = EResourceType.MOD;
                     else if (path.StartsWith("shader"))
@@ -237,7 +242,7 @@ public class ModrinthPackageService : IPackageService
                         Sha1 = jsonNode["hashes"]?["sha1"]?.ToString() ?? string.Empty,
                         Sha512 = jsonNode["hashes"]?["sha512"]?.ToString() ?? string.Empty,
                         Client = jsonNode["env"]?["client"]?.ToString() ?? string.Empty,
-                        Server = jsonNode["env"]?["server"]?.ToString() ?? string.Empty,
+                        Server = jsonNode["env"]?["server"]?.ToString() ?? string.Empty
                     });
 
                     if (!string.IsNullOrEmpty(directory))
@@ -259,7 +264,7 @@ public class ModrinthPackageService : IPackageService
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error processing modrinth package:");
+                _logger.LogError(ex, "Error processing modrinth package:");
                 return null;
             }
             finally
@@ -271,31 +276,33 @@ public class ModrinthPackageService : IPackageService
         }
         catch (Exception ex)
         {
-            _logger.LogDebug(ex, $"Failed to import modrinth package:");
+            _logger.LogDebug(ex, "Failed to import modrinth package:");
             return null;
         }
     }
 
-    /// <inheritdoc/>
-    public async Task<bool> ExportAsync(Instance instance, List<FileNode> fileNodes, string targetPath, string exportVersion = "1.0.0",
+    /// <inheritdoc />
+    public async Task<bool> ExportAsync(Instance instance, List<FileNode> fileNodes, string targetPath,
+        string exportVersion = "1.0.0",
         string summary = "", IKonkordProgress? progress = null, CancellationToken cancellationToken = default)
     {
-        string resourceFile = instance.GetResourceConfigPath();
+        var resourceFile = instance.GetResourceConfigPath();
         List<InstanceResource> resources = [];
-        List<FileNode> localNodes = new (fileNodes);
+        List<FileNode> localNodes = new(fileNodes);
         if (File.Exists(resourceFile))
         {
-            var res = await JsonHelper.ReadJsonFileAsync<List<InstanceResource>>(resourceFile, CommonJsonContext.Default.ListInstanceResource, cancellationToken);
+            var res = await JsonHelper.ReadJsonFileAsync<List<InstanceResource>>(resourceFile,
+                CommonJsonContext.Default.ListInstanceResource, cancellationToken);
             if (res != null)
                 resources = res;
         }
 
-        string tmpDir = Path.Combine(_launcherStore.GetTempDir(), "export-" + Guid.NewGuid());
+        var tmpDir = Path.Combine(_launcherStore.GetTempDir(), "export-" + Guid.NewGuid());
         Directory.CreateDirectory(tmpDir);
         try
         {
-            string indexJson = Path.Combine(tmpDir, "modrinth.index.json");
-            string overridesDir = Path.Combine(tmpDir, "overrides");
+            var indexJson = Path.Combine(tmpDir, "modrinth.index.json");
+            var overridesDir = Path.Combine(tmpDir, "overrides");
             Directory.CreateDirectory(overridesDir);
 
             ModrinthPackageIndex packageIndex = new()
@@ -303,14 +310,10 @@ public class ModrinthPackageService : IPackageService
                 Name = instance.Name,
                 VersionId = exportVersion,
                 Summary = summary,
-                Dependencies =
-                {
-                    ["minecraft"] = instance.MinecraftVersion
-                }
+                Dependencies = { ["minecraft"] = instance.MinecraftVersion }
             };
 
             if (!string.IsNullOrEmpty(instance.CustomVersion))
-            {
                 switch (instance.Kind)
                 {
                     case EMinecraftKind.FABRIC:
@@ -326,7 +329,6 @@ public class ModrinthPackageService : IPackageService
                         packageIndex.Dependencies["quilt-loader"] = instance.CustomVersion;
                         break;
                 }
-            }
 
             foreach (var resource in resources)
             {
@@ -334,7 +336,8 @@ public class ModrinthPackageService : IPackageService
                     continue;
 
                 // Remove the resource file node from localNodes to avoid copying it to overrides
-                var localNode = localNodes.Find(x => !x.IsDirectory && (x.Path.EndsWith(resource.Path) || x.Path.EndsWith(resource.Path + ".dis")));
+                var localNode = localNodes.Find(x =>
+                    !x.IsDirectory && (x.Path.EndsWith(resource.Path) || x.Path.EndsWith(resource.Path + ".dis")));
                 if (localNode != null)
                     localNodes.Remove(localNode);
 
@@ -343,16 +346,8 @@ public class ModrinthPackageService : IPackageService
                     Path = resource.Path,
                     Downloads = [resource.Url],
                     FileSize = resource.FileSize,
-                    Hashes =
-                    {
-                        ["sha1"] = resource.Sha1!,
-                        ["sha512"] = resource.Sha512!
-                    },
-                    Env =
-                    {
-                        ["client"] = resource.Client!,
-                        ["server"] = resource.Server!
-                    }
+                    Hashes = { ["sha1"] = resource.Sha1!, ["sha512"] = resource.Sha512! },
+                    Env = { ["client"] = resource.Client!, ["server"] = resource.Server! }
                 });
             }
 
@@ -361,15 +356,17 @@ public class ModrinthPackageService : IPackageService
                 await CopyNodeToOverridesAsync(overridesDir, instance.GameDirectory!, node, cancellationToken);
 
             // Write package index
-            await JsonHelper.WriteJsonFileAsync(indexJson, packageIndex, ModrinthJsonContext.Default.ModrinthPackageIndex, cancellationToken);
+            await JsonHelper.WriteJsonFileAsync(indexJson, packageIndex,
+                ModrinthJsonContext.Default.ModrinthPackageIndex, cancellationToken);
 
-            await ZipFile.CreateFromDirectoryAsync(tmpDir, targetPath, CompressionLevel.Optimal, false, cancellationToken);
+            await ZipFile.CreateFromDirectoryAsync(tmpDir, targetPath, CompressionLevel.Optimal, false,
+                cancellationToken);
             _logger.LogDebug($"Exported modrinth package to {targetPath}");
             return true;
         }
         catch (Exception ex)
         {
-            _logger.LogCritical(ex, $"Failed to export modrinth package:");
+            _logger.LogCritical(ex, "Failed to export modrinth package:");
             return false;
         }
         finally
@@ -379,17 +376,18 @@ public class ModrinthPackageService : IPackageService
     }
 
     /// <summary>
-    /// Recursively copies a file node and its children from the game directory to the package's overrides directory.
+    ///     Recursively copies a file node and its children from the game directory to the package's overrides directory.
     /// </summary>
     /// <param name="overridesDir">The root overrides directory inside the temporary package layout where files are copied.</param>
     /// <param name="gameDir">The base game directory path used to compute relative override paths.</param>
     /// <param name="fileNode">The file or directory node to copy. It may be a file or directory with children.</param>
     /// <param name="cancellationToken">Cancellation token observed during the copy operation.</param>
     /// <returns>A task that completes when the node and all its children have been copied.</returns>
-    private static async Task CopyNodeToOverridesAsync(string overridesDir, string gameDir, FileNode fileNode, CancellationToken cancellationToken  = default)
+    private static async Task CopyNodeToOverridesAsync(string overridesDir, string gameDir, FileNode fileNode,
+        CancellationToken cancellationToken = default)
     {
-        string relativePath = fileNode.Path.Replace(gameDir + Path.DirectorySeparatorChar, "");
-        string overridePath = Path.Combine(overridesDir, relativePath);
+        var relativePath = fileNode.Path.Replace(gameDir + Path.DirectorySeparatorChar, "");
+        var overridePath = Path.Combine(overridesDir, relativePath);
 
         if (cancellationToken.IsCancellationRequested) throw new OperationCanceledException();
 
@@ -401,7 +399,7 @@ public class ModrinthPackageService : IPackageService
             return;
         }
 
-        string? parentDir = Path.GetDirectoryName(overridePath);
+        var parentDir = Path.GetDirectoryName(overridePath);
         if (!string.IsNullOrEmpty(parentDir))
             Directory.CreateDirectory(parentDir);
         File.Copy(fileNode.Path, overridePath, true);

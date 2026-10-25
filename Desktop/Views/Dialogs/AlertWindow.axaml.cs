@@ -13,39 +13,41 @@ using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 /// <summary>
-/// Represents a window for displaying alert dialogs with customizable title, message, and alert type.
+///     Represents a window for displaying alert dialogs with customizable title, message, and alert type.
 /// </summary>
 public partial class AlertWindow : KonkordWindow<AlertViewModel>
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="AlertWindow"/> class.
-    /// Sets up the DataContext for design mode or attaches Avalonia Dev Tools in debug mode.
+    ///     Initializes a new instance of the <see cref="AlertWindow" /> class.
+    ///     Sets up the DataContext for design mode or attaches Avalonia Dev Tools in debug mode.
     /// </summary>
     public AlertWindow()
     {
         InitializeComponent();
 
         if (Design.IsDesignMode)
-            DataContext = new AlertViewModel( "Design Time Title","This is a design time message.", EAlertType.Info);
+            DataContext = new AlertViewModel("Design Time Title", "This is a design time message.", EAlertType.Info);
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="AlertWindow"/> class with the specified title, message, and alert type.
+    ///     Initializes a new instance of the <see cref="AlertWindow" /> class with the specified title, message, and alert
+    ///     type.
     /// </summary>
     /// <param name="title">The title of the alert dialog.</param>
     /// <param name="message">The message content of the alert dialog.</param>
     /// <param name="type">The type of the alert, determining its appearance and behavior.</param>
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    [RequiresUnreferencedCode(
+        "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public AlertWindow(string title, string message, EAlertType type)
     {
         InitializeComponent();
 
         if (Design.IsDesignMode)
         {
-            DataContext = new AlertViewModel("Design Time Title","This is a design time message.", EAlertType.Info);
+            DataContext = new AlertViewModel("Design Time Title", "This is a design time message.", EAlertType.Info);
             return;
         }
-        
+
         // Sets the DataContext to an instance of AlertViewModel with the provided parameters.
         DataContext = new AlertViewModel(title, message, type);
         this.WhenActivated(disposables =>
@@ -66,8 +68,8 @@ public partial class AlertWindow : KonkordWindow<AlertViewModel>
     }
 
     /// <summary>
-    /// Handles the window loaded event and applies the alert color to the icon based on the current
-    /// alert type.
+    ///     Handles the window loaded event and applies the alert color to the icon based on the current
+    ///     alert type.
     /// </summary>
     /// <param name="e">The event data for the loaded event.</param>
     protected override void OnLoaded(RoutedEventArgs e)
@@ -75,7 +77,7 @@ public partial class AlertWindow : KonkordWindow<AlertViewModel>
         base.OnLoaded(e);
         if (Design.IsDesignMode)
             return;
-        
+
         if (DataContext == null)
             return;
 

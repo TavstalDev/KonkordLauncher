@@ -20,27 +20,21 @@ using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 /// <summary>
-/// ViewModel for reviewing and installing selected resources (mods, resource packs, shader packs).
-/// Handles downloading files, saving instance resource configuration, and dependency resolution.
+///     ViewModel for reviewing and installing selected resources (mods, resource packs, shader packs).
+///     Handles downloading files, saving instance resource configuration, and dependency resolution.
 /// </summary>
 public partial class ResourceReviewViewModel : KonkordObservableObject
 {
-    private readonly Instance _instance = null!;
-    private readonly EResourceType _resourceType;
     private readonly IHttpService _httpService = null!;
-    private readonly ITranslationService _translationService = null!;
+    private readonly Instance _instance = null!;
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IMetaCacheService _metaCacheService = null!;
     private readonly IKonkordProgress _progressReporter = null!;
-    public ObservableCollection<ResourceDownloadModel> Resources { get; set; }
-    
-    #region Interactions
-    public Interaction<bool, Unit> CloseWindowInteraction { get; } = new();
-    public Interaction<Alert, Unit> ShowAlertInteraction { get; } = new();
-    #endregion
+    private readonly EResourceType _resourceType;
+    private readonly ITranslationService _translationService = null!;
 
     /// <summary>
-    /// Initializes a new instance of the ResourceReviewViewModel class.
+    ///     Initializes a new instance of the ResourceReviewViewModel class.
     /// </summary>
     /// <param name="instance">The target instance for resource installation.</param>
     /// <param name="type">The type of resources being installed.</param>
@@ -78,7 +72,7 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
                     Sha1 = "",
                     Sha512 = "",
                     Platform = EPlatformType.MODRINTH,
-                    ShouldDownload = true,
+                    ShouldDownload = true
                 },
                 new ResourceDownloadModel
                 {
@@ -91,7 +85,7 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
                     Sha1 = "",
                     Sha512 = "",
                     Platform = EPlatformType.MODRINTH,
-                    ShouldDownload = true,
+                    ShouldDownload = true
                 },
                 new ResourceDownloadModel
                 {
@@ -104,27 +98,36 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
                     Sha1 = "",
                     Sha512 = "",
                     Platform = EPlatformType.MODRINTH,
-                    ShouldDownload = true,
-                },
+                    ShouldDownload = true
+                }
             ];
             return;
         }
-        
+
         Resources = new ObservableCollection<ResourceDownloadModel>(resources);
     }
-    
+
+    public ObservableCollection<ResourceDownloadModel> Resources { get; set; }
+
+    #region Interactions
+
+    public Interaction<bool, Unit> CloseWindowInteraction { get; } = new();
+    public Interaction<Alert, Unit> ShowAlertInteraction { get; } = new();
+
+    #endregion
+
     #region Commands
 
     /// <summary>
-    /// Downloads all selected resources, saves the instance resource configuration,
-    /// and closes the window upon success. Shows an alert when complete.
+    ///     Downloads all selected resources, saves the instance resource configuration,
+    ///     and closes the window upon success. Shows an alert when complete.
     /// </summary>
     [RelayCommand]
     public async Task Install()
     {
-        string gameDir = _instance.GameDirectory!;
-        string targetDir = string.Empty;
-        string dirName = string.Empty;
+        var gameDir = _instance.GameDirectory!;
+        var targetDir = string.Empty;
+        var dirName = string.Empty;
         switch (_resourceType)
         {
             case EResourceType.RESOURCE_PACK:
@@ -146,19 +149,20 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
                 break;
             }
         }
+
         Directory.CreateDirectory(targetDir);
-        
+
         var newResources = new List<InstanceResource>();
-        
+
         _progressReporter.OpenReporter();
         List<DownloadEntry> downloadEntries = [];
         foreach (var resource in Resources)
         {
             if (!resource.ShouldDownload)
                 continue;
-            
-            string targetPath = Path.Combine(targetDir, resource.FileName);
-            string relativePath = Path.Combine(dirName, resource.FileName);
+
+            var targetPath = Path.Combine(targetDir, resource.FileName);
+            var relativePath = Path.Combine(dirName, resource.FileName);
 
             var newResource = new InstanceResource
             {
@@ -179,19 +183,20 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
 
             if (resource.IconUrl != null)
             {
-                string? iconPath = _metaCacheService.GetImagePath(resource.IconUrl);
+                var iconPath = _metaCacheService.GetImagePath(resource.IconUrl);
                 if (iconPath != null)
                 {
                     downloadEntries.Add(new DownloadEntry(resource.IconUrl, iconPath, null, _progressReporter));
                     newResource.IconPath = iconPath;
                 }
             }
+
             downloadEntries.Add(new DownloadEntry(resource.Url, targetPath, null, _progressReporter));
             newResources.Add(newResource);
         }
-        
+
         await _httpService.ParallelDownloadFilesAsync(downloadEntries);
-        string instanceConfigPath = _instance.GetResourceConfigPath();
+        var instanceConfigPath = _instance.GetResourceConfigPath();
         if (!File.Exists(instanceConfigPath))
         {
             await _launcherStore.SaveInstanceResourcesAsync(_instance, newResources);
@@ -202,7 +207,7 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
             existingResources.AddRange(newResources);
             await _launcherStore.SaveInstanceResourcesAsync(_instance, existingResources);
         }
-        
+
         _progressReporter.CloseReporter();
         await ShowAlertInteraction.Handle(new Alert(
             _translationService.Translate("instance.resources.download.complete.title"),
@@ -210,9 +215,9 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
             EAlertType.Success));
         await CloseWindowInteraction.Handle(true);
     }
-    
+
     /// <summary>
-    /// Requests the window to close by invoking the <see cref="CloseWindowInteraction"/> interaction.
+    ///     Requests the window to close by invoking the <see cref="CloseWindowInteraction" /> interaction.
     /// </summary>
     [RelayCommand]
     public async Task CloseWindow()

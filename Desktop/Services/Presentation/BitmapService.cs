@@ -10,20 +10,20 @@ using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 
 namespace Tavstal.KonkordLauncher.Desktop.Services.Presentation;
 
-/// <inheritdoc/>
+/// <inheritdoc />
 public class BitmapService : IBitmapService
 {
-    private readonly IHttpClientFactory _httpClientFactory;
     private readonly ConcurrentDictionary<string, Bitmap> _cache = new();
-    private readonly ConcurrentDictionary<string, int> _refCounts = new();
+    private readonly IHttpClientFactory _httpClientFactory;
     private readonly ConcurrentDictionary<string, SemaphoreSlim> _locks = new();
+    private readonly ConcurrentDictionary<string, int> _refCounts = new();
 
     public BitmapService(IHttpClientFactory httpClientFactory)
     {
         _httpClientFactory = httpClientFactory;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public BitmapEntry GetBitmap(string path)
     {
         if (_cache.TryGetValue(path, out var cached))
@@ -38,13 +38,13 @@ public class BitmapService : IBitmapService
         return new BitmapEntry(path, image);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public BitmapEntry GetBitmapBase64(string cacheKey, string base64Image)
     {
         if (_cache.TryGetValue(cacheKey, out var cached))
         {
             _refCounts.AddOrUpdate(cacheKey, 1, (_, count) => count + 1);
-            return new BitmapEntry(cacheKey,cached);
+            return new BitmapEntry(cacheKey, cached);
         }
 
         var bytes = Convert.FromBase64String(base64Image);
@@ -55,7 +55,7 @@ public class BitmapService : IBitmapService
         return new BitmapEntry(cacheKey, image);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public async Task<BitmapEntry> GetBitmapAsync(string uri)
     {
         if (_cache.TryGetValue(uri, out var cached))
@@ -76,7 +76,8 @@ public class BitmapService : IBitmapService
             }
 
             Bitmap image;
-            if (uri.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || uri.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            if (uri.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                uri.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
                 image = await LoadFromWebAsync(uri);
             else
                 image = LoadFromResource(uri);
@@ -91,18 +92,16 @@ public class BitmapService : IBitmapService
         }
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public void Release(string key)
     {
         if (_cache.TryGetValue(key, out var bitmap))
-        {
             if (_refCounts.AddOrUpdate(key, 0, (_, count) => count > 0 ? count - 1 : 0) == 0)
             {
                 bitmap.Dispose();
                 _cache.TryRemove(key, out _);
                 _refCounts.TryRemove(key, out _);
             }
-        }
     }
 
     private async Task<Bitmap> LoadFromWebAsync(string uri)

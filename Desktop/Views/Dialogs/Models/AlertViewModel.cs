@@ -8,37 +8,14 @@ using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 /// <summary>
-/// ViewModel for the alert dialog window.
+///     ViewModel for the alert dialog window.
 /// </summary>
 public partial class AlertViewModel : KonkordObservableObject
 {
-    [ObservableProperty]
-    public partial string Title { get; set; }
-
-    [ObservableProperty]
-    public partial string Message { get; set; }
-
-    [ObservableProperty]
-    public partial EAlertType AlertType { get; set; }
-
     [ObservableProperty] private string _getIconColor;
-    [ObservableProperty]
-    public partial string GetIcon { get; set; }
-
-    [ObservableProperty]
-    public partial bool HasCancelButton { get; set; }
-
-    #region Interactions
-
-    
-    
-    public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
-    public Interaction<Unit, Unit> ClickYesInteraction { get; } = new();
-    
-    #endregion
 
     /// <summary>
-    /// Creates a new alert view model and configures its icon/color based on the supplied type.
+    ///     Creates a new alert view model and configures its icon/color based on the supplied type.
     /// </summary>
     /// <param name="title">Alert dialog title.</param>
     /// <param name="message">Alert dialog message body.</param>
@@ -86,11 +63,28 @@ public partial class AlertViewModel : KonkordObservableObject
                 break;
         }
     }
-    
+
+    [ObservableProperty] public partial string Title { get; set; }
+
+    [ObservableProperty] public partial string Message { get; set; }
+
+    [ObservableProperty] public partial EAlertType AlertType { get; set; }
+
+    [ObservableProperty] public partial string GetIcon { get; set; }
+
+    [ObservableProperty] public partial bool HasCancelButton { get; set; }
+
+    #region Interactions
+
+    public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
+    public Interaction<Unit, Unit> ClickYesInteraction { get; } = new();
+
+    #endregion
+
     #region Window Commands
-    
+
     /// <summary>
-    /// Requests the view to close the window.
+    ///     Requests the view to close the window.
     /// </summary>
     [RelayCommand]
     public async Task CloseWindow()
@@ -99,7 +93,7 @@ public partial class AlertViewModel : KonkordObservableObject
     }
 
     /// <summary>
-    /// Signals that the user clicked the confirmation ("Yes") button.
+    ///     Signals that the user clicked the confirmation ("Yes") button.
     /// </summary>
     [RelayCommand]
     public async Task YesButtonClick()

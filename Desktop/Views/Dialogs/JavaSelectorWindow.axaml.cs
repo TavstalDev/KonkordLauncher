@@ -10,7 +10,7 @@ using JavaSelectorViewModel = Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Mode
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 /// <summary>
-/// Represents a window for selecting a Java version.
+///     Represents a window for selecting a Java version.
 /// </summary>
 public partial class JavaSelectorWindow : KonkordWindow<JavaSelectorViewModel>
 {
@@ -19,7 +19,8 @@ public partial class JavaSelectorWindow : KonkordWindow<JavaSelectorViewModel>
         InitializeComponent();
     }
 
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    [RequiresUnreferencedCode(
+        "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public JavaSelectorWindow(JavaSelectorViewModel viewModel)
     {
         InitializeComponent();

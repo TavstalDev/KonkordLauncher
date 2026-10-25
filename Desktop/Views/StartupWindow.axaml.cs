@@ -31,15 +31,15 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 
 public partial class StartupWindow : KonkordWindow<StartupViewModel>, IKonkordProgress
 {
-    private readonly IBeaconLogger _logger = null!;
-    private readonly ITranslationService _translationService = null!;
-    private readonly ILauncherStore _launcherStore = null!;
-    private readonly IValidationService _validationService = null!;
-    private readonly IJavaService _javaService = null!;
     private readonly IEventService _eventService = null!;
+    private readonly IJavaService _javaService = null!;
+    private readonly ILauncherStore _launcherStore = null!;
+    private readonly IBeaconLogger _logger = null!;
     private readonly IScreenService _screenService = null!;
-    private readonly IWindowFactory _windowFactory = null!;
+    private readonly ITranslationService _translationService = null!;
     private readonly IUpdateService _updateService = null!;
+    private readonly IValidationService _validationService = null!;
+    private readonly IWindowFactory _windowFactory = null!;
 
     public StartupWindow()
     {
@@ -47,8 +47,10 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IKonkordPr
     }
 
     [RequiresUnreferencedCode("May be affected by trimming due to use of reflection for service resolution.")]
-    public StartupWindow(StartupViewModel viewModel, IBeaconLogger<StartupWindow> logger, ITranslationService translationService,
-        ILauncherStore launcherStore, IValidationService validationService, IJavaService javaService, IEventService eventService,
+    public StartupWindow(StartupViewModel viewModel, IBeaconLogger<StartupWindow> logger,
+        ITranslationService translationService,
+        ILauncherStore launcherStore, IValidationService validationService, IJavaService javaService,
+        IEventService eventService,
         IScreenService screenService, IWindowFactory windowFactory, IUpdateService updateService)
     {
         InitializeComponent();
@@ -80,7 +82,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IKonkordPr
 
     #region Events
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
@@ -95,7 +97,8 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IKonkordPr
             resolution = new Resolution { X = (uint)screen.Bounds.Width, Y = (uint)screen.WorkingArea.Height };
         }
 
-        Task.Run(async () => {
+        Task.Run(async () =>
+        {
             try
             {
                 var settings = await _launcherStore.GetSettingsAsync(resolution);
@@ -110,7 +113,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IKonkordPr
         });
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override void OnClosing(WindowClosingEventArgs e)
     {
         base.OnClosing(e);
@@ -128,7 +131,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IKonkordPr
 
         // Validate Directory Structure
         UpdateStatusTranslated("startup.validation.dataFolder.status");
-        bool shouldGenerateIcons = !Directory.Exists(settings.Launcher.IconsDirectoryPath);
+        var shouldGenerateIcons = !Directory.Exists(settings.Launcher.IconsDirectoryPath);
         if (!await _validationService.ValidateLauncherDirectoryAsync(cancellationToken))
         {
             UpdateStatusTranslated("startup.validation.dataFolder.failed");
@@ -138,8 +141,8 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IKonkordPr
         // Generate icons if the directory does not exist
         if (shouldGenerateIcons)
         {
-            string[] resourceNames = Assembly.GetExecutingAssembly().GetManifestResourceNames();
-            foreach (string path in resourceNames)
+            var resourceNames = Assembly.GetExecutingAssembly().GetManifestResourceNames();
+            foreach (var path in resourceNames)
             {
                 if (!path.Contains("Desktop.Assets.Icons"))
                     continue;
@@ -156,7 +159,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IKonkordPr
                 }
 
                 var destPath = Path.Combine(settings.Launcher.IconsDirectoryPath, fileName);
-                await using FileStream outFile = new FileStream(destPath, FileMode.Create, FileAccess.Write);
+                await using var outFile = new FileStream(destPath, FileMode.Create, FileAccess.Write);
                 await stream.CopyToAsync(outFile, cancellationToken);
             }
         }
@@ -178,27 +181,28 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IKonkordPr
         }
 
         // Fill java installation cache
-        await _javaService.LocateJavaInstallationsAsync(settings.Launcher.JavaDirectoryPath, cancellationToken: cancellationToken);
+        await _javaService.LocateJavaInstallationsAsync(settings.Launcher.JavaDirectoryPath,
+            cancellationToken: cancellationToken);
 
         // Refresh GitHub Cache & Skins Cache
-        bool shouldRefreshCache = await _validationService.ValidateCachesAsync(this, cancellationToken);
+        var shouldRefreshCache = await _validationService.ValidateCachesAsync(this, cancellationToken);
 
         // Check for Updates
         if (settings.Launcher.EnableAutomaticUpdates && DateTime.UtcNow > settings.Launcher.NextUpdateCheck)
         {
             UpdateStatusTranslated("startup.progress.checking");
 
-            settings.Launcher.NextUpdateCheck = DateTime.UtcNow.AddHours(Math.Clamp(settings.Launcher.UpdateInterval, 1, int.MaxValue));
+            settings.Launcher.NextUpdateCheck =
+                DateTime.UtcNow.AddHours(Math.Clamp(settings.Launcher.UpdateInterval, 1, int.MaxValue));
             await _launcherStore.SaveSettingsAsync(settings, cancellationToken);
 
             if (await _updateService.CheckAsync(cancellationToken))
-            {
                 if (await _updateService.ApplyAsync(cancellationToken))
                 {
                     _logger.LogDebug("Update found and applied, exiting startup to restart application...");
                     return;
                 }
-            }
+
             _logger.LogDebug("No updates found, starting application...");
         }
 
@@ -212,7 +216,8 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IKonkordPr
         // Start Main Window
         if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop)
         {
-            _logger.LogError("Failed to start main window: Application lifetime is not IClassicDesktopStyleApplicationLifetime");
+            _logger.LogError(
+                "Failed to start main window: Application lifetime is not IClassicDesktopStyleApplicationLifetime");
             return;
         }
 
@@ -231,7 +236,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IKonkordPr
 
     #region IProgressReporter Implementation
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public void Report(double progress)
     {
         Dispatcher.Post(() =>
@@ -242,7 +247,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IKonkordPr
         });
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public void Report(double progress, string fileName, bool downloading = true)
     {
         Dispatcher.Post(() =>
@@ -256,7 +261,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IKonkordPr
         });
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public void Report(EProgressKind kind, double progress)
     {
         Dispatcher.Post(() =>
@@ -264,11 +269,12 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IKonkordPr
             if (DataContext == null)
                 return;
             DataContext.Progress = progress;
-            DataContext.ProgressText = _translationService.Translate(TranslationHelper.GetProgressKey(kind), progress.ToString("0.00"));
+            DataContext.ProgressText =
+                _translationService.Translate(TranslationHelper.GetProgressKey(kind), progress.ToString("0.00"));
         });
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public void Report(string key)
     {
         Dispatcher.Post(() =>
@@ -279,7 +285,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IKonkordPr
         });
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public void Report(double progress, string key, params object[]? args)
     {
         Dispatcher.Post(() =>
@@ -291,11 +297,17 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IKonkordPr
         });
     }
 
-    /// <inheritdoc/>
-    public void ReportExpectedTask(int? count) { /* ignored */ }
+    /// <inheritdoc />
+    public void ReportExpectedTask(int? count)
+    {
+        /* ignored */
+    }
 
-    /// <inheritdoc/>
-    public void ReportTaskCompleted() { /* ignored */ }
+    /// <inheritdoc />
+    public void ReportTaskCompleted()
+    {
+        /* ignored */
+    }
 
     private void UpdateStatusTranslated(string key, params object[]? args)
     {
@@ -303,7 +315,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IKonkordPr
         {
             if (DataContext == null)
                 return;
-            DataContext.ProgressText =  _translationService.Translate(key, args);
+            DataContext.ProgressText = _translationService.Translate(key, args);
         });
     }
 

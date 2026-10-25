@@ -8,7 +8,6 @@ using ReactiveUI;
 using ReactiveUI.Primitives;
 using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
-using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Services.Localization;
@@ -23,14 +22,15 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 // ReSharper disable once PartialTypeWithSinglePart
 public partial class MainWindow : KonkordWindow<MainViewModel>
 {
-    // ReSharper disable once NotAccessedField.Local
-    private readonly IBeaconLogger _logger = null!;
     private readonly IDiscordPresenceService _discordPresenceService = null!;
     private readonly Dictionary<string, InstanceLogsWindow> _logWindows = new();
+
+    // ReSharper disable once NotAccessedField.Local
+    private readonly IBeaconLogger _logger = null!;
     private readonly Dictionary<string, EditInstanceWindow> _openEditWindows = new();
-    private Button _selectedSideBarButton;
-    private Button _selectedSettingsTabButton;
     private Button _selectedAboutTabButton;
+    private Button _selectedSettingsTabButton;
+    private Button _selectedSideBarButton;
 
     public MainWindow()
     {
@@ -40,9 +40,11 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
         _selectedAboutTabButton = AboutInfoBtn;
     }
 
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    [RequiresUnreferencedCode(
+        "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public MainWindow(MainViewModel viewModel, IBeaconLogger<MainWindow> logger,
-        ITranslationService translationService, IWindowFactory windowFactory, IDiscordPresenceService discordPresenceService)
+        ITranslationService translationService, IWindowFactory windowFactory,
+        IDiscordPresenceService discordPresenceService)
     {
         InitializeComponent();
         _selectedSideBarButton = PlaySideBtn;
@@ -77,7 +79,8 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
             }).DisposeWith(disposables);
             DataContext.OpenImagePickerInteraction.RegisterHandler(async action =>
             {
-                var result = await OpenFilePickerAsync(translationService.Translate("common.select.file"), "PNGs", ["*.png"]);
+                var result = await OpenFilePickerAsync(translationService.Translate("common.select.file"), "PNGs",
+                    ["*.png"]);
                 action.SetOutput(result);
             }).DisposeWith(disposables);
             DataContext.ShowAlertDialogInteraction.RegisterHandler(async action =>
@@ -102,7 +105,7 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
                 try
                 {
                     action.SetOutput(Unit.Default);
-                    InstanceModel instance = action.Input;
+                    var instance = action.Input;
                     if (_openEditWindows.TryGetValue(instance.Id, out var window))
                     {
                         window.Activate();
@@ -110,7 +113,8 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
                             window.WindowState = WindowState.Normal;
                         return Task.CompletedTask;
                     }
-                    EditInstanceWindow editInstanceWindow = windowFactory.CreateEditInstanceWindow(instance);
+
+                    var editInstanceWindow = windowFactory.CreateEditInstanceWindow(instance);
                     editInstanceWindow.Show(this);
                     _openEditWindows.Add(instance.Id, editInstanceWindow);
                     editInstanceWindow.Closed += (_, _) => _openEditWindows.Remove(instance.Id);
@@ -135,7 +139,7 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
             }).DisposeWith(disposables);
             DataContext.ShowLogsWindowInteraction.RegisterHandler(action =>
             {
-                string instanceId = action.Input;
+                var instanceId = action.Input;
                 var window = windowFactory.CreateInstanceLogsWindow(instanceId);
                 window.Show();
                 _logWindows[instanceId] = window;
@@ -176,66 +180,31 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
             DataContext.ExportModrinthInstanceInteraction.RegisterHandler(async action =>
             {
                 var instance = action.Input;
-                ExportWindow exportWindow = windowFactory.CreateExportWindow(instance, EInstanceProvider.MODRINTH);
+                var exportWindow = windowFactory.CreateExportWindow(instance, EInstanceProvider.MODRINTH);
                 await exportWindow.ShowDialog(this);
                 action.SetOutput(Unit.Default);
             }).DisposeWith(disposables);
             DataContext.ExportCurseForgeInstanceInteraction.RegisterHandler(async action =>
             {
                 var instance = action.Input;
-                ExportWindow exportWindow = windowFactory.CreateExportWindow(instance, EInstanceProvider.CURSE_FORGE);
+                var exportWindow = windowFactory.CreateExportWindow(instance, EInstanceProvider.CURSE_FORGE);
                 await exportWindow.ShowDialog(this);
                 action.SetOutput(Unit.Default);
             }).DisposeWith(disposables);
             DataContext.ShowInstanceVersionSelectorInteraction.RegisterHandler(async action =>
             {
                 var instance = action.Input;
-                InstanceVersionSelectorWindow selectorWindow = windowFactory.CreateInstanceVersionSelectorWindow(instance);
+                var selectorWindow = windowFactory.CreateInstanceVersionSelectorWindow(instance);
                 var result = await selectorWindow.ShowDialog<bool>(this);
                 action.SetOutput(result);
             }).DisposeWith(disposables);
         });
     }
 
-    #region Events
-
-    /// <inheritdoc/>
-    protected override void OnOpened(EventArgs e)
-    {
-        base.OnOpened(e);
-        _discordPresenceService.Update("Browsing instances...");
-        GC.Collect(2, GCCollectionMode.Forced, blocking: true, compacting: true);
-    }
-
-    /// <inheritdoc/>
-    protected override void OnClosing(WindowClosingEventArgs e)
-    {
-        _discordPresenceService.Clear();
-        base.OnClosing(e);
-    }
-
     /// <summary>
-    /// Handles the selection of a language from a ComboBox and updates the application's language setting.
-    /// </summary>
-    /// <param name="sender">The ComboBox that triggered the event.</param>
-    /// <param name="e">The event data associated with the selection change.</param>
-    private void Language_OnSelected(object? sender, SelectionChangedEventArgs e)
-    {
-        if (DataContext is not { } viewModel)
-            return;
-
-        if (sender is not ComboBox { SelectedItem: Language selectedLanguage })
-            return;
-
-        viewModel.Config.CoreConfig.Launcher.Language = selectedLanguage.TwoLetterCode;
-    }
-
-    #endregion
-
-    /// <summary>
-    /// Handles the logic for changing the active sidebar section in the main window.
-    /// Updates the ViewModel's current page index, manages the visual state of sidebar buttons,
-    /// and ensures the correct button is highlighted as active.
+    ///     Handles the logic for changing the active sidebar section in the main window.
+    ///     Updates the ViewModel's current page index, manages the visual state of sidebar buttons,
+    ///     and ensures the correct button is highlighted as active.
     /// </summary>
     /// <param name="sidebarType">The sidebar section to switch to.</param>
     private void HandleSidebarChange(ESidebarType sidebarType)
@@ -264,8 +233,8 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
     }
 
     /// <summary>
-    /// Updates the active settings tab in the main window and synchronizes the corresponding
-    /// tab button's visual state.
+    ///     Updates the active settings tab in the main window and synchronizes the corresponding
+    ///     tab button's visual state.
     /// </summary>
     /// <param name="tabType">The settings tab to switch to.</param>
     private void HandleSettingsTabChange(ESettingsTab tabType)
@@ -290,8 +259,8 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
     }
 
     /// <summary>
-    /// Updates the active tab in the About section and synchronizes the corresponding
-    /// tab button's visual state.
+    ///     Updates the active tab in the About section and synchronizes the corresponding
+    ///     tab button's visual state.
     /// </summary>
     /// <param name="tabType">The about tab to switch to.</param>
     private void HandleAboutTabChange(EAboutTab tabType)
@@ -313,4 +282,39 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
         };
         _selectedAboutTabButton.Classes.Add("SettingsTabBtnActive");
     }
+
+    #region Events
+
+    /// <inheritdoc />
+    protected override void OnOpened(EventArgs e)
+    {
+        base.OnOpened(e);
+        _discordPresenceService.Update("Browsing instances...");
+        GC.Collect(2, GCCollectionMode.Forced, true, true);
+    }
+
+    /// <inheritdoc />
+    protected override void OnClosing(WindowClosingEventArgs e)
+    {
+        _discordPresenceService.Clear();
+        base.OnClosing(e);
+    }
+
+    /// <summary>
+    ///     Handles the selection of a language from a ComboBox and updates the application's language setting.
+    /// </summary>
+    /// <param name="sender">The ComboBox that triggered the event.</param>
+    /// <param name="e">The event data associated with the selection change.</param>
+    private void Language_OnSelected(object? sender, SelectionChangedEventArgs e)
+    {
+        if (DataContext is not { } viewModel)
+            return;
+
+        if (sender is not ComboBox { SelectedItem: Language selectedLanguage })
+            return;
+
+        viewModel.Config.CoreConfig.Launcher.Language = selectedLanguage.TwoLetterCode;
+    }
+
+    #endregion
 }

@@ -3,30 +3,12 @@ using CommunityToolkit.Mvvm.ComponentModel;
 namespace Tavstal.KonkordLauncher.Desktop.Models.Config.Instance;
 
 /// <summary>
-/// Represents the configuration model for instance commands, including pre-launch, wrapper, and post-exit commands.
+///     Represents the configuration model for instance commands, including pre-launch, wrapper, and post-exit commands.
 /// </summary>
 public partial class InstanceCommandsConfigModel : ObservableObject
 {
     /// <summary>
-    /// Gets or sets the command to be executed before launching the instance.
-    /// </summary>
-    [ObservableProperty]
-    public partial string PreLaunchCommand { get; set; }
-
-    /// <summary>
-    /// Gets or sets the wrapper command to be executed during the instance runtime.
-    /// </summary>
-    [ObservableProperty]
-    public partial string WrapperCommand { get; set; }
-
-    /// <summary>
-    /// Gets or sets the command to be executed after the instance exits.
-    /// </summary>
-    [ObservableProperty]
-    public partial string PostExitCommand { get; set; }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="InstanceCommandsConfigModel"/> class with default values.
+    ///     Initializes a new instance of the <see cref="InstanceCommandsConfigModel" /> class with default values.
     /// </summary>
     public InstanceCommandsConfigModel()
     {
@@ -36,7 +18,7 @@ public partial class InstanceCommandsConfigModel : ObservableObject
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="InstanceCommandsConfigModel"/> class with specified commands.
+    ///     Initializes a new instance of the <see cref="InstanceCommandsConfigModel" /> class with specified commands.
     /// </summary>
     /// <param name="preLaunchCommand">The command to execute before launching the instance.</param>
     /// <param name="wrapperCommand">The wrapper command to execute during the instance runtime.</param>
@@ -47,4 +29,22 @@ public partial class InstanceCommandsConfigModel : ObservableObject
         WrapperCommand = wrapperCommand;
         PostExitCommand = postExitCommand;
     }
+
+    /// <summary>
+    ///     Gets or sets the command to be executed before launching the instance.
+    /// </summary>
+    [ObservableProperty]
+    public partial string PreLaunchCommand { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the wrapper command to be executed during the instance runtime.
+    /// </summary>
+    [ObservableProperty]
+    public partial string WrapperCommand { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the command to be executed after the instance exits.
+    /// </summary>
+    [ObservableProperty]
+    public partial string PostExitCommand { get; set; }
 }

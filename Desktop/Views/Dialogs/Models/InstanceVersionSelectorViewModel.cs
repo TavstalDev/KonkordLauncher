@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Linq;
 using System.Reactive.Concurrency;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -26,104 +26,26 @@ using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 /// <summary>
-/// ViewModel for managing the selection of instance versions and mod loaders.
+///     ViewModel for managing the selection of instance versions and mod loaders.
 /// </summary>
 public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
 {
-    private readonly Instance _instance;
-    private readonly IBeaconLogger _logger = null!;
-    private readonly ILauncherStore _launcherStore = null!;
-    private readonly IManifestService _manifestService = null!;
     private readonly IEventService _eventService = null!;
-    public EMinecraftKind Kind { get; }
+    private readonly Instance _instance;
+    private readonly ILauncherStore _launcherStore = null!;
+    private readonly IBeaconLogger _logger = null!;
+    private readonly IManifestService _manifestService = null!;
 
     /// <summary>
-    /// Indicates if the instance is modded.
-    /// </summary>
-    public bool IsModded => Kind != EMinecraftKind.VANILLA;
-
-    /// <summary>
-    /// Determines if changes can be saved.
-    /// </summary>
-    public bool CanSaveChanges
-    {
-        get
-        {
-            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-            if (SelectedMinecraftVersion == null)
-                return false;
-
-            if (Kind != EMinecraftKind.VANILLA && SelectedModLoader == null)
-                return false;
-
-            return true;
-        }
-    }
-
-    #region Vanilla
-    private readonly SourceCache<MinecraftVersion, string> _minecraftVersionCache = new(x => x.Id);
-    public ReadOnlyObservableCollection<MinecraftVersion> MinecraftVersions { get; private set; } = null!;
-    [ObservableProperty]
-    public partial string SearchQuery { get; set; } = string.Empty;
-
-    [ObservableProperty]
-    public partial bool ShowReleases { get; set; } = true;
-
-    [ObservableProperty]
-    public partial bool ShowSnapshots { get; set; }
-
-    [ObservableProperty]
-    public partial bool ShowAlphas { get; set; }
-
-    [ObservableProperty]
-    public partial bool ShowBetas { get; set; }
-
-    [ObservableProperty]
-    public partial bool ShowExperiments { get; set; }
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanSaveChanges))]
-    public partial MinecraftVersion? SelectedMinecraftVersion { get; set; }
-
-    #endregion
-    #region  Mod Loader
-    [ObservableProperty]
-    public partial string ModLoaderSearchQuery { get; set; } = string.Empty;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanSaveChanges))]
-    public partial IModManifest? SelectedModLoader { get; set; }
-
-    private readonly SourceCache<IModManifest, string> _modLoaderVersionCache = new(x => $"{x.LoaderKind}:{x.GameVersion}:{x.Version}");
-    public ReadOnlyObservableCollection<IModManifest> ModLoaderVersionResult { get; private set; } = new([]);
-
-    private static readonly IComparer<IModManifest> ModVersionComparer =
-        Comparer<IModManifest>.Create((x, y) =>
-        {
-            // Descending sort: compare y to x instead of x to y
-            return Parse(y.Version).CompareTo(Parse(x.Version));
-
-            Version Parse(string v) {
-                if (string.IsNullOrEmpty(v)) return new Version(0, 0, 0);
-                // Split once for both '+' and '-' metadata
-                var clean = v.Split(['+', '-'], StringSplitOptions.RemoveEmptyEntries)[0];
-                return Version.TryParse(clean, out var parsed) ? parsed : new Version(0, 0, 0);
-            }
-        });
-
-    #endregion
-
-    public Interaction<bool, Unit> CloseWindowInteraction { get; } = new();
-
-    /// <summary>
-    /// Initializes a new instance of the InstanceVersionSelectorViewModel class.
+    ///     Initializes a new instance of the InstanceVersionSelectorViewModel class.
     /// </summary>
     /// <param name="instance">The current instance being managed.</param>
     public InstanceVersionSelectorViewModel()
     {
         _instance = null!;
         Kind = EMinecraftKind.VANILLA;
-        MinecraftVersions = new ReadOnlyObservableCollection<MinecraftVersion>(new ObservableCollection<MinecraftVersion>());
+        MinecraftVersions =
+            new ReadOnlyObservableCollection<MinecraftVersion>(new ObservableCollection<MinecraftVersion>());
     }
 
     public InstanceVersionSelectorViewModel(Instance instance,
@@ -149,8 +71,35 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
         }, TaskScheduler.Default);
     }
 
+    public EMinecraftKind Kind { get; }
+
     /// <summary>
-    /// Disposes of the resources used by the InstanceVersionSelectorViewModel.
+    ///     Indicates if the instance is modded.
+    /// </summary>
+    public bool IsModded => Kind != EMinecraftKind.VANILLA;
+
+    /// <summary>
+    ///     Determines if changes can be saved.
+    /// </summary>
+    public bool CanSaveChanges
+    {
+        get
+        {
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+            if (SelectedMinecraftVersion == null)
+                return false;
+
+            if (Kind != EMinecraftKind.VANILLA && SelectedModLoader == null)
+                return false;
+
+            return true;
+        }
+    }
+
+    public Interaction<bool, Unit> CloseWindowInteraction { get; } = new();
+
+    /// <summary>
+    ///     Disposes of the resources used by the InstanceVersionSelectorViewModel.
     /// </summary>
     /// <param name="disposing">True if disposing explicitly; false otherwise.</param>
     protected override void Dispose(bool disposing)
@@ -168,7 +117,7 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
     }
 
     /// <summary>
-    /// Sets up the data pipeline for version and mod loader selection.
+    ///     Sets up the data pipeline for version and mod loader selection.
     /// </summary>
     public void SetupPipeline()
     {
@@ -185,23 +134,24 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
             x => x.ShowExperiments
         );
 
-        var filter = search.CombineLatest(toggles, (query, t) => new
-            {
-                Query = query,
-                ShowReleases = t.Property1,
-                ShowSnapshots = t.Property2,
-                ShowAlphas = t.Property3,
-                ShowBetas = t.Property4,
-                ShowExperiments = t.Property5
-            })
+        var filter = search.CombineLatest(toggles,
+                (query, t) => new
+                {
+                    Query = query,
+                    ShowReleases = t.Property1,
+                    ShowSnapshots = t.Property2,
+                    ShowAlphas = t.Property3,
+                    ShowBetas = t.Property4,
+                    ShowExperiments = t.Property5
+                })
             .Select(values =>
             {
                 return (Func<MinecraftVersion, bool>)(x =>
                         (string.IsNullOrWhiteSpace(values.Query) || x.Id.StartsWith(values.Query)) &&
-                        (x.Type != "release"    || values.ShowReleases) &&
-                        (x.Type != "snapshot"   || values.ShowSnapshots) &&
-                        (x.Type != "old_alpha"  || values.ShowAlphas) &&
-                        (x.Type != "old_beta"   || values.ShowBetas) &&
+                        (x.Type != "release" || values.ShowReleases) &&
+                        (x.Type != "snapshot" || values.ShowSnapshots) &&
+                        (x.Type != "old_alpha" || values.ShowAlphas) &&
+                        (x.Type != "old_beta" || values.ShowBetas) &&
                         (x.Type != "experiment" || values.ShowExperiments)
                     );
             });
@@ -211,16 +161,18 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
                 .Connect()
                 .Filter(filter)
                 .ObserveOnMainThread()
-                .SortAndBind(out var filteredCollection, SortExpressionComparer<MinecraftVersion>.Descending(x => x.ReleaseTime))
+                .SortAndBind(out var filteredCollection,
+                    SortExpressionComparer<MinecraftVersion>.Descending(x => x.ReleaseTime))
                 .Subscribe(
                     _ => { },
-                    ex => _logger.LogError(ex, $"Version pipeline crashed:")
+                    ex => _logger.LogError(ex, "Version pipeline crashed:")
                 );
 
         Disposables.Add(bindingSubscription);
         MinecraftVersions = filteredCollection;
 
         #endregion
+
         #region Mod Loader
 
         // Setup ModLoader version filtering pipeline
@@ -264,7 +216,7 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
             .SortAndBind(out var filteredModLoaders, ModVersionComparer)
             .Subscribe(
                 _ => { },
-                ex => _logger.LogError(ex, $"ModLoader pipeline crashed:")
+                ex => _logger.LogError(ex, "ModLoader pipeline crashed:")
             );
 
         Disposables.Add(modLoaderSubscription);
@@ -274,17 +226,22 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
     }
 
     /// <summary>
-    /// Initializes the data for the instance version selector.
+    ///     Initializes the data for the instance version selector.
     /// </summary>
     /// <param name="cancellationToken">CancellationToken to support cancellation.</param>
     public async Task InitAsync(CancellationToken cancellationToken = default)
     {
         var settings = _launcherStore.GetSettings() ?? throw new InvalidOperationException("Settings cannot be null");
-        var versionManifest = _manifestService.GetMinecraftManifest() ?? throw new InvalidOperationException("Failed to fetch Minecraft version manifest");
-        List<IModManifest>? fabricManifestCache = await _manifestService.GetFabricManifestAsync(settings.Launcher.GetFabricManifestPath(), cancellationToken);
-        List<IModManifest>? forgeManifestCache = await _manifestService.GetForgeManifestAsync(settings.Launcher.GetForgeManifestPath(), cancellationToken);
-        List<IModManifest>? neoForgeManifestCache = await _manifestService.GetNeoForgeManifestAsync(settings.Launcher.GetNeoForgeManifestPath());
-        List<IModManifest>? quiltManifestCache = await _manifestService.GetQuiltManifestAsync(settings.Launcher.GetQuiltManifestPath(), cancellationToken);
+        var versionManifest = _manifestService.GetMinecraftManifest() ??
+                              throw new InvalidOperationException("Failed to fetch Minecraft version manifest");
+        var fabricManifestCache =
+            await _manifestService.GetFabricManifestAsync(settings.Launcher.GetFabricManifestPath(), cancellationToken);
+        var forgeManifestCache =
+            await _manifestService.GetForgeManifestAsync(settings.Launcher.GetForgeManifestPath(), cancellationToken);
+        var neoForgeManifestCache =
+            await _manifestService.GetNeoForgeManifestAsync(settings.Launcher.GetNeoForgeManifestPath());
+        var quiltManifestCache =
+            await _manifestService.GetQuiltManifestAsync(settings.Launcher.GetQuiltManifestPath(), cancellationToken);
 
         _minecraftVersionCache.Edit(innerCache =>
         {
@@ -325,12 +282,11 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
             .ToTaskCompat(cancellationToken);
 
         SelectedModLoader = ModLoaderVersionResult
-                                .FirstOrDefault(m => m.Version == _instance.CustomVersion && m.LoaderKind == Kind);
-
+            .FirstOrDefault(m => m.Version == _instance.CustomVersion && m.LoaderKind == Kind);
     }
 
     /// <summary>
-    /// Closes the window.
+    ///     Closes the window.
     /// </summary>
     [RelayCommand]
     private async Task Close()
@@ -339,7 +295,7 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
     }
 
     /// <summary>
-    /// Saves the selected instance settings.
+    ///     Saves the selected instance settings.
     /// </summary>
     [RelayCommand]
     private async Task Save()
@@ -347,24 +303,77 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
         if (!CanSaveChanges)
             return;
 
-        if (_instance.MinecraftVersion == SelectedMinecraftVersion!.Id && Kind == EMinecraftKind.VANILLA
-            || Kind != EMinecraftKind.VANILLA && _instance.CustomVersion == SelectedModLoader?.Version)
+        if ((_instance.MinecraftVersion == SelectedMinecraftVersion!.Id && Kind == EMinecraftKind.VANILLA)
+            || (Kind != EMinecraftKind.VANILLA && _instance.CustomVersion == SelectedModLoader?.Version))
         {
             await CloseWindowInteraction.Handle(true);
             return;
         }
 
         var instances = await _launcherStore.GetInstancesAsync();
-        int instanceIndex = instances.FindIndex(x => x.Id == _instance.Id);
+        var instanceIndex = instances.FindIndex(x => x.Id == _instance.Id);
         if (instanceIndex == -1)
             return;
 
         _instance.MinecraftVersion = SelectedMinecraftVersion!.Id;
-        if (Kind !=  EMinecraftKind.VANILLA)
+        if (Kind != EMinecraftKind.VANILLA)
             _instance.CustomVersion = SelectedModLoader!.Version;
         instances[instanceIndex] = _instance;
         await _launcherStore.SaveInstancesAsync(instances);
         _eventService.RaiseInstanceUpdated(_instance.Id);
         await CloseWindowInteraction.Handle(true);
     }
+
+    #region Vanilla
+
+    private readonly SourceCache<MinecraftVersion, string> _minecraftVersionCache = new(x => x.Id);
+    public ReadOnlyObservableCollection<MinecraftVersion> MinecraftVersions { get; private set; } = null!;
+
+    [ObservableProperty] public partial string SearchQuery { get; set; } = string.Empty;
+
+    [ObservableProperty] public partial bool ShowReleases { get; set; } = true;
+
+    [ObservableProperty] public partial bool ShowSnapshots { get; set; }
+
+    [ObservableProperty] public partial bool ShowAlphas { get; set; }
+
+    [ObservableProperty] public partial bool ShowBetas { get; set; }
+
+    [ObservableProperty] public partial bool ShowExperiments { get; set; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanSaveChanges))]
+    public partial MinecraftVersion? SelectedMinecraftVersion { get; set; }
+
+    #endregion
+
+    #region Mod Loader
+
+    [ObservableProperty] public partial string ModLoaderSearchQuery { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanSaveChanges))]
+    public partial IModManifest? SelectedModLoader { get; set; }
+
+    private readonly SourceCache<IModManifest, string> _modLoaderVersionCache =
+        new(x => $"{x.LoaderKind}:{x.GameVersion}:{x.Version}");
+
+    public ReadOnlyObservableCollection<IModManifest> ModLoaderVersionResult { get; private set; } = new([]);
+
+    private static readonly IComparer<IModManifest> ModVersionComparer =
+        Comparer<IModManifest>.Create((x, y) =>
+        {
+            // Descending sort: compare y to x instead of x to y
+            return Parse(y.Version).CompareTo(Parse(x.Version));
+
+            Version Parse(string v)
+            {
+                if (string.IsNullOrEmpty(v)) return new Version(0, 0, 0);
+                // Split once for both '+' and '-' metadata
+                var clean = v.Split(['+', '-'], StringSplitOptions.RemoveEmptyEntries)[0];
+                return Version.TryParse(clean, out var parsed) ? parsed : new Version(0, 0, 0);
+            }
+        });
+
+    #endregion
 }

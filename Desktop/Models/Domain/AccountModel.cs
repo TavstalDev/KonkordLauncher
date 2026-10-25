@@ -4,17 +4,13 @@ using Tavstal.BeaconSDK.Services.Abstractions;
 namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
 
 /// <summary>
-/// Represents an account model for UI binding, extending the base <see cref="Account"/> class with selection state.
+///     Represents an account model for UI binding, extending the base <see cref="Account" /> class with selection state.
 /// </summary>
 public class AccountModel : Account
 {
     /// <summary>
-    /// Gets or sets whether this account is currently selected in the UI.
-    /// </summary>
-    public bool IsSelected { get; set; }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="AccountModel"/> class by copying data from an existing <see cref="Account"/>.
+    ///     Initializes a new instance of the <see cref="AccountModel" /> class by copying data from an existing
+    ///     <see cref="Account" />.
     /// </summary>
     /// <param name="account">The source account to copy data from.</param>
     /// <param name="isSelected">Whether this account should be marked as selected.</param>
@@ -31,4 +27,9 @@ public class AccountModel : Account
         SetRefreshToken(account.GetRefreshToken(encryptionService), encryptionService);
         IsSelected = isSelected;
     }
+
+    /// <summary>
+    ///     Gets or sets whether this account is currently selected in the UI.
+    /// </summary>
+    public bool IsSelected { get; set; }
 }

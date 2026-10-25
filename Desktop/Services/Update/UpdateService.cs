@@ -8,7 +8,7 @@ using GithubSource = Velopack.Sources.GithubSource;
 
 namespace Tavstal.KonkordLauncher.Desktop.Services.Update;
 
-/// <inheritdoc/>
+/// <inheritdoc />
 public class UpdateService : IUpdateService
 {
     private readonly IBeaconLogger<UpdateService> _logger;
@@ -18,10 +18,11 @@ public class UpdateService : IUpdateService
     public UpdateService(IBeaconLogger<UpdateService> logger)
     {
         _logger = logger;
-        _updateManager = new(new GithubSource("https://github.com/TavstalDev/KonkordLauncher", null, false));
+        _updateManager =
+            new UpdateManager(new GithubSource("https://github.com/TavstalDev/KonkordLauncher", null, false));
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public async Task<bool> CheckAsync(CancellationToken cancellationToken = default)
     {
         try
@@ -42,7 +43,7 @@ public class UpdateService : IUpdateService
         }
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public async Task<bool> ApplyAsync(CancellationToken cancellationToken = default)
     {
         try

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -26,28 +25,24 @@ using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
-public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
+public partial class EditInstanceViewModel_Mods : KonkordObservableObject
 {
-    private readonly IBeaconLogger _logger = null!;
-    private readonly ILauncherStore _launcherStore = null!;
     private readonly IBitmapService _bitmapService = null!;
-    private readonly EditInstanceViewModel _parent;
+    private readonly ILauncherStore _launcherStore = null!;
+    private readonly IBeaconLogger _logger = null!;
 
     private readonly SourceCache<ResourceBaseModel, string> _modsCache = new(x => x.Name);
-    public ReadOnlyObservableCollection<ResourceBaseModel> FilteredMods { get; private set; } = null!;
-
-    [ObservableProperty]
-    public partial ResourceBaseModel? SelectedMod { get; set; }
-    [ObservableProperty]
-    public partial string? SearchQuery { get; set; } = string.Empty;
+    private readonly EditInstanceViewModel _parent;
 
     public EditInstanceViewModel_Mods()
     {
         _parent = null!;
-        FilteredMods = new ReadOnlyObservableCollection<ResourceBaseModel>(new ObservableCollection<ResourceBaseModel>());
+        FilteredMods =
+            new ReadOnlyObservableCollection<ResourceBaseModel>(new ObservableCollection<ResourceBaseModel>());
     }
 
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    [RequiresUnreferencedCode(
+        "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public EditInstanceViewModel_Mods(EditInstanceViewModel parent)
     {
         _parent = parent;
@@ -88,6 +83,12 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
         _bitmapService = bitmapService;
     }
 
+    public ReadOnlyObservableCollection<ResourceBaseModel> FilteredMods { get; private set; } = null!;
+
+    [ObservableProperty] public partial ResourceBaseModel? SelectedMod { get; set; }
+
+    [ObservableProperty] public partial string? SearchQuery { get; set; } = string.Empty;
+
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
@@ -106,10 +107,118 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
         await Dispatcher.UIThread.Invoke(async () => await RefreshModsAsync());
     }
 
+    /// <summary>
+    ///     Saves the current state of mods by renaming their file extensions
+    ///     based on their enabled or disabled status. Enabled mods have the
+    ///     `.jar` extension, while disabled ones have `.jar.dis`.
+    /// </summary>
+    public void SaveMods()
+    {
+        _logger.LogDebug("Saving mods...");
+        if (_parent.GameDirectory == null)
+            return;
+
+        var modsDir = Path.Combine(_parent.GameDirectory, "mods");
+        if (!Directory.Exists(modsDir))
+            return;
+
+        foreach (var mod in _modsCache.Items)
+        {
+            string? newPath = null;
+            if (mod.FilePath == null)
+                continue;
+
+            if (mod.IsEnabled && mod.FilePath.EndsWith(".jar.dis"))
+                newPath = mod.FilePath.Replace(".dis", "");
+            else if (!mod.IsEnabled && mod.FilePath.EndsWith(".jar"))
+                newPath = mod.FilePath.Replace(".jar", ".jar.dis");
+
+            if (newPath == null)
+                continue;
+
+            if (File.Exists(newPath))
+            {
+                _logger.LogWarning("Skipping save... Mod file already exists: " + newPath);
+                continue;
+            }
+
+            File.Move(mod.FilePath, newPath);
+            mod.FilePath = newPath;
+        }
+    }
+
+    /// <summary>
+    ///     Refreshes the list of mods by scanning the game directory for mod files.
+    ///     Updates the `_modsCache` with metadata such as name, size, and enabled status for each mod.
+    /// </summary>
+    public async Task RefreshModsAsync()
+    {
+        if (_parent.GameDirectory == null)
+            return;
+
+        var modsDir = Path.Combine(_parent.GameDirectory, "mods");
+        Directory.CreateDirectory(modsDir);
+
+        var instanceResources = await _parent.Instance.getInstance().GetInstanceResourcesAsync() ?? [];
+
+        _modsCache.Edit(innerCache =>
+        {
+            foreach (var mod in innerCache.Items)
+                mod.Icon.Dispose(_bitmapService); // Dispose of the image to free memory
+
+            innerCache.Clear();
+            var mods = Directory.GetFiles(modsDir, "*")
+                .Where(x => x.EndsWith(".jar") || x.EndsWith(".jar.dis"));
+
+            foreach (var mod in mods)
+                try
+                {
+                    var fileName = Path.GetFileName(mod);
+                    var resourceName = fileName
+                        .Replace(".jar.dis", "")
+                        .Replace(".jar", "");
+                    var size = new FileInfo(mod).Length;
+
+                    var instanceResource = instanceResources.FirstOrDefault(x => x.Type == EResourceType.MOD &&
+                        x.Path.EndsWith(fileName, StringComparison.OrdinalIgnoreCase));
+
+                    var icon = new BitmapEntry(null, null);
+                    try
+                    {
+                        if (instanceResource is { IconPath: not null })
+                            icon = _bitmapService.GetBitmap(instanceResource.IconPath);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, $"Failed to read icon from {mod}:");
+                    }
+
+                    var newMod = new ResourceBaseModel
+                    {
+                        IsEnabled = !fileName.EndsWith(".dis"),
+                        Name = instanceResource?.Name ?? resourceName,
+                        Icon = icon,
+                        FileSize = size,
+                        FilePath = mod,
+                        IsInstalled = true,
+                        Type = instanceResource?.Type ?? EResourceType.MOD,
+                        Platform = instanceResource?.Platform,
+                        ProjectId = instanceResource?.ProjectId,
+                        SelectedVersionId = instanceResource?.VersionId
+                    };
+                    innerCache.AddOrUpdate(newMod);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"Failed to load mod from {mod}:");
+                }
+        });
+    }
+
     #region Commands
 
     /// <summary>
-    /// Toggles the enabled state of a mod and saves the updated state.
+    ///     Toggles the enabled state of a mod and saves the updated state.
     /// </summary>
     /// <param name="mod">The mod to toggle.</param>
     [RelayCommand]
@@ -120,7 +229,7 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
     }
 
     /// <summary>
-    /// Removes the specified mod file from the file system and refreshes the mod list.
+    ///     Removes the specified mod file from the file system and refreshes the mod list.
     /// </summary>
     /// <param name="mod">The mod to remove.</param>
     [RelayCommand]
@@ -155,7 +264,7 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
     }
 
     /// <summary>
-    /// Opens the directory containing the mods in the file explorer.
+    ///     Opens the directory containing the mods in the file explorer.
     /// </summary>
     [RelayCommand]
     public void ModOpenDirectory()
@@ -163,121 +272,12 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
         if (_parent.GameDirectory == null)
             return;
 
-        string modsDir = Path.Combine(_parent.GameDirectory, "mods");
+        var modsDir = Path.Combine(_parent.GameDirectory, "mods");
         if (!Directory.Exists(modsDir))
             return;
 
         FileSystemHelper.OpenFolderInFileExplorer(modsDir);
     }
+
     #endregion
-
-    /// <summary>
-    /// Saves the current state of mods by renaming their file extensions
-    /// based on their enabled or disabled status. Enabled mods have the
-    /// `.jar` extension, while disabled ones have `.jar.dis`.
-    /// </summary>
-    public void SaveMods()
-    {
-        _logger.LogDebug("Saving mods...");
-        if (_parent.GameDirectory == null)
-            return;
-
-        string modsDir = Path.Combine(_parent.GameDirectory, "mods");
-        if (!Directory.Exists(modsDir))
-            return;
-
-        foreach (var mod in _modsCache.Items)
-        {
-            string? newPath = null;
-            if (mod.FilePath == null)
-                continue;
-
-            if (mod.IsEnabled && mod.FilePath.EndsWith(".jar.dis"))
-                newPath = mod.FilePath.Replace(".dis", "");
-            else if (!mod.IsEnabled && mod.FilePath.EndsWith(".jar"))
-                newPath = mod.FilePath.Replace(".jar", ".jar.dis");
-
-            if (newPath == null)
-                continue;
-
-            if (File.Exists(newPath))
-            {
-                _logger.LogWarning("Skipping save... Mod file already exists: " + newPath);
-                continue;
-            }
-
-            File.Move(mod.FilePath, newPath);
-            mod.FilePath = newPath;
-        }
-    }
-
-    /// <summary>
-    /// Refreshes the list of mods by scanning the game directory for mod files.
-    /// Updates the `_modsCache` with metadata such as name, size, and enabled status for each mod.
-    /// </summary>
-    public async Task RefreshModsAsync()
-    {
-        if (_parent.GameDirectory == null)
-            return;
-
-        string modsDir = Path.Combine(_parent.GameDirectory, "mods");
-        Directory.CreateDirectory(modsDir);
-
-        List<InstanceResource> instanceResources = await _parent.Instance.getInstance().GetInstanceResourcesAsync() ?? [];
-
-        _modsCache.Edit(innerCache =>
-        {
-            foreach (var mod in innerCache.Items)
-                mod.Icon.Dispose(_bitmapService); // Dispose of the image to free memory
-
-            innerCache.Clear();
-            var mods = Directory.GetFiles(modsDir, "*")
-                .Where(x => x.EndsWith(".jar") || x.EndsWith(".jar.dis"));
-
-            foreach (var mod in mods)
-            {
-                try
-                {
-                    string fileName = Path.GetFileName(mod);
-                    string resourceName = fileName
-                        .Replace(".jar.dis", "")
-                        .Replace(".jar", "");
-                    var size = new FileInfo(mod).Length;
-
-                    var instanceResource = instanceResources.FirstOrDefault(x => x.Type == EResourceType.MOD &&
-                        x.Path.EndsWith(fileName, StringComparison.OrdinalIgnoreCase));
-
-                    BitmapEntry icon = new BitmapEntry(null, null);
-                    try
-                    {
-                        if (instanceResource is { IconPath: not null })
-                            icon = _bitmapService.GetBitmap(instanceResource.IconPath);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogWarning(ex, $"Failed to read icon from {mod}:");
-                    }
-
-                    var newMod = new ResourceBaseModel
-                    {
-                        IsEnabled = !fileName.EndsWith(".dis"),
-                        Name = instanceResource?.Name ?? resourceName,
-                        Icon = icon,
-                        FileSize = size,
-                        FilePath = mod,
-                        IsInstalled = true,
-                        Type = instanceResource?.Type ?? EResourceType.MOD,
-                        Platform = instanceResource?.Platform,
-                        ProjectId = instanceResource?.ProjectId,
-                        SelectedVersionId = instanceResource?.VersionId,
-                    };
-                    innerCache.AddOrUpdate(newMod);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, $"Failed to load mod from {mod}:");
-                }
-            }
-        });
-    }
 }

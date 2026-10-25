@@ -8,7 +8,7 @@ using Version = Modrinth.Models.Version;
 namespace Tavstal.KonkordLauncher.Desktop.Serialization;
 
 /// <summary>
-/// Provides a compile-time, source-generated JSON serialization context for the Modrinth API models.
+///     Provides a compile-time, source-generated JSON serialization context for the Modrinth API models.
 /// </summary>
 [JsonSerializable(typeof(SearchResponse))]
 [JsonSerializable(typeof(Project))]
@@ -20,5 +20,6 @@ namespace Tavstal.KonkordLauncher.Desktop.Serialization;
 [JsonSerializable(typeof(ModrinthPackageIndex))]
 [JsonSerializable(typeof(ResponseError))]
 [JsonSourceGenerationOptions(PropertyNameCaseInsensitive = true,
-    PropertyNamingPolicy = JsonKnownNamingPolicy.SnakeCaseLower, WriteIndented = true, IgnoreReadOnlyFields = true, IgnoreReadOnlyProperties = true)]
+    PropertyNamingPolicy = JsonKnownNamingPolicy.SnakeCaseLower, WriteIndented = true, IgnoreReadOnlyFields = true,
+    IgnoreReadOnlyProperties = true)]
 public partial class ModrinthJsonContext : JsonSerializerContext;

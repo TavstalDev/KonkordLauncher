@@ -9,6 +9,7 @@
 > Work in progress.
 
 ## Table of Contents
+
 - [TODO](#todo)
 - [Description](#description)
 - [Features](#features)
@@ -19,11 +20,12 @@
 - [License](#license)
 
 ## TODO
+
 - [ ] Enchance README
 - [x] Cleanup translations
 - [x] Add Modrinth support
 - [ ] Add CurseForge support
-- - This requires a server-side API due to CurseForge API limitations, so since I have no resources to host a server 24/7 with good network connection, this will be implemented later.
+    - This requires a server-side API due to CurseForge API limitations, so since I have no resources to host a server 24/7 with good network connection, this will be implemented later.
 - [ ] CurseForge API server-side implementation
 - [x] Implement instance creation with modpacks
 - [x] Implement instance import/export
@@ -31,23 +33,27 @@
 - [x] Remove sensitive data from log files before 1.7https://satisfactory.wiki.gg/wiki/Hard_Drive#Scanning
 - [x] Implement a more robust way to install old forge libraries
 - [x] Implement automatic updates for the launcher
-  - [ ] Test the updater on Windows, Linux and MacOS
+    - [ ] Test the updater on Windows, Linux and MacOS
 - [x] Implement patch notes
 - [x] Implement skin selection
-- - [ ] Implement 3D skin preview (this is a big task and will be implemented later)
+    - [ ] Implement 3D skin preview (this is a big task and will be implemented later)
 - [x] Resize instance creation window, the whole window should be changed, feels to big
 - [x] Resize instance edit settings, it feels too big
 - [ ] Fix java version selection width, it should be scrollable but not like now
 - [ ] Fix light theme
 - [x] Implement Modrinth
-- - [x] Mod download and installation
-- - [x] Resource pack download and installation
-- - [x] Shader pack download and installation
+    - [x] Mod download and installation
+    - [x] Resource pack download and installation
+    - [x] Shader pack download and installation
 
 ## Description
-KonkordLauncher is a free and open-source Minecraft launcher written in C# using .NET 9 and Avalonia UI. It is designed to be lightweight, fast, and user-friendly, providing a seamless experience for launching and managing Minecraft instances.
+
+KonkordLauncher is a free and open-source Minecraft launcher written in C# using .NET 9 and Avalonia UI. It is designed
+to be lightweight, fast, and user-friendly, providing a seamless experience for launching and managing Minecraft
+instances.
 
 ## Features
+
 - **Multi-platform support**: Runs on Windows, Linux, and MacOS.
 - **Lightweight**: Minimal resource usage, ensuring smooth performance.
 - **User-friendly interface**: Intuitive design for easy navigation and management of Minecraft instances.
@@ -60,14 +66,17 @@ KonkordLauncher is a free and open-source Minecraft launcher written in C# using
 - **Secure token storage**: User tokens are securely stored using platform-specific secure storage solutions.
 
 ## Screenshots
+
 > Work in progress.
 
 ## Installation
+
 Please refer to the [Installation Guide](docs/Installation.md)
 
 ## Disclaimer
 
-KonkordLauncher is an independent project and is **not affiliated with Mojang AB**, Microsoft, or the official Minecraft team in any way.
+KonkordLauncher is an independent project and is **not affiliated with Mojang AB**, Microsoft, or the official Minecraft
+team in any way.
 
 ## Credits
 
@@ -75,11 +84,13 @@ Credits to the following projects and resources:
 
 - **FontAwesome** icons
 - **Minecraft Block Icons** (source: [https://minecraft.wiki/](https://minecraft.wiki/))
-- **TextStudio's Minecraft 3D Text Creator** ([https://www.textstudio.com/logo/minecraft-3d-text-41](https://www.textstudio.com/logo/minecraft-3d-text-41))
+- **TextStudio's Minecraft 3D Text Creator**
+  ([https://www.textstudio.com/logo/minecraft-3d-text-41](https://www.textstudio.com/logo/minecraft-3d-text-41))
 - **Avalonia UI** ([https://avaloniaui.net/](https://avaloniaui.net/))
-- **CommunityToolkit.Mvvm** ([https://learn.microsoft.com/en-us/dotnet/communitytoolkit/mvvm/](https://learn.microsoft.com/en-us/dotnet/communitytoolkit/mvvm/))
+- **CommunityToolkit.Mvvm**
+  ([https://learn.microsoft.com/en-us/dotnet/communitytoolkit/mvvm/](https://learn.microsoft.com/en-us/dotnet/communitytoolkit/mvvm/))
 - **Newtonsoft.Json** ([https://www.newtonsoft.com/json](https://www.newtonsoft.com/json))
-- **Markdown.Avalonia** 
+- **Markdown.Avalonia**
 - **CmlLib.Forge** for references regarding forge versions
 - **Modrinth** for their API ([https://docs.modrinth.com/](https://docs.modrinth.com/))
 - **CurseForge** for their API ([https://docs.curseforge.com/](https://docs.curseforge.com/))
@@ -90,4 +101,5 @@ Credits to the following projects and resources:
 
 The code of the project is licensed under the GNU General Public License v3.0.
 
-Images and other media assets are licensed under their respective licenses and are not owned by the KonkordLauncher project.
+Images and other media assets are licensed under their respective licenses and are not owned by the KonkordLauncher
+project.

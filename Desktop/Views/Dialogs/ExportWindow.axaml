@@ -44,7 +44,7 @@
             PointerPressed="DragStart_PointerPressed">
             <Grid RowDefinitions="Auto, *">
                 <!--  Window Controls  -->
-                <templates:CustomTitleBar/>
+                <templates:CustomTitleBar />
 
                 <!--  Main Content  -->
                 <Grid Grid.Row="1" RowDefinitions="Auto, *">
@@ -64,7 +64,8 @@
                                 <Border Classes="SettingsCategoryBorder">
                                     <Grid RowDefinitions="Auto, Auto, Auto">
                                         <!--  Category Title  -->
-                                        <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.category.information.title}" />
+                                        <TextBlock Classes="SettingsCategoryText"
+                                                   Text="{lang:Translate instance.create.category.information.title}" />
 
                                         <!--  Name & Version  -->
                                         <Grid
@@ -80,7 +81,8 @@
                                                 RowDefinitions="Auto, Auto"
                                                 RowSpacing="8">
                                                 <!--  Text  -->
-                                                <TextBlock Classes="TextInput" Text="{lang:Translate instance.export.name}" />
+                                                <TextBlock Classes="TextInput"
+                                                           Text="{lang:Translate instance.export.name}" />
                                                 <!--  Input  -->
                                                 <TextBox
                                                     Grid.Row="1"
@@ -97,7 +99,8 @@
                                                 RowDefinitions="Auto, Auto"
                                                 RowSpacing="8">
                                                 <!--  Text  -->
-                                                <TextBlock Classes="TextInput" Text="{lang:Translate instance.export.version}" />
+                                                <TextBlock Classes="TextInput"
+                                                           Text="{lang:Translate instance.export.version}" />
                                                 <!--  Input  -->
                                                 <TextBox
                                                     Grid.Row="1"
@@ -116,7 +119,8 @@
                                             RowDefinitions="Auto, Auto"
                                             RowSpacing="8">
                                             <!--  Text  -->
-                                            <TextBlock Classes="TextInput" Text="{lang:Translate instance.export.summary}" />
+                                            <TextBlock Classes="TextInput"
+                                                       Text="{lang:Translate instance.export.summary}" />
                                             <!--  Input  -->
                                             <TextBox
                                                 Grid.Row="1"
@@ -133,7 +137,8 @@
                                 <Border Grid.Row="1" Classes="SettingsCategoryBorder">
                                     <Grid RowDefinitions="Auto, Auto, Auto">
                                         <!--  Category Title  -->
-                                        <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.export.selection.title}" />
+                                        <TextBlock Classes="SettingsCategoryText"
+                                                   Text="{lang:Translate instance.export.selection.title}" />
 
                                         <!--  Loading Indicator  -->
                                         <avalonia:LoadingIndicator
@@ -156,7 +161,8 @@
 
                                             <TreeView.ItemTemplate>
 
-                                                <TreeDataTemplate x:DataType="models:ObservableFileNode" ItemsSource="{Binding Children}">
+                                                <TreeDataTemplate x:DataType="models:ObservableFileNode"
+                                                                  ItemsSource="{Binding Children}">
 
                                                     <StackPanel Orientation="Horizontal" Spacing="6">
 
@@ -166,7 +172,8 @@
                                                         <!--  Folder/File Icon  -->
                                                         <TextBlock Classes="FontAwesome">
                                                             <TextBlock.Text>
-                                                                <MultiBinding Converter="{StaticResource FileIconConverter}">
+                                                                <MultiBinding
+                                                                    Converter="{StaticResource FileIconConverter}">
                                                                     <Binding Path="IsDirectory" />
                                                                     <Binding Path="Path" />
                                                                 </MultiBinding>

@@ -24,24 +24,24 @@ using JavaVersionModel = Tavstal.KonkordLauncher.Desktop.Models.Domain.JavaVersi
 namespace Tavstal.KonkordLauncher.Desktop.Views;
 
 /// <summary>
-/// Represents the window for editing an instance in the Konkord Launcher.
+///     Represents the window for editing an instance in the Konkord Launcher.
 /// </summary>
 public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
 {
-    private readonly IBeaconLogger _logger = null!;
-    private readonly IEventService _eventService = null!;
     private readonly IDiscordPresenceService _discordPresenceService = null!;
+    private readonly IEventService _eventService = null!;
     private readonly string _instanceId = null!;
+    private readonly IBeaconLogger _logger = null!;
     private Button _selectedInstanceTab;
     private Button _selectedSettingsTab;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="EditInstanceWindow"/> class.
-    /// Sets up the data context with an empty instance ID and initializes components.
+    ///     Initializes a new instance of the <see cref="EditInstanceWindow" /> class.
+    ///     Sets up the data context with an empty instance ID and initializes components.
     /// </summary>
     /// <summary>
-    /// Initializes a new instance of the <see cref="EditInstanceWindow"/> class with a specific instance ID.
-    /// Sets up the data context, initializes components, and registers reactive handlers.
+    ///     Initializes a new instance of the <see cref="EditInstanceWindow" /> class with a specific instance ID.
+    ///     Sets up the data context, initializes components, and registers reactive handlers.
     /// </summary>
     public EditInstanceWindow()
     {
@@ -50,7 +50,8 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
         _selectedSettingsTab = JavaSettingsBtn;
     }
 
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    [RequiresUnreferencedCode(
+        "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public EditInstanceWindow(EditInstanceViewModel viewModel, IBeaconLogger<EditInstanceWindow> logger,
         IEventService eventService, IWindowFactory windowFactory, IDiscordPresenceService discordPresenceService)
     {
@@ -128,16 +129,16 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
             }).DisposeWith(disposables);
             DataContext.LogsScrollToEnd.RegisterHandler(action =>
             {
-                LogsScrollViewer.Offset =  new Vector(0, LogsScrollViewer.Extent.Height);
+                LogsScrollViewer.Offset = new Vector(0, LogsScrollViewer.Extent.Height);
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             }).DisposeWith(disposables);
             DataContext.OpenResourceDownloadDialog.RegisterHandler(async action =>
             {
-                var dialog = windowFactory.CreateResourceDownloadWindow(DataContext.Instance.getInstance(), action.Input);
+                var dialog =
+                    windowFactory.CreateResourceDownloadWindow(DataContext.Instance.getInstance(), action.Input);
                 var result = await dialog.ShowDialog<bool?>(this);
                 if (result == true)
-                {
                     switch (action.Input)
                     {
                         case EResourceType.RESOURCE_PACK:
@@ -156,15 +157,15 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
                             break;
                         }
                     }
-                }
+
                 action.SetOutput(Unit.Default);
             }).DisposeWith(disposables);
         });
     }
 
     /// <summary>
-    /// Called when the window is opened.
-    /// Updates the Rich Presence status to indicate that an instance is being edited.
+    ///     Called when the window is opened.
+    ///     Updates the Rich Presence status to indicate that an instance is being edited.
     /// </summary>
     /// <param name="e">The event arguments for the opened event.</param>
     protected override void OnOpened(EventArgs e)
@@ -174,8 +175,8 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     }
 
     /// <summary>
-    /// Called when the window is closed.
-    /// Updates the Rich Presence status to indicate that the user is browsing instances.
+    ///     Called when the window is closed.
+    ///     Updates the Rich Presence status to indicate that the user is browsing instances.
     /// </summary>
     /// <param name="e">The event arguments for the closed event.</param>
     protected override void OnClosed(EventArgs e)
@@ -186,9 +187,9 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     }
 
     /// <summary>
-    /// Switches the active main tab in the Edit Instance window and updates the visual state of the tab buttons.
+    ///     Switches the active main tab in the Edit Instance window and updates the visual state of the tab buttons.
     /// </summary>
-    /// <param name="tab">The target tab to switch to. Must be one of the values from the <see cref="EEditInstanceTab"/> enum.</param>
+    /// <param name="tab">The target tab to switch to. Must be one of the values from the <see cref="EEditInstanceTab" /> enum.</param>
     private void HandleTabSwitch(EEditInstanceTab tab)
     {
         if (DataContext is not { } viewModel)
@@ -248,10 +249,13 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     }
 
     /// <summary>
-    /// Switches the active settings sub-tab in the Instance Settings section and updates the visual state
-    /// of the settings tab buttons.
+    ///     Switches the active settings sub-tab in the Instance Settings section and updates the visual state
+    ///     of the settings tab buttons.
     /// </summary>
-    /// <param name="tab">The target settings tab to switch to. Must be one of the values from the <see cref="EInstanceSettingsTab"/> enum.</param>
+    /// <param name="tab">
+    ///     The target settings tab to switch to. Must be one of the values from the
+    ///     <see cref="EInstanceSettingsTab" /> enum.
+    /// </param>
     private void HandleSettingsTabSwitch(EInstanceSettingsTab tab)
     {
         if (DataContext is not { } viewModel)
@@ -298,8 +302,8 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     #region Action Handlers
 
     /// <summary>
-    /// Handles the selection change event for the overridden account ComboBox.
-    /// Updates the account ID in the instance configuration based on the selected account.
+    ///     Handles the selection change event for the overridden account ComboBox.
+    ///     Updates the account ID in the instance configuration based on the selected account.
     /// </summary>
     /// <param name="sender">The source of the event, expected to be a ComboBox.</param>
     /// <param name="e">The event data containing information about the selection change.</param>
@@ -311,6 +315,7 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
         if (sender is ComboBox { SelectedItem: Account selectedAccount })
             DataContext.Settings.InstanceConfig.Misc.AccountId = selectedAccount.Id;
     }
+
     #endregion
 
     #region DataGrid Events
@@ -318,8 +323,8 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     #region Resource Packs
 
     /// <summary>
-    /// Handles the event when a cell edit operation in the Resource Packs DataGrid is completed.
-    /// Updates the resource pack data and triggers saving the updated list of resource packs.
+    ///     Handles the event when a cell edit operation in the Resource Packs DataGrid is completed.
+    ///     Updates the resource pack data and triggers saving the updated list of resource packs.
     /// </summary>
     /// <param name="sender">The source of the event, typically the DataGrid.</param>
     /// <param name="e">The event data containing information about the edited cell.</param>
@@ -341,8 +346,8 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     #region Worlds
 
     /// <summary>
-    /// Handles the event when a cell edit operation in the World DataGrid is completed.
-    /// Updates the world data and triggers saving the updated list of worlds.
+    ///     Handles the event when a cell edit operation in the World DataGrid is completed.
+    ///     Updates the world data and triggers saving the updated list of worlds.
     /// </summary>
     /// <param name="sender">The source of the event, typically the DataGrid.</param>
     /// <param name="e">The event data containing information about the edited cell.</param>
@@ -360,8 +365,8 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     }
 
     /// <summary>
-    /// Handles the click event for selecting the Java path.
-    /// Opens a folder picker dialog and updates the Java path in the InstanceConfig if a folder is selected.
+    ///     Handles the click event for selecting the Java path.
+    ///     Opens a folder picker dialog and updates the Java path in the InstanceConfig if a folder is selected.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The event data associated with the click event.</param>
@@ -383,8 +388,8 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     #region Servers
 
     /// <summary>
-    /// Handles the event when a row edit operation in the Servers DataGrid is completed.
-    /// Updates the server data and triggers saving the updated list of servers.
+    ///     Handles the event when a row edit operation in the Servers DataGrid is completed.
+    ///     Updates the server data and triggers saving the updated list of servers.
     /// </summary>
     /// <param name="sender">The source of the event, typically the DataGrid.</param>
     /// <param name="e">The event data containing information about the edited row.</param>
@@ -406,9 +411,9 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     #region Screenshots
 
     /// <summary>
-    /// Handles the event when editing of a screenshot cell is completed in the DataGrid.
-    /// Renames the screenshot file if the name has been changed and updates the model accordingly.
-    /// Logs warnings or errors if the operation fails.
+    ///     Handles the event when editing of a screenshot cell is completed in the DataGrid.
+    ///     Renames the screenshot file if the name has been changed and updates the model accordingly.
+    ///     Logs warnings or errors if the operation fails.
     /// </summary>
     /// <param name="sender">The source of the event, typically the DataGrid.</param>
     /// <param name="e">The event data containing information about the edited cell.</param>
@@ -417,12 +422,12 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
         if (e.Row.DataContext is not ScreenshotModel screenshot)
             return;
 
-        string? dirPath = Path.GetDirectoryName(screenshot.Path);
+        var dirPath = Path.GetDirectoryName(screenshot.Path);
         if (string.IsNullOrEmpty(dirPath))
             return;
 
-        string oldPath = screenshot.Path;
-        string oldName = Path.GetFileNameWithoutExtension(oldPath);
+        var oldPath = screenshot.Path;
+        var oldName = Path.GetFileNameWithoutExtension(oldPath);
 
         // Ensure the new name is not empty
         if (string.IsNullOrEmpty(screenshot.Name))
@@ -433,12 +438,13 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
             return;
 
         // Construct the new path
-        string newPath = Path.Combine(dirPath, screenshot.Name + screenshot.Extension);
+        var newPath = Path.Combine(dirPath, screenshot.Name + screenshot.Extension);
 
         // Check if a file with the new name already exists
         if (File.Exists(newPath))
         {
-            _logger.LogWarning($"Failed to rename screenshot. A file with the name '{screenshot.Name}' already exists.");
+            _logger.LogWarning(
+                $"Failed to rename screenshot. A file with the name '{screenshot.Name}' already exists.");
             screenshot.Name = oldName;
             return;
         }
@@ -452,7 +458,7 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
         }
         catch (Exception ex)
         {
-            _logger.LogCritical(ex, $"An error occurred while renaming the screenshot:");
+            _logger.LogCritical(ex, "An error occurred while renaming the screenshot:");
         }
     }
 
@@ -463,8 +469,8 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     #region Environment Table Events
 
     /// <summary>
-    /// Handles the event when a row edit operation in the Environment DataGrid is completed.
-    /// Updates the corresponding environment variable in the instance configuration.
+    ///     Handles the event when a row edit operation in the Environment DataGrid is completed.
+    ///     Updates the corresponding environment variable in the instance configuration.
     /// </summary>
     /// <param name="sender">The source of the event, typically the DataGrid.</param>
     /// <param name="e">The event data containing information about the edited row.</param>
@@ -480,19 +486,19 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     }
 
     /// <summary>
-    /// Handles the click event for adding a new environment variable row to the Environment DataGrid.
-    /// Adds a default environment variable to the instance configuration.
+    ///     Handles the click event for adding a new environment variable row to the Environment DataGrid.
+    ///     Adds a default environment variable to the instance configuration.
     /// </summary>
     /// <param name="sender">The source of the event, typically a button.</param>
     /// <param name="e">The event data associated with the click event.</param>
     private void AddEnvironmentRow_OnClick(object? sender, RoutedEventArgs e)
     {
-        DataContext?.Settings.InstanceConfig.Environment.Add(new("ENV_VAR", "env_value"));
+        DataContext?.Settings.InstanceConfig.Environment.Add(new EnvironmentVariable("ENV_VAR", "env_value"));
     }
 
     /// <summary>
-    /// Handles the click event for removing the selected environment variable row from the Environment DataGrid.
-    /// Removes the environment variable at the selected index from the instance configuration.
+    ///     Handles the click event for removing the selected environment variable row from the Environment DataGrid.
+    ///     Removes the environment variable at the selected index from the instance configuration.
     /// </summary>
     /// <param name="sender">The source of the event, typically a button.</param>
     /// <param name="e">The event data associated with the click event.</param>
@@ -512,8 +518,8 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     }
 
     /// <summary>
-    /// Handles the click event for clearing all rows in the Environment DataGrid.
-    /// Removes all environment variables from the instance configuration.
+    ///     Handles the click event for clearing all rows in the Environment DataGrid.
+    ///     Removes all environment variables from the instance configuration.
     /// </summary>
     /// <param name="sender">The source of the event, typically a button.</param>
     /// <param name="e">The event data associated with the click event.</param>

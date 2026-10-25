@@ -1,27 +1,27 @@
 namespace Tavstal.KonkordLauncher.Desktop.Models.Enums;
 
 /// <summary>
-/// Represents the different platform types supported by the application.
+///     Represents the different platform types supported by the application.
 /// </summary>
 public enum EPlatformType
 {
     /// <summary>
-    /// Represents the Modrinth platform.
+    ///     Represents the Modrinth platform.
     /// </summary>
     MODRINTH = 0,
 
     /// <summary>
-    /// Represents the CurseForge platform.
+    ///     Represents the CurseForge platform.
     /// </summary>
     CURSE_FORGE = 1,
 
     /// <summary>
-    /// Represents the Technic platform.
+    ///     Represents the Technic platform.
     /// </summary>
     TECHNIC = 2,
 
     /// <summary>
-    /// Represents the FTB (Feed The Beast) platform.
+    ///     Represents the FTB (Feed The Beast) platform.
     /// </summary>
-    FTB = 3,
+    FTB = 3
 }

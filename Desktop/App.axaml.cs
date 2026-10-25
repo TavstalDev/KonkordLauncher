@@ -4,6 +4,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
+using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using Tavstal.BeaconSDK.Helpers.IO;
 using Tavstal.BeaconSDK.Models.Logging;
@@ -19,6 +20,7 @@ namespace Tavstal.KonkordLauncher.Desktop;
 public partial class App : Application
 {
     private static IBeaconLogger? _logger;
+
     // ReSharper disable once NotAccessedField.Local - Used to ensure the task is not garbage collected before completion
     private static Task? _initializeTask;
 
@@ -45,8 +47,8 @@ public partial class App : Application
     }
 
     /// <summary>
-    /// Configures the application after the framework initialization is completed.
-    /// Sets up the main window for the desktop-style application lifetime.
+    ///     Configures the application after the framework initialization is completed.
+    ///     Sets up the main window for the desktop-style application lifetime.
     /// </summary>
     public override void OnFrameworkInitializationCompleted()
     {
@@ -75,12 +77,12 @@ public partial class App : Application
     }
 
     /// <summary>
-    /// Applies the specified theme to the application by setting the requested theme variant.
+    ///     Applies the specified theme to the application by setting the requested theme variant.
     /// </summary>
     /// <param name="theme">The theme to apply, either Light or Dark.</param>
     private void ApplyTheme(EThemeType theme)
     {
-        Avalonia.Threading.Dispatcher.UIThread.Invoke(() =>
+        Dispatcher.UIThread.Invoke(() =>
         {
             try
             {

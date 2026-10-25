@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Threading.Tasks;
@@ -18,20 +19,21 @@ using IconSelectorViewModel = Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Mode
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 /// <summary>
-/// Represents a window for selecting and managing icons in the application.
+///     Represents a window for selecting and managing icons in the application.
 /// </summary>
 public partial class IconSelectorWindow : KonkordWindow<IconSelectorViewModel>
 {
+    private readonly ILauncherStore _launcherStore = null!;
     private readonly IBeaconLogger _logger = null!;
     private readonly ITranslationService _translationService = null!;
-    private readonly ILauncherStore _launcherStore = null!;
 
     public IconSelectorWindow()
     {
         InitializeComponent();
     }
 
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    [RequiresUnreferencedCode(
+        "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public IconSelectorWindow(IconSelectorViewModel viewModel, IBeaconLogger<IconSelectorWindow> logger,
         ITranslationService translationService, ILauncherStore launcherStore)
     {
@@ -60,9 +62,9 @@ public partial class IconSelectorWindow : KonkordWindow<IconSelectorViewModel>
             }).DisposeWith(disposables);
         });
     }
-    
+
     /// <summary>
-    /// Opens a file picker dialog to select image files and copies them to the icons directory.
+    ///     Opens a file picker dialog to select image files and copies them to the icons directory.
     /// </summary>
     /// <returns>A list of tuples containing file names and their new paths, or null if no files were selected.</returns>
     public async Task<List<(string, string)>?> OpenFilePickerAsync()
@@ -79,20 +81,17 @@ public partial class IconSelectorWindow : KonkordWindow<IconSelectorViewModel>
             _logger.LogError("Folder picking is not supported on this platform.");
             return null;
         }
-        
+
         var options = new FilePickerOpenOptions
         {
             Title = _translationService.Translate("common.select.file"),
             AllowMultiple = false,
             FileTypeFilter = new List<FilePickerFileType>
             {
-                new("PNG Images")
-                {
-                    Patterns = new List<string> { "*.png" }
-                }
+                new("PNG Images") { Patterns = new List<string> { "*.png" } }
             }
         };
-        
+
         var files = await storageProvider.OpenFilePickerAsync(options);
         if (!files.Any())
             return null;
@@ -100,21 +99,19 @@ public partial class IconSelectorWindow : KonkordWindow<IconSelectorViewModel>
         var settings = await _launcherStore.GetSettingsAsync();
         List<(string, string)> result = [];
         foreach (var file in files)
-        {
             try
             {
-                var newPath = System.IO.Path.Combine(settings.Launcher.IconsDirectoryPath, file.Name);
-                if (System.IO.File.Exists(newPath))
+                var newPath = Path.Combine(settings.Launcher.IconsDirectoryPath, file.Name);
+                if (File.Exists(newPath))
                     continue;
-                System.IO.File.Copy(file.Path.AbsolutePath, newPath);
-                result.Add(new(file.Name, newPath));
+                File.Copy(file.Path.AbsolutePath, newPath);
+                result.Add(new ValueTuple<string, string>(file.Name, newPath));
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Failed to copy file {file.Name} to icons directory: {ex.Message}");
             }
-        }
-        
+
         return result;
     }
 }

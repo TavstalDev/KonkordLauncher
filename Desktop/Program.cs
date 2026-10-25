@@ -26,104 +26,35 @@ using Velopack;
 
 namespace Tavstal.KonkordLauncher.Desktop;
 
-
-class Program
+internal class Program
 {
     public static IServiceProvider Services { get; private set; } = null!;
-
-    #region Versioning
-
-    public static string Version
-    {
-        get
-        {
-            if (!string.IsNullOrEmpty(field))
-                return field;
-
-            Version? currentVersion = null;
-            try
-            {
-                object[] versionAttributes = Assembly.GetExecutingAssembly()
-                    .GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false);
-                if (versionAttributes.Length > 0)
-                {
-                    AssemblyInformationalVersionAttribute informationalVersionAttribute =
-                        (AssemblyInformationalVersionAttribute)versionAttributes[0];
-                    currentVersion = new Version(informationalVersionAttribute.InformationalVersion);
-                }
-                else
-                    currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
-            }
-            catch { /* ignored */}
-
-            field = currentVersion?.ToString() ?? "2.0.0";
-            return field;
-        }
-    } = string.Empty;
-
-    public static string Branch
-    {
-        get
-        {
-#if  DEBUG
-            return "dev";
-#else
-            return "stable";
-#endif
-        }
-    }
-    private static string _buidDate = string.Empty;
-    public static string BuildDate
-    {
-        get
-        {
-            if (!string.IsNullOrEmpty(_buidDate))
-                return _buidDate;
-
-            object[] buildDateAttributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyMetadataAttribute), false);
-            foreach (var attribute in buildDateAttributes)
-            {
-                if (attribute is AssemblyMetadataAttribute { Key: "BuildDate" } metadata)
-                {
-                    _buidDate = metadata.Value ?? DateTime.UtcNow.ToString("yyyy-MM-dd");
-                    return _buidDate;
-                }
-            }
-
-            _buidDate = DateTime.UtcNow.ToString("yyyy-MM-dd");
-            return _buidDate;
-        }
-    }
-    #endregion
 
     [STAThread]
     public static void Main(string[] args)
     {
         VelopackApp.Build().Run();
 
-        string appDir = Path.Combine(
+        var appDir = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "KonkordLauncher"
         );
         Directory.CreateDirectory(appDir);
-        string keysDir = Path.Combine(appDir, "keys");
+        var keysDir = Path.Combine(appDir, "keys");
         Directory.CreateDirectory(keysDir);
-        string logsDir = Path.Combine(appDir, "logs");
+        var logsDir = Path.Combine(appDir, "logs");
         Directory.CreateDirectory(logsDir);
-        string latestLog =  Path.Combine(logsDir, "latest.log");
+        var latestLog = Path.Combine(logsDir, "latest.log");
         if (File.Exists(latestLog))
         {
             var lastModified = File.GetLastWriteTime(latestLog);
-            string archivePath = Path.Combine(logsDir, $"{lastModified:yyyy-MM-dd_HH-mm-ss}.log.gz");
+            var archivePath = Path.Combine(logsDir, $"{lastModified:yyyy-MM-dd_HH-mm-ss}.log.gz");
             FileSystemHelper.CompressFile(latestLog, archivePath);
         }
 
         var beaconConfig = new BeaconConfiguration
         {
-            Auth = new AuthConfiguration
-            {
-                MicrosoftClientId = "496a0c42-aa74-41fe-b7bc-0ad155cdaa26"
-            },
+            Auth = new AuthConfiguration { MicrosoftClientId = "496a0c42-aa74-41fe-b7bc-0ad155cdaa26" },
             DataProtection = new DataProtectionConfig
             {
                 ApplicationName = "KonkordLauncher",
@@ -133,10 +64,7 @@ class Program
                 LinuxKey = [.. "oN93VTwahenTgCCMoRJSswt3nkkZ7KFY"u8],
                 MacKey = [.. "7yx7QoAwLg2zPtwVsRYoXNA4Vtef2tVX"u8]
             },
-            Http = new HttpConfig
-            {
-                Agent = "KonkordLauncher/2.0.0 (+https://github.com/TavstalDev/KonkordLauncher)",
-            },
+            Http = new HttpConfig { Agent = "KonkordLauncher/2.0.0 (+https://github.com/TavstalDev/KonkordLauncher)" },
             Logging = new LoggingConfig
             {
                 EnableCustomLogger = false,
@@ -153,7 +81,7 @@ class Program
             .ConfigureServices(services =>
             {
                 services.AddBeaconServices(beaconConfig);
-                services.AddSingleton<IEventService,  EventService>();
+                services.AddSingleton<IEventService, EventService>();
                 services.AddSingleton<IUpdateService, UpdateService>();
                 services.AddSingleton<IDiscordPresenceService, DiscordPresenceService>();
 
@@ -194,10 +122,10 @@ class Program
     }
 
     /// <summary>
-    /// Configures and returns the Avalonia <see cref="AppBuilder"/> used to start the UI.
-    /// This method is intentionally static and called by the runtime; it is also used by the visual designer.
+    ///     Configures and returns the Avalonia <see cref="AppBuilder" /> used to start the UI.
+    ///     This method is intentionally static and called by the runtime; it is also used by the visual designer.
     /// </summary>
-    /// <returns>A configured <see cref="AppBuilder"/> instance for Avalonia.</returns>
+    /// <returns>A configured <see cref="AppBuilder" /> instance for Avalonia.</returns>
     private static AppBuilder BuildAvaloniaApp()
     {
         return AppBuilder.Configure<App>()
@@ -206,4 +134,76 @@ class Program
             .LogToTrace()
             .UseReactiveUI(_ => { });
     }
+
+    #region Versioning
+
+    public static string Version
+    {
+        get
+        {
+            if (!string.IsNullOrEmpty(field))
+                return field;
+
+            Version? currentVersion = null;
+            try
+            {
+                var versionAttributes = Assembly.GetExecutingAssembly()
+                    .GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false);
+                if (versionAttributes.Length > 0)
+                {
+                    var informationalVersionAttribute =
+                        (AssemblyInformationalVersionAttribute)versionAttributes[0];
+                    currentVersion = new Version(informationalVersionAttribute.InformationalVersion);
+                }
+                else
+                {
+                    currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
+                }
+            }
+            catch
+            {
+                /* ignored */
+            }
+
+            field = currentVersion?.ToString() ?? "2.0.0";
+            return field;
+        }
+    } = string.Empty;
+
+    public static string Branch
+    {
+        get
+        {
+#if DEBUG
+            return "dev";
+#else
+            return "stable";
+#endif
+        }
+    }
+
+    private static string _buidDate = string.Empty;
+
+    public static string BuildDate
+    {
+        get
+        {
+            if (!string.IsNullOrEmpty(_buidDate))
+                return _buidDate;
+
+            var buildDateAttributes = Assembly.GetExecutingAssembly()
+                .GetCustomAttributes(typeof(AssemblyMetadataAttribute), false);
+            foreach (var attribute in buildDateAttributes)
+                if (attribute is AssemblyMetadataAttribute { Key: "BuildDate" } metadata)
+                {
+                    _buidDate = metadata.Value ?? DateTime.UtcNow.ToString("yyyy-MM-dd");
+                    return _buidDate;
+                }
+
+            _buidDate = DateTime.UtcNow.ToString("yyyy-MM-dd");
+            return _buidDate;
+        }
+    }
+
+    #endregion
 }

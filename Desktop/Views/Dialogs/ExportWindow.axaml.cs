@@ -11,7 +11,7 @@ using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 /// <summary>
-/// Window used to present the export instance dialog.
+///     Window used to present the export instance dialog.
 /// </summary>
 public partial class ExportWindow : KonkordWindow<ExportViewModel>
 {
@@ -20,7 +20,8 @@ public partial class ExportWindow : KonkordWindow<ExportViewModel>
         InitializeComponent();
     }
 
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    [RequiresUnreferencedCode(
+        "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public ExportWindow(ExportViewModel viewModel, ITranslationService translationService)
     {
         InitializeComponent();

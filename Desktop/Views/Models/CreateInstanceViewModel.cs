@@ -28,23 +28,6 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IKonkord
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IManifestService _manifestService = null!;
     private readonly IWindowFactory _windowFactory = null!;
-    public CreateInstanceViewModel_Custom Custom { get;  }
-    public CreateInstanceViewModel_Modpack Modpack { get;  }
-    public CreateInstanceViewModel_Import Import { get;  }
-
-    [ObservableProperty]
-    public partial ECreateInstanceTab SelectedTab { get; set; } = ECreateInstanceTab.CUSTOM;
-
-    #region Interactions
-
-
-    public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
-    public Interaction<ECreateInstanceTab, Unit> SwitchTabInteraction { get; } = new();
-    public Interaction<int, Unit> SwitchImportTabInteraction { get; } = new();
-    public Interaction<Alert, Unit> ShowAlertDialogInteraction { get; } = new();
-    public Interaction<Unit, string?> ShowIconSelectorInteraction { get; } = new();
-    public Interaction<Unit, string?> ShowFileSelectorInteraction { get; } = new();
-    #endregion
 
     public CreateInstanceViewModel()
     {
@@ -76,10 +59,19 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IKonkord
         _ = InitAsync();
     }
 
+    public CreateInstanceViewModel_Custom Custom { get; }
+    public CreateInstanceViewModel_Modpack Modpack { get; }
+    public CreateInstanceViewModel_Import Import { get; }
+
+    [ObservableProperty] public partial ECreateInstanceTab SelectedTab { get; set; } = ECreateInstanceTab.CUSTOM;
+
     /// <summary>
-    /// Releases the resources used by the CreateInstanceViewModel and performs cleanup operations.
+    ///     Releases the resources used by the CreateInstanceViewModel and performs cleanup operations.
     /// </summary>
-    /// <param name="disposing">A boolean value indicating whether the method is being called directly or indirectly by a finalizer.</param>
+    /// <param name="disposing">
+    ///     A boolean value indicating whether the method is being called directly or indirectly by a
+    ///     finalizer.
+    /// </param>
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
@@ -89,17 +81,26 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IKonkord
     }
 
     /// <summary>
-    /// Asynchronously initializes the CreateInstanceViewModel and its subcomponents.
+    ///     Asynchronously initializes the CreateInstanceViewModel and its subcomponents.
     /// </summary>
-    /// <param name="cancellationToken">Optional <see cref="CancellationToken"/> that can be used by callers to cancel the initialization flow.</param>
-    /// <returns>A <see cref="Task"/> that completes when initialization has finished for the view-model and all child modules.</returns>
+    /// <param name="cancellationToken">
+    ///     Optional <see cref="CancellationToken" /> that can be used by callers to cancel the
+    ///     initialization flow.
+    /// </param>
+    /// <returns>
+    ///     A <see cref="Task" /> that completes when initialization has finished for the view-model and all child
+    ///     modules.
+    /// </returns>
     private async Task InitAsync(CancellationToken cancellationToken = default)
     {
         await Task.Yield();
 
-        var settings = await Task.Run(() => _launcherStore.GetSettingsAsync(cancellationToken: cancellationToken), cancellationToken);
+        var settings = await Task.Run(() => _launcherStore.GetSettingsAsync(cancellationToken: cancellationToken),
+            cancellationToken);
         var manifestPath = settings.Launcher.GetVanillaManifestPath();
-        var versionManifest = await Task.Run(() => _manifestService.GetMinecraftManifestAsync(manifestPath, cancellationToken), cancellationToken);
+        var versionManifest =
+            await Task.Run(() => _manifestService.GetMinecraftManifestAsync(manifestPath, cancellationToken),
+                cancellationToken);
 
         if (versionManifest == null)
             throw new Exception("Failed to load Minecraft version manifest.");
@@ -109,7 +110,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IKonkord
     }
 
     /// <summary>
-    /// Sets up reactive/filtering pipelines for all child sub-view-models.
+    ///     Sets up reactive/filtering pipelines for all child sub-view-models.
     /// </summary>
     private void SetupPipeline()
     {
@@ -117,7 +118,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IKonkord
     }
 
     /// <summary>
-    /// Requests the window to close by invoking the <see cref="CloseWindowInteraction"/> interaction.
+    ///     Requests the window to close by invoking the <see cref="CloseWindowInteraction" /> interaction.
     /// </summary>
     [RelayCommand]
     public async Task CloseWindow()
@@ -126,16 +127,28 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IKonkord
     }
 
     /// <summary>
-    /// Requests the parent view to change the selected create-instance tab.
+    ///     Requests the parent view to change the selected create-instance tab.
     /// </summary>
-    /// <param name="tab">The tab to switch to (one of <see cref="ECreateInstanceTab"/>).</param>
+    /// <param name="tab">The tab to switch to (one of <see cref="ECreateInstanceTab" />).</param>
     [RelayCommand]
     private async Task HandleTabBtn(ECreateInstanceTab tab)
     {
         await SwitchTabInteraction.Handle(tab);
     }
 
+    #region Interactions
+
+    public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
+    public Interaction<ECreateInstanceTab, Unit> SwitchTabInteraction { get; } = new();
+    public Interaction<int, Unit> SwitchImportTabInteraction { get; } = new();
+    public Interaction<Alert, Unit> ShowAlertDialogInteraction { get; } = new();
+    public Interaction<Unit, string?> ShowIconSelectorInteraction { get; } = new();
+    public Interaction<Unit, string?> ShowFileSelectorInteraction { get; } = new();
+
+    #endregion
+
     #region Progress Reporter
+
     private ProgressWindow? _installWindow;
 
     public void Report(double progress)
@@ -180,7 +193,9 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IKonkord
         _installWindow?.Report(progress, key, args);
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
+    [UnconditionalSuppressMessage("Trimming",
+        "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code",
+        Justification = "<Pending>")]
     private void EnsureWindowExists()
     {
         _installWindow ??= _windowFactory.CreateProgressWindow();

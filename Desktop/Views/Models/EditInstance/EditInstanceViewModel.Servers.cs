@@ -20,16 +20,9 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
 public partial class EditInstanceViewModel_Servers : KonkordObservableObject
 {
-    private readonly IBeaconLogger _logger = null!;
     private readonly IBitmapService _bitmapService = null!;
+    private readonly IBeaconLogger _logger = null!;
     private readonly EditInstanceViewModel _parent;
-
-    [ObservableProperty] public partial string ServerName { get; set; } = string.Empty;
-
-    [ObservableProperty] public partial string ServerIp { get; set; } = string.Empty;
-    public ObservableCollection<ServerModel> Servers { get; set; } = [];
-    [ObservableProperty]
-    public partial ServerModel? SelectedServer { get; set; }
 
     public EditInstanceViewModel_Servers()
     {
@@ -50,6 +43,13 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
         _bitmapService = bitmapService;
     }
 
+    [ObservableProperty] public partial string ServerName { get; set; } = string.Empty;
+
+    [ObservableProperty] public partial string ServerIp { get; set; } = string.Empty;
+    public ObservableCollection<ServerModel> Servers { get; set; } = [];
+
+    [ObservableProperty] public partial ServerModel? SelectedServer { get; set; }
+
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
@@ -67,42 +67,10 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
         return Task.CompletedTask;
     }
 
-    #region Commands
-
     /// <summary>
-    /// Adds a new server to the list of servers if both the server name and IP address are provided.
-    /// </summary>
-    [RelayCommand]
-    public void Add()
-    {
-        if (string.IsNullOrEmpty(ServerName) || string.IsNullOrEmpty(ServerIp))
-            return;
-
-        var model = new ServerModel(ServerName, ServerIp, 0, 0, null)
-        {
-            Image = _bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Images/default_world.png")
-        };
-
-        Servers.Add(model);
-    }
-
-    /// <summary>
-    /// Removes the specified server from the list of servers if it exists in the collection.
-    /// </summary>
-    /// <param name="server">The server to remove.</param>
-    [RelayCommand]
-    public void Remove(ServerModel server)
-    {
-        if (Servers.Contains(server))
-            Servers.Remove(server);
-    }
-
-    #endregion
-
-    /// <summary>
-    /// Saves the current list of Minecraft servers to the `servers.dat` file
-    /// in the game directory. The method serializes the server data into NBT format
-    /// and writes it to the file.
+    ///     Saves the current list of Minecraft servers to the `servers.dat` file
+    ///     in the game directory. The method serializes the server data into NBT format
+    ///     and writes it to the file.
     /// </summary>
     public void SaveServers()
     {
@@ -111,7 +79,7 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
             return;
         try
         {
-            string filePath = Path.Combine(_parent.GameDirectory, "servers.dat");
+            var filePath = Path.Combine(_parent.GameDirectory, "servers.dat");
 
             var root = new NbtCompoundTag();
             var serversList = new NbtListTag(NbtTagType.Compound);
@@ -122,7 +90,7 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
                 {
                     { "name", new NbtStringTag(s.Name) },
                     { "ip", new NbtStringTag(s.Ip) },
-                    { "acceptTextures", new NbtIntTag(s.AcceptTextures) },
+                    { "acceptTextures", new NbtIntTag(s.AcceptTextures) }
                 };
 
                 if (s.HideAddress.HasValue)
@@ -148,8 +116,8 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
     }
 
     /// <summary>
-    /// Handles changes to the `Servers` collection by saving the updated list
-    /// of servers to the `servers.dat` file.
+    ///     Handles changes to the `Servers` collection by saving the updated list
+    ///     of servers to the `servers.dat` file.
     /// </summary>
     /// <param name="sender">The source of the event, typically the `Servers` collection.</param>
     /// <param name="e">The event data containing details about the collection change.</param>
@@ -159,8 +127,8 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
     }
 
     /// <summary>
-    /// Refreshes the list of Minecraft servers by reading the `servers.dat` file
-    /// from the game directory and updating the Servers collection with the data.
+    ///     Refreshes the list of Minecraft servers by reading the `servers.dat` file
+    ///     from the game directory and updating the Servers collection with the data.
     /// </summary>
     public void RefreshServers()
     {
@@ -168,7 +136,7 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
             return;
 
         // Construct the file path for the servers.dat file
-        string filePath = Path.Combine(_parent.GameDirectory, "servers.dat");
+        var filePath = Path.Combine(_parent.GameDirectory, "servers.dat");
         if (!File.Exists(filePath))
             return;
 
@@ -182,25 +150,18 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
 
         // Clear the existing Servers collection and populate it with new data
         foreach (var server in Servers)
-        {
             // Dispose of the image to free memory
             server.Image.Dispose(_bitmapService);
-        }
         Servers.Clear();
         foreach (var server in serversDat.Servers)
         {
             var model = new ServerModel(server.Name, server.Ip, server.AcceptTextures, server.HideAddress,
                 server.Icon);
             if (server.Icon != null)
-            {
                 _bitmapService.GetBitmapAsync(server.Icon).ContinueWith(t =>
                 {
-                    if (t.IsCompletedSuccessfully)
-                    {
-                        model.Image = t.Result;
-                    }
+                    if (t.IsCompletedSuccessfully) model.Image = t.Result;
                 }, TaskScheduler.FromCurrentSynchronizationContext());
-            }
             else
                 model.Image = _bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Images/default_world.png");
             Servers.Add(model);
@@ -208,4 +169,36 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
 
         Servers.CollectionChanged += ServersOnCollectionChanged;
     }
+
+    #region Commands
+
+    /// <summary>
+    ///     Adds a new server to the list of servers if both the server name and IP address are provided.
+    /// </summary>
+    [RelayCommand]
+    public void Add()
+    {
+        if (string.IsNullOrEmpty(ServerName) || string.IsNullOrEmpty(ServerIp))
+            return;
+
+        var model = new ServerModel(ServerName, ServerIp, 0, 0, null)
+        {
+            Image = _bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Images/default_world.png")
+        };
+
+        Servers.Add(model);
+    }
+
+    /// <summary>
+    ///     Removes the specified server from the list of servers if it exists in the collection.
+    /// </summary>
+    /// <param name="server">The server to remove.</param>
+    [RelayCommand]
+    public void Remove(ServerModel server)
+    {
+        if (Servers.Contains(server))
+            Servers.Remove(server);
+    }
+
+    #endregion
 }

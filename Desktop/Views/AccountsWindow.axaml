@@ -36,7 +36,7 @@
             PointerPressed="DragStart_PointerPressed">
             <Grid RowDefinitions="Auto, *">
                 <!--  Window Controls  -->
-                <templates:CustomTitleBar/>
+                <templates:CustomTitleBar />
 
                 <!--  Main Content  -->
                 <StackPanel
@@ -50,11 +50,14 @@
                             <Border Classes="ModalWrapper">
                                 <Grid>
                                     <!--  Start with Microsoft account login  -->
-                                    <WrapPanel Classes="ModalWrapper" IsVisible="{Binding !IsLoggingInMicrosoftAccount}">
+                                    <WrapPanel Classes="ModalWrapper"
+                                               IsVisible="{Binding !IsLoggingInMicrosoftAccount}">
                                         <!--  Description text  -->
-                                        <TextBlock Classes="AccountsModalDescription" Text="{lang:Translate auth.microsoft.description}" />
+                                        <TextBlock Classes="AccountsModalDescription"
+                                                   Text="{lang:Translate auth.microsoft.description}" />
                                         <!--  Microsoft logo  -->
-                                        <Image Classes="AccountsModalImage" Source="/Assets/Images/Brands/microsoft.png" />
+                                        <Image Classes="AccountsModalImage"
+                                               Source="/Assets/Images/Brands/microsoft.png" />
                                         <!--  Start login button  -->
                                         <Button
                                             HorizontalAlignment="Center"
@@ -116,7 +119,7 @@
                                             Width="150"
                                             Height="150"
                                             Source="{Binding QrCode}"
-                                            IsVisible="{Binding !IsQrCodeLoading}"/>
+                                            IsVisible="{Binding !IsQrCodeLoading}" />
 
                                         <!-- QR code loading indicator  -->
                                         <avalonia:LoadingIndicator
@@ -135,7 +138,7 @@
                                                 VerticalAlignment="Center"
                                                 FontSize="25"
                                                 Text="{Binding DeviceData.UserCode}"
-                                                IsVisible="{Binding !IsQrCodeLoading}"/>
+                                                IsVisible="{Binding !IsQrCodeLoading}" />
                                             <TextBlock
                                                 VerticalAlignment="Center"
                                                 FontSize="25"
@@ -147,12 +150,13 @@
                                                     VerticalAlignment="Center"
                                                     Classes="FontAwesome"
                                                     Text="&#xf0c5;"
-                                                    IsEnabled="{Binding !IsQrCodeLoading}"/>
+                                                    IsEnabled="{Binding !IsQrCodeLoading}" />
                                             </Button>
                                         </WrapPanel>
 
                                         <!--  Description text  -->
-                                        <TextBlock Classes="AccountsModalDescription" Text="{lang:Translate auth.code.note}" />
+                                        <TextBlock Classes="AccountsModalDescription"
+                                                   Text="{lang:Translate auth.code.note}" />
 
                                         <WrapPanel Classes="AccountsModalProgressWrapper">
                                             <!--  Open link button  -->
@@ -165,7 +169,8 @@
                                                         VerticalAlignment="Center"
                                                         Classes="FontAwesome"
                                                         Text="&#xf0c1;" />
-                                                    <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.open.link}" />
+                                                    <TextBlock VerticalAlignment="Center"
+                                                               Text="{lang:Translate common.open.link}" />
                                                 </WrapPanel>
                                             </Button>
                                             <!--  Cancel button  -->
@@ -178,7 +183,8 @@
                                                         VerticalAlignment="Center"
                                                         Classes="FontAwesome"
                                                         Text="&#xf00d;" />
-                                                    <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.cancel}" />
+                                                    <TextBlock VerticalAlignment="Center"
+                                                               Text="{lang:Translate common.cancel}" />
                                                 </WrapPanel>
                                             </Button>
                                         </WrapPanel>
@@ -191,7 +197,8 @@
                             <Border Classes="ModalWrapper">
                                 <WrapPanel Classes="ModalWrapper">
                                     <!--  Description text  -->
-                                    <TextBlock Classes="AccountsModalDescription" Text="{lang:Translate auth.offline.description}" />
+                                    <TextBlock Classes="AccountsModalDescription"
+                                               Text="{lang:Translate auth.offline.description}" />
                                     <!--  Username input  -->
                                     <TextBox
                                         Name="OfflineUsernameInput"
@@ -230,9 +237,9 @@
                     IsVisible="{Binding IsProcessingLogin}">
                     <TextBlock
                         Margin="10"
-                            HorizontalAlignment="Center"
-                               Foreground="{DynamicResource text-faded}"
-                               Text="{lang:Translate auth.creating.title}" />
+                        HorizontalAlignment="Center"
+                        Foreground="{DynamicResource text-faded}"
+                        Text="{lang:Translate auth.creating.title}" />
                     <avalonia:LoadingIndicator
                         Height="120"
                         Margin="0,-40,0,0"

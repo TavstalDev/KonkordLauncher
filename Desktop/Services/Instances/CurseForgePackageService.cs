@@ -24,23 +24,25 @@ using CurseForgeJsonContext = Tavstal.KonkordLauncher.Desktop.Serialization.Curs
 namespace Tavstal.KonkordLauncher.Desktop.Services.Instances;
 
 /// <summary>
-/// Implements CurseForge package import and export operations for <c>.zip</c> archives.
+///     Implements CurseForge package import and export operations for <c>.zip</c> archives.
 /// </summary>
 public class CurseForgePackageService : IPackageService
 {
-    private readonly IBeaconLogger _logger;
     private readonly IHttpService _httpService;
     private readonly ILauncherStore _launcherStore;
+    private readonly IBeaconLogger _logger;
 
-    public CurseForgePackageService(IBeaconLogger<CurseForgePackageService> logger, IHttpService httpService, ILauncherStore launcherStore)
+    public CurseForgePackageService(IBeaconLogger<CurseForgePackageService> logger, IHttpService httpService,
+        ILauncherStore launcherStore)
     {
         _logger = logger;
         _httpService = httpService;
         _launcherStore = launcherStore;
     }
 
-    /// <inheritdoc/>
-    public async Task<Instance?> ImportAsync(string sourcePath, Resolution resolution, string? customName = null, string? customGroup = null,
+    /// <inheritdoc />
+    public async Task<Instance?> ImportAsync(string sourcePath, Resolution resolution, string? customName = null,
+        string? customGroup = null,
         string? customIconUrl = null, IKonkordProgress? progress = null, CancellationToken cancellationToken = default)
     {
         try
@@ -53,7 +55,7 @@ public class CurseForgePackageService : IPackageService
 
             var settings = await _launcherStore.GetSettingsAsync(cancellationToken: cancellationToken);
             var instances = await _launcherStore.GetInstancesAsync(cancellationToken);
-            Instance result = new Instance
+            var result = new Instance
             {
                 Id = Guid.NewGuid().ToString(),
                 Name = string.Empty,
@@ -75,34 +77,38 @@ public class CurseForgePackageService : IPackageService
                     },
                     Java = new JavaConfig
                     {
-                        JvmArguments = string.IsNullOrEmpty(settings.Java.JvmArguments) ? Instance.GetDefaultJVMArgs() : settings.Java.JvmArguments,
+                        JvmArguments =
+                            string.IsNullOrEmpty(settings.Java.JvmArguments)
+                                ? Instance.GetDefaultJVMArgs()
+                                : settings.Java.JvmArguments,
                         JavaPath = string.Empty,
                         MinMemory = settings.Java.MinMemory,
                         MaxMemory = settings.Java.MaxMemory,
-                        PermaGen = settings.Java.PermaGen,
+                        PermaGen = settings.Java.PermaGen
                     },
                     Commands = new InstanceCommandsConfig(),
                     EnableEnvironment = false,
                     Environment = [],
-                    Misc =new InstanceMiscConfig()
+                    Misc = new InstanceMiscConfig()
                 }
             };
 
-            string tempDir = Path.Combine(_launcherStore.GetTempDir(), "import-" + Guid.NewGuid());
+            var tempDir = Path.Combine(_launcherStore.GetTempDir(), "import-" + Guid.NewGuid());
 
-           try
+            try
             {
                 Directory.CreateDirectory(tempDir);
                 await ZipFile.ExtractToDirectoryAsync(sourcePath, tempDir, cancellationToken);
 
-                string manifestJson = Path.Combine(tempDir, "manifest.json");
+                var manifestJson = Path.Combine(tempDir, "manifest.json");
                 if (!File.Exists(manifestJson))
                 {
                     _logger.LogError("manifest.json not found in package");
                     return null;
                 }
 
-                var curseForgeManifest = await JsonHelper.ReadJsonFileAsync(manifestJson, CurseForgeJsonContext.Default.CurseForgeManifest, cancellationToken);
+                var curseForgeManifest = await JsonHelper.ReadJsonFileAsync(manifestJson,
+                    CurseForgeJsonContext.Default.CurseForgeManifest, cancellationToken);
                 if (curseForgeManifest == null)
                     throw new InvalidOperationException("Failed to parse manifest.json");
 
@@ -114,13 +120,13 @@ public class CurseForgePackageService : IPackageService
                 List<InstanceResource> resources = [];
 
                 // Copy overrides
-                string overridesDir = Path.Combine(tempDir, "overrides");
+                var overridesDir = Path.Combine(tempDir, "overrides");
                 if (Directory.Exists(overridesDir))
                     FileSystemHelper.MoveDirectory(overridesDir, result.GameDirectory, true);
 
-                string iconPath = Path.Combine(result.GameDirectory, "icon.png");
+                var iconPath = Path.Combine(result.GameDirectory, "icon.png");
                 if (!File.Exists(iconPath) && !string.IsNullOrEmpty(customIconUrl))
-                    await _httpService.DownloadFileAsync(customIconUrl, iconPath,  null, null, cancellationToken);
+                    await _httpService.DownloadFileAsync(customIconUrl, iconPath, null, null, cancellationToken);
                 result.IconPath = File.Exists(iconPath) ? iconPath : string.Empty;
 
                 // Download Mods
@@ -157,7 +163,7 @@ public class CurseForgePackageService : IPackageService
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error processing modrinth package:");
+                _logger.LogError(ex, "Error processing modrinth package:");
                 return null;
             }
             finally
@@ -169,32 +175,34 @@ public class CurseForgePackageService : IPackageService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical(ex, $"Failed to import curse forge package:");
+            _logger.LogCritical(ex, "Failed to import curse forge package:");
             return null;
         }
     }
 
-    /// <inheritdoc/>
-    public async Task<bool> ExportAsync(Instance instance, List<FileNode> fileNodes, string targetPath, string exportVersion = "1.0.0",
+    /// <inheritdoc />
+    public async Task<bool> ExportAsync(Instance instance, List<FileNode> fileNodes, string targetPath,
+        string exportVersion = "1.0.0",
         string summary = "", IKonkordProgress? progress = null, CancellationToken cancellationToken = default)
     {
-        string resourceFile = instance.GetResourceConfigPath();
+        var resourceFile = instance.GetResourceConfigPath();
         List<InstanceResource> resources = [];
-        List<FileNode> localNodes = new (fileNodes);
+        List<FileNode> localNodes = new(fileNodes);
         if (File.Exists(resourceFile))
         {
-            var res = await JsonHelper.ReadJsonFileAsync<List<InstanceResource>>(resourceFile, CommonJsonContext.Default.ListInstanceResource, cancellationToken);
+            var res = await JsonHelper.ReadJsonFileAsync<List<InstanceResource>>(resourceFile,
+                CommonJsonContext.Default.ListInstanceResource, cancellationToken);
             if (res != null)
                 resources = res;
         }
 
-        string tmpDir = Path.Combine(_launcherStore.GetTempDir(), "export-" + Guid.NewGuid());
+        var tmpDir = Path.Combine(_launcherStore.GetTempDir(), "export-" + Guid.NewGuid());
         Directory.CreateDirectory(tmpDir);
         try
         {
-            string manifestJson = Path.Combine(tmpDir, "manifest.json");
-            string modListHtml = Path.Combine(tmpDir, "modlist.html");
-            string overridesDir = Path.Combine(tmpDir, "overrides");
+            var manifestJson = Path.Combine(tmpDir, "manifest.json");
+            var modListHtml = Path.Combine(tmpDir, "modlist.html");
+            var overridesDir = Path.Combine(tmpDir, "overrides");
             Directory.CreateDirectory(overridesDir);
 
             CurseForgeManifest curseForgeManifest = new()
@@ -203,21 +211,17 @@ public class CurseForgePackageService : IPackageService
                 Files = [],
                 Version = exportVersion,
                 Overrides = "overrides",
-                Minecraft = new CurseForgeMinecraft
-                {
-                    Version = instance.MinecraftVersion,
-                    ModLoaders = []
-                }
+                Minecraft = new CurseForgeMinecraft { Version = instance.MinecraftVersion, ModLoaders = [] }
             };
             if (instance.Kind != EMinecraftKind.VANILLA)
                 curseForgeManifest.Minecraft.ModLoaders.Add(new CurseForgeModLoader
                 {
-                    Id = instance.Kind.ToString().ToLower() + "-" + instance.CustomVersion,
-                    IsPrimary = true
+                    Id = instance.Kind.ToString().ToLower() + "-" + instance.CustomVersion, IsPrimary = true
                 });
 
             // Write manifest json
-            await JsonHelper.WriteJsonFileAsync(manifestJson, curseForgeManifest, CurseForgeJsonContext.Default.CurseForgeManifest, cancellationToken);
+            await JsonHelper.WriteJsonFileAsync(manifestJson, curseForgeManifest,
+                CurseForgeJsonContext.Default.CurseForgeManifest, cancellationToken);
 
             // Write mod-list HTML
             List<string> modList = [];
@@ -227,8 +231,9 @@ public class CurseForgePackageService : IPackageService
                     continue;
 
                 // Remove the resource file node from localNodes to avoid copying it to overrides
-                var localNode = localNodes.Find(x => !x.IsDirectory && (x.Path.EndsWith(resource.Path) || x.Path.EndsWith(resource.Path + ".dis")));
-                bool required = true;
+                var localNode = localNodes.Find(x =>
+                    !x.IsDirectory && (x.Path.EndsWith(resource.Path) || x.Path.EndsWith(resource.Path + ".dis")));
+                var required = true;
                 if (localNode != null)
                 {
                     required = !localNode.Path.EndsWith(".dis");
@@ -248,19 +253,21 @@ public class CurseForgePackageService : IPackageService
                     Required = required
                 });
             }
+
             await File.WriteAllTextAsync(modListHtml, $"<ul>{string.Join("\n", modList)}</ul>", cancellationToken);
 
             // Copy overrides
             foreach (var node in localNodes)
                 await CopyNodeToOverridesAsync(overridesDir, instance.GameDirectory!, node, cancellationToken);
 
-            await ZipFile.CreateFromDirectoryAsync(tmpDir, targetPath, CompressionLevel.Optimal, false, cancellationToken);
+            await ZipFile.CreateFromDirectoryAsync(tmpDir, targetPath, CompressionLevel.Optimal, false,
+                cancellationToken);
             _logger.LogDebug($"Exported modrinth package to {targetPath}");
             return true;
         }
         catch (Exception ex)
         {
-            _logger.LogCritical(ex, $"Failed to export curse forge package:");
+            _logger.LogCritical(ex, "Failed to export curse forge package:");
             return false;
         }
         finally
@@ -270,17 +277,18 @@ public class CurseForgePackageService : IPackageService
     }
 
     /// <summary>
-    /// Recursively copies a file node and its children from the game directory to the package's overrides directory.
+    ///     Recursively copies a file node and its children from the game directory to the package's overrides directory.
     /// </summary>
     /// <param name="overridesDir">The root overrides directory inside the temporary package layout where files are copied.</param>
     /// <param name="gameDir">The base game directory path used to compute relative override paths.</param>
     /// <param name="fileNode">The file or directory node to copy. It may be a file or directory with children.</param>
     /// <param name="cancellationToken">Cancellation token observed during the copy operation.</param>
     /// <returns>A task that completes when the node and all its children have been copied.</returns>
-    private static async Task CopyNodeToOverridesAsync(string overridesDir, string gameDir, FileNode fileNode, CancellationToken cancellationToken  = default)
+    private static async Task CopyNodeToOverridesAsync(string overridesDir, string gameDir, FileNode fileNode,
+        CancellationToken cancellationToken = default)
     {
-        string relativePath = fileNode.Path.Replace(gameDir + Path.DirectorySeparatorChar, "");
-        string overridePath = Path.Combine(overridesDir, relativePath);
+        var relativePath = fileNode.Path.Replace(gameDir + Path.DirectorySeparatorChar, "");
+        var overridePath = Path.Combine(overridesDir, relativePath);
 
         if (cancellationToken.IsCancellationRequested) throw new OperationCanceledException();
 
@@ -292,7 +300,7 @@ public class CurseForgePackageService : IPackageService
             return;
         }
 
-        string? parentDir = Path.GetDirectoryName(overridePath);
+        var parentDir = Path.GetDirectoryName(overridePath);
         if (!string.IsNullOrEmpty(parentDir))
             Directory.CreateDirectory(parentDir);
         File.Copy(fileNode.Path, overridePath, true);

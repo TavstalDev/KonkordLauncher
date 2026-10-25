@@ -7,34 +7,34 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Tavstal.BeaconSDK.Enums;
-using Tavstal.BeaconSDK.Models.Accounts;
 using Tavstal.BeaconSDK.Models.Config;
 using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.BeaconSDK.Services.Abstractions.Auth;
 using Tavstal.KonkordLauncher.Desktop.Models;
-using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Services.Accounts;
 using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
 using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Services.Startup;
 
-/// <inheritdoc/>
+/// <inheritdoc />
 public class ValidationService : IValidationService
 {
-    private readonly IBeaconLogger _logger;
+    private readonly BeaconConfiguration _beaconConfiguration;
     private readonly IEncryptionService _encryptionService;
+    private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILauncherStore _launcherStore;
+    private readonly IBeaconLogger _logger;
     private readonly IManifestService _manifestService;
     private readonly IMicrosoftAuthService _microsoftAuthService;
-    private readonly ISkinService _skinService;
-    private readonly IHttpClientFactory _httpClientFactory;
     private readonly IScreenService _screenService;
-    private readonly BeaconConfiguration _beaconConfiguration;
+    private readonly ISkinService _skinService;
 
-    public ValidationService(IBeaconLogger<ValidationService> logger, IEncryptionService encryptionService, ILauncherStore launcherStore,
-        IManifestService manifestService, IMicrosoftAuthService microsoftAuthService, ISkinService skinService, IScreenService screenService,
+    public ValidationService(IBeaconLogger<ValidationService> logger, IEncryptionService encryptionService,
+        ILauncherStore launcherStore,
+        IManifestService manifestService, IMicrosoftAuthService microsoftAuthService, ISkinService skinService,
+        IScreenService screenService,
         IHttpClientFactory httpClientFactory, BeaconConfiguration beaconConfiguration)
     {
         _logger = logger;
@@ -48,7 +48,7 @@ public class ValidationService : IValidationService
         _beaconConfiguration = beaconConfiguration;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public async Task<bool> ValidateLauncherDirectoryAsync(CancellationToken cancellationToken = default)
     {
         try
@@ -63,13 +63,13 @@ public class ValidationService : IValidationService
             Directory.CreateDirectory(settings.Launcher.VersionsDirectoryPath);
             Directory.CreateDirectory(settings.Launcher.CacheDirectoryPath);
 
-            string skinsDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins");
+            var skinsDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins");
             Directory.CreateDirectory(skinsDir);
 
             Directory.CreateDirectory(settings.Launcher.LibrariesDirectoryPath);
             Directory.CreateDirectory(settings.Launcher.AssetsDirectoryPath);
 
-            string indexes = Path.Combine(settings.Launcher.AssetsDirectoryPath, "indexes");
+            var indexes = Path.Combine(settings.Launcher.AssetsDirectoryPath, "indexes");
             Directory.CreateDirectory(indexes);
 
             Directory.CreateDirectory(settings.Launcher.ManifestsDirectoryPath);
@@ -77,18 +77,18 @@ public class ValidationService : IValidationService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical(ex, $"Failed to validate data folder:");
+            _logger.LogCritical(ex, "Failed to validate data folder:");
             return false;
         }
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public async Task<bool> ValidateAccounts(CancellationToken cancellationToken = default)
     {
         try
         {
-            AccountData data = await _launcherStore.GetAccountDataAsync(cancellationToken);
-            bool shouldUpdate = false;
+            var data = await _launcherStore.GetAccountDataAsync(cancellationToken);
+            var shouldUpdate = false;
             foreach (var acc in data.Accounts)
             {
                 if (acc.Type != EAccountType.MICROSOFT)
@@ -96,20 +96,22 @@ public class ValidationService : IValidationService
 
                 if (acc.AccessTokenExpireDate < DateTime.UtcNow)
                 {
-                    string refreshToken = Encoding.UTF8.GetString(acc.GetRefreshToken(_encryptionService));
+                    var refreshToken = Encoding.UTF8.GetString(acc.GetRefreshToken(_encryptionService));
                     await _microsoftAuthService.RefreshLoginAsync(refreshToken, cancellationToken);
                     // ReSharper disable once RedundantAssignment
                     refreshToken = string.Empty;
                     acc.MojangProfile = _microsoftAuthService.MojangProfile;
                     acc.AccessTokenExpireDate = _microsoftAuthService.Account!.AccessTokenExpireDate;
-                    acc.SetAccessToken(_microsoftAuthService.Account.GetAccessToken(_encryptionService), _encryptionService);
-                    acc.SetRefreshToken(_microsoftAuthService.Account.GetRefreshToken(_encryptionService), _encryptionService);
+                    acc.SetAccessToken(_microsoftAuthService.Account.GetAccessToken(_encryptionService),
+                        _encryptionService);
+                    acc.SetRefreshToken(_microsoftAuthService.Account.GetRefreshToken(_encryptionService),
+                        _encryptionService);
                     _microsoftAuthService.Reset();
                     shouldUpdate = true;
                 }
                 else
                 {
-                    string accessToken = Encoding.UTF8.GetString(acc.GetAccessToken(_encryptionService));
+                    var accessToken = Encoding.UTF8.GetString(acc.GetAccessToken(_encryptionService));
                     var mojangProfile =
                         await _microsoftAuthService.FetchMinecraftProfileAsync(accessToken, cancellationToken);
 
@@ -139,69 +141,83 @@ public class ValidationService : IValidationService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical(ex, $"Failed to validate accounts:");
+            _logger.LogCritical(ex, "Failed to validate accounts:");
             return false;
         }
     }
 
-    /// <inheritdoc/>
-    public async Task<bool> ValidateManifests(IKonkordProgress? progressReporter = null, CancellationToken cancellationToken = default)
+    /// <inheritdoc />
+    public async Task<bool> ValidateManifests(IKonkordProgress? progressReporter = null,
+        CancellationToken cancellationToken = default)
     {
         try
         {
             var settings = await _launcherStore.GetSettingsAsync(cancellationToken: cancellationToken);
-            bool refreshManifests = DateTime.UtcNow > settings.CacheRefreshDate;
+            var refreshManifests = DateTime.UtcNow > settings.CacheRefreshDate;
 
             // Vanilla
             if (!File.Exists(settings.Launcher.GetVanillaManifestPath()) || refreshManifests)
             {
-                Progress<double> progress = new Progress<double>();
+                var progress = new Progress<double>();
                 progress.ProgressChanged += (_, e) =>
                 {
-                    progressReporter?.Report(e, "startup.validation.manifests.download", "minecraft", e.ToString("0.00"));
+                    progressReporter?.Report(e, "startup.validation.manifests.download", "minecraft",
+                        e.ToString("0.00"));
                 };
-                await _manifestService.DownloadMinecraftManifestAsync(settings.Launcher.GetVanillaManifestPath(), progress, cancellationToken);
+                await _manifestService.DownloadMinecraftManifestAsync(settings.Launcher.GetVanillaManifestPath(),
+                    progress, cancellationToken);
             }
-            if (await _manifestService.GetMinecraftManifestAsync(settings.Launcher.GetVanillaManifestPath(), cancellationToken) == null)
+
+            if (await _manifestService.GetMinecraftManifestAsync(settings.Launcher.GetVanillaManifestPath(),
+                    cancellationToken) == null)
                 _logger.LogError("Failed to load Minecraft manifest");
 
             // Fabric
             if (!File.Exists(settings.Launcher.GetFabricManifestPath()) || refreshManifests)
             {
-                Progress<double> progress = new Progress<double>();
+                var progress = new Progress<double>();
                 progress.ProgressChanged += (_, e) =>
                 {
                     progressReporter?.Report(e, "startup.validation.manifests.download", "fabric", e.ToString("0.00"));
                 };
-                await _manifestService.DownloadFabricManifestAsync(settings.Launcher.GetFabricManifestPath(), progress, cancellationToken);
+                await _manifestService.DownloadFabricManifestAsync(settings.Launcher.GetFabricManifestPath(), progress,
+                    cancellationToken);
             }
-            if (await _manifestService.GetFabricManifestAsync(settings.Launcher.GetFabricManifestPath(), cancellationToken) == null)
+
+            if (await _manifestService.GetFabricManifestAsync(settings.Launcher.GetFabricManifestPath(),
+                    cancellationToken) == null)
                 _logger.LogError("Failed to load Fabric manifest");
 
             // Quilt
             if (!File.Exists(settings.Launcher.GetQuiltManifestPath()) || refreshManifests)
             {
-                Progress<double> progress = new Progress<double>();
+                var progress = new Progress<double>();
                 progress.ProgressChanged += (_, e) =>
                 {
                     progressReporter?.Report(e, "startup.validation.manifests.download", "quilt", e.ToString("0.00"));
                 };
-                await _manifestService.DownloadQuiltManifestAsync(settings.Launcher.GetQuiltManifestPath(), progress, cancellationToken);
+                await _manifestService.DownloadQuiltManifestAsync(settings.Launcher.GetQuiltManifestPath(), progress,
+                    cancellationToken);
             }
-            if (await _manifestService.GetQuiltManifestAsync(settings.Launcher.GetQuiltManifestPath(), cancellationToken) == null)
+
+            if (await _manifestService.GetQuiltManifestAsync(settings.Launcher.GetQuiltManifestPath(),
+                    cancellationToken) == null)
                 _logger.LogError("Failed to load Quilt manifest");
 
             // Forge
             if (!File.Exists(settings.Launcher.GetForgeManifestPath()) || refreshManifests)
             {
-                Progress<double> progress = new Progress<double>();
+                var progress = new Progress<double>();
                 progress.ProgressChanged += (_, e) =>
                 {
                     progressReporter?.Report(e, "startup.validation.manifests.download", "forge", e.ToString("0.00"));
                 };
-                await _manifestService.DownloadForgeManifestAsync(settings.Launcher.GetForgeManifestPath(), progress, cancellationToken);
+                await _manifestService.DownloadForgeManifestAsync(settings.Launcher.GetForgeManifestPath(), progress,
+                    cancellationToken);
             }
-            if (await _manifestService.GetForgeManifestAsync(settings.Launcher.GetForgeManifestPath(), cancellationToken) == null)
+
+            if (await _manifestService.GetForgeManifestAsync(settings.Launcher.GetForgeManifestPath(),
+                    cancellationToken) == null)
                 _logger.LogError("Failed to load Forge manifest");
 
 
@@ -210,20 +226,23 @@ public class ValidationService : IValidationService
             {
                 if (!File.Exists(settings.Launcher.GetNeoForgeManifestPath()) || refreshManifests)
                 {
-                    Progress<double> progress = new Progress<double>();
+                    var progress = new Progress<double>();
                     progress.ProgressChanged += (_, e) =>
                     {
-                        progressReporter?.Report(e, "startup.validation.manifests.download", "neoforge", e.ToString("0.00"));
+                        progressReporter?.Report(e, "startup.validation.manifests.download", "neoforge",
+                            e.ToString("0.00"));
                     };
-                    await _manifestService.DownloadNeoForgeManifestAsync(settings.Launcher.GetNeoForgeManifestPath(), progress, cancellationToken);
+                    await _manifestService.DownloadNeoForgeManifestAsync(settings.Launcher.GetNeoForgeManifestPath(),
+                        progress, cancellationToken);
                 }
 
-                if (await _manifestService.GetNeoForgeManifestAsync(settings.Launcher.GetNeoForgeManifestPath(), cancellationToken) == null)
+                if (await _manifestService.GetNeoForgeManifestAsync(settings.Launcher.GetNeoForgeManifestPath(),
+                        cancellationToken) == null)
                     _logger.LogError("Failed to load NeoForge manifest");
             }
             catch (Exception ex)
             {
-                _logger.LogCritical(ex, $"Failed to validate NeoForge manifest:");
+                _logger.LogCritical(ex, "Failed to validate NeoForge manifest:");
                 // Skipping due to known issues with the NeoForge manifest (as of 2026. 03. 09.)
             }
 
@@ -231,19 +250,20 @@ public class ValidationService : IValidationService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical(ex, $"Failed to validate manifests:");
+            _logger.LogCritical(ex, "Failed to validate manifests:");
             return false;
         }
     }
 
-    /// <inheritdoc/>
-    public async Task<bool> ValidateCachesAsync(IKonkordProgress? progressReporter = null, CancellationToken cancellationToken = default)
+    /// <inheritdoc />
+    public async Task<bool> ValidateCachesAsync(IKonkordProgress? progressReporter = null,
+        CancellationToken cancellationToken = default)
     {
         // Refresh GitHub cache
         progressReporter?.Report("startup.validation.github.status");
         var settings = await _launcherStore.GetSettingsAsync(_screenService.GetResolution(), cancellationToken);
-        bool shouldRefreshCache = settings.CacheRefreshDate < DateTime.UtcNow;
-        string githubCachePath = Path.Combine(settings.Launcher.CacheDirectoryPath, "github_cache.json");
+        var shouldRefreshCache = settings.CacheRefreshDate < DateTime.UtcNow;
+        var githubCachePath = Path.Combine(settings.Launcher.CacheDirectoryPath, "github_cache.json");
         if (!File.Exists(githubCachePath) || shouldRefreshCache)
         {
             using var client = _httpClientFactory.CreateClient("default");
@@ -270,22 +290,24 @@ public class ValidationService : IValidationService
 
         // Refresh skins cache
         progressReporter?.Report("startup.validation.skins");
-        AccountData accountData = await _launcherStore.GetAccountDataAsync(cancellationToken);
+        var accountData = await _launcherStore.GetAccountDataAsync(cancellationToken);
         var semaphore = new SemaphoreSlim(_beaconConfiguration.Http.MaxParallelDownloads);
         var tasks = new List<Task>();
-        foreach (Account account in accountData.Accounts)
+        foreach (var account in accountData.Accounts)
         {
             await semaphore.WaitAsync(cancellationToken);
-            Task t = Task.Run(async () =>
+            var t = Task.Run(async () =>
             {
                 try
                 {
                     foreach (var skin in account.Skins)
-                        await _skinService.FetchSkinsAsync(settings.Launcher.CacheDirectoryPath, account.Id, account.Uuid,
+                        await _skinService.FetchSkinsAsync(settings.Launcher.CacheDirectoryPath, account.Id,
+                            account.Uuid,
                             skin, cancellationToken);
                     var capes = account.MojangProfile?.Capes ?? [];
                     if (capes.Count > 0)
-                        await _skinService.FetchCapesAsync(settings.Launcher.CacheDirectoryPath, capes, cancellationToken);
+                        await _skinService.FetchCapesAsync(settings.Launcher.CacheDirectoryPath, capes,
+                            cancellationToken);
                 }
                 finally
                 {

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -26,25 +25,22 @@ using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
-public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObject
+public partial class EditInstanceViewModel_ShaderPacks : KonkordObservableObject
 {
-    private readonly IBeaconLogger _logger = null!;
-    private readonly ILauncherStore _launcherStore = null!;
     private readonly IBitmapService _bitmapService = null!;
+    private readonly ILauncherStore _launcherStore = null!;
+    private readonly IBeaconLogger _logger = null!;
     private readonly EditInstanceViewModel _parent;
 
     private readonly SourceCache<ResourceBaseModel, string> _shaderPackCache = new(x => x.Name);
-    public ReadOnlyObservableCollection<ResourceBaseModel> FilteredShaderPacks { get; private set; } = null!;
-    [ObservableProperty]
-    public partial ResourceBaseModel? SelectedShaderPack { get; set; }
-    [ObservableProperty]
-    public partial string SearchQuery { get; set; } = string.Empty;
 
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    [RequiresUnreferencedCode(
+        "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public EditInstanceViewModel_ShaderPacks()
     {
         _parent = null!;
-        FilteredShaderPacks = new ReadOnlyObservableCollection<ResourceBaseModel>(new ObservableCollection<ResourceBaseModel>());
+        FilteredShaderPacks =
+            new ReadOnlyObservableCollection<ResourceBaseModel>(new ObservableCollection<ResourceBaseModel>());
     }
 
     public EditInstanceViewModel_ShaderPacks(EditInstanceViewModel parent)
@@ -64,7 +60,7 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
             });
 
         // Connect the cache to the reactive filter and bind results
-        var subscription =  _shaderPackCache.Connect()
+        var subscription = _shaderPackCache.Connect()
             .Filter(filter)
             .ObserveOnMainThread()
             .Bind(out var shaders)
@@ -87,6 +83,12 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
         _bitmapService = bitmapService;
     }
 
+    public ReadOnlyObservableCollection<ResourceBaseModel> FilteredShaderPacks { get; private set; } = null!;
+
+    [ObservableProperty] public partial ResourceBaseModel? SelectedShaderPack { get; set; }
+
+    [ObservableProperty] public partial string SearchQuery { get; set; } = string.Empty;
+
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
@@ -105,10 +107,121 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
         await Dispatcher.UIThread.Invoke(async () => await RefreshShaderPacksAsync());
     }
 
+    /// <summary>
+    ///     Saves the current state of shader packs by renaming their file extensions
+    ///     based on their enabled or disabled status. Enabled shader packs have the
+    ///     `.zip` extension, while disabled ones have `.zip.dis`.
+    /// </summary>
+    public void SaveShaderPacks()
+    {
+        _logger.LogDebug("Saving shader packs...");
+        if (_parent.GameDirectory == null)
+            return;
+
+        var shaderPacksDir = Path.Combine(_parent.GameDirectory, "shaderpacks");
+        if (!Directory.Exists(shaderPacksDir))
+            return;
+
+        foreach (var shaderPack in _shaderPackCache.Items)
+        {
+            string? newPath = null;
+            if (shaderPack.FilePath == null)
+                continue;
+
+            if (shaderPack.IsEnabled && shaderPack.FilePath.EndsWith(".zip.dis"))
+                newPath = shaderPack.FilePath.Replace(".dis", "");
+            else if (!shaderPack.IsEnabled && shaderPack.FilePath.EndsWith(".zip"))
+                newPath = shaderPack.FilePath.Replace(".zip", ".zip.dis");
+
+            if (newPath == null)
+                continue;
+
+            if (File.Exists(newPath))
+            {
+                _logger.LogWarning("Skipping save... Shader pack file already exists: " + newPath);
+                continue;
+            }
+
+            File.Move(shaderPack.FilePath, newPath);
+            shaderPack.FilePath = newPath;
+        }
+    }
+
+    /// <summary>
+    ///     Refreshes the list of shader packs by scanning the game directory for shader pack files.
+    ///     Updates the `_shaderPackCache` with metadata such as name, size, and enabled status for each shader pack.
+    /// </summary>
+    public async Task RefreshShaderPacksAsync()
+    {
+        if (_parent.GameDirectory == null)
+            return;
+
+        var shaderPacksDir = Path.Combine(_parent.GameDirectory, "shaderpacks");
+        Directory.CreateDirectory(shaderPacksDir);
+
+        var instanceResources = await _parent.Instance.getInstance().GetInstanceResourcesAsync() ?? [];
+
+        _shaderPackCache.Edit(innerCache =>
+        {
+            foreach (var shader in innerCache.Items)
+                shader.Icon.Dispose(_bitmapService); // Dispose of the image to free memory
+
+            innerCache.Clear();
+            var packs = Directory.GetFiles(shaderPacksDir, "*")
+                .Where(x => x.EndsWith(".zip") || x.EndsWith(".zip.dis"));
+
+            foreach (var pack in packs)
+                try
+                {
+                    var fileName = Path.GetFileName(pack);
+                    var resourceName = fileName
+                        .Replace(".zip.dis", "")
+                        .Replace(".zip", "");
+                    var size = new FileInfo(pack).Length;
+
+                    var instanceResource = instanceResources.FirstOrDefault(x => x.Type == EResourceType.SHADER_PACK &&
+                        x.Path.EndsWith(fileName, StringComparison.OrdinalIgnoreCase));
+
+                    var icon = new BitmapEntry(null, null);
+                    try
+                    {
+                        if (instanceResource is { IconPath: not null })
+                            icon = _bitmapService.GetBitmap(instanceResource.IconPath);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, $"Failed to read icon from {pack}:");
+                    }
+
+                    if (icon.Key == null)
+                        icon = _bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Images/default_world.png");
+
+                    var newResourcePack = new ResourceBaseModel
+                    {
+                        IsEnabled = !fileName.EndsWith(".dis"),
+                        Name = instanceResource?.Name ?? resourceName,
+                        Icon = icon,
+                        FileSize = size,
+                        FilePath = pack,
+                        IsInstalled = true,
+                        Type = instanceResource?.Type ?? EResourceType.SHADER_PACK,
+                        Platform = instanceResource?.Platform,
+                        ProjectId = instanceResource?.ProjectId,
+                        SelectedVersionId = instanceResource?.VersionId
+                    };
+                    innerCache.AddOrUpdate(newResourcePack);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogCritical(ex, $"Failed to load shader pack {pack}:");
+                }
+        });
+    }
+
     #region Commands
 
     /// <summary>
-    /// Toggles the enabled state of a shader pack and saves the updated state.
+    ///     Toggles the enabled state of a shader pack and saves the updated state.
     /// </summary>
     /// <param name="shader">The shader pack to toggle.</param>
     [RelayCommand]
@@ -119,7 +232,7 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
     }
 
     /// <summary>
-    /// Removes a shader pack file from the file system and refreshes the shader pack list.
+    ///     Removes a shader pack file from the file system and refreshes the shader pack list.
     /// </summary>
     /// <param name="shader">The shader pack to remove.</param>
     [RelayCommand]
@@ -154,7 +267,7 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
     }
 
     /// <summary>
-    /// Opens the directory containing the shader packs in the file explorer.
+    ///     Opens the directory containing the shader packs in the file explorer.
     /// </summary>
     [RelayCommand]
     private void OpenDir()
@@ -162,7 +275,7 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
         if (_parent.GameDirectory == null)
             return;
 
-        string shaderPacksDir = Path.Combine(_parent.GameDirectory, "shaderpacks");
+        var shaderPacksDir = Path.Combine(_parent.GameDirectory, "shaderpacks");
         if (!Directory.Exists(shaderPacksDir))
             return;
 
@@ -170,117 +283,4 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
     }
 
     #endregion
-
-    /// <summary>
-    /// Saves the current state of shader packs by renaming their file extensions
-    /// based on their enabled or disabled status. Enabled shader packs have the
-    /// `.zip` extension, while disabled ones have `.zip.dis`.
-    /// </summary>
-    public void SaveShaderPacks()
-    {
-        _logger.LogDebug("Saving shader packs...");
-        if (_parent.GameDirectory == null)
-            return;
-
-        string shaderPacksDir = Path.Combine(_parent.GameDirectory, "shaderpacks");
-        if (!Directory.Exists(shaderPacksDir))
-            return;
-
-        foreach (var shaderPack in _shaderPackCache.Items)
-        {
-            string? newPath = null;
-            if (shaderPack.FilePath == null)
-                continue;
-
-            if (shaderPack.IsEnabled && shaderPack.FilePath.EndsWith(".zip.dis"))
-                newPath = shaderPack.FilePath.Replace(".dis", "");
-            else if (!shaderPack.IsEnabled && shaderPack.FilePath.EndsWith(".zip"))
-                newPath = shaderPack.FilePath.Replace(".zip", ".zip.dis");
-
-            if (newPath == null)
-                continue;
-
-            if (File.Exists(newPath))
-            {
-                _logger.LogWarning("Skipping save... Shader pack file already exists: " + newPath);
-                continue;
-            }
-
-            File.Move(shaderPack.FilePath, newPath);
-            shaderPack.FilePath = newPath;
-        }
-    }
-
-    /// <summary>
-    /// Refreshes the list of shader packs by scanning the game directory for shader pack files.
-    /// Updates the `_shaderPackCache` with metadata such as name, size, and enabled status for each shader pack.
-    /// </summary>
-    public async Task RefreshShaderPacksAsync()
-    {
-        if (_parent.GameDirectory == null)
-            return;
-
-        string shaderPacksDir = Path.Combine(_parent.GameDirectory, "shaderpacks");
-        Directory.CreateDirectory(shaderPacksDir);
-
-        List<InstanceResource> instanceResources = await _parent.Instance.getInstance().GetInstanceResourcesAsync() ?? [];
-
-        _shaderPackCache.Edit(innerCache =>
-        {
-            foreach (var shader in innerCache.Items)
-                shader.Icon.Dispose(_bitmapService); // Dispose of the image to free memory
-
-            innerCache.Clear();
-            var packs = Directory.GetFiles(shaderPacksDir, "*")
-                .Where(x => x.EndsWith(".zip") || x.EndsWith(".zip.dis"));
-
-            foreach (var pack in packs)
-            {
-                try
-                {
-                    string fileName = Path.GetFileName(pack);
-                    string resourceName = fileName
-                        .Replace(".zip.dis", "")
-                        .Replace(".zip", "");
-                    var size = new FileInfo(pack).Length;
-
-                    var instanceResource = instanceResources.FirstOrDefault(x => x.Type == EResourceType.SHADER_PACK &&
-                        x.Path.EndsWith(fileName, StringComparison.OrdinalIgnoreCase));
-
-                    BitmapEntry icon = new BitmapEntry(null, null);
-                    try
-                    {
-                        if (instanceResource is { IconPath: not null })
-                            icon = _bitmapService.GetBitmap(instanceResource.IconPath);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogWarning(ex, $"Failed to read icon from {pack}:");
-                    }
-
-                    if (icon.Key == null)
-                        icon = _bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Images/default_world.png");
-
-                    var newResourcePack = new ResourceBaseModel
-                    {
-                        IsEnabled = !fileName.EndsWith(".dis"),
-                        Name = instanceResource?.Name ?? resourceName,
-                        Icon = icon,
-                        FileSize = size,
-                        FilePath = pack,
-                        IsInstalled = true,
-                        Type = instanceResource?.Type ?? EResourceType.SHADER_PACK,
-                        Platform = instanceResource?.Platform,
-                        ProjectId = instanceResource?.ProjectId,
-                        SelectedVersionId = instanceResource?.VersionId
-                    };
-                    innerCache.AddOrUpdate(newResourcePack);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogCritical(ex, $"Failed to load shader pack {pack}:");
-                }
-            }
-        });
-    }
 }

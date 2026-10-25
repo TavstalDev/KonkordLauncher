@@ -11,32 +11,15 @@ using JavaVersionModel = Tavstal.KonkordLauncher.Desktop.Models.Domain.JavaVersi
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 /// <summary>
-/// ViewModel for selecting a Java version. Provides properties and methods to manage and display Java versions.
+///     ViewModel for selecting a Java version. Provides properties and methods to manage and display Java versions.
 /// </summary>
 public partial class JavaSelectorViewModel : ObservableObject
 {
-    private readonly ILauncherStore _launcherStore = null!;
     private readonly IJavaService _javaService = null!;
-    
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasSelectedJavaVersion))]
-    public partial JavaVersionModel? SelectedJavaVersion { get; set; }
-
-    [ObservableProperty]
-    public partial ObservableCollection<JavaVersionModel> Versions { get; set; }
+    private readonly ILauncherStore _launcherStore = null!;
 
     /// <summary>
-    /// Indicates whether a Java version is currently selected.
-    /// </summary>
-    public bool HasSelectedJavaVersion => SelectedJavaVersion != null;
-    
-    /// <summary>
-    /// Represents the interaction for closing a window with a model of Java version.
-    /// </summary>
-    public Interaction<JavaVersionModel?, Unit> CloseWindowInteraction { get; } = new();
-    
-    /// <summary>
-    /// Initializes a new instance of the <see cref="JavaSelectorViewModel"/> class.
+    ///     Initializes a new instance of the <see cref="JavaSelectorViewModel" /> class.
     /// </summary>
     public JavaSelectorViewModel()
     {
@@ -58,21 +41,37 @@ public partial class JavaSelectorViewModel : ObservableObject
         _ = InitAsync();
     }
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasSelectedJavaVersion))]
+    public partial JavaVersionModel? SelectedJavaVersion { get; set; }
+
+    [ObservableProperty] public partial ObservableCollection<JavaVersionModel> Versions { get; set; }
+
     /// <summary>
-    /// Loads the current launcher configuration, discovers installed Java runtimes in the configured
-    /// Java directory, and populates <see cref="Versions"/> with the detected installations.
+    ///     Indicates whether a Java version is currently selected.
+    /// </summary>
+    public bool HasSelectedJavaVersion => SelectedJavaVersion != null;
+
+    /// <summary>
+    ///     Represents the interaction for closing a window with a model of Java version.
+    /// </summary>
+    public Interaction<JavaVersionModel?, Unit> CloseWindowInteraction { get; } = new();
+
+    /// <summary>
+    ///     Loads the current launcher configuration, discovers installed Java runtimes in the configured
+    ///     Java directory, and populates <see cref="Versions" /> with the detected installations.
     /// </summary>
     private async Task InitAsync()
     {
         var settings = await _launcherStore.GetSettingsAsync();
-        
+
         var versions = await _javaService.LocateJavaInstallationsAsync(settings.Launcher.JavaDirectoryPath);
         foreach (var version in versions)
             Versions.Add(new JavaVersionModel(version));
     }
-    
+
     /// <summary>
-    /// Handles the selection action by closing the parent window and passing the selected Java version.
+    ///     Handles the selection action by closing the parent window and passing the selected Java version.
     /// </summary>
     [RelayCommand]
     public async Task SelectedBtn()
@@ -81,7 +80,7 @@ public partial class JavaSelectorViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Handles the cancel action by closing the parent window without passing a selected Java version.
+    ///     Handles the cancel action by closing the parent window without passing a selected Java version.
     /// </summary>
     [RelayCommand]
     public async Task CancelBtn()
@@ -90,7 +89,7 @@ public partial class JavaSelectorViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Closes the current window.
+    ///     Closes the current window.
     /// </summary>
     [RelayCommand]
     public async Task CloseWindow()

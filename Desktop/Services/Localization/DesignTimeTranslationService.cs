@@ -25,7 +25,7 @@ public class DesignTimeTranslationService : ITranslationService
 
     public string Translate(string key, params object[]? args)
     {
-        string translation = Translate(key);
+        var translation = Translate(key);
         if (args is null or { Length: 0 })
             return translation;
 
@@ -84,7 +84,7 @@ public class DesignTimeTranslationService : ITranslationService
             if (keyNode is not YamlScalarNode keyScalar)
                 continue;
 
-            string key = string.IsNullOrEmpty(prefix)
+            var key = string.IsNullOrEmpty(prefix)
                 ? keyScalar.Value ?? string.Empty
                 : $"{prefix}.{keyScalar.Value}";
 
@@ -97,11 +97,9 @@ public class DesignTimeTranslationService : ITranslationService
                     Flatten(mapping, key, into);
                     break;
                 case YamlSequenceNode sequence:
-                    for (int i = 0; i < sequence.Children.Count; i++)
-                    {
+                    for (var i = 0; i < sequence.Children.Count; i++)
                         if (sequence.Children[i] is YamlScalarNode item)
                             into[$"{key}[{i}]"] = item.Value ?? string.Empty;
-                    }
                     break;
             }
         }

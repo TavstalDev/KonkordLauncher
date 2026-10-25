@@ -1,0 +1,681 @@
+# KonkordLauncher - English (en) locale
+#
+# ---------------------------------------------------------------------
+# Region: Startup
+# ---------------------------------------------------------------------
+"startup":
+  "title": "Konkord Launcher - Starting..."
+  "progress":
+    "initializing": "Initializing..."
+    "checking": "Checking for updates..."
+    "updating": "Updating..."
+    "restarting": "Restarting..."
+  "validation":
+    "dataFolder":
+      # [renamed from "startup.validation.dataFolder"]
+      "status": "Validating data folder..."
+      # [renamed from "startup.validation.dataFolderFailed"]
+      "failed": "Failed to validate data folder."
+    "settings":
+      # [renamed from "startup.validation.settings"]
+      "status": "Validating settings..."
+      # [renamed from "startup.validation.settingsFailed"]
+      "failed": "Failed to validate settings."
+    "translations":
+      # [renamed from "startup.validation.translations"]
+      "status": "Validating translations..."
+      # [renamed from "startup.validation.translationsFailed"]
+      "failed": "Failed to validate translations."
+    "accounts":
+      # [renamed from "startup.validation.accounts"]
+      "status": "Validating accounts..."
+      # [renamed from "startup.validation.accountsFailed"]
+      "failed": "Failed to validate accounts."
+    "skins": "Fetching skins..."
+    "manifests":
+      # [renamed from "startup.validation.manifests"]
+      "status": "Validating manifests..."
+      # [renamed from "startup.validation.manifestsFailed"]
+      "failed": "Failed to validate manifests."
+      "download": "Downloading {0} manifest {1}%"
+    "java":
+      # [renamed from "startup.validation.java"]
+      "status": "Validating Java installations..."
+      # [renamed from "startup.validation.javaFailed"]
+      "failed": "Java is not installed. Please install Java 8 or minecraft will not run."
+      "download": "Downloading Java {0} {1}%..."
+      "exec":
+        "failedTitle": "Make Java Executable"
+        "failedMessage": "Failed to make '{0}' executable. Please make it executable manually."
+    "github":
+      # [renamed from "startup.validation.github"]
+      "status": "Validating GitHub cache..."
+      "failed": "Failed to validate GitHub cache."
+  "update":
+    "fail": "Update Failed"
+    "failMessage": "Failed to launch updater."
+
+# ---------------------------------------------------------------------
+# Region: Main
+# ---------------------------------------------------------------------
+"main":
+  "title": "Konkord Launcher - Main Window"
+  "window":
+    "minimize": "Minimize"
+    "maximize": "Maximize / Restore"
+    "close": "Close"
+  "sidebar":
+    "play": "Play"
+    "patch": "Patch Notes"
+    "accounts":
+      # [renamed from "main.sidebar.accounts"]
+      "label": "Accounts"
+      "loggedin": "LOGGED IN AS"
+      "guest": "Guest"
+    "settings": "Settings"
+    "about": "About"
+    "skins": "Skins"
+    "version":
+      "update":
+        "none": "Ready to launch. No update available."
+        "available": "Ready to launch. Update available."
+  "page":
+    "play":
+      "title": "Instances"
+      "empty": "No instances found. Create one to start playing."
+      "uncategorized": "Uncategorized"
+    "patch":
+      "title": "Patch Notes"
+      "empty": "No patches available."
+      "read": "Read More"
+    "accounts":
+      "title": "Accounts"
+      "empty": "No accounts found. Add one to start playing."
+    "skins":
+      "title": "Skins"
+      "preview": "PREVIEW"
+      "model":
+        # [renamed from "main.page.skins.model"]
+        "label": "MODEL"
+        "wide": "Wide"
+        "slim": "Slim"
+      "skins": "SKINS"
+      "capes": "CAPES"
+      "alert":
+        "error": "Failed to upload skin. Please try again later."
+        "cape":
+          "change": "Failed to change cape. Please try again later."
+          "unexpected": "Unexpected error happened while selecting the cape."
+        "model":
+          "change": "Failed to change model. Please try again later."
+    "settings":
+      "title": "Settings"
+
+# ---------------------------------------------------------------------
+# Region: Common
+# ---------------------------------------------------------------------
+"common":
+  "select":
+    "directory": "Select a directory..."
+    "file": "Select a file..."
+    # [renamed from "common.select"]
+    "label": "Select"
+  "ok": "OK"
+  "cancel": "Cancel"
+  "close": "Close"
+  "save": "Save"
+  "delete": "Delete"
+  "edit": "Edit"
+  "add": "Add"
+  "remove": "Remove"
+  "search": "Search..."
+  "enable": "Enable"
+  "disable": "Disable"
+  "toggle": "Toggle"
+  "duplicate": "Duplicate"
+  "rename": "Rename"
+  "copy": "Copy"
+  "clear": "Clear"
+  "none": "None"
+  "categories": "Categories"
+  "bottom": "Bottom"
+  "open":
+    "link": "Open Link"
+    "directory": "Open Directory"
+  "or": "OR"
+  "loading": "Loading"
+  "launch": "Launch"
+  "stop": "Stop"
+  "export": "Export"
+  "error": "Error"
+  "warning": "Warning"
+  "success": "Success"
+  "review": "Review"
+  "time":
+    "pass":
+      "minute": "{0} minutes ago"
+      "hour": "{0} hours ago"
+      "day": "{0} days ago"
+      "month": "{0} months ago"
+      "year": "{0} years ago"
+  "selector":
+    "directory": "Select a Directory"
+    "file": "Select a File"
+  "dialog":
+    "rename": "Rename Dialog"
+
+# ---------------------------------------------------------------------
+# Region: Instance
+# ---------------------------------------------------------------------
+"instance":
+  "duplicate":
+    "title": "Instance Already Exists"
+    "message": "An instance with this name already exists. Please choose a different name."
+  "java":
+    "notfound":
+      "title": "No Java {0} Found"
+      "message": "The instance needs Java {0}. Please install it manually."
+    "missing":
+      "title": "Java {0} Missing"
+      "message": "Do you want to install it ?"
+    "error":
+      "title": "Fail"
+      "message": "Failed to download java."
+  "install":
+    "title": "Downloading"
+    "description": "Downloading and installing files"
+  "reading":
+    "file": "Reading {0} {1}%..."
+    "version_json": "Reading version json..."
+    "version_jar": "Reading version jar..."
+    "asset_index_json": "Reading asset index json..."
+    "client_mappings": "Reading client mappings..."
+    "logging": "Reading logging json..."
+    "assets": "Reading assets..."
+    "libraries": "Reading libraries..."
+    "natives": "Reading natives..."
+    "manifest": "Reading manifest..."
+    "universal": "Reading {0} universal..."
+  "downloading":
+    "file": "Downloading {0} {1}%..."
+    "version_json": "Downloading version json {1}%..."
+    "version_jar": "Downloading version jar {1}%..."
+    "asset_index_json": "Downloading asset index json {1}%..."
+    "client_mappings": "Downloading client mappings {1}%..."
+    "logging": "Downloading logging json {1}%..."
+    "assets": "Downloading assets {0}%..."
+    "libraries": "Downloading {0} library {1}%..."
+    "natives": "Downloading {0} native {1}%..."
+    "loader": "Downloading {0} loader {1}%..."
+    "installer": "Downloading {0} installer {1}%..."
+    "universal": "Downloading {0} universal {1}%..."
+  "building":
+    # [renamed from "instance.building"]
+    "progress": "Building {0} {1}%..."
+    "arguments": "Building arguments..."
+  "extracting":
+    "installer": "Extracting {0} installer..."
+  "version":
+    "change": "Change version"
+
+    # ---------------------------------------------------------------------
+    # Region: Resources
+    # ---------------------------------------------------------------------
+    "selector":
+      "window": "Konkord Launcher - Version Selector"
+      "title": "Version Selector"
+      "description": "Change the version of the instance."
+  "update":
+    "check": "Check for updates"
+  "download":
+    "shaders": "Download shaders"
+    "resourcePacks": "Download resource packs"
+    "mods": "Download mods"
+    "file": "Downloading {0} {1}%..."
+  "view":
+    "logs": "View Logs"
+  "change":
+    "group":
+      # [renamed from "instance.change.group"]
+      "action": "Change Group"
+      "title": "New group of the instance"
+    "icon": "Change Icon"
+    "version": "Change Version"
+  "logs":
+    "title": "Latest Logs of"
+  "rename":
+    "title": "New name of the instance"
+    "duplicate": "An instance with this name already exists."
+  "delete":
+    "title": "Are you sure?"
+    "message": "This will delete the instance '{0}' and all its files. This action cannot be undone."
+
+  # ---------------------------------------------------------------------
+  # Region: Create
+  # ---------------------------------------------------------------------
+  "create":
+    "title": "KonkordLauncher - New Instance"
+    "instance":
+      "title": "Create Instance"
+    "category":
+      "information":
+        "title": "INFORMATION"
+      "minecraft":
+        "version":
+          "title": "MINECRAFT VERSION"
+      "mod_loader":
+        "title": "MOD LOADER"
+      "adventure": "Adventure"
+      "challenging": "Challenging"
+      "combat": "Combat"
+      "kitchenSink": "Kitchen Sink"
+      "lightweight": "Lightweight"
+      "magic": "Magic"
+      "multiplayer": "Multiplayer"
+      "optimization": "Optimization"
+      "quests": "Quests"
+      "technology": "Technology"
+    "tab":
+      "custom": "Custom"
+      "modpacks": "Modpacks"
+      "import": "Import"
+    "name": "Instance Name"
+    "group": "Group"
+    "table":
+      "version": "Version"
+      "released": "Released"
+      "type": "Type"
+    "releases": "Releases"
+    "snapshots": "Snapshots"
+    "betas": "Betas"
+    "alphas": "Alphas"
+    "experiments": "Experiments"
+    "button": "Create Instance"
+    "modpack":
+      "version": "Pack Version"
+      "select": "Select a modpack"
+      "platform": "Platform"
+      "mod":
+        "loader": "Mod Loader"
+      "minecraft":
+        "version": "Minecraft Version"
+      "preview":
+        "select": "Select a modpack to see its preview."
+      "error":
+        "instance_exists":
+          # [added - referenced from Desktop/Views/Models/CreateInstance/CreateInstanceViewModel.Modpack.cs]
+          "title": "Instance Already Exists"
+          # [added - referenced from Desktop/Views/Models/CreateInstance/CreateInstanceViewModel.Modpack.cs]
+          "message": "An instance with this name already exists. Please choose a different name."
+        "no_primary_file":
+          # [added - referenced from Desktop/Views/Models/CreateInstance/CreateInstanceViewModel.Modpack.cs]
+          "title": "No Primary File"
+          # [added - referenced from Desktop/Views/Models/CreateInstance/CreateInstanceViewModel.Modpack.cs]
+          "message": "The selected modpack version does not contain a primary file. Please select a different version."
+        "import_failed":
+          # [added - referenced from Desktop/Views/Models/CreateInstance/CreateInstanceViewModel.Modpack.cs]
+          "title": "Import Failed"
+          # [added - referenced from Desktop/Views/Models/CreateInstance/CreateInstanceViewModel.Modpack.cs]
+          "message": "Failed to import the modpack. Please check the file and try again."
+    "import":
+      "type": "IMPORT TYPE"
+      "description": "Import an instance from a file or URL."
+      "source":
+        # [renamed from "instance.create.import.source"]
+        "label": "Import Source"
+        "file": "From File"
+        "url": "From Url"
+      "select_type":
+        "title": "SELECT TYPE"
+      "select_file":
+        "title": "SELECT FILE"
+      "import_from_url":
+        "title": "IMPORT FROM URL"
+      "formats": "Supported formats: .zip, .mrpack, .json"
+      "preview":
+        "title": "INSTANCE INFO"
+        "name": "Name:"
+        "version": "Version:"
+        "mod":
+          "loader": "Mod loader:"
+      "error":
+        "invalid_path":
+          "title": "Invalid Import Path"
+          "message": "The selected file does not exist or is not a valid format. Please select a valid .zip or .mrpack file."
+        "import_failed":
+          "title": "Import Error"
+          "message": "An error occurred while importing from the URL. Please check the URL and try again."
+      "failed":
+        "title": "Import Failed"
+        "message": "Failed to import the instance. Please check the file and try again."
+
+  # ---------------------------------------------------------------------
+  # Region: Edit
+  # ---------------------------------------------------------------------
+  "edit":
+    "window": "KonkordLauncher - Edit Instance"
+    "title": "Editing Instance:"
+    "downloadPacks": "Download Packs"
+    "downloadMods": "Download Mods"
+    "copySeed": "Copy Seed"
+    "joinServer": "Join"
+    "tab":
+      "logs": "Logs"
+      "mods": "Mods"
+      "resourcePacks": "Resource Packs"
+      "shaderPacks": "Shader Packs"
+      "worlds": "Worlds"
+      "servers": "Servers"
+      "screenshots": "Screenshots"
+      "settings": "Settings"
+    "log":
+      "title": "KonkordLauncher - Logs"
+    "latestLog": "LATEST LOG"
+    "subTitle":
+      "window": "WINDOW"
+      "console": "CONSOLE"
+      "performance": "PERFORMANCE"
+      "mods": "MODS"
+      "resourcePacks": "RESOURCE PACKS"
+      "shaderPacks": "SHADER PACKS"
+      "worlds": "WORLDS"
+      "servers": "SERVERS"
+      "screenshots": "SCREENSHOTS"
+      "settings": "SETTINGS"
+    "settings":
+      "console":
+        "showStart": "Show console while minecraft is running"
+        "closeExit": "Close console when minecraft quits"
+        "showCrash": "Show console when minecraft crashes"
+    "table":
+      "enabled": "Enabled"
+      "image": "Image"
+      "name": "Name"
+      "version": "Version"
+      "versionUnknown": "Unknown"
+      "lastModified": "Last Modified"
+      "type": "Type"
+      "size": "Size"
+      "path": "Path"
+      "provider": "Provider"
+      "lastPlayed": "Last Played"
+      "gameMode": "GameMode"
+      "ipAddress": "IP Address"
+
+  # ---------------------------------------------------------------------
+  # Region: Exporting
+  # ---------------------------------------------------------------------
+  "export":
+    "window": "KonkordLauncher - Export Instance"
+    "title": "Export Instance"
+    "subtitle": "Create a distributable package with selected files and metadata."
+    "name": "Name"
+    "version": "Version"
+    "summary": "Summary"
+    "selection":
+      "title": "EXPORT SELECTION"
+    "progress": "Exporting..."
+    "alert":
+      "empty":
+        # [renamed from "instance.export.alert.empty.name.or.version"]
+        "nameOrVersion": "Instance name and version cannot be empty. Please provide valid values for both fields."
+      # [renamed from "instance.export.alert.no.directory"]
+      "noDirectory": "No directory selected. Please select a directory to export the instance."
+      # [renamed from "instance.export.alert.file.exists"]
+      "fileExists": "File already exists. Please select a different directory or change the instance name/version to avoid conflicts."
+      "error": "Failed to export instance. Please try again."
+      "success": "Instance exported successfully to {0}."
+
+  # ---------------------------------------------------------------------
+  # Region: Resources (continued)
+  # ---------------------------------------------------------------------
+  "resource":
+    "download":
+      "window": "Konkord Launcher - Resource Downloader"
+      "title": "Download Resource"
+      "description": "Select the resources that you want to download."
+      "preview": "Select a resource to see its preview."
+      "selected": "[Selected]"
+      "installed": "[Installed]"
+    "review":
+      "window": "Konkord Launcher - Resource Downloader Review"
+      "title": "Review Selection"
+      "description": "You are about to download the following content:"
+      "file": "File:"
+      "version": "Version:"
+      "platform": "Platform:"
+  "resources":
+    "download":
+      "complete":
+        # [renamed from "instance.resources.download.complete"]
+        "title": "Download Complete"
+        "description": "The selected resources have been downloaded and added to the instance."
+  "launch":
+    "install_failed":
+      # [added - referenced from Desktop/Models/Domain/InstanceModel.cs]
+      "title": "Installation Failed"
+      # [added - referenced from Desktop/Models/Domain/InstanceModel.cs]
+      "message": "Failed to install the instance. Please check the logs for more information."
+
+# ---------------------------------------------------------------------
+# Region: Settings
+# ---------------------------------------------------------------------
+"settings":
+  "tab":
+    "java": "Java"
+    "minecraft": "Minecraft"
+    "launcher": "Launcher"
+    "game": "Game"
+    "customCommands": "Custom Commands"
+    "environment": "Environment"
+    "misc": "Misc"
+  "launcher":
+    "autoUpdate": "Enable automatic updates"
+    "updateInterval": "Update interval (hours)"
+    "language": "Language"
+    "theme": "Theme"
+    "subtitle":
+      "general": "GENERAL"
+      "directories": "DIRECTORIES"
+    "dir":
+      "assets": "Assets"
+      "cache": "Cache"
+      "instances": "Instances"
+      "icons": "Icons"
+      "java": "Java (local)"
+      "libraries": "Libraries"
+      "manifests": "Manifests"
+      "translations": "Translations"
+      "versions": "Versions"
+  "minecraft":
+    "startMaximized": "Start Minecraft maximized"
+    "windowWidth": "Window width"
+    "windowHeight": "Window height"
+    "closeOpen": "Close launcher after game opens"
+    "closeExit": "Close launcher after game closes"
+  "java":
+    "minMemory": "Minimum memory"
+    "maxMemory": "Maximum memory"
+    "permaGen": "PermaGen"
+    "path": "Java path"
+    "jvmArgs": "JVM ARGUMENTS"
+  "misc":
+    "subtitle":
+      "customCommands": "CUSTOM COMMANDS"
+      "nativeLibraries": "NATIVE LIBRARIES"
+      "performance": "PERFORMANCE"
+      "preferences": "PREFERENCES"
+    "prelaunchCommand":
+      # [renamed from "settings.misc.prelaunchCommand"]
+      "label": "Pre-launch"
+      "description": "Runs before the instance starts. The instance will not begin until this command has completed."
+    "wrapperCommand":
+      # [renamed from "settings.misc.wrapperCommand"]
+      "label": "Wrapper"
+      "description": "Wraps the Java Virtual Machine. The %command% placeholder is replaced with the Java executable path and all the Minecraft arguments. %command% is optional."
+    "postExitCommand":
+      # [renamed from "settings.misc.postExitCommand"]
+      "label": "Post-exit"
+      "description": "Runs after the instance has stopped."
+    "customGLFW": "Use custom GLFW library"
+    "pathGLFW": "GLFW library path"
+    "customOpenAL": "Use custom OpenAL library"
+    "pathOpenAL": "OpenAL library path"
+    "enableMangoHud": "Enable MangoHUD"
+    "enableGameMode": "Enable Feral GameMode"
+    "useDedicatedGpu": "Use dedicated GPU"
+    "overrideAccount": "Override default account"
+    "account": "Account"
+    "serverQuickPlay": "Set server address to join on launch"
+    "serverAddress": "Server address"
+  "environment":
+    "subtitle": "ENVIRONMENT"
+    "enable": "Enable Environment Variables"
+    "name": "Name"
+    "value": "Value"
+
+# ---------------------------------------------------------------------
+# Region: About
+# ---------------------------------------------------------------------
+"about":
+  "tab":
+    "about": "About"
+    "license": "License"
+    "credits": "Credits"
+  "description": "Konkord Launcher is an open-source, lightweight, and highly customizable Minecraft launcher designed for power users and modding enthusiasts. It provides advanced control over game instances, resource management, and versioning."
+  "version": "Version:"
+  "buildDate": "Build date:"
+  "branch": "Branch:"
+  "license":
+    "title": "License"
+  "credits":
+    "projectMaintainers": "Project Maintainers"
+    "contributors": "Contributors"
+    "translators": "Translators"
+    "testers": "Testers"
+    "specialThanks": "Special Thanks"
+    "thirdParty": "Third Party"
+
+# ---------------------------------------------------------------------
+# Region: Auth
+# ---------------------------------------------------------------------
+"auth":
+  "title": "KonkordLauncher - New Account"
+  "add":
+    "account": "Add New Account"
+  "tab":
+    "microsoft": "Microsoft"
+    "offline": "Offline"
+    "custom": "Custom"
+  "logging_in": "Logging in..."
+  "creating":
+    "title": "Creating New Account"
+  "microsoft":
+    "description": "Sign in with your Microsoft Account to access official Minecraft servers and features."
+    "login": "Sign in with Microsoft"
+    "note": "This will open a browser window for authentication."
+    "browser": "Login in browser"
+    "authenticating": "Requesting Microsoft token..."
+  "offline":
+    "description": "Play with an offline account."
+    "login": "Login as Offline User"
+    "note": "Offline accounts can only connect to offline servers; online multiplayer is unavailable."
+  "listener":
+    "starting": "Waiting for authentication..."
+    "failed": "Failed to start authentication listener."
+    "success": "Authentication successful!"
+    "error": "An error occurred during authentication."
+    "cancelled": "Authentication was cancelled."
+    "callback": "Received authentication callback."
+  "xbox":
+    "authenticating": "Requesting Xbox token..."
+    "xsts": "Requesting XSTS token..."
+  "minecraft":
+    "authenticating": "Requesting Minecraft token..."
+    "ownership": "Checking Minecraft ownership..."
+    "profile": "Requesting Minecraft profile..."
+  "code":
+    "creating": "Creating device code..."
+    "note": "Open https://microsoft.com/link or scan the QR image and enter the above code."
+"account":
+  "login":
+    "failed": "Login Failed"
+    "microsoft":
+      "failed": "Failed to login to Microsoft account. Please try again later."
+      "null": "Failed to retrieve Microsoft account information. Please try again later."
+  "duplicate":
+    # [renamed from "account.duplicate"]
+    "title": "Account Already Exists"
+    "microsoft": "You have already added this Microsoft account."
+    "offline": "An account with this username already exists. Please choose a different username."
+  "empty":
+    "name":
+      # [renamed from "account.empty.name"]
+      "title": "Name Required"
+      # [renamed from "account.empty.name.desc"]
+      "message": "Please enter a username for the account."
+  "none":
+    "title": "No Account Selected"
+    "message": "Please select or create an account to use"
+
+# ---------------------------------------------------------------------
+# Region: Java
+# ---------------------------------------------------------------------
+"java":
+  "title": "KonkordLauncher - Java Selector"
+  "select":
+    # [renamed from "java.select"]
+    "title": "Select Java Version"
+    "subtitle": "Select a Java version to use for launching an instance."
+  "table":
+    "major": "Major"
+    "version": "Version"
+    "architecture": "Architecture"
+    "path": "Path"
+
+# ---------------------------------------------------------------------
+# Region: Updater
+# ---------------------------------------------------------------------
+"updater":
+  "title": "Updater"
+  "downloading": "Downloading update {0}%..."
+  "extracting": "Extracting update..."
+  "applying": "Applying update..."
+  "finalizing": "Finalizing update..."
+  "completed": "Update completed! Restarting..."
+
+# ---------------------------------------------------------------------
+# Region: Modrinth
+# ---------------------------------------------------------------------
+"modrinth":
+  "category":
+    "adventure": "Adventure"
+    "cursed": "Cursed"
+    "decoration": "Decoration"
+    "economy": "Economy"
+    "equipment": "Equipment"
+    "food": "Food"
+    "game_mechanics": "Game mechanics"
+    "library": "Library"
+    "magic": "Magic"
+    "management": "Management"
+    "minigame": "Minigame"
+    "mobs": "Mobs"
+    "optimization": "Optimization"
+    "social": "Social"
+    "storage": "Storage"
+    "technology": "Technology"
+    "transportation": "Transportation"
+    "utility": "Utility"
+    "worldgen": "Worldgen"
+"iconSelector":
+  "window": "KonkordLauncher - Icon Selector"
+  "title": "Select a Icon"
+  "subtitle": "Select a icon for an instance."
+"alert":
+  "title": "KonkordLauncher - Alert"
+"input":
+  "title": "KonkordLauncher - Input"
+"install":
+  "title": "KonkordLauncher - Progress"
+  "progress": "Progress"

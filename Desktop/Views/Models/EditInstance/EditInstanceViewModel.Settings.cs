@@ -19,7 +19,9 @@ using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs.Config;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs.InstanceConfig;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services;
+using Tavstal.KonkordLauncher.Desktop.Services.Localization;
+using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
@@ -44,6 +46,12 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
     public bool CanRemoveEnvironmentVariable =>
         SelectedEnvironmentVariableIndex is >= 0 && InstanceConfig.EnableEnvironment;
 
+    public EditInstanceViewModel_Settings()
+    {
+        _parent = null!;
+        InstanceConfig = new InstanceConfigModel();
+    }
+
     public EditInstanceViewModel_Settings(EditInstanceViewModel parent)
     {
         _parent = parent;
@@ -54,6 +62,9 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
     public EditInstanceViewModel_Settings(EditInstanceViewModel parent, ILauncherStore launcherStore,
         ITranslationService translationService, IEventService eventService) : this(parent)
     {
+        if (Design.IsDesignMode)
+            return;
+
         _logger = Program.Services.GetRequiredService<IBeaconLogger<EditInstanceViewModel_Settings>>();
         _launcherStore = launcherStore;
         _translationService = translationService;
@@ -142,7 +153,7 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
     /// </summary>
     /// <param name="oldValue">The previous instance configuration model.</param>
     /// <param name="newValue">The new instance configuration model.</param>
-    partial void OnInstanceConfigChanged(InstanceConfigModel? oldValue, InstanceConfigModel newValue)
+    partial void OnInstanceConfigChanged(InstanceConfigModel oldValue, InstanceConfigModel newValue)
     {
         if (_parent.IsClosing)
             return;

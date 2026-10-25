@@ -26,6 +26,11 @@ public partial class MainViewModel_About : KonkordObservableObject
     /// Creates a new instance of <see cref="MainViewModel_About"/>.
     /// </summary>
     /// <param name="parent">Parent <see cref="MainViewModel"/> instance that owns this sub-view-model.</param>
+    public MainViewModel_About()
+    {
+        _parent = null!;
+    }
+
     public MainViewModel_About(MainViewModel parent)
     {
         _parent = parent;

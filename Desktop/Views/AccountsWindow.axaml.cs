@@ -5,16 +5,14 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
-using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 using ReactiveUI.Primitives;
 using Tavstal.BeaconSDK.Enums;
 using Tavstal.BeaconSDK.Models;
-using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.BeaconSDK.Services.Abstractions.Auth;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services.Localization;
 using Tavstal.KonkordLauncher.Desktop.Translation;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
@@ -28,29 +26,32 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IKonkordProgress
 {
     private readonly ITranslationService _translationService = null!;
-    private readonly ILauncherStore _launcherStore = null!;
     private readonly IMicrosoftAuthService _microsoftAuthService = null!;
     private readonly IMicrosoftDeviceAuthService _microsoftDeviceAuthService = null!;
     private readonly IMicrosoftHttpAuthService _microsoftHttpAuthService = null!;
-    private readonly ISkinService _skinService = null!;
-    private readonly IEncryptionService _encryptionService = null!;
-    private readonly IEventService _eventService = null!;
 
-    /// <summary>
-    /// Initializes a new instance of the AccountsWindow class.
-    /// Sets up the DataContext and attaches developer tools in debug mode.
-    /// </summary>
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public AccountsWindow()
     {
         InitializeComponent();
-        DataContext = new AccountsViewModel(Program.Services.GetRequiredService<IBeaconLogger<AccountsViewModel>>(), _launcherStore,
-            _translationService,  _microsoftAuthService, _microsoftDeviceAuthService, _microsoftHttpAuthService,
-            _skinService, _encryptionService, _eventService);
-        OfflineUsernameInput.TextChanged += OfflineUsername_OnTextChanged;
+    }
+
+    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    public AccountsWindow(AccountsViewModel viewModel, ITranslationService translationService,
+        IMicrosoftAuthService microsoftAuthService, IMicrosoftDeviceAuthService microsoftDeviceAuthService,
+        IMicrosoftHttpAuthService microsoftHttpAuthService)
+    {
+        InitializeComponent();
 
         if (Design.IsDesignMode)
             return;
+
+        _translationService = translationService;
+        _microsoftAuthService = microsoftAuthService;
+        _microsoftDeviceAuthService = microsoftDeviceAuthService;
+        _microsoftHttpAuthService = microsoftHttpAuthService;
+        DataContext = viewModel;
+        OfflineUsernameInput.TextChanged += OfflineUsername_OnTextChanged;
+        _microsoftAuthService.OnAuthStatusChanged += OnAuthStatusChanged;
 
         this.WhenActivated(disposables =>
         {
@@ -72,23 +73,6 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IKonkord
                 action.SetOutput(Unit.Default);
             }).DisposeWith(disposables);
         });
-    }
-
-    [RequiresUnreferencedCode(
-        "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public AccountsWindow(ITranslationService translationService, ILauncherStore launcherStore, IMicrosoftAuthService microsoftAuthService,
-        IMicrosoftDeviceAuthService microsoftDeviceAuthService, IMicrosoftHttpAuthService microsoftHttpAuthService,
-        ISkinService skinService, IEncryptionService encryptionService, IEventService eventService) : this()
-    {
-        _translationService = translationService;
-        _launcherStore = launcherStore;
-        _microsoftAuthService = microsoftAuthService;
-        _microsoftDeviceAuthService = microsoftDeviceAuthService;
-        _microsoftHttpAuthService = microsoftHttpAuthService;
-        _skinService = skinService;
-        _encryptionService = encryptionService;
-        _eventService = eventService;
-        _microsoftAuthService.OnAuthStatusChanged += OnAuthStatusChanged;
     }
 
     #region Events
@@ -181,6 +165,16 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IKonkord
                 return;
             DataContext.Progress = progress;
             DataContext.ProgressText = _translationService.Translate(TranslationHelper.GetProgressKey(kind), progress.ToString("0.00"));
+        });
+    }
+
+    public void Report(string key)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (DataContext == null)
+                return;
+            DataContext.ProgressText = _translationService.Translate(key);
         });
     }
 

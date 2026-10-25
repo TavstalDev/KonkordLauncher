@@ -21,7 +21,10 @@ using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 using Tavstal.KonkordLauncher.Desktop.Serialization;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services.Content;
+using Tavstal.KonkordLauncher.Desktop.Services.Localization;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 using Version = Modrinth.Models.Version;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
@@ -31,7 +34,8 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 /// </summary>
 public partial class ResourceDownloadViewModel : KonkordObservableObject
 {
-    private readonly Window _parent;
+    private Window _parent = null!;
+    private readonly IWindowFactory _windowFactory;
     private readonly IBeaconLogger _logger = null!;
     private readonly ITranslationService _translationService = null!;
     private readonly ILauncherStore _launcherStore = null!;
@@ -80,7 +84,11 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
     #endregion
 
     public bool? IsResourceSelected => SelectedResource != null && ResourcesToDownload.ContainsKey(SelectedResource.Name);
-    public string ModPreview => SelectedResource == null ? "<p>" + _translationService.Translate("instance.resource.download.preview") + "</p>" : SelectedResource.RawPage;
+    public string ModPreview => SelectedResource != null
+        ? SelectedResource.RawPage
+        : Design.IsDesignMode
+            ? "<p>Select a resource to see its preview.</p>"
+            : "<p>" + _translationService.Translate("instance.resource.download.preview") + "</p>";
     
     public AvaloniaDictionary<string, (Version version, string? iconUrl)> ResourcesToDownload { get; } = new();
     
@@ -103,25 +111,37 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
     /// <param name="parent">The parent window associated with this view model.</param>
     /// <param name="instance">The instance associated with this view model, or null if it's not an instance.</param>
     /// <param name="resourceType">Type of resource being downloaded, e.g., mod or resource pack.</param>
-    public ResourceDownloadViewModel(Window parent, Instance? instance, EResourceType resourceType)
+    public ResourceDownloadViewModel()
     {
-        _parent = parent;
+        _instance = null;
+        _resourceType = EResourceType.MOD;
+        _windowFactory = null!;
+        IsMod = false;
+        ModLoader = EMinecraftKind.FABRIC;
+        ModLoaderIndex = (int)ModLoader;
+    }
+
+    public ResourceDownloadViewModel(Instance? instance, EResourceType resourceType,
+        IWindowFactory windowFactory, IBeaconLogger<ResourceDownloadViewModel> logger,
+        ITranslationService translationService, ILauncherStore launcherStore,
+        IManifestService manifestService, IMetaCacheService metaCacheService, IBitmapService bitmapService)
+    {
         _instance = instance;
         _resourceType = resourceType;
+        _windowFactory = windowFactory;
+        _logger = logger;
+        _translationService = translationService;
+        _launcherStore = launcherStore;
+        _manifestService = manifestService;
+        _metaCacheService = metaCacheService;
+        _bitmapService = bitmapService;
         IsMod = resourceType == EResourceType.MOD;
         ModLoader = _instance?.Kind ?? EMinecraftKind.FABRIC;
         ModLoaderIndex = (int)ModLoader;
-        
+
         if (Design.IsDesignMode || instance == null)
             return;
         
-        var services = Program.ServiceProvider;
-        _logger = services.GetRequiredService<IBeaconLogger<ResourceDownloadViewModel>>();
-        _translationService = services.GetRequiredService<ITranslationService>();
-        _launcherStore = services.GetRequiredService<ILauncherStore>();
-        _manifestService = services.GetRequiredService<IManifestService>();
-        _metaCacheService = services.GetRequiredService<IMetaCacheService>();
-        _bitmapService = services.GetRequiredService<IBitmapService>();
         
         if (IsMod)
         {
@@ -400,7 +420,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
                     .OrderByDescending(v => v.DatePublished)
                     .ToList();
 
-                return ResourceBaseModel.FromModrinthProjectAsync(project, projectVersions);
+                return ResourceBaseModel.FromModrinthProjectAsync(project, projectVersions, _metaCacheService);
             });
 
             cancellationToken.ThrowIfCancellationRequested();
@@ -437,6 +457,11 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
         }
     }
     
+    public void SetParent(Window parent)
+    {
+        _parent = parent;
+    }
+
     #region Commands
 
     /// <summary>
@@ -562,7 +587,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
             });
         }
 
-        var reviewWindow = new ResourceReviewWindow(_instance!, _resourceType, resources);
+        var reviewWindow = _windowFactory.CreateResourceReviewWindow(_instance!, _resourceType, resources);
         bool result = await reviewWindow.ShowDialog<bool>(_parent);
         if (result)
             await CloseWindowInteraction.Handle(true);

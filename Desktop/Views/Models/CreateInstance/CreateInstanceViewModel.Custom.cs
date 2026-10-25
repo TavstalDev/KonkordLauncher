@@ -5,21 +5,17 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Reactive.Threading.Tasks;
+using System.Reactive.Concurrency;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
-using Avalonia.Platform;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DynamicData;
 using DynamicData.Binding;
 using Microsoft.Extensions.DependencyInjection;
-using ReactiveUI;
-using ReactiveUI.Primitives;
 using Tavstal.BeaconSDK.Enums;
 using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Models.ModLoaders;
@@ -32,7 +28,10 @@ using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs.Config;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs.InstanceConfig;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services;
+using Tavstal.KonkordLauncher.Desktop.Services.Localization;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.CreateInstance;
 
@@ -48,7 +47,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
     private readonly IManifestService _manifestService = null!;
     private readonly IEventService _eventService = null!;
     private readonly CreateInstanceViewModel _parent;
-    private readonly Screen _screen;
+    private readonly IScreenService _screenService = null!;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))]
@@ -110,7 +109,9 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
     [ObservableProperty]
     public partial bool ShowExperiments { get; set; }
 
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))] private MinecraftVersion? _selectedMinecraftVersion;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))]
+    public partial MinecraftVersion? SelectedMinecraftVersion { get; set; }
     #endregion
     #region  Mod Loader
     [ObservableProperty]
@@ -143,11 +144,18 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
 
     #endregion
 
-    public CreateInstanceViewModel_Custom(CreateInstanceViewModel parent, Screen screen, ILauncherStore launcherStore, ITranslationService translationService,
+    public CreateInstanceViewModel_Custom()
+    {
+        _parent = null!;
+        _screenService = null!;
+        MinecraftVersions = new ReadOnlyObservableCollection<MinecraftVersion>(new ObservableCollection<MinecraftVersion>());
+        InstanceIcon = ImageHelper.LoadDesignTime("avares://KonkordLauncher/Assets/Icons/dirt.png");
+    }
+
+    public CreateInstanceViewModel_Custom(CreateInstanceViewModel parent, IScreenService screenService, ILauncherStore launcherStore, ITranslationService translationService,
         IManifestService manifestService, IBitmapService bitmapService, IEventService eventService)
     {
         _parent = parent;
-        _screen = screen;
         InstanceIcon = new BitmapEntry(null, null);
         if (Design.IsDesignMode)
         {
@@ -155,6 +163,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
             return;
         }
 
+        _screenService = screenService;
         _logger = Program.Services.GetRequiredService<IBeaconLogger<CreateInstanceViewModel_Custom>>();
         _translationService = translationService;
         _launcherStore = launcherStore;
@@ -225,7 +234,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
             _minecraftVersionCache
                 .Connect()
                 .Filter(filter)
-                .ObserveOn(RxSchedulers.MainThreadScheduler)
+                .ObserveOnMainThread()
                 .SortAndBind(out var filteredCollection, SortExpressionComparer<MinecraftVersion>.Descending(x => x.ReleaseTime))
                 .Subscribe(
                     _ => { },
@@ -275,7 +284,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
         var modLoaderSubscription = _modLoaderVersionCache
             .Connect()
             .Filter(modLoaderFilter)
-            .ObserveOn(RxSchedulers.MainThreadScheduler)
+            .ObserveOnMainThread()
             .SortAndBind(out var filteredModLoaders, ModVersionComparer)
             .Subscribe(
                 _ => { },
@@ -333,7 +342,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
             .ToCollection()
             .Where(c => c.Count > 0)
             .Take(1)
-            .ToTask(cancellationToken);
+            .ToTaskCompat(cancellationToken);
 
         SelectedMinecraftVersion = MinecraftVersions.FirstOrDefault(v => v.Type == "release");
     }
@@ -407,8 +416,8 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
                 Game = new InstanceGameConfig
                 {
                     StartMaximized = settings.Minecraft.StartMaximized,
-                    WindowHeight = (uint)(0.45 * _screen.Bounds.Height),
-                    WindowWidth = (uint)(0.40 * _screen.Bounds.Width),
+                    WindowHeight = (uint)(0.45 * _screenService.ScreenSize.Height),
+                    WindowWidth = (uint)(0.40 * _screenService.ScreenSize.Width),
                     ShowConsoleWhenGameCrashes = true,
                     ShowConsoleWhileGameRunning = false,
                     CloseConsoleOnGameExit = false,

@@ -16,28 +16,20 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 /// </summary>
 public partial class InstanceLogsWindow : KonkordWindow<InstanceLogsViewModel>
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="InstanceLogsWindow"/> class for design mode.
-    /// </summary>
     public InstanceLogsWindow()
     {
         InitializeComponent();
-        DataContext = new InstanceLogsViewModel(string.Empty);
     }
-    
-    /// <summary>
-    /// Initializes a new instance of the <see cref="InstanceLogsWindow"/> class with the specified instance ID.
-    /// </summary>
-    /// <param name="instanceId">The ID of the instance whose logs will be displayed.</param>
+
     [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public InstanceLogsWindow(string instanceId)
+    public InstanceLogsWindow(InstanceLogsViewModel viewModel)
     {
         InitializeComponent();
-        DataContext = new InstanceLogsViewModel(instanceId);
-        
+        DataContext = viewModel;
+
         if (Design.IsDesignMode)
             return;
-        
+
         this.WhenActivated(disposables =>
         {
             DataContext.CloseWindowInteraction.RegisterHandler(action =>
@@ -53,7 +45,7 @@ public partial class InstanceLogsWindow : KonkordWindow<InstanceLogsViewModel>
             }).DisposeWith(disposables);
             DataContext.LogsScrollToEnd.RegisterHandler(action =>
             {
-                LogsScrollViewer.Offset =  new Vector(0, LogsScrollViewer.Extent.Height);
+                LogsScrollViewer.Offset = new Vector(0, LogsScrollViewer.Extent.Height);
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             });

@@ -14,6 +14,11 @@ public partial class ProgressViewModel : ObservableObject
 {
     private readonly CancellationTokenSource? _cancellationTokenSource;
     
+    public ProgressViewModel()
+    {
+        _cancellationTokenSource = null;
+    }
+
     public ProgressViewModel(CancellationTokenSource? cancellationTokenSource = null)
     {
         _cancellationTokenSource = cancellationTokenSource;

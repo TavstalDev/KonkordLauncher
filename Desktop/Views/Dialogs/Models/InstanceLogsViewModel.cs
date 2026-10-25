@@ -10,7 +10,8 @@ using CommunityToolkit.Mvvm.Input;
 using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services;
+using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
@@ -19,6 +20,7 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
     private readonly string _instanceId;
     private readonly IBeaconLogger _logger = null!;
     private readonly ILauncherStore _launcherStore = null!;
+    private readonly IEventService _eventService = null!;
     
     #region Interactions
     
@@ -50,16 +52,25 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
     /// <exception cref="KeyNotFoundException">
     /// Thrown when an instance with the specified ID cannot be found.
     /// </exception>
-    public InstanceLogsViewModel(string instanceId)
+    public InstanceLogsViewModel()
+    {
+        _instanceId = string.Empty;
+        InstanceName = "Design Instance";
+        Logs = string.Empty;
+    }
+
+    public InstanceLogsViewModel(string instanceId, IBeaconLogger<InstanceLogsViewModel> logger,
+        ILauncherStore launcherStore, IEventService eventService)
     {
         _instanceId = instanceId;
-        
+
         if (Design.IsDesignMode)
             return;
-        
-        var services = Program.ServiceProvider;
-        _logger = services.GetRequiredService<IBeaconLogger<InstanceLogsViewModel>>();
-        _launcherStore = services.GetRequiredService<ILauncherStore>();
+
+        _logger = logger;
+        _launcherStore = launcherStore;
+        _eventService = eventService;
+
         _ = InitAsync();
     }
 
@@ -82,8 +93,8 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
         GameDirectory = currentInstance.GameDirectory;
 
         // Logging setup
-        GlobalEvents.OnInstanceLogged += OnInstanceLogged;
-        Logs = GlobalEvents.GetInstanceLogs(_instanceId);
+        _eventService.OnInstanceLogged += OnInstanceLogged;
+        Logs = _eventService.GetInstanceLogs(_instanceId);
         if (!string.IsNullOrEmpty(Logs))
             await Dispatcher.UIThread.Invoke(async () => await LogsScrollToEnd.Handle(Unit.Default));
     }
@@ -115,7 +126,7 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
     {
         base.Dispose(disposing);
         _logger.LogDebug("Freeing memory in EditInstanceViewModel...");
-        GlobalEvents.OnInstanceLogged -= OnInstanceLogged;
+        _eventService.OnInstanceLogged -= OnInstanceLogged;
         
         InstanceName = string.Empty;
         GameDirectory = null;
@@ -147,7 +158,7 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
     private void ClearLogs()
     {
         Logs = string.Empty;
-        GlobalEvents.CleareInstanceLogs(_instanceId);
+        _eventService.CleareInstanceLogs(_instanceId);
     }
     
     /// <summary>

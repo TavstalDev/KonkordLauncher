@@ -1063,7 +1063,7 @@
                                                                         FormatString="0"
                                                                         Increment="10"
                                                                         IsEnabled="{Binding !Settings.InstanceConfig.Game.StartMaximized}"
-                                                                        Maximum="{x:Static local:App.ScreenWidth}"
+                                                                        Maximum="{Binding ScreenWidth}"
                                                                         Minimum="100"
                                                                         Value="{Binding Settings.InstanceConfig.Game.WindowWidth, Mode=TwoWay}" />
                                                                 </Grid>
@@ -1077,7 +1077,7 @@
                                                                         FormatString="0"
                                                                         Increment="10"
                                                                         IsEnabled="{Binding !Settings.InstanceConfig.Game.StartMaximized}"
-                                                                        Maximum="{x:Static local:App.ScreenHeight}"
+                                                                        Maximum="{Binding ScreenHeight}"
                                                                         Minimum="100"
                                                                         Value="{Binding Settings.InstanceConfig.Game.WindowHeight, Mode=TwoWay}" />
                                                                 </Grid>
@@ -1170,7 +1170,7 @@
                                                                 <!--  Pre-launch Command  -->
                                                                 <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
                                                                     <StackPanel MaxWidth="200" HorizontalAlignment="Left">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.prelaunchCommand}" />
+                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.prelaunchCommand.label}" />
                                                                         <TextBlock
                                                                             Classes="SettingsDescription"
                                                                             Text="{lang:Translate settings.misc.prelaunchCommand.description}"
@@ -1185,7 +1185,7 @@
                                                                 <!--  Wrapper Command  -->
                                                                 <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
                                                                     <StackPanel MaxWidth="200" HorizontalAlignment="Left">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.wrapperCommand}" />
+                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.wrapperCommand.label}" />
                                                                         <TextBlock
                                                                             Classes="SettingsDescription"
                                                                             Text="{lang:Translate settings.misc.wrapperCommand.description}"
@@ -1200,7 +1200,7 @@
                                                                 <!--  Post-exit Command  -->
                                                                 <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
                                                                     <StackPanel MaxWidth="200" HorizontalAlignment="Left">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.postExitCommand}" />
+                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.postExitCommand.label}" />
                                                                         <TextBlock
                                                                             Classes="SettingsDescription"
                                                                             Text="{lang:Translate settings.misc.postExitCommand.description}"

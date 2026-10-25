@@ -12,7 +12,12 @@ using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services;
+using Tavstal.KonkordLauncher.Desktop.Services.Content;
+using Tavstal.KonkordLauncher.Desktop.Services.Instances;
+using Tavstal.KonkordLauncher.Desktop.Services.Localization;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using Tavstal.KonkordLauncher.Desktop.Views.Models.CreateInstance;
 
@@ -22,6 +27,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IKonkord
 {
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IManifestService _manifestService = null!;
+    private readonly IWindowFactory _windowFactory = null!;
     public CreateInstanceViewModel_Custom Custom { get;  }
     public CreateInstanceViewModel_Modpack Modpack { get;  }
     public CreateInstanceViewModel_Import Import { get;  }
@@ -42,21 +48,32 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IKonkord
 
     public CreateInstanceViewModel()
     {
-        Custom = new CreateInstanceViewModel_Custom(this);
-        Modpack = new CreateInstanceViewModel_Modpack(this);
-        Import = new CreateInstanceViewModel_Import(this);
+        Custom = new CreateInstanceViewModel_Custom();
+        Modpack = new CreateInstanceViewModel_Modpack();
+        Import = new CreateInstanceViewModel_Import();
+    }
+
+    public CreateInstanceViewModel(IScreenService screenService, ILauncherStore launcherStore,
+        ITranslationService translationService, IManifestService manifestService, IHttpService httpService,
+        IMetaCacheService metaCacheService, IBitmapService bitmapService, IEventService eventService,
+        ModrinthPackageService modrinthPackageService, IWindowFactory windowFactory)
+    {
+        _launcherStore = launcherStore;
+        _manifestService = manifestService;
+        _windowFactory = windowFactory;
+
+        Custom = new CreateInstanceViewModel_Custom(this, screenService, launcherStore, translationService,
+            manifestService, bitmapService, eventService);
+        Modpack = new CreateInstanceViewModel_Modpack(this, screenService, launcherStore, translationService,
+            httpService, metaCacheService, bitmapService, eventService, modrinthPackageService);
+        Import = new CreateInstanceViewModel_Import(this, screenService, launcherStore, translationService,
+            httpService, eventService, modrinthPackageService);
 
         if (Design.IsDesignMode)
             return;
 
         SetupPipeline();
         _ = InitAsync();
-    }
-
-    public CreateInstanceViewModel(ILauncherStore launcherStore, ITranslationService translationService, IManifestService manifestService) : this()
-    {
-        _launcherStore = launcherStore;
-        _manifestService = manifestService;
     }
 
     /// <summary>
@@ -151,6 +168,12 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IKonkord
         _installWindow?.ReportTaskCompleted();
     }
 
+    public void Report(string key)
+    {
+        EnsureWindowExists();
+        _installWindow?.Report(key);
+    }
+
     public void Report(double progress, string key, params object[]? args)
     {
         EnsureWindowExists();
@@ -160,7 +183,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IKonkord
     [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
     private void EnsureWindowExists()
     {
-        _installWindow ??= new ProgressWindow();
+        _installWindow ??= _windowFactory.CreateProgressWindow();
         _installWindow.Show();
     }
 

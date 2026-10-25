@@ -7,12 +7,15 @@ using Avalonia.Controls;
 using CommunityToolkit.Mvvm.Input;
 using Tavstal.BeaconSDK.Models;
 using Tavstal.BeaconSDK.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services.Content;
+using Tavstal.KonkordLauncher.Desktop.Services.Localization;
+using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
@@ -22,13 +25,13 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 /// </summary>
 public partial class ResourceReviewViewModel : KonkordObservableObject
 {
-    private readonly Instance _instance;
+    private readonly Instance _instance = null!;
     private readonly EResourceType _resourceType;
     private readonly IHttpService _httpService = null!;
     private readonly ITranslationService _translationService = null!;
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IMetaCacheService _metaCacheService = null!;
-    private readonly IProgressReporter _progressReporter;
+    private readonly IKonkordProgress _progressReporter = null!;
     public ObservableCollection<ResourceDownloadModel> Resources { get; set; }
     
     #region Interactions
@@ -43,11 +46,23 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
     /// <param name="type">The type of resources being installed.</param>
     /// <param name="resources">The list of resources to review and install.</param>
     /// <param name="progressReporter">Reporter for download progress.</param>
-    public ResourceReviewViewModel(Instance instance, EResourceType type, List<ResourceDownloadModel> resources, IProgressReporter progressReporter)
+    public ResourceReviewViewModel()
+    {
+        Resources = [];
+    }
+
+    public ResourceReviewViewModel(Instance instance, EResourceType type, List<ResourceDownloadModel> resources,
+        IKonkordProgress progressReporter, IHttpService httpService, ITranslationService translationService,
+        ILauncherStore launcherStore, IMetaCacheService metaCacheService)
     {
         _instance = instance;
         _resourceType = type;
         _progressReporter = progressReporter;
+        _httpService = httpService;
+        _translationService = translationService;
+        _launcherStore = launcherStore;
+        _metaCacheService = metaCacheService;
+
         if (Design.IsDesignMode)
         {
             Resources =
@@ -96,12 +111,6 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
         }
         
         Resources = new ObservableCollection<ResourceDownloadModel>(resources);
-
-        var services = Program.ServiceProvider;
-        _httpService = services.GetRequiredService<IHttpService>();
-        _translationService = services.GetRequiredService<ITranslationService>();
-        _launcherStore = services.GetRequiredService<ILauncherStore>();
-        _metaCacheService = services.GetRequiredService<IMetaCacheService>();
     }
     
     #region Commands
@@ -173,11 +182,11 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
                 string? iconPath = _metaCacheService.GetImagePath(resource.IconUrl);
                 if (iconPath != null)
                 {
-                    downloadEntries.Add(new DownloadEntry(resource.IconUrl, iconPath, _progressReporter));
+                    downloadEntries.Add(new DownloadEntry(resource.IconUrl, iconPath, null, _progressReporter));
                     newResource.IconPath = iconPath;
                 }
             }
-            downloadEntries.Add(new DownloadEntry(resource.Url, targetPath, _progressReporter));
+            downloadEntries.Add(new DownloadEntry(resource.Url, targetPath, null, _progressReporter));
             newResources.Add(newResource);
         }
         

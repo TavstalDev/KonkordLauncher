@@ -5,7 +5,6 @@ using Avalonia.Controls;
 using ReactiveUI;
 using ReactiveUI.Primitives;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
-using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
@@ -15,23 +14,17 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 /// </summary>
 public partial class InstanceVersionSelectorWindow : KonkordWindow<InstanceVersionSelectorViewModel>
 {
-    /// <summary>
-    /// Initializes a new instance of the InstanceVersionSelectorWindow class with no parameters.
-    /// </summary>
-    [RequiresUnreferencedCode(
-        "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public InstanceVersionSelectorWindow() : this(null!) { }
-    
-    /// <summary>
-    /// Initializes a new instance of the InstanceVersionSelectorWindow class with an instance parameter.
-    /// </summary>
-    /// <param name="instance">The instance for which the version is being selected.</param>
-    [RequiresUnreferencedCode(
-        "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public InstanceVersionSelectorWindow(Instance instance)
+    public InstanceVersionSelectorWindow()
     {
         InitializeComponent();
-        DataContext = new InstanceVersionSelectorViewModel(instance);
+    }
+
+    [RequiresUnreferencedCode(
+        "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    public InstanceVersionSelectorWindow(InstanceVersionSelectorViewModel viewModel)
+    {
+        InitializeComponent();
+        DataContext = viewModel;
 
         if (Design.IsDesignMode)
             return;

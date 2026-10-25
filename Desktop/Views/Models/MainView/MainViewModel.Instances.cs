@@ -16,7 +16,10 @@ using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services;
+using Tavstal.KonkordLauncher.Desktop.Services.Instances;
+using Tavstal.KonkordLauncher.Desktop.Services.Localization;
+using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.MainView;
 
@@ -29,13 +32,20 @@ public partial class MainViewModel_Instances : KonkordObservableObject
     private readonly ILauncherStore _launcherStore = null!;
     private readonly ITranslationService _translationService = null!;
     private readonly IEventService _eventService = null!;
+    private readonly IInstanceModelFactory _instanceModelFactory = null!;
     private readonly MainViewModel _parent;
 
     public ObservableCollection<InstanceGroup> InstanceGroups { get; } = [];
     [ObservableProperty]
     public partial bool HasInstances { get; set; }
 
-    public MainViewModel_Instances(MainViewModel parent, ILauncherStore launcherStore, ITranslationService translationService, IEventService eventService)
+    public MainViewModel_Instances()
+    {
+        _parent = null!;
+    }
+
+    public MainViewModel_Instances(MainViewModel parent, ILauncherStore launcherStore, ITranslationService translationService,
+        IEventService eventService, IInstanceModelFactory instanceModelFactory)
     {
         _parent = parent;
         if (Design.IsDesignMode)
@@ -45,6 +55,7 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         _launcherStore =  launcherStore;
         _translationService = translationService;
         _eventService = eventService;
+        _instanceModelFactory = instanceModelFactory;
 
        _eventService.OnInstanceAdded += OnInstanceAdded;
        _eventService.OnInstanceUpdated += OnInstanceUpdated;
@@ -120,13 +131,13 @@ public partial class MainViewModel_Instances : KonkordObservableObject
             string key = instance.Group ?? string.Empty;
             if (instanceGroups.ContainsKey(key))
             {
-                instanceGroups[key].Instances.Add(new InstanceModel(instance));
+                instanceGroups[key].Instances.Add(_instanceModelFactory.Create(instance));
             }
             else
             {
                 var groupName = instance.Group ?? uncategorized;
                 var newGroup = new InstanceGroup(groupName);
-                newGroup.Instances.Add(new InstanceModel(instance));
+                newGroup.Instances.Add(_instanceModelFactory.Create(instance));
                 instanceGroups.Add(key, newGroup);
             }
         }
@@ -407,13 +418,13 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         if (existingGroup == null)
         {
             var newGroup = new InstanceGroup(groupName);
-            newGroup.Instances.Add(new InstanceModel(targetInstance));
+            newGroup.Instances.Add(_instanceModelFactory.Create(targetInstance));
             InstanceGroups.Add(newGroup);
             HasInstances = InstanceGroups.Count > 0;
             return;
         }
 
-        existingGroup.Instances.Add(new InstanceModel(targetInstance));
+        existingGroup.Instances.Add(_instanceModelFactory.Create(targetInstance));
     }
 
     /// <summary>

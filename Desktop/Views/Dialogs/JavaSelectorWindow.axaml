@@ -44,7 +44,7 @@
                     <!--  Title  -->
                     <Border Classes="ModalTitleBorder">
                         <StackPanel>
-                            <TextBlock Text="{lang:Translate java.select}" />
+                            <TextBlock Text="{lang:Translate java.select.title}" />
                             <TextBlock Classes="ModalSubTitle" Text="{lang:Translate java.select.subtitle}" />
                         </StackPanel>
                     </Border>

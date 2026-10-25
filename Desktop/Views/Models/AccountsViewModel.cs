@@ -20,7 +20,10 @@ using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services;
+using Tavstal.KonkordLauncher.Desktop.Services.Accounts;
+using Tavstal.KonkordLauncher.Desktop.Services.Localization;
+using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 
@@ -75,6 +78,17 @@ public partial class AccountsViewModel : KonkordObservableObject
 
     public AccountsViewModel()
     {
+        DeviceData = new DeviceCodeResult
+        {
+            UserCode = "DEBUG",
+        };
+    }
+
+    public AccountsViewModel(IBeaconLogger<AccountsViewModel> logger,
+        ILauncherStore launcherStore, ITranslationService translationService, IMicrosoftAuthService microsoftAuthService,
+        IMicrosoftDeviceAuthService microsoftDeviceAuthService, IMicrosoftHttpAuthService microsoftHttpAuthService,
+        ISkinService skinService, IEncryptionService encryptionService, IEventService eventService)
+    {
         if (Design.IsDesignMode)
         {
             DeviceData = new DeviceCodeResult
@@ -84,14 +98,6 @@ public partial class AccountsViewModel : KonkordObservableObject
             return;
         }
 
-        ProgressText = _translationService.Translate("auth.logging_in");
-    }
-
-    public AccountsViewModel(IBeaconLogger<AccountsViewModel> logger,
-        ILauncherStore launcherStore, ITranslationService translationService, IMicrosoftAuthService microsoftAuthService,
-        IMicrosoftDeviceAuthService microsoftDeviceAuthService, IMicrosoftHttpAuthService microsoftHttpAuthService,
-        ISkinService skinService, IEncryptionService encryptionService, IEventService eventService) : this()
-    {
         _logger = logger;
         _launcherStore = launcherStore;
         _translationService = translationService;
@@ -101,6 +107,8 @@ public partial class AccountsViewModel : KonkordObservableObject
         _skinService = skinService;
         _encryptionService = encryptionService;
         _eventService = eventService;
+
+        ProgressText = _translationService.Translate("auth.logging_in");
     }
 
     /// <summary>
@@ -304,7 +312,7 @@ public partial class AccountsViewModel : KonkordObservableObject
             Uuid = uuid,
             DisplayName = OfflineUsername,
             Type = EAccountType.OFFLINE,
-            AccessTokenExpireDate = DateTime.Now,
+            AccessTokenExpireDate = DateTime.UtcNow,
             Skins = [],
             MojangProfile = null
         };

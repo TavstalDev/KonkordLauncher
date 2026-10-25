@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,7 +19,7 @@ using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
@@ -32,6 +33,11 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
     [ObservableProperty]
     public partial WorldModel? SelectedWorld { get; set; }
 
+    public EditInstanceViewModel_Worlds()
+    {
+        _parent = null!;
+    }
+
     public EditInstanceViewModel_Worlds(EditInstanceViewModel parent)
     {
         _parent = parent;
@@ -39,6 +45,9 @@ public partial class EditInstanceViewModel_Worlds  : KonkordObservableObject
 
     public EditInstanceViewModel_Worlds(EditInstanceViewModel parent, IBitmapService bitmapService) : this(parent)
     {
+        if (Design.IsDesignMode)
+            return;
+
         _logger = Program.Services.GetRequiredService<IBeaconLogger<EditInstanceViewModel_Worlds>>();
         _bitmapService = bitmapService;
     }

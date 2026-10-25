@@ -10,7 +10,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Tavstal.BeaconSDK.Helpers.IO;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 using IconDataModel = Tavstal.KonkordLauncher.Desktop.Models.Domain.IconDataModel;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
@@ -46,12 +47,17 @@ public partial class IconSelectorViewModel : KonkordObservableObject
     /// </summary>
     public IconSelectorViewModel()
     {
+        SelectedIcon = null;
+    }
+
+    public IconSelectorViewModel(ILauncherStore launcherStore, IBitmapService bitmapService)
+    {
         if (Design.IsDesignMode)
             return;
-        
-        var services = Program.ServiceProvider;
-        _launcherStore = services.GetRequiredService<ILauncherStore>();
-        _bitmapService = services.GetRequiredService<IBitmapService>();
+
+        _launcherStore = launcherStore;
+        _bitmapService = bitmapService;
+
         _ = InitAsync();
     }
     

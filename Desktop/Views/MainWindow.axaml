@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:domain="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Domain"
+    xmlns:dto="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.DTOs"
     xmlns:enums="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Enums"
     xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:local="clr-namespace:Tavstal.KonkordLauncher.Desktop"
@@ -187,7 +188,7 @@
                                                         Padding="4,0"
                                                         Classes="FontAwesome"
                                                         Text="&#xf5fd;" />
-                                                    <TextBlock Margin="5,0,0,0" Text="{lang:Translate instance.change.group}" />
+                                                    <TextBlock Margin="5,0,0,0" Text="{lang:Translate instance.change.group.action}" />
                                                 </StackPanel>
                                         </MenuItem.Header>
                                     </MenuItem>
@@ -266,7 +267,7 @@
             </Border>
         </DataTemplate>
         <!--  Patch Card  -->
-        <DataTemplate DataType="models1:PatchNote">
+        <DataTemplate DataType="dto:PatchNote">
             <Border Classes="NewsCard">
                 <Grid ColumnDefinitions="*" RowDefinitions="Auto, Auto, Auto">
                     <!--  News Card Title  -->
@@ -422,7 +423,7 @@
                                         VerticalAlignment="Center"
                                         Classes="FontAwesome"
                                         Text="&#xf0c0;" />
-                                    <TextBlock VerticalAlignment="Center" Text="{lang:Translate main.sidebar.accounts}" />
+                                    <TextBlock VerticalAlignment="Center" Text="{lang:Translate main.sidebar.accounts.label}" />
                                 </WrapPanel>
                             </Button>
                             <Button
@@ -939,7 +940,7 @@
                                                                         FormatString="0"
                                                                         Increment="10"
                                                                         IsEnabled="{Binding !Config.CoreConfig.Minecraft.StartMaximized}"
-                                                                        Maximum="{x:Static local:App.ScreenWidth}"
+                                                                        Maximum="{Binding ScreenWidth}"
                                                                         Minimum="100"
                                                                         Value="{Binding Config.CoreConfig.Minecraft.WindowWidth, Mode=TwoWay}" />
                                                                 </Grid>
@@ -953,7 +954,7 @@
                                                                         FormatString="0"
                                                                         Increment="10"
                                                                         IsEnabled="{Binding !Config.CoreConfig.Minecraft.StartMaximized}"
-                                                                        Maximum="{x:Static local:App.ScreenHeight}"
+                                                                        Maximum="{Binding ScreenHeight}"
                                                                         Minimum="100"
                                                                         Value="{Binding Config.CoreConfig.Minecraft.WindowHeight, Mode=TwoWay}" />
                                                                 </Grid>
@@ -1084,7 +1085,7 @@
                                                                 <!--  Pre-launch Command  -->
                                                                 <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
                                                                     <StackPanel MaxWidth="200" HorizontalAlignment="Left">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.prelaunchCommand}" />
+                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.prelaunchCommand.label}" />
                                                                         <TextBlock
                                                                             Classes="SettingsDescription"
                                                                             Text="{lang:Translate settings.misc.prelaunchCommand.description}"
@@ -1099,7 +1100,7 @@
                                                                 <!--  Wrapper Command  -->
                                                                 <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
                                                                     <StackPanel MaxWidth="200" HorizontalAlignment="Left">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.wrapperCommand}" />
+                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.wrapperCommand.label}" />
                                                                         <TextBlock
                                                                             Classes="SettingsDescription"
                                                                             Text="{lang:Translate settings.misc.wrapperCommand.description}"
@@ -1114,7 +1115,7 @@
                                                                 <!--  Post-exit Command  -->
                                                                 <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
                                                                     <StackPanel MaxWidth="200" HorizontalAlignment="Left">
-                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.postExitCommand}" />
+                                                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.postExitCommand.label}" />
                                                                         <TextBlock
                                                                             Classes="SettingsDescription"
                                                                             Text="{lang:Translate settings.misc.postExitCommand.description}"
@@ -1450,7 +1451,7 @@
                                                     CornerRadius="14">
                                                     <StackPanel Spacing="10">
                                                         <!--  Title  -->
-                                                        <TextBlock Classes="Muted" Text="{lang:Translate main.page.skins.model}" />
+                                                        <TextBlock Classes="Muted" Text="{lang:Translate main.page.skins.model.label}" />
                                                         <!--  Options  -->
                                                         <Grid ColumnDefinitions="*, *" ColumnSpacing="10">
                                                             <!--  Wide Model  -->

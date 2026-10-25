@@ -12,7 +12,8 @@ using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Config.Launcher;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs.Config;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services;
+using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 using Tavstal.KonkordLauncher.Desktop.Translation;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.MainView;
@@ -22,10 +23,17 @@ public partial class MainViewModel_Config : KonkordObservableObject
     private readonly IBeaconLogger _logger = null!;
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IEventService _eventService = null!;
-    private readonly MainViewModel _parent;
+    private readonly MainViewModel? _parent;
 
     [ObservableProperty]
     public partial CoreConfigModel CoreConfig { get; set; } = null!;
+
+    public MainViewModel_Config()
+    {
+        _parent = null;
+        CoreConfig = new CoreConfigModel(new LauncherConfigModel(), new JavaConfigModel(),
+            new MinecraftConfigModel(), new MiscConfigModel());
+    }
 
     public MainViewModel_Config(MainViewModel parent, ILauncherStore launcherStore, IEventService eventService)
     {
@@ -56,6 +64,8 @@ public partial class MainViewModel_Config : KonkordObservableObject
     [RelayCommand]
     public async Task HandleSettingsBtn(ESettingsTab tabType)
     {
+        if (_parent == null)
+            return;
         await _parent.UpdateSettingsTabButtonInteraction.Handle(tabType);
     }
 
@@ -79,6 +89,9 @@ public partial class MainViewModel_Config : KonkordObservableObject
     [RelayCommand]
     public async Task ConfigDirSelectAsync(string rawIndex)
     {
+        if (_parent == null)
+            return;
+
         if (!int.TryParse(rawIndex, out var index))
             return;
 
@@ -147,6 +160,9 @@ public partial class MainViewModel_Config : KonkordObservableObject
     [RelayCommand]
     private async Task JavaPathSelectorAsync()
     {
+        if (_parent == null)
+            return;
+
         var javaVersion = await _parent.ShowJavaSelectorDialogInteraction.Handle(Unit.Default);
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (javaVersion == null)
@@ -185,6 +201,9 @@ public partial class MainViewModel_Config : KonkordObservableObject
     /// <param name="newValue">The new core configuration model.</param>
     partial void OnCoreConfigChanged(CoreConfigModel? oldValue, CoreConfigModel newValue)
     {
+        if (_parent == null)
+            return;
+
         if (_parent.IsLoading || !_parent.Initialization.IsCompletedSuccessfully)
             return;
 
@@ -205,6 +224,9 @@ public partial class MainViewModel_Config : KonkordObservableObject
     /// <param name="e">The event data associated with the property change.</param>
     private void OnChildConfigPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
+        if (_parent == null)
+            return;
+
         if (_parent.IsLoading || !_parent.Initialization.IsCompletedSuccessfully)
             return;
 
@@ -233,6 +255,9 @@ public partial class MainViewModel_Config : KonkordObservableObject
     /// <param name="newValue">The updated core configuration model to save.</param>
     private void SaveCoreConfigToFile(CoreConfigModel newValue)
     {
+        if (_parent == null)
+            return;
+
         if (newValue.Java.MinMemory > newValue.Java.MaxMemory)
         {
             _logger.LogWarning("Min memory cannot be greater than max memory. Adjusting values.");

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using System.Reactive.Concurrency;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -12,16 +12,16 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DynamicData;
 using DynamicData.Binding;
-using ReactiveUI;
-using ReactiveUI.Primitives;
 using Tavstal.BeaconSDK.Enums;
 using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Models.ModLoaders;
 using Tavstal.BeaconSDK.Models.MojangApi;
 using Tavstal.BeaconSDK.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services;
+using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
@@ -34,6 +34,7 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
     private readonly IBeaconLogger _logger = null!;
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IManifestService _manifestService = null!;
+    private readonly IEventService _eventService = null!;
     public EMinecraftKind Kind { get; }
 
     /// <summary>
@@ -118,17 +119,27 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
     /// Initializes a new instance of the InstanceVersionSelectorViewModel class.
     /// </summary>
     /// <param name="instance">The current instance being managed.</param>
-    public InstanceVersionSelectorViewModel(Instance instance)
+    public InstanceVersionSelectorViewModel()
+    {
+        _instance = null!;
+        Kind = EMinecraftKind.VANILLA;
+        MinecraftVersions = new ReadOnlyObservableCollection<MinecraftVersion>(new ObservableCollection<MinecraftVersion>());
+    }
+
+    public InstanceVersionSelectorViewModel(Instance instance,
+        IBeaconLogger<InstanceVersionSelectorViewModel> logger, ILauncherStore launcherStore,
+        IManifestService manifestService, IEventService eventService)
     {
         _instance = instance;
         Kind = instance?.Kind ?? EMinecraftKind.VANILLA;
+
         if (Design.IsDesignMode)
             return;
 
-        var services = Program.ServiceProvider;
-        _logger = services.GetRequiredService<IBeaconLogger<InstanceVersionSelectorViewModel>>();
-        _launcherStore = services.GetRequiredService<ILauncherStore>();
-        _manifestService = services.GetRequiredService<IManifestService>();
+        _logger = logger;
+        _launcherStore = launcherStore;
+        _manifestService = manifestService;
+        _eventService = eventService;
 
         SetupPipeline();
         _ = InitAsync().ContinueWith(t =>
@@ -174,19 +185,24 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
             x => x.ShowExperiments
         );
 
-        var filter = search.CombineLatest(toggles, (query, t) => (query, t))
+        var filter = search.CombineLatest(toggles, (query, t) => new
+            {
+                Query = query,
+                ShowReleases = t.Property1,
+                ShowSnapshots = t.Property2,
+                ShowAlphas = t.Property3,
+                ShowBetas = t.Property4,
+                ShowExperiments = t.Property5
+            })
             .Select(values =>
             {
-                var (query, t) = values;
-                var (showReleases, showSnapshots, showAlphas, showBetas, showExperiments) = t;
-
                 return (Func<MinecraftVersion, bool>)(x =>
-                        (string.IsNullOrWhiteSpace(query) || x.Id.StartsWith(query)) &&
-                        (x.Type != "release"    || showReleases) &&
-                        (x.Type != "snapshot"   || showSnapshots) &&
-                        (x.Type != "old_alpha"  || showAlphas) &&
-                        (x.Type != "old_beta"   || showBetas) &&
-                        (x.Type != "experiment" || showExperiments)
+                        (string.IsNullOrWhiteSpace(values.Query) || x.Id.StartsWith(values.Query)) &&
+                        (x.Type != "release"    || values.ShowReleases) &&
+                        (x.Type != "snapshot"   || values.ShowSnapshots) &&
+                        (x.Type != "old_alpha"  || values.ShowAlphas) &&
+                        (x.Type != "old_beta"   || values.ShowBetas) &&
+                        (x.Type != "experiment" || values.ShowExperiments)
                     );
             });
 
@@ -194,7 +210,7 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
             _minecraftVersionCache
                 .Connect()
                 .Filter(filter)
-                .ObserveOn(RxSchedulers.MainThreadScheduler)
+                .ObserveOnMainThread()
                 .SortAndBind(out var filteredCollection, SortExpressionComparer<MinecraftVersion>.Descending(x => x.ReleaseTime))
                 .Subscribe(
                     _ => { },
@@ -244,7 +260,7 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
         var modLoaderSubscription = _modLoaderVersionCache
             .Connect()
             .Filter(modLoaderFilter)
-            .ObserveOn(RxSchedulers.MainThreadScheduler)
+            .ObserveOnMainThread()
             .SortAndBind(out var filteredModLoaders, ModVersionComparer)
             .Subscribe(
                 _ => { },
@@ -295,7 +311,7 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
             .ToCollection()
             .Where(c => c.Count > 0)
             .Take(1)
-            .ToTask(cancellationToken);
+            .ToTaskCompat(cancellationToken);
 
         SelectedMinecraftVersion = MinecraftVersions
                                        .FirstOrDefault(v => v.Id == _instance.MinecraftVersion)
@@ -306,7 +322,7 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
             .ToCollection()
             .Where(c => c.Count > 0 || Kind == EMinecraftKind.VANILLA)
             .Take(1)
-            .ToTask(cancellationToken);
+            .ToTaskCompat(cancellationToken);
 
         SelectedModLoader = ModLoaderVersionResult
                                 .FirstOrDefault(m => m.Version == _instance.CustomVersion && m.LoaderKind == Kind);
@@ -348,7 +364,7 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
             _instance.CustomVersion = SelectedModLoader!.Version;
         instances[instanceIndex] = _instance;
         await _launcherStore.SaveInstancesAsync(instances);
-        GlobalEvents.InvokeInstanceUpdated(_instance.Id);
+        _eventService.RaiseInstanceUpdated(_instance.Id);
         await CloseWindowInteraction.Handle(true);
     }
 }

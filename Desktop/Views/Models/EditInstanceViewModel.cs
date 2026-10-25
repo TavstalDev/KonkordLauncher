@@ -17,7 +17,10 @@ using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services;
+using Tavstal.KonkordLauncher.Desktop.Services.Localization;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 using Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 using JavaVersionModel = Tavstal.KonkordLauncher.Desktop.Models.Domain.JavaVersionModel;
 
@@ -32,6 +35,9 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     public readonly InstanceModel Instance = null!;
     private readonly IBeaconLogger _logger = null!;
     private readonly ILauncherStore _launcherStore = null!;
+    private readonly IEventService _eventService = null!;
+    private readonly IEncryptionService _encryptionService = null!;
+    private readonly IScreenService _screenService = null!;
     private const int MaxLogLines = 1000;
     
     public bool IsClosing;
@@ -45,6 +51,8 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     public EditInstanceViewModel_Worlds Worlds { get; private set; }  = null!;
 
     public bool IsLinux => OSHelper.GetOperatingSystem() == EOperatingSystem.LINUX;
+    public int ScreenWidth => Design.IsDesignMode ? 950 : _screenService.ScreenSize.Width;
+    public int ScreenHeight => Design.IsDesignMode ? 600 : _screenService.ScreenSize.Height;
     public List<AccountModel> Accounts { get; private set; }  = null!;
 
     #region Interactions
@@ -88,24 +96,41 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     /// Initializes a new instance of the <see cref="EditInstanceViewModel"/> class.
     /// </summary>
     /// <param name="instance">The instance model representing the Minecraft instance to be edited.</param>
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public EditInstanceViewModel(InstanceModel instance)
+    public EditInstanceViewModel()
     {
+        Mods = new EditInstanceViewModel_Mods();
+        ResourcePacks = new EditInstanceViewModel_ResourcePacks();
+        Screenshots = new EditInstanceViewModel_Screenshots();
+        Servers = new EditInstanceViewModel_Servers();
+        Settings = new EditInstanceViewModel_Settings();
+        ShaderPacks = new EditInstanceViewModel_ShaderPacks();
+        Worlds = new EditInstanceViewModel_Worlds();
+    }
+
+    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    public EditInstanceViewModel(InstanceModel instance, IBeaconLogger<EditInstanceViewModel> logger,
+        ILauncherStore launcherStore, IEventService eventService, IBitmapService bitmapService,
+        ITranslationService translationService, IEncryptionService encryptionService,
+        IScreenService screenService)
+    {
+        Instance = instance;
+        _logger = logger;
+        _launcherStore = launcherStore;
+        _eventService = eventService;
+        _encryptionService = encryptionService;
+        _screenService = screenService;
+
+        Mods = new EditInstanceViewModel_Mods(this, launcherStore, bitmapService);
+        ResourcePacks = new EditInstanceViewModel_ResourcePacks(this, launcherStore, bitmapService);
+        Screenshots = new EditInstanceViewModel_Screenshots(this, bitmapService);
+        Servers = new EditInstanceViewModel_Servers(this, bitmapService);
+        Settings = new EditInstanceViewModel_Settings(this, launcherStore, translationService, eventService);
+        ShaderPacks = new EditInstanceViewModel_ShaderPacks(this, launcherStore, bitmapService);
+        Worlds = new EditInstanceViewModel_Worlds(this, bitmapService);
+
         if (Design.IsDesignMode)
             return;
 
-        var services = Program.ServiceProvider;
-        _logger = services.GetRequiredService<IBeaconLogger<EditInstanceViewModel>>();
-        _launcherStore = services.GetRequiredService<ILauncherStore>();
-        
-        Instance = instance;
-        Mods = new EditInstanceViewModel_Mods(this);
-        ResourcePacks = new EditInstanceViewModel_ResourcePacks(this);
-        Screenshots = new EditInstanceViewModel_Screenshots(this);
-        Servers = new EditInstanceViewModel_Servers(this);
-        Settings = new EditInstanceViewModel_Settings(this);
-        ShaderPacks = new EditInstanceViewModel_ShaderPacks(this);
-        Worlds = new EditInstanceViewModel_Worlds(this);
         _  = InitAsync().ContinueWith(t =>
         {
             if (t.IsFaulted)
@@ -126,7 +151,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         base.Dispose(disposing);
         _logger.LogDebug("Freeing memory in EditInstanceViewModel...");
         IsClosing = true;
-        GlobalEvents.OnInstanceLogged -= OnInstanceLogged;
+        _eventService.OnInstanceLogged -= OnInstanceLogged;
         
         Accounts.Clear();
         
@@ -171,14 +196,17 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         IsInitialized = true;
         Accounts = [];
         foreach (var account in accountData.Accounts)
-            Accounts.Add(new AccountModel(account, account.Id == accountData.SelectedAccountId));
+            Accounts.Add(new AccountModel(account, account.Id == accountData.SelectedAccountId, _encryptionService));
         
 
         // Logging setup
-        GlobalEvents.OnInstanceLogged += OnInstanceLogged;
-        var logs = GlobalEvents.GetInstanceLogs(Instance.Id);
+        _eventService.OnInstanceLogged += OnInstanceLogged;
+        var logs = _eventService.GetInstanceLogs(Instance.Id);
         if (!string.IsNullOrEmpty(logs))
-            Logs.AddRange(logs.Split(Environment.NewLine));
+        {
+            foreach (var line in logs.Split(Environment.NewLine))
+                Logs.Add(line);
+        }
 
         // TODO: Performanc issue - initializing all tabs together can make the edit window open slowly.
         await Task.WhenAll(
@@ -246,7 +274,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     private void ClearLogs()
     {
         Logs.Clear();
-        GlobalEvents.CleareInstanceLogs(Instance.Id);
+        _eventService.CleareInstanceLogs(Instance.Id);
     }
 
     #endregion

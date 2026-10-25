@@ -26,7 +26,10 @@ using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services;
+using Tavstal.KonkordLauncher.Desktop.Services.Localization;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 using ImageHelper = Tavstal.KonkordLauncher.Desktop.Helpers.ImageHelper;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.MainView;
@@ -41,7 +44,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
     private readonly IBitmapService _bitmapService = null!;
     private readonly IEventService _eventService = null!;
     private readonly IEncryptionService _encryptionService = null!;
-    private readonly MainViewModel _parent;
+    private readonly MainViewModel? _parent;
 
     [ObservableProperty]
     public partial BitmapEntry AccountAvatar { get; set; }
@@ -68,9 +71,17 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
 
     public string AccountName => SelectedAccount != null
         ? SelectedAccount.DisplayName
-        : _translationService.Translate("main.sidebar.accounts.guest");
+        : Design.IsDesignMode
+            ? "Guest"
+            : _translationService.Translate("main.sidebar.accounts.guest");
 
     public bool IsMojangAccount => SelectedAccount is { Type: EAccountType.MICROSOFT };
+
+    public MainViewModel_Accounts()
+    {
+        _parent = null!;
+        AccountAvatar = ImageHelper.LoadDesignTime("avares://KonkordLauncher/Assets/Images/Placeholders/steve_head.png");
+    }
 
     public MainViewModel_Accounts(MainViewModel parent, ILauncherStore launcherStore, ITranslationService translationService,
         IMicrosoftAuthService microsoftAuthService, IMojangSkinService mojangSkinService, IBitmapService bitmapService,
@@ -79,7 +90,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         _parent = parent;
         if (Design.IsDesignMode)
         {
-            AccountAvatar = ImageHelper.LoadDesignTime("avares://KonkordLauncher/Assets/Images/placeholders/steve_head.png");
+            AccountAvatar = ImageHelper.LoadDesignTime("avares://KonkordLauncher/Assets/Images/Placeholders/steve_head.png");
             return;
         }
 
@@ -92,7 +103,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         _eventService = eventService;
         _encryptionService = encryptionService;
 
-        AccountAvatar = _bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Images/placeholders/steve_head.png");
+        AccountAvatar = _bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Images/Placeholders/steve_head.png");
     }
 
     /// <summary>
@@ -138,6 +149,8 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
     [RelayCommand]
     private async Task AddAccountBtnAsync()
     {
+        if (_parent == null)
+            return;
         await _parent.ShowAccountsDialogInteraction.Handle(Unit.Default);
     }
 
@@ -176,7 +189,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             if (_authService.AuthStatus != EAuthStatus.NONE)
                 return;
 
-            if (account.AccessTokenExpireDate > DateTime.Now)
+            if (account.AccessTokenExpireDate > DateTime.UtcNow)
                 return;
 
             if (!await _authService.RefreshLoginAsync(refreshToken, cancellationToken))
@@ -239,6 +252,9 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
     [RelayCommand]
     private async Task SkinUpload(CancellationToken  cancellationToken = default)
     {
+        if (_parent == null)
+            return;
+
         try
         {
             // Prevent re-uploading while processing
@@ -294,6 +310,9 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
     [RelayCommand]
     private async Task SkinSelect(SkinDataModel model, CancellationToken cancellationToken = default)
     {
+        if (_parent == null)
+            return;
+
         try
         {
             // Prevent re-selecting the same skin
@@ -365,6 +384,9 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
     [RelayCommand]
     private async Task CapeSelect(CapeDataModel model, CancellationToken cancellationToken = default)
     {
+        if (_parent == null)
+            return;
+
         try
         {
             // Prevent re-selecting the same cape
@@ -435,6 +457,9 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
     [RelayCommand]
     private async Task ModelSelect(string model, CancellationToken cancellationToken = default)
     {
+        if (_parent == null)
+            return;
+
         try
         {
             bool newValue = model == "classic";
@@ -543,11 +568,11 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         {
             List<SkinDataModel> skinCopies = Skins.ToList();
             foreach (SkinDataModel skin in skinCopies)
-                skin.Dispose();
+                skin.Dispose(_bitmapService);
             Skins.Clear();
             List<CapeDataModel> capeCopies = Capes.ToList();
             foreach (CapeDataModel cape in capeCopies)
-                cape.Dispose();
+                cape.Dispose(_bitmapService);
             Capes.Clear();
         }
 
@@ -589,7 +614,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             BitmapEntry noCapeImg = new BitmapEntry(null, null);
             try
             {
-                noCapeImg = await _bitmapService.GetBitmapAsync("avares://KonkordLauncher/Assets/Images/placeholders/no_cape.png");
+                noCapeImg = await _bitmapService.GetBitmapAsync("avares://KonkordLauncher/Assets/Images/Placeholders/no_cape.png");
             }
             catch (Exception ex)
             {
@@ -654,7 +679,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
 
         AccountAvatar = File.Exists(avatarPath)
             ? await _bitmapService.GetBitmapAsync(avatarPath)
-            : await _bitmapService.GetBitmapAsync("avares://KonkordLauncher/Assets/Images/placeholders/steve_head.png");
+            : await _bitmapService.GetBitmapAsync("avares://KonkordLauncher/Assets/Images/Placeholders/steve_head.png");
     }
 
     /// <summary>
@@ -683,6 +708,9 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
     /// <param name="newValue">The new AccountDataModel instance.</param>
     partial void OnAccountDataChanged(AccountDataModel? oldValue, AccountDataModel newValue)
     {
+        if (_parent == null)
+            return;
+
         if (_parent.IsLoading || !_parent.Initialization.IsCompletedSuccessfully)
             return;
 
@@ -703,6 +731,9 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
     /// <param name="e">The event data containing the name of the changed property.</param>
     private void OnChildAccountDataPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
+        if (_parent == null)
+            return;
+
         if (_parent.IsLoading || !_parent.Initialization.IsCompletedSuccessfully)
             return;
 

@@ -13,16 +13,16 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DynamicData;
 using Microsoft.Extensions.DependencyInjection;
-using ReactiveUI;
-using ReactiveUI.Primitives;
 using Tavstal.BeaconSDK.Helpers.IO;
 using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
@@ -41,6 +41,12 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
     public partial string SearchQuery { get; set; } = string.Empty;
 
     [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    public EditInstanceViewModel_ShaderPacks()
+    {
+        _parent = null!;
+        FilteredShaderPacks = new ReadOnlyObservableCollection<ResourceBaseModel>(new ObservableCollection<ResourceBaseModel>());
+    }
+
     public EditInstanceViewModel_ShaderPacks(EditInstanceViewModel parent)
     {
         _parent = parent;
@@ -60,7 +66,7 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
         // Connect the cache to the reactive filter and bind results
         var subscription =  _shaderPackCache.Connect()
             .Filter(filter)
-            .ObserveOn(RxSchedulers.MainThreadScheduler)
+            .ObserveOnMainThread()
             .Bind(out var shaders)
             .Subscribe();
 
@@ -73,6 +79,9 @@ public partial class EditInstanceViewModel_ShaderPacks  : KonkordObservableObjec
     public EditInstanceViewModel_ShaderPacks(EditInstanceViewModel parent, ILauncherStore launcherStore,
         IBitmapService bitmapService) : this(parent)
     {
+        if (Design.IsDesignMode)
+            return;
+
         _logger = Program.Services.GetRequiredService<IBeaconLogger<EditInstanceViewModel_ShaderPacks>>();
         _launcherStore = launcherStore;
         _bitmapService = bitmapService;

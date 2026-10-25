@@ -43,6 +43,15 @@ public partial class AlertViewModel : KonkordObservableObject
     /// <param name="title">Alert dialog title.</param>
     /// <param name="message">Alert dialog message body.</param>
     /// <param name="type">The alert type that controls styling and button visibility.</param>
+    public AlertViewModel()
+    {
+        Title = "Design Time Title";
+        Message = "This is a design time message.";
+        AlertType = EAlertType.Info;
+        GetIcon = string.Empty;
+        GetIconColor = string.Empty;
+    }
+
     public AlertViewModel(string title, string message, EAlertType type)
     {
         Title = title;

@@ -3,12 +3,13 @@ using System.IO;
 using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Tavstal.BeaconSDK.Helpers.IO;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
@@ -21,6 +22,11 @@ public partial class EditInstanceViewModel_Screenshots  : KonkordObservableObjec
     [ObservableProperty]
     public partial ScreenshotModel? SelectedScreenshot { get; set; }
 
+    public EditInstanceViewModel_Screenshots()
+    {
+        _parent = null!;
+    }
+
     public EditInstanceViewModel_Screenshots(EditInstanceViewModel parent)
     {
         _parent = parent;
@@ -28,6 +34,9 @@ public partial class EditInstanceViewModel_Screenshots  : KonkordObservableObjec
 
     public EditInstanceViewModel_Screenshots(EditInstanceViewModel parent, IBitmapService bitmapService) : this(parent)
     {
+        if (Design.IsDesignMode)
+            return;
+
         _bitmapService = bitmapService;
     }
 

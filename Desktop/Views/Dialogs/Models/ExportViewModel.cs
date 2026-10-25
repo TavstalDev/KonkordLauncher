@@ -13,8 +13,8 @@ using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs.Package;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
-using Tavstal.KonkordLauncher.Desktop.Services.Implementations;
+using Tavstal.KonkordLauncher.Desktop.Services.Instances;
+using Tavstal.KonkordLauncher.Desktop.Services.Localization;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
@@ -54,10 +54,23 @@ public partial class ExportViewModel : KonkordObservableObject
     /// </summary>
     /// <param name="instance">The instance to export; if null or in design mode, the ViewModel will populate sample data.</param>
     /// <param name="provider">The instance provider which influences export format (e.g. CurseForge).</param>
-    public ExportViewModel(Instance? instance, EInstanceProvider provider)
+    public ExportViewModel()
+    {
+        Provider = EInstanceProvider.MODRINTH;
+        InstanceName = "Design Instance";
+        InstanceVersion = "1.21.1";
+        InstanceSummary = "Design-time instance";
+    }
+
+    public ExportViewModel(Instance? instance, EInstanceProvider provider,
+        ITranslationService translationService, ModrinthPackageService modrinthPackageService,
+        CurseForgePackageService curseForgePackageService)
     {
         Provider = provider;
-        
+        _translationService = translationService;
+        _modrinthPackageService = modrinthPackageService;
+        _curseForgePackageService = curseForgePackageService;
+
         if (Design.IsDesignMode || instance == null) // Both indicates design mode
         {
             Items =
@@ -92,11 +105,6 @@ public partial class ExportViewModel : KonkordObservableObject
             ];
             return;
         }
-        
-        var services = Program.ServiceProvider;
-        _translationService = services.GetRequiredService<ITranslationService>();
-        _modrinthPackageService = services.GetRequiredService<ModrinthPackageService>();
-        _curseForgePackageService = services.GetRequiredService<CurseForgePackageService>();
         
         Instance = instance;
         InstanceName = instance.Name;

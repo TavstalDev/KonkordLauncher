@@ -14,20 +14,20 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 /// </summary>
 public partial class JavaSelectorWindow : KonkordWindow<JavaSelectorViewModel>
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="JavaSelectorWindow"/> class.
-    /// Sets up the data context and handles language changes.
-    /// </summary>
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public JavaSelectorWindow()
     {
         InitializeComponent();
+    }
 
-        DataContext = new JavaSelectorViewModel();
-        
+    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    public JavaSelectorWindow(JavaSelectorViewModel viewModel)
+    {
+        InitializeComponent();
+        DataContext = viewModel;
+
         if (Design.IsDesignMode)
             return;
-        
+
         this.WhenActivated(disposables =>
         {
             DataContext.CloseWindowInteraction.RegisterHandler(action =>

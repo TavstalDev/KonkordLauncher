@@ -12,11 +12,11 @@ using Tavstal.BeaconSDK.Models.Accounts;
 using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
-using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs.InstanceConfig;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
 using JavaVersionModel = Tavstal.KonkordLauncher.Desktop.Models.Domain.JavaVersionModel;
@@ -30,7 +30,8 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
 {
     private readonly IBeaconLogger _logger = null!;
     private readonly IEventService _eventService = null!;
-    private readonly string _instanceId;
+    private readonly IDiscordPresenceService _discordPresenceService = null!;
+    private readonly string _instanceId = null!;
     private Button _selectedInstanceTab;
     private Button _selectedSettingsTab;
 
@@ -38,24 +39,33 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     /// Initializes a new instance of the <see cref="EditInstanceWindow"/> class.
     /// Sets up the data context with an empty instance ID and initializes components.
     /// </summary>
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public EditInstanceWindow() : this(null!) { }
-
     /// <summary>
     /// Initializes a new instance of the <see cref="EditInstanceWindow"/> class with a specific instance ID.
     /// Sets up the data context, initializes components, and registers reactive handlers.
     /// </summary>
-    /// <param name="instance">The instance model to be edited in this window.</param>
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public EditInstanceWindow(InstanceModel instance)
+    public EditInstanceWindow()
     {
         InitializeComponent();
-
-        _instanceId = Design.IsDesignMode ? string.Empty : instance.Id;
-
-        DataContext = new EditInstanceViewModel(instance);
         _selectedInstanceTab = LogsTabBtn;
         _selectedSettingsTab = JavaSettingsBtn;
+    }
+
+    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    public EditInstanceWindow(EditInstanceViewModel viewModel, IBeaconLogger<EditInstanceWindow> logger,
+        IEventService eventService, IWindowFactory windowFactory, IDiscordPresenceService discordPresenceService)
+    {
+        InitializeComponent();
+        _selectedInstanceTab = LogsTabBtn;
+        _selectedSettingsTab = JavaSettingsBtn;
+
+        if (Design.IsDesignMode)
+            return;
+
+        _logger = logger;
+        _eventService = eventService;
+        _discordPresenceService = discordPresenceService;
+        _instanceId = viewModel.Instance.Id;
+        DataContext = viewModel;
 
         this.WhenActivated(disposables =>
         {
@@ -90,7 +100,7 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
             }).DisposeWith(disposables);
             DataContext.ShowJavaPathSelector.RegisterHandler(async action =>
             {
-                var window = new JavaSelectorWindow();
+                var window = windowFactory.CreateJavaSelectorWindow();
                 var javaVersion = await window.ShowDialog<JavaVersionModel>(this);
                 action.SetOutput(javaVersion);
             });
@@ -124,7 +134,7 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
             }).DisposeWith(disposables);
             DataContext.OpenResourceDownloadDialog.RegisterHandler(async action =>
             {
-                var dialog = new ResourceDownloadWindow(DataContext.Instance.getInstance(), action.Input);
+                var dialog = windowFactory.CreateResourceDownloadWindow(DataContext.Instance.getInstance(), action.Input);
                 var result = await dialog.ShowDialog<bool?>(this);
                 if (result == true)
                 {
@@ -152,15 +162,6 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
         });
     }
 
-    [RequiresUnreferencedCode(
-        "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public EditInstanceWindow(IBeaconLogger<EditInstanceWindow> logger, IEventService eventService,
-        InstanceModel instance) : this(instance)
-    {
-        _logger = logger;
-        _eventService = eventService;
-    }
-
     /// <summary>
     /// Called when the window is opened.
     /// Updates the Rich Presence status to indicate that an instance is being edited.
@@ -169,7 +170,7 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     protected override void OnOpened(EventArgs e)
     {
         base.OnOpened(e);
-        App.UpdateRPC("Editing instance...");
+        _discordPresenceService.Update("Editing instance...");
     }
 
     /// <summary>
@@ -180,7 +181,7 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     protected override void OnClosed(EventArgs e)
     {
         base.OnClosed(e);
-        App.UpdateRPC("Browsing instances...");
+        _discordPresenceService.Update("Browsing instances...");
         _eventService.RaiseInstanceUpdated(_instanceId);
     }
 

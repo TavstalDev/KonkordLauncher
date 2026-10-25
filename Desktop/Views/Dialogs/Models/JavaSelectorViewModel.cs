@@ -5,7 +5,7 @@ using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Tavstal.BeaconSDK.Services.Abstractions;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 using JavaVersionModel = Tavstal.KonkordLauncher.Desktop.Models.Domain.JavaVersionModel;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
@@ -42,13 +42,18 @@ public partial class JavaSelectorViewModel : ObservableObject
     {
         Versions = [];
         SelectedJavaVersion = null;
-        
+    }
+
+    public JavaSelectorViewModel(ILauncherStore launcherStore, IJavaService javaService)
+    {
+        Versions = [];
+        SelectedJavaVersion = null;
+
         if (Design.IsDesignMode)
             return;
-        
-        var services = Program.ServiceProvider;
-        _launcherStore = services.GetRequiredService<ILauncherStore>();
-        _javaService = services.GetRequiredService<IJavaService>();
+
+        _launcherStore = launcherStore;
+        _javaService = javaService;
 
         _ = InitAsync();
     }

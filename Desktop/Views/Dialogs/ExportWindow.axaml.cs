@@ -5,9 +5,7 @@ using Avalonia.Controls;
 using ReactiveUI;
 using ReactiveUI.Primitives;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
-using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
-using Tavstal.KonkordLauncher.Desktop.Models.Enums;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services.Localization;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
@@ -17,29 +15,20 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 /// </summary>
 public partial class ExportWindow : KonkordWindow<ExportViewModel>
 {
-    /// <summary>
-    /// Default ctor that initializes the window for preview/design use.
-    /// </summary>
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public ExportWindow() : this(null, EInstanceProvider.MODRINTH) { }
-    
-    /// <summary>
-    /// Creates a new <see cref="ExportWindow"/> bound to the provided <see cref="Instance"/> and provider.
-    /// Sets up activation handlers that connect ViewModel interactions to actual UI behavior.
-    /// </summary>
-    /// <param name="instance">The instance to export (maybe null for design-time).</param>
-    /// <param name="provider">The provider which influences export format (e.g. CurseForge or Modrinth).</param>
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public ExportWindow(Instance? instance, EInstanceProvider provider)
+    public ExportWindow()
     {
         InitializeComponent();
-        DataContext = new ExportViewModel(instance, provider);
-        
+    }
+
+    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    public ExportWindow(ExportViewModel viewModel, ITranslationService translationService)
+    {
+        InitializeComponent();
+
         if (Design.IsDesignMode)
             return;
-        
-        var services = Program.ServiceProvider;
-        var translationService = services.GetRequiredService<ITranslationService>();
+
+        DataContext = viewModel;
 
         this.WhenActivated(disposables =>
         {

@@ -9,7 +9,7 @@ using ReactiveUI.Primitives;
 using Tavstal.BeaconSDK.Models;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services.Localization;
 using Tavstal.KonkordLauncher.Desktop.Translation;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
@@ -23,24 +23,23 @@ public partial class ProgressWindow : KonkordWindow<ProgressViewModel>, IKonkord
 {
     private readonly ITranslationService _translationService = null!;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ProgressWindow"/> class.
-    /// </summary>
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public ProgressWindow() : this(null) { }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ProgressWindow"/> class.
-    /// </summary>
-    /// <param name="cancellationTokenSource">An optional cancellation token source to allow cancellation of the installation process.</param>
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public ProgressWindow(CancellationTokenSource? cancellationTokenSource)
+    public ProgressWindow()
     {
         InitializeComponent();
-        DataContext = new ProgressViewModel(cancellationTokenSource);
+        if (Design.IsDesignMode)
+            DataContext = new ProgressViewModel();
+    }
+
+    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    public ProgressWindow(ITranslationService translationService, CancellationTokenSource? cancellationTokenSource)
+    {
+        InitializeComponent();
 
         if (Design.IsDesignMode)
             return;
+
+        _translationService = translationService;
+        DataContext = new ProgressViewModel(cancellationTokenSource);
 
         this.WhenActivated(disposables =>
         {
@@ -51,13 +50,6 @@ public partial class ProgressWindow : KonkordWindow<ProgressViewModel>, IKonkord
                 return Task.CompletedTask;
             }).DisposeWith(disposables);
         });
-    }
-
-    [RequiresUnreferencedCode(
-        "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public ProgressWindow(ITranslationService translationService, CancellationTokenSource? cancellationTokenSource) : this(cancellationTokenSource)
-    {
-        _translationService = translationService;
     }
 
     #region  IProgressReporter Implementation
@@ -91,6 +83,16 @@ public partial class ProgressWindow : KonkordWindow<ProgressViewModel>, IKonkord
                 return;
             DataContext.ProgressValue = progress;
             DataContext.ProgressText = _translationService.Translate(TranslationHelper.GetProgressKey(kind), progress.ToString("0.00"));
+        });
+    }
+
+    public void Report(string key)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (DataContext == null)
+                return;
+            DataContext.ProgressText = _translationService.Translate(key);
         });
     }
 

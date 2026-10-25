@@ -14,8 +14,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DynamicData;
 using Microsoft.Extensions.DependencyInjection;
-using ReactiveUI;
-using ReactiveUI.Primitives;
 using Tavstal.BeaconSDK.Helpers.IO;
 using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Services.Abstractions;
@@ -24,7 +22,8 @@ using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
@@ -42,6 +41,12 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
     public partial ResourceBaseModel? SelectedResourcePack { get; set; }
     [ObservableProperty]
     public partial string SearchQuery { get; set; } = string.Empty;
+
+    public EditInstanceViewModel_ResourcePacks()
+    {
+        _parent = null!;
+        FilteredResourcePacks = new ReadOnlyObservableCollection<ResourceBaseModel>(new ObservableCollection<ResourceBaseModel>());
+    }
 
     [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public EditInstanceViewModel_ResourcePacks(EditInstanceViewModel parent)
@@ -63,7 +68,7 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
         // Connect the cache to the reactive filter and bind results
         var subscription = _resourcePackCache.Connect()
             .Filter(filter)
-            .ObserveOn(RxSchedulers.MainThreadScheduler)
+            .ObserveOnMainThread()
             .Bind(out var packs)
             .Subscribe();
 
@@ -75,6 +80,9 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public EditInstanceViewModel_ResourcePacks(EditInstanceViewModel parent, ILauncherStore launcherStore, IBitmapService bitmapService) : this(parent)
     {
+        if (Design.IsDesignMode)
+            return;
+
         _logger = Program.Services.GetRequiredService<IBeaconLogger<EditInstanceViewModel_ResourcePacks>>();
         _launcherStore = launcherStore;
         _bitmapService = bitmapService;

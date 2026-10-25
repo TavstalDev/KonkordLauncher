@@ -37,6 +37,11 @@ public partial class InputViewModel : ObservableObject
     /// Initializes a new instance of the <see cref="InputViewModel"/> class with the specified title.
     /// </summary>
     /// <param name="title">The title to be displayed in the input dialog.</param>
+    public InputViewModel()
+    {
+        Title = "Design Time Title";
+    }
+
     public InputViewModel(string title)
     {
         Title = title;

@@ -5,7 +5,6 @@ using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
-using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,8 +15,11 @@ using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
-using Tavstal.KonkordLauncher.Desktop.Services.Implementations;
+using Tavstal.KonkordLauncher.Desktop.Services;
+using Tavstal.KonkordLauncher.Desktop.Services.Instances;
+using Tavstal.KonkordLauncher.Desktop.Services.Localization;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.CreateInstance;
 
@@ -30,7 +32,7 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
     private readonly IEventService _eventService = null!;
     private readonly ModrinthPackageService _modrinthPackageService = null!;
     private readonly CreateInstanceViewModel _parent;
-    private readonly Screen  _screen;
+    private readonly IScreenService _screenService = null!;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsSourceFromFile))]
@@ -53,14 +55,20 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
     [ObservableProperty]
     public partial string ImportPreviewModLoader { get; set; } = "---";
 
-    public CreateInstanceViewModel_Import(CreateInstanceViewModel parent, Screen screen, ILauncherStore launcherStore, ITranslationService translationService,
+    public CreateInstanceViewModel_Import()
+    {
+        _parent = null!;
+        _screenService = null!;
+    }
+
+    public CreateInstanceViewModel_Import(CreateInstanceViewModel parent, IScreenService screenService, ILauncherStore launcherStore, ITranslationService translationService,
         IHttpService httpService, IEventService eventService, ModrinthPackageService modrinthPackageService)
     {
         _parent = parent;
-        _screen = screen;
         if (Design.IsDesignMode)
             return;
 
+        _screenService = screenService;
         _logger = Program.Services.GetRequiredService<IBeaconLogger<CreateInstanceViewModel_Import>>();
         _httpService = httpService;
         _translationService = translationService;
@@ -151,7 +159,7 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
             return;
         }
 
-        if (await _modrinthPackageService.ImportAsync(ImportPath, new Resolution { X = (uint)_screen.Bounds.Width, Y = (uint)_screen.Bounds.Height },
+        if (await _modrinthPackageService.ImportAsync(ImportPath, new Resolution { X = (uint)_screenService.ScreenSize.Width, Y = (uint)_screenService.ScreenSize.Height },
                 null, null, null, _parent, cancellationToken) != null )
         {
             //_parent.CloseReporter();
@@ -199,7 +207,7 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
             await _httpService.DownloadFileAsync(ImportPath, tempPath, null, progress, cancellationToken);
             //_parent.CloseReporter();
 
-            if (await _modrinthPackageService.ImportAsync(tempPath, new Resolution { X = (uint)_screen.Bounds.Width, Y = (uint)_screen.Bounds.Height },
+            if (await _modrinthPackageService.ImportAsync(tempPath, new Resolution { X = (uint)_screenService.ScreenSize.Width, Y = (uint)_screenService.ScreenSize.Height },
                     null, null, null, _parent, cancellationToken) != null)
             {
                 //_parent.CloseReporter();

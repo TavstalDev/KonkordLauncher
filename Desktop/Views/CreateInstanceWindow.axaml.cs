@@ -7,10 +7,10 @@ using Avalonia.Interactivity;
 using Avalonia.Threading;
 using ReactiveUI;
 using ReactiveUI.Primitives;
-using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services.Localization;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
 
@@ -21,10 +21,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 /// </summary>
 public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewModel>
 {
-    private readonly IBeaconLogger _logger = null!;
-    private readonly ILauncherStore _launcherStore = null!;
-    private readonly ITranslationService _translationService = null!;
-    private readonly IManifestService _manifestService = null!;
+    private readonly IDiscordPresenceService _discordPresenceService = null!;
     private Button _selectedTabBtn;
     private Button _selectedImportTypeBtn;
 
@@ -32,17 +29,26 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
     /// Initializes a new instance of the <see cref="CreateInstanceWindow"/> class.
     /// Sets up the data context, initializes components, and registers reactive handlers.
     /// </summary>
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public CreateInstanceWindow()
     {
         InitializeComponent();
+        _selectedTabBtn = CustomTabBtn;
+        _selectedImportTypeBtn = ImportFromFileTabBtn;
+    }
 
-        DataContext = new CreateInstanceViewModel(_launcherStore, _translationService, _manifestService);
+    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    public CreateInstanceWindow(CreateInstanceViewModel viewModel, ITranslationService translationService,
+        IWindowFactory windowFactory, IDiscordPresenceService discordPresenceService)
+    {
+        InitializeComponent();
         _selectedTabBtn = CustomTabBtn;
         _selectedImportTypeBtn = ImportFromFileTabBtn;
 
         if (Design.IsDesignMode)
             return;
+
+        DataContext = viewModel;
+        _discordPresenceService = discordPresenceService;
 
         this.WhenActivated(disposables =>
         {
@@ -72,51 +78,33 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
             }).DisposeWith(disposables);
             DataContext.ShowIconSelectorInteraction.RegisterHandler(async action =>
             {
-                IconSelectorWindow window = new();
+                IconSelectorWindow window = windowFactory.CreateIconSelectorWindow();
                 var result = await window.ShowDialog<string?>(this);
                 action.SetOutput(result);
             }).DisposeWith(disposables);
             DataContext.ShowFileSelectorInteraction.RegisterHandler(async action =>
             {
-                string title = _translationService.Translate("common.select.file");
+                string title = translationService.Translate("common.select.file");
                 string? result = await OpenFilePickerAsync(title, ".zip, .mrpack, .json", ["*.zip", "*.mrpack", "*.json"]);
                 action.SetOutput(result);
             }).DisposeWith(disposables);
         });
     }
 
-    [RequiresUnreferencedCode(
-        "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public CreateInstanceWindow(IBeaconLogger<CreateInstanceWindow> logger, ILauncherStore launcherStore,
-        ITranslationService translationService, IManifestService manifestService) : this()
-    {
-        _logger = logger;
-        _launcherStore = launcherStore;
-        _translationService = translationService;
-        _manifestService = manifestService;
-    }
-
     #region Events
-    /// <summary>
-    /// Called when the window is opened.
-    /// Updates the Rich Presence status to indicate that an instance is being created.
-    /// </summary>
-    /// <param name="e">The event arguments for the opened event.</param>
+
+    /// <inheritdoc/>
     protected override void OnOpened(EventArgs e)
     {
         base.OnOpened(e);
-        _ = Task.Run(() => App.UpdateRPC("Creating instance..."));
+        _discordPresenceService.Update("Creating instance...");
     }
 
-    /// <summary>
-    /// Called when the window is closed.
-    /// Updates the Rich Presence status to indicate that the user is browsing instances.
-    /// </summary>
-    /// <param name="e">The event arguments for the closed event.</param>
+    /// <inheritdoc/>
     protected override void OnClosed(EventArgs e)
     {
         base.OnClosed(e);
-        _ = Task.Run(() => App.UpdateRPC("Browsing instances..."));
+        _discordPresenceService.Update("Browsing instances...");
     }
 
     /// <summary>

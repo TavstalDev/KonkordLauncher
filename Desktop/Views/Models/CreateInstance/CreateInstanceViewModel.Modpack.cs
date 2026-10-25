@@ -7,7 +7,6 @@ using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
-using Avalonia.Platform;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -22,8 +21,12 @@ using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
-using Tavstal.KonkordLauncher.Desktop.Services.Implementations;
+using Tavstal.KonkordLauncher.Desktop.Services;
+using Tavstal.KonkordLauncher.Desktop.Services.Content;
+using Tavstal.KonkordLauncher.Desktop.Services.Instances;
+using Tavstal.KonkordLauncher.Desktop.Services.Localization;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.CreateInstance;
 
@@ -38,7 +41,7 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
     private readonly IEventService _eventService = null!;
     private readonly ModrinthPackageService _modrinthPackageService = null!;
     private readonly CreateInstanceViewModel _parent;
-    private readonly Screen _screen;
+    private readonly IScreenService _screenService = null!;
 
     [ObservableProperty]
     public partial bool AllowScrollbarRefresh { get; set; } = false;
@@ -108,17 +111,27 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         EPlatformType.FTB
     ];
 
-    public string ModpackPreview => SelectedModpack == null ? "<p>" + _translationService.Translate("instance.create.modpack.preview.select") +"</p>" : SelectedModpack.RawPage;
+    public string ModpackPreview => SelectedModpack != null
+        ? SelectedModpack.RawPage
+        : Design.IsDesignMode
+            ? "<p>Select a modpack</p>"
+            : "<p>" + _translationService.Translate("instance.create.modpack.preview.select") + "</p>";
 
-    public CreateInstanceViewModel_Modpack(CreateInstanceViewModel parent, Screen screen, ILauncherStore launcherStore,
+    public CreateInstanceViewModel_Modpack()
+    {
+        _parent = null!;
+        _screenService = null!;
+    }
+
+    public CreateInstanceViewModel_Modpack(CreateInstanceViewModel parent, IScreenService screenService, ILauncherStore launcherStore,
         ITranslationService translationService, IHttpService httpService, IMetaCacheService metaCacheService,
         IBitmapService bitmapService, IEventService eventService, ModrinthPackageService modrinthPackageService)
     {
         _parent = parent;
-        _screen = screen;
         if (Design.IsDesignMode)
             return;
 
+        _screenService = screenService;
         _logger = Program.Services.GetRequiredService<IBeaconLogger<CreateInstanceViewModel_Modpack>>();
         _httpService = httpService;
         _translationService = translationService;
@@ -171,7 +184,7 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
                 .OrderByDescending(v => v.DatePublished)
                 .ToList();
 
-            return ModPackModel.FromModrinthProjectAsync(project, projectVersions);
+            return ModPackModel.FromModrinthProjectAsync(project, projectVersions, _metaCacheService);
         });
 
         var results = await Task.WhenAll(tasks);
@@ -230,7 +243,7 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
 
             //_parent.CloseReporter();
 
-            if (await _modrinthPackageService.ImportAsync(tempPath, new Resolution { X = (uint)_screen.Bounds.Width, Y = (uint)_screen.Bounds.Height },
+            if (await _modrinthPackageService.ImportAsync(tempPath, new Resolution { X = (uint)_screenService.ScreenSize.Width, Y = (uint)_screenService.ScreenSize.Height },
                     InstanceName, null, modpack.IconUrl, _parent, cancellationToken) != null)
             {
                 //_parent.CloseReporter();
@@ -273,7 +286,7 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         });
     }
 
-    partial void OnInstanceNameChanged(string? value)
+    partial void OnInstanceNameChanged(string value)
     {
         CanCreateInstance = value != null && !string.IsNullOrEmpty(InstanceName);
     }
@@ -329,7 +342,7 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
                 .OrderByDescending(v => v.DatePublished)
                 .ToList();
 
-            return ModPackModel.FromModrinthProjectAsync(project, projectVersions);
+            return ModPackModel.FromModrinthProjectAsync(project, projectVersions, _metaCacheService);
         });
 
         var results = await Task.WhenAll(tasks);

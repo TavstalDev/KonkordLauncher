@@ -15,7 +15,11 @@ using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services;
+using Tavstal.KonkordLauncher.Desktop.Services.Instances;
+using Tavstal.KonkordLauncher.Desktop.Services.Localization;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 using Tavstal.KonkordLauncher.Desktop.Views.Models.MainView;
 using JavaVersionModel = Tavstal.KonkordLauncher.Desktop.Models.Domain.JavaVersionModel;
 
@@ -26,24 +30,18 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 /// </summary>
 public partial class MainViewModel : KonkordObservableObject
 {
-    private readonly IBeaconLogger _logger = null!;
     private readonly ILauncherStore _launcherStore = null!;
-    private readonly ITranslationService _translationService = null!;
-    private readonly IMicrosoftAuthService _authService = null!;
-    private readonly IMojangSkinService _mojangSkinService = null!;
-    private readonly IBitmapService _bitmapService = null!;
-    private readonly IEventService _eventService = null!;
-    private readonly IEncryptionService _encryptionService = null!;
+    private readonly IScreenService _screenService = null!;
 
     public bool IsLinux { get; } = OSHelper.GetOperatingSystem() == EOperatingSystem.LINUX;
     public DateTime NextCacheRefresh { get; private set; }
     public DateTime NextUpdate { get; private set; }
     public Task Initialization { get; } = null!;
 
-    public MainViewModel_Accounts Accounts { get; }
-    public MainViewModel_About About { get; }
-    public MainViewModel_Config Config { get; }
-    public MainViewModel_Instances Instances { get; }
+    public MainViewModel_Accounts Accounts { get; } = null!;
+    public MainViewModel_About About { get; } = null!;
+    public MainViewModel_Config Config { get; } = null!;
+    public MainViewModel_Instances Instances { get; } = null!;
 
     #region Interactions
 
@@ -81,43 +79,44 @@ public partial class MainViewModel : KonkordObservableObject
     public ObservableCollection<PatchNote> Patches { get; } = new();
     [ObservableProperty] private bool _hasPatches;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="MainViewModel"/> class.
-    /// </summary>
+    public int ScreenWidth => Design.IsDesignMode ? 950 : _screenService.ScreenSize.Width;
+    public int ScreenHeight => Design.IsDesignMode ? 600 : _screenService.ScreenSize.Height;
+
     public MainViewModel()
     {
-        Accounts = new MainViewModel_Accounts(this, _launcherStore, _translationService, _authService,
-            _mojangSkinService, _bitmapService, _eventService, _encryptionService);
-        About = new MainViewModel_About(this);
-        Config = new MainViewModel_Config(this, _launcherStore, _eventService);
-        Instances = new MainViewModel_Instances(this, _launcherStore, _translationService, _eventService);
-
-        if (Design.IsDesignMode)
-            return;
-
-        Initialization = InitAsync();
-        Initialization.ContinueWith(task =>
-        {
-            if (task.IsFaulted)
-                _logger.LogError("Initialization failed: " + task.Exception);
-            else
-                _logger.LogDebug("Initialization completed successfully.");
-        }, TaskScheduler.Default);
+        Accounts = new MainViewModel_Accounts();
+        About = new MainViewModel_About();
+        Config = new MainViewModel_Config();
+        Instances = new MainViewModel_Instances();
     }
 
     public MainViewModel(IBeaconLogger<MainViewModel> logger, ILauncherStore launcherStore,
         ITranslationService translationService, IMicrosoftAuthService microsoftAuthService,
         IMojangSkinService mojangSkinService, IBitmapService bitmapService,
-        IEventService eventService, IEncryptionService encryptionService) : this()
+        IEventService eventService, IEncryptionService encryptionService,
+        IInstanceModelFactory instanceModelFactory, IScreenService screenService)
     {
-        _logger = logger;
+        if (Design.IsDesignMode)
+            return;
+
         _launcherStore = launcherStore;
-        _translationService = translationService;
-        _authService = microsoftAuthService;
-        _mojangSkinService = mojangSkinService;
-        _bitmapService = bitmapService;
-        _eventService = eventService;
-        _encryptionService = encryptionService;
+        _screenService = screenService;
+
+        Accounts = new MainViewModel_Accounts(this, _launcherStore, translationService, microsoftAuthService,
+            mojangSkinService, bitmapService, eventService, encryptionService);
+        About = new MainViewModel_About(this);
+        Config = new MainViewModel_Config(this, _launcherStore, eventService);
+        Instances = new MainViewModel_Instances(this, _launcherStore, translationService, eventService,
+            instanceModelFactory);
+
+        Initialization = InitAsync();
+        Initialization.ContinueWith(task =>
+        {
+            if (task.IsFaulted)
+                logger.LogError("Initialization failed: " + task.Exception);
+            else
+                logger.LogDebug("Initialization completed successfully.");
+        }, TaskScheduler.Default);
     }
 
     public async Task InitAsync(CancellationToken cancellationToken = default)
@@ -175,17 +174,13 @@ public partial class MainViewModel : KonkordObservableObject
     #region Commands
 
     [RelayCommand]
-    public async Task CloseWindow()
+    private async Task CloseWindow()
     {
         await CloseWindowInteraction.Handle(Unit.Default);
     }
 
-    /// <summary>
-    /// Handles the sidebar button click event by changing the current sidebar view.
-    /// </summary>
-    /// <param name="sidebarType">The type of sidebar to switch to.</param>
     [RelayCommand]
-    public async Task HandleSidebarBtn(ESidebarType sidebarType)
+    private async Task HandleSidebarBtn(ESidebarType sidebarType)
     {
         await SwitchSidebarBtnInteraction.Handle(sidebarType);
     }

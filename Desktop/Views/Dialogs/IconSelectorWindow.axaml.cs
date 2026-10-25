@@ -11,7 +11,8 @@ using ReactiveUI.Primitives;
 using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services.Localization;
+using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 using IconSelectorViewModel = Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models.IconSelectorViewModel;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
@@ -24,25 +25,26 @@ public partial class IconSelectorWindow : KonkordWindow<IconSelectorViewModel>
     private readonly IBeaconLogger _logger = null!;
     private readonly ITranslationService _translationService = null!;
     private readonly ILauncherStore _launcherStore = null!;
-    
-    /// <summary>
-    /// Initializes a new instance of the <see cref="IconSelectorWindow"/> class.
-    /// Sets up the DataContext and handles language changes.
-    /// </summary>
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
+
     public IconSelectorWindow()
     {
         InitializeComponent();
-        DataContext = new IconSelectorViewModel();
-        
+    }
+
+    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    public IconSelectorWindow(IconSelectorViewModel viewModel, IBeaconLogger<IconSelectorWindow> logger,
+        ITranslationService translationService, ILauncherStore launcherStore)
+    {
+        InitializeComponent();
+
         if (Design.IsDesignMode)
             return;
-        
-        var services = Program.ServiceProvider;
-        _logger = services.GetRequiredService<IBeaconLogger<IconSelectorWindow>>();
-        _translationService = services.GetRequiredService<ITranslationService>();
-        _launcherStore = services.GetRequiredService<ILauncherStore>();
-        
+
+        DataContext = viewModel;
+        _logger = logger;
+        _translationService = translationService;
+        _launcherStore = launcherStore;
+
         this.WhenActivated(disposables =>
         {
             DataContext.CloseWindowInteraction.RegisterHandler(action =>

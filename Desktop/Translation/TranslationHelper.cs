@@ -1,8 +1,7 @@
 using System;
 using Avalonia.Controls;
 using Tavstal.BeaconSDK.Models;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
-using Tavstal.KonkordLauncher.Desktop.Services.Implementations;
+using Tavstal.KonkordLauncher.Desktop.Services.Localization;
 
 namespace Tavstal.KonkordLauncher.Desktop.Translation;
 

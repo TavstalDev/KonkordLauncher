@@ -11,7 +11,8 @@ using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services.Localization;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using Button = Avalonia.Controls.Button;
 using JavaVersionModel = Tavstal.KonkordLauncher.Desktop.Models.Domain.JavaVersionModel;
@@ -24,18 +25,26 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
 {
     // ReSharper disable once NotAccessedField.Local
     private readonly IBeaconLogger _logger = null!;
-    private readonly ITranslationService _translationService = null!;
+    private readonly IDiscordPresenceService _discordPresenceService = null!;
     private readonly Dictionary<string, InstanceLogsWindow> _logWindows = new();
     private readonly Dictionary<string, EditInstanceWindow> _openEditWindows = new();
     private Button _selectedSideBarButton;
     private Button _selectedSettingsTabButton;
     private Button _selectedAboutTabButton;
 
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public MainWindow()
     {
         InitializeComponent();
+        _selectedSideBarButton = PlaySideBtn;
+        _selectedSettingsTabButton = LauncherSettingsBtn;
+        _selectedAboutTabButton = AboutInfoBtn;
+    }
 
+    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    public MainWindow(MainViewModel viewModel, IBeaconLogger<MainWindow> logger,
+        ITranslationService translationService, IWindowFactory windowFactory, IDiscordPresenceService discordPresenceService)
+    {
+        InitializeComponent();
         _selectedSideBarButton = PlaySideBtn;
         _selectedSettingsTabButton = LauncherSettingsBtn;
         _selectedAboutTabButton = AboutInfoBtn;
@@ -43,7 +52,10 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
         if (Design.IsDesignMode)
             return;
 
-        DataContext = new MainViewModel();
+        _logger = logger;
+        _discordPresenceService = discordPresenceService;
+
+        DataContext = viewModel;
         this.WhenActivated(disposables =>
         {
             DataContext.CloseWindowInteraction.RegisterHandler(action =>
@@ -60,12 +72,12 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
             }).DisposeWith(disposables);
             DataContext.OpenFolderPickerInteraction.RegisterHandler(async action =>
             {
-                var result = await OpenFolderPickerAsync(_translationService.Translate("common.select.directory"));
+                var result = await OpenFolderPickerAsync(translationService.Translate("common.select.directory"));
                 action.SetOutput(result);
             }).DisposeWith(disposables);
             DataContext.OpenImagePickerInteraction.RegisterHandler(async action =>
             {
-                var result = await OpenFilePickerAsync(_translationService.Translate("common.select.file"), "PNGs", ["*.png"]);
+                var result = await OpenFilePickerAsync(translationService.Translate("common.select.file"), "PNGs", ["*.png"]);
                 action.SetOutput(result);
             }).DisposeWith(disposables);
             DataContext.ShowAlertDialogInteraction.RegisterHandler(async action =>
@@ -82,7 +94,7 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
             }).DisposeWith(disposables);
             DataContext.ShowInstanceCreationDialogInteraction.RegisterHandler(async action =>
             {
-                await new CreateInstanceWindow().ShowDialog(this);
+                await windowFactory.CreateCreateInstanceWindow().ShowDialog(this);
                 action.SetOutput(Unit.Default);
             }).DisposeWith(disposables);
             DataContext.ShowInstanceEditDialogInteraction.RegisterHandler(action =>
@@ -98,7 +110,7 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
                             window.WindowState = WindowState.Normal;
                         return Task.CompletedTask;
                     }
-                    EditInstanceWindow editInstanceWindow = new EditInstanceWindow(instance);
+                    EditInstanceWindow editInstanceWindow = windowFactory.CreateEditInstanceWindow(instance);
                     editInstanceWindow.Show(this);
                     _openEditWindows.Add(instance.Id, editInstanceWindow);
                     editInstanceWindow.Closed += (_, _) => _openEditWindows.Remove(instance.Id);
@@ -111,20 +123,20 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
             }).DisposeWith(disposables);
             DataContext.ShowAccountsDialogInteraction.RegisterHandler(async action =>
             {
-                var dialog = new AccountsWindow();
+                var dialog = windowFactory.CreateAccountsWindow();
                 await dialog.ShowDialog(this);
                 action.SetOutput(Unit.Default);
             }).DisposeWith(disposables);
             DataContext.ShowJavaSelectorDialogInteraction.RegisterHandler(async action =>
             {
-                var window = new JavaSelectorWindow();
+                var window = windowFactory.CreateJavaSelectorWindow();
                 var javaVersion = await window.ShowDialog<JavaVersionModel>(this);
                 action.SetOutput(javaVersion);
             }).DisposeWith(disposables);
             DataContext.ShowLogsWindowInteraction.RegisterHandler(action =>
             {
                 string instanceId = action.Input;
-                var window = new InstanceLogsWindow(instanceId);
+                var window = windowFactory.CreateInstanceLogsWindow(instanceId);
                 window.Show();
                 _logWindows[instanceId] = window;
                 action.SetOutput(Unit.Default);
@@ -145,7 +157,7 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
             }).DisposeWith(disposables);
             DataContext.ShowIconSelectorDialogInteraction.RegisterHandler(async action =>
             {
-                var dialog = new IconSelectorWindow();
+                var dialog = windowFactory.CreateIconSelectorWindow();
                 var result = await dialog.ShowDialog<string?>(this);
                 action.SetOutput(result);
             }).DisposeWith(disposables);
@@ -164,56 +176,41 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
             DataContext.ExportModrinthInstanceInteraction.RegisterHandler(async action =>
             {
                 var instance = action.Input;
-                ExportWindow exportWindow = new ExportWindow(instance, EInstanceProvider.MODRINTH);
+                ExportWindow exportWindow = windowFactory.CreateExportWindow(instance, EInstanceProvider.MODRINTH);
                 await exportWindow.ShowDialog(this);
                 action.SetOutput(Unit.Default);
             }).DisposeWith(disposables);
             DataContext.ExportCurseForgeInstanceInteraction.RegisterHandler(async action =>
             {
                 var instance = action.Input;
-                ExportWindow exportWindow = new ExportWindow(instance, EInstanceProvider.CURSE_FORGE);
+                ExportWindow exportWindow = windowFactory.CreateExportWindow(instance, EInstanceProvider.CURSE_FORGE);
                 await exportWindow.ShowDialog(this);
                 action.SetOutput(Unit.Default);
             }).DisposeWith(disposables);
             DataContext.ShowInstanceVersionSelectorInteraction.RegisterHandler(async action =>
             {
                 var instance = action.Input;
-                InstanceVersionSelectorWindow selectorWindow = new InstanceVersionSelectorWindow(instance);
+                InstanceVersionSelectorWindow selectorWindow = windowFactory.CreateInstanceVersionSelectorWindow(instance);
                 var result = await selectorWindow.ShowDialog<bool>(this);
                 action.SetOutput(result);
             }).DisposeWith(disposables);
         });
     }
 
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public MainWindow(IBeaconLogger<MainWindow> logger, ITranslationService translationService) : this()
-    {
-        _logger = logger;
-        _translationService = translationService;
-    }
-
     #region Events
 
-    /// <summary>
-    /// Handles the event when the window is opened. Initializes the Discord RPC client
-    /// and sets the initial presence for the application.
-    /// </summary>
-    /// <param name="e">The event data associated with the window opening.</param>
+    /// <inheritdoc/>
     protected override void OnOpened(EventArgs e)
     {
         base.OnOpened(e);
-        App.UpdateRPC("Browsing instances...");
+        _discordPresenceService.Update("Browsing instances...");
         GC.Collect(2, GCCollectionMode.Forced, blocking: true, compacting: true);
     }
 
-    /// <summary>
-    /// Handles the event when the window is closing. Clears and disposes of the Discord RPC client
-    /// to ensure proper cleanup of resources.
-    /// </summary>
-    /// <param name="e">The event data associated with the window closing.</param>
+    /// <inheritdoc/>
     protected override void OnClosing(WindowClosingEventArgs e)
     {
-        App.ClearRPC();
+        _discordPresenceService.Clear();
         base.OnClosing(e);
     }
 
@@ -232,6 +229,7 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
 
         viewModel.Config.CoreConfig.Launcher.Language = selectedLanguage.TwoLetterCode;
     }
+
     #endregion
 
     /// <summary>
@@ -306,24 +304,13 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
 
         viewModel.CurrentAboutTab = tabType;
         _selectedAboutTabButton.Classes.Remove("SettingsTabBtnActive");
-        switch (tabType)
+        _selectedAboutTabButton = tabType switch
         {
-            case EAboutTab.ABOUT:
-            {
-                _selectedAboutTabButton = AboutInfoBtn;
-                break;
-            }
-            case EAboutTab.CREDITS:
-            {
-                _selectedAboutTabButton = CreditsInfoBtn;
-                break;
-            }
-            case EAboutTab.LICENSE:
-            {
-                _selectedAboutTabButton = LicenseInfoBtn;
-                break;
-            }
-        }
+            EAboutTab.ABOUT => AboutInfoBtn,
+            EAboutTab.CREDITS => CreditsInfoBtn,
+            EAboutTab.LICENSE => LicenseInfoBtn,
+            _ => _selectedAboutTabButton
+        };
         _selectedAboutTabButton.Classes.Add("SettingsTabBtnActive");
     }
 }

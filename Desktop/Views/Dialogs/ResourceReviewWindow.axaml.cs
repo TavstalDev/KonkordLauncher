@@ -6,29 +6,43 @@ using Avalonia.Controls;
 using ReactiveUI;
 using ReactiveUI.Primitives;
 using Tavstal.BeaconSDK.Models;
+using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
+using Tavstal.KonkordLauncher.Desktop.Services.Content;
+using Tavstal.KonkordLauncher.Desktop.Services.Localization;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 public partial class ResourceReviewWindow : KonkordWindow<ResourceReviewViewModel>, IKonkordProgress
 {
-    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public ResourceReviewWindow() : this(null!, EResourceType.MOD, []) {}
+    private readonly IWindowFactory _windowFactory = null!;
+    private ProgressWindow? _installWindow;
+
+    public ResourceReviewWindow()
+    {
+        InitializeComponent();
+    }
 
     [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public ResourceReviewWindow(Instance instance, EResourceType resourceType, List<ResourceDownloadModel> resources)
+    public ResourceReviewWindow(Instance instance, EResourceType resourceType,
+        List<ResourceDownloadModel> resources, IHttpService httpService, ITranslationService translationService,
+        ILauncherStore launcherStore, IMetaCacheService metaCacheService, IWindowFactory windowFactory)
     {
         InitializeComponent();
 
-        DataContext = new ResourceReviewViewModel(instance, resourceType, resources, this);
-
         if (Design.IsDesignMode)
             return;
+
+        _windowFactory = windowFactory;
+        DataContext = new ResourceReviewViewModel(instance, resourceType, resources, this,
+            httpService, translationService, launcherStore, metaCacheService);
 
         this.WhenActivated(disposables =>
         {
@@ -57,7 +71,6 @@ public partial class ResourceReviewWindow : KonkordWindow<ResourceReviewViewMode
     }
 
     #region Progress Reporter
-    private ProgressWindow? _installWindow;
 
     public void Report(double progress)
     {
@@ -89,16 +102,35 @@ public partial class ResourceReviewWindow : KonkordWindow<ResourceReviewViewMode
         _installWindow?.ReportTaskCompleted();
     }
 
+    public void Report(string key)
+    {
+        EnsureWindowExists();
+        _installWindow?.Report(key);
+    }
+
     public void Report(double progress, string key, params object[]? args)
     {
         EnsureWindowExists();
         _installWindow?.Report(progress, key, args);
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
+    public void OpenReporter()
+    {
+        EnsureWindowExists();
+    }
+
+    public void CloseReporter()
+    {
+        _installWindow?.Close();
+        _installWindow = null;
+    }
+
     private void EnsureWindowExists()
     {
-        _installWindow ??= new ProgressWindow();
+        if (_installWindow != null)
+            return;
+
+        _installWindow = _windowFactory.CreateProgressWindow();
         _installWindow.Show();
     }
 

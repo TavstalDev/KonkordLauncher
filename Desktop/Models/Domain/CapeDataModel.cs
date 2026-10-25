@@ -1,33 +1,31 @@
-using System;
 using Avalonia.Media.Imaging;
-using Microsoft.Extensions.DependencyInjection;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
 
 /// <summary>
 /// Lightweight view-model / domain model for a Minecraft cape used by the desktop UI.
 /// Encapsulates the cape identifier, optional alias, a loaded <see cref="Bitmap"/> for display,
-/// and a selection flag. Implements <see cref="IDisposable"/> to release the loaded bitmap resource.
+/// and a selection flag. Dispose releases the loaded bitmap resource.
 /// </summary>
-public class CapeDataModel : IDisposable
+public class CapeDataModel
 {
     /// <summary>
     /// Gets or sets the unique identifier for the cape (corresponds to the Mojang/Cape id).
     /// </summary>
-    public string Id { get; set; }
+    public string Id { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the optional alias for the cape (friendly name or shorthand).
     /// </summary>
-    public string Alias { get; set; }
+    public string Alias { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the loaded bitmap for the cape texture.
     /// May be <c>null</c> if loading failed or has not been performed.
     /// </summary>
-    public BitmapEntry Image { get; set; }
+    public BitmapEntry Image { get; set; } = new(null, null);
 
     /// <summary>
     /// Gets or sets a value indicating whether this cape is currently selected in the UI.
@@ -60,12 +58,11 @@ public class CapeDataModel : IDisposable
     /// Specifically disposes the <see cref="Image"/> bitmap if present.
     /// Calling <see cref="Dispose"/> multiple times is safe.
     /// </summary>
-    public void Dispose()
+    public void Dispose(IBitmapService bitmapService)
     {
         if (Image.IsEmpty())
             return;
 
-        var bitmapService = Program.Services.GetRequiredService<IBitmapService>();
-        bitmapService.Release(Image.Key!);
+        Image.Dispose(bitmapService);
     }
 }

@@ -1,30 +1,28 @@
-using System;
-using Microsoft.Extensions.DependencyInjection;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
 
 /// <summary>
 /// Lightweight model representing a player's skin (or cape) data for UI consumption.
 /// </summary>
-public class SkinDataModel : IDisposable
+public class SkinDataModel
 {
     /// <summary>
     /// Unique identifier for the skin resource (typically the Mojang-provided ID).
     /// </summary>
-    public string Id { get; set; }
+    public string Id { get; set; } = string.Empty;
 
     /// <summary>
     /// Variant of the skin (for example "classic" or "slim"). Mirrors Mojang API naming.
     /// </summary>
-    public string Variant { get; set; }
+    public string Variant { get; set; } = string.Empty;
 
     /// <summary>
     /// Loaded image for the skin. May be null if loading failed or not provided.
     /// Dispose this object when the model is no longer used by calling <see cref="Dispose"/>.
     /// </summary>
-    public BitmapEntry Image { get; set; }
+    public BitmapEntry Image { get; set; } = new(null, null);
 
     /// <summary>
     /// Whether this skin is currently selected in the UI.
@@ -54,12 +52,11 @@ public class SkinDataModel : IDisposable
     /// <summary>
     /// Releases resources held by this model. Disposes the <see cref="Image"/> bitmap if present.
     /// </summary>
-    public void Dispose()
+    public void Dispose(IBitmapService bitmapService)
     {
         if (Image.IsEmpty())
             return;
 
-        var bitmapService = Program.Services.GetRequiredService<IBitmapService>();
-        bitmapService.Release(Image.Key!);
+        Image.Dispose(bitmapService);
     }
 }

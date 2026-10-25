@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reactive;
@@ -11,18 +10,20 @@ using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Tavstal.BeaconSDK.Enums;
-using Tavstal.BeaconSDK.Helpers.Platform;
 using Tavstal.BeaconSDK.Instances;
 using Tavstal.BeaconSDK.Models;
+using Tavstal.BeaconSDK.Models.Config;
 using Tavstal.BeaconSDK.Models.Instance;
 using Tavstal.BeaconSDK.Models.Instance.Config;
 using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Services.Abstractions;
-using Tavstal.BeaconSDK.Services.Implementations;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs.InstanceConfig;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services;
+using Tavstal.KonkordLauncher.Desktop.Services.Localization;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
@@ -40,6 +41,11 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
     private readonly IJavaService _javaService;
     private readonly IInstanceInstallService _installService;
     private readonly IInstanceLaunchService _launchService;
+    private readonly IEventService _eventService;
+    private readonly IEncryptionService _encryptionService;
+    private readonly BeaconConfiguration _beaconConfiguration;
+    private readonly IScreenService _screenService;
+    private readonly IWindowFactory _windowFactory;
     private long _lastReadPosition;
     private FileSystemWatcher? _watcher;
 
@@ -79,7 +85,7 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
     /// Gets or sets the custom version of the instance, if any.
     /// </summary>
     [ObservableProperty]
-    public partial string CustomVersion { get; set; }
+    public partial string? CustomVersion { get; set; }
 
     /// <summary>
     /// Gets or sets the kind of Minecraft associated with the instance.
@@ -122,30 +128,31 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
     public bool IsModded => Kind != EMinecraftKind.VANILLA;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="InstanceModel"/> class.
-    /// </summary>
-    public InstanceModel()
-    {
-        var services = Program.ServiceProvider;
-        _logger = services.GetRequiredService<IBeaconLogger<InstanceModel>>();
-        _launcherStore = services.GetRequiredService<ILauncherStore>();
-        _manifestService = services.GetRequiredService<IManifestService>();
-        _translationService = services.GetRequiredService<ITranslationService>();
-        _javaService = services.GetRequiredService<IJavaService>();
-        _installService = services.GetRequiredService<IInstanceInstallService>();
-        _launchService = services.GetRequiredService<IInstanceLaunchService>();
-        _bitmapService = services.GetRequiredService<IBitmapService>();
-
-        Icon = string.IsNullOrEmpty(IconPath) ? _bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Icons/dirt.png")
-                : _bitmapService.GetBitmap(IconPath);
-    }
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="InstanceModel"/> class using the specified common instance model.
     /// </summary>
     /// <param name="instance">The common instance model to initialize from.</param>
-    public InstanceModel(DTOs.Instance instance) : this()
+    public InstanceModel(DTOs.Instance instance, IBeaconLogger<InstanceModel> logger, ILauncherStore launcherStore,
+        IManifestService manifestService, IBitmapService bitmapService, ITranslationService translationService,
+        IJavaService javaService, IInstanceInstallService installService, IInstanceLaunchService launchService,
+        IEventService eventService, IEncryptionService encryptionService, BeaconConfiguration beaconConfiguration,
+        IScreenService screenService, IWindowFactory windowFactory)
     {
+        _logger = logger;
+        _launcherStore = launcherStore;
+        _manifestService = manifestService;
+        _bitmapService = bitmapService;
+        _translationService = translationService;
+        _javaService = javaService;
+        _installService = installService;
+        _launchService = launchService;
+        _eventService = eventService;
+        _encryptionService = encryptionService;
+        _beaconConfiguration = beaconConfiguration;
+        _screenService = screenService;
+        _windowFactory = windowFactory;
+
+        Icon = bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Icons/dirt.png");
+
         Id = instance.Id;
         Name = instance.Name;
         Group = instance.Group;
@@ -307,65 +314,12 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
             foreach (var cc in customCommands)
                 command.Add(cc);
 
-            // Attempt to force the use of a dedicated GPU if configured
-            var environmentVariables = ConfigModel.EnableEnvironment
-                ? ConfigModel.Environment
-                : [];
-            var gpuInfo = OSHelper.GetDedicatedGpuType();
-            if (ConfigModel.Game.UseDedicatedGpu && gpuInfo != null)
-            {
-                switch (OSHelper.GetOperatingSystem())
-                {
-                    case EOperatingSystem.WINDOWS:
-                    {
-                        switch (gpuInfo.Value.Item1)
-                        {
-                            case "amd":
-                            {
-                                environmentVariables.Add(new("AMD_POWERXPRESS_REQUEST_HIGH_PERFORMANCE", "1"));
-                                break;
-                            }
-                            case "nvidia":
-                            {
-                                environmentVariables.Add(new("__NV_GPU_USE_DISCRETE_GPU", "1"));
-                                break;
-                            }
-                        }
-
-                        break;
-                    }
-                    case EOperatingSystem.LINUX:
-                    {
-                        switch (gpuInfo.Value.Item1)
-                        {
-                            case "amd":
-                            {
-                                environmentVariables.Add(new("DRI_PRIME", "1"));
-                                environmentVariables.Add(new("LIBVA_DRIVER_NAME", "radeonsi"));
-                                environmentVariables.Add(new("VDPAU_DRIVER", "radeonsi"));
-                                break;
-                            }
-                            case "intel":
-                            {
-                                environmentVariables.Add(new("DRI_PRIME", "1"));
-                                break;
-                            }
-                            case "nvidia":
-                            {
-                                environmentVariables.Add(new("__NV_PRIME_RENDER_OFFLOAD", "1"));
-                                environmentVariables.Add(new("__GLX_VENDOR_LIBRARY_NAME", "nvidia"));
-                                break;
-                            }
-                        }
-
-                        break;
-                    }
-                }
-            }
-
             var envDic = new Dictionary<string, string>();
-            foreach (var env in environmentVariables)
-                envDic[env.Key] = env.Value;
+            if (ConfigModel.EnableEnvironment)
+            {
+                foreach (var env in ConfigModel.Environment)
+                    envDic[env.Key] = env.Value;
+            }
 
             // Add custom native libraries if configured
             List<string> nativeLibraries = [];
@@ -395,7 +349,7 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
             );
             var launcherDetails = new LauncherDetails("KonkordLauncher", Program.Version);
             var clientDetails = new ClientDetails(
-                account.GetAccessToken(),
+                Encoding.UTF8.GetString(account.GetAccessToken(_encryptionService)),
                 account.DisplayName,
                 account.Uuid,
                 account.Type !=
@@ -404,10 +358,10 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
             );
             var resolution = new Resolution(
                 ConfigModel.Game.StartMaximized
-                    ? (uint)App.ScreenSize.Width
+                    ? (uint)_screenService.ScreenSize.Width
                     : ConfigModel.Game.WindowWidth,
                 ConfigModel.Game.StartMaximized
-                    ? (uint)App.ScreenSize.Height
+                    ? (uint)_screenService.ScreenSize.Height
                     : ConfigModel.Game.WindowHeight
             );
 
@@ -421,37 +375,26 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
                 throw new InvalidOperationException(
                     $"Minecraft version {gameDetails.MinecraftVersion} not found in manifest.");
 
+            var configuration = new InstanceConfiguration
+            {
+                Version = minecraftVersion,
+                Game = gameDetails,
+                Path = new PathDetails(settings.Launcher.AssetsDirectoryPath, settings.Launcher.CacheDirectoryPath,
+                    settings.Launcher.LibrariesDirectoryPath, settings.Launcher.VersionsDirectoryPath,
+                    nativeLibraries),
+                Launcher = launcherDetails,
+                Client = clientDetails,
+                Resolution = resolution
+            };
+
             gameInstance = Kind switch
             {
-                EMinecraftKind.VANILLA => new MinecraftInstance(Id, minecraftVersion, gameDetails,
-                    new PathDetails(settings.Launcher.AssetsDirectoryPath, settings.Launcher.CacheDirectoryPath,
-                        settings.Launcher.LibrariesDirectoryPath, settings.Launcher.VersionsDirectoryPath,
-                        settings.Launcher.GetVanillaManifestPath(), null, nativeLibraries), launcherDetails,
-                    clientDetails, new BeaconLogger<MinecraftInstance>(_logger.GetLogLevel()), resolution, this),
-                EMinecraftKind.NEOFORGE => new NeoForgeInstance(Id, minecraftVersion, gameDetails,
-                    new PathDetails(settings.Launcher.AssetsDirectoryPath, settings.Launcher.CacheDirectoryPath,
-                        settings.Launcher.LibrariesDirectoryPath, settings.Launcher.VersionsDirectoryPath,
-                        settings.Launcher.GetVanillaManifestPath(), settings.Launcher.GetNeoForgeManifestPath(),
-                        nativeLibraries), launcherDetails, clientDetails,
-                    new BeaconLogger<NeoForgeInstance>(_logger.GetLogLevel()), resolution, this),
-                EMinecraftKind.FORGE => ForgeInstance.GetForgeInstance(Id, minecraftVersion, gameDetails,
-                    new PathDetails(settings.Launcher.AssetsDirectoryPath, settings.Launcher.CacheDirectoryPath,
-                        settings.Launcher.LibrariesDirectoryPath, settings.Launcher.VersionsDirectoryPath,
-                        settings.Launcher.GetVanillaManifestPath(), settings.Launcher.GetForgeManifestPath(),
-                        nativeLibraries), launcherDetails, clientDetails,
-                    new BeaconLogger<MinecraftInstance>(_logger.GetLogLevel()), resolution, this),
-                EMinecraftKind.FABRIC => new FabricInstance(Id, minecraftVersion, gameDetails,
-                    new PathDetails(settings.Launcher.AssetsDirectoryPath, settings.Launcher.CacheDirectoryPath,
-                        settings.Launcher.LibrariesDirectoryPath, settings.Launcher.VersionsDirectoryPath,
-                        settings.Launcher.GetVanillaManifestPath(), settings.Launcher.GetFabricManifestPath(),
-                        nativeLibraries), launcherDetails, clientDetails,
-                    new BeaconLogger<FabricInstance>(_logger.GetLogLevel()), resolution, this),
-                EMinecraftKind.QUILT => new QuiltInstance(Id, minecraftVersion, gameDetails,
-                    new PathDetails(settings.Launcher.AssetsDirectoryPath, settings.Launcher.CacheDirectoryPath,
-                        settings.Launcher.LibrariesDirectoryPath, settings.Launcher.VersionsDirectoryPath,
-                        settings.Launcher.GetVanillaManifestPath(), settings.Launcher.GetQuiltManifestPath(),
-                        nativeLibraries), launcherDetails, clientDetails,
-                    new BeaconLogger<QuiltInstance>(_logger.GetLogLevel()), resolution, this),
+                EMinecraftKind.VANILLA => new MinecraftInstance(Id, _beaconConfiguration, configuration, _logger, this),
+                EMinecraftKind.NEOFORGE => new NeoForgeInstance(Id, _beaconConfiguration, configuration, _logger, this),
+                EMinecraftKind.FORGE => ForgeInstance.GetForgeInstance(Id, _beaconConfiguration, configuration,
+                    _logger, this),
+                EMinecraftKind.FABRIC => new FabricInstance(Id, _beaconConfiguration, configuration, _logger, this),
+                EMinecraftKind.QUILT => new QuiltInstance(Id, _beaconConfiguration, configuration, _logger, this),
                 _ => gameInstance
             };
 
@@ -470,10 +413,10 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
             }
 
             // Handle Java
-            int requiredJavaVersion = gameInstance.MinecraftVersionMeta.JavaVersionMeta.MajorVersion;
+            int requiredJavaVersion = gameInstance.MinecraftVersionMeta.JavaVersionMeta?.MajorVersion ?? 8;
             cts.ThrowIfCancellationRequested();
-            if (string.IsNullOrWhiteSpace(gameInstance.GameDetails.JavaPath) ||
-                string.IsNullOrEmpty(gameInstance.GameDetails.JavaPath))
+            if (string.IsNullOrWhiteSpace(gameInstance.Config.Game.JavaPath) ||
+                string.IsNullOrEmpty(gameInstance.Config.Game.JavaPath))
             {
                 string? javaPath = await _javaService.GetJavaVersionAsync(requiredJavaVersion, cts);
                 if (string.IsNullOrEmpty(javaPath))
@@ -489,15 +432,15 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
 
                     var prog = new Progress<double>(p =>
                     {
-                        ReportProgress(p);
-                        UpdateStatusTranslated("instance.download.file", $"java {requiredJavaVersion}",
+                        Report(p, "instance.download.file", $"java {requiredJavaVersion}",
                             p.ToString("0.00"));
                     });
 
+                    var mirrorsPath = Path.Combine(settings.Launcher.CacheDirectoryPath, "javaMirrors.json");
                     cts.ThrowIfCancellationRequested();
                     OpenReporter();
                     javaPath = await _javaService.DownloadJavaVersionAsync(requiredJavaVersion,
-                        settings.Launcher.JavaDirectoryPath, prog, cts);
+                        settings.Launcher.JavaDirectoryPath, mirrorsPath, prog, cts);
                     CloseReporter();
                     if (string.IsNullOrEmpty(javaPath))
                     {
@@ -510,14 +453,14 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
                     }
                 }
 
-                gameInstance.GameDetails.JavaPath = javaPath;
+                gameInstance.Config.Game.JavaPath = javaPath;
                 var instances = await _launcherStore.GetInstancesAsync(cts);
                 int instanceIndex = instances.FindIndex(x => x.Id == Id);
                 await UpdateJavaPathAsync(gameInstance, javaPath, instances, instanceIndex);
             }
             else
             {
-                var javaDetails = await _javaService.GetJavaVersionDetailsAsync(gameInstance.GameDetails.JavaPath, cts);
+                var javaDetails = await _javaService.GetJavaVersionDetailsAsync(gameInstance.Config.Game.JavaPath, cts);
                 if (javaDetails == null || javaDetails.Major != requiredJavaVersion)
                 {
                     await showAlertDialog.Handle(new Alert(
@@ -538,7 +481,7 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
 
             GameProcess = process;
             AttachProcessEvent();
-            App.ClearRPC();
+            //App.ClearRPC();
 
             if (ConfigModel.Game.ShowConsoleWhileGameRunning)
             {
@@ -587,13 +530,14 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
     /// <param name="instanceIndex">The index of the current instance in the list.</param>
     private async Task UpdateJavaPathAsync(MinecraftInstance gameInstance, string javaPath, List<DTOs.Instance> instances, int instanceIndex)
     {
-        gameInstance.GameDetails.JavaPath = javaPath;
-        if (instanceIndex >= 0)
-        {
-            instances[instanceIndex].Config.Java.JavaPath = javaPath;
-            await _launcherStore.SaveInstancesAsync(instances);
-        }
-        GlobalEvents.InvokeInstanceUpdated(instances[instanceIndex].Id);
+        gameInstance.Config.Game.JavaPath = javaPath;
+        ConfigModel.Java.JavaPath = javaPath;
+        if (instanceIndex < 0)
+            return;
+
+        instances[instanceIndex].Config.Java.JavaPath = javaPath;
+        await _launcherStore.SaveInstancesAsync(instances);
+        _eventService.RaiseInstanceUpdated(instances[instanceIndex].Id);
     }
 
     /// <summary>
@@ -618,14 +562,14 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
             fs.Seek(_lastReadPosition, SeekOrigin.Begin);
             using var sr = new StreamReader(fs);
             if (_lastReadPosition == 0)
-                GlobalEvents.CleareInstanceLogs(Id);
+                _eventService.CleareInstanceLogs(Id);
 
             var newLines = new StringBuilder();
             while (sr.ReadLine() is { } newLine)
                 newLines.AppendLine(newLine);
 
             string logs = string.Join("\n", newLines);
-            GlobalEvents.InvokeInstanceLogged(Id, logs);
+            _eventService.RaiseInstanceLogged(Id, logs);
             _lastReadPosition = fs.Position;
         }
         catch (IOException ex)
@@ -668,16 +612,35 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
         _installWindow?.ReportTaskCompleted();
     }
 
+    public void Report(string key)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            EnsureWindowExists();
+            _installWindow?.Report(key);
+        });
+    }
+
     public void Report(double progress, string key, params object[]? args)
     {
         EnsureWindowExists();
         _installWindow?.Report(progress, key, args);
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
+    public void OpenReporter()
+    {
+        EnsureWindowExists();
+    }
+
+    public void CloseReporter()
+    {
+        _installWindow?.Close();
+        _installWindow = null;
+    }
+
     private void EnsureWindowExists()
     {
-        _installWindow ??= new ProgressWindow(_cancellationTokenSource);
+        _installWindow ??= _windowFactory.CreateProgressWindow(_cancellationTokenSource);
         _installWindow.Show();
     }
 

@@ -4,14 +4,15 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Platform;
 using Microsoft.Extensions.Hosting;
 using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Services.Abstractions;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 using Tavstal.KonkordLauncher.Desktop.Translation;
 using YamlDotNet.RepresentationModel;
 
-namespace Tavstal.KonkordLauncher.Desktop.Services.Implementations;
+namespace Tavstal.KonkordLauncher.Desktop.Services.Localization;
 
 /// <inheritdoc cref="ITranslationService"/>
 public class TranslationService : ITranslationService, IHostedService
@@ -37,16 +38,35 @@ public class TranslationService : ITranslationService, IHostedService
         _httpService = httpService;
         _launcherStore = launcherStore;
         TranslationHelper.Current = this;
+        LoadDefaultTranslations();
     }
 
-    public async Task StartAsync(CancellationToken cancellationToken)
+    public Task StartAsync(CancellationToken cancellationToken)
     {
-        await using var embeddedStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Tavstal.KonkordLauncher.Assets.Lang.en.yml");
-        if (embeddedStream is null)
-            throw new Exception("Embedded resource not found.");
-        using TextReader reader = new StreamReader(embeddedStream);
-        _defaultTranslations = LoadTranslations(reader);
-        _translations = _defaultTranslations;
+        LoadDefaultTranslations();
+        return Task.CompletedTask;
+    }
+
+    private void LoadDefaultTranslations()
+    {
+        try
+        {
+            using var stream = OpenDefaultTranslationsStream();
+            if (stream is null)
+            {
+                _logger.LogCritical("Default translation resource not found.");
+                return;
+            }
+
+            using TextReader reader = new StreamReader(stream);
+            _defaultTranslations = LoadTranslations(reader);
+            if (_translations.Count == 0)
+                _translations = _defaultTranslations;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogCritical(ex, $"Failed to load default translations: {ex.Message}");
+        }
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
@@ -55,6 +75,19 @@ public class TranslationService : ITranslationService, IHostedService
         return Task.CompletedTask;
     }
 
+
+    private static Stream? OpenDefaultTranslationsStream()
+    {
+        try
+        {
+            return AssetLoader.Open(new Uri("avares://KonkordLauncher/Assets/Lang/en.yml"));
+        }
+        catch
+        {
+            return Assembly.GetExecutingAssembly()
+                .GetManifestResourceStream("Tavstal.KonkordLauncher.Assets.Lang.en.yml");
+        }
+    }
 
     /// <inheritdoc/>
     public async Task ChangeLanguageAsync(string language, CancellationToken cancellationToken = default)
@@ -106,9 +139,14 @@ public class TranslationService : ITranslationService, IHostedService
     /// <inheritdoc/>
     public string Translate(string key)
     {
-        if (!_translations.TryGetValue(key, out var translation) || string.IsNullOrWhiteSpace(translation))
-            return _defaultTranslations[key];
-        return translation;
+        if (_translations.TryGetValue(key, out var translation) && !string.IsNullOrWhiteSpace(translation))
+            return translation;
+
+        if (_defaultTranslations.TryGetValue(key, out translation) && !string.IsNullOrWhiteSpace(translation))
+            return translation;
+
+        _logger.LogWarning($"Missing translation key: {key}");
+        return key;
     }
 
     /// <inheritdoc/>

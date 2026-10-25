@@ -1,13 +1,13 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Reactive;
-using System.Reactive.Disposables.Fluent;
 using System.Threading.Tasks;
 using Avalonia.Controls;
-using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Models;
-using Tavstal.KonkordLauncher.Common.Services.Abstractions;
+using ReactiveUI.Primitives;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
+using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
+using Tavstal.KonkordLauncher.Desktop.Models.Enums;
+using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;

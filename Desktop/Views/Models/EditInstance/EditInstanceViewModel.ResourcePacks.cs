@@ -15,43 +15,41 @@ using CommunityToolkit.Mvvm.Input;
 using DynamicData;
 using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Models;
-using Tavstal.KonkordLauncher.Common.Services.Abstractions;
-using Tavstal.KonkordLauncher.Core.Helpers.IO;
-using Tavstal.KonkordLauncher.Core.Models.Logging;
+using ReactiveUI.Primitives;
+using Tavstal.BeaconSDK.Helpers.IO;
+using Tavstal.BeaconSDK.Models.Logging;
+using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
+using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
+using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
+using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
 public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObject
 {
-    private readonly ICustomLogger _logger = null!;
+    private readonly IBeaconLogger _logger = null!;
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IBitmapService _bitmapService = null!;
     private readonly EditInstanceViewModel _parent;
-    
+
     private readonly SourceCache<ResourceBaseModel, string> _resourcePackCache = new(x => x.Name);
     public ReadOnlyObservableCollection<ResourceBaseModel> FilteredResourcePacks { get; } = null!;
 
     [ObservableProperty]
     public partial ResourceBaseModel? SelectedResourcePack { get; set; }
-    [ObservableProperty] 
+    [ObservableProperty]
     public partial string SearchQuery { get; set; } = string.Empty;
-    
+
     [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public EditInstanceViewModel_ResourcePacks(EditInstanceViewModel parent)
     {
         _parent = parent;
         if (Design.IsDesignMode)
             return;
-        
-        var services = Program.ServiceProvider;
-        _logger = services.GetRequiredService<ICustomLogger<EditInstanceViewModel_ResourcePacks>>();
-        _launcherStore = services.GetRequiredService<ILauncherStore>();
-        _bitmapService = services.GetRequiredService<IBitmapService>();
-        
+
         // Set up a reactive filter for the SearchQuery property.
         var filter = this.WhenAnyValue(x => x.SearchQuery)
             .Select(query =>
@@ -72,7 +70,16 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
         Disposables.Add(subscription);
         FilteredResourcePacks = packs;
     }
-    
+
+    [RequiresUnreferencedCode(
+        "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    public EditInstanceViewModel_ResourcePacks(EditInstanceViewModel parent, ILauncherStore launcherStore, IBitmapService bitmapService) : this(parent)
+    {
+        _logger = Program.Services.GetRequiredService<IBeaconLogger<EditInstanceViewModel_ResourcePacks>>();
+        _launcherStore = launcherStore;
+        _bitmapService = bitmapService;
+    }
+
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
@@ -83,10 +90,13 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
         SelectedResourcePack?.Icon.Dispose(_bitmapService);
         SelectedResourcePack = null;
     }
-    
-    public async Task InitAsync(CancellationToken cancellationToken = default) => await Dispatcher.UIThread.Invoke(async () => await RefreshResourcePacksAsync());
-    
-    
+
+    public async Task InitAsync(CancellationToken cancellationToken = default)
+    {
+        await Dispatcher.UIThread.Invoke(async () => await RefreshResourcePacksAsync());
+    }
+
+
     #region Commands
 
     /// <summary>
@@ -130,7 +140,10 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
     }
 
     [RelayCommand]
-    private async Task Download() => await _parent.OpenResourceDownloadDialog.Handle(EResourceType.RESOURCE_PACK);
+    private async Task Download()
+    {
+        await _parent.OpenResourceDownloadDialog.Handle(EResourceType.RESOURCE_PACK);
+    }
 
     /// <summary>
     /// Opens the directory containing the resource packs in the file explorer.
@@ -140,7 +153,7 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
     {
         if (_parent.GameDirectory == null)
             return;
-        
+
         string resourcePacksDir = Path.Combine(_parent.GameDirectory, "resourcepacks");
         Directory.CreateDirectory(resourcePacksDir);
         FileSystemHelper.OpenFolderInFileExplorer(resourcePacksDir);
@@ -168,7 +181,7 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
             string? newPath = null;
             if (resourcePack.FilePath == null)
                 continue;
-            
+
             if (resourcePack.IsEnabled && resourcePack.FilePath.EndsWith(".zip.dis"))
                 newPath = resourcePack.FilePath.Replace(".dis", "");
             else if (!resourcePack.IsEnabled && resourcePack.FilePath.EndsWith(".zip"))
@@ -199,7 +212,7 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
 
         string resourcePacksDir = Path.Combine(_parent.GameDirectory, "resourcepacks");
         Directory.CreateDirectory(resourcePacksDir);
-        
+
         List<InstanceResource> instanceResources = await _parent.Instance.getInstance().GetInstanceResourcesAsync() ?? [];
 
         _resourcePackCache.Edit(innerCache =>
@@ -210,7 +223,7 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
             innerCache.Clear();
             var resources = Directory.GetFiles(resourcePacksDir, "*")
                 .Where(x => x.EndsWith(".zip") || x.EndsWith(".zip.dis")).ToList();
-            
+
             foreach (var resource in resources)
             {
                 try
@@ -243,7 +256,7 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
 
                     if (icon.Key == null)
                         icon = _bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Images/default_world.png");
-                    
+
 
                     var instanceResource = instanceResources.FirstOrDefault(x => x.Type == EResourceType.RESOURCE_PACK &&
                         x.Path.EndsWith(fileName, StringComparison.OrdinalIgnoreCase));
@@ -268,7 +281,7 @@ public partial class EditInstanceViewModel_ResourcePacks  : KonkordObservableObj
                 }
             }
         });
-        
+
         _logger.LogDebug($"Cache now contains {_resourcePackCache.Count} items");
     }
 }

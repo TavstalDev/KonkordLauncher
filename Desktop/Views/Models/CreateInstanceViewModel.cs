@@ -1,26 +1,24 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reactive;
-using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
-using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Extensions.DependencyInjection;
-using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Services.Abstractions;
-using Tavstal.KonkordLauncher.Core.Models;
-using Tavstal.KonkordLauncher.Core.Services.Abstractions;
+using Tavstal.BeaconSDK.Models;
+using Tavstal.BeaconSDK.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
+using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using Tavstal.KonkordLauncher.Desktop.Views.Models.CreateInstance;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 
-public partial class CreateInstanceViewModel : KonkordObservableObject, IProgressReporter
+public partial class CreateInstanceViewModel : KonkordObservableObject, IKonkordProgress
 {
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IManifestService _manifestService = null!;
@@ -32,8 +30,8 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IProgres
     public partial ECreateInstanceTab SelectedTab { get; set; } = ECreateInstanceTab.CUSTOM;
 
     #region Interactions
-    
-    
+
+
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
     public Interaction<ECreateInstanceTab, Unit> SwitchTabInteraction { get; } = new();
     public Interaction<int, Unit> SwitchImportTabInteraction { get; } = new();
@@ -47,16 +45,18 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IProgres
         Custom = new CreateInstanceViewModel_Custom(this);
         Modpack = new CreateInstanceViewModel_Modpack(this);
         Import = new CreateInstanceViewModel_Import(this);
-        
+
         if (Design.IsDesignMode)
             return;
 
-        var services = Program.ServiceProvider;
-        _launcherStore = services.GetRequiredService<ILauncherStore>();
-        _manifestService = services.GetRequiredService<IManifestService>();
-        
         SetupPipeline();
         _ = InitAsync();
+    }
+
+    public CreateInstanceViewModel(ILauncherStore launcherStore, ITranslationService translationService, IManifestService manifestService) : this()
+    {
+        _launcherStore = launcherStore;
+        _manifestService = manifestService;
     }
 
     /// <summary>
@@ -79,14 +79,14 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IProgres
     private async Task InitAsync(CancellationToken cancellationToken = default)
     {
         await Task.Yield();
-        
+
         var settings = await Task.Run(() => _launcherStore.GetSettingsAsync(cancellationToken: cancellationToken), cancellationToken);
         var manifestPath = settings.Launcher.GetVanillaManifestPath();
         var versionManifest = await Task.Run(() => _manifestService.GetMinecraftManifestAsync(manifestPath, cancellationToken), cancellationToken);
 
         if (versionManifest == null)
             throw new Exception("Failed to load Minecraft version manifest.");
-        
+
         await Custom.InitAsync(settings, versionManifest, cancellationToken);
         await Modpack.InitAsync(versionManifest, cancellationToken);
     }
@@ -98,131 +98,70 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IProgres
     {
         Custom.SetupPipeline();
     }
-    
+
     /// <summary>
     /// Requests the window to close by invoking the <see cref="CloseWindowInteraction"/> interaction.
     /// </summary>
     [RelayCommand]
-    public async Task CloseWindow() => await CloseWindowInteraction.Handle(Unit.Default);
-    
+    public async Task CloseWindow()
+    {
+        await CloseWindowInteraction.Handle(Unit.Default);
+    }
+
     /// <summary>
     /// Requests the parent view to change the selected create-instance tab.
     /// </summary>
     /// <param name="tab">The tab to switch to (one of <see cref="ECreateInstanceTab"/>).</param>
     [RelayCommand]
-    private async Task HandleTabBtn(ECreateInstanceTab tab) => await SwitchTabInteraction.Handle(tab);
+    private async Task HandleTabBtn(ECreateInstanceTab tab)
+    {
+        await SwitchTabInteraction.Handle(tab);
+    }
 
     #region Progress Reporter
     private ProgressWindow? _installWindow;
 
-    /// <inheritdoc/>
-    public void ReportProgress(double progress)
+    public void Report(double progress)
     {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (_installWindow == null)
-                OpenReporter();
-
-            _installWindow?.ReportProgress(progress);
-        });
+        EnsureWindowExists();
+        _installWindow?.Report(progress);
     }
 
-    /// <inheritdoc/>
-    public void SetTargetTasks(int? count)
+    public void Report(double progress, string fileName, bool downloading = true)
     {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (_installWindow == null)
-                OpenReporter();
-
-            _installWindow?.SetTargetTasks(count);
-        });
+        EnsureWindowExists();
+        _installWindow?.Report(progress, fileName, downloading);
     }
 
-    /// <inheritdoc/>
-    public void CompleteTask()
+    public void Report(EProgressKind kind, double progress)
     {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (_installWindow == null)
-                OpenReporter();
-
-            _installWindow?.CompleteTask();
-        });
+        EnsureWindowExists();
+        _installWindow?.Report(kind, progress);
     }
 
-    /// <inheritdoc/>
-    public void SetTargetBytes(long? bytes)
+    public void ReportExpectedTask(int? count)
     {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (_installWindow == null)
-                OpenReporter();
-
-            _installWindow?.SetTargetBytes(bytes);
-        });
+        EnsureWindowExists();
+        _installWindow?.ReportExpectedTask(count);
     }
 
-    /// <inheritdoc/>
-    public void CompleteBytes(long bytes)
+    public void ReportTaskCompleted()
     {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (_installWindow == null)
-                OpenReporter();
-
-            _installWindow?.CompleteBytes(bytes);
-        });
+        EnsureWindowExists();
+        _installWindow?.ReportTaskCompleted();
     }
 
-    /// <inheritdoc/>
-    public void UpdateStatus(string status)
+    public void Report(double progress, string key, params object[]? args)
     {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (_installWindow == null)
-                OpenReporter();
-
-            _installWindow?.UpdateStatus(status);
-        });
+        EnsureWindowExists();
+        _installWindow?.Report(progress, key, args);
     }
 
-    /// <inheritdoc/>
-    public void UpdateStatusTranslated(string key, params object[]? args)
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
+    private void EnsureWindowExists()
     {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (_installWindow == null)
-                OpenReporter();
-
-            _installWindow?.UpdateStatusTranslated(key, args);
-        });
-    }
-
-    /// <inheritdoc/>
-    public void OpenReporter()
-    {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (_installWindow != null)
-                return;
-
-            _installWindow = new ProgressWindow();
-            _installWindow.Show();
-        });
-    }
-
-    /// <inheritdoc/>
-    public void CloseReporter()
-    {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (_installWindow == null)
-                return;
-
-            _installWindow.Close();
-            _installWindow = null;
-        });
+        _installWindow ??= new ProgressWindow();
+        _installWindow.Show();
     }
 
     #endregion

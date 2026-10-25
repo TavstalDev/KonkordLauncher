@@ -1,9 +1,7 @@
 using System.Reactive;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using ReactiveUI;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 
@@ -86,13 +84,19 @@ public partial class AlertViewModel : KonkordObservableObject
     /// Requests the view to close the window.
     /// </summary>
     [RelayCommand]
-    public async Task CloseWindow() => await CloseWindowInteraction.Handle(Unit.Default);
+    public async Task CloseWindow()
+    {
+        await CloseWindowInteraction.Handle(Unit.Default);
+    }
 
     /// <summary>
     /// Signals that the user clicked the confirmation ("Yes") button.
     /// </summary>
     [RelayCommand]
-    public async Task YesButtonClick() => await ClickYesInteraction.Handle(Unit.Default);
+    public async Task YesButtonClick()
+    {
+        await ClickYesInteraction.Handle(Unit.Default);
+    }
 
     #endregion
 }

@@ -1,29 +1,28 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.Extensions.DependencyInjection;
-using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Models;
-using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
-using Tavstal.KonkordLauncher.Common.Services.Abstractions;
-using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Helpers.Platform;
-using Tavstal.KonkordLauncher.Core.Instances;
-using Tavstal.KonkordLauncher.Core.Models;
-using Tavstal.KonkordLauncher.Core.Models.Installer;
-using Tavstal.KonkordLauncher.Core.Models.Instance;
-using Tavstal.KonkordLauncher.Core.Models.Logging;
-using Tavstal.KonkordLauncher.Core.Services.Abstractions;
+using Tavstal.BeaconSDK.Enums;
+using Tavstal.BeaconSDK.Helpers.Platform;
+using Tavstal.BeaconSDK.Instances;
+using Tavstal.BeaconSDK.Models;
+using Tavstal.BeaconSDK.Models.Instance;
+using Tavstal.BeaconSDK.Models.Instance.Config;
+using Tavstal.BeaconSDK.Models.Logging;
+using Tavstal.BeaconSDK.Services.Abstractions;
+using Tavstal.BeaconSDK.Services.Implementations;
+using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
+using Tavstal.KonkordLauncher.Desktop.Models.DTOs.InstanceConfig;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
+using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
@@ -31,9 +30,9 @@ namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
 /// <summary>
 /// Represents a model for a Minecraft instance, including its properties and behaviors.
 /// </summary>
-public partial class InstanceModel : ObservableObject, IProgressReporter
+public partial class InstanceModel : ObservableObject, IKonkordProgress
 {
-    private readonly ICustomLogger _logger;
+    private readonly IBeaconLogger _logger;
     private readonly ILauncherStore _launcherStore;
     private readonly IManifestService _manifestService;
     private readonly IBitmapService _bitmapService;
@@ -112,7 +111,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     /// </summary>
     [ObservableProperty]
     public partial bool IsGameRunning { get; set; }
-    
+
     /// <summary>
     /// Gets the icon of the instance as a bitmap. If the icon path is not set, a default icon is used.
     /// </summary>
@@ -128,7 +127,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     public InstanceModel()
     {
         var services = Program.ServiceProvider;
-        _logger = services.GetRequiredService<ICustomLogger<InstanceModel>>();
+        _logger = services.GetRequiredService<IBeaconLogger<InstanceModel>>();
         _launcherStore = services.GetRequiredService<ILauncherStore>();
         _manifestService = services.GetRequiredService<IManifestService>();
         _translationService = services.GetRequiredService<ITranslationService>();
@@ -136,8 +135,8 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         _installService = services.GetRequiredService<IInstanceInstallService>();
         _launchService = services.GetRequiredService<IInstanceLaunchService>();
         _bitmapService = services.GetRequiredService<IBitmapService>();
-        
-        Icon = string.IsNullOrEmpty(IconPath) ? _bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Icons/dirt.png") 
+
+        Icon = string.IsNullOrEmpty(IconPath) ? _bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Icons/dirt.png")
                 : _bitmapService.GetBitmap(IconPath);
     }
 
@@ -145,7 +144,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     /// Initializes a new instance of the <see cref="InstanceModel"/> class using the specified common instance model.
     /// </summary>
     /// <param name="instance">The common instance model to initialize from.</param>
-    public InstanceModel(Common.Models.Instance instance) : this()
+    public InstanceModel(DTOs.Instance instance) : this()
     {
         Id = instance.Id;
         Name = instance.Name;
@@ -159,17 +158,17 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         GameDirectory = instance.GameDirectory;
         ConfigModel = instance.Config;
     }
-    
+
     /// <summary>
     /// Converts the current instance model into a common instance model.
     /// </summary>
     /// <returns>
-    /// A new instance of <see cref="Common.Models.Instance"/> populated with the properties
+    /// A new instance of <see cref="Instance"/> populated with the properties
     /// of the current instance model.
     /// </returns>
-    public Common.Models.Instance getInstance()
+    public DTOs.Instance getInstance()
     {
-        return new Common.Models.Instance
+        return new DTOs.Instance
         {
             Id = Id,
             Name = Name,
@@ -189,11 +188,11 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     /// <param name="newData">
     /// The source instance data to copy from. The update is only applied when the IDs match.
     /// </param>
-    public void UpdateDetails(Common.Models.Instance newData)
+    public void UpdateDetails(DTOs.Instance newData)
     {
         if (newData.Id != Id)
             return;
-        
+
         Name = newData.Name;
         Group = newData.Group;
         IconPath = newData.IconPath;
@@ -247,9 +246,9 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             _watcher.Created -= OnLogFileChanged;
             _watcher.Renamed -= OnLogFileChanged;
         }
-        
+
         Directory.CreateDirectory(logsDir);
-        
+
         _watcher = new FileSystemWatcher
         {
             Path = logsDir,
@@ -282,10 +281,10 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         _cancellationTokenSource = new CancellationTokenSource();
         var cts = _cancellationTokenSource.Token;
         var accountData = await _launcherStore.GetAccountDataAsync(cts);
-        var account = ConfigModel.Misc.OverrideAccount ? 
-            accountData.Accounts.FirstOrDefault(x => x.Id == ConfigModel.Misc.AccountId) 
+        var account = ConfigModel.Misc.OverrideAccount ?
+            accountData.Accounts.FirstOrDefault(x => x.Id == ConfigModel.Misc.AccountId)
             : accountData.Accounts.FirstOrDefault(x => x.Id == accountData.SelectedAccountId);
-        
+
         if (account == null)
         {
             await showAlertDialog.Handle(new Alert(_translationService.Translate("account.none.title"), _translationService.Translate("account.none.message"), EAlertType.Warning));
@@ -394,7 +393,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
                 !string.IsNullOrEmpty(serverAddress) ? serverAddress
                 : ConfigModel.Misc.JoinServerOnLaunch ? ConfigModel.Misc.ServerAddress : null
             );
-            var launcherDetails = new LauncherDetails("KonkordLauncher", App.Version);
+            var launcherDetails = new LauncherDetails("KonkordLauncher", Program.Version);
             var clientDetails = new ClientDetails(
                 account.GetAccessToken(),
                 account.DisplayName,
@@ -428,37 +427,37 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
                     new PathDetails(settings.Launcher.AssetsDirectoryPath, settings.Launcher.CacheDirectoryPath,
                         settings.Launcher.LibrariesDirectoryPath, settings.Launcher.VersionsDirectoryPath,
                         settings.Launcher.GetVanillaManifestPath(), null, nativeLibraries), launcherDetails,
-                    clientDetails, new CustomLogger<MinecraftInstance>(_logger.GetLogLevel()), resolution, this),
+                    clientDetails, new BeaconLogger<MinecraftInstance>(_logger.GetLogLevel()), resolution, this),
                 EMinecraftKind.NEOFORGE => new NeoForgeInstance(Id, minecraftVersion, gameDetails,
                     new PathDetails(settings.Launcher.AssetsDirectoryPath, settings.Launcher.CacheDirectoryPath,
                         settings.Launcher.LibrariesDirectoryPath, settings.Launcher.VersionsDirectoryPath,
                         settings.Launcher.GetVanillaManifestPath(), settings.Launcher.GetNeoForgeManifestPath(),
                         nativeLibraries), launcherDetails, clientDetails,
-                    new CustomLogger<NeoForgeInstance>(_logger.GetLogLevel()), resolution, this),
+                    new BeaconLogger<NeoForgeInstance>(_logger.GetLogLevel()), resolution, this),
                 EMinecraftKind.FORGE => ForgeInstance.GetForgeInstance(Id, minecraftVersion, gameDetails,
                     new PathDetails(settings.Launcher.AssetsDirectoryPath, settings.Launcher.CacheDirectoryPath,
                         settings.Launcher.LibrariesDirectoryPath, settings.Launcher.VersionsDirectoryPath,
                         settings.Launcher.GetVanillaManifestPath(), settings.Launcher.GetForgeManifestPath(),
                         nativeLibraries), launcherDetails, clientDetails,
-                    new CustomLogger<MinecraftInstance>(_logger.GetLogLevel()), resolution, this),
+                    new BeaconLogger<MinecraftInstance>(_logger.GetLogLevel()), resolution, this),
                 EMinecraftKind.FABRIC => new FabricInstance(Id, minecraftVersion, gameDetails,
                     new PathDetails(settings.Launcher.AssetsDirectoryPath, settings.Launcher.CacheDirectoryPath,
                         settings.Launcher.LibrariesDirectoryPath, settings.Launcher.VersionsDirectoryPath,
                         settings.Launcher.GetVanillaManifestPath(), settings.Launcher.GetFabricManifestPath(),
                         nativeLibraries), launcherDetails, clientDetails,
-                    new CustomLogger<FabricInstance>(_logger.GetLogLevel()), resolution, this),
+                    new BeaconLogger<FabricInstance>(_logger.GetLogLevel()), resolution, this),
                 EMinecraftKind.QUILT => new QuiltInstance(Id, minecraftVersion, gameDetails,
                     new PathDetails(settings.Launcher.AssetsDirectoryPath, settings.Launcher.CacheDirectoryPath,
                         settings.Launcher.LibrariesDirectoryPath, settings.Launcher.VersionsDirectoryPath,
                         settings.Launcher.GetVanillaManifestPath(), settings.Launcher.GetQuiltManifestPath(),
                         nativeLibraries), launcherDetails, clientDetails,
-                    new CustomLogger<QuiltInstance>(_logger.GetLogLevel()), resolution, this),
+                    new BeaconLogger<QuiltInstance>(_logger.GetLogLevel()), resolution, this),
                 _ => gameInstance
             };
 
             if (gameInstance == null)
                 return;
-            
+
             cts.ThrowIfCancellationRequested();
             if (!await _installService.InstallAsync(gameInstance, this, cts))
             {
@@ -578,7 +577,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             _logger.LogCritical(ex, $"Failed to launch the {Name}");
         }
     }
-    
+
     /// <summary>
     /// Updates the Java path for the game instance and saves the updated configuration.
     /// </summary>
@@ -586,7 +585,7 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
     /// <param name="javaPath">The new Java path to set.</param>
     /// <param name="instances">The list of instances to update.</param>
     /// <param name="instanceIndex">The index of the current instance in the list.</param>
-    private async Task UpdateJavaPathAsync(MinecraftInstance gameInstance, string javaPath, List<Common.Models.Instance> instances, int instanceIndex)
+    private async Task UpdateJavaPathAsync(MinecraftInstance gameInstance, string javaPath, List<DTOs.Instance> instances, int instanceIndex)
     {
         gameInstance.GameDetails.JavaPath = javaPath;
         if (instanceIndex >= 0)
@@ -608,23 +607,23 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
         {
             if (e.Name != "latest.log")
                 return;
-            
+
             if (e.ChangeType != WatcherChangeTypes.Changed)
                 return;
 
             // This will ensure that no sensitive data is read while the file is being written to
             Task.Delay(100).Wait();
-            
+
             using var fs = new FileStream(e.FullPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             fs.Seek(_lastReadPosition, SeekOrigin.Begin);
             using var sr = new StreamReader(fs);
             if (_lastReadPosition == 0)
                 GlobalEvents.CleareInstanceLogs(Id);
-            
+
             var newLines = new StringBuilder();
             while (sr.ReadLine() is { } newLine)
                 newLines.AppendLine(newLine);
-            
+
             string logs = string.Join("\n", newLines);
             GlobalEvents.InvokeInstanceLogged(Id, logs);
             _lastReadPosition = fs.Position;
@@ -634,119 +633,52 @@ public partial class InstanceModel : ObservableObject, IProgressReporter
             _logger.LogCritical(ex, "Error while reading latest log file:");
         }
     }
-    
+
     #region Progress Reporter
-    private ProgressWindow? _instanceInstallWindow;
     private CancellationTokenSource _cancellationTokenSource = new();
+    private ProgressWindow? _installWindow;
 
-    /// <inheritdoc/>
-    public void ReportProgress(double progress)
+    public void Report(double progress)
     {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (_instanceInstallWindow == null)
-                OpenReporter();
-
-            _instanceInstallWindow?.ReportProgress(progress);
-        });
+        EnsureWindowExists();
+        _installWindow?.Report(progress);
     }
 
-    /// <inheritdoc/>
-    public void SetTargetTasks(int? count)
+    public void Report(double progress, string fileName, bool downloading = true)
     {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (_instanceInstallWindow == null)
-                OpenReporter();
-
-            _instanceInstallWindow?.SetTargetTasks(count);
-        });
+        EnsureWindowExists();
+        _installWindow?.Report(progress, fileName, downloading);
     }
 
-    /// <inheritdoc/>
-    public void CompleteTask()
+    public void Report(EProgressKind kind, double progress)
     {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (_instanceInstallWindow == null)
-                OpenReporter();
-
-            _instanceInstallWindow?.CompleteTask();
-        });
+        EnsureWindowExists();
+        _installWindow?.Report(kind, progress);
     }
 
-    /// <inheritdoc/>
-    public void SetTargetBytes(long? bytes)
+    public void ReportExpectedTask(int? count)
     {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (_instanceInstallWindow == null)
-                OpenReporter();
-
-            _instanceInstallWindow?.SetTargetBytes(bytes);
-        });
+        EnsureWindowExists();
+        _installWindow?.ReportExpectedTask(count);
     }
 
-    /// <inheritdoc/>
-    public void CompleteBytes(long bytes)
+    public void ReportTaskCompleted()
     {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (_instanceInstallWindow == null)
-                OpenReporter();
-
-            _instanceInstallWindow?.CompleteBytes(bytes);
-        });
+        EnsureWindowExists();
+        _installWindow?.ReportTaskCompleted();
     }
 
-    /// <inheritdoc/>
-    public void UpdateStatus(string status)
+    public void Report(double progress, string key, params object[]? args)
     {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (_instanceInstallWindow == null)
-                OpenReporter();
-
-            _instanceInstallWindow?.UpdateStatus(status);
-        });
+        EnsureWindowExists();
+        _installWindow?.Report(progress, key, args);
     }
 
-    /// <inheritdoc/>
-    public void UpdateStatusTranslated(string key, params object[]? args)
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
+    private void EnsureWindowExists()
     {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (_instanceInstallWindow == null)
-                OpenReporter();
-
-            _instanceInstallWindow?.UpdateStatusTranslated(key, args);
-        });
-    }
-
-    /// <inheritdoc/>
-    public void OpenReporter()
-    {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (_instanceInstallWindow != null)
-                return;
-
-            _instanceInstallWindow = new ProgressWindow(_cancellationTokenSource);
-            _instanceInstallWindow.Show();
-        });
-    }
-
-    /// <inheritdoc/>
-    public void CloseReporter()
-    {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (_instanceInstallWindow == null)
-                return;
-
-            _instanceInstallWindow.Close();
-            _instanceInstallWindow = null;
-        });
+        _installWindow ??= new ProgressWindow(_cancellationTokenSource);
+        _installWindow.Show();
     }
 
     #endregion

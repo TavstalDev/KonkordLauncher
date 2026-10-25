@@ -2,21 +2,17 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Reactive;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Extensions.DependencyInjection;
-using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Models;
-using Tavstal.KonkordLauncher.Common.Services.Abstractions;
-using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Models;
-using Tavstal.KonkordLauncher.Core.Services.Abstractions;
+using Tavstal.BeaconSDK.Models;
+using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
+using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
+using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
@@ -200,7 +196,7 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
         
         _progressReporter.CloseReporter();
         await ShowAlertInteraction.Handle(new Alert(
-            _translationService.Translate("instance.resources.download.complete"),
+            _translationService.Translate("instance.resources.download.complete.title"),
             _translationService.Translate("instance.resources.download.complete.description"),
             EAlertType.Success));
         await CloseWindowInteraction.Handle(true);
@@ -210,7 +206,10 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
     /// Requests the window to close by invoking the <see cref="CloseWindowInteraction"/> interaction.
     /// </summary>
     [RelayCommand]
-    public async Task CloseWindow() => await CloseWindowInteraction.Handle(false);
-    
+    public async Task CloseWindow()
+    {
+        await CloseWindowInteraction.Handle(false);
+    }
+
     #endregion
 }

@@ -1,10 +1,10 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Tavstal.KonkordLauncher.Common.Models.Java;
+using Tavstal.BeaconSDK.Models.Java;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
 
 /// <summary>
-/// Represents a model for a Java version, including its major version, full version string, 
+/// Represents a model for a Java version, including its major version, full version string,
 /// architecture, and installation path.
 /// </summary>
 public partial class JavaVersionModel : ObservableObject

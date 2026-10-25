@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:avalonia="clr-namespace:LoadingIndicators.Avalonia;assembly=LoadingIndicators.Avalonia"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common"
+    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
     xmlns:templates="clr-namespace:Tavstal.KonkordLauncher.Desktop.Styles.Templates"
@@ -37,7 +37,7 @@
             <Grid RowDefinitions="Auto, *">
                 <!--  Window Controls  -->
                 <templates:CustomTitleBar/>
-                
+
                 <!--  Main Content  -->
                 <StackPanel
                     Grid.Row="1"
@@ -117,7 +117,7 @@
                                             Height="150"
                                             Source="{Binding QrCode}"
                                             IsVisible="{Binding !IsQrCodeLoading}"/>
-                                        
+
                                         <!-- QR code loading indicator  -->
                                         <avalonia:LoadingIndicator
                                             Height="150"
@@ -127,8 +127,8 @@
                                             IsVisible="{Binding IsQrCodeLoading}"
                                             Mode="Arc"
                                             SpeedRatio="1.2" />
-                                        
-                                        
+
+
                                         <!--  Code  -->
                                         <WrapPanel HorizontalAlignment="Center" ItemSpacing="10">
                                             <SelectableTextBlock
@@ -136,7 +136,7 @@
                                                 FontSize="25"
                                                 Text="{Binding DeviceData.UserCode}"
                                                 IsVisible="{Binding !IsQrCodeLoading}"/>
-                                            <TextBlock 
+                                            <TextBlock
                                                 VerticalAlignment="Center"
                                                 FontSize="25"
                                                 Text="{lang:Translate common.loading}"
@@ -230,8 +230,8 @@
                     IsVisible="{Binding IsProcessingLogin}">
                     <TextBlock
                         Margin="10"
-                            HorizontalAlignment="Center" 
-                               Foreground="{DynamicResource text-faded}" 
+                            HorizontalAlignment="Center"
+                               Foreground="{DynamicResource text-faded}"
                                Text="{lang:Translate auth.creating.title}" />
                     <avalonia:LoadingIndicator
                         Height="120"

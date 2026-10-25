@@ -1,9 +1,8 @@
 using System;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.Extensions.DependencyInjection;
-using Tavstal.KonkordLauncher.Common.Models;
-using Tavstal.KonkordLauncher.Common.Services.Abstractions;
-using Tavstal.KonkordLauncher.Core.Helpers.IO;
+using Tavstal.BeaconSDK.Helpers.IO;
+using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
+using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Instance;
 
@@ -12,8 +11,6 @@ namespace Tavstal.KonkordLauncher.Desktop.Models.Instance;
 /// </summary>
 public partial class WorldModel : ObservableObject
 {
-    private readonly ITranslationService _translationService;
-    
     /// <summary>
     /// The name of the world.
     /// </summary>
@@ -29,7 +26,8 @@ public partial class WorldModel : ObservableObject
     /// <summary>
     /// The game mode of the world (e.g., Survival, Creative).
     /// </summary>
-    [ObservableProperty] private string _gamemode;
+    [ObservableProperty]
+    public partial string Gamemode { get; set; }
 
     /// <summary>
     /// The seed value used to generate the world.
@@ -41,8 +39,7 @@ public partial class WorldModel : ObservableObject
     /// The last played timestamp of the world in milliseconds since the Unix epoch.
     /// </summary>
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(FormattedLastPlayed))]
-    private long _lastPlayed;
+    public partial long LastPlayed { get; set; }
 
     /// <summary>
     /// The size of the world in bytes.
@@ -65,28 +62,25 @@ public partial class WorldModel : ObservableObject
     /// <summary>
     /// Gets the formatted last played time of the world as a human-readable string.
     /// </summary>
-    public string FormattedLastPlayed
+    public string FormattedLastPlayed(ITranslationService translationService)
     {
-        get
-        {
-            DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            epoch = epoch.AddMilliseconds(LastPlayed);
-            var timeDiff = DateTime.UtcNow - epoch;
+        DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        epoch = epoch.AddMilliseconds(LastPlayed);
+        var timeDiff = DateTime.UtcNow - epoch;
 
-            if (timeDiff.TotalHours < 1)
-                return _translationService.Translate("common.time.pass.minute", timeDiff.Minutes);
+        if (timeDiff.TotalHours < 1)
+            return translationService.Translate("common.time.pass.minute", timeDiff.Minutes);
 
-            if (timeDiff.TotalDays < 1)
-                return _translationService.Translate("common.time.pass.hour", $"{timeDiff.Hours}");
+        if (timeDiff.TotalDays < 1)
+            return translationService.Translate("common.time.pass.hour", $"{timeDiff.Hours}");
 
-            if (timeDiff.TotalDays < 30)
-                return _translationService.Translate("common.time.pass.day", $"{timeDiff.Days}");
+        if (timeDiff.TotalDays < 30)
+            return translationService.Translate("common.time.pass.day", $"{timeDiff.Days}");
 
-            if (timeDiff.TotalDays < 365)
-                return _translationService.Translate("common.time.pass.month",  $"{timeDiff.TotalDays / 30:F0}");
+        if (timeDiff.TotalDays < 365)
+            return translationService.Translate("common.time.pass.month",  $"{timeDiff.TotalDays / 30:F0}");
 
-            return _translationService.Translate("common.time.pass.year", $"{timeDiff.TotalDays / 365:F0}");
-        }
+        return translationService.Translate("common.time.pass.year", $"{timeDiff.TotalDays / 365:F0}");
     }
 
     /// <summary>
@@ -103,11 +97,10 @@ public partial class WorldModel : ObservableObject
     {
         Name = name;
         Path = path;
-        _gamemode = gamemode;
+        Gamemode = gamemode;
         Seed = seed;
-        _lastPlayed = lastPlayed;
+        LastPlayed = lastPlayed;
         Size = size;
         Icon = icon;
-        _translationService = Program.ServiceProvider.GetRequiredService<ITranslationService>();
     }
 }

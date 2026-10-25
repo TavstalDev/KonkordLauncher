@@ -1,34 +1,35 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reactive;
-using System.Reactive.Disposables.Fluent;
 using System.Threading.Tasks;
 using Avalonia.Controls;
-using Avalonia.Threading;
 using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Models;
-using Tavstal.KonkordLauncher.Core.Models;
+using ReactiveUI.Primitives;
+using Tavstal.BeaconSDK.Models;
+using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
+using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
+using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
-public partial class ResourceReviewWindow : KonkordWindow<ResourceReviewViewModel>, IProgressReporter
+public partial class ResourceReviewWindow : KonkordWindow<ResourceReviewViewModel>, IKonkordProgress
 {
     [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public ResourceReviewWindow() : this(null!, EResourceType.MOD, []) {}
-    
+
     [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public ResourceReviewWindow(Instance instance, EResourceType resourceType, List<ResourceDownloadModel> resources)
     {
         InitializeComponent();
-        
+
         DataContext = new ResourceReviewViewModel(instance, resourceType, resources, this);
-        
+
         if (Design.IsDesignMode)
             return;
-        
+
         this.WhenActivated(disposables =>
         {
             DataContext.CloseWindowInteraction.RegisterHandler(action =>
@@ -46,117 +47,59 @@ public partial class ResourceReviewWindow : KonkordWindow<ResourceReviewViewMode
         });
     }
 
+    protected override void OnClosing(WindowClosingEventArgs e)
+    {
+        if (_installWindow != null)
+        {
+            _installWindow.Close();
+            _installWindow = null;
+        }
+    }
+
     #region Progress Reporter
     private ProgressWindow? _installWindow;
 
-    /// <inheritdoc/>
-    public void ReportProgress(double progress)
+    public void Report(double progress)
     {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (_installWindow == null)
-                OpenReporter();
-
-            _installWindow?.ReportProgress(progress);
-        });
+        EnsureWindowExists();
+        _installWindow?.Report(progress);
     }
 
-    /// <inheritdoc/>
-    public void SetTargetTasks(int? count)
+    public void Report(double progress, string fileName, bool downloading = true)
     {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (_installWindow == null)
-                OpenReporter();
-
-            _installWindow?.SetTargetTasks(count);
-        });
+        EnsureWindowExists();
+        _installWindow?.Report(progress, fileName, downloading);
     }
 
-    /// <inheritdoc/>
-    public void CompleteTask()
+    public void Report(EProgressKind kind, double progress)
     {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (_installWindow == null)
-                OpenReporter();
-
-            _installWindow?.CompleteTask();
-        });
+        EnsureWindowExists();
+        _installWindow?.Report(kind, progress);
     }
 
-    /// <inheritdoc/>
-    public void SetTargetBytes(long? bytes)
+    public void ReportExpectedTask(int? count)
     {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (_installWindow == null)
-                OpenReporter();
-
-            _installWindow?.SetTargetBytes(bytes);
-        });
+        EnsureWindowExists();
+        _installWindow?.ReportExpectedTask(count);
     }
 
-    /// <inheritdoc/>
-    public void CompleteBytes(long bytes)
+    public void ReportTaskCompleted()
     {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (_installWindow == null)
-                OpenReporter();
-
-            _installWindow?.CompleteBytes(bytes);
-        });
+        EnsureWindowExists();
+        _installWindow?.ReportTaskCompleted();
     }
 
-    /// <inheritdoc/>
-    public void UpdateStatus(string status)
+    public void Report(double progress, string key, params object[]? args)
     {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (_installWindow == null)
-                OpenReporter();
-
-            _installWindow?.UpdateStatus(status);
-        });
+        EnsureWindowExists();
+        _installWindow?.Report(progress, key, args);
     }
 
-    /// <inheritdoc/>
-    public void UpdateStatusTranslated(string key, params object[]? args)
+    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
+    private void EnsureWindowExists()
     {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (_installWindow == null)
-                OpenReporter();
-
-            _installWindow?.UpdateStatusTranslated(key, args);
-        });
-    }
-
-    /// <inheritdoc/>
-    public void OpenReporter()
-    {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (_installWindow != null)
-                return;
-
-            _installWindow = new ProgressWindow();
-            _installWindow.Show();
-        });
-    }
-
-    /// <inheritdoc/>
-    public void CloseReporter()
-    {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (_installWindow == null)
-                return;
-
-            _installWindow.Close();
-            _installWindow = null;
-        });
+        _installWindow ??= new ProgressWindow();
+        _installWindow.Show();
     }
 
     #endregion

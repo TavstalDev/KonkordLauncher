@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
 using Tavstal.KonkordLauncher.Desktop.Models.Config.Launcher;
+using Tavstal.KonkordLauncher.Desktop.Models.DTOs.InstanceConfig;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Config.Instance;
 

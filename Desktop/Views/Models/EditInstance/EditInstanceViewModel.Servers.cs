@@ -4,22 +4,22 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using NbtLib;
-using Tavstal.KonkordLauncher.Common.Services.Abstractions;
-using Tavstal.KonkordLauncher.Core.Models.Logging;
-using Tavstal.KonkordLauncher.Core.Models.MojangApi;
+using Tavstal.BeaconSDK.Models.Logging;
+using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
+using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
+using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
 public partial class EditInstanceViewModel_Servers : KonkordObservableObject
 {
-    private readonly ICustomLogger _logger = null!;
+    private readonly IBeaconLogger _logger = null!;
     private readonly IBitmapService _bitmapService = null!;
     private readonly EditInstanceViewModel _parent;
 
@@ -33,12 +33,12 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
     public EditInstanceViewModel_Servers(EditInstanceViewModel parent)
     {
         _parent = parent;
-        if (Design.IsDesignMode)
-            return;
-        
-        var services = Program.ServiceProvider;
-        _logger = services.GetRequiredService<ICustomLogger<EditInstanceViewModel_Servers>>();
-        _bitmapService = services.GetRequiredService<IBitmapService>();
+    }
+
+    public EditInstanceViewModel_Servers(EditInstanceViewModel parent, IBitmapService bitmapService) : this(parent)
+    {
+        _logger = Program.Services.GetRequiredService<IBeaconLogger<EditInstanceViewModel_Servers>>();
+        _bitmapService = bitmapService;
     }
 
     protected override void Dispose(bool disposing)
@@ -52,11 +52,12 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
         SelectedServer = null;
     }
 
-    public async Task InitAsync(CancellationToken cancellationToken = default)
+    public Task InitAsync(CancellationToken cancellationToken = default)
     {
         RefreshServers();
+        return Task.CompletedTask;
     }
-    
+
     #region Commands
 
     /// <summary>
@@ -86,9 +87,9 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
         if (Servers.Contains(server))
             Servers.Remove(server);
     }
-    
+
     #endregion
-    
+
     /// <summary>
     /// Saves the current list of Minecraft servers to the `servers.dat` file
     /// in the game directory. The method serializes the server data into NBT format
@@ -102,7 +103,7 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
         try
         {
             string filePath = Path.Combine(_parent.GameDirectory, "servers.dat");
-            
+
             var root = new NbtCompoundTag();
             var serversList = new NbtListTag(NbtTagType.Compound);
 
@@ -114,10 +115,10 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
                     { "ip", new NbtStringTag(s.Ip) },
                     { "acceptTextures", new NbtIntTag(s.AcceptTextures) },
                 };
-                
+
                 if (s.HideAddress.HasValue)
                     serverTag.Add("hideAddress", new NbtIntTag(s.HideAddress.Value));
-                
+
                 if (!string.IsNullOrEmpty(s.Icon))
                     serverTag.Add("icon", new NbtStringTag(s.Icon));
 
@@ -125,7 +126,7 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
             }
 
             root.Add("servers", serversList);
-            
+
             using var outputStream = new NbtWriter().CreateUncompressedNbtStream(root, "");
             using var fileStream = File.Create(filePath);
             outputStream.Seek(0, SeekOrigin.Begin);
@@ -143,8 +144,11 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
     /// </summary>
     /// <param name="sender">The source of the event, typically the `Servers` collection.</param>
     /// <param name="e">The event data containing details about the collection change.</param>
-    private void ServersOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) => SaveServers();
-    
+    private void ServersOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        SaveServers();
+    }
+
     /// <summary>
     /// Refreshes the list of Minecraft servers by reading the `servers.dat` file
     /// from the game directory and updating the Servers collection with the data.
@@ -153,7 +157,7 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
     {
         if (_parent.GameDirectory == null)
             return;
-    
+
         // Construct the file path for the servers.dat file
         string filePath = Path.Combine(_parent.GameDirectory, "servers.dat");
         if (!File.Exists(filePath))
@@ -164,9 +168,9 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
         var serversDat = NbtConvert.DeserializeObject<ServersDat>(inputStream);
         if (serversDat == null)
             return;
-    
+
         Servers.CollectionChanged -= ServersOnCollectionChanged;
-        
+
         // Clear the existing Servers collection and populate it with new data
         foreach (var server in Servers)
         {

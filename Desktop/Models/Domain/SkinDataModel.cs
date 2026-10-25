@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
-using Tavstal.KonkordLauncher.Common.Models;
-using Tavstal.KonkordLauncher.Common.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
+using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
 
@@ -14,28 +14,28 @@ public class SkinDataModel : IDisposable
     /// Unique identifier for the skin resource (typically the Mojang-provided ID).
     /// </summary>
     public string Id { get; set; }
-    
+
     /// <summary>
     /// Variant of the skin (for example "classic" or "slim"). Mirrors Mojang API naming.
     /// </summary>
     public string Variant { get; set; }
-    
+
     /// <summary>
     /// Loaded image for the skin. May be null if loading failed or not provided.
     /// Dispose this object when the model is no longer used by calling <see cref="Dispose"/>.
     /// </summary>
     public BitmapEntry Image { get; set; }
-    
+
     /// <summary>
     /// Whether this skin is currently selected in the UI.
     /// </summary>
     public bool IsSelected { get; set; }
-    
+
     /// <summary>
     /// Parameterless constructor for serializers and manual initialization.
     /// </summary>
     public SkinDataModel() { }
-    
+
     /// <summary>
     /// Creates a new <see cref="SkinDataModel"/> with specified values.
     /// </summary>
@@ -50,7 +50,7 @@ public class SkinDataModel : IDisposable
         Image = image;
         IsSelected = isSelected;
     }
-    
+
     /// <summary>
     /// Releases resources held by this model. Disposes the <see cref="Image"/> bitmap if present.
     /// </summary>
@@ -58,9 +58,8 @@ public class SkinDataModel : IDisposable
     {
         if (Image.IsEmpty())
             return;
-        
-        var services = Program.ServiceProvider;
-        var bitmapService = services.GetRequiredService<IBitmapService>();
+
+        var bitmapService = Program.Services.GetRequiredService<IBitmapService>();
         bitmapService.Release(Image.Key!);
     }
 }

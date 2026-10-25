@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Collections;
@@ -12,18 +11,17 @@ using Avalonia.Controls;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Extensions.DependencyInjection;
 using Modrinth.Models;
-using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Models;
-using Tavstal.KonkordLauncher.Common.Models.Json;
-using Tavstal.KonkordLauncher.Common.Services.Abstractions;
-using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Helpers.Serialization;
-using Tavstal.KonkordLauncher.Core.Models.Logging;
-using Tavstal.KonkordLauncher.Core.Services.Abstractions;
+using Tavstal.BeaconSDK.Enums;
+using Tavstal.BeaconSDK.Helpers.Serialization;
+using Tavstal.BeaconSDK.Models.Logging;
+using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
+using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
+using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
+using Tavstal.KonkordLauncher.Desktop.Serialization;
+using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
 using Version = Modrinth.Models.Version;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
@@ -34,7 +32,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 public partial class ResourceDownloadViewModel : KonkordObservableObject
 {
     private readonly Window _parent;
-    private readonly ICustomLogger _logger = null!;
+    private readonly IBeaconLogger _logger = null!;
     private readonly ITranslationService _translationService = null!;
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IManifestService _manifestService = null!;
@@ -118,7 +116,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
             return;
         
         var services = Program.ServiceProvider;
-        _logger = services.GetRequiredService<ICustomLogger<ResourceDownloadViewModel>>();
+        _logger = services.GetRequiredService<IBeaconLogger<ResourceDownloadViewModel>>();
         _translationService = services.GetRequiredService<ITranslationService>();
         _launcherStore = services.GetRequiredService<ILauncherStore>();
         _manifestService = services.GetRequiredService<IManifestService>();
@@ -285,7 +283,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
         VersionFilterIndex = foundInstanceVersion ? index : 0;
 
         string configPath = _instance!.GetResourceConfigPath();
-        var instanceResources = await JsonHelper.ReadJsonFileAsync<List<InstanceResource>>(configPath, CommonJsonContex.Default.ListInstanceResource, cancellationToken);
+        var instanceResources = await JsonHelper.ReadJsonFileAsync<List<InstanceResource>>(configPath, CommonJsonContext.Default.ListInstanceResource, cancellationToken);
         if (instanceResources is { Count: > 0 })
             _instanceResources.AddRange(instanceResources);
 
@@ -445,7 +443,10 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
     /// Requests the window to close by invoking the <see cref="CloseWindowInteraction"/> interaction.
     /// </summary>
     [RelayCommand]
-    public async Task CloseWindow() => await CloseWindowInteraction.Handle(false);
+    public async Task CloseWindow()
+    {
+        await CloseWindowInteraction.Handle(false);
+    }
 
     /// <summary>
     /// Toggles the selection state of the currently selected resource for download.

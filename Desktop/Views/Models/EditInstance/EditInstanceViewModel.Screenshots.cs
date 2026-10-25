@@ -1,18 +1,14 @@
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Reactive;
-using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Avalonia.Controls;
-using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Extensions.DependencyInjection;
-using Tavstal.KonkordLauncher.Common.Services.Abstractions;
-using Tavstal.KonkordLauncher.Core.Helpers.IO;
+using Tavstal.BeaconSDK.Helpers.IO;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
+using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
@@ -20,7 +16,7 @@ public partial class EditInstanceViewModel_Screenshots  : KonkordObservableObjec
 {
     private readonly EditInstanceViewModel _parent;
     private readonly IBitmapService _bitmapService = null!;
-    
+
     public ObservableCollection<ScreenshotModel> Screenshots { get; set; } = [];
     [ObservableProperty]
     public partial ScreenshotModel? SelectedScreenshot { get; set; }
@@ -28,14 +24,13 @@ public partial class EditInstanceViewModel_Screenshots  : KonkordObservableObjec
     public EditInstanceViewModel_Screenshots(EditInstanceViewModel parent)
     {
         _parent = parent;
-        
-        if (Design.IsDesignMode)
-            return;
-
-        var services = Program.ServiceProvider;
-        _bitmapService = services.GetRequiredService<IBitmapService>();
     }
-    
+
+    public EditInstanceViewModel_Screenshots(EditInstanceViewModel parent, IBitmapService bitmapService) : this(parent)
+    {
+        _bitmapService = bitmapService;
+    }
+
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
@@ -45,12 +40,13 @@ public partial class EditInstanceViewModel_Screenshots  : KonkordObservableObjec
         SelectedScreenshot?.Image?.Dispose();
         SelectedScreenshot = null;
     }
-    
-    public async Task InitAsync(CancellationToken cancellationToken = default)
+
+    public Task InitAsync(CancellationToken cancellationToken = default)
     {
         RefreshScreenshots();
+        return Task.CompletedTask;
     }
-    
+
     #region Commands
 
     /// <summary>
@@ -58,7 +54,10 @@ public partial class EditInstanceViewModel_Screenshots  : KonkordObservableObjec
     /// </summary>
     /// <param name="screenshot">The screenshot to copy to the clipboard.</param>
     [RelayCommand]
-    private async Task CopyToClipboard(ScreenshotModel screenshot) => await _parent.SetClipboardImage.Handle(screenshot);
+    private async Task CopyToClipboard(ScreenshotModel screenshot)
+    {
+        await _parent.SetClipboardImage.Handle(screenshot);
+    }
 
     /// <summary>
     /// Deletes the specified screenshot file from the file system and refreshes the screenshot list.
@@ -79,7 +78,10 @@ public partial class EditInstanceViewModel_Screenshots  : KonkordObservableObjec
     /// </summary>
     /// <param name="screenshot">The screenshot to rename.</param>
     [RelayCommand]
-    private async Task Rename(ScreenshotModel screenshot) => await _parent.BeginScreenshotRename.Handle(Unit.Default);
+    private async Task Rename(ScreenshotModel screenshot)
+    {
+        await _parent.BeginScreenshotRename.Handle(Unit.Default);
+    }
 
     /// <summary>
     /// Opens the directory containing the screenshots in the file explorer.
@@ -90,7 +92,7 @@ public partial class EditInstanceViewModel_Screenshots  : KonkordObservableObjec
     {
         if (string.IsNullOrEmpty(_parent.GameDirectory))
             return;
-    
+
         string screenshotDir = Path.Combine(_parent.GameDirectory, "screenshots");
         if (!Directory.Exists(screenshotDir))
             return;
@@ -99,7 +101,7 @@ public partial class EditInstanceViewModel_Screenshots  : KonkordObservableObjec
     }
 
     #endregion
-    
+
     /// <summary>
     /// Refreshes the list of screenshots by scanning the game directory for PNG files
     /// and updating the Screenshots collection with their metadata and image data.
@@ -112,19 +114,16 @@ public partial class EditInstanceViewModel_Screenshots  : KonkordObservableObjec
         string screenshotDir = Path.Combine(_parent.GameDirectory, "screenshots");
         if (!Directory.Exists(screenshotDir))
             return;
-        
+
         foreach (var screenshot in Screenshots)
-        {
-            // Dispose of the image to free memory
-            screenshot.Image?.Dispose();
-        }
+            _bitmapService.Release(screenshot.Path);
         Screenshots.Clear();
         var screenshots = Directory.GetFiles(screenshotDir, "*.png");
         foreach (var screenshot in screenshots)
         {
             var bytes = File.ReadAllBytes(screenshot);
-            // TODO: Use bitmap service
-            var newScreenshot = new ScreenshotModel(screenshot, new Bitmap(screenshot), bytes.LongLength);
+            var screen = _bitmapService.GetBitmap(screenshot);
+            var newScreenshot = new ScreenshotModel(screenshot, screen.Value, bytes.LongLength);
             Screenshots.Add(newScreenshot);
         }
     }

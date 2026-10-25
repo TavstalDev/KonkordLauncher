@@ -1,9 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Reactive;
-using System.Reactive.Disposables.Fluent;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using ReactiveUI;
+using ReactiveUI.Primitives;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using JavaSelectorViewModel = Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models.JavaSelectorViewModel;
 

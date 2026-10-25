@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Disposables.Fluent;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
-using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Services.Abstractions;
-using Tavstal.KonkordLauncher.Core.Models.Logging;
+using ReactiveUI.Primitives;
+using Tavstal.BeaconSDK.Models.Logging;
+using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
+using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
 using IconSelectorViewModel = Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models.IconSelectorViewModel;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
@@ -21,7 +21,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 /// </summary>
 public partial class IconSelectorWindow : KonkordWindow<IconSelectorViewModel>
 {
-    private readonly ICustomLogger _logger = null!;
+    private readonly IBeaconLogger _logger = null!;
     private readonly ITranslationService _translationService = null!;
     private readonly ILauncherStore _launcherStore = null!;
     
@@ -39,7 +39,7 @@ public partial class IconSelectorWindow : KonkordWindow<IconSelectorViewModel>
             return;
         
         var services = Program.ServiceProvider;
-        _logger = services.GetRequiredService<ICustomLogger<IconSelectorWindow>>();
+        _logger = services.GetRequiredService<IBeaconLogger<IconSelectorWindow>>();
         _translationService = services.GetRequiredService<ITranslationService>();
         _launcherStore = services.GetRequiredService<ILauncherStore>();
         

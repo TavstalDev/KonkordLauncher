@@ -1,18 +1,21 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Reactive;
-using System.Reactive.Disposables.Fluent;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Services.Abstractions;
-using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Models;
-using Tavstal.KonkordLauncher.Core.Services.Abstractions.Auth;
+using ReactiveUI.Primitives;
+using Tavstal.BeaconSDK.Enums;
+using Tavstal.BeaconSDK.Models;
+using Tavstal.BeaconSDK.Services.Abstractions;
+using Tavstal.BeaconSDK.Services.Abstractions.Auth;
+using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
+using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Translation;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
 
@@ -22,12 +25,16 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 /// Represents the AccountsWindow, a partial class that serves as the main window for managing accounts.
 /// Implements the IProgressReporter interface to handle progress updates.
 /// </summary>
-public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgressReporter
+public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IKonkordProgress
 {
     private readonly ITranslationService _translationService = null!;
+    private readonly ILauncherStore _launcherStore = null!;
     private readonly IMicrosoftAuthService _microsoftAuthService = null!;
     private readonly IMicrosoftDeviceAuthService _microsoftDeviceAuthService = null!;
     private readonly IMicrosoftHttpAuthService _microsoftHttpAuthService = null!;
+    private readonly ISkinService _skinService = null!;
+    private readonly IEncryptionService _encryptionService = null!;
+    private readonly IEventService _eventService = null!;
 
     /// <summary>
     /// Initializes a new instance of the AccountsWindow class.
@@ -37,17 +44,13 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
     public AccountsWindow()
     {
         InitializeComponent();
-        DataContext = new AccountsViewModel(this);
+        DataContext = new AccountsViewModel(Program.Services.GetRequiredService<IBeaconLogger<AccountsViewModel>>(), _launcherStore,
+            _translationService,  _microsoftAuthService, _microsoftDeviceAuthService, _microsoftHttpAuthService,
+            _skinService, _encryptionService, _eventService);
+        OfflineUsernameInput.TextChanged += OfflineUsername_OnTextChanged;
 
         if (Design.IsDesignMode)
             return;
-
-        var services = Program.ServiceProvider;
-        _translationService = services.GetRequiredService<ITranslationService>();
-        _microsoftAuthService = services.GetRequiredService<IMicrosoftAuthService>();
-        _microsoftDeviceAuthService = services.GetRequiredService<IMicrosoftDeviceAuthService>();
-        _microsoftHttpAuthService = services.GetRequiredService<IMicrosoftHttpAuthService>();
-        _microsoftAuthService.OnAuthStatusChanged += OnAuthStatusChanged;
 
         this.WhenActivated(disposables =>
         {
@@ -69,12 +72,27 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
                 action.SetOutput(Unit.Default);
             }).DisposeWith(disposables);
         });
+    }
 
-        OfflineUsernameInput.TextChanged += OfflineUsername_OnTextChanged;
+    [RequiresUnreferencedCode(
+        "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    public AccountsWindow(ITranslationService translationService, ILauncherStore launcherStore, IMicrosoftAuthService microsoftAuthService,
+        IMicrosoftDeviceAuthService microsoftDeviceAuthService, IMicrosoftHttpAuthService microsoftHttpAuthService,
+        ISkinService skinService, IEncryptionService encryptionService, IEventService eventService) : this()
+    {
+        _translationService = translationService;
+        _launcherStore = launcherStore;
+        _microsoftAuthService = microsoftAuthService;
+        _microsoftDeviceAuthService = microsoftDeviceAuthService;
+        _microsoftHttpAuthService = microsoftHttpAuthService;
+        _skinService = skinService;
+        _encryptionService = encryptionService;
+        _eventService = eventService;
+        _microsoftAuthService.OnAuthStatusChanged += OnAuthStatusChanged;
     }
 
     #region Events
-    
+
     /// <summary>
     /// Handles the cleanup and resource deallocation when the window is closing.
     /// Unsubscribes from events and stops any active listeners to ensure proper disposal.
@@ -91,9 +109,9 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
         });
         base.OnClosing(e);
     }
-    
+
     /// <summary>
-    /// Handles the text changed event for the offline username input field. 
+    /// Handles the text changed event for the offline username input field.
     /// Ensures that the input contains only alphanumeric characters and underscores.
     /// If invalid characters are detected, they are removed, and the caret position is adjusted accordingly.
     /// </summary>
@@ -103,7 +121,7 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
     {
         if (sender is not TextBox textBox)
             return;
-        
+
         if (textBox.Text == null)
             return;
 
@@ -134,59 +152,52 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IProgres
 
     #region Progress Reporter
 
-    /// <inheritdoc/>
-    public void ReportProgress(double progress)
+    public void Report(double progress)
     {
         Dispatcher.UIThread.Post(() =>
         {
             if (DataContext == null)
                 return;
-
             DataContext.Progress = progress;
         });
     }
 
-    /// <inheritdoc/>
-    public void SetTargetTasks(int? count) { /* unused */ }
-
-    /// <inheritdoc/>
-    public void CompleteTask() { /* unused */ }
-
-    /// <inheritdoc/>
-    public void SetTargetBytes(long? bytes) { /* unused */ }
-
-    /// <inheritdoc/>
-    public void CompleteBytes(long bytes) { /* unused */ }
-
-    /// <inheritdoc/>
-    public void UpdateStatus(string status)
+    public void Report(double progress, string fileName, bool downloading = true)
     {
         Dispatcher.UIThread.Post(() =>
         {
             if (DataContext == null)
                 return;
-
-            DataContext.ProgressText = status;
+            DataContext.Progress = progress;
+            // TODO
         });
     }
 
-    /// <inheritdoc/>
-    public void UpdateStatusTranslated(string key, params object[]? args)
+    public void Report(EProgressKind kind, double progress)
     {
         Dispatcher.UIThread.Post(() =>
         {
             if (DataContext == null)
                 return;
+            DataContext.Progress = progress;
+            DataContext.ProgressText = _translationService.Translate(TranslationHelper.GetProgressKey(kind), progress.ToString("0.00"));
+        });
+    }
 
+    public void Report(double progress, string key, params object[]? args)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (DataContext == null)
+                return;
+            DataContext.Progress = progress;
             DataContext.ProgressText = _translationService.Translate(key, args);
         });
     }
-    
-    /// <inheritdoc/>
-    public void OpenReporter() { /* unused */ } 
-    
-    /// <inheritdoc/>
-    public void CloseReporter() { /* unused */ }
+
+    public void ReportExpectedTask(int? count) { /* ignored */ }
+
+    public void ReportTaskCompleted() { /* ignored */ }
 
     #endregion
 }

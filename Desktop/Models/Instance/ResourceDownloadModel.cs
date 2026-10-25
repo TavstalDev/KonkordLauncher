@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Tavstal.KonkordLauncher.Core.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
+using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Instance;
 

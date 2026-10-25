@@ -3,21 +3,18 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Extensions.DependencyInjection;
-using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Models;
-using Tavstal.KonkordLauncher.Common.Models.Package;
-using Tavstal.KonkordLauncher.Common.Services.Abstractions;
-using Tavstal.KonkordLauncher.Common.Services.Implementations;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
+using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
+using Tavstal.KonkordLauncher.Desktop.Models.DTOs.Package;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
+using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services.Implementations;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
@@ -155,7 +152,10 @@ public partial class ExportViewModel : KonkordObservableObject
     /// Requests the window to close by invoking the <see cref="CloseWindowInteraction"/> interaction.
     /// </summary>
     [RelayCommand]
-    public async Task CloseWindow() => await CloseWindowInteraction.Handle(Unit.Default);
+    public async Task CloseWindow()
+    {
+        await CloseWindowInteraction.Handle(Unit.Default);
+    }
 
     /// <summary>
     /// Continues the export process after the user confirmed the selection.
@@ -165,14 +165,14 @@ public partial class ExportViewModel : KonkordObservableObject
     {
         if (string.IsNullOrEmpty(InstanceName) || string.IsNullOrEmpty(InstanceVersion))
         {
-            await ShowAlertDialogInteraction.Handle(new Alert(_translationService.Translate("common.error"), _translationService.Translate("instance.export.alert.empty.name.or.version"), EAlertType.Error));
+            await ShowAlertDialogInteraction.Handle(new Alert(_translationService.Translate("common.error"), _translationService.Translate("instance.export.alert.empty.nameOrVersion"), EAlertType.Error));
             return;
         }
 
         var directoryResult = await OpenFolderPickerInteraction.Handle(Unit.Default);
         if (string.IsNullOrEmpty(directoryResult))
         {
-            await ShowAlertDialogInteraction.Handle(new Alert(_translationService.Translate("common.error"), _translationService.Translate("instance.export.alert.no.directory"), EAlertType.Error));
+            await ShowAlertDialogInteraction.Handle(new Alert(_translationService.Translate("common.error"), _translationService.Translate("instance.export.alert.noDirectory"), EAlertType.Error));
             return;
         }
 
@@ -193,7 +193,7 @@ public partial class ExportViewModel : KonkordObservableObject
         
         if (File.Exists(exportPath))
         {
-            await ShowAlertDialogInteraction.Handle(new Alert(_translationService.Translate("common.error"), _translationService.Translate("instance.export.alert.file.exists"), EAlertType.Error));
+            await ShowAlertDialogInteraction.Handle(new Alert(_translationService.Translate("common.error"), _translationService.Translate("instance.export.alert.fileExists"), EAlertType.Error));
             return;
         }
 

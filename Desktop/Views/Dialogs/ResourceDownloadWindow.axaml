@@ -5,7 +5,7 @@
     xmlns:avalonia="clr-namespace:LoadingIndicators.Avalonia;assembly=LoadingIndicators.Avalonia"
     xmlns:converters="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Avalonia.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common"
+    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
     xmlns:templates="clr-namespace:Tavstal.KonkordLauncher.Desktop.Styles.Templates"
@@ -333,7 +333,7 @@
                                         </WrapPanel>
                                     </Button>
                                     <!--  Review Button  -->
-                                    <Button Classes="IconBtn SuccessBtn" 
+                                    <Button Classes="IconBtn SuccessBtn"
                                             IsEnabled="{Binding HasResources}"
                                             Command="{Binding ReviewInstallCommand}">
                                         <WrapPanel Classes="IconBtnWrapper">
@@ -354,7 +354,7 @@
                 </Grid>
             </Grid>
         </Border>
-        
+
         <!--  Resize overlay  -->
         <templates:WindowResizer />
     </Grid>

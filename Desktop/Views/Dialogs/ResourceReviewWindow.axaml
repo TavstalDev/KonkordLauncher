@@ -3,7 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
-        xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common"
+        xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
         xmlns:templates="clr-namespace:Tavstal.KonkordLauncher.Desktop.Styles.Templates"
         x:Class="Tavstal.KonkordLauncher.Desktop.Views.Dialogs.ResourceReviewWindow"
         Title="{lang:Translate instance.resource.review.window}"
@@ -36,7 +36,7 @@
                 <Grid RowDefinitions="Auto, *">
                     <!--  Window Controls  -->
                     <templates:CustomTitleBar/>
-                    
+
                     <Grid Grid.Row="1" RowDefinitions="Auto, *">
                         <!--  Title  -->
                         <Border Classes="ModalTitleBorder">
@@ -76,7 +76,7 @@
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
                             </ScrollViewer>
-                            
+
                             <!--  Buttons  -->
                             <Border Grid.Row="1" Classes="InstanceButtonBorder">
                                 <StackPanel Classes="InstanceButtonWrapper">
@@ -112,7 +112,7 @@
                     </Grid>
                 </Grid>
             </Border>
-                
+
             <!--  Resize overlay  -->
             <templates:WindowResizer />
         </Grid>

@@ -6,11 +6,11 @@
     xmlns:converters="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Avalonia.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:enums="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Enums"
-    xmlns:enumsc="clr-namespace:Tavstal.KonkordLauncher.Core.Enums;assembly=Core"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Common.Models.Translation;assembly=Common"
+    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
     xmlns:templates="clr-namespace:Tavstal.KonkordLauncher.Desktop.Styles.Templates"
+    xmlns:enumsc="clr-namespace:Tavstal.BeaconSDK.Enums;assembly=BeaconSDK"
     Title="{lang:Translate instance.create.title}"
     Width="900"
     Height="500"
@@ -45,7 +45,7 @@
             <Grid RowDefinitions="Auto, *">
                 <!--  Window Controls  -->
                 <templates:CustomTitleBar/>
-                
+
                 <!--  Main Content  -->
                 <Grid Grid.Row="1" RowDefinitions="Auto, Auto, *">
                     <!--  Title  -->

@@ -1,58 +1,43 @@
 using System;
 using System.ComponentModel;
 using System.Reactive;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
-using Tavstal.KonkordLauncher.Common.Models.Config;
-using Tavstal.KonkordLauncher.Common.Models.Translation;
-using Tavstal.KonkordLauncher.Common.Services.Abstractions;
-using Tavstal.KonkordLauncher.Core.Models.Logging;
+using Tavstal.BeaconSDK.Models.Logging;
+using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Config.Launcher;
+using Tavstal.KonkordLauncher.Desktop.Models.DTOs.Config;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
+using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Translation;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.MainView;
 
-/// <summary>
-/// View-model responsible for exposing and editing launcher configuration from the main view.
-/// </summary>
 public partial class MainViewModel_Config : KonkordObservableObject
 {
-    private readonly ICustomLogger _logger = null!;
+    private readonly IBeaconLogger _logger = null!;
     private readonly ILauncherStore _launcherStore = null!;
+    private readonly IEventService _eventService = null!;
     private readonly MainViewModel _parent;
 
     [ObservableProperty]
     public partial CoreConfigModel CoreConfig { get; set; } = null!;
 
-    /// <summary>
-    /// Creates a new instance of <see cref="MainViewModel_Config"/>.
-    /// </summary>
-    /// <param name="parent">The parent <see cref="MainViewModel"/> that owns this sub view-model.</param>
-    public MainViewModel_Config(MainViewModel parent)
+    public MainViewModel_Config(MainViewModel parent, ILauncherStore launcherStore, IEventService eventService)
     {
         _parent = parent;
         if (Design.IsDesignMode)
             return;
-        
-        var services = Program.ServiceProvider;
-        _logger = services.GetRequiredService<ICustomLogger<MainViewModel_Config>>();
-        _launcherStore = services.GetRequiredService<ILauncherStore>();
+
+        _logger = Program.Services.GetRequiredService<IBeaconLogger<MainViewModel_Config>>();
+        _launcherStore = launcherStore;
+        _eventService = eventService;
     }
-    
-    /// <summary>
-    /// Initializes the configuration sub-view-model with the provided settings.
-    /// This will create the observable model wrapper and subscribe to child property changes
-    /// so that modifications made through bindings are saved automatically.
-    /// </summary>
-    /// <param name="settings">
-    /// The <see cref="CoreConfig"/> instance read from disk or created by default which will
-    /// be wrapped by a <see cref="CoreConfigModel"/> and exposed to the UI.
-    /// </param>
+
     public Task InitAsync(CoreConfig settings)
     {
         try
@@ -66,16 +51,14 @@ public partial class MainViewModel_Config : KonkordObservableObject
             return Task.FromException(exception);
         }
     }
-    
-    
-    /// <summary>
-    /// Command handler that forwards a request to switch the settings tab to the parent view-model.
-    /// This method is exposed as a RelayCommand so it can be bound to buttons in the UI.
-    /// </summary>
-    /// <param name="tabType">The settings tab to switch to.</param>
+
+
     [RelayCommand]
-    public async Task HandleSettingsBtn(ESettingsTab tabType) => await _parent.UpdateSettingsTabButtonInteraction.Handle(tabType);
-    
+    public async Task HandleSettingsBtn(ESettingsTab tabType)
+    {
+        await _parent.UpdateSettingsTabButtonInteraction.Handle(tabType);
+    }
+
     /// <summary>
     /// Opens a folder picker dialog to select a directory and updates the corresponding configuration path
     /// based on the provided index.
@@ -170,7 +153,7 @@ public partial class MainViewModel_Config : KonkordObservableObject
             return;
         CoreConfig.Java.DefaultJavaPath = javaVersion.Path;
     }
-    
+
     /// <summary>
     /// Subscribes to property change events for the child configuration objects.
     /// </summary>
@@ -203,15 +186,15 @@ public partial class MainViewModel_Config : KonkordObservableObject
     partial void OnCoreConfigChanged(CoreConfigModel? oldValue, CoreConfigModel newValue)
     {
         if (_parent.IsLoading || !_parent.Initialization.IsCompletedSuccessfully)
-            return; 
-        
+            return;
+
         _logger.LogDebug("CoreConfig changed with old and new value. Unsubscribing from old, subscribing to new.");
 
         if (oldValue != null)
             UnsubscribeFromCoreConfigChildren(oldValue);
 
         SubscribeToCoreConfigChildren(newValue);
-        
+
         SaveCoreConfigToFile(newValue);
     }
 
@@ -224,14 +207,14 @@ public partial class MainViewModel_Config : KonkordObservableObject
     {
         if (_parent.IsLoading || !_parent.Initialization.IsCompletedSuccessfully)
             return;
-        
+
         _logger.LogDebug($"Inner property '{e.PropertyName}' changed on {sender?.GetType().Name}. Saving to file...");
         SaveCoreConfigToFile(CoreConfig);
 
         // Handle theme change
         if (e.PropertyName == nameof(CoreConfig.Launcher.Theme))
         {
-            GlobalEvents.InvokeThemeChanged(CoreConfig.Launcher.Theme);
+            _eventService.RaiseThemeChanged(CoreConfig.Launcher.Theme);
             return;
         }
 

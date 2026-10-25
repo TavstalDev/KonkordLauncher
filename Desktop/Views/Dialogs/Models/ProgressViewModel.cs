@@ -1,10 +1,8 @@
 using System.Reactive;
-using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using ReactiveUI;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 

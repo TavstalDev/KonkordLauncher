@@ -1,17 +1,16 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Reactive;
-using System.Reactive.Disposables.Fluent;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
-using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Services.Abstractions;
-using Tavstal.KonkordLauncher.Core.Models.Logging;
+using ReactiveUI.Primitives;
+using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
+using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
 
@@ -22,7 +21,10 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 /// </summary>
 public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewModel>
 {
-    private readonly ICustomLogger _logger = null!;
+    private readonly IBeaconLogger _logger = null!;
+    private readonly ILauncherStore _launcherStore = null!;
+    private readonly ITranslationService _translationService = null!;
+    private readonly IManifestService _manifestService = null!;
     private Button _selectedTabBtn;
     private Button _selectedImportTypeBtn;
 
@@ -34,18 +36,14 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
     public CreateInstanceWindow()
     {
         InitializeComponent();
-        
-        DataContext = new CreateInstanceViewModel();
+
+        DataContext = new CreateInstanceViewModel(_launcherStore, _translationService, _manifestService);
         _selectedTabBtn = CustomTabBtn;
         _selectedImportTypeBtn = ImportFromFileTabBtn;
-        
+
         if (Design.IsDesignMode)
             return;
-           
-        var services = Program.ServiceProvider;
-        _logger = services.GetRequiredService<ICustomLogger<CreateInstanceWindow>>();
-        var translationService = services.GetRequiredService<ITranslationService>();
-        
+
         this.WhenActivated(disposables =>
         {
             DataContext.CloseWindowInteraction.RegisterHandler(action =>
@@ -80,11 +78,22 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
             }).DisposeWith(disposables);
             DataContext.ShowFileSelectorInteraction.RegisterHandler(async action =>
             {
-                string title = translationService.Translate("common.select.file");
+                string title = _translationService.Translate("common.select.file");
                 string? result = await OpenFilePickerAsync(title, ".zip, .mrpack, .json", ["*.zip", "*.mrpack", "*.json"]);
                 action.SetOutput(result);
             }).DisposeWith(disposables);
         });
+    }
+
+    [RequiresUnreferencedCode(
+        "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    public CreateInstanceWindow(IBeaconLogger<CreateInstanceWindow> logger, ILauncherStore launcherStore,
+        ITranslationService translationService, IManifestService manifestService) : this()
+    {
+        _logger = logger;
+        _launcherStore = launcherStore;
+        _translationService = translationService;
+        _manifestService = manifestService;
     }
 
     #region Events
@@ -109,7 +118,7 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
         base.OnClosed(e);
         _ = Task.Run(() => App.UpdateRPC("Browsing instances..."));
     }
-    
+
     /// <summary>
     /// Handles scroll changes for the modpack list ScrollViewer and triggers loading more modpacks when the user
     /// scrolls near the bottom (infinite-scroll behavior).
@@ -120,10 +129,10 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
     {
         if (DataContext is not { } viewModel)
             return;
-        
+
         if (!viewModel.Modpack.AllowScrollbarRefresh)
             return;
-        
+
         if (sender is ScrollViewer scrollViewer)
         {
             double verticalOffset = scrollViewer.Offset.Y;
@@ -144,10 +153,10 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
     {
         if (DataContext is not { } viewModel)
             return;
-        
+
         if (!viewModel.Modpack.AllowScrollbarRefresh)
             return;
-        
+
         Dispatcher.UIThread.Invoke(async () =>  await viewModel.Modpack.RefreshModpacksAsync(true));
     }
 
@@ -161,13 +170,13 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
     {
         if (DataContext is not { } viewModel)
             return;
-        
+
         if (!viewModel.Modpack.AllowScrollbarRefresh)
             return;
-        
+
         Dispatcher.UIThread.Invoke(async () =>  await viewModel.Modpack.RefreshModpacksAsync(true));
     }
-    
+
     #endregion
 
     /// <summary>
@@ -178,7 +187,7 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
     {
         if (DataContext is not { } viewModel)
             return;
-        
+
         if (viewModel.SelectedTab == tab)
             return;
 
@@ -213,10 +222,10 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
     {
         if (DataContext is not { } viewModel)
             return;
-        
+
         if (viewModel.Import.SelectedImportSourceIndex  == index)
             return;
-        
+
         viewModel.Import.SelectedImportSourceIndex = index;
         viewModel.Import.HasImportPath = false;
         viewModel.Import.ImportPath = null;

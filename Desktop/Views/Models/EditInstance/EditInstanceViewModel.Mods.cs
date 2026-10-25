@@ -14,42 +14,40 @@ using CommunityToolkit.Mvvm.Input;
 using DynamicData;
 using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Models;
-using Tavstal.KonkordLauncher.Common.Services.Abstractions;
-using Tavstal.KonkordLauncher.Core.Helpers.IO;
-using Tavstal.KonkordLauncher.Core.Models.Logging;
+using ReactiveUI.Primitives;
+using Tavstal.BeaconSDK.Helpers.IO;
+using Tavstal.BeaconSDK.Models.Logging;
+using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
+using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
+using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
+using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
 public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
 {
-    private readonly ICustomLogger _logger = null!;
+    private readonly IBeaconLogger _logger = null!;
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IBitmapService _bitmapService = null!;
     private readonly EditInstanceViewModel _parent;
-    
+
     private readonly SourceCache<ResourceBaseModel, string> _modsCache = new(x => x.Name);
     public ReadOnlyObservableCollection<ResourceBaseModel> FilteredMods { get; private set; } = null!;
 
     [ObservableProperty]
     public partial ResourceBaseModel? SelectedMod { get; set; }
-    [ObservableProperty] 
+    [ObservableProperty]
     public partial string? SearchQuery { get; set; } = string.Empty;
-    
+
     [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public EditInstanceViewModel_Mods(EditInstanceViewModel parent)
     {
         _parent = parent;
         if (Design.IsDesignMode)
             return;
-        
-        var services = Program.ServiceProvider;
-        _logger = services.GetRequiredService<ICustomLogger<EditInstanceViewModel_Mods>>();
-        _launcherStore = services.GetRequiredService<ILauncherStore>();
-        _bitmapService = services.GetRequiredService<IBitmapService>();
-        
+
         // Set up a reactive filter for the SearchQuery property.
         var filter = this.WhenAnyValue(x => x.SearchQuery)
             .Select(query =>
@@ -70,7 +68,17 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
         Disposables.Add(subscription);
         FilteredMods = mods;
     }
-    
+
+    [RequiresUnreferencedCode(
+        "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    public EditInstanceViewModel_Mods(EditInstanceViewModel parent, ILauncherStore launcherStore,
+        IBitmapService bitmapService) : this(parent)
+    {
+        _logger = Program.Services.GetRequiredService<IBeaconLogger<EditInstanceViewModel_Mods>>();
+        _launcherStore = launcherStore;
+        _bitmapService = bitmapService;
+    }
+
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
@@ -80,17 +88,17 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
         _modsCache.Dispose();
         SelectedMod = null;
     }
-    
+
     public async Task InitAsync(CancellationToken cancellationToken = default)
     {
         if (_parent.IsVanilla)
             return;
-        
+
         await Dispatcher.UIThread.Invoke(async () => await RefreshModsAsync());
     }
-    
+
     #region Commands
-    
+
     /// <summary>
     /// Toggles the enabled state of a mod and saves the updated state.
     /// </summary>
@@ -127,12 +135,15 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
             resources.Remove(targetResource);
             await _launcherStore.SaveInstanceResourcesAsync(instance, resources);
         }
-        
+
         await RefreshModsAsync();
     }
 
     [RelayCommand]
-    private async Task Download() => await _parent.OpenResourceDownloadDialog.Handle(EResourceType.MOD);
+    private async Task Download()
+    {
+        await _parent.OpenResourceDownloadDialog.Handle(EResourceType.MOD);
+    }
 
     /// <summary>
     /// Opens the directory containing the mods in the file explorer.
@@ -142,7 +153,7 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
     {
         if (_parent.GameDirectory == null)
             return;
-        
+
         string modsDir = Path.Combine(_parent.GameDirectory, "mods");
         if (!Directory.Exists(modsDir))
             return;
@@ -150,7 +161,7 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
         FileSystemHelper.OpenFolderInFileExplorer(modsDir);
     }
     #endregion
-    
+
     /// <summary>
     /// Saves the current state of mods by renaming their file extensions
     /// based on their enabled or disabled status. Enabled mods have the
@@ -171,7 +182,7 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
             string? newPath = null;
             if (mod.FilePath == null)
                 continue;
-            
+
             if (mod.IsEnabled && mod.FilePath.EndsWith(".jar.dis"))
                 newPath = mod.FilePath.Replace(".dis", "");
             else if (!mod.IsEnabled && mod.FilePath.EndsWith(".jar"))
@@ -190,7 +201,7 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
             mod.FilePath = newPath;
         }
     }
-    
+
     /// <summary>
     /// Refreshes the list of mods by scanning the game directory for mod files.
     /// Updates the `_modsCache` with metadata such as name, size, and enabled status for each mod.
@@ -204,16 +215,16 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
         Directory.CreateDirectory(modsDir);
 
         List<InstanceResource> instanceResources = await _parent.Instance.getInstance().GetInstanceResourcesAsync() ?? [];
-        
+
         _modsCache.Edit(innerCache =>
         {
             foreach (var mod in innerCache.Items)
                 mod.Icon.Dispose(_bitmapService); // Dispose of the image to free memory
-            
+
             innerCache.Clear();
             var mods = Directory.GetFiles(modsDir, "*")
                 .Where(x => x.EndsWith(".jar") || x.EndsWith(".jar.dis"));
-            
+
             foreach (var mod in mods)
             {
                 try
@@ -237,7 +248,7 @@ public partial class EditInstanceViewModel_Mods  : KonkordObservableObject
                     {
                         _logger.LogWarning(ex, $"Failed to read icon from {mod}:");
                     }
-                    
+
                     var newMod = new ResourceBaseModel
                     {
                         IsEnabled = !fileName.EndsWith(".dis"),

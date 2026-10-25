@@ -1,25 +1,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Extensions.DependencyInjection;
-using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Services.Abstractions;
-using Tavstal.KonkordLauncher.Core.Models.Logging;
+using Tavstal.BeaconSDK.Models.Logging;
+using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
+using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 public partial class InstanceLogsViewModel : KonkordObservableObject
 {
     private readonly string _instanceId;
-    private readonly ICustomLogger _logger = null!;
+    private readonly IBeaconLogger _logger = null!;
     private readonly ILauncherStore _launcherStore = null!;
     
     #region Interactions
@@ -60,7 +58,7 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
             return;
         
         var services = Program.ServiceProvider;
-        _logger = services.GetRequiredService<ICustomLogger<InstanceLogsViewModel>>();
+        _logger = services.GetRequiredService<IBeaconLogger<InstanceLogsViewModel>>();
         _launcherStore = services.GetRequiredService<ILauncherStore>();
         _ = InitAsync();
     }
@@ -128,13 +126,19 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
     /// Scrolls the logs to the end by triggering the LogsScrollToEnd interaction.
     /// </summary>
     [RelayCommand]
-    private async Task ScrollLogsToEnd() => await LogsScrollToEnd.Handle(Unit.Default);
+    private async Task ScrollLogsToEnd()
+    {
+        await LogsScrollToEnd.Handle(Unit.Default);
+    }
 
     /// <summary>
     /// Copies the current logs to the system clipboard by triggering the SetClipboardText interaction.
     /// </summary>
     [RelayCommand]
-    private async Task CopyLogs() => await SetClipboardText.Handle(Logs);
+    private async Task CopyLogs()
+    {
+        await SetClipboardText.Handle(Logs);
+    }
 
     /// <summary>
     /// Clears the logs for the current instance and updates the global log storage.
@@ -151,5 +155,8 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
     /// </summary>
     /// <returns>A task that represents the asynchronous operation.</returns>
     [RelayCommand]
-    public async Task CloseWindow() => await CloseWindowInteraction.Handle(Unit.Default);
+    public async Task CloseWindow()
+    {
+        await CloseWindowInteraction.Handle(Unit.Default);
+    }
 }

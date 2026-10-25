@@ -1,7 +1,4 @@
 using System;
-using System.IO;
-using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -10,132 +7,36 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
 using DiscordRPC;
 using Microsoft.Extensions.DependencyInjection;
-using Tavstal.KonkordLauncher.Common.Models;
-using Tavstal.KonkordLauncher.Common.Services.Abstractions;
-using Tavstal.KonkordLauncher.Core.Helpers;
-using Tavstal.KonkordLauncher.Core.Helpers.IO;
-using Tavstal.KonkordLauncher.Core.Models.Instance;
-using Tavstal.KonkordLauncher.Core.Models.Logging;
+using Tavstal.BeaconSDK.Helpers.IO;
+using Tavstal.BeaconSDK.Models.Logging;
+using Tavstal.BeaconSDK.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Models.Enums;
+using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Views;
 
 namespace Tavstal.KonkordLauncher.Desktop;
 
-/// <summary>
-/// Represents the main application class for the Konkord Launcher desktop application.
-/// </summary>
 // ReSharper disable once PartialTypeWithSinglePart - Avalonia code generation
 public partial class App : Application
 {
-    private static ICustomLogger? _logger;
+    private static IBeaconLogger? _logger;
     // ReSharper disable once NotAccessedField.Local - Used to ensure the task is not garbage collected before completion
     private static Task? _initializeTask;
     private static DiscordRpcClient? _rpcClient;
 
-    #region Screen Size
-    private static PixelSize _screenSize = new(1920, 1080);
-    public static PixelSize ScreenSize => _screenSize;
-    private static Resolution _screenResolution = new(1920, 1080);
-    public static Resolution ScreenResolution => _screenResolution;
-    
-    public static decimal ScreenWidth => _screenSize.Width;
-    public static decimal ScreenHeight => _screenSize.Height;
-    public static void SetScreenSize(PixelSize screenSize)
-    {
-        _screenSize = screenSize;
-        _screenResolution.X = (uint)(0.40 * screenSize.Width); 
-        _screenResolution.Y = (uint)(0.45 * screenSize.Height);
-    }
-    #endregion
-
-    #region Versioning
-    private static string _version = string.Empty;
-    public static string Version
-    {
-        get
-        {
-            if (!string.IsNullOrEmpty(_version))
-                return _version;
-            
-            Version? currentVersion = null;
-            try
-            {
-                object[] versionAttributes = Assembly.GetExecutingAssembly()
-                    .GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false);
-                if (versionAttributes.Length > 0)
-                {
-                    AssemblyInformationalVersionAttribute informationalVersionAttribute =
-                        (AssemblyInformationalVersionAttribute)versionAttributes[0];
-                    currentVersion = new Version(informationalVersionAttribute.InformationalVersion);
-                }
-                else
-                    currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
-            }
-            catch { /* ignored */}
-
-            _version = currentVersion?.ToString() ?? "2.0.0";
-            return _version;
-        }
-    }
-    public static string Branch
-    {
-        get
-        {
-#if  DEBUG
-            return "dev";
-#else 
-            return "stable";
-#endif
-        }   
-    }
-    private static string _buidDate = string.Empty;
-    public static string BuildDate
-    {
-        get
-        {
-            if (!string.IsNullOrEmpty(_buidDate))
-                return _buidDate;
-            
-            object[] buildDateAttributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyMetadataAttribute), false);
-            foreach (var attribute in buildDateAttributes)
-            {
-                if (attribute is AssemblyMetadataAttribute { Key: "BuildDate" } metadata)
-                {
-                    _buidDate = metadata.Value ?? DateTime.UtcNow.ToString("yyyy-MM-dd");
-                    return _buidDate;
-                }
-            }
-
-            _buidDate = DateTime.UtcNow.ToString("yyyy-MM-dd");
-            return _buidDate;
-        }
-    }
-    #endregion
-    
-    /// <summary>
-    /// Initializes the application by loading XAML resources.
-    /// </summary>
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
-        GlobalEvents.OnThemeChanged += ApplyTheme;
         _initializeTask = InitAsync();
     }
 
-    /// <summary>
-    /// Initializes launcher runtime state by loading persisted settings, applying the selected UI theme,
-    /// and configuring Discord Rich Presence with an initial "Starting..." status.
-    /// </summary>
-    /// <param name="cancellationToken">A token used to cancel the asynchronous settings load operation.</param>
-    private async Task InitAsync(CancellationToken cancellationToken = default)
+    private Task InitAsync()
     {
         try
         {
-            var launcherStore = Program.ServiceProvider.GetRequiredService<ILauncherStore>();
-            _logger = Program.ServiceProvider.GetRequiredService<ICustomLogger<App>>();
-            var settings = await launcherStore.GetSettingsAsync(ScreenResolution, cancellationToken);
-            ApplyTheme(settings.Launcher.Theme);
-            
-            Directory.CreateDirectory(PathHelper.TempDir);
+            _logger = Program.Services.GetRequiredService<IBeaconLogger<App>>();
+            var eventService = Program.Services.GetRequiredService<IEventService>();
+            eventService.OnThemeChanged += ApplyTheme;
 
             if (!Design.IsDesignMode)
             {
@@ -157,6 +58,8 @@ public partial class App : Application
         {
             // ignored
         }
+
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -165,37 +68,19 @@ public partial class App : Application
     /// </summary>
     public override void OnFrameworkInitializationCompleted()
     {
-        // Archive existing log before starting a new session
-        try
-        {
-            string logPath = Path.Combine(PathHelper.LauncherLogsDir, PathHelper.LatestLog);
-            if (File.Exists(logPath))
-            {
-                var lastModified = File.GetLastWriteTime(logPath);
-                string archivePath = Path.Combine(PathHelper.LauncherLogsDir, string.Format(PathHelper.LogsFileFormat, lastModified) + ".gz");
-                FileSystemHelper.CompressFile(logPath, archivePath);
-            }
-            LoggerHelper.DefaultLogFilePath = logPath;
-        }
-        catch (Exception)
-        {
-            // ignored
-        }
-        
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            // Sets the main window to the StartupWindow, passing the application lifetime.
             desktop.MainWindow = new StartupWindow();
 #if DEBUG
-            // This is the new alternative of attaching developer tools
-            this.AttachDeveloperTools(); 
+            this.AttachDeveloperTools();
 #endif
-            
+
+            var launcherStore = Program.Services.GetRequiredService<ILauncherStore>();
             desktop.ShutdownRequested += (_, _) =>
             {
                 try
                 {
-                    FileSystemHelper.DeleteDirectory(PathHelper.TempDir);
+                    FileSystemHelper.DeleteDirectory(launcherStore.GetTempDir());
                 }
                 catch (Exception)
                 {
@@ -206,7 +91,7 @@ public partial class App : Application
 
         base.OnFrameworkInitializationCompleted();
     }
-    
+
     /// <summary>
     /// Applies the specified theme to the application by setting the requested theme variant.
     /// </summary>
@@ -229,7 +114,7 @@ public partial class App : Application
             _logger?.LogCritical(ex, "Failed to apply theme");
         }
     }
-    
+
     /// <summary>
     /// Updates the Discord Rich Presence (RPC) with the specified details.
     /// </summary>
@@ -240,14 +125,14 @@ public partial class App : Application
         {
             if (Design.IsDesignMode)
                 return;
-            
+
             // Check if the Discord RPC client is initialized and not disposed.
             if (_rpcClient == null || _rpcClient.IsDisposed)
             {
                 _logger?.LogError("Discord RPC client is not initialized or disposed.");
                 return;
             }
-        
+
             // Set the presence with the provided details and current timestamps.
             _rpcClient.SetPresence(new RichPresence
             {
@@ -271,7 +156,7 @@ public partial class App : Application
         {
             if (Design.IsDesignMode)
                 return;
-            
+
             // Check if the Discord RPC client is initialized and not disposed.
             if (_rpcClient == null || _rpcClient.IsDisposed)
             {

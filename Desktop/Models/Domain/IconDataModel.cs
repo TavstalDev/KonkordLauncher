@@ -1,5 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Tavstal.KonkordLauncher.Common.Models;
+using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
 

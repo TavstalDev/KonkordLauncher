@@ -5,7 +5,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -16,32 +16,31 @@ using Microsoft.Extensions.DependencyInjection;
 using MinecraftSkinRender;
 using MinecraftSkinRender.Image;
 using SkiaSharp;
-using Tavstal.KonkordLauncher.Common.Models;
-using Tavstal.KonkordLauncher.Common.Services.Abstractions;
-using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Models.Accounts;
-using Tavstal.KonkordLauncher.Core.Models.Logging;
-using Tavstal.KonkordLauncher.Core.Models.MojangApi.User;
-using Tavstal.KonkordLauncher.Core.Services.Abstractions;
-using Tavstal.KonkordLauncher.Core.Services.Abstractions.Auth;
+using Tavstal.BeaconSDK.Enums;
+using Tavstal.BeaconSDK.Models.Accounts;
+using Tavstal.BeaconSDK.Models.Logging;
+using Tavstal.BeaconSDK.Models.MojangApi.User;
+using Tavstal.BeaconSDK.Services.Abstractions;
+using Tavstal.BeaconSDK.Services.Abstractions.Auth;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
+using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
+using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
 using ImageHelper = Tavstal.KonkordLauncher.Desktop.Helpers.ImageHelper;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.MainView;
 
-/// <summary>
-/// Partial view-model that encapsulates account-related state and actions for the main view.
-/// </summary>
 public partial class MainViewModel_Accounts : KonkordObservableObject
 {
-    private readonly ICustomLogger _logger = null!;
+    private readonly IBeaconLogger _logger = null!;
     private readonly ILauncherStore _launcherStore = null!;
     private readonly ITranslationService _translationService = null!;
     private readonly IMicrosoftAuthService _authService = null!;
     private readonly IMojangSkinService _mojangSkinService = null!;
     private readonly IBitmapService _bitmapService = null!;
+    private readonly IEventService _eventService = null!;
+    private readonly IEncryptionService _encryptionService = null!;
     private readonly MainViewModel _parent;
 
     [ObservableProperty]
@@ -70,14 +69,12 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
     public string AccountName => SelectedAccount != null
         ? SelectedAccount.DisplayName
         : _translationService.Translate("main.sidebar.accounts.guest");
-    
+
     public bool IsMojangAccount => SelectedAccount is { Type: EAccountType.MICROSOFT };
-    
-    /// <summary>
-    /// Creates a new instance of the accounts sub-viewmodel.
-    /// </summary>
-    /// <param name="parent">The owning <see cref="MainViewModel"/>. Required for raising parent interactions and dialogs.</param>
-    public MainViewModel_Accounts(MainViewModel parent)
+
+    public MainViewModel_Accounts(MainViewModel parent, ILauncherStore launcherStore, ITranslationService translationService,
+        IMicrosoftAuthService microsoftAuthService, IMojangSkinService mojangSkinService, IBitmapService bitmapService,
+        IEventService eventService, IEncryptionService encryptionService)
     {
         _parent = parent;
         if (Design.IsDesignMode)
@@ -85,18 +82,19 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             AccountAvatar = ImageHelper.LoadDesignTime("avares://KonkordLauncher/Assets/Images/placeholders/steve_head.png");
             return;
         }
-        
-        var services = Program.ServiceProvider;
-        _logger = services.GetRequiredService<ICustomLogger<MainViewModel_Accounts>>();
-        _launcherStore = services.GetRequiredService<ILauncherStore>();
-        _translationService = services.GetRequiredService<ITranslationService>();
-        _authService = services.GetRequiredService<IMicrosoftAuthService>();
-        _mojangSkinService = services.GetRequiredService<IMojangSkinService>();
-        _bitmapService = services.GetRequiredService<IBitmapService>();
+
+        _logger = Program.Services.GetRequiredService<IBeaconLogger<MainViewModel_Accounts>>();
+        _launcherStore = launcherStore;
+        _translationService = translationService;
+        _authService = microsoftAuthService;
+        _mojangSkinService = mojangSkinService;
+        _bitmapService = bitmapService;
+        _eventService = eventService;
+        _encryptionService = encryptionService;
 
         AccountAvatar = _bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Images/placeholders/steve_head.png");
     }
-    
+
     /// <summary>
     /// Releases resources used by this view model and unsubscribes from global account change events.
     /// </summary>
@@ -104,9 +102,9 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
-        GlobalEvents.OnAccountsChanged -= OnAccountUpdated;
+        _eventService.OnAccountsChanged -= OnAccountUpdated;
     }
-    
+
     /// <summary>
     /// Initializes the accounts sub-view-model with the provided account data.
     /// </summary>
@@ -116,15 +114,15 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
     /// </param>
     public Task InitAsync(AccountData accountData)
     {
-        AccountData = new AccountDataModel(accountData);
-        
+        AccountData = new AccountDataModel(accountData, _encryptionService);
+
         Account? selectedAccount = AccountData.Accounts.FirstOrDefault(x => x.Id == AccountData.SelectedAccountId);
-        SelectedAccount = selectedAccount != null ? new AccountModel(selectedAccount, true) : null;
+        SelectedAccount = selectedAccount != null ? new AccountModel(selectedAccount, true, _encryptionService) : null;
 
         Dispatcher.UIThread.Invoke(() =>
         {
             OnAccountUpdated();
-            GlobalEvents.OnAccountsChanged += OnAccountUpdated;
+            _eventService.OnAccountsChanged += OnAccountUpdated;
             SubscribeToAccountDataChildren(AccountData);
         });
         return Task.CompletedTask;
@@ -138,8 +136,11 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
     /// Opens the account management window to add a new account asynchronously.
     /// </summary>
     [RelayCommand]
-    private async Task AddAccountBtnAsync() => await _parent.ShowAccountsDialogInteraction.Handle(Unit.Default);
-    
+    private async Task AddAccountBtnAsync()
+    {
+        await _parent.ShowAccountsDialogInteraction.Handle(Unit.Default);
+    }
+
     /// <summary>
     /// Selects the specified account by its ID and updates the selected account in the application.
     /// </summary>
@@ -151,7 +152,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             return;
 
         AccountData.SelectedAccountId = accountId;
-        GlobalEvents.InvokeAccountsChanged();
+        _eventService.RaiseAccountsChanged();
     }
 
     /// <summary>
@@ -163,38 +164,52 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
     [RelayCommand]
     private async Task RefreshAccountBtnAsync(Account account, CancellationToken cancellationToken = default)
     {
-        if (!account.CanExpire || string.IsNullOrEmpty(account.GetAccessToken()))
+        if (!account.CanExpire)
             return;
 
-        if (_authService.AuthStatus != EAuthStatus.NONE)
+        string refreshToken = Encoding.UTF8.GetString(account.GetRefreshToken(_encryptionService));
+        if (string.IsNullOrEmpty(refreshToken))
             return;
 
-        if (account.AccessTokenExpireDate > DateTime.Now)
-            return;
-
-        if (!await _authService.RefreshLoginAsync(account.GetRefreshToken(), cancellationToken))
+        try
         {
-            _logger.LogError($"Failed to refresh account {account.DisplayName} ({account.Id}).");
-            return;
-        }
+            if (_authService.AuthStatus != EAuthStatus.NONE)
+                return;
 
-        if (_authService.Account == null)
+            if (account.AccessTokenExpireDate > DateTime.Now)
+                return;
+
+            if (!await _authService.RefreshLoginAsync(refreshToken, cancellationToken))
+            {
+                _logger.LogError($"Failed to refresh account {account.DisplayName} ({account.Id}).");
+                return;
+            }
+
+            if (_authService.Account == null)
+            {
+                _logger.LogError(
+                    $"Failed to refresh account {account.DisplayName} ({account.Id}) after successful api call.");
+                return;
+            }
+
+            var updatedAccount = _authService.Account;
+            updatedAccount.Id = account.Id; // Ensure the ID remains the same
+            _logger.LogInformation($"Successfully refreshed account {account.DisplayName} ({account.Id}).");
+
+            AccountData accountData = await _launcherStore.GetAccountDataAsync(cancellationToken);
+            var index = accountData.Accounts.FindIndex(x => x.Id == account.Id);
+            accountData.Accounts[index] = updatedAccount;
+
+            await _launcherStore.SaveAccountDataAsync(accountData, cancellationToken);
+            _eventService.RaiseAccountsChanged();
+            _authService.Reset();
+        }
+        finally
         {
-            _logger.LogError($"Failed to refresh account {account.DisplayName} ({account.Id}) after successful api call.");
-            return;
+            // ReSharper disable once RedundantAssignment
+            refreshToken = string.Empty;
+            GC.Collect(2, GCCollectionMode.Forced, blocking: true, compacting: true);
         }
-
-        var updatedAccount = _authService.Account;
-        updatedAccount.Id = account.Id; // Ensure the ID remains the same
-        _logger.LogInformation($"Successfully refreshed account {account.DisplayName} ({account.Id}).");
-
-        AccountData accountData = await _launcherStore.GetAccountDataAsync(cancellationToken);
-        var index = accountData.Accounts.FindIndex(x => x.Id == account.Id);
-        accountData.Accounts[index] = updatedAccount;
-
-        await _launcherStore.SaveAccountDataAsync(accountData, cancellationToken);
-        GlobalEvents.InvokeAccountsChanged();
-        _authService.Reset();
     }
 
     /// <summary>
@@ -229,7 +244,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             // Prevent re-uploading while processing
             if (IsAccountSkinProcessing)
                 return;
-            
+
             IsAccountSkinProcessing = true;
             // Ensure an account is selected
             if (SelectedAccount == null)
@@ -249,15 +264,15 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             int accountIndex = AccountData.Accounts.IndexOf(SelectedAccount);
             SelectedAccount.Skins.Add(new AccountSkin(skinId, IsAccountHasWideModel ? "classic" : "slim", SelectedSkin.CapeId));
             AccountData.Accounts[accountIndex] = SelectedAccount;
-           
+
             string previewPath = Path.Combine(skinDir, "preview.png");
             string headshotPath = Path.Combine(skinDir, "head.png");
-            
+
             await using var skinStream = File.OpenRead(skinPath);
             using var skinBitmap = SKBitmap.Decode(skinStream);
             Skin3DHeadTypeB.MakeHeadImage(skinBitmap, 15, 65).SavePng(headshotPath);
             Skin2DTypeB.MakeSkinImage(skinBitmap, IsAccountHasWideModel ? SkinType.New : SkinType.NewSlim).SavePng(previewPath);
-            
+
             OnAccountUpdated();
         }
         catch (Exception ex)
@@ -285,12 +300,12 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             if (model.IsSelected || IsAccountSkinProcessing)
                 return;
             IsAccountSkinProcessing = true;
-            
-            
+
+
             // Ensure an account is selected
             if (SelectedAccount == null)
                 return;
-            
+
             var settings = await _launcherStore.GetSettingsAsync(cancellationToken: cancellationToken);
             string skinPath = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins", SelectedAccount.Id, model.Id, "texture.png");
             if (!File.Exists(skinPath))
@@ -298,8 +313,9 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
                 _logger.LogError("Skin file does not exist: " + skinPath);
                 return;
             }
-            
-            MojangProfile? profile = await _mojangSkinService.UploadSkinAsync(SelectedAccount.GetAccessToken(), model.Variant, skinPath, cancellationToken);
+
+            string accessToken = Encoding.UTF8.GetString(SelectedAccount.GetAccessToken(_encryptionService));
+            MojangProfile? profile = await _mojangSkinService.UploadSkinAsync(accessToken, model.Variant, skinPath, cancellationToken);
             if (profile == null)
             {
                 await _parent.ShowAlertDialogInteraction.Handle(new Alert(_translationService.Translate("common.error"), _translationService.Translate("main.page.skins.alert.error"), EAlertType.Error));
@@ -309,14 +325,14 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             var newSkin = SelectedAccount.Skins.Find(x => x.Id == model.Id);
             if (SelectedSkin.CapeId != newSkin?.CapeId && newSkin is { CapeId: not null })
             {
-                profile = await _mojangSkinService.ShowCapeAsync(SelectedAccount.GetAccessToken(), newSkin.CapeId, cancellationToken);
+                profile = await _mojangSkinService.ShowCapeAsync(accessToken, newSkin.CapeId, cancellationToken);
                 if (profile == null)
                 {
                     await _parent.ShowAlertDialogInteraction.Handle(new Alert(_translationService.Translate("common.error"), _translationService.Translate("main.page.skins.alert.cape.change"), EAlertType.Error));
                     return;
                 }
             }
-            
+
             int accountIndex = AccountData.Accounts.IndexOf(SelectedAccount);
             int skinIndex = SelectedAccount.Skins.FindIndex(x => x.Id == model.Id);
             if (skinIndex >= 0)
@@ -336,6 +352,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         finally
         {
             IsAccountSkinProcessing = false;
+            GC.Collect(2, GCCollectionMode.Forced, blocking: true, compacting: true);
         }
     }
 
@@ -354,17 +371,18 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             if (model.IsSelected || IsAccountSkinProcessing)
                 return;
             IsAccountSkinProcessing = true;
-            
+
             // Ensure an account is selected
             if (SelectedAccount == null)
                 return;
 
             MojangProfile? result;
+            string accessToken = Encoding.UTF8.GetString(SelectedAccount.GetAccessToken(_encryptionService));
             if (model.Id.Equals("none", StringComparison.InvariantCultureIgnoreCase))
-                result = await _mojangSkinService.HideCapeAsync(SelectedAccount.GetAccessToken(), cancellationToken);
+                result = await _mojangSkinService.HideCapeAsync(accessToken, cancellationToken);
             else
-                result = await _mojangSkinService.ShowCapeAsync(SelectedAccount.GetAccessToken(), model.Id, cancellationToken);
-            
+                result = await _mojangSkinService.ShowCapeAsync(accessToken, model.Id, cancellationToken);
+
             if (result == null)
             {
                 await _parent.ShowAlertDialogInteraction.Handle(new Alert(_translationService.Translate("common.error"), _translationService.Translate("main.page.skins.alert.cape.change"), EAlertType.Error));
@@ -407,7 +425,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             IsAccountSkinProcessing = false;
         }
     }
-    
+
     /// <summary>
     /// Changes the current skin model variant (classic or slim) for the active Mojang profile,
     /// updates the launcher state, and keeps the selected skin/model in sync.
@@ -427,14 +445,14 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
                 return;
             }
             IsAccountSkinProcessing = true;
-            
+
             // Ensure an account is selected
             if (SelectedAccount == null)
             {
                 _logger.LogDebug("No account selected while selecting skin model.");
                 return;
             }
-            
+
             Skin? skin = SelectedAccount.MojangProfile?.Skins.FirstOrDefault(x => x.Id == SelectedSkin.MojangId);
             if (skin == null)
             {
@@ -442,7 +460,8 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
                 return;
             }
 
-            MojangProfile? result = await _mojangSkinService.ChangeSkinAsync(SelectedAccount.GetAccessToken(), model, skin.Url, cancellationToken);
+            string accessToken = Encoding.UTF8.GetString(SelectedAccount.GetAccessToken(_encryptionService));
+            MojangProfile? result = await _mojangSkinService.ChangeSkinAsync(accessToken, model, skin.Url, cancellationToken);
             if (result == null)
             {
                 await _parent.ShowAlertDialogInteraction.Handle(new Alert(_translationService.Translate("common.error"), _translationService.Translate("main.page.skins.alert.model.change"), EAlertType.Error));
@@ -461,11 +480,11 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             IsAccountHasWideModel = newValue;
             SelectedSkin.Model = model;
 
-            
+
             /*
              The preview should be updated here, but until it is 2D there is not much point in updating it since there is barely any changes that are visible.
-             
-             
+
+
             var settings = await _launcherStore.GetSettingsAsync(cancellationToken: cancellationToken);
             string skinsDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins");
             // Get the new model image
@@ -504,7 +523,10 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
     /// <summary>
     /// Updates the account data by fetching the latest data from the launcher helper.
     /// </summary>
-    private void OnAccountUpdated() => Dispatcher.UIThread.Invoke(async () => await HandleAccountUpdatedAsync());
+    private void OnAccountUpdated()
+    {
+        Dispatcher.UIThread.Invoke(async () => await HandleAccountUpdatedAsync());
+    }
 
     /// <summary>
     /// Reloads the currently selected account and its related skin/cape preview data from disk,
@@ -514,7 +536,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
     private async Task HandleAccountUpdatedAsync(CancellationToken cancellationToken = default)
     {
         var accountData = await _launcherStore.GetAccountDataAsync(cancellationToken);
-        AccountData = new AccountDataModel(accountData);
+        AccountData = new AccountDataModel(accountData, _encryptionService);
         Account? selectedAccount = accountData.Accounts.FirstOrDefault(x => x.Id == AccountData.SelectedAccountId);
 
         if (SelectedAccount?.Id != selectedAccount?.Id)
@@ -529,7 +551,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             Capes.Clear();
         }
 
-        SelectedAccount = selectedAccount != null ? new AccountModel(selectedAccount, true) : null;
+        SelectedAccount = selectedAccount != null ? new AccountModel(selectedAccount, true, _encryptionService) : null;
         if (SelectedAccount?.MojangProfile != null)
         {
             var settings = await _launcherStore.GetSettingsAsync(cancellationToken: cancellationToken);
@@ -629,7 +651,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         }
         else
             avatarPath = null;
-        
+
         AccountAvatar = File.Exists(avatarPath)
             ? await _bitmapService.GetBitmapAsync(avatarPath)
             : await _bitmapService.GetBitmapAsync("avares://KonkordLauncher/Assets/Images/placeholders/steve_head.png");
@@ -663,7 +685,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
     {
         if (_parent.IsLoading || !_parent.Initialization.IsCompletedSuccessfully)
             return;
-        
+
         _logger.LogDebug("AccountData changed with old and new value. Unsubscribing from old, subscribing to new.");
 
         if (oldValue != null)
@@ -683,10 +705,10 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
     {
         if (_parent.IsLoading || !_parent.Initialization.IsCompletedSuccessfully)
             return;
-     
+
         if (sender is not AccountDataModel accountData)
             return;
-        
+
         _logger.LogDebug($"Inner property '{e.PropertyName}' changed on {sender.GetType().Name}. Saving to file...");
         SaveAccountDataToFile(accountData);
     }
@@ -700,22 +722,25 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         var accounts = new AccountData
         {
             SelectedAccountId = newValue.SelectedAccountId ?? string.Empty,
-            Accounts = newValue.Accounts.Select(a =>
-            {
-                Account account = new()
+            Accounts =
+            [
+                .. newValue.Accounts.Select(a =>
                 {
-                    Id = a.Id,
-                    Uuid = a.Uuid,
-                    DisplayName = a.DisplayName,
-                    Type = a.Type,
-                    AccessTokenExpireDate = a.AccessTokenExpireDate,
-                    MojangProfile = a.MojangProfile,
-                    Skins = a.Skins,
-                };
-                account.SetAccessToken(a.GetAccessToken());
-                account.SetRefreshToken(a.GetRefreshToken());
-                return account;
-            }).ToList()
+                    Account account = new()
+                    {
+                        Id = a.Id,
+                        Uuid = a.Uuid,
+                        DisplayName = a.DisplayName,
+                        Type = a.Type,
+                        AccessTokenExpireDate = a.AccessTokenExpireDate,
+                        MojangProfile = a.MojangProfile,
+                        Skins = a.Skins,
+                    };
+                    account.SetAccessToken(a.GetAccessToken(_encryptionService), _encryptionService);
+                    account.SetRefreshToken(a.GetRefreshToken(_encryptionService), _encryptionService);
+                    return account;
+                })
+            ]
         };
 
         _launcherStore.SaveAccountData(accounts);

@@ -1,0 +1,158 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
+using Tavstal.BeaconSDK.Models.Logging;
+using Tavstal.BeaconSDK.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Translation;
+using YamlDotNet.RepresentationModel;
+
+namespace Tavstal.KonkordLauncher.Desktop.Services.Implementations;
+
+/// <inheritdoc cref="ITranslationService"/>
+public class TranslationService : ITranslationService, IHostedService
+{
+    private readonly IBeaconLogger _logger;
+    private readonly IHttpService _httpService;
+    private readonly ILauncherStore _launcherStore;
+    private Dictionary<string, string> _defaultTranslations = [];
+    private Dictionary<string, string> _translations = [];
+
+    public delegate void LanguageChangedHandler(string newLanguage);
+    public static event LanguageChangedHandler? LanguageChanged;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TranslationService"/> class.
+    /// </summary>
+    /// <param name="logger">Logger used to record translation loading and lookup diagnostics.</param>
+    /// <param name="httpService">HTTP service used to download translation files when a local copy is not available.</param>
+    /// <param name="launcherStore">Launcher store used to resolve the translation directory from the current launcher settings.</param>
+    public TranslationService(IBeaconLogger<TranslationService> logger, IHttpService httpService, ILauncherStore launcherStore)
+    {
+        _logger = logger;
+        _httpService = httpService;
+        _launcherStore = launcherStore;
+        TranslationHelper.Current = this;
+    }
+
+    public async Task StartAsync(CancellationToken cancellationToken)
+    {
+        await using var embeddedStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Tavstal.KonkordLauncher.Assets.Lang.en.yml");
+        if (embeddedStream is null)
+            throw new Exception("Embedded resource not found.");
+        using TextReader reader = new StreamReader(embeddedStream);
+        _defaultTranslations = LoadTranslations(reader);
+        _translations = _defaultTranslations;
+    }
+
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        _translations.Clear();
+        return Task.CompletedTask;
+    }
+
+
+    /// <inheritdoc/>
+    public async Task ChangeLanguageAsync(string language, CancellationToken cancellationToken = default)
+    {
+        var currentLocalizations = _translations;
+        try
+        {
+            if (language.Length is > 5 or < 2)
+                throw new Exception("Invalid language code");
+
+            var settings = await _launcherStore.GetSettingsAsync(cancellationToken: cancellationToken);
+            string localePath = Path.Combine(settings.Launcher.TranslationsDirectoryPath, $"{language}.json");
+            if (File.Exists(localePath))
+            {
+                using TextReader reader = new StreamReader(localePath);
+                _translations = LoadTranslations(reader);
+                LanguageChanged?.Invoke(language);
+                return;
+            }
+
+            // Do not attempt to download the default language
+            if (language == "en")
+            {
+                _translations = _defaultTranslations;
+                LanguageChanged?.Invoke(language);
+                return;
+            }
+
+            string downloadUrl = $"https://raw.githubusercontent.com/TavstalDev/KonkordLauncher/master/Desktoo/Assets/Lang/{language}.yml";
+            string? resultYml = await _httpService.GetStringAsync(downloadUrl, null, cancellationToken);
+            if (resultYml == null)
+            {
+                _logger.LogWarning("Failed to fetch translations from the URL.");
+                return;
+            }
+            await File.WriteAllTextAsync(localePath, resultYml, cancellationToken);
+
+            using TextReader loc = new StringReader(resultYml);
+            _translations = LoadTranslations(loc);
+            LanguageChanged?.Invoke(language);
+        }
+        catch (Exception ex)
+        {
+            _translations = currentLocalizations;
+            _logger.LogCritical(ex, $"Failed to change language: {ex.Message}");
+        }
+    }
+
+    /// <inheritdoc/>
+    public string Translate(string key)
+    {
+        if (!_translations.TryGetValue(key, out var translation) || string.IsNullOrWhiteSpace(translation))
+            return _defaultTranslations[key];
+        return translation;
+    }
+
+    /// <inheritdoc/>
+    public string Translate(string key, params object[]? args)
+    {
+       string translation = Translate(key);
+       if (args is null or { Length: 0 })
+           return translation;
+       return string.Format(translation, args);
+    }
+
+    private Dictionary<string, string> LoadTranslations(TextReader reader)
+    {
+        var yaml = new YamlStream();
+        yaml.Load(reader);
+
+        var result = new Dictionary<string, string>(StringComparer.Ordinal);
+        if (yaml.Documents.Count > 0 &&
+            yaml.Documents[0].RootNode is YamlMappingNode root)
+        {
+            Flatten(root, prefix: "", result);
+        }
+        return result;
+    }
+
+    private void Flatten(YamlMappingNode node, string prefix, Dictionary<string, string> into)
+    {
+        foreach (var (k, v) in node.Children)
+        {
+            var key = prefix.Length == 0 ? ((YamlScalarNode)k).Value! : $"{prefix}.{((YamlScalarNode)k).Value}";
+            switch (v)
+            {
+                case YamlScalarNode s:
+                    into[key] = s.Value ?? "";
+                    break;
+                case YamlMappingNode m:
+                    Flatten(m, key, into);
+                    break;
+                case YamlSequenceNode seq:
+                    int i = 0;
+                    foreach (var item in seq.Children)
+                        if (item is YamlScalarNode si) into[$"{key}[{i++}]"] = si.Value ?? "";
+                    break;
+            }
+        }
+    }
+}

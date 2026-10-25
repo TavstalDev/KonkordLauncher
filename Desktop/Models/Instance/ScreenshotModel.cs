@@ -1,6 +1,6 @@
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Tavstal.KonkordLauncher.Core.Helpers.IO;
+using Tavstal.BeaconSDK.Helpers.IO;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Instance;
 

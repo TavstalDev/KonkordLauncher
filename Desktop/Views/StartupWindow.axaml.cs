@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Net.Http;
 using System.Reactive;
-using System.Reactive.Disposables.Fluent;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,59 +12,43 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
-using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Models;
-using Tavstal.KonkordLauncher.Common.Models.Config;
-using Tavstal.KonkordLauncher.Common.Services.Abstractions;
-using Tavstal.KonkordLauncher.Core.Helpers.Utils;
-using Tavstal.KonkordLauncher.Core.Models;
-using Tavstal.KonkordLauncher.Core.Models.Accounts;
-using Tavstal.KonkordLauncher.Core.Models.Endpoints;
-using Tavstal.KonkordLauncher.Core.Models.Logging;
-using Tavstal.KonkordLauncher.Core.Services.Abstractions;
+using ReactiveUI.Primitives;
+using Tavstal.BeaconSDK.Models;
+using Tavstal.BeaconSDK.Models.Accounts;
+using Tavstal.BeaconSDK.Models.Config;
+using Tavstal.BeaconSDK.Models.Instance;
+using Tavstal.BeaconSDK.Models.Logging;
+using Tavstal.BeaconSDK.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
+using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
+using Tavstal.KonkordLauncher.Desktop.Models.DTOs.Config;
+using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Translation;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
 using Velopack;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views;
 
-/// <summary>
-/// Represents the startup window of the application, responsible for initializing and validating
-/// various components before launching the main application window.
-/// </summary>
-public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressReporter
+public partial class StartupWindow : KonkordWindow<StartupViewModel>, IKonkordProgress
 {
-    private readonly ICustomLogger _logger = null!;
-    private readonly IHttpService _httpService = null!;
+    private readonly IBeaconLogger _logger = null!;
+    private readonly IHttpClientFactory _httpClientFactory = null!;
     private readonly ITranslationService _translationService = null!;
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IValidationService _validationService = null!;
     private readonly IJavaService _javaService = null!;
     private readonly ISkinService _skinService = null!;
+    private readonly IEventService _eventService = null!;
+    private readonly BeaconConfiguration _beaconConfiguration = null!;
     private const int _stepDelay = 100;
-    private const int _maxParallelDownloads = 4;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="StartupWindow"/> class with default settings.
-    /// </summary>
     [RequiresUnreferencedCode("May be affected by trimming due to use of reflection for service resolution.")]
     public StartupWindow()
     {
-        if (!Design.IsDesignMode)
-        {
-            var services = Program.ServiceProvider;
-            _logger = services.GetRequiredService<ICustomLogger<StartupWindow>>();
-            _httpService = services.GetRequiredService<IHttpService>();
-            _translationService = services.GetRequiredService<ITranslationService>();
-            _launcherStore = services.GetRequiredService<ILauncherStore>();
-            _validationService = services.GetRequiredService<IValidationService>();
-            _javaService = services.GetRequiredService<IJavaService>();
-            _skinService = services.GetRequiredService<ISkinService>();
-        }
-
         InitializeComponent();
-        
+
         DataContext = new StartupViewModel();
         this.WhenActivated(disposables =>
         {
@@ -76,34 +60,51 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
             }).DisposeWith(disposables);
         });
     }
-    
+
+    [RequiresUnreferencedCode("May be affected by trimming due to use of reflection for service resolution.")]
+    public StartupWindow(IBeaconLogger<StartupWindow> logger, IHttpClientFactory httpClientFactory,
+        ITranslationService translationService, ILauncherStore launcherStore,
+        IValidationService validationService, IJavaService javaService, ISkinService skinService,
+        IEventService eventService, BeaconConfiguration beaconConfiguration) : this()
+    {
+        if (Design.IsDesignMode)
+            return;
+
+        _logger = logger;
+        _httpClientFactory = httpClientFactory;
+        _translationService = translationService;
+        _launcherStore = launcherStore;
+        _validationService = validationService;
+        _javaService = javaService;
+        _skinService = skinService;
+        _eventService = eventService;
+        _beaconConfiguration = beaconConfiguration;
+    }
+
     #region Events
-    /// <summary>
-    /// Handles the loading event of the startup window. This method initializes and validates
-    /// various components required for the application to function properly.
-    /// </summary>
-    /// <param name="e">The event data associated with the loaded event.</param>
+
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
+        var screen = Screens.ScreenFromWindow(this);
+        Resolution? resolution = null;
+        if (screen != null)
+            resolution = new Resolution { X = (uint)screen.Bounds.Width, Y = (uint)screen.WorkingArea.Height };
         Task.Run(async () => {
             try
             {
+                var settings = await _launcherStore.GetSettingsAsync(resolution);
+                _eventService.RaiseThemeChanged(settings.Launcher.Theme);
                 await Task.Yield();
                 await InitAsync();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred during startup initialization:");
-            } 
+            }
         });
     }
-    
-    /// <summary>
-    /// Handles the window closing event. Ensures that the progress bar is not set to an indeterminate state
-    /// when the window is closing, as this may consume unnecessary resources.
-    /// </summary>
-    /// <param name="e">The event data associated with the window closing event.</param>
+
     protected override void OnClosing(WindowClosingEventArgs e)
     {
         base.OnClosing(e);
@@ -111,13 +112,9 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
         // it may use more resources than necessary otherwise
         ProgressBar.IsIndeterminate = false;
     }
-    
+
     #endregion
 
-    /// <summary>
-    /// Performs the full startup initialization sequence for the launcher.
-    /// </summary>
-    /// <param name="cancellationToken">A token used to cancel startup work if initialization is aborted.</param>
     private async Task InitAsync(CancellationToken cancellationToken = default)
     {
         var settings = await _launcherStore.GetSettingsAsync(cancellationToken: cancellationToken);
@@ -195,7 +192,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
             UpdateStatusTranslated("startup.progress.checking");
             await Task.Delay(_stepDelay, cancellationToken);
 
-            settings.Launcher.NextUpdateCheck = DateTime.Now.AddHours(MathHelper.Clamp(settings.Launcher.UpdateInterval, 1, int.MaxValue));
+            settings.Launcher.NextUpdateCheck = DateTime.Now.AddHours(Math.Clamp(settings.Launcher.UpdateInterval, 1, int.MaxValue));
             await _launcherStore.SaveSettingsAsync(settings, cancellationToken);
 
             if (await CheckUpdateAsync(cancellationToken: cancellationToken))
@@ -233,16 +230,6 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
         }, DispatcherPriority.Background, cancellationToken);
     }
 
-    /// <summary>
-    /// Validates and refreshes local cache files used during startup, including GitHub release metadata
-    /// and cached skin/cape assets for accounts.
-    /// </summary>
-    /// <param name="settings">The launcher configuration containing cache paths and refresh timing information.</param>
-    /// <param name="cancellationToken">A token used to cancel network requests and background cache refresh operations.</param>
-    /// <returns>
-    /// A task that resolves to <c>true</c> if the GitHub cache was refreshed during this run;
-    /// otherwise, <c>false</c>.
-    /// </returns>
     private async Task<bool> ValidateCachesAsync(CoreConfig settings, CancellationToken cancellationToken = default)
     {
         // Refresh github cache
@@ -251,8 +238,9 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
         string githubCachePath = Path.Combine(settings.Launcher.CacheDirectoryPath, "github_cache.json");
         if (!File.Exists(githubCachePath) || shouldRefreshCache)
         {
-            string? response = await _httpService.GetStringAsync(KonkordEndpoints.AllReleases, cancellationToken);
-            if (response == null)
+            using var client = _httpClientFactory.CreateClient();
+            string? response = await client.GetStringAsync("https://api.github.com/repos/TavstalDev/KonkordLauncher/releases", cancellationToken);
+            if (string.IsNullOrWhiteSpace(response))
             {
                 _logger.LogError("Failed to fetch GitHub cache data");
                 response = "[]";
@@ -263,7 +251,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
         // Refresh skins cache
         UpdateStatusTranslated("startup.validation.skins");
         AccountData accountData = await _launcherStore.GetAccountDataAsync(cancellationToken);
-        var semaphore = new SemaphoreSlim(_maxParallelDownloads);
+        var semaphore = new SemaphoreSlim(_beaconConfiguration.Http.MaxParallelDownloads);
         var tasks = new List<Task>();
         foreach (Account account in accountData.Accounts)
         {
@@ -291,31 +279,18 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
         return shouldRefreshCache;
     }
 
-    /// <summary>
-    /// Checks for application updates using Velopack and, unless <paramref name="justCheck"/> is <c>true</c>,
-    /// downloads and applies the update before restarting the application.
-    /// </summary>
-    /// <param name="justCheck">
-    /// If <c>true</c>, the method only checks whether an update is available and returns <c>true</c> if one exists.
-    /// If <c>false</c>, the update is downloaded and applied automatically.
-    /// </param>
-    /// <param name="cancellationToken">A token used to cancel the update download operation.</param>
-    /// <returns>
-    /// <c>true</c> if an update is available (and optionally applied); otherwise, <c>false</c>.
-    /// Returns <c>false</c> when running in portable/dev mode, when no update is available, or when an error occurs.
-    /// </returns>
     private async Task<bool> CheckUpdateAsync(bool justCheck = false, CancellationToken cancellationToken = default)
     {
         try
         {
             var mgr = new UpdateManager(new Velopack.Sources.GithubSource("https://github.com/TavstalDev/KonkordLauncher", null, false));
-            
-            if (!mgr.IsInstalled) 
+
+            if (!mgr.IsInstalled)
             {
                 _logger.LogInformation("Running in portable/dev mode. Update check skipped.");
                 return false;
             }
-            
+
             // check for new version
             var newVersion = await mgr.CheckForUpdatesAsync();
             if (newVersion == null)
@@ -323,7 +298,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
 
             if (justCheck)
                 return true;
-            
+
             // download new version
             await mgr.DownloadUpdatesAsync(newVersion, cancelToken: cancellationToken);
 
@@ -337,45 +312,10 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
             return false;
         }
     }
-    
+
     #region IProgressReporter Implementation
-    
-    /// <inheritdoc/>
-    public void ReportProgress(double progress)
-    {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (DataContext == null)
-                return;
-            DataContext.Progress = progress;
-        });
-    }
 
-    /// <inheritdoc/>
-    public void SetTargetTasks(int? count) { /* unused */ } 
-
-    /// <inheritdoc/>
-    public void CompleteTask() { /* unused */ } 
-
-    /// <inheritdoc/>
-    public void SetTargetBytes(long? bytes) { /* unused */ } 
-
-    /// <inheritdoc/>
-    public void CompleteBytes(long bytes) { /* unused */ } 
-
-    /// <inheritdoc/>
-    public void UpdateStatus(string status)
-    {
-        Dispatcher.UIThread.Post(() =>
-        {
-            if (DataContext == null)
-                return;
-            DataContext.ProgressText = status;
-        });
-    }
-
-    /// <inheritdoc/>
-    public void UpdateStatusTranslated(string key, params object[]? args)
+    private void UpdateStatusTranslated(string key, params object[]? args)
     {
         Dispatcher.UIThread.Post(() =>
         {
@@ -385,11 +325,52 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IProgressR
         });
     }
 
-    /// <inheritdoc/>
-    public void OpenReporter() { /* unused */ } 
-    
-    /// <inheritdoc/>
-    public void CloseReporter() { /* unused */ }
+    public void Report(double progress)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (DataContext == null)
+                return;
+            DataContext.Progress = progress;
+        });
+    }
+
+    public void Report(double progress, string fileName, bool downloading = true)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (DataContext == null)
+                return;
+            DataContext.Progress = progress;
+            // TODO
+        });
+    }
+
+    public void Report(EProgressKind kind, double progress)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (DataContext == null)
+                return;
+            DataContext.Progress = progress;
+            DataContext.ProgressText = _translationService.Translate(TranslationHelper.GetProgressKey(kind), progress.ToString("0.00"));
+        });
+    }
+
+    public void Report(double progress, string key, params object[]? args)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (DataContext == null)
+                return;
+            DataContext.Progress = progress;
+            DataContext.ProgressText = _translationService.Translate(key, args);
+        });
+    }
+
+    public void ReportExpectedTask(int? count) { /* ignored */ }
+
+    public void ReportTaskCompleted() { /* ignored */ }
 
     #endregion
 }

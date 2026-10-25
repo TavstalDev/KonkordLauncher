@@ -9,8 +9,8 @@ using Avalonia.Input.Platform;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using ReactiveUI.Avalonia;
-using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Helpers.Platform;
+using Tavstal.BeaconSDK.Enums;
+using Tavstal.BeaconSDK.Helpers.Platform;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 
@@ -31,7 +31,7 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
     {
         this.Closed += OnClosed;
     }
-    
+
     /// <summary>
     /// Strongly-typed DataContext for this window. The setter is protected to allow derived
     /// windows to assign a view-model during construction while still exposing the typed getter.
@@ -41,7 +41,7 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
         get => (TViewModel?)base.DataContext;
         protected set => base.DataContext = value;
     }
-    
+
     /// <summary>
     /// Called when the window is closing. If the assigned <see cref="DataContext"/> implements <see cref="IDisposable"/>,
     /// it will be disposed here to release resources held by the view-model.
@@ -93,7 +93,7 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
             }
         }, DispatcherPriority.Background);
     }
-    
+
     /// <summary>
     /// Handler to start moving the window when the left mouse button is pressed on a draggable surface.
     /// Intended to be wired to pointer pressed events on title bars or custom drag handles.
@@ -105,8 +105,8 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
         if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
             BeginMoveDrag(e);
     }
-    
-    
+
+
     /// <summary>
     /// Sets plain text on the system clipboard asynchronously.
     /// Safely returns without throwing when the provided text is null/empty or clipboard is unavailable.
@@ -116,7 +116,7 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
     {
         if (string.IsNullOrEmpty(text))
             return;
-        
+
         var topLevel = GetTopLevel(this);
         if (topLevel?.Clipboard == null)
             return;
@@ -156,7 +156,7 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
         var topLevel = GetTopLevel(this);
         if (topLevel == null)
             return null;
-            
+
         var storageProvider = topLevel.StorageProvider;
 
         var options = new FilePickerOpenOptions
@@ -175,7 +175,7 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
         var files = await storageProvider.OpenFilePickerAsync(options);
         return !files.Any() ? null : files[0].TryGetLocalPath();
     }
-    
+
     /// <summary>
     /// Opens a native folder picker dialog and returns the selected folder path or null.
     /// </summary>
@@ -189,21 +189,21 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
             return null;
 
         var storageProvider = topLevel.StorageProvider;
-        
+
         if (!storageProvider.CanPickFolder)
             throw new NotSupportedException("No folder was selected.");
-        
+
         var options = new FolderPickerOpenOptions
         {
             Title = title,
             AllowMultiple = false
         };
-        
+
         IReadOnlyList<IStorageFolder> folders = await storageProvider.OpenFolderPickerAsync(options);
-        
+
         if (!folders.Any())
             return null;
-        
+
         IStorageFolder? selectedFolder = folders.FirstOrDefault();
         return selectedFolder?.TryGetLocalPath();
     }

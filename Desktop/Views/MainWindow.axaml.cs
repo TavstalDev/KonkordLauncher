@@ -2,17 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reactive;
-using System.Reactive.Disposables.Fluent;
 using System.Threading.Tasks;
 using Avalonia.Controls;
-using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Models;
-using Tavstal.KonkordLauncher.Common.Services.Abstractions;
-using Tavstal.KonkordLauncher.Core.Models.Logging;
+using ReactiveUI.Primitives;
+using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
+using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
+using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using Button = Avalonia.Controls.Button;
 using JavaVersionModel = Tavstal.KonkordLauncher.Desktop.Models.Domain.JavaVersionModel;
@@ -24,29 +23,26 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 public partial class MainWindow : KonkordWindow<MainViewModel>
 {
     // ReSharper disable once NotAccessedField.Local
-    private readonly ICustomLogger _logger = null!;
-    private readonly Dictionary<string, InstanceLogsWindow> _logWindows = new(); 
+    private readonly IBeaconLogger _logger = null!;
+    private readonly ITranslationService _translationService = null!;
+    private readonly Dictionary<string, InstanceLogsWindow> _logWindows = new();
     private readonly Dictionary<string, EditInstanceWindow> _openEditWindows = new();
     private Button _selectedSideBarButton;
     private Button _selectedSettingsTabButton;
     private Button _selectedAboutTabButton;
-    
+
     [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public MainWindow()
     {
         InitializeComponent();
-        
+
         _selectedSideBarButton = PlaySideBtn;
         _selectedSettingsTabButton = LauncherSettingsBtn;
         _selectedAboutTabButton = AboutInfoBtn;
-        
+
         if (Design.IsDesignMode)
             return;
-        
-        var services = Program.ServiceProvider;
-        _logger = services.GetRequiredService<ICustomLogger<MainWindow>>();
-        var translationService = services.GetRequiredService<ITranslationService>();
-        
+
         DataContext = new MainViewModel();
         this.WhenActivated(disposables =>
         {
@@ -64,12 +60,12 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
             }).DisposeWith(disposables);
             DataContext.OpenFolderPickerInteraction.RegisterHandler(async action =>
             {
-                var result = await OpenFolderPickerAsync(translationService.Translate("common.select.directory"));
+                var result = await OpenFolderPickerAsync(_translationService.Translate("common.select.directory"));
                 action.SetOutput(result);
             }).DisposeWith(disposables);
             DataContext.OpenImagePickerInteraction.RegisterHandler(async action =>
             {
-                var result = await OpenFilePickerAsync(translationService.Translate("common.select.file"), "PNGs", ["*.png"]);
+                var result = await OpenFilePickerAsync(_translationService.Translate("common.select.file"), "PNGs", ["*.png"]);
                 action.SetOutput(result);
             }).DisposeWith(disposables);
             DataContext.ShowAlertDialogInteraction.RegisterHandler(async action =>
@@ -188,7 +184,14 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
             }).DisposeWith(disposables);
         });
     }
-    
+
+    [RequiresUnreferencedCode( "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    public MainWindow(IBeaconLogger<MainWindow> logger, ITranslationService translationService) : this()
+    {
+        _logger = logger;
+        _translationService = translationService;
+    }
+
     #region Events
 
     /// <summary>
@@ -200,11 +203,6 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
     {
         base.OnOpened(e);
         App.UpdateRPC("Browsing instances...");
-        var screen = Screens.Primary;
-        if (screen == null)
-            throw new InvalidOperationException("No primary screen found."); // Ensure there is a primary screen
-        var screenSize = screen.Bounds.Size;
-        App.SetScreenSize(screenSize);
         GC.Collect(2, GCCollectionMode.Forced, blocking: true, compacting: true);
     }
 
@@ -218,7 +216,7 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
         App.ClearRPC();
         base.OnClosing(e);
     }
-    
+
     /// <summary>
     /// Handles the selection of a language from a ComboBox and updates the application's language setting.
     /// </summary>
@@ -228,10 +226,10 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
     {
         if (DataContext is not { } viewModel)
             return;
-        
+
         if (sender is not ComboBox { SelectedItem: Language selectedLanguage })
             return;
-        
+
         viewModel.Config.CoreConfig.Launcher.Language = selectedLanguage.TwoLetterCode;
     }
     #endregion
@@ -246,7 +244,7 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
     {
         if (DataContext is not { } viewModel)
             return;
-        
+
         if (viewModel.CurrentPageIndex == sidebarType)
             return;
 
@@ -266,7 +264,7 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
 
         _selectedSideBarButton.Classes.Add("SideBarActiveBtn");
     }
-    
+
     /// <summary>
     /// Updates the active settings tab in the main window and synchronizes the corresponding
     /// tab button's visual state.
@@ -276,7 +274,7 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
     {
         if (DataContext is not { } viewModel)
             return;
-        
+
         if (viewModel.CurrentSettingsTab == tabType)
             return;
 
@@ -302,7 +300,7 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
     {
         if (DataContext is not { } viewModel)
             return;
-        
+
         if (viewModel.CurrentAboutTab == tabType)
             return;
 

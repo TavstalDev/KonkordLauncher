@@ -4,19 +4,19 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
-using Tavstal.KonkordLauncher.Common.Services.Abstractions;
-using Tavstal.KonkordLauncher.Core.Helpers.IO;
-using Tavstal.KonkordLauncher.Core.Models.Logging;
+using Tavstal.BeaconSDK.Helpers.IO;
+using Tavstal.BeaconSDK.Models.Logging;
+using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
+using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.MainView;
 
@@ -25,35 +25,32 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.MainView;
 /// </summary>
 public partial class MainViewModel_Instances : KonkordObservableObject
 {
-    private readonly ICustomLogger _logger = null!;
+    private readonly IBeaconLogger _logger = null!;
     private readonly ILauncherStore _launcherStore = null!;
     private readonly ITranslationService _translationService = null!;
+    private readonly IEventService _eventService = null!;
     private readonly MainViewModel _parent;
-    
+
     public ObservableCollection<InstanceGroup> InstanceGroups { get; } = [];
     [ObservableProperty]
     public partial bool HasInstances { get; set; }
 
-    /// <summary>
-    /// Creates a new instance of the <see cref="MainViewModel_Instances"/> sub-view-model.
-    /// </summary>
-    /// <param name="parent">The parent <see cref="MainViewModel"/> used for interactions.</param>
-    public MainViewModel_Instances(MainViewModel parent)
+    public MainViewModel_Instances(MainViewModel parent, ILauncherStore launcherStore, ITranslationService translationService, IEventService eventService)
     {
         _parent = parent;
         if (Design.IsDesignMode)
             return;
-        
-        var services = Program.ServiceProvider;
-        _logger = services.GetRequiredService<ICustomLogger<MainViewModel_Instances>>();
-        _launcherStore = services.GetRequiredService<ILauncherStore>();
-        _translationService = services.GetRequiredService<ITranslationService>();
-        
-        GlobalEvents.OnInstanceAdded += OnInstanceAdded;
-        GlobalEvents.OnInstanceUpdated += OnInstanceUpdated;
-        GlobalEvents.OnInstanceRemoved += OnInstanceRemoved;
+
+        _logger = Program.Services.GetRequiredService<IBeaconLogger<MainViewModel_Instances>>();
+        _launcherStore =  launcherStore;
+        _translationService = translationService;
+        _eventService = eventService;
+
+       _eventService.OnInstanceAdded += OnInstanceAdded;
+       _eventService.OnInstanceUpdated += OnInstanceUpdated;
+       _eventService.OnInstanceRemoved += OnInstanceRemoved;
     }
-    
+
     /// <summary>
     /// Performs cleanup when the view-model is disposed.
     /// Unsubscribes from global instance change events to avoid memory leaks.
@@ -62,11 +59,11 @@ public partial class MainViewModel_Instances : KonkordObservableObject
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
-        GlobalEvents.OnInstanceAdded -= OnInstanceAdded;
-        GlobalEvents.OnInstanceUpdated -= OnInstanceUpdated;
-        GlobalEvents.OnInstanceRemoved -= OnInstanceRemoved;
+        _eventService.OnInstanceAdded -= OnInstanceAdded;
+        _eventService.OnInstanceUpdated -= OnInstanceUpdated;
+        _eventService.OnInstanceRemoved -= OnInstanceRemoved;
     }
-    
+
     /// <summary>
     /// Handles the global "instance added" event by kicking off asynchronous creation handling.
     /// </summary>
@@ -139,7 +136,7 @@ public partial class MainViewModel_Instances : KonkordObservableObject
 
         HasInstances = InstanceGroups.Count > 0;
     }
-    
+
     #region Commands
 
     /// <summary>
@@ -147,7 +144,10 @@ public partial class MainViewModel_Instances : KonkordObservableObject
     /// </summary>
     /// <returns>A task that represents the asynchronous operation.</returns>
     [RelayCommand]
-    private async Task AddInstanceBtnAsync() => await _parent.ShowInstanceCreationDialogInteraction.Handle(Unit.Default);
+    private async Task AddInstanceBtnAsync()
+    {
+        await _parent.ShowInstanceCreationDialogInteraction.Handle(Unit.Default);
+    }
 
     /// <summary>
     /// Launches the specified Minecraft instance asynchronously.
@@ -240,7 +240,7 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         targetInstance.Name = result;
         instances[index] = targetInstance;
         await _launcherStore.SaveInstancesAsync(instances, cancellationToken);
-        GlobalEvents.InvokeInstanceUpdated(targetInstance.Id);
+        _eventService.RaiseInstanceUpdated(targetInstance.Id);
     }
 
     /// <summary>
@@ -268,7 +268,7 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         targetInstance.IconPath = result;
         instances[index] = targetInstance;
         await _launcherStore.SaveInstancesAsync(instances, cancellationToken);
-        GlobalEvents.InvokeInstanceUpdated(targetInstance.Id);
+        _eventService.RaiseInstanceUpdated(targetInstance.Id);
     }
 
     [RelayCommand]
@@ -304,7 +304,7 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         targetInstance.Group = result;
         instances[index] = targetInstance;
         await _launcherStore.SaveInstancesAsync(instances, cancellationToken);
-        GlobalEvents.InvokeInstanceUpdated(targetInstance.Id);
+        _eventService.RaiseInstanceUpdated(targetInstance.Id);
     }
 
     /// <summary>
@@ -322,7 +322,7 @@ public partial class MainViewModel_Instances : KonkordObservableObject
 
         FileSystemHelper.OpenFolderInFileExplorer(instance.GameDirectory);
     }
-    
+
     /// <summary>
     /// Exports the specified Minecraft instance in the Modrinth format asynchronously.
     /// </summary>
@@ -333,7 +333,7 @@ public partial class MainViewModel_Instances : KonkordObservableObject
     {
         if (instance == null)
             return;
-        
+
         await _parent.ExportModrinthInstanceInteraction.Handle(instance.getInstance());
     }
 
@@ -347,7 +347,7 @@ public partial class MainViewModel_Instances : KonkordObservableObject
     {
         if (instance == null)
             return;
-        
+
         await _parent.ExportCurseForgeInstanceInteraction.Handle(instance.getInstance());
     }
 
@@ -382,7 +382,7 @@ public partial class MainViewModel_Instances : KonkordObservableObject
             FileSystemHelper.DeleteDirectory(targetInstance.GameDirectory);
         instances.Remove(targetInstance);
         await _launcherStore.SaveInstancesAsync(instances, cancellationToken);
-        GlobalEvents.InvokeInstanceRemoved(targetInstance.Id);
+        _eventService.RaiseInstanceRemoved(targetInstance.Id);
     }
 
     #endregion
@@ -402,7 +402,7 @@ public partial class MainViewModel_Instances : KonkordObservableObject
 
         string uncategorized = _translationService.Translate("main.page.play.uncategorized");
         var groupName = targetInstance.Group ?? uncategorized;
-        
+
         var existingGroup = InstanceGroups.FirstOrDefault(x => x.GroupName == groupName);
         if (existingGroup == null)
         {
@@ -415,7 +415,7 @@ public partial class MainViewModel_Instances : KonkordObservableObject
 
         existingGroup.Instances.Add(new InstanceModel(targetInstance));
     }
-    
+
     /// <summary>
     /// Handles an instance update event by refreshing the existing item in the UI collection
     /// and moving it to a different group when needed.
@@ -428,7 +428,7 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         var targetInstance = instances.FirstOrDefault(i => i.Id == instanceId);
         if (targetInstance == null)
             return;
-        
+
         bool found = false;
         InstanceGroup? oldGroup = null;
         InstanceModel? instanceToUpdate = null;
@@ -448,18 +448,18 @@ public partial class MainViewModel_Instances : KonkordObservableObject
                 found = true;
                 break;
             }
-            
+
             if (found)
                 break;
         }
 
         if (instanceToUpdate == null || oldGroup == null)
             return;
-        
+
         oldGroup.Instances.Remove(instanceToUpdate);
-        if (oldGroup.Instances.Count == 0)            
+        if (oldGroup.Instances.Count == 0)
             InstanceGroups.Remove(oldGroup);
-        
+
         string uncategorized = _translationService.Translate("main.page.play.uncategorized");
         var groupName = targetInstance.Group ?? uncategorized;
         var newGroup = InstanceGroups.FirstOrDefault(x => x.GroupName == groupName);
@@ -471,7 +471,7 @@ public partial class MainViewModel_Instances : KonkordObservableObject
             HasInstances = InstanceGroups.Count > 0;
             return;
         }
-        
+
         newGroup.Instances.Add(instanceToUpdate);
     }
 
@@ -501,14 +501,14 @@ public partial class MainViewModel_Instances : KonkordObservableObject
             if (found)
                 break;
         }
-        
+
         if (instanceToRemove == null || targetGroup == null)
             return Task.CompletedTask;
-        
+
         targetGroup.Instances.Remove(instanceToRemove);
         if (targetGroup.Instances.Count == 0)
             InstanceGroups.Remove(targetGroup);
-        
+
         HasInstances = InstanceGroups.Count > 0;
         return Task.CompletedTask;
     }

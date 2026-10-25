@@ -3,31 +3,32 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
-using Tavstal.KonkordLauncher.Common.Models;
-using Tavstal.KonkordLauncher.Common.Models.Config;
-using Tavstal.KonkordLauncher.Common.Models.InstanceConfig;
-using Tavstal.KonkordLauncher.Common.Services.Abstractions;
-using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Helpers.Platform;
-using Tavstal.KonkordLauncher.Core.Models.Logging;
+using Tavstal.BeaconSDK.Enums;
+using Tavstal.BeaconSDK.Helpers.Platform;
+using Tavstal.BeaconSDK.Models.Logging;
+using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Config.Instance;
+using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
+using Tavstal.KonkordLauncher.Desktop.Models.DTOs.Config;
+using Tavstal.KonkordLauncher.Desktop.Models.DTOs.InstanceConfig;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
+using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
 public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
 {
-    private readonly ICustomLogger _logger = null!;
+    private readonly IBeaconLogger _logger = null!;
     private readonly ITranslationService _translationService = null!;
     private readonly ILauncherStore _launcherStore = null!;
+    private readonly IEventService _eventService = null!;
     private readonly EditInstanceViewModel _parent;
 
     [ObservableProperty]
@@ -39,25 +40,26 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
 
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanRemoveEnvironmentVariable))]
     private int? _selectedEnvironmentVariableIndex;
-    
+
     public bool CanRemoveEnvironmentVariable =>
         SelectedEnvironmentVariableIndex is >= 0 && InstanceConfig.EnableEnvironment;
-    
+
     public EditInstanceViewModel_Settings(EditInstanceViewModel parent)
     {
         _parent = parent;
         if (Design.IsDesignMode)
-        {
             InstanceConfig = new InstanceConfigModel();
-            return;
-        }
-        
-        var services = Program.ServiceProvider;
-        _logger = services.GetRequiredService<ICustomLogger<EditInstanceViewModel_Settings>>();
-        _translationService = services.GetRequiredService<ITranslationService>();
-        _launcherStore = services.GetRequiredService<ILauncherStore>();
     }
-    
+
+    public EditInstanceViewModel_Settings(EditInstanceViewModel parent, ILauncherStore launcherStore,
+        ITranslationService translationService, IEventService eventService) : this(parent)
+    {
+        _logger = Program.Services.GetRequiredService<IBeaconLogger<EditInstanceViewModel_Settings>>();
+        _launcherStore = launcherStore;
+        _translationService = translationService;
+        _eventService = eventService;
+    }
+
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
@@ -65,20 +67,23 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
         InstanceConfig = new InstanceConfigModel();
         SelectedEnvironmentVariableIndex = null;
     }
-    
+
     public async Task InitAsync(InstanceConfig config, CancellationToken cancellationToken = default)
     {
         InstanceConfig = new InstanceConfigModel(config);
-        
+
         //SubscribeToConfigChildren(InstanceConfig);
         if (!string.IsNullOrEmpty(InstanceConfig.Misc.AccountId))
             OverridenAccountIndex = _parent.Accounts.FindIndex(x => x.Id == InstanceConfig.Misc.AccountId);
     }
-    
+
     #region Commands
 
     [RelayCommand]
-    private async Task SwitchSettingsTab(EInstanceSettingsTab tab) => await _parent.SettingsTabSwitchInteraction.Handle(tab);
+    private async Task SwitchSettingsTab(EInstanceSettingsTab tab)
+    {
+        await _parent.SettingsTabSwitchInteraction.Handle(tab);
+    }
 
     [RelayCommand]
     private async Task JavaDirSelect()
@@ -86,10 +91,10 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
         var result = await _parent.ShowDirPickerInteraction.Handle(_translationService.Translate("common.select.directory"));
         if (string.IsNullOrEmpty(result) || !Directory.Exists(result))
             return;
-        
+
         InstanceConfig.Java.DefaultJavaPath = Path.Combine(result, OSHelper.GetOperatingSystem() == EOperatingSystem.WINDOWS ? "javaw.exe" : "java");
     }
-    
+
     [RelayCommand]
     private async Task JavaPathSelector()
     {
@@ -97,10 +102,10 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (javaVersion == null)
             return;
-        
+
         InstanceConfig.Java.DefaultJavaPath = javaVersion.Path;
     }
-    
+
     #endregion
 
     /// <summary>
@@ -141,9 +146,9 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
     {
         if (_parent.IsClosing)
             return;
-        
+
         _logger.LogDebug("InstanceConfig changed with old and new value. Unsubscribing from old, subscribing to new.");
-        
+
         if (oldValue != null)
             UnsubscribeFromConfigChildren(oldValue);
 
@@ -167,7 +172,7 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
         _logger.LogDebug($"Inner property '{e.PropertyName}' changed on {sender?.GetType().Name}. Saving to file...");
         Task.Run(async () => await SaveCoreConfigToFileAsync(InstanceConfig));
     }
-    
+
     /// <summary>
     /// Handles changes to a collection within the instance configuration model.
     /// Logs the change and saves the updated configuration to a file if the view model is initialized.
@@ -210,7 +215,7 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
 
         if (instanceToSave == null)
             return;
-        
+
         var environmentVariables = newValue.Environment
             .Select(x => new EnvironmentVariable(x.Key, x.Value))
             .ToList();
@@ -260,7 +265,7 @@ public partial class EditInstanceViewModel_Settings  : KonkordObservableObject
         instances[index] = instanceToSave;
 
         await _launcherStore.SaveInstancesAsync(instances);
-        GlobalEvents.InvokeInstanceUpdated(_parent.Instance.Id);
+        _eventService.RaiseInstanceUpdated(_parent.Instance.Id);
         _logger.LogDebug("Saved instance config to file.");
     }
 }

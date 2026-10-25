@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Tavstal.KonkordLauncher.Common.Models;
+using Tavstal.BeaconSDK.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
 
@@ -52,19 +53,19 @@ public partial class AccountDataModel : ObservableObject
     /// Initializes a new instance of the <see cref="AccountDataModel"/> class from an existing <see cref="AccountData"/> object.
     /// </summary>
     /// <param name="data">The account data to initialize from.</param>
-    public AccountDataModel(AccountData data)
+    public AccountDataModel(AccountData data, IEncryptionService encryptionService)
     {
         SelectedAccountId = data.SelectedAccountId;
         _accounts = [];
         foreach (var account in data.Accounts)
         {
-            _accounts.Add(new AccountModel(account, account.Id == data.SelectedAccountId));
+            _accounts.Add(new AccountModel(account, account.Id == data.SelectedAccountId, encryptionService));
         }
         _accounts.CollectionChanged += OnAccountsCollectionChanged;
     }
 
     /// <summary>
-    /// Handles the collection changed event for the accounts collection. 
+    /// Handles the collection changed event for the accounts collection.
     /// Updates the <see cref="HasAccounts"/> property when the collection changes.
     /// </summary>
     /// <param name="sender">The source of the event.</param>

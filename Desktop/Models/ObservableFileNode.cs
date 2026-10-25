@@ -3,8 +3,8 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Tavstal.KonkordLauncher.Common.Models.Package;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
+using Tavstal.KonkordLauncher.Desktop.Models.DTOs.Package;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models;
 

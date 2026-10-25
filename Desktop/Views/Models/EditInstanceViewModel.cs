@@ -3,25 +3,21 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Reactive;
-using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using DynamicData;
-using Microsoft.Extensions.DependencyInjection;
-using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Models;
-using Tavstal.KonkordLauncher.Common.Services.Abstractions;
-using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Helpers.Platform;
-using Tavstal.KonkordLauncher.Core.Models.Logging;
+using Tavstal.BeaconSDK.Enums;
+using Tavstal.BeaconSDK.Helpers.Platform;
+using Tavstal.BeaconSDK.Models.Logging;
+using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
+using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 using JavaVersionModel = Tavstal.KonkordLauncher.Desktop.Models.Domain.JavaVersionModel;
 
@@ -34,7 +30,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 public partial class EditInstanceViewModel : KonkordObservableObject
 {
     public readonly InstanceModel Instance = null!;
-    private readonly ICustomLogger _logger = null!;
+    private readonly IBeaconLogger _logger = null!;
     private readonly ILauncherStore _launcherStore = null!;
     private const int MaxLogLines = 1000;
     
@@ -99,7 +95,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
             return;
 
         var services = Program.ServiceProvider;
-        _logger = services.GetRequiredService<ICustomLogger<EditInstanceViewModel>>();
+        _logger = services.GetRequiredService<IBeaconLogger<EditInstanceViewModel>>();
         _launcherStore = services.GetRequiredService<ILauncherStore>();
         
         Instance = instance;
@@ -204,7 +200,10 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     /// </summary>
     /// <returns>A task that completes when the close request has been handled.</returns>
     [RelayCommand]
-    public async Task CloseWindow() => await CloseWindowInteraction.Handle(Unit.Default);
+    public async Task CloseWindow()
+    {
+        await CloseWindowInteraction.Handle(Unit.Default);
+    }
 
     /// <summary>
     /// Requests a tab switch inside the edit-instance UI by invoking the <see cref="TabSwitchInteraction"/> interaction.
@@ -212,7 +211,10 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     /// <param name="tab">The target tab to switch to.</param>
     /// <returns>A task that completes when the tab switch request has been handled.</returns>
     [RelayCommand]
-    private async Task SwitchTab(EEditInstanceTab tab) => await TabSwitchInteraction.Handle(tab);
+    private async Task SwitchTab(EEditInstanceTab tab)
+    {
+        await TabSwitchInteraction.Handle(tab);
+    }
 
     #endregion
     
@@ -222,7 +224,10 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     /// Scrolls the logs to the end by triggering the LogsScrollToEnd interaction.
     /// </summary>
     [RelayCommand]
-    private async Task ScrollLogsToEnd() => await LogsScrollToEnd.Handle(Unit.Default);
+    private async Task ScrollLogsToEnd()
+    {
+        await LogsScrollToEnd.Handle(Unit.Default);
+    }
 
     /// <summary>
     /// Copies the current logs to the system clipboard by triggering the SetClipboardText interaction.

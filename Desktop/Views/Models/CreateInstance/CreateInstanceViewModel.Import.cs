@@ -2,32 +2,35 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
-using Tavstal.KonkordLauncher.Common.Services.Abstractions;
-using Tavstal.KonkordLauncher.Common.Services.Implementations;
-using Tavstal.KonkordLauncher.Core.Helpers.IO;
-using Tavstal.KonkordLauncher.Core.Models.Logging;
-using Tavstal.KonkordLauncher.Core.Services.Abstractions;
+using Tavstal.BeaconSDK.Helpers.IO;
+using Tavstal.BeaconSDK.Models.Instance;
+using Tavstal.BeaconSDK.Models.Logging;
+using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
+using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services.Implementations;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.CreateInstance;
 
 public partial class CreateInstanceViewModel_Import : KonkordObservableObject
 {
-    private readonly ICustomLogger _logger = null!;
+    private readonly IBeaconLogger _logger = null!;
     private readonly IHttpService _httpService = null!;
     private readonly ITranslationService _translationService = null!;
     private readonly ILauncherStore _launcherStore = null!;
+    private readonly IEventService _eventService = null!;
     private readonly ModrinthPackageService _modrinthPackageService = null!;
     private readonly CreateInstanceViewModel _parent;
+    private readonly Screen  _screen;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsSourceFromFile))]
@@ -50,20 +53,22 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
     [ObservableProperty]
     public partial string ImportPreviewModLoader { get; set; } = "---";
 
-    public CreateInstanceViewModel_Import(CreateInstanceViewModel parent)
+    public CreateInstanceViewModel_Import(CreateInstanceViewModel parent, Screen screen, ILauncherStore launcherStore, ITranslationService translationService,
+        IHttpService httpService, IEventService eventService, ModrinthPackageService modrinthPackageService)
     {
         _parent = parent;
+        _screen = screen;
         if (Design.IsDesignMode)
             return;
-        
-        var services = Program.ServiceProvider;
-        _logger = services.GetRequiredService<ICustomLogger<CreateInstanceViewModel_Import>>();
-        _httpService = services.GetRequiredService<IHttpService>();
-        _translationService = services.GetRequiredService<ITranslationService>();
-        _launcherStore = services.GetRequiredService<ILauncherStore>();
-        _modrinthPackageService = services.GetRequiredService<ModrinthPackageService>();
+
+        _logger = Program.Services.GetRequiredService<IBeaconLogger<CreateInstanceViewModel_Import>>();
+        _httpService = httpService;
+        _translationService = translationService;
+        _launcherStore = launcherStore;
+        _modrinthPackageService = modrinthPackageService;
+        _eventService = eventService;
     }
-    
+
     #region Commands
 
     partial void OnImportPathChanged(string? value)
@@ -82,9 +87,12 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
             HasImportPath = false;
         }
     }
-    
+
     [RelayCommand]
-    private async Task ChangeImportType(int index) => await _parent.SwitchImportTabInteraction.Handle(index);
+    private async Task ChangeImportType(int index)
+    {
+        await _parent.SwitchImportTabInteraction.Handle(index);
+    }
 
     [RelayCommand]
     private async Task SelectFileToImport()
@@ -95,13 +103,13 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
             HasImportPath = false;
             return;
         }
-        
+
         if (!File.Exists(path))
         {
             HasImportPath = false;
             return;
         }
-        
+
         string extension = Path.GetExtension(path);
         if (!(extension == ".zip" || extension == ".mrpack"))
         {
@@ -113,9 +121,12 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
         ImportPath = path;
         await FetchImportPreviewFromFile();
     }
-    
+
     [RelayCommand]
-    private async Task ImportUrlTextChanged(string path) => await FetchImportPreviewFromUrl();
+    private async Task ImportUrlTextChanged(string path)
+    {
+        await FetchImportPreviewFromUrl();
+    }
 
     [RelayCommand]
     private async Task CreateInstanceFromImport()
@@ -139,12 +150,13 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
             ));
             return;
         }
-        
-        if (await _modrinthPackageService.ImportAsync(ImportPath, App.ScreenResolution, null, null, null, _parent, cancellationToken) != null ) 
+
+        if (await _modrinthPackageService.ImportAsync(ImportPath, new Resolution { X = (uint)_screen.Bounds.Width, Y = (uint)_screen.Bounds.Height },
+                null, null, null, _parent, cancellationToken) != null )
         {
-            _parent.CloseReporter();
+            //_parent.CloseReporter();
             var instances = await _launcherStore.GetInstancesAsync(cancellationToken);
-            GlobalEvents.InvokeInstanceAdded(instances.Last().Id);
+            _eventService.RaiseInstanceAdded(instances.Last().Id);
             await _parent.CloseWindowInteraction.Handle(Unit.Default);
         }
         else
@@ -173,26 +185,26 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
 
         if (!Uri.TryCreate(ImportPath, UriKind.Absolute, out var uri))
             return;
-        
+
         string fileName = Path.GetFileName(uri.LocalPath);
-        string tempPath = Path.Combine(PathHelper.TempDir, fileName);
+        string tempPath = Path.Combine(_launcherStore.GetTempDir(), fileName);
         try
         {
-            _parent.OpenReporter();
+            //_parent.OpenReporter();
             IProgress<double> progress = new Progress<double>(p =>
             {
-                _parent.ReportProgress(p);
-                _parent.UpdateStatusTranslated("instance.download.file", "instance", p.ToString("0.00"));
+                _parent.Report(p, "instance.download.file", "instance", p.ToString("0.00"));
             });
 
-            await _httpService.DownloadFileAsync(ImportPath, tempPath, progress, cancellationToken);
-            _parent.CloseReporter();
-            
-            if (await _modrinthPackageService.ImportAsync(tempPath, App.ScreenResolution, null, null, null, _parent, cancellationToken) != null)
+            await _httpService.DownloadFileAsync(ImportPath, tempPath, null, progress, cancellationToken);
+            //_parent.CloseReporter();
+
+            if (await _modrinthPackageService.ImportAsync(tempPath, new Resolution { X = (uint)_screen.Bounds.Width, Y = (uint)_screen.Bounds.Height },
+                    null, null, null, _parent, cancellationToken) != null)
             {
-                _parent.CloseReporter();
+                //_parent.CloseReporter();
                 var instances = await _launcherStore.GetInstancesAsync(cancellationToken);
-                GlobalEvents.InvokeInstanceAdded(instances.Last().Id);
+                _eventService.RaiseInstanceAdded(instances.Last().Id);
                 await _parent.CloseWindowInteraction.Handle(Unit.Default);
             }
             else
@@ -220,12 +232,12 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
                 FileSystemHelper.DeleteFile(tempPath);
         }
     }
-    
+
     private async Task FetchImportPreviewFromFile()
     {
         // TODO
     }
-    
+
     private async Task FetchImportPreviewFromUrl()
     {
         // TODO

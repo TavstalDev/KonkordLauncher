@@ -4,7 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using QRCoder;
-using Tavstal.KonkordLauncher.Common.Models;
+using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 
 namespace Tavstal.KonkordLauncher.Desktop.Helpers;
 
@@ -29,7 +29,7 @@ public static class ImageHelper
     {
         return !Design.IsDesignMode ? throw new InvalidOperationException("LoadFromResource should only be used in design mode with valid resource paths.") : new BitmapEntry(path, new Bitmap(AssetLoader.Open(new Uri(path))));
     }
-    
+
     /// <summary>
     /// Converts a Base64-encoded string to an Avalonia <see cref="Bitmap"/> object.
     /// </summary>
@@ -51,19 +51,6 @@ public static class ImageHelper
         return new Bitmap(ms);
     }
 
-    /// <summary>
-    /// Converts an Avalonia <see cref="Bitmap"/> object to a Base64-encoded string.
-    /// </summary>
-    /// <param name="bitmap">The <see cref="Bitmap"/> object to convert.</param>
-    /// <returns>A Base64-encoded string representing the image.</returns>
-    public static string BitmapToBase64(Bitmap bitmap)
-    {
-        using var ms = new MemoryStream();
-        bitmap.Save(ms);
-        byte[] imageBytes = ms.ToArray();
-        return Convert.ToBase64String(imageBytes);
-    }
-    
     /// <summary>
     /// Generates a QR code from the provided data and returns it as an Avalonia <see cref="Bitmap"/> object.
     /// </summary>

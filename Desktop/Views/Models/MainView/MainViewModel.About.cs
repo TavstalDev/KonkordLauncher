@@ -15,10 +15,10 @@ public partial class MainViewModel_About : KonkordObservableObject
 {
     // ReSharper disable once NotAccessedField.Local
     private readonly MainViewModel _parent;
-        
-    public string Version { get; } =  App.Version;
-    public string Branch { get; } = App.Branch;
-    public string BuildDate { get; } = App.BuildDate;
+
+    public string Version { get; } =  Program.Version;
+    public string Branch { get; } = Program.Branch;
+    public string BuildDate { get; } = Program.BuildDate;
 
     [ObservableProperty] public partial string License { get; set; } = string.Empty;
 
@@ -30,7 +30,7 @@ public partial class MainViewModel_About : KonkordObservableObject
     {
         _parent = parent;
     }
-    
+
     /// <summary>
     /// Asynchronously initializes the About view-model.
     /// Currently, this loads the LICENSE text from an embedded resource and normalizes whitespace for display.

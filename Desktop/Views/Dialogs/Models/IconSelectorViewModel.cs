@@ -3,17 +3,14 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Extensions.DependencyInjection;
-using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Services.Abstractions;
-using Tavstal.KonkordLauncher.Core.Helpers.IO;
+using Tavstal.BeaconSDK.Helpers.IO;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
+using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
 using IconDataModel = Tavstal.KonkordLauncher.Desktop.Models.Domain.IconDataModel;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
@@ -99,19 +96,28 @@ public partial class IconSelectorViewModel : KonkordObservableObject
     /// Closes the current window.
     /// </summary>
     [RelayCommand]
-    public async Task CloseWindow() => await CloseWindowInteraction.Handle(null);
+    public async Task CloseWindow()
+    {
+        await CloseWindowInteraction.Handle(null);
+    }
 
     /// <summary>
     /// Closes the parent window and returns the currently selected icon as the result.
     /// </summary>
     [RelayCommand]
-    public async Task OkBtn() => await CloseWindowInteraction.Handle(SelectedIcon?.Path);
+    public async Task OkBtn()
+    {
+        await CloseWindowInteraction.Handle(SelectedIcon?.Path);
+    }
 
     /// <summary>
     /// Closes the parent window without returning any result.
     /// </summary>
     [RelayCommand]
-    public async Task CancelBtn() => await CloseWindowInteraction.Handle(null);
+    public async Task CancelBtn()
+    {
+        await CloseWindowInteraction.Handle(null);
+    }
 
     /// <summary>
     /// Opens a file picker dialog to allow the user to add new icons.

@@ -1,9 +1,7 @@
 using System.Reactive;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using ReactiveUI;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
@@ -62,5 +60,8 @@ public partial class InputViewModel : ObservableObject
     /// </summary>
     /// <returns>A task representing the asynchronous operation.</returns>
     [RelayCommand]
-    public async Task CloseWindow() => await CloseWindowInteraction.Handle(null);
+    public async Task CloseWindow()
+    {
+        await CloseWindowInteraction.Handle(null);
+    }
 }

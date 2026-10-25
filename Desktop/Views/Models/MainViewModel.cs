@@ -1,22 +1,21 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Reactive;
-using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Extensions.DependencyInjection;
-using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Models;
-using Tavstal.KonkordLauncher.Common.Services.Abstractions;
-using Tavstal.KonkordLauncher.Core.Enums;
-using Tavstal.KonkordLauncher.Core.Helpers.Platform;
-using Tavstal.KonkordLauncher.Core.Models.Logging;
+using Tavstal.BeaconSDK.Enums;
+using Tavstal.BeaconSDK.Helpers.Platform;
+using Tavstal.BeaconSDK.Models.Logging;
+using Tavstal.BeaconSDK.Services.Abstractions;
+using Tavstal.BeaconSDK.Services.Abstractions.Auth;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
+using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
+using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Views.Models.MainView;
 using JavaVersionModel = Tavstal.KonkordLauncher.Desktop.Models.Domain.JavaVersionModel;
 
@@ -27,20 +26,28 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 /// </summary>
 public partial class MainViewModel : KonkordObservableObject
 {
+    private readonly IBeaconLogger _logger = null!;
     private readonly ILauncherStore _launcherStore = null!;
+    private readonly ITranslationService _translationService = null!;
+    private readonly IMicrosoftAuthService _authService = null!;
+    private readonly IMojangSkinService _mojangSkinService = null!;
+    private readonly IBitmapService _bitmapService = null!;
+    private readonly IEventService _eventService = null!;
+    private readonly IEncryptionService _encryptionService = null!;
+
     public bool IsLinux { get; } = OSHelper.GetOperatingSystem() == EOperatingSystem.LINUX;
     public DateTime NextCacheRefresh { get; private set; }
     public DateTime NextUpdate { get; private set; }
     public Task Initialization { get; } = null!;
-    
+
     public MainViewModel_Accounts Accounts { get; }
     public MainViewModel_About About { get; }
     public MainViewModel_Config Config { get; }
     public MainViewModel_Instances Instances { get; }
-    
+
     #region Interactions
-    
-    
+
+
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
     public Interaction<Alert, bool> ShowAlertDialogInteraction { get; } = new();
     public Interaction<Alert, bool> ShowConfirmDialogInteraction { get; } = new();
@@ -70,7 +77,7 @@ public partial class MainViewModel : KonkordObservableObject
 
     [ObservableProperty] private ESettingsTab _currentSettingsTab = ESettingsTab.LAUNCHER;
     [ObservableProperty] private EAboutTab _currentAboutTab = EAboutTab.ABOUT;
-    
+
     public ObservableCollection<PatchNote> Patches { get; } = new();
     [ObservableProperty] private bool _hasPatches;
 
@@ -79,28 +86,40 @@ public partial class MainViewModel : KonkordObservableObject
     /// </summary>
     public MainViewModel()
     {
-        Accounts = new MainViewModel_Accounts(this);
+        Accounts = new MainViewModel_Accounts(this, _launcherStore, _translationService, _authService,
+            _mojangSkinService, _bitmapService, _eventService, _encryptionService);
         About = new MainViewModel_About(this);
-        Config = new MainViewModel_Config(this);
-        Instances = new MainViewModel_Instances(this);
-     
+        Config = new MainViewModel_Config(this, _launcherStore, _eventService);
+        Instances = new MainViewModel_Instances(this, _launcherStore, _translationService, _eventService);
+
         if (Design.IsDesignMode)
             return;
-        
-        var services = Program.ServiceProvider;
-        ICustomLogger logger = services.GetRequiredService<ICustomLogger<MainViewModel>>();
-        _launcherStore = services.GetRequiredService<ILauncherStore>();
-        
+
         Initialization = InitAsync();
         Initialization.ContinueWith(task =>
         {
             if (task.IsFaulted)
-                logger.LogError("Initialization failed: " + task.Exception);
+                _logger.LogError("Initialization failed: " + task.Exception);
             else
-                logger.LogDebug("Initialization completed successfully.");
+                _logger.LogDebug("Initialization completed successfully.");
         }, TaskScheduler.Default);
     }
-    
+
+    public MainViewModel(IBeaconLogger<MainViewModel> logger, ILauncherStore launcherStore,
+        ITranslationService translationService, IMicrosoftAuthService microsoftAuthService,
+        IMojangSkinService mojangSkinService, IBitmapService bitmapService,
+        IEventService eventService, IEncryptionService encryptionService) : this()
+    {
+        _logger = logger;
+        _launcherStore = launcherStore;
+        _translationService = translationService;
+        _authService = microsoftAuthService;
+        _mojangSkinService = mojangSkinService;
+        _bitmapService = bitmapService;
+        _eventService = eventService;
+        _encryptionService = encryptionService;
+    }
+
     public async Task InitAsync(CancellationToken cancellationToken = default)
     {
         IsLoading = true;
@@ -110,7 +129,7 @@ public partial class MainViewModel : KonkordObservableObject
             NextUpdate = settings.Launcher.NextUpdateCheck;
             NextCacheRefresh = settings.CacheRefreshDate;
             var accountData = await _launcherStore.GetAccountDataAsync(cancellationToken);
-            
+
             await Config.InitAsync(settings);
             await Accounts.InitAsync(accountData);
             await Instances.InitAsync(cancellationToken);
@@ -123,7 +142,7 @@ public partial class MainViewModel : KonkordObservableObject
                 Patches.Add(new PatchNote(patch.Title, patch.Content, patch.Url));
 
             HasPatches = Patches.Count > 0;
-            
+
             #endregion
 
             await About.InitAsync(cancellationToken);
@@ -133,7 +152,7 @@ public partial class MainViewModel : KonkordObservableObject
             IsLoading = false;
         }
     }
-    
+
     /// <summary>
     /// Releases the resources used by the MainViewModel and unsubscribes from global events.
     /// </summary>
@@ -151,22 +170,31 @@ public partial class MainViewModel : KonkordObservableObject
         Config.Dispose();
         Instances.Dispose();
     }
-    
+
 
     #region Commands
 
     [RelayCommand]
-    public async Task CloseWindow() => await CloseWindowInteraction.Handle(Unit.Default);
-    
+    public async Task CloseWindow()
+    {
+        await CloseWindowInteraction.Handle(Unit.Default);
+    }
+
     /// <summary>
     /// Handles the sidebar button click event by changing the current sidebar view.
     /// </summary>
     /// <param name="sidebarType">The type of sidebar to switch to.</param>
     [RelayCommand]
-    public async Task HandleSidebarBtn(ESidebarType sidebarType) => await SwitchSidebarBtnInteraction.Handle(sidebarType);
-    
+    public async Task HandleSidebarBtn(ESidebarType sidebarType)
+    {
+        await SwitchSidebarBtnInteraction.Handle(sidebarType);
+    }
+
     [RelayCommand]
-    private async Task SwitchAboutTab(EAboutTab tab) => await SwitchAboutTabInteractionInteraction.Handle(tab);
-    
+    private async Task SwitchAboutTab(EAboutTab tab)
+    {
+        await SwitchAboutTabInteractionInteraction.Handle(tab);
+    }
+
     #endregion
 }

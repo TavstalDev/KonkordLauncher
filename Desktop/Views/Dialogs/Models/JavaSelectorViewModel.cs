@@ -1,13 +1,11 @@
 using System.Collections.ObjectModel;
 using System.Reactive;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Extensions.DependencyInjection;
-using ReactiveUI;
-using Tavstal.KonkordLauncher.Common.Services.Abstractions;
+using Tavstal.BeaconSDK.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
 using JavaVersionModel = Tavstal.KonkordLauncher.Desktop.Models.Domain.JavaVersionModel;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
@@ -72,17 +70,26 @@ public partial class JavaSelectorViewModel : ObservableObject
     /// Handles the selection action by closing the parent window and passing the selected Java version.
     /// </summary>
     [RelayCommand]
-    public async Task SelectedBtn() => await CloseWindowInteraction.Handle(SelectedJavaVersion);
+    public async Task SelectedBtn()
+    {
+        await CloseWindowInteraction.Handle(SelectedJavaVersion);
+    }
 
     /// <summary>
     /// Handles the cancel action by closing the parent window without passing a selected Java version.
     /// </summary>
     [RelayCommand]
-    public async Task CancelBtn() => await CloseWindowInteraction.Handle(null);
-    
+    public async Task CancelBtn()
+    {
+        await CloseWindowInteraction.Handle(null);
+    }
+
     /// <summary>
     /// Closes the current window.
     /// </summary>
     [RelayCommand]
-    public async Task CloseWindow() => await CloseWindowInteraction.Handle(null);
+    public async Task CloseWindow()
+    {
+        await CloseWindowInteraction.Handle(null);
+    }
 }

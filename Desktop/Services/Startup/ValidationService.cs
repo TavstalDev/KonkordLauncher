@@ -1,18 +1,24 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Tavstal.BeaconSDK.Enums;
+using Tavstal.BeaconSDK.Models.Accounts;
+using Tavstal.BeaconSDK.Models.Config;
 using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.BeaconSDK.Services.Abstractions.Auth;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services.Accounts;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
-namespace Tavstal.KonkordLauncher.Desktop.Services.Implementations;
+namespace Tavstal.KonkordLauncher.Desktop.Services.Startup;
 
 /// <inheritdoc/>
 public class ValidationService : IValidationService
@@ -22,15 +28,24 @@ public class ValidationService : IValidationService
     private readonly ILauncherStore _launcherStore;
     private readonly IManifestService _manifestService;
     private readonly IMicrosoftAuthService _microsoftAuthService;
+    private readonly ISkinService _skinService;
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IScreenService _screenService;
+    private readonly BeaconConfiguration _beaconConfiguration;
 
     public ValidationService(IBeaconLogger<ValidationService> logger, IEncryptionService encryptionService, ILauncherStore launcherStore,
-        IManifestService manifestService, IMicrosoftAuthService microsoftAuthService)
+        IManifestService manifestService, IMicrosoftAuthService microsoftAuthService, ISkinService skinService, IScreenService screenService,
+        IHttpClientFactory httpClientFactory, BeaconConfiguration beaconConfiguration)
     {
         _logger = logger;
         _encryptionService = encryptionService;
         _launcherStore = launcherStore;
         _manifestService = manifestService;
         _microsoftAuthService = microsoftAuthService;
+        _skinService = skinService;
+        _screenService = screenService;
+        _httpClientFactory = httpClientFactory;
+        _beaconConfiguration = beaconConfiguration;
     }
 
     /// <inheritdoc/>
@@ -79,7 +94,7 @@ public class ValidationService : IValidationService
                 if (acc.Type != EAccountType.MICROSOFT)
                     continue;
 
-                if (acc.AccessTokenExpireDate < DateTime.Now)
+                if (acc.AccessTokenExpireDate < DateTime.UtcNow)
                 {
                     string refreshToken = Encoding.UTF8.GetString(acc.GetRefreshToken(_encryptionService));
                     await _microsoftAuthService.RefreshLoginAsync(refreshToken, cancellationToken);
@@ -135,7 +150,7 @@ public class ValidationService : IValidationService
         try
         {
             var settings = await _launcherStore.GetSettingsAsync(cancellationToken: cancellationToken);
-            bool refreshManifests = DateTime.Now > settings.CacheRefreshDate;
+            bool refreshManifests = DateTime.UtcNow > settings.CacheRefreshDate;
 
             // Vanilla
             if (!File.Exists(settings.Launcher.GetVanillaManifestPath()) || refreshManifests)
@@ -219,5 +234,68 @@ public class ValidationService : IValidationService
             _logger.LogCritical(ex, $"Failed to validate manifests:");
             return false;
         }
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> ValidateCachesAsync(IKonkordProgress? progressReporter = null, CancellationToken cancellationToken = default)
+    {
+        // Refresh GitHub cache
+        progressReporter?.Report("startup.validation.github.status");
+        var settings = await _launcherStore.GetSettingsAsync(_screenService.GetResolution(), cancellationToken);
+        bool shouldRefreshCache = settings.CacheRefreshDate < DateTime.UtcNow;
+        string githubCachePath = Path.Combine(settings.Launcher.CacheDirectoryPath, "github_cache.json");
+        if (!File.Exists(githubCachePath) || shouldRefreshCache)
+        {
+            using var client = _httpClientFactory.CreateClient("default");
+            string response;
+            try
+            {
+                response =
+                    await client.GetStringAsync("https://api.github.com/repos/TavstalDev/KonkordLauncher/releases",
+                        cancellationToken);
+                if (string.IsNullOrWhiteSpace(response))
+                {
+                    _logger.LogError("Failed to fetch GitHub cache data");
+                    response = "[]";
+                }
+            }
+            catch (HttpRequestException e)
+            {
+                _logger.LogError(e, "Failed to fetch GitHub cache data");
+                response = "[]";
+            }
+
+            await File.WriteAllTextAsync(githubCachePath, response, cancellationToken);
+        }
+
+        // Refresh skins cache
+        progressReporter?.Report("startup.validation.skins");
+        AccountData accountData = await _launcherStore.GetAccountDataAsync(cancellationToken);
+        var semaphore = new SemaphoreSlim(_beaconConfiguration.Http.MaxParallelDownloads);
+        var tasks = new List<Task>();
+        foreach (Account account in accountData.Accounts)
+        {
+            await semaphore.WaitAsync(cancellationToken);
+            Task t = Task.Run(async () =>
+            {
+                try
+                {
+                    foreach (var skin in account.Skins)
+                        await _skinService.FetchSkinsAsync(settings.Launcher.CacheDirectoryPath, account.Id, account.Uuid,
+                            skin, cancellationToken);
+                    var capes = account.MojangProfile?.Capes ?? [];
+                    if (capes.Count > 0)
+                        await _skinService.FetchCapesAsync(settings.Launcher.CacheDirectoryPath, capes, cancellationToken);
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }, cancellationToken);
+            tasks.Add(t);
+        }
+
+        await Task.WhenAll(tasks);
+        return shouldRefreshCache;
     }
 }

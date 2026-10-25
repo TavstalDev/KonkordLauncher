@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 
-namespace Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+namespace Tavstal.KonkordLauncher.Desktop.Services.Presentation;
 
 /// <summary>
 /// Centralized service to manage Bitmap lifecycles, caching, and proactive unloading.

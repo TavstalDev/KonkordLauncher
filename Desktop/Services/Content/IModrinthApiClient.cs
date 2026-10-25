@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Modrinth.Models;
 using Version = Modrinth.Models.Version;
 
-namespace Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+namespace Tavstal.KonkordLauncher.Desktop.Services.Content;
 
 /// <summary>
 /// Provides access to the Modrinth API for searches, project metadata, and version metadata.

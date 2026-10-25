@@ -1,6 +1,6 @@
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 
-namespace Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+namespace Tavstal.KonkordLauncher.Desktop.Services;
 
 public interface IEventService
 {
@@ -61,6 +61,10 @@ public interface IEventService
     public event InstanceLoggedEventHandler? OnInstanceLogged;
 
     void RaiseInstanceLogged(string instanceId, string logMessage);
+
+    string GetInstanceLogs(string instanceId);
+
+    void CleareInstanceLogs(string instanceId);
     
     #endregion
 }

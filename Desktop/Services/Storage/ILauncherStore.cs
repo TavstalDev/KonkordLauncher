@@ -5,7 +5,7 @@ using Tavstal.BeaconSDK.Models.Instance;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs.Config;
 
-namespace Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+namespace Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 public interface ILauncherStore
 {

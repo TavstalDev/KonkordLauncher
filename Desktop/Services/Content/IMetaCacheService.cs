@@ -5,7 +5,7 @@ using Modrinth.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Version = Modrinth.Models.Version;
 
-namespace Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+namespace Tavstal.KonkordLauncher.Desktop.Services.Content;
 
 /// <summary>
 /// Provides metadata caching for Modrinth API data including projects, versions, images, and search results.

@@ -12,9 +12,8 @@ using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs.Config;
 using Tavstal.KonkordLauncher.Desktop.Serialization;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
 
-namespace Tavstal.KonkordLauncher.Desktop.Services.Implementations;
+namespace Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 /// <inheritdoc/>
 public class LauncherStore : ILauncherStore
@@ -32,6 +31,7 @@ public class LauncherStore : ILauncherStore
         Directory.CreateDirectory(_tempDir);
     }
 
+    /// <inheritdoc/>
     public string GetTempDir()
     {
         return _tempDir;

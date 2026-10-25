@@ -2,7 +2,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Tavstal.KonkordLauncher.Desktop.Models;
 
-namespace Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+namespace Tavstal.KonkordLauncher.Desktop.Services.Startup;
 
 /// <summary>
 /// Provides validation operations for launcher state and required data files.
@@ -30,5 +30,8 @@ public interface IValidationService
     /// <param name="cancellationToken">Cancellation token observed during validation.</param>
     /// <returns>A task that resolves to <see langword="true"/> if all manifests are valid; otherwise, <see langword="false"/>.</returns>
     Task<bool> ValidateManifests(IKonkordProgress? progressReporter = null,
+        CancellationToken cancellationToken = default);
+
+    Task<bool> ValidateCachesAsync(IKonkordProgress? progressReporter = null,
         CancellationToken cancellationToken = default);
 }

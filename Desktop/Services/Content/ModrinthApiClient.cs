@@ -7,11 +7,10 @@ using Modrinth.Models;
 using Modrinth.Models.Enums.Project;
 using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Services.Abstractions;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
 using ModrinthJsonContext = Tavstal.KonkordLauncher.Desktop.Serialization.ModrinthJsonContext;
 using Version = Modrinth.Models.Version;
 
-namespace Tavstal.KonkordLauncher.Desktop.Services.Implementations;
+namespace Tavstal.KonkordLauncher.Desktop.Services.Content;
 
 /// <inheritdoc/>
 public class ModrinthApiClient : IModrinthApiClient

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Tavstal.BeaconSDK.Models.Accounts;
 using Tavstal.BeaconSDK.Models.MojangApi.User;
 
-namespace Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+namespace Tavstal.KonkordLauncher.Desktop.Services.Accounts;
 
 /// <summary>
 /// Defines a service contract for managing player skins and capes in the Minecraft launcher.

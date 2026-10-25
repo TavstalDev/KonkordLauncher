@@ -18,12 +18,13 @@ using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs.MetaCache;
 using Tavstal.KonkordLauncher.Desktop.Serialization;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 using File = System.IO.File;
 using ModrinthJsonContext = Tavstal.KonkordLauncher.Desktop.Serialization.ModrinthJsonContext;
 using Version = Modrinth.Models.Version;
 
-namespace Tavstal.KonkordLauncher.Desktop.Services.Implementations;
+namespace Tavstal.KonkordLauncher.Desktop.Services.Content;
 
 /// <inheritdoc cref="IMetaCacheService" />
 public class MetaCacheService : IMetaCacheService, IHostedService

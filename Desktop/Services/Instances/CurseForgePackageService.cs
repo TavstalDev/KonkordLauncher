@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
-using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using Tavstal.BeaconSDK.Enums;
@@ -17,31 +15,24 @@ using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs.Config;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs.InstanceConfig;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs.Package;
-using Tavstal.KonkordLauncher.Desktop.Models.DTOs.Package.Modrinth;
+using Tavstal.KonkordLauncher.Desktop.Models.DTOs.Package.CurseForge;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Serialization;
-using Tavstal.KonkordLauncher.Desktop.Services.Abstractions;
-using ModrinthJsonContext = Tavstal.KonkordLauncher.Desktop.Serialization.ModrinthJsonContext;
+using Tavstal.KonkordLauncher.Desktop.Services.Storage;
+using CurseForgeJsonContext = Tavstal.KonkordLauncher.Desktop.Serialization.CurseForgeJsonContext;
 
-namespace Tavstal.KonkordLauncher.Desktop.Services.Implementations;
+namespace Tavstal.KonkordLauncher.Desktop.Services.Instances;
 
 /// <summary>
-/// Implements Modrinth package import and export operations for <c>.mrpack</c> archives.
+/// Implements CurseForge package import and export operations for <c>.zip</c> archives.
 /// </summary>
-// ReSharper disable once ClassNeverInstantiated.Global
-public class ModrinthPackageService : IPackageService
+public class CurseForgePackageService : IPackageService
 {
     private readonly IBeaconLogger _logger;
     private readonly IHttpService _httpService;
     private readonly ILauncherStore _launcherStore;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ModrinthPackageService"/> class.
-    /// </summary>
-    /// <param name="logger">Logger instance for recording diagnostic, warning, and error messages.</param>
-    /// <param name="httpService">Service for performing HTTP operations such as downloading files from URLs.</param>
-    /// <param name="launcherStore">Service for accessing and modifying launcher data such as instances and settings.</param>
-    public ModrinthPackageService(IBeaconLogger<ModrinthPackageService> logger, IHttpService httpService, ILauncherStore launcherStore)
+    public CurseForgePackageService(IBeaconLogger<CurseForgePackageService> logger, IHttpService httpService, ILauncherStore launcherStore)
     {
         _logger = logger;
         _httpService = httpService;
@@ -54,9 +45,9 @@ public class ModrinthPackageService : IPackageService
     {
         try
         {
-            if (!File.Exists(sourcePath) || Path.GetExtension(sourcePath) != ".mrpack")
+            if (!File.Exists(sourcePath) || Path.GetExtension(sourcePath) != ".zip")
             {
-                _logger.LogError("Source path does not exist or is not a .mrpack file");
+                _logger.LogError("Source path does not exist or is not a .zip file");
                 return null;
             }
 
@@ -98,59 +89,25 @@ public class ModrinthPackageService : IPackageService
             };
 
             string tempDir = Path.Combine(_launcherStore.GetTempDir(), "import-" + Guid.NewGuid());
-            try
+
+           try
             {
                 Directory.CreateDirectory(tempDir);
                 await ZipFile.ExtractToDirectoryAsync(sourcePath, tempDir, cancellationToken);
 
-                string indexJsonPath = Path.Combine(tempDir, "modrinth.index.json");
-                if (!File.Exists(indexJsonPath))
+                string manifestJson = Path.Combine(tempDir, "manifest.json");
+                if (!File.Exists(manifestJson))
                 {
-                    _logger.LogError("modrinth.index.json not found in package");
+                    _logger.LogError("manifest.json not found in package");
                     return null;
                 }
 
-                JsonNode? indexJson = JsonNode.Parse(await File.ReadAllTextAsync(indexJsonPath, cancellationToken));
-                if (indexJson == null)
-                    throw new InvalidOperationException("Failed to parse index.json");
+                var curseForgeManifest = await JsonHelper.ReadJsonFileAsync(manifestJson, CurseForgeJsonContext.Default.CurseForgeManifest, cancellationToken);
+                if (curseForgeManifest == null)
+                    throw new InvalidOperationException("Failed to parse manifest.json");
 
-                result.Name = customName ?? indexJson["name"]?.ToString() ?? "Unnamed Instance";
+                result.Name = customName ?? curseForgeManifest.Name;
                 result.Group = customGroup ?? null;
-
-                var dependenices = indexJson["dependencies"];
-                if (dependenices == null)
-                {
-                    _logger.LogError("'dependencies' not found in modrinth.index.json");
-                    return null;
-                }
-
-                if (dependenices["minecraft"] == null)
-                {
-                    _logger.LogError("'minecraft' dependency not found in modrinth.index.json");
-                    return null;
-                }
-
-                result.MinecraftVersion = dependenices["minecraft"]?.ToString()!;
-                if (dependenices["fabric-loader"] != null)
-                {
-                    result.Kind = EMinecraftKind.FABRIC;
-                    result.CustomVersion = dependenices["fabric-loader"]?.ToString()!;
-                }
-                else if (dependenices["forge"] != null)
-                {
-                    result.Kind = EMinecraftKind.FORGE;
-                    result.CustomVersion = dependenices["forge"]?.ToString()!;
-                }
-                else if (dependenices["neoforge"] != null)
-                {
-                    result.Kind = EMinecraftKind.NEOFORGE;
-                    result.CustomVersion = dependenices["neoforge"]?.ToString()!;
-                }
-                else if (dependenices["quilt-loader"] != null)
-                {
-                    result.Kind = EMinecraftKind.QUILT;
-                    result.CustomVersion = dependenices["quilt-loader"]?.ToString()!;
-                }
 
                 result.GameDirectory = Path.Combine(settings.Launcher.InstancesDirectoryPath, result.Name);
                 Directory.CreateDirectory(result.GameDirectory);
@@ -163,81 +120,21 @@ public class ModrinthPackageService : IPackageService
 
                 string iconPath = Path.Combine(result.GameDirectory, "icon.png");
                 if (!File.Exists(iconPath) && !string.IsNullOrEmpty(customIconUrl))
-                    await _httpService.DownloadFileAsync(customIconUrl, iconPath, null, null, cancellationToken);
+                    await _httpService.DownloadFileAsync(customIconUrl, iconPath,  null, null, cancellationToken);
                 result.IconPath = File.Exists(iconPath) ? iconPath : string.Empty;
 
                 // Download Mods
-                var validFilesData = indexJson["files"]?.AsArray()
-                    .Where(x => x != null)
-                    .Select(x =>
-                    {
-                        if (x == null)
-                            return null;
-
-                        string? env = x["env"]?["client"]?.ToString();
-                        if (!string.IsNullOrEmpty(env) && env != "required")
-                            return null;
-
-                        string? url = x["downloads"]?.AsArray().FirstOrDefault()?.ToString();
-                        if (string.IsNullOrEmpty(url))
-                            return null;
-
-                        string? path = x["path"]?.ToString();
-                        if (string.IsNullOrEmpty(path))
-                            return null;
-
-                        string[] urlParts = url.Replace("https://", "").Split('/');
-                        string projetId = urlParts.Length - 1 >= 2 ? urlParts[2] : string.Empty;
-                        string versionId = urlParts.Length - 1 >= 4 ? urlParts[4] : string.Empty;
-
-                        return new
-                        {
-                            JsonNode = x,
-                            Url = url,
-                            Path = path,
-                            ProjectId = projetId,
-                            VersionId = versionId,
-                        };
-                    })
-                    .Where(x => x != null)
-                    .ToList();
-
-                List<Task> tasks = [];
-                foreach (var node in validFilesData!)
+                /* TODO: Implement
+                 var tasks = curseForgeManifest.Files.Select(f =>
                 {
-                    if (node == null)
-                        continue;
-
-                    JsonNode jsonNode = node.JsonNode;
-                    string path = node.Path;
-                    string url = node.Url;
-                    string projetId = node.ProjectId;
-                    string versionId = node.VersionId;
-
-                    string finalPath = Path.Combine(result.GameDirectory, path);
-                    string fileName =  Path.GetFileName(finalPath);
-                    string? directory = Path.GetDirectoryName(finalPath);
-
-                    EResourceType resourceType = EResourceType.RESOURCE_PACK;
-                    if (path.StartsWith("mods"))
-                        resourceType = EResourceType.MOD;
-                    else if (path.StartsWith("shader"))
-                        resourceType = EResourceType.SHADER_PACK;
-
                     resources.Add(new InstanceResource
                     {
-                        ProjectId = projetId,
-                        VersionId = versionId,
-                        Name = fileName,
-                        Path = path,
-                        Url = url,
+                        ProjectId = f.ProjectId.ToString(),
+                        Name = "",
+                        Path = "",
+                        Url = $"https://api.curseforge.com/v1/mods/{f.ProjectId}/files/{f.FileId}",
                         Type = resourceType,
                         Platform = EPlatformType.MODRINTH,
-                        FileSize = long.Parse(jsonNode["fileSize"]?.ToString() ?? "0"),
-                        Sha1 = jsonNode["hashes"]?["sha1"]?.ToString() ?? string.Empty,
-                        Sha512 = jsonNode["hashes"]?["sha512"]?.ToString() ?? string.Empty,
-                        Client = jsonNode["env"]?["client"]?.ToString() ?? string.Empty,
-                        Server = jsonNode["env"]?["server"]?.ToString() ?? string.Empty,
                     });
 
                     if (!string.IsNullOrEmpty(directory))
@@ -245,12 +142,13 @@ public class ModrinthPackageService : IPackageService
 
                     var prog = new Progress<double>(p =>
                     {
-                        progress?.Report(p, "instance.download.file", path, p.ToString("0.00"));
+                        progress?.ReportProgress(p);
+                        progress?.UpdateStatusTranslated("instance.download.file", path, p.ToString("0.00"));
                     });
-                    tasks.Add(_httpService.DownloadFileAsync(url, finalPath, null, prog, cancellationToken));
-                }
+                    return _httpService.DownloadFileAsync(url, finalPath, prog, cancellationToken);
+                });
 
-                await Task.WhenAll(tasks);
+                await Task.WhenAll(tasks);*/
 
                 instances.Add(result);
                 await _launcherStore.SaveInstancesAsync(instances, cancellationToken);
@@ -271,7 +169,7 @@ public class ModrinthPackageService : IPackageService
         }
         catch (Exception ex)
         {
-            _logger.LogDebug(ex, $"Failed to import modrinth package:");
+            _logger.LogCritical(ex, $"Failed to import curse forge package:");
             return null;
         }
     }
@@ -294,74 +192,67 @@ public class ModrinthPackageService : IPackageService
         Directory.CreateDirectory(tmpDir);
         try
         {
-            string indexJson = Path.Combine(tmpDir, "modrinth.index.json");
+            string manifestJson = Path.Combine(tmpDir, "manifest.json");
+            string modListHtml = Path.Combine(tmpDir, "modlist.html");
             string overridesDir = Path.Combine(tmpDir, "overrides");
             Directory.CreateDirectory(overridesDir);
 
-            ModrinthPackageIndex packageIndex = new()
+            CurseForgeManifest curseForgeManifest = new()
             {
                 Name = instance.Name,
-                VersionId = exportVersion,
-                Summary = summary,
-                Dependencies =
+                Files = [],
+                Version = exportVersion,
+                Overrides = "overrides",
+                Minecraft = new CurseForgeMinecraft
                 {
-                    ["minecraft"] = instance.MinecraftVersion
+                    Version = instance.MinecraftVersion,
+                    ModLoaders = []
                 }
             };
-
-            if (!string.IsNullOrEmpty(instance.CustomVersion))
-            {
-                switch (instance.Kind)
+            if (instance.Kind != EMinecraftKind.VANILLA)
+                curseForgeManifest.Minecraft.ModLoaders.Add(new CurseForgeModLoader
                 {
-                    case EMinecraftKind.FABRIC:
-                        packageIndex.Dependencies["fabric-loader"] = instance.CustomVersion;
-                        break;
-                    case EMinecraftKind.FORGE:
-                        packageIndex.Dependencies["forge"] = instance.CustomVersion;
-                        break;
-                    case EMinecraftKind.NEOFORGE:
-                        packageIndex.Dependencies["neoforge"] = instance.CustomVersion;
-                        break;
-                    case EMinecraftKind.QUILT:
-                        packageIndex.Dependencies["quilt-loader"] = instance.CustomVersion;
-                        break;
-                }
-            }
+                    Id = instance.Kind.ToString().ToLower() + "-" + instance.CustomVersion,
+                    IsPrimary = true
+                });
 
+            // Write manifest json
+            await JsonHelper.WriteJsonFileAsync(manifestJson, curseForgeManifest, CurseForgeJsonContext.Default.CurseForgeManifest, cancellationToken);
+
+            // Write mod-list HTML
+            List<string> modList = [];
             foreach (var resource in resources)
             {
-                if (resource.Platform != EPlatformType.MODRINTH)
+                if (resource.Platform != EPlatformType.CURSE_FORGE)
                     continue;
 
                 // Remove the resource file node from localNodes to avoid copying it to overrides
                 var localNode = localNodes.Find(x => !x.IsDirectory && (x.Path.EndsWith(resource.Path) || x.Path.EndsWith(resource.Path + ".dis")));
+                bool required = true;
                 if (localNode != null)
-                    localNodes.Remove(localNode);
-
-                packageIndex.Files.Add(new PackageFile
                 {
-                    Path = resource.Path,
-                    Downloads = [resource.Url],
-                    FileSize = resource.FileSize,
-                    Hashes =
-                    {
-                        ["sha1"] = resource.Sha1!,
-                        ["sha512"] = resource.Sha512!
-                    },
-                    Env =
-                    {
-                        ["client"] = resource.Client!,
-                        ["server"] = resource.Server!
-                    }
+                    required = !localNode.Path.EndsWith(".dis");
+                    localNodes.Remove(localNode);
+                }
+
+                modList.Add(
+                    $"<li><a href=\"https://www.curseforge.com/projects/{resource.ProjectId}\">{resource.Name}</a></li>");
+
+                if (resource.FileId == null)
+                    continue;
+
+                curseForgeManifest.Files.Add(new CurseForgeFile
+                {
+                    ProjectId = ulong.Parse(resource.ProjectId),
+                    FileId = ulong.Parse(resource.FileId),
+                    Required = required
                 });
             }
+            await File.WriteAllTextAsync(modListHtml, $"<ul>{string.Join("\n", modList)}</ul>", cancellationToken);
 
             // Copy overrides
             foreach (var node in localNodes)
                 await CopyNodeToOverridesAsync(overridesDir, instance.GameDirectory!, node, cancellationToken);
-
-            // Write package index
-            await JsonHelper.WriteJsonFileAsync(indexJson, packageIndex, ModrinthJsonContext.Default.ModrinthPackageIndex, cancellationToken);
 
             await ZipFile.CreateFromDirectoryAsync(tmpDir, targetPath, CompressionLevel.Optimal, false, cancellationToken);
             _logger.LogDebug($"Exported modrinth package to {targetPath}");
@@ -369,7 +260,7 @@ public class ModrinthPackageService : IPackageService
         }
         catch (Exception ex)
         {
-            _logger.LogCritical(ex, $"Failed to export modrinth package:");
+            _logger.LogCritical(ex, $"Failed to export curse forge package:");
             return false;
         }
         finally

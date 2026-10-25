@@ -66,7 +66,7 @@ public class TranslationService : ITranslationService, IHostedService
                 throw new Exception("Invalid language code");
 
             var settings = await _launcherStore.GetSettingsAsync(cancellationToken: cancellationToken);
-            string localePath = Path.Combine(settings.Launcher.TranslationsDirectoryPath, $"{language}.json");
+            string localePath = Path.Combine(settings.Launcher.TranslationsDirectoryPath, $"{language}.yml");
             if (File.Exists(localePath))
             {
                 using TextReader reader = new StreamReader(localePath);

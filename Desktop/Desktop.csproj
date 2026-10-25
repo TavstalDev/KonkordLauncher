@@ -21,8 +21,8 @@
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-        
-        <IsAotCompatible>true</IsAotCompatible>
+
+        <IsAotCompatible>false</IsAotCompatible>
         <OptimizationPreference>Size</OptimizationPreference>
         <GCLatencyLevel>3</GCLatencyLevel>
         <ServerGarbageCollection>false</ServerGarbageCollection>
@@ -32,13 +32,13 @@
     <PropertyGroup Condition="'$(Configuration)' == 'Release'">
         <PublishAot>true</PublishAot>
     </PropertyGroup>
-    
+
     <PropertyGroup>
         <PublishSingleFile>true</PublishSingleFile>
         <SelfContained>true</SelfContained>
         <EnableUnsafeUTF8Json>true</EnableUnsafeUTF8Json>
     </PropertyGroup>
-    
+
     <ItemGroup>
         <PackageReference Include="Avalonia" Version="12.1.4" />
         <PackageReference Include="Avalonia.Controls.DataGrid" Version="12.1.2" />
@@ -51,7 +51,7 @@
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
         <PackageReference Include="DiscordRichPresence" Version="1.6.1.70" />
         <PackageReference Include="DynamicData" Version="9.5.0" />
-        <PackageReference Include="Markdig" Version="1.4.2" />
+        <PackageReference Include="Markdig" Version="1.5.0" />
         <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="10.0.13" />
         <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.13" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.13" />
@@ -63,17 +63,16 @@
         <PackageReference Include="QRCoder" Version="1.8.1" />
         <PackageReference Include="ReactiveUI.Avalonia" Version="12.1.6" />
         <PackageReference Include="ReverseMarkdown" Version="6.3.0" />
-        <PackageReference Include="System.Reactive" Version="7.0.0" />
         <PackageReference Include="Velopack" Version="1.2.161" />
         <PackageReference Include="YamlDotNet" Version="18.1.0" />
     </ItemGroup>
-    
+
     <ItemGroup>
         <AvaloniaResource Include="Assets\**" />
         <AvaloniaResource Include="favicon.ico" />
         <AvaloniaResource Include="Styles\**" />
     </ItemGroup>
-    
+
     <ItemGroup>
       <Compile Update="Views\MainWindow.axaml.cs">
         <DependentUpon>MainWindow.axaml</DependentUpon>

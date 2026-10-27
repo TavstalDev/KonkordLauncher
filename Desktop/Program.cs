@@ -15,6 +15,7 @@ using Tavstal.KonkordLauncher.Desktop.Services.Content;
 using Tavstal.KonkordLauncher.Desktop.Services.Instances;
 using Tavstal.KonkordLauncher.Desktop.Services.Localization;
 using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Services.Startup;
 using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 using Tavstal.KonkordLauncher.Desktop.Services.Update;
@@ -84,11 +85,14 @@ internal class Program
                 services.AddSingleton<IEventService, EventService>();
                 services.AddSingleton<IUpdateService, UpdateService>();
                 services.AddSingleton<IDiscordPresenceService, DiscordPresenceService>();
+                services.AddSingleton<ITopLevelProvider, TopLevelProvider>();
+                services.AddSingleton<IWindowFactory, WindowFactory>();
+                services.AddSingleton<IDialogService, DialogService>();
+                services.AddSingleton<IFilePickerService, FilePickerService>();
 
                 services.AddSingleton<ISkinService, SkinService>();
                 services.AddSingleton<ILauncherStore, LauncherStore>();
                 services.AddSingleton<IScreenService, ScreenService>();
-                services.AddSingleton<IWindowFactory, WindowFactory>();
                 services.AddSingleton<IInstanceModelFactory, InstanceModelFactory>();
 
                 services.AddSingleton<ITranslationService, TranslationService>();
@@ -102,16 +106,22 @@ internal class Program
                 services.AddSingleton<IMetaCacheService, MetaCacheService>();
                 services.AddHostedService(sp => sp.GetRequiredService<MetaCacheService>());
 
+                // Startup window
                 services.AddTransient<StartupViewModel>();
                 services.AddTransient<StartupWindow>();
+                // Main window
                 services.AddTransient<MainViewModel>();
                 services.AddTransient<MainWindow>();
+                // Create Instance Window
                 services.AddTransient<CreateInstanceViewModel>();
                 services.AddTransient<CreateInstanceWindow>();
+                // Accounts Window
                 services.AddTransient<AccountsViewModel>();
                 services.AddTransient<AccountsWindow>();
+                // Java Selector Window
                 services.AddTransient<JavaSelectorViewModel>();
                 services.AddTransient<JavaSelectorWindow>();
+                // Icon Selector Window
                 services.AddTransient<IconSelectorViewModel>();
                 services.AddTransient<IconSelectorWindow>();
             })

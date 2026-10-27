@@ -3,24 +3,24 @@ using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Desktop.Services.Presentation;
 
-/// <inheritdoc/>
+/// <inheritdoc />
 public class TopLevelProvider : ITopLevelProvider
 {
     private TopLevel? _topLevel;
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public TopLevel? Get()
     {
         return _topLevel;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public void SetActive(TopLevel? topLevel)
     {
         _topLevel = topLevel;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public void ClearIfMatches(TopLevel? topLevel)
     {
         if (topLevel != _topLevel)

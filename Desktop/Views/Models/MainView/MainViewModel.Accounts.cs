@@ -36,14 +36,14 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
 {
     private readonly IMicrosoftAuthService _authService = null!;
     private readonly IBitmapService _bitmapService = null!;
+    private readonly IDialogService _dialogService = null!;
     private readonly IEncryptionService _encryptionService = null!;
     private readonly IEventService _eventService = null!;
+    private readonly IFilePickerService _filePickerService = null!;
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IBeaconLogger _logger = null!;
     private readonly IMojangSkinService _mojangSkinService = null!;
     private readonly ITranslationService _translationService = null!;
-    private readonly IDialogService _dialogService = null!;
-    private readonly IFilePickerService _filePickerService = null!;
 
     public MainViewModel_Accounts()
     {
@@ -79,23 +79,17 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         AccountAvatar = _bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Images/Placeholders/steve_head.png");
     }
 
-    [ObservableProperty]
-    public partial BitmapEntry AccountAvatar { get; set; }
+    [ObservableProperty] public partial BitmapEntry AccountAvatar { get; set; }
 
-    [ObservableProperty]
-    public partial BitmapEntry AccountSkinPreview { get; set; } = null!;
+    [ObservableProperty] public partial BitmapEntry AccountSkinPreview { get; set; } = null!;
 
-    [ObservableProperty]
-    public partial bool IsAccountHasWideModel { get; set; }
+    [ObservableProperty] public partial bool IsAccountHasWideModel { get; set; }
 
-    [ObservableProperty]
-    public partial bool IsAccountSkinProcessing { get; set; }
+    [ObservableProperty] public partial bool IsAccountSkinProcessing { get; set; }
 
-    [ObservableProperty]
-    public partial AccountSkin SelectedSkin { get; set; } = null!;
+    [ObservableProperty] public partial AccountSkin SelectedSkin { get; set; } = null!;
 
-    [ObservableProperty]
-    public partial AccountDataModel AccountData { get; set; } = null!;
+    [ObservableProperty] public partial AccountDataModel AccountData { get; set; } = null!;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(AccountName))]
@@ -234,8 +228,9 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             if (SelectedAccount == null)
                 return;
 
-            var filePath = await _filePickerService.OpenFilePickerAsync(_translationService.Translate("common.select.file"), "PNGs",
-            ["*.png"]);
+            var filePath = await _filePickerService.OpenFilePickerAsync(
+                _translationService.Translate("common.select.file"), "PNGs",
+                ["*.png"]);
             if (filePath == null || !File.Exists(filePath))
                 return;
 

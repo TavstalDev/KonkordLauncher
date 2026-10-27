@@ -40,5 +40,5 @@ public interface IDialogService
 
     Task<bool?> ShowResourceDownloaderAsync(Instance instance, EResourceType type);
 
-    Task<bool> ShowResourceReviewAsync(Instance instance, EResourceType type, List<ResourceDownloadModel>  resources);
+    Task<bool> ShowResourceReviewAsync(Instance instance, EResourceType type, List<ResourceDownloadModel> resources);
 }

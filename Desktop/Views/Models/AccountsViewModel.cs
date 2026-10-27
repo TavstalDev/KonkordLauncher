@@ -30,15 +30,15 @@ public partial class AccountsViewModel : KonkordObservableObject
 {
     private readonly IMicrosoftAuthService _authService = null!;
     private readonly IMicrosoftDeviceAuthService _deviceAuthService = null!;
+    private readonly IDialogService _dialogService = null!;
     private readonly IEncryptionService _encryptionService = null!;
     private readonly IEventService _eventService = null!;
+    private readonly IFilePickerService _filePickerService = null!;
     private readonly IMicrosoftHttpAuthService _httpAuthService = null!;
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IBeaconLogger _logger = null!;
     private readonly ISkinService _skinService = null!;
     private readonly ITranslationService _translationService = null!;
-    private readonly IDialogService _dialogService = null!;
-    private readonly IFilePickerService _filePickerService = null!;
 
     public AccountsViewModel()
     {
@@ -72,6 +72,12 @@ public partial class AccountsViewModel : KonkordObservableObject
 
         ProgressText = _translationService.Translate("auth.logging_in");
     }
+
+    #region Interactions
+
+    public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
+
+    #endregion
 
     /// <summary>
     ///     Releases the resources used by the ViewModel, including the QR code bitmap.
@@ -248,12 +254,6 @@ public partial class AccountsViewModel : KonkordObservableObject
     [ObservableProperty] public partial Bitmap? QrCode { get; set; }
 
     [ObservableProperty] public partial bool IsQrCodeLoading { get; set; } = true;
-
-    #endregion
-
-    #region Interactions
-
-    public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
 
     #endregion
 

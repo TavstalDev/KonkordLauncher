@@ -89,7 +89,7 @@ public partial class WorldModel : ObservableObject
     {
         get
         {
-            ITranslationService translationService = Program.Services.GetRequiredService<ITranslationService>();
+            var translationService = Program.Services.GetRequiredService<ITranslationService>();
             var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             epoch = epoch.AddMilliseconds(LastPlayed);
             var timeDiff = DateTime.UtcNow - epoch;

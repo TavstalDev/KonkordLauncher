@@ -19,8 +19,8 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
 public partial class EditInstanceViewModel_Servers : KonkordObservableObject
 {
-    private readonly Func<string?> _getGameDirectory = () => null;
     private readonly IBitmapService _bitmapService = null!;
+    private readonly Func<string?> _getGameDirectory = () => null;
     private readonly IBeaconLogger _logger = null!;
 
     public EditInstanceViewModel_Servers() { }
@@ -32,16 +32,13 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
         _bitmapService = bitmapService;
     }
 
-    [ObservableProperty]
-    public partial string ServerName { get; set; } = string.Empty;
+    [ObservableProperty] public partial string ServerName { get; set; } = string.Empty;
 
-    [ObservableProperty]
-    public partial string ServerIp { get; set; } = string.Empty;
+    [ObservableProperty] public partial string ServerIp { get; set; } = string.Empty;
 
     public ObservableCollection<ServerModel> Servers { get; set; } = [];
 
-    [ObservableProperty]
-    public partial ServerModel? SelectedServer { get; set; }
+    [ObservableProperty] public partial ServerModel? SelectedServer { get; set; }
 
     protected override void Dispose(bool disposing)
     {
@@ -63,7 +60,7 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
     public void SaveServers()
     {
         _logger.LogDebug("Saving servers to servers.dat file...");
-        string? gameDir = _getGameDirectory.Invoke();
+        var gameDir = _getGameDirectory.Invoke();
         if (string.IsNullOrEmpty(gameDir))
             return;
         try
@@ -106,7 +103,7 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
 
     public void RefreshServers()
     {
-        string? gameDir = _getGameDirectory.Invoke();
+        var gameDir = _getGameDirectory.Invoke();
         if (string.IsNullOrEmpty(gameDir))
             return;
 

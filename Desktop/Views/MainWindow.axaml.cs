@@ -19,8 +19,8 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 // ReSharper disable once PartialTypeWithSinglePart
 public partial class MainWindow : KonkordWindow<MainViewModel>
 {
-    private readonly IBeaconLogger _logger = null!;
     private readonly IDiscordPresenceService _discordPresenceService = null!;
+    private readonly IBeaconLogger _logger = null!;
     private readonly ITopLevelProvider _topLevelProvider = null!;
 
     private Button _selectedAboutTabButton;

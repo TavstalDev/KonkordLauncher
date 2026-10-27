@@ -31,13 +31,6 @@ public partial class MainViewModel : KonkordObservableObject
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IScreenService _screenService = null!;
 
-    [ObservableProperty]
-    public partial EAboutTab CurrentAboutTab { get; set; } = EAboutTab.ABOUT;
-    [ObservableProperty]
-    public partial ESettingsTab CurrentSettingsTab { get; set; } = ESettingsTab.LAUNCHER;
-    [ObservableProperty]
-    public partial bool HasPatches { get; set; }
-
     public MainViewModel()
     {
         Accounts = new MainViewModel_Accounts();
@@ -59,10 +52,12 @@ public partial class MainViewModel : KonkordObservableObject
         _launcherStore = launcherStore;
         _screenService = screenService;
 
-        Accounts = new MainViewModel_Accounts(launcherStore, translationService, microsoftAuthService, mojangSkinService,
+        Accounts = new MainViewModel_Accounts(launcherStore, translationService, microsoftAuthService,
+            mojangSkinService,
             bitmapService, eventService, encryptionService, dialogService, filePickerService);
         About = new MainViewModel_About();
-        Config = new MainViewModel_Config(_launcherStore, eventService, filePickerService, dialogService, translationService);
+        Config = new MainViewModel_Config(_launcherStore, eventService, filePickerService, dialogService,
+            translationService);
         Instances = new MainViewModel_Instances(_launcherStore, translationService, eventService,
             instanceModelFactory, filePickerService, dialogService);
 
@@ -76,6 +71,12 @@ public partial class MainViewModel : KonkordObservableObject
         }, TaskScheduler.Default);
     }
 
+    [ObservableProperty] public partial EAboutTab CurrentAboutTab { get; set; } = EAboutTab.ABOUT;
+
+    [ObservableProperty] public partial ESettingsTab CurrentSettingsTab { get; set; } = ESettingsTab.LAUNCHER;
+
+    [ObservableProperty] public partial bool HasPatches { get; set; }
+
     public bool IsLinux { get; } = OSHelper.GetOperatingSystem() == EOperatingSystem.LINUX;
     public DateTime NextCacheRefresh { get; private set; }
     public DateTime NextUpdate { get; private set; }
@@ -86,11 +87,9 @@ public partial class MainViewModel : KonkordObservableObject
     public MainViewModel_Config Config { get; } = null!;
     public MainViewModel_Instances Instances { get; } = null!;
 
-    [ObservableProperty]
-    public partial bool IsLoading { get; set; }
+    [ObservableProperty] public partial bool IsLoading { get; set; }
 
-    [ObservableProperty]
-    public partial ESidebarType CurrentPageIndex { get; set; } = ESidebarType.Play;
+    [ObservableProperty] public partial ESidebarType CurrentPageIndex { get; set; } = ESidebarType.Play;
 
     public ObservableCollection<PatchNote> Patches { get; } = new();
 
@@ -130,7 +129,7 @@ public partial class MainViewModel : KonkordObservableObject
         }
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
@@ -147,7 +146,6 @@ public partial class MainViewModel : KonkordObservableObject
     public Interaction<ESidebarType, Unit> SwitchSidebarBtnInteraction { get; } = new();
     public Interaction<ESettingsTab, Unit> UpdateSettingsTabButtonInteraction { get; } = new();
     public Interaction<EAboutTab, Unit> SwitchAboutTabInteractionInteraction { get; } = new();
-
 
     #endregion
 

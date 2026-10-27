@@ -36,11 +36,11 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IKonkordPr
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IBeaconLogger _logger = null!;
     private readonly IScreenService _screenService = null!;
+    private readonly ITopLevelProvider _topLevelProvider = null!;
     private readonly ITranslationService _translationService = null!;
     private readonly IUpdateService _updateService = null!;
     private readonly IValidationService _validationService = null!;
     private readonly IWindowFactory _windowFactory = null!;
-    private readonly ITopLevelProvider _topLevelProvider = null!;
 
     public StartupWindow()
     {

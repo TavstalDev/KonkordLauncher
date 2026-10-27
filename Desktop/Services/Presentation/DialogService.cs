@@ -12,12 +12,12 @@ using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 namespace Tavstal.KonkordLauncher.Desktop.Services.Presentation;
 
-/// <inheritdoc/>
+/// <inheritdoc />
 public class DialogService : IDialogService
 {
-    private readonly IWindowFactory _windowFactory;
-    private readonly Dictionary<string, EditInstanceWindow> _openEditWindows = [];
     private readonly Dictionary<string, InstanceLogsWindow> _logWindows = [];
+    private readonly Dictionary<string, EditInstanceWindow> _openEditWindows = [];
+    private readonly IWindowFactory _windowFactory;
     private Window? _mainWindow;
 
     public DialogService(IWindowFactory windowFactory)
@@ -25,13 +25,13 @@ public class DialogService : IDialogService
         _windowFactory = windowFactory;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public void SetMainWindow(Window mainWindow)
     {
         _mainWindow = mainWindow;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public Task CloseAsync()
     {
         try
@@ -45,7 +45,7 @@ public class DialogService : IDialogService
         }
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public async Task<bool> ShowAlertAsync(string title, string message, EAlertType type)
     {
         if (_mainWindow == null)
@@ -55,13 +55,13 @@ public class DialogService : IDialogService
         return await alertWindow.ShowDialog<bool>(_mainWindow);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public async Task<bool> ShowConfirmAsync(string title, string message, EAlertType type)
     {
         return await ShowAlertAsync(title, message, type);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public async Task ShowAccountsAsync()
     {
         if (_mainWindow == null)
@@ -71,7 +71,7 @@ public class DialogService : IDialogService
         await dialog.ShowDialog(_mainWindow);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public async Task<JavaVersionModel?> ShowJavaSelectorAsync()
     {
         if (_mainWindow == null)
@@ -80,7 +80,7 @@ public class DialogService : IDialogService
         return await window.ShowDialog<JavaVersionModel>(_mainWindow);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public async Task<string?> ShowInputAsync(string title)
     {
         if (_mainWindow == null)
@@ -90,7 +90,7 @@ public class DialogService : IDialogService
         return await dialog.ShowDialog<string?>(_mainWindow);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public async Task<string?> ShowIconSelectorAsync()
     {
         if (_mainWindow == null)
@@ -100,7 +100,7 @@ public class DialogService : IDialogService
         return await dialog.ShowDialog<string?>(_mainWindow);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public async Task ShowInstanceCreationAsync()
     {
         if (_mainWindow == null)
@@ -108,7 +108,7 @@ public class DialogService : IDialogService
         await _windowFactory.CreateCreateInstanceWindow().ShowDialog(_mainWindow);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public Task ShowInstanceEditorAsync(InstanceModel instance)
     {
         try
@@ -136,7 +136,7 @@ public class DialogService : IDialogService
         }
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public Task ShowInstanceLogsAsync(string instanceId)
     {
         try
@@ -155,7 +155,7 @@ public class DialogService : IDialogService
         }
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public Task CloseInstanceLogsAsync(string instanceId)
     {
         try
@@ -175,7 +175,7 @@ public class DialogService : IDialogService
         }
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public async Task ShowInstanceExportAsync(Instance instance, EInstanceProvider provider)
     {
         if (_mainWindow == null)
@@ -185,7 +185,7 @@ public class DialogService : IDialogService
         await exportWindow.ShowDialog(_mainWindow);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public async Task<bool> ShowInstanceVersionSelectorAsync(Instance instance)
     {
         if (_mainWindow == null)
@@ -194,7 +194,7 @@ public class DialogService : IDialogService
         return await selectorWindow.ShowDialog<bool>(_mainWindow);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public async Task<bool?> ShowResourceDownloaderAsync(Instance instance, EResourceType type)
     {
         if (_mainWindow == null)
@@ -204,8 +204,9 @@ public class DialogService : IDialogService
         return await dialog.ShowDialog<bool?>(_mainWindow);
     }
 
-    /// <inheritdoc/>
-    public async Task<bool> ShowResourceReviewAsync(Instance instance, EResourceType type, List<ResourceDownloadModel> resources)
+    /// <inheritdoc />
+    public async Task<bool> ShowResourceReviewAsync(Instance instance, EResourceType type,
+        List<ResourceDownloadModel> resources)
     {
         if (_mainWindow == null)
             return false;

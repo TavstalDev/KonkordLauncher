@@ -9,7 +9,7 @@ using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
-/// <inheritdoc/>
+/// <inheritdoc />
 public class FilePickerService : IFilePickerService
 {
     private readonly ITopLevelProvider _topLevelProvider;
@@ -19,7 +19,7 @@ public class FilePickerService : IFilePickerService
         _topLevelProvider = topLevelProvider;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public async Task SetClipboardTextAsync(string text)
     {
         if (string.IsNullOrEmpty(text))
@@ -32,7 +32,7 @@ public class FilePickerService : IFilePickerService
         await topLevel.Clipboard.SetTextAsync(text);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public async Task SetClipboardImageAsync(Bitmap? bitmap)
     {
         if (bitmap == null)
@@ -45,7 +45,7 @@ public class FilePickerService : IFilePickerService
         await topLevel.Clipboard.SetBitmapAsync(bitmap);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public async Task<string?> OpenFilePickerAsync(string title, string filterName, string[] patterns)
     {
         var topLevel = _topLevelProvider.Get();
@@ -65,7 +65,7 @@ public class FilePickerService : IFilePickerService
         return !files.Any() ? null : files[0].TryGetLocalPath();
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public async Task<List<string>?> OpenFilesPickerAsync(string title, string filterName, string[] patterns)
     {
         var topLevel = _topLevelProvider.Get();
@@ -87,15 +87,16 @@ public class FilePickerService : IFilePickerService
         List<string> result = [];
         foreach (var file in files)
         {
-            string? path = file.TryGetLocalPath();
+            var path = file.TryGetLocalPath();
             if (string.IsNullOrEmpty(path))
                 continue;
             result.Add(path);
         }
+
         return result;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public async Task<string?> OpenFolderPickerAsync(string title)
     {
         var topLevel = _topLevelProvider.Get();
@@ -107,11 +108,7 @@ public class FilePickerService : IFilePickerService
         if (!storageProvider.CanPickFolder)
             throw new NotSupportedException("The platform does not support folder picking.");
 
-        var options = new FolderPickerOpenOptions
-        {
-            Title = title,
-            AllowMultiple = false
-        };
+        var options = new FolderPickerOpenOptions { Title = title, AllowMultiple = false };
 
         var folders = await storageProvider.OpenFolderPickerAsync(options);
 

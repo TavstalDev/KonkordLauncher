@@ -31,6 +31,7 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
 {
     private readonly BeaconConfiguration _beaconConfiguration;
     private readonly IBitmapService _bitmapService;
+    private readonly IDialogService _dialogService;
     private readonly IEncryptionService _encryptionService;
     private readonly IEventService _eventService;
     private readonly IInstanceInstallService _installService;
@@ -42,7 +43,6 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
     private readonly IScreenService _screenService;
     private readonly ITranslationService _translationService;
     private readonly IWindowFactory _windowFactory;
-    private readonly IDialogService _dialogService;
     private long _lastReadPosition;
     private FileSystemWatcher? _watcher;
 
@@ -317,6 +317,7 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
                     EAlertType.Error);
                 return;
             }
+
             CloseReporter();
 
             // Handle Java

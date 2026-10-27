@@ -32,6 +32,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 public partial class ResourceDownloadViewModel : KonkordObservableObject
 {
     private readonly IBitmapService _bitmapService = null!;
+    private readonly IDialogService _dialogService = null!;
     private readonly Instance? _instance;
     private readonly List<InstanceResource> _instanceResources = [];
     private readonly ILauncherStore _launcherStore = null!;
@@ -40,7 +41,6 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
     private readonly IMetaCacheService _metaCacheService = null!;
     private readonly EResourceType _resourceType;
     private readonly ITranslationService _translationService = null!;
-    private readonly IDialogService _dialogService = null!;
     private CancellationTokenSource? _refreshCancellationTokenSource;
     private long _refreshGeneration;
 

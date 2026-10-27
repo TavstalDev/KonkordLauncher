@@ -21,11 +21,11 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 public partial class IconSelectorViewModel : KonkordObservableObject
 {
+    private readonly IBitmapService _bitmapService = null!;
+    private readonly IFilePickerService _filePickerService = null!;
+    private readonly ILauncherStore _launcherStore = null!;
     private readonly IBeaconLogger _logger = null!;
     private readonly ITranslationService _translationService = null!;
-    private readonly IBitmapService _bitmapService = null!;
-    private readonly ILauncherStore _launcherStore = null!;
-    private readonly IFilePickerService _filePickerService = null!;
 
     public IconSelectorViewModel()
     {
@@ -46,6 +46,12 @@ public partial class IconSelectorViewModel : KonkordObservableObject
 
         _ = InitAsync();
     }
+
+    #region Interaction
+
+    public Interaction<string?, Unit> CloseWindowInteraction { get; } = new();
+
+    #endregion
 
     protected override void Dispose(bool disposing)
     {
@@ -86,12 +92,6 @@ public partial class IconSelectorViewModel : KonkordObservableObject
 
     #endregion
 
-    #region Interaction
-
-    public Interaction<string?, Unit> CloseWindowInteraction { get; } = new();
-
-    #endregion
-
     #region Commands
 
     [RelayCommand]
@@ -122,10 +122,9 @@ public partial class IconSelectorViewModel : KonkordObservableObject
 
         var settings = await _launcherStore.GetSettingsAsync();
         foreach (var path in result)
-        {
             try
             {
-                string fileName = Path.GetFileName(path);
+                var fileName = Path.GetFileName(path);
                 var newPath = Path.Combine(settings.Launcher.IconsDirectoryPath, fileName);
                 if (File.Exists(newPath))
                     continue;
@@ -138,7 +137,6 @@ public partial class IconSelectorViewModel : KonkordObservableObject
             {
                 _logger.LogError($"Failed to copy file {path} to icons directory: {ex.Message}");
             }
-        }
     }
 
     [RelayCommand]

@@ -67,8 +67,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IKonkord
     public CreateInstanceViewModel_Modpack Modpack { get; }
     public CreateInstanceViewModel_Import Import { get; }
 
-    [ObservableProperty]
-    public partial ECreateInstanceTab SelectedTab { get; set; } = ECreateInstanceTab.CUSTOM;
+    [ObservableProperty] public partial ECreateInstanceTab SelectedTab { get; set; } = ECreateInstanceTab.CUSTOM;
 
     protected override void Dispose(bool disposing)
     {

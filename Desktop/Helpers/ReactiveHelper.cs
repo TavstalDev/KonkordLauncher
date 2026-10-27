@@ -10,11 +10,11 @@ public static class ReactiveHelper
 {
     public static IObservable<T> ObserveOnMainThread<T>(this IObservable<T> source) where T : notnull
     {
-        return LinqExtensions.ObserveOn(source, RxSchedulers.MainThreadScheduler);
+        return source.ObserveOn(RxSchedulers.MainThreadScheduler);
     }
 
     public static Task<T> ToTaskCompat<T>(this IObservable<T> source, CancellationToken cancellationToken)
     {
-        return LinqExtensions.ToTask(source, cancellationToken);
+        return source.ToTask(cancellationToken);
     }
 }

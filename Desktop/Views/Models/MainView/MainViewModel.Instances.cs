@@ -28,17 +28,16 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.MainView;
 /// </summary>
 public partial class MainViewModel_Instances : KonkordObservableObject
 {
+    private readonly IDialogService _dialogService = null!;
     private readonly IEventService _eventService = null!;
+    private readonly IFilePickerService _filePickerService = null!;
     private readonly IInstanceModelFactory _instanceModelFactory = null!;
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IBeaconLogger _logger = null!;
     private readonly ITranslationService _translationService = null!;
-    private readonly IFilePickerService _filePickerService = null!;
-    private readonly IDialogService _dialogService = null!;
 
     public MainViewModel_Instances()
     {
-
     }
 
     public MainViewModel_Instances(ILauncherStore launcherStore, ITranslationService translationService,
@@ -63,8 +62,7 @@ public partial class MainViewModel_Instances : KonkordObservableObject
 
     public ObservableCollection<InstanceGroup> InstanceGroups { get; } = [];
 
-    [ObservableProperty]
-    public partial bool HasInstances { get; set; }
+    [ObservableProperty] public partial bool HasInstances { get; set; }
 
     protected override void Dispose(bool disposing)
     {

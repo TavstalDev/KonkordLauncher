@@ -31,28 +31,17 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.CreateInstance;
 
 public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
 {
-    private readonly IKonkordProgress _progress = null!;
     private readonly IBitmapService _bitmapService = null!;
+    private readonly IDialogService _dialogService = null!;
     private readonly IEventService _eventService = null!;
     private readonly IHttpService _httpService = null!;
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IBeaconLogger _logger = null!;
     private readonly IMetaCacheService _metaCacheService = null!;
     private readonly ModrinthPackageService _modrinthPackageService = null!;
+    private readonly IKonkordProgress _progress = null!;
     private readonly IScreenService _screenService = null!;
     private readonly ITranslationService _translationService = null!;
-    private readonly IDialogService _dialogService = null!;
-
-    public event EventHandler? OnCloseRequested;
-
-    [ObservableProperty]
-    public partial string? MinecraftVersion { get; set; }
-
-    [ObservableProperty]
-    public partial string SearchQuery { get; set; } = string.Empty;
-
-    [ObservableProperty]
-    public partial EPlatformType SelectedPlatform { get; set; } = EPlatformType.MODRINTH;
 
     public CreateInstanceViewModel_Modpack()
     {
@@ -80,6 +69,12 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         _modrinthPackageService = modrinthPackageService;
         _dialogService = dialogService;
     }
+
+    [ObservableProperty] public partial string? MinecraftVersion { get; set; }
+
+    [ObservableProperty] public partial string SearchQuery { get; set; } = string.Empty;
+
+    [ObservableProperty] public partial EPlatformType SelectedPlatform { get; set; } = EPlatformType.MODRINTH;
 
     [ObservableProperty] public partial bool AllowScrollbarRefresh { get; set; } = false;
 
@@ -134,6 +129,8 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         : Design.IsDesignMode
             ? "<p>Select a modpack</p>"
             : "<p>" + _translationService.Translate("instance.create.modpack.preview.select") + "</p>";
+
+    public event EventHandler? OnCloseRequested;
 
     protected override void Dispose(bool disposing)
     {

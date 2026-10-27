@@ -14,8 +14,7 @@ public partial class MainViewModel_About : KonkordObservableObject
     public string Branch { get; } = Program.Branch;
     public string BuildDate { get; } = Program.BuildDate;
 
-    [ObservableProperty]
-    public partial string License { get; set; } = string.Empty;
+    [ObservableProperty] public partial string License { get; set; } = string.Empty;
 
     public async Task InitAsync(CancellationToken cancellationToken = default)
     {

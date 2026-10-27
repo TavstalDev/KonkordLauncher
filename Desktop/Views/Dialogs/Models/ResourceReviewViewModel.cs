@@ -21,6 +21,7 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 public partial class ResourceReviewViewModel : KonkordObservableObject
 {
+    private readonly IDialogService _dialogService = null!;
     private readonly IHttpService _httpService = null!;
     private readonly Instance _instance = null!;
     private readonly ILauncherStore _launcherStore = null!;
@@ -28,7 +29,6 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
     private readonly IKonkordProgress _progressReporter = null!;
     private readonly EResourceType _resourceType;
     private readonly ITranslationService _translationService = null!;
-    private readonly IDialogService _dialogService = null!;
 
     public ResourceReviewViewModel()
     {
@@ -103,6 +103,7 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
     #region Interactions
 
     public Interaction<bool, Unit> CloseWindowInteraction { get; } = new();
+
     #endregion
 
     #region Commands

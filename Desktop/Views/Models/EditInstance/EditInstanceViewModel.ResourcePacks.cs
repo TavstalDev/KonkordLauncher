@@ -29,16 +29,14 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
 public partial class EditInstanceViewModel_ResourcePacks : KonkordObservableObject
 {
-    private readonly InstanceModel _instance = null!;
-    private readonly Func<string?> _getGameDirectory = () => null;
     private readonly IBitmapService _bitmapService = null!;
+    private readonly IDialogService _dialogService = null!;
+    private readonly Func<string?> _getGameDirectory = () => null;
+    private readonly InstanceModel _instance = null!;
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IBeaconLogger _logger = null!;
-    private readonly IDialogService _dialogService = null!;
 
     private readonly SourceCache<ResourceBaseModel, string> _resourcePackCache = new(x => x.Name);
-
-    public event EventHandler<EResourceType>? OnResourcesUpdated;
 
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
@@ -74,7 +72,8 @@ public partial class EditInstanceViewModel_ResourcePacks : KonkordObservableObje
 
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public EditInstanceViewModel_ResourcePacks(InstanceModel instance, Func<string?> getGameDirectory, ILauncherStore launcherStore,
+    public EditInstanceViewModel_ResourcePacks(InstanceModel instance, Func<string?> getGameDirectory,
+        ILauncherStore launcherStore,
         IBitmapService bitmapService, IDialogService dialogService) : this()
     {
         if (Design.IsDesignMode)
@@ -93,6 +92,8 @@ public partial class EditInstanceViewModel_ResourcePacks : KonkordObservableObje
     [ObservableProperty] public partial ResourceBaseModel? SelectedResourcePack { get; set; }
 
     [ObservableProperty] public partial string SearchQuery { get; set; } = string.Empty;
+
+    public event EventHandler<EResourceType>? OnResourcesUpdated;
 
     protected override void Dispose(bool disposing)
     {
@@ -113,7 +114,7 @@ public partial class EditInstanceViewModel_ResourcePacks : KonkordObservableObje
     public void SaveResourcePacks()
     {
         _logger.LogDebug("Saving resource packs...");
-        string? gameDir = _getGameDirectory.Invoke();
+        var gameDir = _getGameDirectory.Invoke();
         if (string.IsNullOrEmpty(gameDir))
             return;
 
@@ -148,7 +149,7 @@ public partial class EditInstanceViewModel_ResourcePacks : KonkordObservableObje
 
     public async Task RefreshResourcePacksAsync()
     {
-        string? gameDir = _getGameDirectory.Invoke();
+        var gameDir = _getGameDirectory.Invoke();
         if (string.IsNullOrEmpty(gameDir))
             return;
 
@@ -265,7 +266,8 @@ public partial class EditInstanceViewModel_ResourcePacks : KonkordObservableObje
     [RelayCommand]
     private async Task Download()
     {
-        var result = await _dialogService.ShowResourceDownloaderAsync(_instance.getInstance(), EResourceType.RESOURCE_PACK);
+        var result =
+            await _dialogService.ShowResourceDownloaderAsync(_instance.getInstance(), EResourceType.RESOURCE_PACK);
         if (result == null)
             return;
         if (result.Value)
@@ -275,7 +277,7 @@ public partial class EditInstanceViewModel_ResourcePacks : KonkordObservableObje
     [RelayCommand]
     private void OpenDir()
     {
-        string? gameDir = _getGameDirectory.Invoke();
+        var gameDir = _getGameDirectory.Invoke();
         if (string.IsNullOrEmpty(gameDir))
             return;
 

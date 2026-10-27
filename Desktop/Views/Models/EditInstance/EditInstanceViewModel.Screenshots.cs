@@ -15,9 +15,9 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
 public partial class EditInstanceViewModel_Screenshots : KonkordObservableObject
 {
-    private readonly Func<string?> _getGameDirectory = () => null;
     private readonly IBitmapService _bitmapService = null!;
     private readonly IFilePickerService _filePickerService = null!;
+    private readonly Func<string?> _getGameDirectory = () => null;
 
     public EditInstanceViewModel_Screenshots() { }
 
@@ -51,7 +51,7 @@ public partial class EditInstanceViewModel_Screenshots : KonkordObservableObject
 
     public void RefreshScreenshots()
     {
-        string? gameDir = _getGameDirectory.Invoke();
+        var gameDir = _getGameDirectory.Invoke();
         if (string.IsNullOrEmpty(gameDir))
             return;
 
@@ -93,7 +93,7 @@ public partial class EditInstanceViewModel_Screenshots : KonkordObservableObject
     [RelayCommand]
     private void OpenDir(ScreenshotModel screenshot)
     {
-        string? gameDir = _getGameDirectory.Invoke();
+        var gameDir = _getGameDirectory.Invoke();
         if (string.IsNullOrEmpty(gameDir))
             return;
 

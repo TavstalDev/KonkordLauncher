@@ -36,15 +36,13 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.CreateInstance;
 public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
 {
     private readonly IBitmapService _bitmapService = null!;
+    private readonly IDialogService _dialogService = null!;
     private readonly IEventService _eventService = null!;
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IBeaconLogger _logger = null!;
     private readonly IManifestService _manifestService = null!;
     private readonly IScreenService _screenService = null!;
     private readonly ITranslationService _translationService = null!;
-    private readonly IDialogService _dialogService = null!;
-
-    public event EventHandler? OnCloseRequested;
 
     public CreateInstanceViewModel_Custom()
     {
@@ -113,6 +111,8 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
             return true;
         }
     }
+
+    public event EventHandler? OnCloseRequested;
 
     protected override void Dispose(bool disposing)
     {

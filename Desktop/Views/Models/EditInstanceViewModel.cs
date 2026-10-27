@@ -35,10 +35,10 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     public readonly InstanceModel Instance = null!;
     private readonly IEncryptionService _encryptionService = null!;
     private readonly IEventService _eventService = null!;
+    private readonly IFilePickerService _filePickerService = null!;
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IBeaconLogger _logger = null!;
     private readonly IScreenService _screenService = null!;
-    private readonly IFilePickerService _filePickerService = null!;
 
     public EditInstanceViewModel()
     {
@@ -66,15 +66,18 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         _screenService = screenService;
         _filePickerService = filePickerService;
 
-        Mods = new EditInstanceViewModel_Mods(instance, () => GameDirectory, launcherStore, bitmapService, dialogService);
+        Mods = new EditInstanceViewModel_Mods(instance, () => GameDirectory, launcherStore, bitmapService,
+            dialogService);
         Mods.OnResourcesUpdated += OnResourcesUpdated;
         ResourcePacks = new EditInstanceViewModel_ResourcePacks(instance, () => GameDirectory,
-                launcherStore, bitmapService, dialogService);
+            launcherStore, bitmapService, dialogService);
         ResourcePacks.OnResourcesUpdated += OnResourcesUpdated;
         Screenshots = new EditInstanceViewModel_Screenshots(() => GameDirectory, bitmapService, filePickerService);
         Servers = new EditInstanceViewModel_Servers(() => GameDirectory, bitmapService);
-        Settings = new EditInstanceViewModel_Settings(instance.Id, launcherStore, translationService, eventService, filePickerService, dialogService);
-        ShaderPacks = new EditInstanceViewModel_ShaderPacks(instance, () => GameDirectory, launcherStore, bitmapService, dialogService);
+        Settings = new EditInstanceViewModel_Settings(instance.Id, launcherStore, translationService, eventService,
+            filePickerService, dialogService);
+        ShaderPacks = new EditInstanceViewModel_ShaderPacks(instance, () => GameDirectory, launcherStore, bitmapService,
+            dialogService);
         ShaderPacks.OnResourcesUpdated += OnResourcesUpdated;
         Worlds = new EditInstanceViewModel_Worlds(() => GameDirectory, bitmapService, filePickerService);
 
@@ -208,20 +211,15 @@ public partial class EditInstanceViewModel : KonkordObservableObject
 
     #region Observable Properties
 
-    [ObservableProperty]
-    public partial EEditInstanceTab EditInstanceTab { get; set; }
+    [ObservableProperty] public partial EEditInstanceTab EditInstanceTab { get; set; }
 
-    [ObservableProperty]
-    public partial EInstanceSettingsTab InstanceSettingsTab { get; set; }
+    [ObservableProperty] public partial EInstanceSettingsTab InstanceSettingsTab { get; set; }
 
-    [ObservableProperty]
-    public partial string InstanceName { get; set; } = string.Empty;
+    [ObservableProperty] public partial string InstanceName { get; set; } = string.Empty;
 
-    [ObservableProperty]
-    public partial string? GameDirectory { get; set; }
+    [ObservableProperty] public partial string? GameDirectory { get; set; }
 
-    [ObservableProperty]
-    public partial bool IsVanilla { get; set; }
+    [ObservableProperty] public partial bool IsVanilla { get; set; }
 
     public ObservableCollection<string> Logs { get; set; } = [];
 

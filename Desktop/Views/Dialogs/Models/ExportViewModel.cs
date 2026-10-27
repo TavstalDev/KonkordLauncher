@@ -23,10 +23,10 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 public partial class ExportViewModel : KonkordObservableObject
 {
     private readonly CurseForgePackageService _curseForgePackageService = null!;
-    private readonly ModrinthPackageService _modrinthPackageService = null!;
-    private readonly ITranslationService _translationService = null!;
     private readonly IDialogService _dialogService = null!;
     private readonly IFilePickerService _filePickerService = null!;
+    private readonly ModrinthPackageService _modrinthPackageService = null!;
+    private readonly ITranslationService _translationService = null!;
 
     public ExportViewModel()
     {
@@ -107,6 +107,12 @@ public partial class ExportViewModel : KonkordObservableObject
 
     public ObservableCollection<ObservableFileNode> Items { get; } = [];
 
+    #region Interactions
+
+    public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
+
+    #endregion
+
     /// <summary>
     ///     Asynchronously initializes the ViewModel by scanning the instance directory for files and folders.
     ///     Populates <see cref="Items" /> with <see cref="ObservableFileNode" /> entries.
@@ -149,12 +155,6 @@ public partial class ExportViewModel : KonkordObservableObject
         IsInitialized = true;
     }
 
-    #region Interactions
-
-    public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
-
-    #endregion
-
     #region Commands
 
     /// <summary>
@@ -181,7 +181,8 @@ public partial class ExportViewModel : KonkordObservableObject
             return;
         }
 
-        var directoryResult = await _filePickerService.OpenFolderPickerAsync(_translationService.Translate("common.select.directory"));
+        var directoryResult =
+            await _filePickerService.OpenFolderPickerAsync(_translationService.Translate("common.select.directory"));
         if (string.IsNullOrEmpty(directoryResult))
         {
             await _dialogService.ShowAlertAsync(

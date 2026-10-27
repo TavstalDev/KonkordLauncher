@@ -28,16 +28,14 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
 public partial class EditInstanceViewModel_Mods : KonkordObservableObject
 {
-    private readonly InstanceModel _instance = null!;
-    private readonly Func<string?> _getGameDirectory = () => null;
     private readonly IBitmapService _bitmapService = null!;
+    private readonly IDialogService _dialogService = null!;
+    private readonly Func<string?> _getGameDirectory = () => null;
+    private readonly InstanceModel _instance = null!;
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IBeaconLogger _logger = null!;
-    private readonly IDialogService _dialogService = null!;
 
     private readonly SourceCache<ResourceBaseModel, string> _modsCache = new(x => x.Name);
-
-    public event EventHandler<EResourceType>? OnResourcesUpdated;
 
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
@@ -73,7 +71,8 @@ public partial class EditInstanceViewModel_Mods : KonkordObservableObject
 
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public EditInstanceViewModel_Mods(InstanceModel instance, Func<string?> getGameDirectory, ILauncherStore launcherStore,
+    public EditInstanceViewModel_Mods(InstanceModel instance, Func<string?> getGameDirectory,
+        ILauncherStore launcherStore,
         IBitmapService bitmapService, IDialogService dialogService) : this()
     {
         _instance = instance;
@@ -86,11 +85,11 @@ public partial class EditInstanceViewModel_Mods : KonkordObservableObject
 
     public ReadOnlyObservableCollection<ResourceBaseModel> FilteredMods { get; private set; }
 
-    [ObservableProperty]
-    public partial ResourceBaseModel? SelectedMod { get; set; }
+    [ObservableProperty] public partial ResourceBaseModel? SelectedMod { get; set; }
 
-    [ObservableProperty]
-    public partial string? SearchQuery { get; set; } = string.Empty;
+    [ObservableProperty] public partial string? SearchQuery { get; set; } = string.Empty;
+
+    public event EventHandler<EResourceType>? OnResourcesUpdated;
 
     protected override void Dispose(bool disposing)
     {
@@ -112,7 +111,7 @@ public partial class EditInstanceViewModel_Mods : KonkordObservableObject
     public void SaveMods()
     {
         _logger.LogDebug("Saving mods...");
-        string? gameDir = _getGameDirectory.Invoke();
+        var gameDir = _getGameDirectory.Invoke();
         if (string.IsNullOrEmpty(gameDir))
             return;
 
@@ -147,7 +146,7 @@ public partial class EditInstanceViewModel_Mods : KonkordObservableObject
 
     public async Task RefreshModsAsync()
     {
-        string? gameDir = _getGameDirectory.Invoke();
+        var gameDir = _getGameDirectory.Invoke();
         if (string.IsNullOrEmpty(gameDir))
             return;
 
@@ -257,7 +256,7 @@ public partial class EditInstanceViewModel_Mods : KonkordObservableObject
     [RelayCommand]
     private void ModOpenDirectory()
     {
-        string? gameDir = _getGameDirectory.Invoke();
+        var gameDir = _getGameDirectory.Invoke();
         if (string.IsNullOrEmpty(gameDir))
             return;
 

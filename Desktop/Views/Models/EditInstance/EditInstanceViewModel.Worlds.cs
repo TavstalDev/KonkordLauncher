@@ -25,10 +25,10 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
 public partial class EditInstanceViewModel_Worlds : KonkordObservableObject
 {
-    private readonly Func<string?> _getGameDirectory = () => null;
     private readonly IBitmapService _bitmapService = null!;
-    private readonly IBeaconLogger _logger = null!;
     private readonly IFilePickerService _filePickerService = null!;
+    private readonly Func<string?> _getGameDirectory = () => null;
+    private readonly IBeaconLogger _logger = null!;
 
     public EditInstanceViewModel_Worlds() { }
 
@@ -75,7 +75,7 @@ public partial class EditInstanceViewModel_Worlds : KonkordObservableObject
     public async Task DuplicateWorldAsync(WorldModel world, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Saving worlds...");
-        string? gameDir = _getGameDirectory.Invoke();
+        var gameDir = _getGameDirectory.Invoke();
         if (string.IsNullOrEmpty(gameDir))
             return;
 
@@ -163,7 +163,7 @@ public partial class EditInstanceViewModel_Worlds : KonkordObservableObject
     public void SaveWorlds()
     {
         _logger.LogDebug("Saving worlds...");
-        string? gameDir = _getGameDirectory.Invoke();
+        var gameDir = _getGameDirectory.Invoke();
         if (string.IsNullOrEmpty(gameDir))
             return;
 
@@ -248,7 +248,7 @@ public partial class EditInstanceViewModel_Worlds : KonkordObservableObject
 
     public void RefreshWorlds()
     {
-        string? gameDir = _getGameDirectory.Invoke();
+        var gameDir = _getGameDirectory.Invoke();
         if (string.IsNullOrEmpty(gameDir))
             return;
 

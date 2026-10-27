@@ -12,6 +12,7 @@ public class InstanceModelFactory : IInstanceModelFactory
 {
     private readonly BeaconConfiguration _beaconConfiguration;
     private readonly IBitmapService _bitmapService;
+    private readonly IDialogService _dialogService;
     private readonly IEncryptionService _encryptionService;
     private readonly IEventService _eventService;
     private readonly IInstanceInstallService _installService;
@@ -23,7 +24,6 @@ public class InstanceModelFactory : IInstanceModelFactory
     private readonly IScreenService _screenService;
     private readonly ITranslationService _translationService;
     private readonly IWindowFactory _windowFactory;
-    private readonly IDialogService _dialogService;
 
     public InstanceModelFactory(
         IBeaconLogger<InstanceModel> logger,

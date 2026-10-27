@@ -18,10 +18,10 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 public partial class InstanceLogsViewModel : KonkordObservableObject
 {
     private readonly IEventService _eventService = null!;
+    private readonly IFilePickerService _filePickerService = null!;
     private readonly string _instanceId;
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IBeaconLogger _logger = null!;
-    private readonly IFilePickerService _filePickerService = null!;
 
     public InstanceLogsViewModel()
     {

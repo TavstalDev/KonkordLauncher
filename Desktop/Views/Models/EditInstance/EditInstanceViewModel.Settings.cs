@@ -26,17 +26,13 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
 public partial class EditInstanceViewModel_Settings : KonkordObservableObject
 {
-    private readonly string _instanceId = string.Empty;
+    private readonly IDialogService _dialogService = null!;
     private readonly IEventService _eventService = null!;
+    private readonly IFilePickerService _filePickerService = null!;
+    private readonly string _instanceId = string.Empty;
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IBeaconLogger _logger = null!;
     private readonly ITranslationService _translationService = null!;
-    private readonly IFilePickerService _filePickerService = null!;
-    private readonly IDialogService _dialogService = null!;
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanRemoveEnvironmentVariable))]
-    public partial int? SelectedEnvironmentVariableIndex { get; set; }
 
     public EditInstanceViewModel_Settings()
     {
@@ -45,7 +41,7 @@ public partial class EditInstanceViewModel_Settings : KonkordObservableObject
     }
 
     public EditInstanceViewModel_Settings(string instanceId, ILauncherStore launcherStore, ITranslationService
-        translationService, IEventService eventService, IFilePickerService filePickerService,
+            translationService, IEventService eventService, IFilePickerService filePickerService,
         IDialogService dialogService) : this()
     {
         if (Design.IsDesignMode)
@@ -59,6 +55,10 @@ public partial class EditInstanceViewModel_Settings : KonkordObservableObject
         _filePickerService = filePickerService;
         _dialogService = dialogService;
     }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanRemoveEnvironmentVariable))]
+    public partial int? SelectedEnvironmentVariableIndex { get; set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanRemoveEnvironmentVariable))]

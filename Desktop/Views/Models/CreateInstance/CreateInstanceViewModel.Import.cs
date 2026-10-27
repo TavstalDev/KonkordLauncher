@@ -24,18 +24,16 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.CreateInstance;
 
 public partial class CreateInstanceViewModel_Import : KonkordObservableObject
 {
-    private readonly IKonkordProgress _progress = null!;
+    private readonly IDialogService _dialogService = null!;
     private readonly IEventService _eventService = null!;
+    private readonly IFilePickerService _filePickerService = null!;
     private readonly IHttpService _httpService = null!;
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IBeaconLogger _logger = null!;
     private readonly ModrinthPackageService _modrinthPackageService = null!;
+    private readonly IKonkordProgress _progress = null!;
     private readonly IScreenService _screenService = null!;
     private readonly ITranslationService _translationService = null!;
-    private readonly IDialogService _dialogService = null!;
-    private readonly IFilePickerService _filePickerService = null!;
-
-    public event EventHandler? OnCloseRequested;
 
     public CreateInstanceViewModel_Import()
     {
@@ -68,20 +66,17 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
 
     public bool IsSourceFromFile => SelectedImportSourceIndex == 0;
 
-    [ObservableProperty]
-    public partial string? ImportPath { get; set; }
+    [ObservableProperty] public partial string? ImportPath { get; set; }
 
-    [ObservableProperty]
-    public partial bool HasImportPath { get; set; }
+    [ObservableProperty] public partial bool HasImportPath { get; set; }
 
-    [ObservableProperty]
-    public partial string ImportPreviewName { get; set; } = "---";
+    [ObservableProperty] public partial string ImportPreviewName { get; set; } = "---";
 
-    [ObservableProperty]
-    public partial string ImportPreviewVersion { get; set; } = "---";
+    [ObservableProperty] public partial string ImportPreviewVersion { get; set; } = "---";
 
-    [ObservableProperty]
-    public partial string ImportPreviewModLoader { get; set; } = "---";
+    [ObservableProperty] public partial string ImportPreviewModLoader { get; set; } = "---";
+
+    public event EventHandler? OnCloseRequested;
 
     private async Task ImportFromFileAsync(CancellationToken cancellationToken = default)
     {

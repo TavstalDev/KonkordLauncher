@@ -20,12 +20,12 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.MainView;
 
 public partial class MainViewModel_Config : KonkordObservableObject
 {
-    private readonly ITranslationService _translationService = null!;
+    private readonly IDialogService _dialogService = null!;
     private readonly IEventService _eventService = null!;
+    private readonly IFilePickerService _filePickerService = null!;
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IBeaconLogger _logger = null!;
-    private readonly IFilePickerService _filePickerService = null!;
-    private readonly IDialogService _dialogService = null!;
+    private readonly ITranslationService _translationService = null!;
 
     public MainViewModel_Config()
     {
@@ -47,8 +47,7 @@ public partial class MainViewModel_Config : KonkordObservableObject
         _translationService = translationService;
     }
 
-    [ObservableProperty]
-    public partial CoreConfigModel CoreConfig { get; set; } = null!;
+    [ObservableProperty] public partial CoreConfigModel CoreConfig { get; set; } = null!;
 
     public Task InitAsync(CoreConfig settings)
     {
@@ -80,7 +79,8 @@ public partial class MainViewModel_Config : KonkordObservableObject
         if (!int.TryParse(rawIndex, out var index))
             return;
 
-        var directoryResult = await _filePickerService.OpenFolderPickerAsync(_translationService.Translate("common.select.directory"));
+        var directoryResult =
+            await _filePickerService.OpenFolderPickerAsync(_translationService.Translate("common.select.directory"));
         if (string.IsNullOrEmpty(directoryResult))
             return;
         switch (index)
@@ -282,7 +282,7 @@ public partial class MainViewModel_Config : KonkordObservableObject
                 EnableMangoHud = newValue.Misc.EnableMangoHud,
                 EnableFeralGameMode = newValue.Misc.EnableFeralGameMode
             },
-            CacheRefreshDate = oldSettings?.CacheRefreshDate ?? DateTime.UtcNow,
+            CacheRefreshDate = oldSettings?.CacheRefreshDate ?? DateTime.UtcNow
         };
 
         _launcherStore.SaveSettings(settings);

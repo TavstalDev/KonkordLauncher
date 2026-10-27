@@ -28,16 +28,14 @@ namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
 public partial class EditInstanceViewModel_ShaderPacks : KonkordObservableObject
 {
-    private readonly InstanceModel _instance = null!;
-    private readonly Func<string?> _getGameDirectory = () => null;
     private readonly IBitmapService _bitmapService = null!;
+    private readonly IDialogService _dialogService = null!;
+    private readonly Func<string?> _getGameDirectory = () => null;
+    private readonly InstanceModel _instance = null!;
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IBeaconLogger _logger = null!;
-    private readonly IDialogService _dialogService = null!;
 
     private readonly SourceCache<ResourceBaseModel, string> _shaderPackCache = new(x => x.Name);
-
-    public event EventHandler<EResourceType>? OnResourcesUpdated;
 
     public EditInstanceViewModel_ShaderPacks()
     {
@@ -70,7 +68,8 @@ public partial class EditInstanceViewModel_ShaderPacks : KonkordObservableObject
 
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public EditInstanceViewModel_ShaderPacks(InstanceModel instance, Func<string?> getGameDirectory, ILauncherStore launcherStore,
+    public EditInstanceViewModel_ShaderPacks(InstanceModel instance, Func<string?> getGameDirectory,
+        ILauncherStore launcherStore,
         IBitmapService bitmapService, IDialogService dialogService) : this()
     {
         if (Design.IsDesignMode)
@@ -89,6 +88,8 @@ public partial class EditInstanceViewModel_ShaderPacks : KonkordObservableObject
     [ObservableProperty] public partial ResourceBaseModel? SelectedShaderPack { get; set; }
 
     [ObservableProperty] public partial string SearchQuery { get; set; } = string.Empty;
+
+    public event EventHandler<EResourceType>? OnResourcesUpdated;
 
     protected override void Dispose(bool disposing)
     {
@@ -110,7 +111,7 @@ public partial class EditInstanceViewModel_ShaderPacks : KonkordObservableObject
     public void SaveShaderPacks()
     {
         _logger.LogDebug("Saving shader packs...");
-        string? gameDir = _getGameDirectory.Invoke();
+        var gameDir = _getGameDirectory.Invoke();
         if (string.IsNullOrEmpty(gameDir))
             return;
 
@@ -145,7 +146,7 @@ public partial class EditInstanceViewModel_ShaderPacks : KonkordObservableObject
 
     public async Task RefreshShaderPacksAsync()
     {
-        string? gameDir = _getGameDirectory.Invoke();
+        var gameDir = _getGameDirectory.Invoke();
         if (string.IsNullOrEmpty(gameDir))
             return;
 
@@ -248,7 +249,8 @@ public partial class EditInstanceViewModel_ShaderPacks : KonkordObservableObject
     [RelayCommand]
     private async Task Download()
     {
-        var result = await _dialogService.ShowResourceDownloaderAsync(_instance.getInstance(), EResourceType.SHADER_PACK);
+        var result =
+            await _dialogService.ShowResourceDownloaderAsync(_instance.getInstance(), EResourceType.SHADER_PACK);
         if (result == null)
             return;
         if (result.Value)
@@ -258,7 +260,7 @@ public partial class EditInstanceViewModel_ShaderPacks : KonkordObservableObject
     [RelayCommand]
     private void OpenDir()
     {
-        string? gameDir = _getGameDirectory.Invoke();
+        var gameDir = _getGameDirectory.Invoke();
         if (string.IsNullOrEmpty(gameDir))
             return;
 

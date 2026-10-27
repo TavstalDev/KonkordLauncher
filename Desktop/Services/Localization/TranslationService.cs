@@ -124,7 +124,17 @@ public class TranslationService : ITranslationService, IHostedService
         var translation = Translate(key);
         if (args is null or { Length: 0 })
             return translation;
-        return string.Format(translation, args);
+
+        try
+        {
+            return string.Format(translation, args);
+        }
+        catch (FormatException ex)
+        {
+            _logger.LogWarning(
+                $"Failed to format translation '{key}' with {args.Length} argument(s): {ex.Message}");
+            return translation;
+        }
     }
 
     public static event LanguageChangedHandler? LanguageChanged;

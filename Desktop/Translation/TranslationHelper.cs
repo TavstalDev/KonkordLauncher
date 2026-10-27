@@ -52,7 +52,7 @@ public static class TranslationHelper
             EProgressKind.INSTANCE_DOWNLOADING_LIBRARIES => "instance.downloading.libraries",
             EProgressKind.INSTANCE_DOWNLOADING_NATIVES => "instance.downloading.natives",
             EProgressKind.INSTANCE_DOWNLOADING_INSTALLER => "instance.downloading.installer",
-            EProgressKind.INSTANCE_DOWNLOAD_FILE => "instance.download.file",
+            EProgressKind.INSTANCE_DOWNLOAD_FILE => "instance.downloading.file_progress",
             // Extracting / Building
             EProgressKind.INSTANCE_EXTRACTING_INSTALLER => "instance.extracting.installer",
             EProgressKind.INSTANCE_BUILDING => "instance.building.progress",

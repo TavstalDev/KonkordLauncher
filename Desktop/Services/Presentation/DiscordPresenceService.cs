@@ -2,6 +2,7 @@ using System;
 using Avalonia.Controls;
 using DiscordRPC;
 using Microsoft.Extensions.Logging;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Desktop.Services.Presentation;
 

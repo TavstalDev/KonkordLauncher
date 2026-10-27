@@ -10,6 +10,7 @@ using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 using Tavstal.KonkordLauncher.Desktop.Services.Content;
 using Tavstal.KonkordLauncher.Desktop.Services.Instances;
 using Tavstal.KonkordLauncher.Desktop.Services.Localization;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 using Tavstal.KonkordLauncher.Desktop.Views;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
@@ -66,7 +67,9 @@ public class WindowFactory : IWindowFactory
             _services.GetRequiredService<IBitmapService>(),
             _services.GetRequiredService<ITranslationService>(),
             _services.GetRequiredService<IEncryptionService>(),
-            _services.GetRequiredService<IScreenService>());
+            _services.GetRequiredService<IScreenService>(),
+            _services.GetRequiredService<IDialogService>(),
+            _services.GetRequiredService<IFilePickerService>());
 
         return new EditInstanceWindow(viewModel,
             _services.GetRequiredService<IBeaconLogger<EditInstanceWindow>>(),
@@ -79,7 +82,8 @@ public class WindowFactory : IWindowFactory
         var viewModel = new InstanceLogsViewModel(instanceId,
             _services.GetRequiredService<IBeaconLogger<InstanceLogsViewModel>>(),
             _services.GetRequiredService<ILauncherStore>(),
-            _services.GetRequiredService<IEventService>());
+            _services.GetRequiredService<IEventService>(),
+            _services.GetRequiredService<IFilePickerService>());
 
         return new InstanceLogsWindow(viewModel);
     }
@@ -89,9 +93,11 @@ public class WindowFactory : IWindowFactory
         var viewModel = new ExportViewModel(instance, provider,
             _services.GetRequiredService<ITranslationService>(),
             _services.GetRequiredService<ModrinthPackageService>(),
-            _services.GetRequiredService<CurseForgePackageService>());
+            _services.GetRequiredService<CurseForgePackageService>(),
+            _services.GetRequiredService<IDialogService>(),
+            _services.GetRequiredService<IFilePickerService>());
 
-        return new ExportWindow(viewModel, _services.GetRequiredService<ITranslationService>());
+        return new ExportWindow(viewModel);
     }
 
     public InstanceVersionSelectorWindow CreateInstanceVersionSelectorWindow(Instance instance)
@@ -107,13 +113,14 @@ public class WindowFactory : IWindowFactory
 
     public ResourceDownloadWindow CreateResourceDownloadWindow(Instance instance, EResourceType resourceType)
     {
-        var viewModel = new ResourceDownloadViewModel(instance, resourceType, this,
+        var viewModel = new ResourceDownloadViewModel(instance, resourceType,
             _services.GetRequiredService<IBeaconLogger<ResourceDownloadViewModel>>(),
             _services.GetRequiredService<ITranslationService>(),
             _services.GetRequiredService<ILauncherStore>(),
             _services.GetRequiredService<IManifestService>(),
             _services.GetRequiredService<IMetaCacheService>(),
-            _services.GetRequiredService<IBitmapService>());
+            _services.GetRequiredService<IBitmapService>(),
+            _services.GetRequiredService<IDialogService>());
 
         return new ResourceDownloadWindow(viewModel);
     }
@@ -126,6 +133,7 @@ public class WindowFactory : IWindowFactory
             _services.GetRequiredService<ITranslationService>(),
             _services.GetRequiredService<ILauncherStore>(),
             _services.GetRequiredService<IMetaCacheService>(),
-            this);
+            this,
+            _services.GetRequiredService<IDialogService>());
     }
 }

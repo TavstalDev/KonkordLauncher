@@ -1,5 +1,6 @@
 using Avalonia;
 using Tavstal.BeaconSDK.Models.Instance;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Desktop.Services.Presentation;
 

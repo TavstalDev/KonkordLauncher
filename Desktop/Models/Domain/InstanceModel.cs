@@ -317,6 +317,7 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
                     EAlertType.Error);
                 return;
             }
+            CloseReporter();
 
             // Handle Java
             var requiredJavaVersion = gameInstance.MinecraftVersionMeta.JavaVersionMeta?.MajorVersion ?? 8;

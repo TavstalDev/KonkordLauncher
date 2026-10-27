@@ -48,17 +48,19 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
 
     public CreateInstanceViewModel_Custom()
     {
-        _screenService = null!;
         MinecraftVersions =
-            new ReadOnlyObservableCollection<MinecraftVersion>(new ObservableCollection<MinecraftVersion>());
+            new ReadOnlyObservableCollection<MinecraftVersion>([]);
         InstanceIcon = ImageHelper.LoadDesignTime("avares://KonkordLauncher/Assets/Icons/dirt.png");
     }
 
     public CreateInstanceViewModel_Custom(IScreenService screenService,
         ILauncherStore launcherStore, ITranslationService translationService,
-        IManifestService manifestService, IBitmapService bitmapService, IEventService eventService)
+        IManifestService manifestService, IBitmapService bitmapService, IEventService eventService,
+        IDialogService dialogService)
     {
         InstanceIcon = new BitmapEntry(null, null);
+        MinecraftVersions =
+            new ReadOnlyObservableCollection<MinecraftVersion>([]);
         if (Design.IsDesignMode)
         {
             InstanceIcon = ImageHelper.LoadDesignTime("avares://KonkordLauncher/Assets/Icons/dirt.png");
@@ -72,6 +74,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
         _bitmapService = bitmapService;
         _manifestService = manifestService;
         _eventService = eventService;
+        _dialogService = dialogService;
     }
 
     [ObservableProperty]
@@ -346,7 +349,8 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (result == null)
             return;
-        //InstanceIcon?.Dispose();
+        if (InstanceIcon.Key != null)
+            _bitmapService.Release(InstanceIcon.Key!);
         try
         {
             InstanceIcon = await _bitmapService.GetBitmapAsync(result);

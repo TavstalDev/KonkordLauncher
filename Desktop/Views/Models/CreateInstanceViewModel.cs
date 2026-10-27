@@ -11,7 +11,6 @@ using Tavstal.BeaconSDK.Models;
 using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
-using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Services;
 using Tavstal.KonkordLauncher.Desktop.Services.Content;
@@ -48,7 +47,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IKonkord
         _windowFactory = windowFactory;
 
         Custom = new CreateInstanceViewModel_Custom(screenService, launcherStore, translationService,
-            manifestService, bitmapService, eventService);
+            manifestService, bitmapService, eventService, dialogService);
         Custom.OnCloseRequested += OnCloseRequested;
         Modpack = new CreateInstanceViewModel_Modpack(this, screenService, launcherStore, translationService,
             httpService, metaCacheService, bitmapService, eventService, modrinthPackageService, dialogService);

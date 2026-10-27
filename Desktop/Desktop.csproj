@@ -70,7 +70,6 @@
     <ItemGroup>
         <AvaloniaResource Include="Assets\**"/>
         <AvaloniaResource Include="favicon.ico"/>
-        <AvaloniaResource Include="Styles\**"/>
     </ItemGroup>
 
     <ItemGroup>

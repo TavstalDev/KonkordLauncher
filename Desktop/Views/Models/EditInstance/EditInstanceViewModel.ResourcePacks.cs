@@ -18,37 +18,38 @@ using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
+using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
-using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
 public partial class EditInstanceViewModel_ResourcePacks : KonkordObservableObject
 {
+    private readonly InstanceModel _instance = null!;
+    private readonly Func<string?> _getGameDirectory = () => null;
     private readonly IBitmapService _bitmapService = null!;
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IBeaconLogger _logger = null!;
-    private readonly EditInstanceViewModel _parent;
+    private readonly IDialogService _dialogService = null!;
 
     private readonly SourceCache<ResourceBaseModel, string> _resourcePackCache = new(x => x.Name);
 
-    public EditInstanceViewModel_ResourcePacks()
-    {
-        _parent = null!;
-        FilteredResourcePacks =
-            new ReadOnlyObservableCollection<ResourceBaseModel>(new ObservableCollection<ResourceBaseModel>());
-    }
+    public event EventHandler<EResourceType>? OnResourcesUpdated;
 
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public EditInstanceViewModel_ResourcePacks(EditInstanceViewModel parent)
+    public EditInstanceViewModel_ResourcePacks()
     {
-        _parent = parent;
         if (Design.IsDesignMode)
+        {
+            FilteredResourcePacks =
+                new ReadOnlyObservableCollection<ResourceBaseModel>([]);
             return;
+        }
 
         // Set up a reactive filter for the SearchQuery property.
         var filter = this.WhenAnyValue(x => x.SearchQuery)
@@ -73,15 +74,18 @@ public partial class EditInstanceViewModel_ResourcePacks : KonkordObservableObje
 
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public EditInstanceViewModel_ResourcePacks(EditInstanceViewModel parent, ILauncherStore launcherStore,
-        IBitmapService bitmapService) : this(parent)
+    public EditInstanceViewModel_ResourcePacks(InstanceModel instance, Func<string?> getGameDirectory, ILauncherStore launcherStore,
+        IBitmapService bitmapService, IDialogService dialogService) : this()
     {
         if (Design.IsDesignMode)
             return;
 
+        _instance = instance;
+        _getGameDirectory = getGameDirectory;
         _logger = Program.Services.GetRequiredService<IBeaconLogger<EditInstanceViewModel_ResourcePacks>>();
         _launcherStore = launcherStore;
         _bitmapService = bitmapService;
+        _dialogService = dialogService;
     }
 
     public ReadOnlyObservableCollection<ResourceBaseModel> FilteredResourcePacks { get; } = null!;
@@ -106,18 +110,14 @@ public partial class EditInstanceViewModel_ResourcePacks : KonkordObservableObje
         await Dispatcher.UIThread.Invoke(async () => await RefreshResourcePacksAsync());
     }
 
-    /// <summary>
-    ///     Saves the current state of resource packs by renaming their file extensions
-    ///     based on their enabled or disabled status. Enabled resource packs have the
-    ///     `.zip` extension, while disabled ones have `.zip.dis`.
-    /// </summary>
     public void SaveResourcePacks()
     {
         _logger.LogDebug("Saving resource packs...");
-        if (_parent.GameDirectory == null)
+        string? gameDir = _getGameDirectory.Invoke();
+        if (string.IsNullOrEmpty(gameDir))
             return;
 
-        var resourcePacksDir = Path.Combine(_parent.GameDirectory, "resourcepacks");
+        var resourcePacksDir = Path.Combine(gameDir, "resourcepacks");
         if (!Directory.Exists(resourcePacksDir))
             return;
 
@@ -146,19 +146,16 @@ public partial class EditInstanceViewModel_ResourcePacks : KonkordObservableObje
         }
     }
 
-    /// <summary>
-    ///     Refreshes the list of resource packs by scanning the game directory for resource pack files.
-    ///     Updates the `ResourcePacks` collection with metadata such as name, size, and icon for each resource pack.
-    /// </summary>
     public async Task RefreshResourcePacksAsync()
     {
-        if (_parent.GameDirectory == null)
+        string? gameDir = _getGameDirectory.Invoke();
+        if (string.IsNullOrEmpty(gameDir))
             return;
 
-        var resourcePacksDir = Path.Combine(_parent.GameDirectory, "resourcepacks");
+        var resourcePacksDir = Path.Combine(gameDir, "resourcepacks");
         Directory.CreateDirectory(resourcePacksDir);
 
-        var instanceResources = await _parent.Instance.getInstance().GetInstanceResourcesAsync() ?? [];
+        var instanceResources = await _instance.getInstance().GetInstanceResourcesAsync() ?? [];
 
         _resourcePackCache.Edit(innerCache =>
         {
@@ -233,23 +230,15 @@ public partial class EditInstanceViewModel_ResourcePacks : KonkordObservableObje
 
     #region Commands
 
-    /// <summary>
-    ///     Toggles the enabled state of a resource pack and saves the updated state.
-    /// </summary>
-    /// <param name="resourcePack">The resource pack to toggle.</param>
     [RelayCommand]
-    public void Toggle(ResourceBaseModel resourcePack)
+    private void Toggle(ResourceBaseModel resourcePack)
     {
         resourcePack.IsEnabled = !resourcePack.IsEnabled;
         SaveResourcePacks();
     }
 
-    /// <summary>
-    ///     Removes a resource pack file from the file system and refreshes the resource pack list.
-    /// </summary>
-    /// <param name="resourcePack">The resource pack to remove.</param>
     [RelayCommand]
-    public async Task Remove(ResourceBaseModel resourcePack)
+    private async Task Remove(ResourceBaseModel resourcePack)
     {
         if (!File.Exists(resourcePack.FilePath))
             return;
@@ -260,7 +249,7 @@ public partial class EditInstanceViewModel_ResourcePacks : KonkordObservableObje
             return;
         }
 
-        var instance = _parent.Instance.getInstance();
+        var instance = _instance.getInstance();
         var resources = await instance.GetInstanceResourcesAsync();
         var targetResource =
             resources?.FirstOrDefault(x => x.Name == resourcePack.Name && x.Type == EResourceType.RESOURCE_PACK);
@@ -276,19 +265,21 @@ public partial class EditInstanceViewModel_ResourcePacks : KonkordObservableObje
     [RelayCommand]
     private async Task Download()
     {
-        await _parent.OpenResourceDownloadDialog.Handle(EResourceType.RESOURCE_PACK);
+        var result = await _dialogService.ShowResourceDownloaderAsync(_instance.getInstance(), EResourceType.RESOURCE_PACK);
+        if (result == null)
+            return;
+        if (result.Value)
+            OnResourcesUpdated?.Invoke(this, EResourceType.RESOURCE_PACK);
     }
 
-    /// <summary>
-    ///     Opens the directory containing the resource packs in the file explorer.
-    /// </summary>
     [RelayCommand]
-    public void OpenDir()
+    private void OpenDir()
     {
-        if (_parent.GameDirectory == null)
+        string? gameDir = _getGameDirectory.Invoke();
+        if (string.IsNullOrEmpty(gameDir))
             return;
 
-        var resourcePacksDir = Path.Combine(_parent.GameDirectory, "resourcepacks");
+        var resourcePacksDir = Path.Combine(gameDir, "resourcepacks");
         Directory.CreateDirectory(resourcePacksDir);
         FileSystemHelper.OpenFolderInFileExplorer(resourcePacksDir);
     }

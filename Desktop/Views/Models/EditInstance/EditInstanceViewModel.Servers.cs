@@ -4,7 +4,6 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,41 +13,35 @@ using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
-using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
 public partial class EditInstanceViewModel_Servers : KonkordObservableObject
 {
+    private readonly Func<string?> _getGameDirectory = () => null;
     private readonly IBitmapService _bitmapService = null!;
     private readonly IBeaconLogger _logger = null!;
-    private readonly EditInstanceViewModel _parent;
 
-    public EditInstanceViewModel_Servers()
+    public EditInstanceViewModel_Servers() { }
+
+    public EditInstanceViewModel_Servers(Func<string?> getGameDirectory, IBitmapService bitmapService) : this()
     {
-        _parent = null!;
-    }
-
-    public EditInstanceViewModel_Servers(EditInstanceViewModel parent)
-    {
-        _parent = parent;
-    }
-
-    public EditInstanceViewModel_Servers(EditInstanceViewModel parent, IBitmapService bitmapService) : this(parent)
-    {
-        if (Design.IsDesignMode)
-            return;
-
+        _getGameDirectory = getGameDirectory;
         _logger = Program.Services.GetRequiredService<IBeaconLogger<EditInstanceViewModel_Servers>>();
         _bitmapService = bitmapService;
     }
 
-    [ObservableProperty] public partial string ServerName { get; set; } = string.Empty;
+    [ObservableProperty]
+    public partial string ServerName { get; set; } = string.Empty;
 
-    [ObservableProperty] public partial string ServerIp { get; set; } = string.Empty;
+    [ObservableProperty]
+    public partial string ServerIp { get; set; } = string.Empty;
+
     public ObservableCollection<ServerModel> Servers { get; set; } = [];
 
-    [ObservableProperty] public partial ServerModel? SelectedServer { get; set; }
+    [ObservableProperty]
+    public partial ServerModel? SelectedServer { get; set; }
 
     protected override void Dispose(bool disposing)
     {
@@ -67,19 +60,15 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
         return Task.CompletedTask;
     }
 
-    /// <summary>
-    ///     Saves the current list of Minecraft servers to the `servers.dat` file
-    ///     in the game directory. The method serializes the server data into NBT format
-    ///     and writes it to the file.
-    /// </summary>
     public void SaveServers()
     {
         _logger.LogDebug("Saving servers to servers.dat file...");
-        if (_parent.GameDirectory == null)
+        string? gameDir = _getGameDirectory.Invoke();
+        if (string.IsNullOrEmpty(gameDir))
             return;
         try
         {
-            var filePath = Path.Combine(_parent.GameDirectory, "servers.dat");
+            var filePath = Path.Combine(gameDir, "servers.dat");
 
             var root = new NbtCompoundTag();
             var serversList = new NbtListTag(NbtTagType.Compound);
@@ -115,28 +104,14 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
         }
     }
 
-    /// <summary>
-    ///     Handles changes to the `Servers` collection by saving the updated list
-    ///     of servers to the `servers.dat` file.
-    /// </summary>
-    /// <param name="sender">The source of the event, typically the `Servers` collection.</param>
-    /// <param name="e">The event data containing details about the collection change.</param>
-    private void ServersOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-    {
-        SaveServers();
-    }
-
-    /// <summary>
-    ///     Refreshes the list of Minecraft servers by reading the `servers.dat` file
-    ///     from the game directory and updating the Servers collection with the data.
-    /// </summary>
     public void RefreshServers()
     {
-        if (_parent.GameDirectory == null)
+        string? gameDir = _getGameDirectory.Invoke();
+        if (string.IsNullOrEmpty(gameDir))
             return;
 
         // Construct the file path for the servers.dat file
-        var filePath = Path.Combine(_parent.GameDirectory, "servers.dat");
+        var filePath = Path.Combine(gameDir, "servers.dat");
         if (!File.Exists(filePath))
             return;
 
@@ -170,13 +145,19 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
         Servers.CollectionChanged += ServersOnCollectionChanged;
     }
 
+    #region Events
+
+    private void ServersOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        SaveServers();
+    }
+
+    #endregion
+
     #region Commands
 
-    /// <summary>
-    ///     Adds a new server to the list of servers if both the server name and IP address are provided.
-    /// </summary>
     [RelayCommand]
-    public void Add()
+    private void Add()
     {
         if (string.IsNullOrEmpty(ServerName) || string.IsNullOrEmpty(ServerIp))
             return;
@@ -189,12 +170,8 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
         Servers.Add(model);
     }
 
-    /// <summary>
-    ///     Removes the specified server from the list of servers if it exists in the collection.
-    /// </summary>
-    /// <param name="server">The server to remove.</param>
     [RelayCommand]
-    public void Remove(ServerModel server)
+    private void Remove(ServerModel server)
     {
         if (Servers.Contains(server))
             Servers.Remove(server);

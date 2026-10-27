@@ -695,7 +695,7 @@
                                                                     Header="{lang:Translate common.duplicate}" />
                                                                 <!--  Rename  -->
                                                                 <MenuItem
-                                                                    Command="{Binding Worlds.RenameCommand}"
+                                                                    Command="{Binding RenameWorldCommand}"
                                                                     CommandParameter="{Binding Worlds.SelectedWorld}"
                                                                     Header="{lang:Translate common.rename}" />
                                                                 <!--  Delete  -->
@@ -905,7 +905,7 @@
                                                                     Header="{lang:Translate common.delete}" />
                                                                 <!--  Rename  -->
                                                                 <MenuItem
-                                                                    Command="{Binding Screenshots.RenameCommand}"
+                                                                    Command="{Binding RenameScreenshotCommand}"
                                                                     CommandParameter="{Binding Screenshots.SelectedScreenshot}"
                                                                     Header="{lang:Translate common.rename}" />
                                                                 <!--  Open Directory  -->
@@ -929,35 +929,35 @@
                                                 <Button
                                                     Name="JavaSettingsBtn"
                                                     Classes="SettingsTabBtn SettingsTabBtnActive"
-                                                    Command="{Binding Settings.SwitchSettingsTabCommand}"
+                                                    Command="{Binding SwitchSettingsTabCommand}"
                                                     CommandParameter="{x:Static enums:EInstanceSettingsTab.JAVA}">
                                                     <TextBlock Text="{lang:Translate settings.tab.java}" />
                                                 </Button>
                                                 <Button
                                                     Name="GameSettingsBtn"
                                                     Classes="SettingsTabBtn"
-                                                    Command="{Binding Settings.SwitchSettingsTabCommand}"
+                                                    Command="{Binding SwitchSettingsTabCommand}"
                                                     CommandParameter="{x:Static enums:EInstanceSettingsTab.GAME}">
                                                     <TextBlock Text="{lang:Translate settings.tab.game}" />
                                                 </Button>
                                                 <Button
                                                     Name="CustomCommandSettingsBtn"
                                                     Classes="SettingsTabBtn"
-                                                    Command="{Binding Settings.SwitchSettingsTabCommand}"
+                                                    Command="{Binding SwitchSettingsTabCommand}"
                                                     CommandParameter="{x:Static enums:EInstanceSettingsTab.CUSTOM_COMMAND}">
                                                     <TextBlock Text="{lang:Translate settings.tab.customCommands}" />
                                                 </Button>
                                                 <Button
                                                     Name="EnvironmentSettingsBtn"
                                                     Classes="SettingsTabBtn"
-                                                    Command="{Binding Settings.SwitchSettingsTabCommand}"
+                                                    Command="{Binding SwitchSettingsTabCommand}"
                                                     CommandParameter="{x:Static enums:EInstanceSettingsTab.ENVIRONMENT}">
                                                     <TextBlock Text="{lang:Translate settings.tab.environment}" />
                                                 </Button>
                                                 <Button
                                                     Name="MiscSettingsBtn"
                                                     Classes="SettingsTabBtn"
-                                                    Command="{Binding Settings.SwitchSettingsTabCommand}"
+                                                    Command="{Binding SwitchSettingsTabCommand}"
                                                     CommandParameter="{x:Static enums:EInstanceSettingsTab.MISC}">
                                                     <TextBlock Text="{lang:Translate settings.tab.misc}" />
                                                 </Button>

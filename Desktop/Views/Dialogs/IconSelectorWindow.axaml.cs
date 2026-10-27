@@ -1,32 +1,16 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
 using System.Reactive;
 using System.Threading.Tasks;
 using Avalonia.Controls;
-using Avalonia.Platform.Storage;
 using ReactiveUI;
 using ReactiveUI.Primitives;
-using Tavstal.BeaconSDK.Models.Logging;
-using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
-using Tavstal.KonkordLauncher.Desktop.Services.Localization;
-using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 using IconSelectorViewModel = Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models.IconSelectorViewModel;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
-/// <summary>
-///     Represents a window for selecting and managing icons in the application.
-/// </summary>
 public partial class IconSelectorWindow : KonkordWindow<IconSelectorViewModel>
 {
-    private readonly ILauncherStore _launcherStore = null!;
-    private readonly IBeaconLogger _logger = null!;
-    private readonly ITranslationService _translationService = null!;
-
     public IconSelectorWindow()
     {
         InitializeComponent();
@@ -34,8 +18,7 @@ public partial class IconSelectorWindow : KonkordWindow<IconSelectorViewModel>
 
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public IconSelectorWindow(IconSelectorViewModel viewModel, IBeaconLogger<IconSelectorWindow> logger,
-        ITranslationService translationService, ILauncherStore launcherStore)
+    public IconSelectorWindow(IconSelectorViewModel viewModel)
     {
         InitializeComponent();
 
@@ -43,9 +26,6 @@ public partial class IconSelectorWindow : KonkordWindow<IconSelectorViewModel>
             return;
 
         DataContext = viewModel;
-        _logger = logger;
-        _translationService = translationService;
-        _launcherStore = launcherStore;
 
         this.WhenActivated(disposables =>
         {
@@ -55,63 +35,6 @@ public partial class IconSelectorWindow : KonkordWindow<IconSelectorViewModel>
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             }).DisposeWith(disposables);
-            DataContext.ShowFilePicker.RegisterHandler(async action =>
-            {
-                var result = await OpenFilePickerAsync();
-                action.SetOutput(result);
-            }).DisposeWith(disposables);
         });
-    }
-
-    /// <summary>
-    ///     Opens a file picker dialog to select image files and copies them to the icons directory.
-    /// </summary>
-    /// <returns>A list of tuples containing file names and their new paths, or null if no files were selected.</returns>
-    public async Task<List<(string, string)>?> OpenFilePickerAsync()
-    {
-        // Ensure the VisualRoot is a TopLevel object
-        if (VisualRoot is not TopLevel topLevel)
-            return null;
-
-        var storageProvider = topLevel.StorageProvider;
-
-        // Check if folder picking is supported on the current platform
-        if (!storageProvider.CanPickFolder)
-        {
-            _logger.LogError("Folder picking is not supported on this platform.");
-            return null;
-        }
-
-        var options = new FilePickerOpenOptions
-        {
-            Title = _translationService.Translate("common.select.file"),
-            AllowMultiple = false,
-            FileTypeFilter = new List<FilePickerFileType>
-            {
-                new("PNG Images") { Patterns = new List<string> { "*.png" } }
-            }
-        };
-
-        var files = await storageProvider.OpenFilePickerAsync(options);
-        if (!files.Any())
-            return null;
-
-        var settings = await _launcherStore.GetSettingsAsync();
-        List<(string, string)> result = [];
-        foreach (var file in files)
-            try
-            {
-                var newPath = Path.Combine(settings.Launcher.IconsDirectoryPath, file.Name);
-                if (File.Exists(newPath))
-                    continue;
-                File.Copy(file.Path.AbsolutePath, newPath);
-                result.Add(new ValueTuple<string, string>(file.Name, newPath));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Failed to copy file {file.Name} to icons directory: {ex.Message}");
-            }
-
-        return result;
     }
 }

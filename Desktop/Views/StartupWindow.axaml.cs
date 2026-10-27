@@ -20,7 +20,7 @@ using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Services;
 using Tavstal.KonkordLauncher.Desktop.Services.Localization;
-using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Services.Startup;
 using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 using Tavstal.KonkordLauncher.Desktop.Services.Update;
@@ -40,6 +40,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IKonkordPr
     private readonly IUpdateService _updateService = null!;
     private readonly IValidationService _validationService = null!;
     private readonly IWindowFactory _windowFactory = null!;
+    private readonly ITopLevelProvider _topLevelProvider = null!;
 
     public StartupWindow()
     {
@@ -50,8 +51,8 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IKonkordPr
     public StartupWindow(StartupViewModel viewModel, IBeaconLogger<StartupWindow> logger,
         ITranslationService translationService,
         ILauncherStore launcherStore, IValidationService validationService, IJavaService javaService,
-        IEventService eventService,
-        IScreenService screenService, IWindowFactory windowFactory, IUpdateService updateService)
+        IEventService eventService, IScreenService screenService, IWindowFactory windowFactory,
+        IUpdateService updateService, ITopLevelProvider topLevelProvider, IDialogService dialogService)
     {
         InitializeComponent();
 
@@ -67,6 +68,8 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IKonkordPr
         _screenService = screenService;
         _windowFactory = windowFactory;
         _updateService = updateService;
+        _topLevelProvider = topLevelProvider;
+        dialogService.SetMainWindow(this);
         DataContext = viewModel;
 
         this.WhenActivated(disposables =>
@@ -97,6 +100,8 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IKonkordPr
             resolution = new Resolution { X = (uint)screen.Bounds.Width, Y = (uint)screen.WorkingArea.Height };
         }
 
+        _topLevelProvider.SetActive(this);
+
         Task.Run(async () =>
         {
             try
@@ -120,6 +125,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IKonkordPr
         // Ensure the progress bar is not indeterminate when closing
         // it may use more resources than necessary otherwise
         ProgressBar.IsIndeterminate = false;
+        _topLevelProvider.ClearIfMatches(this);
     }
 
     private async Task InitializeAsync(CancellationToken cancellationToken = default)

@@ -74,7 +74,7 @@ public partial class JavaSelectorViewModel : ObservableObject
     ///     Handles the selection action by closing the parent window and passing the selected Java version.
     /// </summary>
     [RelayCommand]
-    public async Task SelectedBtn()
+    private async Task SelectedBtn()
     {
         await CloseWindowInteraction.Handle(SelectedJavaVersion);
     }
@@ -83,7 +83,7 @@ public partial class JavaSelectorViewModel : ObservableObject
     ///     Handles the cancel action by closing the parent window without passing a selected Java version.
     /// </summary>
     [RelayCommand]
-    public async Task CancelBtn()
+    private async Task CancelBtn()
     {
         await CloseWindowInteraction.Handle(null);
     }
@@ -92,7 +92,7 @@ public partial class JavaSelectorViewModel : ObservableObject
     ///     Closes the current window.
     /// </summary>
     [RelayCommand]
-    public async Task CloseWindow()
+    private async Task CloseWindow()
     {
         await CloseWindowInteraction.Handle(null);
     }

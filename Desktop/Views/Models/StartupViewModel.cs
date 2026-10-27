@@ -23,7 +23,7 @@ public partial class StartupViewModel : KonkordObservableObject
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
 
     [RelayCommand]
-    public async Task CloseWindow()
+    private async Task CloseWindow()
     {
         await CloseWindowInteraction.Handle(Unit.Default);
     }

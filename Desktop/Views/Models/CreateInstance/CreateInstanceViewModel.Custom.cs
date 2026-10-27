@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Threading;
@@ -23,21 +22,17 @@ using Tavstal.BeaconSDK.Models.MojangApi;
 using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
-using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs.Config;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs.InstanceConfig;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Services;
 using Tavstal.KonkordLauncher.Desktop.Services.Localization;
-using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.CreateInstance;
 
-/// <summary>
-///     Partial view-model that encapsulates the "Custom" tab logic for creating an instance in the UI.
-/// </summary>
 public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
 {
     private readonly IBitmapService _bitmapService = null!;
@@ -45,24 +40,24 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IBeaconLogger _logger = null!;
     private readonly IManifestService _manifestService = null!;
-    private readonly CreateInstanceViewModel _parent;
     private readonly IScreenService _screenService = null!;
     private readonly ITranslationService _translationService = null!;
+    private readonly IDialogService _dialogService = null!;
+
+    public event EventHandler? OnCloseRequested;
 
     public CreateInstanceViewModel_Custom()
     {
-        _parent = null!;
         _screenService = null!;
         MinecraftVersions =
             new ReadOnlyObservableCollection<MinecraftVersion>(new ObservableCollection<MinecraftVersion>());
         InstanceIcon = ImageHelper.LoadDesignTime("avares://KonkordLauncher/Assets/Icons/dirt.png");
     }
 
-    public CreateInstanceViewModel_Custom(CreateInstanceViewModel parent, IScreenService screenService,
+    public CreateInstanceViewModel_Custom(IScreenService screenService,
         ILauncherStore launcherStore, ITranslationService translationService,
         IManifestService manifestService, IBitmapService bitmapService, IEventService eventService)
     {
-        _parent = parent;
         InstanceIcon = new BitmapEntry(null, null);
         if (Design.IsDesignMode)
         {
@@ -116,10 +111,6 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
         }
     }
 
-    /// <summary>
-    ///     Releases resources used by this view-model and resets transient state.
-    /// </summary>
-    /// <param name="disposing">True when called from user code / IDisposable.Dispose; false when called from a finalizer.</param>
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
@@ -138,10 +129,6 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
         SelectedModLoader = null;
     }
 
-    /// <summary>
-    ///     Sets up the reactive DynamicData pipelines used to provide filtered, sorted, and UI-bound collections
-    ///     for the UI.
-    /// </summary>
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public void SetupPipeline()
@@ -243,23 +230,6 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
         #endregion
     }
 
-    /// <summary>
-    ///     Initializes the view-model's version and modloader data caches and sets default UI state (icon and selected
-    ///     version).
-    /// </summary>
-    /// <param name="settings">
-    ///     The application's <see cref="CoreConfig" /> containing launcher paths (used to locate
-    ///     manifests).
-    /// </param>
-    /// <param name="versionManifest">
-    ///     The already-loaded <see cref="VersionManifest" /> (vanilla Minecraft versions) to
-    ///     populate the vanilla versions cache.
-    /// </param>
-    /// <param name="cancellationToken">
-    ///     Optional <see cref="CancellationToken" /> used to cancel asynchronous IO operations
-    ///     started by this method.
-    /// </param>
-    /// <returns>A <see cref="Task" /> that completes when initialization has finished.</returns>
     public async Task InitAsync(CoreConfig settings, VersionManifest versionManifest,
         CancellationToken cancellationToken = default)
     {
@@ -369,14 +339,10 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
 
     #region Commands
 
-    /// <summary>
-    ///     Opens a window to select a custom icon for the instance.
-    ///     If an icon is selected, it updates the instance's icon and its path.
-    /// </summary>
     [RelayCommand]
     private async Task CustomIconSelectorAsync()
     {
-        var result = await _parent.ShowIconSelectorInteraction.Handle(Unit.Default);
+        var result = await _dialogService.ShowIconSelectorAsync();
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (result == null)
             return;
@@ -393,20 +359,12 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
         InstanceIconPath = result;
     }
 
-    /// <summary>
-    ///     Sets the mod loader type for the custom instance creation process.
-    /// </summary>
-    /// <param name="modLoaderType">The type of mod loader to set.</param>
     [RelayCommand]
     private void CustomModLoaderType(EMinecraftKind modLoaderType)
     {
         ModLoaderType = modLoaderType;
     }
 
-    /// <summary>
-    ///     Creates a new custom instance with the specified settings and adds it to the list of instances.
-    ///     Displays an error message if an instance with the same name already exists.
-    /// </summary>
     [RelayCommand]
     private async Task CustomCreateAsync()
     {
@@ -417,10 +375,10 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
         var instances = await _launcherStore.GetInstancesAsync();
         if (instances.Any(x => x.Name == InstanceName))
         {
-            await _parent.ShowAlertDialogInteraction.Handle(new Alert(
+            await _dialogService.ShowAlertAsync(
                 _translationService.Translate("instance.duplicate.title"),
                 _translationService.Translate("instance.duplicate.message"),
-                EAlertType.Error));
+                EAlertType.Error);
             return;
         }
 
@@ -466,16 +424,14 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
         });
         await _launcherStore.SaveInstancesAsync(instances);
         _eventService.RaiseInstanceAdded(instances.Last().Id);
-        await _parent.CloseWindowInteraction.Handle(Unit.Default);
+        OnCloseRequested?.Invoke(this, EventArgs.Empty);
     }
 
-    /// <summary>
-    ///     Cancels the custom instance creation process and closes the parent window.
-    /// </summary>
     [RelayCommand]
-    private async Task CustomCancelCreate()
+    private Task CustomCancelCreate()
     {
-        await _parent.CloseWindowInteraction.Handle(Unit.Default);
+        OnCloseRequested?.Invoke(this, EventArgs.Empty);
+        return Task.CompletedTask;
     }
 
     #endregion

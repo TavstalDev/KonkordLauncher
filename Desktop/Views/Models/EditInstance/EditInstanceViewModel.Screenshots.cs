@@ -1,39 +1,32 @@
+using System;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
-using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Tavstal.BeaconSDK.Helpers.IO;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
-using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
 public partial class EditInstanceViewModel_Screenshots : KonkordObservableObject
 {
+    private readonly Func<string?> _getGameDirectory = () => null;
     private readonly IBitmapService _bitmapService = null!;
-    private readonly EditInstanceViewModel _parent;
+    private readonly IFilePickerService _filePickerService = null!;
 
-    public EditInstanceViewModel_Screenshots()
+    public EditInstanceViewModel_Screenshots() { }
+
+    public EditInstanceViewModel_Screenshots(Func<string?> getGameDirectory, IBitmapService bitmapService,
+        IFilePickerService filePickerService) : this()
     {
-        _parent = null!;
-    }
-
-    public EditInstanceViewModel_Screenshots(EditInstanceViewModel parent)
-    {
-        _parent = parent;
-    }
-
-    public EditInstanceViewModel_Screenshots(EditInstanceViewModel parent, IBitmapService bitmapService) : this(parent)
-    {
-        if (Design.IsDesignMode)
-            return;
-
+        _getGameDirectory = getGameDirectory;
         _bitmapService = bitmapService;
+        _filePickerService = filePickerService;
     }
 
     public ObservableCollection<ScreenshotModel> Screenshots { get; set; } = [];
@@ -56,16 +49,13 @@ public partial class EditInstanceViewModel_Screenshots : KonkordObservableObject
         return Task.CompletedTask;
     }
 
-    /// <summary>
-    ///     Refreshes the list of screenshots by scanning the game directory for PNG files
-    ///     and updating the Screenshots collection with their metadata and image data.
-    /// </summary>
     public void RefreshScreenshots()
     {
-        if (_parent.GameDirectory == null)
+        string? gameDir = _getGameDirectory.Invoke();
+        if (string.IsNullOrEmpty(gameDir))
             return;
 
-        var screenshotDir = Path.Combine(_parent.GameDirectory, "screenshots");
+        var screenshotDir = Path.Combine(gameDir, "screenshots");
         if (!Directory.Exists(screenshotDir))
             return;
 
@@ -84,20 +74,12 @@ public partial class EditInstanceViewModel_Screenshots : KonkordObservableObject
 
     #region Commands
 
-    /// <summary>
-    ///     Copies the specified screenshot to the system clipboard.
-    /// </summary>
-    /// <param name="screenshot">The screenshot to copy to the clipboard.</param>
     [RelayCommand]
     private async Task CopyToClipboard(ScreenshotModel screenshot)
     {
-        await _parent.SetClipboardImage.Handle(screenshot);
+        await _filePickerService.SetClipboardImageAsync(screenshot.Image);
     }
 
-    /// <summary>
-    ///     Deletes the specified screenshot file from the file system and refreshes the screenshot list.
-    /// </summary>
-    /// <param name="screenshot">The screenshot to delete.</param>
     [RelayCommand]
     private void Delete(ScreenshotModel screenshot)
     {
@@ -108,27 +90,14 @@ public partial class EditInstanceViewModel_Screenshots : KonkordObservableObject
         RefreshScreenshots();
     }
 
-    /// <summary>
-    ///     Initiates the renaming process for the specified screenshot by enabling edit mode in the screenshots table.
-    /// </summary>
-    /// <param name="screenshot">The screenshot to rename.</param>
-    [RelayCommand]
-    private async Task Rename(ScreenshotModel screenshot)
-    {
-        await _parent.BeginScreenshotRename.Handle(Unit.Default);
-    }
-
-    /// <summary>
-    ///     Opens the directory containing the screenshots in the file explorer.
-    /// </summary>
-    /// <param name="screenshot">The screenshot whose directory to open.</param>
     [RelayCommand]
     private void OpenDir(ScreenshotModel screenshot)
     {
-        if (string.IsNullOrEmpty(_parent.GameDirectory))
+        string? gameDir = _getGameDirectory.Invoke();
+        if (string.IsNullOrEmpty(gameDir))
             return;
 
-        var screenshotDir = Path.Combine(_parent.GameDirectory, "screenshots");
+        var screenshotDir = Path.Combine(gameDir, "screenshots");
         if (!Directory.Exists(screenshotDir))
             return;
 

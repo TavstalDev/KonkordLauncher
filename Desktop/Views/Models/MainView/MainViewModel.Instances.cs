@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -19,6 +18,7 @@ using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Services;
 using Tavstal.KonkordLauncher.Desktop.Services.Instances;
 using Tavstal.KonkordLauncher.Desktop.Services.Localization;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.MainView;
@@ -32,19 +32,19 @@ public partial class MainViewModel_Instances : KonkordObservableObject
     private readonly IInstanceModelFactory _instanceModelFactory = null!;
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IBeaconLogger _logger = null!;
-    private readonly MainViewModel _parent;
     private readonly ITranslationService _translationService = null!;
+    private readonly IFilePickerService _filePickerService = null!;
+    private readonly IDialogService _dialogService = null!;
 
     public MainViewModel_Instances()
     {
-        _parent = null!;
+
     }
 
-    public MainViewModel_Instances(MainViewModel parent, ILauncherStore launcherStore,
-        ITranslationService translationService,
-        IEventService eventService, IInstanceModelFactory instanceModelFactory)
+    public MainViewModel_Instances(ILauncherStore launcherStore, ITranslationService translationService,
+        IEventService eventService, IInstanceModelFactory instanceModelFactory,
+        IFilePickerService filePickerService, IDialogService dialogService)
     {
-        _parent = parent;
         if (Design.IsDesignMode)
             return;
 
@@ -53,6 +53,8 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         _translationService = translationService;
         _eventService = eventService;
         _instanceModelFactory = instanceModelFactory;
+        _filePickerService = filePickerService;
+        _dialogService = dialogService;
 
         _eventService.OnInstanceAdded += OnInstanceAdded;
         _eventService.OnInstanceUpdated += OnInstanceUpdated;
@@ -61,13 +63,9 @@ public partial class MainViewModel_Instances : KonkordObservableObject
 
     public ObservableCollection<InstanceGroup> InstanceGroups { get; } = [];
 
-    [ObservableProperty] public partial bool HasInstances { get; set; }
+    [ObservableProperty]
+    public partial bool HasInstances { get; set; }
 
-    /// <summary>
-    ///     Performs cleanup when the view-model is disposed.
-    ///     Unsubscribes from global instance change events to avoid memory leaks.
-    /// </summary>
-    /// <param name="disposing"><c>true</c> when called from Dispose; <c>false</c> when called from a finalizer.</param>
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
@@ -76,10 +74,6 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         _eventService.OnInstanceRemoved -= OnInstanceRemoved;
     }
 
-    /// <summary>
-    ///     Handles the global "instance added" event by kicking off asynchronous creation handling.
-    /// </summary>
-    /// <param name="instanceId">The ID of the instance that was added.</param>
     private void OnInstanceAdded(string instanceId)
     {
         _ = HandleInstanceCreatedAsync(instanceId).ContinueWith(task =>
@@ -89,10 +83,6 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         }, TaskScheduler.Default);
     }
 
-    /// <summary>
-    ///     Handles the global "instance updated" event by kicking off asynchronous update handling.
-    /// </summary>
-    /// <param name="instanceId">The ID of the instance that was updated.</param>
     private void OnInstanceUpdated(string instanceId)
     {
         _ = HandleInstanceUpdatedAsync(instanceId).ContinueWith(task =>
@@ -102,10 +92,6 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         }, TaskScheduler.Default);
     }
 
-    /// <summary>
-    ///     Handles the global "instance removed" event by kicking off asynchronous removal handling.
-    /// </summary>
-    /// <param name="instanceId">The ID of the instance that was removed.</param>
     private void OnInstanceRemoved(string instanceId)
     {
         _ = HandleInstanceRemovedAsync(instanceId).ContinueWith(task =>
@@ -115,13 +101,6 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         }, TaskScheduler.Default);
     }
 
-    /// <summary>
-    ///     Initializes this sub-view-model by loading instances from disk and grouping them.
-    ///     Populates <see cref="InstanceGroups" />, sets <see cref="HasInstances" />, and subscribes
-    ///     to global instance change events.
-    /// </summary>
-    /// <param name="cancellationToken">Token used to cancel the initial load operation.</param>
-    /// <returns>A task that completes when initialization has finished.</returns>
     public async Task InitAsync(CancellationToken cancellationToken = default)
     {
         var instances = await _launcherStore.GetInstancesAsync(cancellationToken);
@@ -149,12 +128,6 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         HasInstances = InstanceGroups.Count > 0;
     }
 
-    /// <summary>
-    ///     Handles an instance creation event by loading the newly created instance from disk
-    ///     and inserting it into the correct <see cref="InstanceGroup" /> in the UI collection.
-    /// </summary>
-    /// <param name="instanceId">The ID of the newly created instance.</param>
-    /// <param name="cancellationToken">Token used to cancel the disk read operation.</param>
     private async Task HandleInstanceCreatedAsync(string instanceId, CancellationToken cancellationToken = default)
     {
         var instances = await _launcherStore.GetInstancesAsync(cancellationToken);
@@ -178,12 +151,6 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         existingGroup.Instances.Add(_instanceModelFactory.Create(targetInstance));
     }
 
-    /// <summary>
-    ///     Handles an instance update event by refreshing the existing item in the UI collection
-    ///     and moving it to a different group when needed.
-    /// </summary>
-    /// <param name="instanceId">The ID of the updated instance.</param>
-    /// <param name="cancellationToken">Token used to cancel the disk read operation.</param>
     private async Task HandleInstanceUpdatedAsync(string instanceId, CancellationToken cancellationToken = default)
     {
         var instances = await _launcherStore.GetInstancesAsync(cancellationToken);
@@ -237,12 +204,6 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         newGroup.Instances.Add(instanceToUpdate);
     }
 
-    /// <summary>
-    ///     Handles an instance removal event by removing the corresponding item from the
-    ///     appropriate group and removing empty groups from the UI collection.
-    /// </summary>
-    /// <param name="instanceId">The ID of the removed instance.</param>
-    /// <returns>A completed task.</returns>
     private Task HandleInstanceRemovedAsync(string instanceId)
     {
         var found = false;
@@ -277,35 +238,20 @@ public partial class MainViewModel_Instances : KonkordObservableObject
 
     #region Commands
 
-    /// <summary>
-    ///     Opens the "Create Instance" window to allow the user to add a new Minecraft instance asynchronously.
-    /// </summary>
-    /// <returns>A task that represents the asynchronous operation.</returns>
     [RelayCommand]
     private async Task AddInstanceBtnAsync()
     {
-        await _parent.ShowInstanceCreationDialogInteraction.Handle(Unit.Default);
+        await _dialogService.ShowInstanceCreationAsync();
     }
 
-    /// <summary>
-    ///     Launches the specified Minecraft instance asynchronously.
-    /// </summary>
-    /// <param name="instance">The instance model representing the Minecraft instance to launch.</param>
-    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
     [RelayCommand]
     private async Task LaunchInstance(InstanceModel? instance, CancellationToken cancellationToken = default)
     {
         if (instance == null)
             return;
-        await instance.LaunchAsync(_parent.ShowLogsWindowInteraction, _parent.CloseLogsWindowInteraction,
-            _parent.CloseWindowInteraction, _parent.ShowAlertDialogInteraction);
+        await instance.LaunchAsync();
     }
 
-    /// <summary>
-    ///     Stops the specified Minecraft instance if it is currently running.
-    /// </summary>
-    /// <param name="instance">The instance model representing the Minecraft instance to stop.</param>
     [RelayCommand]
     private void StopInstance(InstanceModel? instance)
     {
@@ -321,39 +267,22 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         instance.GameProcess.Kill();
     }
 
-    /// <summary>
-    ///     Opens an edit window for the specified Minecraft instance and updates the instance in the collection if changes are
-    ///     made.
-    /// </summary>
-    /// <param name="instance">The instance model representing the Minecraft instance to edit.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
     [RelayCommand]
     private async Task EditInstance(InstanceModel? instance)
     {
         if (instance == null)
             return;
-        await _parent.ShowInstanceEditDialogInteraction.Handle(instance);
+        await _dialogService.ShowInstanceEditorAsync(instance);
     }
 
-    /// <summary>
-    ///     Displays the logs of the specified Minecraft instance in a separate window asynchronously.
-    /// </summary>
-    /// <param name="instance">The instance model representing the Minecraft instance whose logs are to be viewed.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
     [RelayCommand]
     private async Task ViewInstanceLogs(InstanceModel? instance)
     {
         if (instance == null)
             return;
-        await _parent.ShowLogsWindowInteraction.Handle(instance.Id);
+        await _dialogService.ShowInstanceLogsAsync(instance.Id);
     }
 
-    /// <summary>
-    ///     Renames the specified Minecraft instance asynchronously.
-    ///     Prompts the user for a new name, validates it, and updates the instance if valid.
-    /// </summary>
-    /// <param name="instance">The instance model representing the Minecraft instance to rename.</param>
-    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     [RelayCommand]
     private async Task RenameInstance(InstanceModel? instance, CancellationToken cancellationToken = default)
     {
@@ -367,14 +296,16 @@ public partial class MainViewModel_Instances : KonkordObservableObject
 
         var index = instances.IndexOf(targetInstance);
         var result =
-            await _parent.ShowTextInputDialogInteraction.Handle(_translationService.Translate("instance.rename.title"));
+            await _dialogService.ShowInputAsync(_translationService.Translate("instance.rename.title"));
         if (string.IsNullOrEmpty(result))
             return;
 
         if (instances.Any(x => x.Name.Equals(result, StringComparison.OrdinalIgnoreCase)))
         {
-            await _parent.ShowAlertDialogInteraction.Handle(new Alert(_translationService.Translate("common.error"),
-                _translationService.Translate("instance.rename.duplicate"), EAlertType.Error));
+            await _dialogService.ShowAlertAsync(
+                _translationService.Translate("common.error"),
+                _translationService.Translate("instance.rename.duplicate"),
+                EAlertType.Error);
             return;
         }
 
@@ -384,12 +315,6 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         _eventService.RaiseInstanceUpdated(targetInstance.Id);
     }
 
-    /// <summary>
-    ///     Changes the icon of the specified Minecraft instance asynchronously.
-    ///     Opens an icon selector dialog, validates the selection, and updates the instance if valid.
-    /// </summary>
-    /// <param name="instance">The instance model representing the Minecraft instance to update the icon for.</param>
-    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     [RelayCommand]
     private async Task ChangeInstanceIcon(InstanceModel? instance, CancellationToken cancellationToken = default)
     {
@@ -402,7 +327,7 @@ public partial class MainViewModel_Instances : KonkordObservableObject
             return;
 
         var index = instances.IndexOf(targetInstance);
-        var result = await _parent.ShowIconSelectorDialogInteraction.Handle(Unit.Default);
+        var result = await _dialogService.ShowIconSelectorAsync();
         if (string.IsNullOrEmpty(result))
             return;
 
@@ -417,15 +342,9 @@ public partial class MainViewModel_Instances : KonkordObservableObject
     {
         if (instance == null)
             return;
-        await _parent.ShowInstanceVersionSelectorInteraction.Handle(instance.getInstance());
+        await _dialogService.ShowInstanceVersionSelectorAsync(instance.getInstance());
     }
 
-    /// <summary>
-    ///     Changes the group of the specified Minecraft instance asynchronously.
-    ///     Prompts the user for a new group name, validates it, and updates the instance if valid.
-    /// </summary>
-    /// <param name="instance">The instance model representing the Minecraft instance to update the group for.</param>
-    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     [RelayCommand]
     private async Task ChangeInstanceGroup(InstanceModel? instance, CancellationToken cancellationToken = default)
     {
@@ -439,8 +358,7 @@ public partial class MainViewModel_Instances : KonkordObservableObject
 
         var index = instances.IndexOf(targetInstance);
         var result =
-            await _parent.ShowTextInputDialogInteraction.Handle(
-                _translationService.Translate("instance.change.group.title"));
+            await _dialogService.ShowInputAsync(_translationService.Translate("instance.change.group.title"));
         if (string.IsNullOrEmpty(result))
             return;
 
@@ -450,10 +368,6 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         _eventService.RaiseInstanceUpdated(targetInstance.Id);
     }
 
-    /// <summary>
-    ///     Opens the directory of the specified Minecraft instance in the file explorer.
-    /// </summary>
-    /// <param name="instance">The instance model representing the Minecraft instance whose directory is to be opened.</param>
     [RelayCommand]
     private void OpenInstanceDir(InstanceModel? instance)
     {
@@ -466,51 +380,34 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         FileSystemHelper.OpenFolderInFileExplorer(instance.GameDirectory);
     }
 
-    /// <summary>
-    ///     Exports the specified Minecraft instance in the Modrinth format asynchronously.
-    /// </summary>
-    /// <param name="instance">The instance model representing the Minecraft instance to export.</param>
-    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     [RelayCommand]
     private async Task ExportModrinthInstance(InstanceModel? instance, CancellationToken cancellationToken = default)
     {
         if (instance == null)
             return;
 
-        await _parent.ExportModrinthInstanceInteraction.Handle(instance.getInstance());
+        await _dialogService.ShowInstanceExportAsync(instance.getInstance(), EInstanceProvider.MODRINTH);
     }
 
-    /// <summary>
-    ///     Exports the specified Minecraft instance in the CurseForge format asynchronously.
-    /// </summary>
-    /// <param name="instance">The instance model representing the Minecraft instance to export.</param>
-    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     [RelayCommand]
     private async Task ExportCurseForgeInstance(InstanceModel? instance, CancellationToken cancellationToken = default)
     {
         if (instance == null)
             return;
 
-        await _parent.ExportCurseForgeInstanceInteraction.Handle(instance.getInstance());
+        await _dialogService.ShowInstanceExportAsync(instance.getInstance(), EInstanceProvider.CURSE_FORGE);
     }
 
-    /// <summary>
-    ///     Deletes the specified Minecraft instance asynchronously.
-    ///     Prompts the user for confirmation before proceeding with the deletion.
-    ///     If confirmed, removes the instance from the list and deletes its associated directory.
-    /// </summary>
-    /// <param name="instance">The instance model representing the Minecraft instance to delete.</param>
-    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
     [RelayCommand]
     private async Task DeleteInstance(InstanceModel? instance, CancellationToken cancellationToken = default)
     {
         if (instance == null)
             return;
 
-        var result = await _parent.ShowConfirmDialogInteraction.Handle(new Alert(
+        var result = await _dialogService.ShowAlertAsync(
             _translationService.Translate("instance.delete.title"),
-            _translationService.Translate("instance.delete.message", instance.Name), EAlertType.Confirm));
+            _translationService.Translate("instance.delete.message", instance.Name),
+            EAlertType.Confirm);
         if (!result)
             return;
 

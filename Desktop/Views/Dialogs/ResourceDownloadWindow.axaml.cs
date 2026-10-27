@@ -33,7 +33,6 @@ public partial class ResourceDownloadWindow : KonkordWindow<ResourceDownloadView
             return;
 
         DataContext = viewModel;
-        viewModel.SetParent(this);
 
         this.WhenActivated(disposables =>
         {

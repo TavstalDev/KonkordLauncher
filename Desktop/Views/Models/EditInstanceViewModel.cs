@@ -19,7 +19,7 @@ using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 using Tavstal.KonkordLauncher.Desktop.Services;
 using Tavstal.KonkordLauncher.Desktop.Services.Localization;
-using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 using Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 using JavaVersionModel = Tavstal.KonkordLauncher.Desktop.Models.Domain.JavaVersionModel;
@@ -39,14 +39,8 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IBeaconLogger _logger = null!;
     private readonly IScreenService _screenService = null!;
+    private readonly IFilePickerService _filePickerService = null!;
 
-    public bool IsClosing;
-    public bool IsInitialized;
-
-    /// <summary>
-    ///     Initializes a new instance of the <see cref="EditInstanceViewModel" /> class.
-    /// </summary>
-    /// <param name="instance">The instance model representing the Minecraft instance to be edited.</param>
     public EditInstanceViewModel()
     {
         Mods = new EditInstanceViewModel_Mods();
@@ -63,7 +57,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     public EditInstanceViewModel(InstanceModel instance, IBeaconLogger<EditInstanceViewModel> logger,
         ILauncherStore launcherStore, IEventService eventService, IBitmapService bitmapService,
         ITranslationService translationService, IEncryptionService encryptionService,
-        IScreenService screenService)
+        IScreenService screenService, IDialogService dialogService, IFilePickerService filePickerService)
     {
         Instance = instance;
         _logger = logger;
@@ -71,14 +65,19 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         _eventService = eventService;
         _encryptionService = encryptionService;
         _screenService = screenService;
+        _filePickerService = filePickerService;
 
-        Mods = new EditInstanceViewModel_Mods(this, launcherStore, bitmapService);
-        ResourcePacks = new EditInstanceViewModel_ResourcePacks(this, launcherStore, bitmapService);
-        Screenshots = new EditInstanceViewModel_Screenshots(this, bitmapService);
-        Servers = new EditInstanceViewModel_Servers(this, bitmapService);
-        Settings = new EditInstanceViewModel_Settings(this, launcherStore, translationService, eventService);
-        ShaderPacks = new EditInstanceViewModel_ShaderPacks(this, launcherStore, bitmapService);
-        Worlds = new EditInstanceViewModel_Worlds(this, bitmapService);
+        Mods = new EditInstanceViewModel_Mods(instance, () => GameDirectory, launcherStore, bitmapService, dialogService);
+        Mods.OnResourcesUpdated += OnResourcesUpdated;
+        ResourcePacks = new EditInstanceViewModel_ResourcePacks(instance, () => GameDirectory,
+                launcherStore, bitmapService, dialogService);
+        ResourcePacks.OnResourcesUpdated += OnResourcesUpdated;
+        Screenshots = new EditInstanceViewModel_Screenshots(() => GameDirectory, bitmapService, filePickerService);
+        Servers = new EditInstanceViewModel_Servers(() => GameDirectory, bitmapService);
+        Settings = new EditInstanceViewModel_Settings(instance.Id, launcherStore, translationService, eventService, filePickerService, dialogService);
+        ShaderPacks = new EditInstanceViewModel_ShaderPacks(instance, () => GameDirectory, launcherStore, bitmapService, dialogService);
+        ShaderPacks.OnResourcesUpdated += OnResourcesUpdated;
+        Worlds = new EditInstanceViewModel_Worlds(() => GameDirectory, bitmapService, filePickerService);
 
         if (Design.IsDesignMode)
             return;
@@ -90,49 +89,41 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         });
     }
 
-    public EditInstanceViewModel_Mods Mods { get; } = null!;
-    public EditInstanceViewModel_ResourcePacks ResourcePacks { get; } = null!;
-    public EditInstanceViewModel_Screenshots Screenshots { get; } = null!;
-    public EditInstanceViewModel_Servers Servers { get; } = null!;
-    public EditInstanceViewModel_Settings Settings { get; } = null!;
-    public EditInstanceViewModel_ShaderPacks ShaderPacks { get; } = null!;
-    public EditInstanceViewModel_Worlds Worlds { get; } = null!;
+    public EditInstanceViewModel_Mods Mods { get; }
+    public EditInstanceViewModel_ResourcePacks ResourcePacks { get; }
+    public EditInstanceViewModel_Screenshots Screenshots { get; }
+    public EditInstanceViewModel_Servers Servers { get; }
+    public EditInstanceViewModel_Settings Settings { get; }
+    public EditInstanceViewModel_ShaderPacks ShaderPacks { get; }
+    public EditInstanceViewModel_Worlds Worlds { get; }
 
     public bool IsLinux => OSHelper.GetOperatingSystem() == EOperatingSystem.LINUX;
     public int ScreenWidth => Design.IsDesignMode ? 950 : _screenService.ScreenSize.Width;
     public int ScreenHeight => Design.IsDesignMode ? 600 : _screenService.ScreenSize.Height;
     public List<AccountModel> Accounts { get; private set; } = null!;
 
-    /// <summary>
-    ///     Releases the resources used by the EditInstanceViewModel and performs cleanup operations.
-    /// </summary>
-    /// <param name="disposing">
-    ///     A boolean value indicating whether the method is being called directly or indirectly by a finalizer.
-    ///     If true, the method has been called directly or indirectly by a user's code. Managed and unmanaged resources can be
-    ///     disposed.
-    ///     If false, the method has been called by the runtime from inside the finalizer, and only unmanaged resources can be
-    ///     disposed.
-    /// </param>
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
         _logger.LogDebug("Freeing memory in EditInstanceViewModel...");
-        IsClosing = true;
         _eventService.OnInstanceLogged -= OnInstanceLogged;
 
         Accounts.Clear();
+        Mods.OnResourcesUpdated -= OnResourcesUpdated;
+        ResourcePacks.OnResourcesUpdated -= OnResourcesUpdated;
+        ShaderPacks.OnResourcesUpdated -= OnResourcesUpdated;
 
         InstanceName = string.Empty;
         GameDirectory = null;
         Logs.Clear();
+        Mods.Dispose();
+        ResourcePacks.Dispose();
+        Screenshots.Dispose();
+        Servers.Dispose();
+        Settings.Dispose();
+        Worlds.Dispose();
     }
 
-    /// <summary>
-    ///     Handles log messages for a specific instance by updating the Logs property
-    ///     and triggering the LogsScrollToEnd interaction to scroll to the end of the logs.
-    /// </summary>
-    /// <param name="instanceId">The ID of the instance that generated the log message.</param>
-    /// <param name="logMessage">The log message to be handled.</param>
     private void OnInstanceLogged(string instanceId, string logMessage)
     {
         if (instanceId != Instance.Id)
@@ -146,11 +137,6 @@ public partial class EditInstanceViewModel : KonkordObservableObject
             Dispatcher.UIThread.Invoke(async () => await LogsScrollToEnd.Handle(Unit.Default));
     }
 
-    /// <summary>
-    ///     Asynchronously initializes the view-model for the edit-instance UI.
-    /// </summary>
-    /// <param name="cancellationToken">A token to observe while waiting for the task to complete.</param>
-    /// <returns>A task that represents the asynchronous initialization operation.</returns>
     private async Task InitAsync(CancellationToken cancellationToken = default)
     {
         await Task.Yield();
@@ -160,7 +146,6 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         IsVanilla = Instance.Kind == EMinecraftKind.VANILLA;
         GameDirectory = Instance.GameDirectory;
 
-        IsInitialized = true;
         Accounts = [];
         foreach (var account in accountData.Accounts)
             Accounts.Add(new AccountModel(account, account.Id == accountData.SelectedAccountId, _encryptionService));
@@ -173,7 +158,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
             foreach (var line in logs.Split(Environment.NewLine))
                 Logs.Add(line);
 
-        // TODO: Performanc issue - initializing all tabs together can make the edit window open slowly.
+        // TODO: Performance issue - initializing all tabs together can make the edit window open slowly.
         await Task.WhenAll(
             Mods.InitAsync(cancellationToken),
             ResourcePacks.InitAsync(cancellationToken),
@@ -186,56 +171,73 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         await Settings.InitAsync(Instance.ConfigModel, cancellationToken);
     }
 
+    private void OnResourcesUpdated(object? sender, EResourceType type)
+    {
+        Dispatcher.UIThread.Invoke(async () =>
+        {
+            switch (type)
+            {
+                case EResourceType.RESOURCE_PACK:
+                {
+                    await ResourcePacks.RefreshResourcePacksAsync();
+                    break;
+                }
+                case EResourceType.MOD:
+                {
+                    await Mods.RefreshModsAsync();
+                    break;
+                }
+                case EResourceType.SHADER_PACK:
+                {
+                    await ShaderPacks.RefreshShaderPacksAsync();
+                    break;
+                }
+            }
+        });
+    }
+
     #region Interactions
 
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
     public Interaction<EEditInstanceTab, Unit> TabSwitchInteraction { get; } = new();
     public Interaction<EInstanceSettingsTab, Unit> SettingsTabSwitchInteraction { get; } = new();
-    public Interaction<Alert, Unit> ShowAlertDialog { get; } = new();
-    public Interaction<Unit, JavaVersionModel?> ShowJavaPathSelector { get; } = new();
-    public Interaction<string, string?> ShowDirPickerInteraction { get; } = new();
-    public Interaction<string, Unit> SetClipboardText { get; } = new();
-    public Interaction<ScreenshotModel, Unit> SetClipboardImage { get; } = new();
     public Interaction<Unit, Unit> BeginWorldRename { get; } = new();
     public Interaction<Unit, Unit> BeginScreenshotRename { get; } = new();
     public Interaction<Unit, Unit> LogsScrollToEnd { get; } = new();
-    public Interaction<EResourceType, Unit> OpenResourceDownloadDialog { get; } = new();
 
     #endregion
 
     #region Observable Properties
 
-    [ObservableProperty] public partial EEditInstanceTab EditInstanceTab { get; set; }
+    [ObservableProperty]
+    public partial EEditInstanceTab EditInstanceTab { get; set; }
 
-    [ObservableProperty] public partial EInstanceSettingsTab InstanceSettingsTab { get; set; }
+    [ObservableProperty]
+    public partial EInstanceSettingsTab InstanceSettingsTab { get; set; }
 
-    [ObservableProperty] public partial string InstanceName { get; set; } = string.Empty;
+    [ObservableProperty]
+    public partial string InstanceName { get; set; } = string.Empty;
 
-    [ObservableProperty] public partial string? GameDirectory { get; set; }
+    [ObservableProperty]
+    public partial string? GameDirectory { get; set; }
 
-    [ObservableProperty] public partial bool IsVanilla { get; set; }
+    [ObservableProperty]
+    public partial bool IsVanilla { get; set; }
 
     public ObservableCollection<string> Logs { get; set; } = [];
 
     #endregion
 
+    #region Commands
+
     #region Common
 
-    /// <summary>
-    ///     Requests the window to close by invoking the <see cref="CloseWindowInteraction" /> interaction.
-    /// </summary>
-    /// <returns>A task that completes when the close request has been handled.</returns>
     [RelayCommand]
-    public async Task CloseWindow()
+    private async Task CloseWindow()
     {
         await CloseWindowInteraction.Handle(Unit.Default);
     }
 
-    /// <summary>
-    ///     Requests a tab switch inside the edit-instance UI by invoking the <see cref="TabSwitchInteraction" /> interaction.
-    /// </summary>
-    /// <param name="tab">The target tab to switch to.</param>
-    /// <returns>A task that completes when the tab switch request has been handled.</returns>
     [RelayCommand]
     private async Task SwitchTab(EEditInstanceTab tab)
     {
@@ -246,34 +248,56 @@ public partial class EditInstanceViewModel : KonkordObservableObject
 
     #region Logs
 
-    /// <summary>
-    ///     Scrolls the logs to the end by triggering the LogsScrollToEnd interaction.
-    /// </summary>
     [RelayCommand]
     private async Task ScrollLogsToEnd()
     {
         await LogsScrollToEnd.Handle(Unit.Default);
     }
 
-    /// <summary>
-    ///     Copies the current logs to the system clipboard by triggering the SetClipboardText interaction.
-    /// </summary>
     [RelayCommand]
     private async Task CopyLogs()
     {
-        var newLine = Environment.NewLine;
-        await SetClipboardText.Handle(string.Join(newLine, Logs));
+        await _filePickerService.SetClipboardTextAsync(string.Join(Environment.NewLine, Logs));
     }
 
-    /// <summary>
-    ///     Clears the logs for the current instance and updates the global log storage.
-    /// </summary>
     [RelayCommand]
     private void ClearLogs()
     {
         Logs.Clear();
         _eventService.CleareInstanceLogs(Instance.Id);
     }
+
+    #endregion
+
+    #region Screenshots
+
+    [RelayCommand]
+    private async Task RenameScreenshot(ScreenshotModel screenshot)
+    {
+        await BeginScreenshotRename.Handle(Unit.Default);
+    }
+
+    #endregion
+
+    #region Worlds
+
+    [RelayCommand]
+    private async Task RenameWorld(WorldModel world)
+    {
+        await BeginWorldRename.Handle(Unit.Default);
+    }
+
+    #endregion
+
+    #region Settings
+
+    [RelayCommand]
+    private async Task SwitchSettingsTab(EInstanceSettingsTab tab)
+    {
+        await SettingsTabSwitchInteraction.Handle(tab);
+    }
+
+    #endregion
 
     #endregion
 }

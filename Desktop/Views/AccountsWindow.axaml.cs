@@ -14,7 +14,6 @@ using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Services.Localization;
 using Tavstal.KonkordLauncher.Desktop.Translation;
-using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views;
@@ -61,17 +60,6 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IKonkord
                 Close();
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
-            }).DisposeWith(disposables);
-            DataContext.ShowAlertDialog.RegisterHandler(async action =>
-            {
-                AlertWindow alertWindow = new(action.Input.Title, action.Input.Message, action.Input.Type);
-                await alertWindow.ShowDialog(this);
-                action.SetOutput(Unit.Default);
-            }).DisposeWith(disposables);
-            DataContext.SetClipboardText.RegisterHandler(async action =>
-            {
-                await SetClipboardTextAsync(action.Input);
-                action.SetOutput(Unit.Default);
             }).DisposeWith(disposables);
         });
     }

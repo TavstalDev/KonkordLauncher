@@ -9,20 +9,16 @@ using Tavstal.BeaconSDK.Models;
 using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
-using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 using Tavstal.KonkordLauncher.Desktop.Services.Content;
 using Tavstal.KonkordLauncher.Desktop.Services.Localization;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
-/// <summary>
-///     ViewModel for reviewing and installing selected resources (mods, resource packs, shader packs).
-///     Handles downloading files, saving instance resource configuration, and dependency resolution.
-/// </summary>
 public partial class ResourceReviewViewModel : KonkordObservableObject
 {
     private readonly IHttpService _httpService = null!;
@@ -32,14 +28,8 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
     private readonly IKonkordProgress _progressReporter = null!;
     private readonly EResourceType _resourceType;
     private readonly ITranslationService _translationService = null!;
+    private readonly IDialogService _dialogService = null!;
 
-    /// <summary>
-    ///     Initializes a new instance of the ResourceReviewViewModel class.
-    /// </summary>
-    /// <param name="instance">The target instance for resource installation.</param>
-    /// <param name="type">The type of resources being installed.</param>
-    /// <param name="resources">The list of resources to review and install.</param>
-    /// <param name="progressReporter">Reporter for download progress.</param>
     public ResourceReviewViewModel()
     {
         Resources = [];
@@ -47,7 +37,7 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
 
     public ResourceReviewViewModel(Instance instance, EResourceType type, List<ResourceDownloadModel> resources,
         IKonkordProgress progressReporter, IHttpService httpService, ITranslationService translationService,
-        ILauncherStore launcherStore, IMetaCacheService metaCacheService)
+        ILauncherStore launcherStore, IMetaCacheService metaCacheService, IDialogService dialogService)
     {
         _instance = instance;
         _resourceType = type;
@@ -56,6 +46,7 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
         _translationService = translationService;
         _launcherStore = launcherStore;
         _metaCacheService = metaCacheService;
+        _dialogService = dialogService;
 
         if (Design.IsDesignMode)
         {
@@ -112,8 +103,6 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
     #region Interactions
 
     public Interaction<bool, Unit> CloseWindowInteraction { get; } = new();
-    public Interaction<Alert, Unit> ShowAlertInteraction { get; } = new();
-
     #endregion
 
     #region Commands
@@ -123,7 +112,7 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
     ///     and closes the window upon success. Shows an alert when complete.
     /// </summary>
     [RelayCommand]
-    public async Task Install()
+    private async Task Install()
     {
         var gameDir = _instance.GameDirectory!;
         var targetDir = string.Empty;
@@ -209,10 +198,10 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
         }
 
         _progressReporter.CloseReporter();
-        await ShowAlertInteraction.Handle(new Alert(
+        await _dialogService.ShowAlertAsync(
             _translationService.Translate("instance.resources.download.complete.title"),
             _translationService.Translate("instance.resources.download.complete.description"),
-            EAlertType.Success));
+            EAlertType.Success);
         await CloseWindowInteraction.Handle(true);
     }
 
@@ -220,7 +209,7 @@ public partial class ResourceReviewViewModel : KonkordObservableObject
     ///     Requests the window to close by invoking the <see cref="CloseWindowInteraction" /> interaction.
     /// </summary>
     [RelayCommand]
-    public async Task CloseWindow()
+    private async Task CloseWindow()
     {
         await CloseWindowInteraction.Handle(false);
     }

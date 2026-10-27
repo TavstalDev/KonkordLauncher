@@ -62,7 +62,7 @@ public partial class ProgressViewModel : ObservableObject
     ///     Closes the window by invoking the close window interaction.
     /// </summary>
     [RelayCommand]
-    public async Task CloseWindow()
+    private async Task CloseWindow()
     {
         if (_cancellationTokenSource != null)
             await _cancellationTokenSource.CancelAsync();

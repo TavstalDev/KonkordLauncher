@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -9,52 +9,44 @@ using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Tavstal.BeaconSDK.Helpers.IO;
+using Tavstal.BeaconSDK.Models.Logging;
+using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
-using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Localization;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 using IconDataModel = Tavstal.KonkordLauncher.Desktop.Models.Domain.IconDataModel;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
-/// <summary>
-///     ViewModel for managing and selecting icons in the application.
-/// </summary>
 public partial class IconSelectorViewModel : KonkordObservableObject
 {
+    private readonly IBeaconLogger _logger = null!;
+    private readonly ITranslationService _translationService = null!;
     private readonly IBitmapService _bitmapService = null!;
     private readonly ILauncherStore _launcherStore = null!;
+    private readonly IFilePickerService _filePickerService = null!;
 
-
-    /// <summary>
-    ///     Initializes a new instance of the <see cref="IconSelectorViewModel" /> class.
-    ///     Loads the available icons from the configured directory and populates the icons collection.
-    /// </summary>
     public IconSelectorViewModel()
     {
         SelectedIcon = null;
     }
 
-    public IconSelectorViewModel(ILauncherStore launcherStore, IBitmapService bitmapService)
+    public IconSelectorViewModel(IBeaconLogger<IconSelectorViewModel> logger, ITranslationService translationService,
+        ILauncherStore launcherStore, IBitmapService bitmapService, IFilePickerService filePickerService)
     {
         if (Design.IsDesignMode)
             return;
 
+        _logger = logger;
+        _translationService = translationService;
         _launcherStore = launcherStore;
         _bitmapService = bitmapService;
+        _filePickerService = filePickerService;
 
         _ = InitAsync();
     }
 
-    /// <summary>
-    ///     Releases the resources used by the <see cref="IconSelectorViewModel" /> and performs cleanup operations.
-    /// </summary>
-    /// <param name="disposing">
-    ///     A boolean value indicating whether the method is being called directly or indirectly by a finalizer.
-    ///     If true, the method has been called directly or indirectly by a user's code. Managed and unmanaged resources can be
-    ///     disposed.
-    ///     If false, the method has been called by the runtime from inside the finalizer, and only unmanaged resources can be
-    ///     disposed.
-    /// </param>
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
@@ -97,63 +89,60 @@ public partial class IconSelectorViewModel : KonkordObservableObject
     #region Interaction
 
     public Interaction<string?, Unit> CloseWindowInteraction { get; } = new();
-    public Interaction<Unit, List<(string, string)>?> ShowFilePicker { get; } = new();
 
     #endregion
 
     #region Commands
 
-    /// <summary>
-    ///     Closes the current window.
-    /// </summary>
     [RelayCommand]
-    public async Task CloseWindow()
+    private async Task CloseWindow()
     {
         await CloseWindowInteraction.Handle(null);
     }
 
-    /// <summary>
-    ///     Closes the parent window and returns the currently selected icon as the result.
-    /// </summary>
     [RelayCommand]
-    public async Task OkBtn()
+    private async Task OkBtn()
     {
         await CloseWindowInteraction.Handle(SelectedIcon?.Path);
     }
 
-    /// <summary>
-    ///     Closes the parent window without returning any result.
-    /// </summary>
     [RelayCommand]
-    public async Task CancelBtn()
+    private async Task CancelBtn()
     {
         await CloseWindowInteraction.Handle(null);
     }
 
-    /// <summary>
-    ///     Opens a file picker dialog to allow the user to add new icons.
-    ///     Adds the selected icons to the collection after loading their bitmap data.
-    /// </summary>
     [RelayCommand]
-    public async Task AddBtnAsync()
+    private async Task AddBtnAsync()
     {
-        var result = await ShowFilePicker.Handle(Unit.Default);
+        var result = await _filePickerService.OpenFilesPickerAsync(_translationService.Translate("common.select.file"),
+            "PNGs", ["*.png"]);
         if (result == null)
             return;
 
-        foreach (var elem in result)
+        var settings = await _launcherStore.GetSettingsAsync();
+        foreach (var path in result)
         {
-            var bitmap = await _bitmapService.GetBitmapAsync(elem.Item2);
-            Icons.Add(new IconDataModel(elem.Item1, elem.Item2, bitmap));
+            try
+            {
+                string fileName = Path.GetFileName(path);
+                var newPath = Path.Combine(settings.Launcher.IconsDirectoryPath, fileName);
+                if (File.Exists(newPath))
+                    continue;
+                File.Copy(path, newPath);
+
+                var bitmap = await _bitmapService.GetBitmapAsync(newPath);
+                Icons.Add(new IconDataModel(fileName, newPath, bitmap));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Failed to copy file {path} to icons directory: {ex.Message}");
+            }
         }
     }
 
-    /// <summary>
-    ///     Removes the currently selected icon from the collection and deletes its file.
-    ///     Disposes of the icon's image and resets the selected icon.
-    /// </summary>
     [RelayCommand]
-    public void RemoveBtn()
+    private void RemoveBtn()
     {
         if (SelectedIcon == null)
             return;
@@ -172,7 +161,7 @@ public partial class IconSelectorViewModel : KonkordObservableObject
     ///     Opens the directory containing the icons in the system's file explorer.
     /// </summary>
     [RelayCommand]
-    public async Task OpenDirectoryAsync()
+    private async Task OpenDirectoryAsync()
     {
         var settings = await _launcherStore.GetSettingsAsync();
         FileSystemHelper.OpenFolderInFileExplorer(settings.Launcher.IconsDirectoryPath);

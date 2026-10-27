@@ -4,6 +4,7 @@ using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Tavstal.BeaconSDK.Models;
@@ -16,7 +17,7 @@ using Tavstal.KonkordLauncher.Desktop.Services;
 using Tavstal.KonkordLauncher.Desktop.Services.Content;
 using Tavstal.KonkordLauncher.Desktop.Services.Instances;
 using Tavstal.KonkordLauncher.Desktop.Services.Localization;
-using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using Tavstal.KonkordLauncher.Desktop.Views.Models.CreateInstance;
@@ -39,18 +40,22 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IKonkord
     public CreateInstanceViewModel(IScreenService screenService, ILauncherStore launcherStore,
         ITranslationService translationService, IManifestService manifestService, IHttpService httpService,
         IMetaCacheService metaCacheService, IBitmapService bitmapService, IEventService eventService,
-        ModrinthPackageService modrinthPackageService, IWindowFactory windowFactory)
+        ModrinthPackageService modrinthPackageService, IWindowFactory windowFactory,
+        IDialogService dialogService, IFilePickerService filePickerService)
     {
         _launcherStore = launcherStore;
         _manifestService = manifestService;
         _windowFactory = windowFactory;
 
-        Custom = new CreateInstanceViewModel_Custom(this, screenService, launcherStore, translationService,
+        Custom = new CreateInstanceViewModel_Custom(screenService, launcherStore, translationService,
             manifestService, bitmapService, eventService);
+        Custom.OnCloseRequested += OnCloseRequested;
         Modpack = new CreateInstanceViewModel_Modpack(this, screenService, launcherStore, translationService,
-            httpService, metaCacheService, bitmapService, eventService, modrinthPackageService);
+            httpService, metaCacheService, bitmapService, eventService, modrinthPackageService, dialogService);
+        Modpack.OnCloseRequested += OnCloseRequested;
         Import = new CreateInstanceViewModel_Import(this, screenService, launcherStore, translationService,
-            httpService, eventService, modrinthPackageService);
+            httpService, eventService, modrinthPackageService, dialogService, filePickerService);
+        Import.OnCloseRequested += OnCloseRequested;
 
         if (Design.IsDesignMode)
             return;
@@ -63,34 +68,20 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IKonkord
     public CreateInstanceViewModel_Modpack Modpack { get; }
     public CreateInstanceViewModel_Import Import { get; }
 
-    [ObservableProperty] public partial ECreateInstanceTab SelectedTab { get; set; } = ECreateInstanceTab.CUSTOM;
+    [ObservableProperty]
+    public partial ECreateInstanceTab SelectedTab { get; set; } = ECreateInstanceTab.CUSTOM;
 
-    /// <summary>
-    ///     Releases the resources used by the CreateInstanceViewModel and performs cleanup operations.
-    /// </summary>
-    /// <param name="disposing">
-    ///     A boolean value indicating whether the method is being called directly or indirectly by a
-    ///     finalizer.
-    /// </param>
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
         Custom.Dispose();
+        Custom.OnCloseRequested -= OnCloseRequested;
         Modpack.Dispose();
+        Modpack.OnCloseRequested -= OnCloseRequested;
         Import.Dispose();
+        Import.OnCloseRequested -= OnCloseRequested;
     }
 
-    /// <summary>
-    ///     Asynchronously initializes the CreateInstanceViewModel and its subcomponents.
-    /// </summary>
-    /// <param name="cancellationToken">
-    ///     Optional <see cref="CancellationToken" /> that can be used by callers to cancel the
-    ///     initialization flow.
-    /// </param>
-    /// <returns>
-    ///     A <see cref="Task" /> that completes when initialization has finished for the view-model and all child
-    ///     modules.
-    /// </returns>
     private async Task InitAsync(CancellationToken cancellationToken = default)
     {
         await Task.Yield();
@@ -109,31 +100,32 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IKonkord
         await Modpack.InitAsync(versionManifest, cancellationToken);
     }
 
-    /// <summary>
-    ///     Sets up reactive/filtering pipelines for all child sub-view-models.
-    /// </summary>
+    private void OnCloseRequested(object? sender, EventArgs args)
+    {
+        Dispatcher.UIThread.Invoke(async () => await CloseWindowInteraction.Handle(Unit.Default));
+    }
+
     private void SetupPipeline()
     {
         Custom.SetupPipeline();
     }
 
-    /// <summary>
-    ///     Requests the window to close by invoking the <see cref="CloseWindowInteraction" /> interaction.
-    /// </summary>
     [RelayCommand]
-    public async Task CloseWindow()
+    private async Task CloseWindow()
     {
         await CloseWindowInteraction.Handle(Unit.Default);
     }
 
-    /// <summary>
-    ///     Requests the parent view to change the selected create-instance tab.
-    /// </summary>
-    /// <param name="tab">The tab to switch to (one of <see cref="ECreateInstanceTab" />).</param>
     [RelayCommand]
     private async Task HandleTabBtn(ECreateInstanceTab tab)
     {
         await SwitchTabInteraction.Handle(tab);
+    }
+
+    [RelayCommand]
+    private async Task ChangeImportType(int index)
+    {
+        await SwitchImportTabInteraction.Handle(index);
     }
 
     #region Interactions
@@ -141,9 +133,6 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IKonkord
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
     public Interaction<ECreateInstanceTab, Unit> SwitchTabInteraction { get; } = new();
     public Interaction<int, Unit> SwitchImportTabInteraction { get; } = new();
-    public Interaction<Alert, Unit> ShowAlertDialogInteraction { get; } = new();
-    public Interaction<Unit, string?> ShowIconSelectorInteraction { get; } = new();
-    public Interaction<Unit, string?> ShowFileSelectorInteraction { get; } = new();
 
     #endregion
 

@@ -14,7 +14,7 @@ using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 using Tavstal.KonkordLauncher.Desktop.Services.Content;
 using Tavstal.KonkordLauncher.Desktop.Services.Localization;
-using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
@@ -34,7 +34,7 @@ public partial class ResourceReviewWindow : KonkordWindow<ResourceReviewViewMode
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public ResourceReviewWindow(Instance instance, EResourceType resourceType,
         List<ResourceDownloadModel> resources, IHttpService httpService, ITranslationService translationService,
-        ILauncherStore launcherStore, IMetaCacheService metaCacheService, IWindowFactory windowFactory)
+        ILauncherStore launcherStore, IMetaCacheService metaCacheService, IWindowFactory windowFactory, IDialogService dialogService)
     {
         InitializeComponent();
 
@@ -43,7 +43,7 @@ public partial class ResourceReviewWindow : KonkordWindow<ResourceReviewViewMode
 
         _windowFactory = windowFactory;
         DataContext = new ResourceReviewViewModel(instance, resourceType, resources, this,
-            httpService, translationService, launcherStore, metaCacheService);
+            httpService, translationService, launcherStore, metaCacheService, dialogService);
 
         this.WhenActivated(disposables =>
         {
@@ -52,12 +52,6 @@ public partial class ResourceReviewWindow : KonkordWindow<ResourceReviewViewMode
                 Close(action.Input);
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
-            }).DisposeWith(disposables);
-            DataContext.ShowAlertInteraction.RegisterHandler(async action =>
-            {
-                AlertWindow alertWindow = new(action.Input.Title, action.Input.Message, action.Input.Type);
-                await alertWindow.ShowDialog<bool>(this);
-                action.SetOutput(Unit.Default);
             }).DisposeWith(disposables);
         });
     }

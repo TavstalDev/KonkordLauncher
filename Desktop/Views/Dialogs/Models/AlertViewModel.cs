@@ -87,7 +87,7 @@ public partial class AlertViewModel : KonkordObservableObject
     ///     Requests the view to close the window.
     /// </summary>
     [RelayCommand]
-    public async Task CloseWindow()
+    private async Task CloseWindow()
     {
         await CloseWindowInteraction.Handle(Unit.Default);
     }
@@ -96,7 +96,7 @@ public partial class AlertViewModel : KonkordObservableObject
     ///     Signals that the user clicked the confirmation ("Yes") button.
     /// </summary>
     [RelayCommand]
-    public async Task YesButtonClick()
+    private async Task YesButtonClick()
     {
         await ClickYesInteraction.Handle(Unit.Default);
     }

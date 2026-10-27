@@ -3,7 +3,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Reactive;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,7 +26,7 @@ using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Services;
 using Tavstal.KonkordLauncher.Desktop.Services.Localization;
-using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 using ImageHelper = Tavstal.KonkordLauncher.Desktop.Helpers.ImageHelper;
 
@@ -42,22 +41,23 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IBeaconLogger _logger = null!;
     private readonly IMojangSkinService _mojangSkinService = null!;
-    private readonly MainViewModel? _parent;
     private readonly ITranslationService _translationService = null!;
+    private readonly IDialogService _dialogService = null!;
+    private readonly IFilePickerService _filePickerService = null!;
 
     public MainViewModel_Accounts()
     {
-        _parent = null!;
+        if (!Design.IsDesignMode)
+            return;
         AccountAvatar =
             ImageHelper.LoadDesignTime("avares://KonkordLauncher/Assets/Images/Placeholders/steve_head.png");
     }
 
-    public MainViewModel_Accounts(MainViewModel parent, ILauncherStore launcherStore,
-        ITranslationService translationService,
+    public MainViewModel_Accounts(ILauncherStore launcherStore, ITranslationService translationService,
         IMicrosoftAuthService microsoftAuthService, IMojangSkinService mojangSkinService, IBitmapService bitmapService,
-        IEventService eventService, IEncryptionService encryptionService)
+        IEventService eventService, IEncryptionService encryptionService, IDialogService dialogService,
+        IFilePickerService filePickerService)
     {
-        _parent = parent;
         if (Design.IsDesignMode)
         {
             AccountAvatar =
@@ -73,21 +73,29 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         _bitmapService = bitmapService;
         _eventService = eventService;
         _encryptionService = encryptionService;
+        _dialogService = dialogService;
+        _filePickerService = filePickerService;
 
         AccountAvatar = _bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Images/Placeholders/steve_head.png");
     }
 
-    [ObservableProperty] public partial BitmapEntry AccountAvatar { get; set; }
+    [ObservableProperty]
+    public partial BitmapEntry AccountAvatar { get; set; }
 
-    [ObservableProperty] public partial BitmapEntry AccountSkinPreview { get; set; } = null!;
+    [ObservableProperty]
+    public partial BitmapEntry AccountSkinPreview { get; set; } = null!;
 
-    [ObservableProperty] public partial bool IsAccountHasWideModel { get; set; }
+    [ObservableProperty]
+    public partial bool IsAccountHasWideModel { get; set; }
 
-    [ObservableProperty] public partial bool IsAccountSkinProcessing { get; set; }
+    [ObservableProperty]
+    public partial bool IsAccountSkinProcessing { get; set; }
 
-    [ObservableProperty] public partial AccountSkin SelectedSkin { get; set; } = null!;
+    [ObservableProperty]
+    public partial AccountSkin SelectedSkin { get; set; } = null!;
 
-    [ObservableProperty] public partial AccountDataModel AccountData { get; set; } = null!;
+    [ObservableProperty]
+    public partial AccountDataModel AccountData { get; set; } = null!;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(AccountName))]
@@ -105,26 +113,12 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
 
     public bool IsMojangAccount => SelectedAccount is { Type: EAccountType.MICROSOFT };
 
-    /// <summary>
-    ///     Releases resources used by this view model and unsubscribes from global account change events.
-    /// </summary>
-    /// <param name="disposing">
-    ///     Indicates whether the method is being called from managed code (<c>true</c>) or from a
-    ///     finalizer (<c>false</c>).
-    /// </param>
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
         _eventService.OnAccountsChanged -= OnAccountUpdated;
     }
 
-    /// <summary>
-    ///     Initializes the accounts sub-view-model with the provided account data.
-    /// </summary>
-    /// <param name="accountData">
-    ///     The account data container (typically read from disk) which includes the list of accounts
-    ///     and the currently selected account id.
-    /// </param>
     public Task InitAsync(AccountData accountData)
     {
         AccountData = new AccountDataModel(accountData, _encryptionService);
@@ -145,21 +139,12 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
 
     #region Accounts
 
-    /// <summary>
-    ///     Opens the account management window to add a new account asynchronously.
-    /// </summary>
     [RelayCommand]
     private async Task AddAccountBtnAsync()
     {
-        if (_parent == null)
-            return;
-        await _parent.ShowAccountsDialogInteraction.Handle(Unit.Default);
+        await _dialogService.ShowAccountsAsync();
     }
 
-    /// <summary>
-    ///     Selects the specified account by its ID and updates the selected account in the application.
-    /// </summary>
-    /// <param name="accountId">The ID of the account to select.</param>
     [RelayCommand]
     private void SelectAccountBtn(string accountId)
     {
@@ -170,12 +155,6 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         _eventService.RaiseAccountsChanged();
     }
 
-    /// <summary>
-    ///     Refreshes the specified account's authentication token asynchronously if it has expired.
-    ///     Logs errors if the refresh process fails.
-    /// </summary>
-    /// <param name="account">The account to refresh.</param>
-    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     [RelayCommand]
     private async Task RefreshAccountBtnAsync(Account account, CancellationToken cancellationToken = default)
     {
@@ -227,11 +206,6 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         }
     }
 
-    /// <summary>
-    ///     Removes the specified account from the account list.
-    ///     If the removed account is the currently selected account, updates the selected account to the next available one.
-    /// </summary>
-    /// <param name="account">The account to remove.</param>
     [RelayCommand]
     private void RemoveAccountBtn(AccountModel account)
     {
@@ -246,17 +220,9 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
 
     #region Skins
 
-    /// <summary>
-    ///     Imports a custom skin image from disk, stores it in the selected account's cache directory,
-    ///     and generates derived preview/head images for the launcher UI.
-    /// </summary>
-    /// <param name="cancellationToken">A token used to cancel the upload operation.</param>
     [RelayCommand]
     private async Task SkinUpload(CancellationToken cancellationToken = default)
     {
-        if (_parent == null)
-            return;
-
         try
         {
             // Prevent re-uploading while processing
@@ -268,7 +234,8 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             if (SelectedAccount == null)
                 return;
 
-            var filePath = await _parent.OpenImagePickerInteraction.Handle(Unit.Default);
+            var filePath = await _filePickerService.OpenFilePickerAsync(_translationService.Translate("common.select.file"), "PNGs",
+            ["*.png"]);
             if (filePath == null || !File.Exists(filePath))
                 return;
 
@@ -305,18 +272,9 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         }
     }
 
-    /// <summary>
-    ///     Applies the selected existing skin to the current account by uploading the cached skin
-    ///     texture to Mojang and syncing the returned profile data back into the launcher state.
-    /// </summary>
-    /// <param name="model">The skin entry selected by the user.</param>
-    /// <param name="cancellationToken">A token used to cancel the skin selection operation.</param>
     [RelayCommand]
     private async Task SkinSelect(SkinDataModel model, CancellationToken cancellationToken = default)
     {
-        if (_parent == null)
-            return;
-
         try
         {
             // Prevent re-selecting the same skin
@@ -343,8 +301,10 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
                 await _mojangSkinService.UploadSkinAsync(accessToken, model.Variant, skinPath, cancellationToken);
             if (profile == null)
             {
-                await _parent.ShowAlertDialogInteraction.Handle(new Alert(_translationService.Translate("common.error"),
-                    _translationService.Translate("main.page.skins.alert.error"), EAlertType.Error));
+                await _dialogService.ShowAlertAsync(
+                    _translationService.Translate("common.error"),
+                    _translationService.Translate("main.page.skins.alert.error"),
+                    EAlertType.Error);
                 return;
             }
 
@@ -354,9 +314,10 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
                 profile = await _mojangSkinService.ShowCapeAsync(accessToken, newSkin.CapeId, cancellationToken);
                 if (profile == null)
                 {
-                    await _parent.ShowAlertDialogInteraction.Handle(new Alert(
+                    await _dialogService.ShowAlertAsync(
                         _translationService.Translate("common.error"),
-                        _translationService.Translate("main.page.skins.alert.cape.change"), EAlertType.Error));
+                        _translationService.Translate("main.page.skins.alert.cape.change"),
+                        EAlertType.Error);
                     return;
                 }
             }
@@ -381,18 +342,9 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         }
     }
 
-    /// <summary>
-    ///     Changes the currently selected cape for the active account and syncs the new cape state
-    ///     back to Mojang and the launcher collections.
-    /// </summary>
-    /// <param name="model">The cape entry selected by the user.</param>
-    /// <param name="cancellationToken">A token used to cancel the cape selection operation.</param>
     [RelayCommand]
     private async Task CapeSelect(CapeDataModel model, CancellationToken cancellationToken = default)
     {
-        if (_parent == null)
-            return;
-
         try
         {
             // Prevent re-selecting the same cape
@@ -413,8 +365,10 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
 
             if (result == null)
             {
-                await _parent.ShowAlertDialogInteraction.Handle(new Alert(_translationService.Translate("common.error"),
-                    _translationService.Translate("main.page.skins.alert.cape.change"), EAlertType.Error));
+                await _dialogService.ShowAlertAsync(
+                    _translationService.Translate("common.error"),
+                    _translationService.Translate("main.page.skins.alert.cape.change"),
+                    EAlertType.Error);
                 foreach (var cape in Capes.ToList())
                 {
                     var index = Capes.IndexOf(cape);
@@ -449,8 +403,10 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         catch (Exception ex)
         {
             _logger.LogError("Error while selecting cape: " + ex);
-            await _parent.ShowAlertDialogInteraction.Handle(new Alert(_translationService.Translate("common.error"),
-                _translationService.Translate("main.page.skins.alert.cape.unexpected"), EAlertType.Error));
+            await _dialogService.ShowAlertAsync(
+                _translationService.Translate("common.error"),
+                _translationService.Translate("main.page.skins.alert.cape.unexpected"),
+                EAlertType.Error);
         }
         finally
         {
@@ -458,21 +414,9 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         }
     }
 
-    /// <summary>
-    ///     Changes the current skin model variant (classic or slim) for the active Mojang profile,
-    ///     updates the launcher state, and keeps the selected skin/model in sync.
-    /// </summary>
-    /// <param name="model">
-    ///     The skin model name to apply. Expected values are typically <c>"classic"</c> or non-classic
-    ///     variants.
-    /// </param>
-    /// <param name="cancellationToken">A token used to cancel the model change operation.</param>
     [RelayCommand]
     private async Task ModelSelect(string model, CancellationToken cancellationToken = default)
     {
-        if (_parent == null)
-            return;
-
         try
         {
             var newValue = model == "classic";
@@ -503,8 +447,10 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             var result = await _mojangSkinService.ChangeSkinAsync(accessToken, model, skin.Url, cancellationToken);
             if (result == null)
             {
-                await _parent.ShowAlertDialogInteraction.Handle(new Alert(_translationService.Translate("common.error"),
-                    _translationService.Translate("main.page.skins.alert.model.change"), EAlertType.Error));
+                await _dialogService.ShowAlertAsync(
+                    _translationService.Translate("common.error"),
+                    _translationService.Translate("main.page.skins.alert.model.change"),
+                    EAlertType.Error);
                 return;
             }
 
@@ -561,19 +507,11 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
 
     #region Account functions
 
-    /// <summary>
-    ///     Updates the account data by fetching the latest data from the launcher helper.
-    /// </summary>
     private void OnAccountUpdated()
     {
         Dispatcher.UIThread.Invoke(async () => await HandleAccountUpdatedAsync());
     }
 
-    /// <summary>
-    ///     Reloads the currently selected account and its related skin/cape preview data from disk,
-    ///     then rebuilds the UI-bound collections and avatar image.
-    /// </summary>
-    /// <param name="cancellationToken">A token used to cancel the account refresh operation.</param>
     private async Task HandleAccountUpdatedAsync(CancellationToken cancellationToken = default)
     {
         var accountData = await _launcherStore.GetAccountDataAsync(cancellationToken);
@@ -665,11 +603,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         await UpdateSelectedAccountAvatarAsync(cancellationToken);
     }
 
-    /// <summary>
-    ///     Updates the avatar image for the currently selected account using cached skin assets,
-    ///     or falls back to a default placeholder image when no avatar can be resolved.
-    /// </summary>
-    /// <param name="cancellationToken">A token used to cancel the avatar refresh operation.</param>
+
     private async Task UpdateSelectedAccountAvatarAsync(CancellationToken cancellationToken = default)
     {
         AccountAvatar.Dispose(_bitmapService);
@@ -703,38 +637,19 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             : await _bitmapService.GetBitmapAsync("avares://KonkordLauncher/Assets/Images/Placeholders/steve_head.png");
     }
 
-    /// <summary>
-    ///     Subscribes to the PropertyChanged event of the provided AccountDataModel instance.
-    /// </summary>
-    /// <param name="accountData">The account data model to subscribe to.</param>
+
     private void SubscribeToAccountDataChildren(AccountDataModel accountData)
     {
         accountData.PropertyChanged += OnChildAccountDataPropertyChanged;
     }
 
-    /// <summary>
-    ///     Unsubscribes from the PropertyChanged event of the provided AccountDataModel instance.
-    /// </summary>
-    /// <param name="accountData">The account data model to unsubscribe from.</param>
     private void UnsubscribeFromAccountDataChildren(AccountDataModel accountData)
     {
         accountData.PropertyChanged -= OnChildAccountDataPropertyChanged;
     }
 
-    /// <summary>
-    ///     Handles changes to the AccountData property, unsubscribing from the old value and subscribing to the new value.
-    ///     Saves the new account data to a file if the view model is initialized.
-    /// </summary>
-    /// <param name="oldValue">The previous AccountDataModel instance.</param>
-    /// <param name="newValue">The new AccountDataModel instance.</param>
     partial void OnAccountDataChanged(AccountDataModel? oldValue, AccountDataModel newValue)
     {
-        if (_parent == null)
-            return;
-
-        if (_parent.IsLoading || !_parent.Initialization.IsCompletedSuccessfully)
-            return;
-
         _logger.LogDebug("AccountData changed with old and new value. Unsubscribing from old, subscribing to new.");
 
         if (oldValue != null)
@@ -744,20 +659,9 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         SaveAccountDataToFile(newValue);
     }
 
-    /// <summary>
-    ///     Handles the PropertyChanged event for child properties of the AccountDataModel.
-    ///     Saves the updated account data to a file if the view model is initialized.
-    /// </summary>
-    /// <param name="sender">The object that triggered the event.</param>
-    /// <param name="e">The event data containing the name of the changed property.</param>
+
     private void OnChildAccountDataPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (_parent == null)
-            return;
-
-        if (_parent.IsLoading || !_parent.Initialization.IsCompletedSuccessfully)
-            return;
-
         if (sender is not AccountDataModel accountData)
             return;
 
@@ -765,10 +669,6 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         SaveAccountDataToFile(accountData);
     }
 
-    /// <summary>
-    ///     Saves the provided AccountDataModel instance to a file in JSON format.
-    /// </summary>
-    /// <param name="newValue">The AccountDataModel instance to save.</param>
     private void SaveAccountDataToFile(AccountDataModel newValue)
     {
         var accounts = new AccountData

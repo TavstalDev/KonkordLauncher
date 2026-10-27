@@ -2,7 +2,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -18,47 +17,47 @@ using Tavstal.KonkordLauncher.Desktop.Models.Config.Instance;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs.Config;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs.InstanceConfig;
-using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Services;
 using Tavstal.KonkordLauncher.Desktop.Services.Localization;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
 public partial class EditInstanceViewModel_Settings : KonkordObservableObject
 {
+    private readonly string _instanceId = string.Empty;
     private readonly IEventService _eventService = null!;
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IBeaconLogger _logger = null!;
-    private readonly EditInstanceViewModel _parent;
     private readonly ITranslationService _translationService = null!;
+    private readonly IFilePickerService _filePickerService = null!;
+    private readonly IDialogService _dialogService = null!;
 
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(CanRemoveEnvironmentVariable))]
-    private int? _selectedEnvironmentVariableIndex;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanRemoveEnvironmentVariable))]
+    public partial int? SelectedEnvironmentVariableIndex { get; set; }
 
     public EditInstanceViewModel_Settings()
     {
-        _parent = null!;
-        InstanceConfig = new InstanceConfigModel();
-    }
-
-    public EditInstanceViewModel_Settings(EditInstanceViewModel parent)
-    {
-        _parent = parent;
         if (Design.IsDesignMode)
             InstanceConfig = new InstanceConfigModel();
     }
 
-    public EditInstanceViewModel_Settings(EditInstanceViewModel parent, ILauncherStore launcherStore,
-        ITranslationService translationService, IEventService eventService) : this(parent)
+    public EditInstanceViewModel_Settings(string instanceId, ILauncherStore launcherStore, ITranslationService
+        translationService, IEventService eventService, IFilePickerService filePickerService,
+        IDialogService dialogService) : this()
     {
         if (Design.IsDesignMode)
             return;
 
+        _instanceId = instanceId;
         _logger = Program.Services.GetRequiredService<IBeaconLogger<EditInstanceViewModel_Settings>>();
         _launcherStore = launcherStore;
         _translationService = translationService;
         _eventService = eventService;
+        _filePickerService = filePickerService;
+        _dialogService = dialogService;
     }
 
     [ObservableProperty]
@@ -83,15 +82,11 @@ public partial class EditInstanceViewModel_Settings : KonkordObservableObject
         InstanceConfig = new InstanceConfigModel(config);
 
         //SubscribeToConfigChildren(InstanceConfig);
+        var accounts = await _launcherStore.GetAccountDataAsync(cancellationToken);
         if (!string.IsNullOrEmpty(InstanceConfig.Misc.AccountId))
-            OverridenAccountIndex = _parent.Accounts.FindIndex(x => x.Id == InstanceConfig.Misc.AccountId);
+            OverridenAccountIndex = accounts.Accounts.FindIndex(x => x.Id == InstanceConfig.Misc.AccountId);
     }
 
-    /// <summary>
-    ///     Subscribes to the PropertyChanged event of the child configuration models
-    ///     to monitor changes in their properties.
-    /// </summary>
-    /// <param name="config">The instance configuration model to subscribe to.</param>
     private void SubscribeToConfigChildren(InstanceConfigModel config)
     {
         config.Game.PropertyChanged += OnChildConfigPropertyChanged;
@@ -101,11 +96,6 @@ public partial class EditInstanceViewModel_Settings : KonkordObservableObject
         config.Misc.PropertyChanged += OnChildConfigPropertyChanged;
     }
 
-    /// <summary>
-    ///     Unsubscribes from the PropertyChanged event of the child configuration models
-    ///     to stop monitoring changes in their properties.
-    /// </summary>
-    /// <param name="config">The instance configuration model to unsubscribe from.</param>
     private void UnsubscribeFromConfigChildren(InstanceConfigModel config)
     {
         config.Game.PropertyChanged -= OnChildConfigPropertyChanged;
@@ -115,17 +105,8 @@ public partial class EditInstanceViewModel_Settings : KonkordObservableObject
         config.Misc.PropertyChanged -= OnChildConfigPropertyChanged;
     }
 
-    /// <summary>
-    ///     Handles changes to the InstanceConfigModel by unsubscribing from the old configuration
-    ///     and subscribing to the new configuration. Saves the new configuration to a file if initialized.
-    /// </summary>
-    /// <param name="oldValue">The previous instance configuration model.</param>
-    /// <param name="newValue">The new instance configuration model.</param>
-    partial void OnInstanceConfigChanged(InstanceConfigModel oldValue, InstanceConfigModel newValue)
+    partial void OnInstanceConfigChanged(InstanceConfigModel? oldValue, InstanceConfigModel newValue)
     {
-        if (_parent.IsClosing)
-            return;
-
         _logger.LogDebug("InstanceConfig changed with old and new value. Unsubscribing from old, subscribing to new.");
 
         if (oldValue != null)
@@ -133,48 +114,23 @@ public partial class EditInstanceViewModel_Settings : KonkordObservableObject
 
         SubscribeToConfigChildren(newValue);
 
-        if (!_parent.IsInitialized)
-            return;
         Task.Run(async () => await SaveCoreConfigToFileAsync(InstanceConfig));
     }
 
-    /// <summary>
-    ///     Handles the PropertyChanged event for child configuration models.
-    ///     Logs the change and saves the updated configuration to a file if initialized.
-    /// </summary>
-    /// <param name="sender">The object that raised the event.</param>
-    /// <param name="e">The event data containing the name of the changed property.</param>
     private void OnChildConfigPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (!_parent.IsInitialized || _parent.IsClosing)
-            return;
         _logger.LogDebug($"Inner property '{e.PropertyName}' changed on {sender?.GetType().Name}. Saving to file...");
         Task.Run(async () => await SaveCoreConfigToFileAsync(InstanceConfig));
     }
 
-    /// <summary>
-    ///     Handles changes to a collection within the instance configuration model.
-    ///     Logs the change and saves the updated configuration to a file if the view model is initialized.
-    /// </summary>
-    /// <param name="sender">The source of the event, typically the collection that changed.</param>
-    /// <param name="e">The event data containing details about the collection change.</param>
     private void OnChildConfigCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        if (!_parent.IsInitialized || _parent.IsClosing)
-            return;
         _logger.LogDebug($"Inner collection changed on {sender?.GetType().Name}. Saving to file...");
         Task.Run(async () => await SaveCoreConfigToFileAsync(InstanceConfig));
     }
 
-    /// <summary>
-    ///     Saves the updated instance configuration to a file. Ensures that the minimum memory
-    ///     does not exceed the maximum memory in the Java configuration.
-    /// </summary>
-    /// <param name="newValue">The updated instance configuration model to save.</param>
     private async Task SaveCoreConfigToFileAsync(InstanceConfigModel newValue)
     {
-        if (_parent.IsClosing)
-            return;
         if (newValue.Java.MinMemory > newValue.Java.MaxMemory)
             newValue.Java.MinMemory = newValue.Java.MaxMemory;
 
@@ -183,7 +139,7 @@ public partial class EditInstanceViewModel_Settings : KonkordObservableObject
         Instance? instanceToSave = null;
         foreach (var instance in instances)
         {
-            if (instance.Id == _parent.Instance.Id)
+            if (instance.Id == _instanceId)
             {
                 instanceToSave = instance;
                 break;
@@ -247,23 +203,17 @@ public partial class EditInstanceViewModel_Settings : KonkordObservableObject
         instances[index] = instanceToSave;
 
         await _launcherStore.SaveInstancesAsync(instances);
-        _eventService.RaiseInstanceUpdated(_parent.Instance.Id);
+        _eventService.RaiseInstanceUpdated(_instanceId);
         _logger.LogDebug("Saved instance config to file.");
     }
 
     #region Commands
 
     [RelayCommand]
-    private async Task SwitchSettingsTab(EInstanceSettingsTab tab)
-    {
-        await _parent.SettingsTabSwitchInteraction.Handle(tab);
-    }
-
-    [RelayCommand]
     private async Task JavaDirSelect()
     {
         var result =
-            await _parent.ShowDirPickerInteraction.Handle(_translationService.Translate("common.select.directory"));
+            await _filePickerService.OpenFolderPickerAsync(_translationService.Translate("common.select.directory"));
         if (string.IsNullOrEmpty(result) || !Directory.Exists(result))
             return;
 
@@ -274,11 +224,9 @@ public partial class EditInstanceViewModel_Settings : KonkordObservableObject
     [RelayCommand]
     private async Task JavaPathSelector()
     {
-        var javaVersion = await _parent.ShowJavaPathSelector.Handle(Unit.Default);
-        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+        var javaVersion = await _dialogService.ShowJavaSelectorAsync();
         if (javaVersion == null)
             return;
-
         InstanceConfig.Java.DefaultJavaPath = javaVersion.Path;
     }
 

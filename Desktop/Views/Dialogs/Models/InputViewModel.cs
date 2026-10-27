@@ -52,7 +52,7 @@ public partial class InputViewModel : ObservableObject
     ///     Closes the dialog and passes the user input to the handler.
     /// </summary>
     [RelayCommand]
-    public async Task Ok()
+    private async Task Ok()
     {
         if (string.IsNullOrEmpty(InputText))
             return;
@@ -65,7 +65,7 @@ public partial class InputViewModel : ObservableObject
     /// </summary>
     /// <returns>A task representing the asynchronous operation.</returns>
     [RelayCommand]
-    public async Task CloseWindow()
+    private async Task CloseWindow()
     {
         await CloseWindowInteraction.Handle(null);
     }

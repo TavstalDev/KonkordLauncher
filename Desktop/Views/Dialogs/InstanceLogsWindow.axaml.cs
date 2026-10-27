@@ -10,10 +10,6 @@ using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
-/// <summary>
-///     Window that displays logs for a specific Minecraft instance.
-///     Registers reactive handlers for close, clipboard copy, and auto-scroll interactions.
-/// </summary>
 public partial class InstanceLogsWindow : KonkordWindow<InstanceLogsViewModel>
 {
     public InstanceLogsWindow()
@@ -38,11 +34,6 @@ public partial class InstanceLogsWindow : KonkordWindow<InstanceLogsViewModel>
                 Close();
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
-            }).DisposeWith(disposables);
-            DataContext.SetClipboardText.RegisterHandler(async action =>
-            {
-                await SetClipboardTextAsync(action.Input);
-                action.SetOutput(Unit.Default);
             }).DisposeWith(disposables);
             DataContext.LogsScrollToEnd.RegisterHandler(action =>
             {

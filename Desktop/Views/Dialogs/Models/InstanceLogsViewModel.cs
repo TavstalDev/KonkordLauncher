@@ -21,15 +21,8 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
     private readonly string _instanceId;
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IBeaconLogger _logger = null!;
+    private readonly IFilePickerService _filePickerService = null!;
 
-    /// <summary>
-    ///     Initializes a new instance of the <see cref="InstanceLogsViewModel" /> class with the specified instance ID.
-    ///     Retrieves the instance details and sets up logging for the instance.
-    /// </summary>
-    /// <param name="instanceId">The unique identifier of the instance to be managed by this view model.</param>
-    /// <exception cref="KeyNotFoundException">
-    ///     Thrown when an instance with the specified ID cannot be found.
-    /// </exception>
     public InstanceLogsViewModel()
     {
         _instanceId = string.Empty;
@@ -38,7 +31,7 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
     }
 
     public InstanceLogsViewModel(string instanceId, IBeaconLogger<InstanceLogsViewModel> logger,
-        ILauncherStore launcherStore, IEventService eventService)
+        ILauncherStore launcherStore, IEventService eventService, IFilePickerService filePickerService)
     {
         _instanceId = instanceId;
 
@@ -48,15 +41,11 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
         _logger = logger;
         _launcherStore = launcherStore;
         _eventService = eventService;
+        _filePickerService = filePickerService;
 
         _ = InitAsync();
     }
 
-    /// <summary>
-    ///     Asynchronously initializes log-related state for the instance identified by <c>_instanceId</c>.
-    /// </summary>
-    /// <param name="cancellationToken">An optional token to cancel the initialization process.</param>
-    /// <returns>A task that completes when initialization is finished.</returns>
     private async Task InitAsync(CancellationToken cancellationToken = default)
     {
         var instances = await _launcherStore.GetInstancesAsync(cancellationToken);
@@ -77,12 +66,6 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
             await Dispatcher.UIThread.Invoke(async () => await LogsScrollToEnd.Handle(Unit.Default));
     }
 
-    /// <summary>
-    ///     Handles log messages for a specific instance by updating the Logs property
-    ///     and triggering the LogsScrollToEnd interaction to scroll to the end of the logs.
-    /// </summary>
-    /// <param name="instanceId">The ID of the instance that generated the log message.</param>
-    /// <param name="logMessage">The log message to be handled.</param>
     private void OnInstanceLogged(string instanceId, string logMessage)
     {
         if (instanceId != _instanceId)
@@ -92,14 +75,6 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
         Dispatcher.UIThread.Invoke(async () => await LogsScrollToEnd.Handle(Unit.Default));
     }
 
-    /// <summary>
-    ///     Disposes of the resources used by the <see cref="InstanceLogsViewModel" />.
-    ///     Unsubscribes from global events and clears instance-related data to free memory.
-    /// </summary>
-    /// <param name="disposing">
-    ///     A boolean value indicating whether the method is being called directly or by the garbage collector.
-    ///     If true, the method has been called directly and managed resources can be disposed.
-    /// </param>
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
@@ -111,27 +86,18 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
         Logs = string.Empty;
     }
 
-    /// <summary>
-    ///     Scrolls the logs to the end by triggering the LogsScrollToEnd interaction.
-    /// </summary>
     [RelayCommand]
     private async Task ScrollLogsToEnd()
     {
         await LogsScrollToEnd.Handle(Unit.Default);
     }
 
-    /// <summary>
-    ///     Copies the current logs to the system clipboard by triggering the SetClipboardText interaction.
-    /// </summary>
     [RelayCommand]
     private async Task CopyLogs()
     {
-        await SetClipboardText.Handle(Logs);
+        await _filePickerService.SetClipboardTextAsync(Logs);
     }
 
-    /// <summary>
-    ///     Clears the logs for the current instance and updates the global log storage.
-    /// </summary>
     [RelayCommand]
     private void ClearLogs()
     {
@@ -139,12 +105,8 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
         _eventService.CleareInstanceLogs(_instanceId);
     }
 
-    /// <summary>
-    ///     Closes the window using a command interaction.
-    /// </summary>
-    /// <returns>A task that represents the asynchronous operation.</returns>
     [RelayCommand]
-    public async Task CloseWindow()
+    private async Task CloseWindow()
     {
         await CloseWindowInteraction.Handle(Unit.Default);
     }
@@ -152,7 +114,6 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
     #region Interactions
 
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
-    public Interaction<string, Unit> SetClipboardText { get; } = new();
     public Interaction<Unit, Unit> LogsScrollToEnd { get; } = new();
 
     #endregion

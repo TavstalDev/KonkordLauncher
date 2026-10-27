@@ -17,37 +17,38 @@ using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
+using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
-using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
 public partial class EditInstanceViewModel_Mods : KonkordObservableObject
 {
+    private readonly InstanceModel _instance = null!;
+    private readonly Func<string?> _getGameDirectory = () => null;
     private readonly IBitmapService _bitmapService = null!;
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IBeaconLogger _logger = null!;
+    private readonly IDialogService _dialogService = null!;
 
     private readonly SourceCache<ResourceBaseModel, string> _modsCache = new(x => x.Name);
-    private readonly EditInstanceViewModel _parent;
 
-    public EditInstanceViewModel_Mods()
-    {
-        _parent = null!;
-        FilteredMods =
-            new ReadOnlyObservableCollection<ResourceBaseModel>(new ObservableCollection<ResourceBaseModel>());
-    }
+    public event EventHandler<EResourceType>? OnResourcesUpdated;
 
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public EditInstanceViewModel_Mods(EditInstanceViewModel parent)
+    public EditInstanceViewModel_Mods()
     {
-        _parent = parent;
         if (Design.IsDesignMode)
+        {
+            FilteredMods =
+                new ReadOnlyObservableCollection<ResourceBaseModel>([]);
             return;
+        }
 
         // Set up a reactive filter for the SearchQuery property.
         var filter = this.WhenAnyValue(x => x.SearchQuery)
@@ -72,22 +73,24 @@ public partial class EditInstanceViewModel_Mods : KonkordObservableObject
 
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public EditInstanceViewModel_Mods(EditInstanceViewModel parent, ILauncherStore launcherStore,
-        IBitmapService bitmapService) : this(parent)
+    public EditInstanceViewModel_Mods(InstanceModel instance, Func<string?> getGameDirectory, ILauncherStore launcherStore,
+        IBitmapService bitmapService, IDialogService dialogService) : this()
     {
-        if (Design.IsDesignMode)
-            return;
-
+        _instance = instance;
+        _getGameDirectory = getGameDirectory;
         _logger = Program.Services.GetRequiredService<IBeaconLogger<EditInstanceViewModel_Mods>>();
         _launcherStore = launcherStore;
         _bitmapService = bitmapService;
+        _dialogService = dialogService;
     }
 
-    public ReadOnlyObservableCollection<ResourceBaseModel> FilteredMods { get; private set; } = null!;
+    public ReadOnlyObservableCollection<ResourceBaseModel> FilteredMods { get; private set; }
 
-    [ObservableProperty] public partial ResourceBaseModel? SelectedMod { get; set; }
+    [ObservableProperty]
+    public partial ResourceBaseModel? SelectedMod { get; set; }
 
-    [ObservableProperty] public partial string? SearchQuery { get; set; } = string.Empty;
+    [ObservableProperty]
+    public partial string? SearchQuery { get; set; } = string.Empty;
 
     protected override void Dispose(bool disposing)
     {
@@ -101,24 +104,19 @@ public partial class EditInstanceViewModel_Mods : KonkordObservableObject
 
     public async Task InitAsync(CancellationToken cancellationToken = default)
     {
-        if (_parent.IsVanilla)
+        if (!_instance.IsModded)
             return;
-
         await Dispatcher.UIThread.Invoke(async () => await RefreshModsAsync());
     }
 
-    /// <summary>
-    ///     Saves the current state of mods by renaming their file extensions
-    ///     based on their enabled or disabled status. Enabled mods have the
-    ///     `.jar` extension, while disabled ones have `.jar.dis`.
-    /// </summary>
     public void SaveMods()
     {
         _logger.LogDebug("Saving mods...");
-        if (_parent.GameDirectory == null)
+        string? gameDir = _getGameDirectory.Invoke();
+        if (string.IsNullOrEmpty(gameDir))
             return;
 
-        var modsDir = Path.Combine(_parent.GameDirectory, "mods");
+        var modsDir = Path.Combine(gameDir, "mods");
         if (!Directory.Exists(modsDir))
             return;
 
@@ -147,19 +145,16 @@ public partial class EditInstanceViewModel_Mods : KonkordObservableObject
         }
     }
 
-    /// <summary>
-    ///     Refreshes the list of mods by scanning the game directory for mod files.
-    ///     Updates the `_modsCache` with metadata such as name, size, and enabled status for each mod.
-    /// </summary>
     public async Task RefreshModsAsync()
     {
-        if (_parent.GameDirectory == null)
+        string? gameDir = _getGameDirectory.Invoke();
+        if (string.IsNullOrEmpty(gameDir))
             return;
 
-        var modsDir = Path.Combine(_parent.GameDirectory, "mods");
+        var modsDir = Path.Combine(gameDir, "mods");
         Directory.CreateDirectory(modsDir);
 
-        var instanceResources = await _parent.Instance.getInstance().GetInstanceResourcesAsync() ?? [];
+        var instanceResources = await _instance.getInstance().GetInstanceResourcesAsync() ?? [];
 
         _modsCache.Edit(innerCache =>
         {
@@ -217,23 +212,15 @@ public partial class EditInstanceViewModel_Mods : KonkordObservableObject
 
     #region Commands
 
-    /// <summary>
-    ///     Toggles the enabled state of a mod and saves the updated state.
-    /// </summary>
-    /// <param name="mod">The mod to toggle.</param>
     [RelayCommand]
-    public void Toggle(ResourceBaseModel mod)
+    private void Toggle(ResourceBaseModel mod)
     {
         mod.IsEnabled = !mod.IsEnabled;
         SaveMods();
     }
 
-    /// <summary>
-    ///     Removes the specified mod file from the file system and refreshes the mod list.
-    /// </summary>
-    /// <param name="mod">The mod to remove.</param>
     [RelayCommand]
-    public async Task Remove(ResourceBaseModel mod)
+    private async Task Remove(ResourceBaseModel mod)
     {
         if (!File.Exists(mod.FilePath))
             return;
@@ -244,7 +231,7 @@ public partial class EditInstanceViewModel_Mods : KonkordObservableObject
             return;
         }
 
-        var instance = _parent.Instance.getInstance();
+        var instance = _instance.getInstance();
         var resources = await instance.GetInstanceResourcesAsync();
         var targetResource =
             resources?.FirstOrDefault(x => x.Name == mod.Name && x.Type == EResourceType.MOD);
@@ -260,19 +247,21 @@ public partial class EditInstanceViewModel_Mods : KonkordObservableObject
     [RelayCommand]
     private async Task Download()
     {
-        await _parent.OpenResourceDownloadDialog.Handle(EResourceType.MOD);
+        var result = await _dialogService.ShowResourceDownloaderAsync(_instance.getInstance(), EResourceType.MOD);
+        if (result == null)
+            return;
+        if (result.Value)
+            OnResourcesUpdated?.Invoke(this, EResourceType.MOD);
     }
 
-    /// <summary>
-    ///     Opens the directory containing the mods in the file explorer.
-    /// </summary>
     [RelayCommand]
-    public void ModOpenDirectory()
+    private void ModOpenDirectory()
     {
-        if (_parent.GameDirectory == null)
+        string? gameDir = _getGameDirectory.Invoke();
+        if (string.IsNullOrEmpty(gameDir))
             return;
 
-        var modsDir = Path.Combine(_parent.GameDirectory, "mods");
+        var modsDir = Path.Combine(gameDir, "mods");
         if (!Directory.Exists(modsDir))
             return;
 

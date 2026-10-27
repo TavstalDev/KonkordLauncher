@@ -670,28 +670,28 @@
                                                 <Button
                                                     Name="LauncherSettingsBtn"
                                                     Classes="SettingsTabBtn SettingsTabBtnActive"
-                                                    Command="{Binding Config.HandleSettingsBtnCommand}"
+                                                    Command="{Binding HandleSettingsBtnCommand}"
                                                     CommandParameter="{x:Static enums:ESettingsTab.LAUNCHER}">
                                                     <TextBlock Text="{lang:Translate settings.tab.launcher}" />
                                                 </Button>
                                                 <Button
                                                     Name="MinecraftSettingsBtn"
                                                     Classes="SettingsTabBtn"
-                                                    Command="{Binding Config.HandleSettingsBtnCommand}"
+                                                    Command="{Binding HandleSettingsBtnCommand}"
                                                     CommandParameter="{x:Static enums:ESettingsTab.MINECRAFT}">
                                                     <TextBlock Text="{lang:Translate settings.tab.minecraft}" />
                                                 </Button>
                                                 <Button
                                                     Name="JavaSettingsBtn"
                                                     Classes="SettingsTabBtn"
-                                                    Command="{Binding Config.HandleSettingsBtnCommand}"
+                                                    Command="{Binding HandleSettingsBtnCommand}"
                                                     CommandParameter="{x:Static enums:ESettingsTab.JAVA}">
                                                     <TextBlock Text="{lang:Translate settings.tab.java}" />
                                                 </Button>
                                                 <Button
                                                     Name="MiscSettingsBtn"
                                                     Classes="SettingsTabBtn"
-                                                    Command="{Binding Config.HandleSettingsBtnCommand}"
+                                                    Command="{Binding HandleSettingsBtnCommand}"
                                                     CommandParameter="{x:Static enums:ESettingsTab.MISC}">
                                                     <TextBlock Text="{lang:Translate settings.tab.misc}" />
                                                 </Button>

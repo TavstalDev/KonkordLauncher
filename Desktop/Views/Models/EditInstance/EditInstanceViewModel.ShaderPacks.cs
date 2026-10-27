@@ -17,35 +17,33 @@ using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
+using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
-using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
 public partial class EditInstanceViewModel_ShaderPacks : KonkordObservableObject
 {
+    private readonly InstanceModel _instance = null!;
+    private readonly Func<string?> _getGameDirectory = () => null;
     private readonly IBitmapService _bitmapService = null!;
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IBeaconLogger _logger = null!;
-    private readonly EditInstanceViewModel _parent;
+    private readonly IDialogService _dialogService = null!;
 
     private readonly SourceCache<ResourceBaseModel, string> _shaderPackCache = new(x => x.Name);
 
-    [RequiresUnreferencedCode(
-        "Trimming may break this functionality if not configured to preserve the necessary members.")]
+    public event EventHandler<EResourceType>? OnResourcesUpdated;
+
     public EditInstanceViewModel_ShaderPacks()
     {
-        _parent = null!;
         FilteredShaderPacks =
-            new ReadOnlyObservableCollection<ResourceBaseModel>(new ObservableCollection<ResourceBaseModel>());
-    }
+            new ReadOnlyObservableCollection<ResourceBaseModel>([]);
 
-    public EditInstanceViewModel_ShaderPacks(EditInstanceViewModel parent)
-    {
-        _parent = parent;
         if (Design.IsDesignMode)
             return;
 
@@ -72,18 +70,21 @@ public partial class EditInstanceViewModel_ShaderPacks : KonkordObservableObject
 
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public EditInstanceViewModel_ShaderPacks(EditInstanceViewModel parent, ILauncherStore launcherStore,
-        IBitmapService bitmapService) : this(parent)
+    public EditInstanceViewModel_ShaderPacks(InstanceModel instance, Func<string?> getGameDirectory, ILauncherStore launcherStore,
+        IBitmapService bitmapService, IDialogService dialogService) : this()
     {
         if (Design.IsDesignMode)
             return;
 
+        _instance = instance;
+        _getGameDirectory = getGameDirectory;
         _logger = Program.Services.GetRequiredService<IBeaconLogger<EditInstanceViewModel_ShaderPacks>>();
         _launcherStore = launcherStore;
         _bitmapService = bitmapService;
+        _dialogService = dialogService;
     }
 
-    public ReadOnlyObservableCollection<ResourceBaseModel> FilteredShaderPacks { get; private set; } = null!;
+    public ReadOnlyObservableCollection<ResourceBaseModel> FilteredShaderPacks { get; private set; }
 
     [ObservableProperty] public partial ResourceBaseModel? SelectedShaderPack { get; set; }
 
@@ -101,24 +102,19 @@ public partial class EditInstanceViewModel_ShaderPacks : KonkordObservableObject
 
     public async Task InitAsync(CancellationToken cancellationToken = default)
     {
-        if (_parent.IsVanilla)
+        if (!_instance.IsModded)
             return;
-
         await Dispatcher.UIThread.Invoke(async () => await RefreshShaderPacksAsync());
     }
 
-    /// <summary>
-    ///     Saves the current state of shader packs by renaming their file extensions
-    ///     based on their enabled or disabled status. Enabled shader packs have the
-    ///     `.zip` extension, while disabled ones have `.zip.dis`.
-    /// </summary>
     public void SaveShaderPacks()
     {
         _logger.LogDebug("Saving shader packs...");
-        if (_parent.GameDirectory == null)
+        string? gameDir = _getGameDirectory.Invoke();
+        if (string.IsNullOrEmpty(gameDir))
             return;
 
-        var shaderPacksDir = Path.Combine(_parent.GameDirectory, "shaderpacks");
+        var shaderPacksDir = Path.Combine(gameDir, "shaderpacks");
         if (!Directory.Exists(shaderPacksDir))
             return;
 
@@ -147,19 +143,16 @@ public partial class EditInstanceViewModel_ShaderPacks : KonkordObservableObject
         }
     }
 
-    /// <summary>
-    ///     Refreshes the list of shader packs by scanning the game directory for shader pack files.
-    ///     Updates the `_shaderPackCache` with metadata such as name, size, and enabled status for each shader pack.
-    /// </summary>
     public async Task RefreshShaderPacksAsync()
     {
-        if (_parent.GameDirectory == null)
+        string? gameDir = _getGameDirectory.Invoke();
+        if (string.IsNullOrEmpty(gameDir))
             return;
 
-        var shaderPacksDir = Path.Combine(_parent.GameDirectory, "shaderpacks");
+        var shaderPacksDir = Path.Combine(gameDir, "shaderpacks");
         Directory.CreateDirectory(shaderPacksDir);
 
-        var instanceResources = await _parent.Instance.getInstance().GetInstanceResourcesAsync() ?? [];
+        var instanceResources = await _instance.getInstance().GetInstanceResourcesAsync() ?? [];
 
         _shaderPackCache.Edit(innerCache =>
         {
@@ -220,10 +213,6 @@ public partial class EditInstanceViewModel_ShaderPacks : KonkordObservableObject
 
     #region Commands
 
-    /// <summary>
-    ///     Toggles the enabled state of a shader pack and saves the updated state.
-    /// </summary>
-    /// <param name="shader">The shader pack to toggle.</param>
     [RelayCommand]
     private void Toggle(ResourceBaseModel shader)
     {
@@ -231,10 +220,6 @@ public partial class EditInstanceViewModel_ShaderPacks : KonkordObservableObject
         SaveShaderPacks();
     }
 
-    /// <summary>
-    ///     Removes a shader pack file from the file system and refreshes the shader pack list.
-    /// </summary>
-    /// <param name="shader">The shader pack to remove.</param>
     [RelayCommand]
     private async Task Remove(ResourceBaseModel shader)
     {
@@ -247,7 +232,7 @@ public partial class EditInstanceViewModel_ShaderPacks : KonkordObservableObject
             return;
         }
 
-        var instance = _parent.Instance.getInstance();
+        var instance = _instance.getInstance();
         var resources = await instance.GetInstanceResourcesAsync();
         var targetResource =
             resources?.FirstOrDefault(x => x.Name == shader.Name && x.Type == EResourceType.SHADER_PACK);
@@ -263,19 +248,21 @@ public partial class EditInstanceViewModel_ShaderPacks : KonkordObservableObject
     [RelayCommand]
     private async Task Download()
     {
-        await _parent.OpenResourceDownloadDialog.Handle(EResourceType.SHADER_PACK);
+        var result = await _dialogService.ShowResourceDownloaderAsync(_instance.getInstance(), EResourceType.SHADER_PACK);
+        if (result == null)
+            return;
+        if (result.Value)
+            OnResourcesUpdated?.Invoke(this, EResourceType.SHADER_PACK);
     }
 
-    /// <summary>
-    ///     Opens the directory containing the shader packs in the file explorer.
-    /// </summary>
     [RelayCommand]
     private void OpenDir()
     {
-        if (_parent.GameDirectory == null)
+        string? gameDir = _getGameDirectory.Invoke();
+        if (string.IsNullOrEmpty(gameDir))
             return;
 
-        var shaderPacksDir = Path.Combine(_parent.GameDirectory, "shaderpacks");
+        var shaderPacksDir = Path.Combine(gameDir, "shaderpacks");
         if (!Directory.Exists(shaderPacksDir))
             return;
 

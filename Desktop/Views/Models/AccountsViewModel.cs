@@ -17,20 +17,15 @@ using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.BeaconSDK.Services.Abstractions.Auth;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
-using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Services;
 using Tavstal.KonkordLauncher.Desktop.Services.Accounts;
 using Tavstal.KonkordLauncher.Desktop.Services.Localization;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 
-/// <summary>
-///     Represents the ViewModel for managing accounts in the application.
-///     Provides functionality for logging in with Microsoft and offline accounts,
-///     and handles related operations such as memory cleanup and progress tracking.
-/// </summary>
 public partial class AccountsViewModel : KonkordObservableObject
 {
     private readonly IMicrosoftAuthService _authService = null!;
@@ -42,6 +37,8 @@ public partial class AccountsViewModel : KonkordObservableObject
     private readonly IBeaconLogger _logger = null!;
     private readonly ISkinService _skinService = null!;
     private readonly ITranslationService _translationService = null!;
+    private readonly IDialogService _dialogService = null!;
+    private readonly IFilePickerService _filePickerService = null!;
 
     public AccountsViewModel()
     {
@@ -52,7 +49,8 @@ public partial class AccountsViewModel : KonkordObservableObject
         ILauncherStore launcherStore, ITranslationService translationService,
         IMicrosoftAuthService microsoftAuthService,
         IMicrosoftDeviceAuthService microsoftDeviceAuthService, IMicrosoftHttpAuthService microsoftHttpAuthService,
-        ISkinService skinService, IEncryptionService encryptionService, IEventService eventService)
+        ISkinService skinService, IEncryptionService encryptionService, IEventService eventService,
+        IDialogService dialogService, IFilePickerService filePickerService)
     {
         if (Design.IsDesignMode)
         {
@@ -69,6 +67,8 @@ public partial class AccountsViewModel : KonkordObservableObject
         _skinService = skinService;
         _encryptionService = encryptionService;
         _eventService = eventService;
+        _dialogService = dialogService;
+        _filePickerService = filePickerService;
 
         ProgressText = _translationService.Translate("auth.logging_in");
     }
@@ -112,9 +112,10 @@ public partial class AccountsViewModel : KonkordObservableObject
         if (status == EAuthStatus.FAILED)
         {
             IsLoggingInMicrosoftAccount = false;
-            await ShowAlertDialog.Handle(new Alert(_translationService.Translate("account.login.failed"),
+            await _dialogService.ShowAlertAsync(
+                _translationService.Translate("account.login.failed"),
                 _translationService.Translate("account.login.microsoft.failed"),
-                EAlertType.Error));
+                EAlertType.Error);
             return;
         }
 
@@ -124,9 +125,10 @@ public partial class AccountsViewModel : KonkordObservableObject
         var microsoftAccount = _authService.Account;
         if (microsoftAccount == null)
         {
-            await ShowAlertDialog.Handle(new Alert(_translationService.Translate("account.login.failed"),
+            await _dialogService.ShowAlertAsync(
+                _translationService.Translate("account.login.failed"),
                 _translationService.Translate("account.login.microsoft.null"),
-                EAlertType.Error));
+                EAlertType.Error);
             StopMicrosoftAuth();
             return;
         }
@@ -135,9 +137,10 @@ public partial class AccountsViewModel : KonkordObservableObject
         var account = accountData.Accounts.FirstOrDefault(x => x.Uuid == microsoftAccount.Uuid);
         if (account != null)
         {
-            await ShowAlertDialog.Handle(new Alert(_translationService.Translate("account.login.failed"),
+            await _dialogService.ShowAlertAsync(
+                _translationService.Translate("account.login.failed"),
                 _translationService.Translate("account.duplicate.microsoft"),
-                EAlertType.Error));
+                EAlertType.Error);
             StopMicrosoftAuth();
             return;
         }
@@ -162,7 +165,7 @@ public partial class AccountsViewModel : KonkordObservableObject
     #region Window Commands
 
     [RelayCommand]
-    public async Task CloseWindow()
+    private async Task CloseWindow()
     {
         await CloseWindowInteraction.Handle(Unit.Default);
     }
@@ -176,13 +179,14 @@ public partial class AccountsViewModel : KonkordObservableObject
     ///     Validates the username, checks for duplicate accounts, and updates account data.
     /// </summary>
     [RelayCommand]
-    public async Task OfflineLoginAsync(CancellationToken cancellationToken = default)
+    private async Task OfflineLoginAsync(CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(OfflineUsername))
         {
-            await ShowAlertDialog.Handle(new Alert(_translationService.Translate("account.empty.name.title"),
+            await _dialogService.ShowAlertAsync(
+                _translationService.Translate("account.empty.name.title"),
                 _translationService.Translate("account.empty.name.message"),
-                EAlertType.Warning));
+                EAlertType.Warning);
             return;
         }
 
@@ -191,9 +195,10 @@ public partial class AccountsViewModel : KonkordObservableObject
         var account = accountData.Accounts.FirstOrDefault(x => x.Uuid == uuid);
         if (account != null)
         {
-            await ShowAlertDialog.Handle(new Alert(_translationService.Translate("account.duplicate.title"),
+            await _dialogService.ShowAlertAsync(
+                _translationService.Translate("account.duplicate.title"),
                 _translationService.Translate("account.duplicate.offline"),
-                EAlertType.Error));
+                EAlertType.Error);
             return;
         }
 
@@ -249,8 +254,6 @@ public partial class AccountsViewModel : KonkordObservableObject
     #region Interactions
 
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
-    public Interaction<Alert, Unit> ShowAlertDialog { get; } = new();
-    public Interaction<string, Unit> SetClipboardText { get; } = new();
 
     #endregion
 
@@ -310,7 +313,7 @@ public partial class AccountsViewModel : KonkordObservableObject
     [RelayCommand]
     private async Task MicrosoftCopyCode()
     {
-        await SetClipboardText.Handle(DeviceData!.UserCode);
+        await _filePickerService.SetClipboardTextAsync(DeviceData!.UserCode);
     }
 
     /// <summary>

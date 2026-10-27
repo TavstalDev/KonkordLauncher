@@ -16,16 +16,11 @@ using Tavstal.KonkordLauncher.Desktop.Models.DTOs.InstanceConfig;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 using Tavstal.KonkordLauncher.Desktop.Services;
-using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
-using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
-using JavaVersionModel = Tavstal.KonkordLauncher.Desktop.Models.Domain.JavaVersionModel;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views;
 
-/// <summary>
-///     Represents the window for editing an instance in the Konkord Launcher.
-/// </summary>
 public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
 {
     private readonly IDiscordPresenceService _discordPresenceService = null!;
@@ -35,14 +30,6 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     private Button _selectedInstanceTab;
     private Button _selectedSettingsTab;
 
-    /// <summary>
-    ///     Initializes a new instance of the <see cref="EditInstanceWindow" /> class.
-    ///     Sets up the data context with an empty instance ID and initializes components.
-    /// </summary>
-    /// <summary>
-    ///     Initializes a new instance of the <see cref="EditInstanceWindow" /> class with a specific instance ID.
-    ///     Sets up the data context, initializes components, and registers reactive handlers.
-    /// </summary>
     public EditInstanceWindow()
     {
         InitializeComponent();
@@ -88,33 +75,6 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             }).DisposeWith(disposables);
-            DataContext.ShowAlertDialog.RegisterHandler(async action =>
-            {
-                AlertWindow alertWindow = new(action.Input.Title, action.Input.Message, action.Input.Type);
-                await alertWindow.ShowDialog(this);
-                action.SetOutput(Unit.Default);
-            }).DisposeWith(disposables);
-            DataContext.ShowDirPickerInteraction.RegisterHandler(async action =>
-            {
-                var result = await OpenFolderPickerAsync(action.Input);
-                action.SetOutput(result);
-            }).DisposeWith(disposables);
-            DataContext.ShowJavaPathSelector.RegisterHandler(async action =>
-            {
-                var window = windowFactory.CreateJavaSelectorWindow();
-                var javaVersion = await window.ShowDialog<JavaVersionModel>(this);
-                action.SetOutput(javaVersion);
-            });
-            DataContext.SetClipboardImage.RegisterHandler(async action =>
-            {
-                await SetClipboardImageAsync(action.Input);
-                action.SetOutput(Unit.Default);
-            }).DisposeWith(disposables);
-            DataContext.SetClipboardText.RegisterHandler(async action =>
-            {
-                await SetClipboardTextAsync(action.Input);
-                action.SetOutput(Unit.Default);
-            }).DisposeWith(disposables);
             DataContext.BeginScreenshotRename.RegisterHandler(action =>
             {
                 ScreenshotsTable.BeginEdit();
@@ -133,52 +93,15 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             }).DisposeWith(disposables);
-            DataContext.OpenResourceDownloadDialog.RegisterHandler(async action =>
-            {
-                var dialog =
-                    windowFactory.CreateResourceDownloadWindow(DataContext.Instance.getInstance(), action.Input);
-                var result = await dialog.ShowDialog<bool?>(this);
-                if (result == true)
-                    switch (action.Input)
-                    {
-                        case EResourceType.RESOURCE_PACK:
-                        {
-                            await DataContext.ResourcePacks.RefreshResourcePacksAsync();
-                            break;
-                        }
-                        case EResourceType.MOD:
-                        {
-                            await DataContext.Mods.RefreshModsAsync();
-                            break;
-                        }
-                        case EResourceType.SHADER_PACK:
-                        {
-                            await DataContext.ShaderPacks.RefreshShaderPacksAsync();
-                            break;
-                        }
-                    }
-
-                action.SetOutput(Unit.Default);
-            }).DisposeWith(disposables);
         });
     }
 
-    /// <summary>
-    ///     Called when the window is opened.
-    ///     Updates the Rich Presence status to indicate that an instance is being edited.
-    /// </summary>
-    /// <param name="e">The event arguments for the opened event.</param>
     protected override void OnOpened(EventArgs e)
     {
         base.OnOpened(e);
         _discordPresenceService.Update("Editing instance...");
     }
 
-    /// <summary>
-    ///     Called when the window is closed.
-    ///     Updates the Rich Presence status to indicate that the user is browsing instances.
-    /// </summary>
-    /// <param name="e">The event arguments for the closed event.</param>
     protected override void OnClosed(EventArgs e)
     {
         base.OnClosed(e);
@@ -186,10 +109,6 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
         _eventService.RaiseInstanceUpdated(_instanceId);
     }
 
-    /// <summary>
-    ///     Switches the active main tab in the Edit Instance window and updates the visual state of the tab buttons.
-    /// </summary>
-    /// <param name="tab">The target tab to switch to. Must be one of the values from the <see cref="EEditInstanceTab" /> enum.</param>
     private void HandleTabSwitch(EEditInstanceTab tab)
     {
         if (DataContext is not { } viewModel)
@@ -201,61 +120,22 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
         viewModel.EditInstanceTab = tab;
         _selectedInstanceTab.Classes.Remove("SettingsTabBtnActive");
 
-        switch (tab)
+        _selectedInstanceTab = tab switch
         {
-            case EEditInstanceTab.LOGS:
-            {
-                _selectedInstanceTab = LogsTabBtn;
-                break;
-            }
-            case EEditInstanceTab.MODS:
-            {
-                _selectedInstanceTab = ModsTabBtn;
-                break;
-            }
-            case EEditInstanceTab.RESOURCE_PACKS:
-            {
-                _selectedInstanceTab = ResourcePacksTabBtn;
-                break;
-            }
-            case EEditInstanceTab.SHADER_PACKS:
-            {
-                _selectedInstanceTab = ShaderPacksTabBtn;
-                break;
-            }
-            case EEditInstanceTab.WORLDS:
-            {
-                _selectedInstanceTab = WorldsTabBtn;
-                break;
-            }
-            case EEditInstanceTab.SERVERS:
-            {
-                _selectedInstanceTab = ServersTabBtn;
-                break;
-            }
-            case EEditInstanceTab.SCREENSHOTS:
-            {
-                _selectedInstanceTab = ScreenshotsTabBtn;
-                break;
-            }
-            case EEditInstanceTab.SETTINGS:
-            {
-                _selectedInstanceTab = SettingsTabBtn;
-                break;
-            }
-        }
+            EEditInstanceTab.LOGS => LogsTabBtn,
+            EEditInstanceTab.MODS => ModsTabBtn,
+            EEditInstanceTab.RESOURCE_PACKS => ResourcePacksTabBtn,
+            EEditInstanceTab.SHADER_PACKS => ShaderPacksTabBtn,
+            EEditInstanceTab.WORLDS => WorldsTabBtn,
+            EEditInstanceTab.SERVERS => ServersTabBtn,
+            EEditInstanceTab.SCREENSHOTS => ScreenshotsTabBtn,
+            EEditInstanceTab.SETTINGS => SettingsTabBtn,
+            _ => _selectedInstanceTab
+        };
 
         _selectedInstanceTab.Classes.Add("SettingsTabBtnActive");
     }
 
-    /// <summary>
-    ///     Switches the active settings sub-tab in the Instance Settings section and updates the visual state
-    ///     of the settings tab buttons.
-    /// </summary>
-    /// <param name="tab">
-    ///     The target settings tab to switch to. Must be one of the values from the
-    ///     <see cref="EInstanceSettingsTab" /> enum.
-    /// </param>
     private void HandleSettingsTabSwitch(EInstanceSettingsTab tab)
     {
         if (DataContext is not { } viewModel)
@@ -267,46 +147,21 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
         viewModel.InstanceSettingsTab = tab;
         _selectedSettingsTab.Classes.Remove("SettingsTabBtnActive");
 
-        switch (tab)
+        _selectedSettingsTab = tab switch
         {
-            case EInstanceSettingsTab.JAVA:
-            {
-                _selectedSettingsTab = JavaSettingsBtn;
-                break;
-            }
-            case EInstanceSettingsTab.GAME:
-            {
-                _selectedSettingsTab = GameSettingsBtn;
-                break;
-            }
-            case EInstanceSettingsTab.CUSTOM_COMMAND:
-            {
-                _selectedSettingsTab = CustomCommandSettingsBtn;
-                break;
-            }
-            case EInstanceSettingsTab.ENVIRONMENT:
-            {
-                _selectedSettingsTab = EnvironmentSettingsBtn;
-                break;
-            }
-            case EInstanceSettingsTab.MISC:
-            {
-                _selectedSettingsTab = MiscSettingsBtn;
-                break;
-            }
-        }
+            EInstanceSettingsTab.JAVA => JavaSettingsBtn,
+            EInstanceSettingsTab.GAME => GameSettingsBtn,
+            EInstanceSettingsTab.CUSTOM_COMMAND => CustomCommandSettingsBtn,
+            EInstanceSettingsTab.ENVIRONMENT => EnvironmentSettingsBtn,
+            EInstanceSettingsTab.MISC => MiscSettingsBtn,
+            _ => _selectedSettingsTab
+        };
 
         _selectedSettingsTab.Classes.Add("SettingsTabBtnActive");
     }
 
     #region Action Handlers
 
-    /// <summary>
-    ///     Handles the selection change event for the overridden account ComboBox.
-    ///     Updates the account ID in the instance configuration based on the selected account.
-    /// </summary>
-    /// <param name="sender">The source of the event, expected to be a ComboBox.</param>
-    /// <param name="e">The event data containing information about the selection change.</param>
     private void OverridenAccount_SelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (DataContext == null)
@@ -322,12 +177,6 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
 
     #region Resource Packs
 
-    /// <summary>
-    ///     Handles the event when a cell edit operation in the Resource Packs DataGrid is completed.
-    ///     Updates the resource pack data and triggers saving the updated list of resource packs.
-    /// </summary>
-    /// <param name="sender">The source of the event, typically the DataGrid.</param>
-    /// <param name="e">The event data containing information about the edited cell.</param>
     private void ResourcePacksDataGrid_OnCellEditEnded(object? sender, DataGridCellEditEndedEventArgs e)
     {
         if (DataContext == null)
@@ -345,12 +194,6 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
 
     #region Worlds
 
-    /// <summary>
-    ///     Handles the event when a cell edit operation in the World DataGrid is completed.
-    ///     Updates the world data and triggers saving the updated list of worlds.
-    /// </summary>
-    /// <param name="sender">The source of the event, typically the DataGrid.</param>
-    /// <param name="e">The event data containing information about the edited cell.</param>
     private void WorldDataGrid_OnCellEditEnded(object? sender, DataGridCellEditEndedEventArgs e)
     {
         if (DataContext == null)
@@ -364,12 +207,6 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
         DataContext.Worlds.SaveWorlds();
     }
 
-    /// <summary>
-    ///     Handles the click event for selecting the Java path.
-    ///     Opens a folder picker dialog and updates the Java path in the InstanceConfig if a folder is selected.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="e">The event data associated with the click event.</param>
     private void WorldDataGrid_OnRowEditEnded(object? sender, DataGridRowEditEndedEventArgs e)
     {
         if (DataContext == null)
@@ -387,12 +224,6 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
 
     #region Servers
 
-    /// <summary>
-    ///     Handles the event when a row edit operation in the Servers DataGrid is completed.
-    ///     Updates the server data and triggers saving the updated list of servers.
-    /// </summary>
-    /// <param name="sender">The source of the event, typically the DataGrid.</param>
-    /// <param name="e">The event data containing information about the edited row.</param>
     private void ServersDataGrid_OnRowEditEnded(object? sender, DataGridRowEditEndedEventArgs e)
     {
         if (DataContext == null)
@@ -410,13 +241,6 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
 
     #region Screenshots
 
-    /// <summary>
-    ///     Handles the event when editing of a screenshot cell is completed in the DataGrid.
-    ///     Renames the screenshot file if the name has been changed and updates the model accordingly.
-    ///     Logs warnings or errors if the operation fails.
-    /// </summary>
-    /// <param name="sender">The source of the event, typically the DataGrid.</param>
-    /// <param name="e">The event data containing information about the edited cell.</param>
     private void ScreenshotCell_OnEditEnded(object? sender, DataGridCellEditEndedEventArgs e)
     {
         if (e.Row.DataContext is not ScreenshotModel screenshot)
@@ -468,12 +292,6 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
 
     #region Environment Table Events
 
-    /// <summary>
-    ///     Handles the event when a row edit operation in the Environment DataGrid is completed.
-    ///     Updates the corresponding environment variable in the instance configuration.
-    /// </summary>
-    /// <param name="sender">The source of the event, typically the DataGrid.</param>
-    /// <param name="e">The event data containing information about the edited row.</param>
     private void EnvironmentDataGrid_OnRowEditEnded(object? sender, DataGridRowEditEndedEventArgs e)
     {
         if (DataContext == null)
@@ -485,23 +303,11 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
         DataContext.Settings.InstanceConfig.Environment[e.Row.Index] = environmentItem;
     }
 
-    /// <summary>
-    ///     Handles the click event for adding a new environment variable row to the Environment DataGrid.
-    ///     Adds a default environment variable to the instance configuration.
-    /// </summary>
-    /// <param name="sender">The source of the event, typically a button.</param>
-    /// <param name="e">The event data associated with the click event.</param>
     private void AddEnvironmentRow_OnClick(object? sender, RoutedEventArgs e)
     {
         DataContext?.Settings.InstanceConfig.Environment.Add(new EnvironmentVariable("ENV_VAR", "env_value"));
     }
 
-    /// <summary>
-    ///     Handles the click event for removing the selected environment variable row from the Environment DataGrid.
-    ///     Removes the environment variable at the selected index from the instance configuration.
-    /// </summary>
-    /// <param name="sender">The source of the event, typically a button.</param>
-    /// <param name="e">The event data associated with the click event.</param>
     private void RemoveEnvironmentRow_OnClick(object? sender, RoutedEventArgs e)
     {
         if (DataContext == null)
@@ -517,12 +323,6 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
         DataContext.Settings.InstanceConfig.Environment.RemoveAt(index);
     }
 
-    /// <summary>
-    ///     Handles the click event for clearing all rows in the Environment DataGrid.
-    ///     Removes all environment variables from the instance configuration.
-    /// </summary>
-    /// <param name="sender">The source of the event, typically a button.</param>
-    /// <param name="e">The event data associated with the click event.</param>
     private void ClearEnvironmentTable_OnClick(object? sender, RoutedEventArgs e)
     {
         DataContext?.Settings.InstanceConfig.Environment.Clear();

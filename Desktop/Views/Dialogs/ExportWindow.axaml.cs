@@ -10,9 +10,6 @@ using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
-/// <summary>
-///     Window used to present the export instance dialog.
-/// </summary>
 public partial class ExportWindow : KonkordWindow<ExportViewModel>
 {
     public ExportWindow()
@@ -22,7 +19,7 @@ public partial class ExportWindow : KonkordWindow<ExportViewModel>
 
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public ExportWindow(ExportViewModel viewModel, ITranslationService translationService)
+    public ExportWindow(ExportViewModel viewModel)
     {
         InitializeComponent();
 
@@ -38,17 +35,6 @@ public partial class ExportWindow : KonkordWindow<ExportViewModel>
                 Close();
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
-            }).DisposeWith(disposables);
-            DataContext.OpenFolderPickerInteraction.RegisterHandler(async action =>
-            {
-                var result = await OpenFolderPickerAsync(translationService.Translate("common.select.directory"));
-                action.SetOutput(result);
-            }).DisposeWith(disposables);
-            DataContext.ShowAlertDialogInteraction.RegisterHandler(async action =>
-            {
-                AlertWindow alertWindow = new(action.Input.Title, action.Input.Message, action.Input.Type);
-                await alertWindow.ShowDialog(this);
-                action.SetOutput(Unit.Default);
             }).DisposeWith(disposables);
         });
     }

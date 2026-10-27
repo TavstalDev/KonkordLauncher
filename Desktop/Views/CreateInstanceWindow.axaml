@@ -673,7 +673,7 @@
                                                             Name="ImportFromFileTabBtn"
                                                             HorizontalAlignment="Stretch"
                                                             Classes="SuccessBtn"
-                                                            Command="{Binding Import.ChangeImportTypeCommand}">
+                                                            Command="{Binding ChangeImportTypeCommand}">
                                                             <Button.CommandParameter>
                                                                 <x:Int32>0</x:Int32>
                                                             </Button.CommandParameter>
@@ -688,7 +688,7 @@
                                                             Name="ImportFromUrlTabBtn"
                                                             Grid.Column="1"
                                                             HorizontalAlignment="Stretch"
-                                                            Command="{Binding Import.ChangeImportTypeCommand}">
+                                                            Command="{Binding ChangeImportTypeCommand}">
                                                             <Button.CommandParameter>
                                                                 <x:Int32>1</x:Int32>
                                                             </Button.CommandParameter>

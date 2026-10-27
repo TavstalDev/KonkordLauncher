@@ -10,25 +10,18 @@ using ReactiveUI.Primitives;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Services.Localization;
-using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views;
 
-/// <summary>
-///     Represents the window for creating a new instance in the Konkord Launcher.
-/// </summary>
 public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewModel>
 {
     private readonly IDiscordPresenceService _discordPresenceService = null!;
     private Button _selectedImportTypeBtn;
     private Button _selectedTabBtn;
 
-    /// <summary>
-    ///     Initializes a new instance of the <see cref="CreateInstanceWindow" /> class.
-    ///     Sets up the data context, initializes components, and registers reactive handlers.
-    /// </summary>
     public CreateInstanceWindow()
     {
         InitializeComponent();
@@ -71,31 +64,9 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             });
-            DataContext.ShowAlertDialogInteraction.RegisterHandler(async action =>
-            {
-                AlertWindow alertWindow = new(action.Input.Title, action.Input.Message, action.Input.Type);
-                await alertWindow.ShowDialog(this);
-                action.SetOutput(Unit.Default);
-            }).DisposeWith(disposables);
-            DataContext.ShowIconSelectorInteraction.RegisterHandler(async action =>
-            {
-                var window = windowFactory.CreateIconSelectorWindow();
-                var result = await window.ShowDialog<string?>(this);
-                action.SetOutput(result);
-            }).DisposeWith(disposables);
-            DataContext.ShowFileSelectorInteraction.RegisterHandler(async action =>
-            {
-                var title = translationService.Translate("common.select.file");
-                var result = await OpenFilePickerAsync(title, ".zip, .mrpack, .json", ["*.zip", "*.mrpack", "*.json"]);
-                action.SetOutput(result);
-            }).DisposeWith(disposables);
         });
     }
 
-    /// <summary>
-    ///     Handles switching the visible/create-instance tab and updates the visual state of the tab buttons.
-    /// </summary>
-    /// <param name="tab">The tab to switch to.</param>
     private void HandleTabChange(ECreateInstanceTab tab)
     {
         if (DataContext is not { } viewModel)
@@ -128,10 +99,6 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
         _selectedTabBtn.Classes.Add("SettingsTabBtnActive");
     }
 
-    /// <summary>
-    ///     Handles switching the import type selection (file vs. URL) and updates related view model state and visual state.
-    /// </summary>
-    /// <param name="index">The index representing the chosen import source (0 = file, 1 = url).</param>
     private void HandleImportTypeChange(int index)
     {
         if (DataContext is not { } viewModel)
@@ -177,15 +144,6 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
         _discordPresenceService.Update("Browsing instances...");
     }
 
-    /// <summary>
-    ///     Handles scroll changes for the modpack list ScrollViewer and triggers loading more modpacks when the user
-    ///     scrolls near the bottom (infinite-scroll behavior).
-    /// </summary>
-    /// <param name="sender">
-    ///     The event sender. Expected to be an <see cref="Avalonia.Controls.ScrollViewer" /> instance that
-    ///     raised the event.
-    /// </param>
-    /// <param name="e">Event data for the scroll change (unused by this implementation).</param>
     private void ScrollViewer_OnScrollChanged(object? sender, ScrollChangedEventArgs e)
     {
         if (DataContext is not { } viewModel)
@@ -204,12 +162,6 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
         }
     }
 
-    /// <summary>
-    ///     Handler invoked when a modpack category checkbox changes state (checked/unchecked).
-    ///     Triggers a full refresh of modpacks with the new category filters applied.
-    /// </summary>
-    /// <param name="sender">The control that raised the event (not used by this implementation).</param>
-    /// <param name="e">Event args for the routed event (not used).</param>
     private void ModPackCategory_OnIsCheckedChanged(object? sender, RoutedEventArgs e)
     {
         if (DataContext is not { } viewModel)
@@ -221,12 +173,6 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
         Dispatcher.UIThread.Invoke(async () => await viewModel.Modpack.RefreshModpacksAsync(true));
     }
 
-    /// <summary>
-    ///     Handler invoked when the modpack version/filter selection changes (e.g. ComboBox selection).
-    ///     Triggers a full refresh of modpacks to apply the newly selected filters.
-    /// </summary>
-    /// <param name="sender">The control that raised the event (expected to be a selector control).</param>
-    /// <param name="e">Selection changed event data (not used in the handler).</param>
     private void ModPackFilter_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (DataContext is not { } viewModel)

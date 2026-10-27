@@ -23,15 +23,12 @@ using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 using Tavstal.KonkordLauncher.Desktop.Serialization;
 using Tavstal.KonkordLauncher.Desktop.Services.Content;
 using Tavstal.KonkordLauncher.Desktop.Services.Localization;
-using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 using Version = Modrinth.Models.Version;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
-/// <summary>
-///     ViewModel for handling the resource download process.
-/// </summary>
 public partial class ResourceDownloadViewModel : KonkordObservableObject
 {
     private readonly IBitmapService _bitmapService = null!;
@@ -43,41 +40,34 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
     private readonly IMetaCacheService _metaCacheService = null!;
     private readonly EResourceType _resourceType;
     private readonly ITranslationService _translationService = null!;
-    private readonly IWindowFactory _windowFactory;
-    private Window _parent = null!;
+    private readonly IDialogService _dialogService = null!;
     private CancellationTokenSource? _refreshCancellationTokenSource;
     private long _refreshGeneration;
 
-    /// <summary>
-    ///     Initializes a new instance of the ResourceDownloadViewModel class.
-    /// </summary>
-    /// <param name="parent">The parent window associated with this view model.</param>
-    /// <param name="instance">The instance associated with this view model, or null if it's not an instance.</param>
-    /// <param name="resourceType">Type of resource being downloaded, e.g., mod or resource pack.</param>
     public ResourceDownloadViewModel()
     {
         _instance = null;
         _resourceType = EResourceType.MOD;
-        _windowFactory = null!;
         IsMod = false;
         ModLoader = EMinecraftKind.FABRIC;
         ModLoaderIndex = (int)ModLoader;
     }
 
     public ResourceDownloadViewModel(Instance? instance, EResourceType resourceType,
-        IWindowFactory windowFactory, IBeaconLogger<ResourceDownloadViewModel> logger,
+        IBeaconLogger<ResourceDownloadViewModel> logger,
         ITranslationService translationService, ILauncherStore launcherStore,
-        IManifestService manifestService, IMetaCacheService metaCacheService, IBitmapService bitmapService)
+        IManifestService manifestService, IMetaCacheService metaCacheService, IBitmapService bitmapService,
+        IDialogService dialogService)
     {
         _instance = instance;
         _resourceType = resourceType;
-        _windowFactory = windowFactory;
         _logger = logger;
         _translationService = translationService;
         _launcherStore = launcherStore;
         _manifestService = manifestService;
         _metaCacheService = metaCacheService;
         _bitmapService = bitmapService;
+        _dialogService = dialogService;
         IsMod = resourceType == EResourceType.MOD;
         ModLoader = _instance?.Kind ?? EMinecraftKind.FABRIC;
         ModLoaderIndex = (int)ModLoader;
@@ -369,11 +359,6 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
         }
     }
 
-    public void SetParent(Window parent)
-    {
-        _parent = parent;
-    }
-
     #region Observable Properties
 
     [ObservableProperty] public partial bool AllowScrollbarRefresh { get; set; } = false;
@@ -413,7 +398,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
     ///     Requests the window to close by invoking the <see cref="CloseWindowInteraction" /> interaction.
     /// </summary>
     [RelayCommand]
-    public async Task CloseWindow()
+    private async Task CloseWindow()
     {
         await CloseWindowInteraction.Handle(false);
     }
@@ -422,7 +407,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
     ///     Toggles the selection state of the currently selected resource for download.
     /// </summary>
     [RelayCommand]
-    public Task ToggleResourceSelect()
+    private Task ToggleResourceSelect()
     {
         try
         {
@@ -460,7 +445,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
     ///     and passes them to <see cref="ResourceReviewWindow" /> for user confirmation.
     /// </summary>
     [RelayCommand]
-    public async Task ReviewInstall()
+    private async Task ReviewInstall()
     {
         if (ResourcesToDownload.Count == 0)
             return;
@@ -532,8 +517,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
             });
         }
 
-        var reviewWindow = _windowFactory.CreateResourceReviewWindow(_instance!, _resourceType, resources);
-        var result = await reviewWindow.ShowDialog<bool>(_parent);
+        var result = await _dialogService.ShowResourceReviewAsync(_instance!, _resourceType, resources);
         if (result)
             await CloseWindowInteraction.Handle(true);
     }

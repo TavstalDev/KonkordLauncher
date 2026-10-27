@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -17,21 +16,22 @@ using Tavstal.BeaconSDK.Models.Instance;
 using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Models.MojangApi;
 using Tavstal.BeaconSDK.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
-using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 using Tavstal.KonkordLauncher.Desktop.Services;
 using Tavstal.KonkordLauncher.Desktop.Services.Content;
 using Tavstal.KonkordLauncher.Desktop.Services.Instances;
 using Tavstal.KonkordLauncher.Desktop.Services.Localization;
-using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.CreateInstance;
 
 public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
 {
+    private readonly IKonkordProgress _progress = null!;
     private readonly IBitmapService _bitmapService = null!;
     private readonly IEventService _eventService = null!;
     private readonly IHttpService _httpService = null!;
@@ -39,31 +39,36 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
     private readonly IBeaconLogger _logger = null!;
     private readonly IMetaCacheService _metaCacheService = null!;
     private readonly ModrinthPackageService _modrinthPackageService = null!;
-    private readonly CreateInstanceViewModel _parent;
     private readonly IScreenService _screenService = null!;
     private readonly ITranslationService _translationService = null!;
+    private readonly IDialogService _dialogService = null!;
 
-    [ObservableProperty] private string? _minecraftVersion;
+    public event EventHandler? OnCloseRequested;
 
-    [ObservableProperty] private string _searchQuery = string.Empty;
+    [ObservableProperty]
+    public partial string? MinecraftVersion { get; set; }
 
-    [ObservableProperty] private EPlatformType _selectedPlatform = EPlatformType.MODRINTH;
+    [ObservableProperty]
+    public partial string SearchQuery { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    public partial EPlatformType SelectedPlatform { get; set; } = EPlatformType.MODRINTH;
 
     public CreateInstanceViewModel_Modpack()
     {
-        _parent = null!;
         _screenService = null!;
     }
 
-    public CreateInstanceViewModel_Modpack(CreateInstanceViewModel parent, IScreenService screenService,
-        ILauncherStore launcherStore,
+    public CreateInstanceViewModel_Modpack(IKonkordProgress progress,
+        IScreenService screenService, ILauncherStore launcherStore,
         ITranslationService translationService, IHttpService httpService, IMetaCacheService metaCacheService,
-        IBitmapService bitmapService, IEventService eventService, ModrinthPackageService modrinthPackageService)
+        IBitmapService bitmapService, IEventService eventService, ModrinthPackageService modrinthPackageService,
+        IDialogService dialogService)
     {
-        _parent = parent;
         if (Design.IsDesignMode)
             return;
 
+        _progress = progress;
         _screenService = screenService;
         _logger = Program.Services.GetRequiredService<IBeaconLogger<CreateInstanceViewModel_Modpack>>();
         _httpService = httpService;
@@ -73,6 +78,7 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         _launcherStore = launcherStore;
         _eventService = eventService;
         _modrinthPackageService = modrinthPackageService;
+        _dialogService = dialogService;
     }
 
     [ObservableProperty] public partial bool AllowScrollbarRefresh { get; set; } = false;
@@ -265,11 +271,11 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
 
         if (instances.Any(x => x.Name == InstanceName))
         {
-            await _parent.ShowAlertDialogInteraction.Handle(new Alert(
+            await _dialogService.ShowAlertAsync(
                 _translationService.Translate("instance.create.modpack.error.instance_exists.title"),
                 _translationService.Translate("instance.create.modpack.error.instance_exists.message"),
                 EAlertType.Error
-            ));
+            );
             return;
         }
 
@@ -277,11 +283,11 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         if (file == null)
         {
             _logger.LogError("Selected modpack version does not have a primary file.");
-            await _parent.ShowAlertDialogInteraction.Handle(new Alert(
+            await _dialogService.ShowAlertAsync(
                 _translationService.Translate("instance.create.modpack.error.no_primary_file.title"),
                 _translationService.Translate("instance.create.modpack.error.no_primary_file.message"),
                 EAlertType.Error
-            ));
+            );
             return;
         }
 
@@ -290,36 +296,36 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         try
         {
             var tempPath = Path.Combine(tempDir, file.FileName);
-            //_parent.OpenReporter();
+            _progress.OpenReporter();
             var prog = new Progress<double>(p =>
             {
-                _parent.Report(p, "instance.download.file", file.FileName, p.ToString("0.00"));
+                _progress.Report(p, "instance.download.file", file.FileName, p.ToString("0.00"));
             });
 
             await _httpService.DownloadFileAsync(file.Url, tempPath, file.Hashes.Sha1, prog, cancellationToken);
 
-            //_parent.CloseReporter();
+            _progress.CloseReporter();
 
             if (await _modrinthPackageService.ImportAsync(tempPath,
                     new Resolution
                     {
                         X = (uint)_screenService.ScreenSize.Width, Y = (uint)_screenService.ScreenSize.Height
                     },
-                    InstanceName, null, modpack.IconUrl, _parent, cancellationToken) != null)
+                    InstanceName, null, modpack.IconUrl, _progress, cancellationToken) != null)
             {
-                //_parent.CloseReporter();
+                _progress.CloseReporter();
                 instances = await _launcherStore.GetInstancesAsync(cancellationToken);
                 _eventService.RaiseInstanceAdded(instances.Last().Id);
-                await _parent.CloseWindowInteraction.Handle(Unit.Default);
+                OnCloseRequested?.Invoke(this, EventArgs.Empty);
             }
             else
             {
                 _logger.LogWarning("Failed to import instance from modpack file.");
-                await _parent.ShowAlertDialogInteraction.Handle(new Alert(
+                await _dialogService.ShowAlertAsync(
                     _translationService.Translate("instance.create.modpack.error.import_failed.title"),
                     _translationService.Translate("instance.create.modpack.error.import_failed.message"),
                     EAlertType.Error
-                ));
+                );
             }
         }
         finally
@@ -347,7 +353,7 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         });
     }
 
-    partial void OnInstanceNameChanged(string value)
+    partial void OnInstanceNameChanged(string? value)
     {
         CanCreateInstance = value != null && !string.IsNullOrEmpty(InstanceName);
     }

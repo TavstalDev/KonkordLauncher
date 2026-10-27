@@ -3,7 +3,7 @@ using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Services.Localization;
-using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Services.Instances;
@@ -23,6 +23,7 @@ public class InstanceModelFactory : IInstanceModelFactory
     private readonly IScreenService _screenService;
     private readonly ITranslationService _translationService;
     private readonly IWindowFactory _windowFactory;
+    private readonly IDialogService _dialogService;
 
     public InstanceModelFactory(
         IBeaconLogger<InstanceModel> logger,
@@ -37,7 +38,8 @@ public class InstanceModelFactory : IInstanceModelFactory
         IEncryptionService encryptionService,
         BeaconConfiguration beaconConfiguration,
         IScreenService screenService,
-        IWindowFactory windowFactory)
+        IWindowFactory windowFactory,
+        IDialogService dialogService)
     {
         _logger = logger;
         _launcherStore = launcherStore;
@@ -52,12 +54,13 @@ public class InstanceModelFactory : IInstanceModelFactory
         _beaconConfiguration = beaconConfiguration;
         _screenService = screenService;
         _windowFactory = windowFactory;
+        _dialogService = dialogService;
     }
 
     public InstanceModel Create(Instance instance)
     {
         return new InstanceModel(instance, _logger, _launcherStore, _manifestService, _bitmapService,
             _translationService, _javaService, _installService, _launchService, _eventService,
-            _encryptionService, _beaconConfiguration, _screenService, _windowFactory);
+            _encryptionService, _beaconConfiguration, _screenService, _windowFactory, _dialogService);
     }
 }

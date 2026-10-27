@@ -1,5 +1,5 @@
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
-using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
 

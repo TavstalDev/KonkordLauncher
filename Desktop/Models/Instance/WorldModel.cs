@@ -1,5 +1,6 @@
 using System;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Extensions.DependencyInjection;
 using Tavstal.BeaconSDK.Helpers.IO;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Services.Localization;
@@ -84,24 +85,28 @@ public partial class WorldModel : ObservableObject
     /// <summary>
     ///     Gets the formatted last played time of the world as a human-readable string.
     /// </summary>
-    public string FormattedLastPlayed(ITranslationService translationService)
+    public string FormattedLastPlayed
     {
-        var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        epoch = epoch.AddMilliseconds(LastPlayed);
-        var timeDiff = DateTime.UtcNow - epoch;
+        get
+        {
+            ITranslationService translationService = Program.Services.GetRequiredService<ITranslationService>();
+            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            epoch = epoch.AddMilliseconds(LastPlayed);
+            var timeDiff = DateTime.UtcNow - epoch;
 
-        if (timeDiff.TotalHours < 1)
-            return translationService.Translate("common.time.pass.minute", timeDiff.Minutes);
+            if (timeDiff.TotalHours < 1)
+                return translationService.Translate("common.time.pass.minute", timeDiff.Minutes);
 
-        if (timeDiff.TotalDays < 1)
-            return translationService.Translate("common.time.pass.hour", $"{timeDiff.Hours}");
+            if (timeDiff.TotalDays < 1)
+                return translationService.Translate("common.time.pass.hour", $"{timeDiff.Hours}");
 
-        if (timeDiff.TotalDays < 30)
-            return translationService.Translate("common.time.pass.day", $"{timeDiff.Days}");
+            if (timeDiff.TotalDays < 30)
+                return translationService.Translate("common.time.pass.day", $"{timeDiff.Days}");
 
-        if (timeDiff.TotalDays < 365)
-            return translationService.Translate("common.time.pass.month", $"{timeDiff.TotalDays / 30:F0}");
+            if (timeDiff.TotalDays < 365)
+                return translationService.Translate("common.time.pass.month", $"{timeDiff.TotalDays / 30:F0}");
 
-        return translationService.Translate("common.time.pass.year", $"{timeDiff.TotalDays / 365:F0}");
+            return translationService.Translate("common.time.pass.year", $"{timeDiff.TotalDays / 365:F0}");
+        }
     }
 }

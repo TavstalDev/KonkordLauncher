@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reactive;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,15 +21,12 @@ using Tavstal.KonkordLauncher.Desktop.Models.DTOs.InstanceConfig;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Services;
 using Tavstal.KonkordLauncher.Desktop.Services.Localization;
-using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
 
-/// <summary>
-///     Represents a model for a Minecraft instance, including its properties and behaviors.
-/// </summary>
 public partial class InstanceModel : ObservableObject, IKonkordProgress
 {
     private readonly BeaconConfiguration _beaconConfiguration;
@@ -46,18 +42,15 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
     private readonly IScreenService _screenService;
     private readonly ITranslationService _translationService;
     private readonly IWindowFactory _windowFactory;
+    private readonly IDialogService _dialogService;
     private long _lastReadPosition;
     private FileSystemWatcher? _watcher;
 
-    /// <summary>
-    ///     Initializes a new instance of the <see cref="InstanceModel" /> class using the specified common instance model.
-    /// </summary>
-    /// <param name="instance">The common instance model to initialize from.</param>
     public InstanceModel(DTOs.Instance instance, IBeaconLogger<InstanceModel> logger, ILauncherStore launcherStore,
         IManifestService manifestService, IBitmapService bitmapService, ITranslationService translationService,
         IJavaService javaService, IInstanceInstallService installService, IInstanceLaunchService launchService,
         IEventService eventService, IEncryptionService encryptionService, BeaconConfiguration beaconConfiguration,
-        IScreenService screenService, IWindowFactory windowFactory)
+        IScreenService screenService, IWindowFactory windowFactory, IDialogService dialogService)
     {
         _logger = logger;
         _launcherStore = launcherStore;
@@ -72,6 +65,7 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
         _beaconConfiguration = beaconConfiguration;
         _screenService = screenService;
         _windowFactory = windowFactory;
+        _dialogService = dialogService;
 
         Icon = bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Icons/dirt.png");
 
@@ -193,26 +187,7 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
         };
     }
 
-    /// <summary>
-    ///     Launches this Minecraft instance.
-    /// </summary>
-    /// <param name="showLogsWindow">
-    ///     Interaction used to request showing the logs/console window for this instance. The view-model
-    ///     will call <c>Handle</c> on this interaction when it wants the UI to open the logs' dialog.
-    /// </param>
-    /// <param name="closeLogsWindow">Interaction used to request closing the logs/console window for this instance.</param>
-    /// <param name="closeWindow">
-    ///     Interaction used to request closing the launcher main window (used when the launcher is
-    ///     configured to close on game start/exit).
-    /// </param>
-    /// <param name="showAlertDialog">
-    ///     Interaction used to show an alert dialog to the user (e.g. when no account is selected or
-    ///     Java is missing).
-    /// </param>
-    /// <param name="serverAddress">Optional server address to connect to on launch.</param>
-    /// <returns>A task that completes when the launch sequence has finished (not when the game exits).</returns>
-    public async Task LaunchAsync(Interaction<string, Unit> showLogsWindow, Interaction<string, Unit> closeLogsWindow,
-        Interaction<Unit, Unit> closeWindow, Interaction<Alert, bool> showAlertDialog, string? serverAddress = null)
+    public async Task LaunchAsync(string? serverAddress = null)
     {
         _lastReadPosition = 0;
         _cancellationTokenSource = new CancellationTokenSource();
@@ -224,8 +199,10 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
 
         if (account == null)
         {
-            await showAlertDialog.Handle(new Alert(_translationService.Translate("account.none.title"),
-                _translationService.Translate("account.none.message"), EAlertType.Warning));
+            await _dialogService.ShowAlertAsync(
+                _translationService.Translate("account.none.title"),
+                _translationService.Translate("account.none.message"),
+                EAlertType.Warning);
             return;
         }
 
@@ -334,10 +311,10 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
             if (!await _installService.InstallAsync(gameInstance, this, cts))
             {
                 _logger.LogWarning("Installation failed or was cancelled.");
-                await showAlertDialog.Handle(new Alert(
+                await _dialogService.ShowAlertAsync(
                     _translationService.Translate("instance.launch.install_failed.title"),
                     _translationService.Translate("instance.launch.install_failed.message"),
-                    EAlertType.Error));
+                    EAlertType.Error);
                 return;
             }
 
@@ -350,11 +327,11 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
                 var javaPath = await _javaService.GetJavaVersionAsync(requiredJavaVersion, cts);
                 if (string.IsNullOrEmpty(javaPath))
                 {
-                    var alertResult = await showAlertDialog.Handle(new Alert(
+                    var alertResult = await _dialogService.ShowAlertAsync(
                         _translationService.Translate("instance.java.missing.title", requiredJavaVersion),
                         _translationService.Translate("instance.java.missing.message"),
                         EAlertType.Confirm
-                    ));
+                    );
 
                     if (!alertResult)
                         return;
@@ -373,11 +350,11 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
                     CloseReporter();
                     if (string.IsNullOrEmpty(javaPath))
                     {
-                        await showAlertDialog.Handle(new Alert(
+                        await _dialogService.ShowAlertAsync(
                             _translationService.Translate("instance.java.error.title", requiredJavaVersion),
                             _translationService.Translate("instance.java.error.message"),
                             EAlertType.Error
-                        ));
+                        );
                         return;
                     }
                 }
@@ -392,10 +369,10 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
                 var javaDetails = await _javaService.GetJavaVersionDetailsAsync(gameInstance.Config.Game.JavaPath, cts);
                 if (javaDetails == null || javaDetails.Major != requiredJavaVersion)
                 {
-                    await showAlertDialog.Handle(new Alert(
+                    await _dialogService.ShowAlertAsync(
                         _translationService.Translate("instance.java.notfound.title", requiredJavaVersion),
                         _translationService.Translate("instance.java.notfound.message", requiredJavaVersion),
-                        EAlertType.Error));
+                        EAlertType.Error);
                     return;
                 }
             }
@@ -412,11 +389,12 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
             AttachProcessEvent();
             //App.ClearRPC();
 
-            if (ConfigModel.Game.ShowConsoleWhileGameRunning) await showLogsWindow.Handle(Id);
+            if (ConfigModel.Game.ShowConsoleWhileGameRunning)
+                await _dialogService.ShowInstanceLogsAsync(Id);
 
             if (settings.Minecraft.CloseLauncherOnGameStart)
             {
-                await closeWindow.Handle(Unit.Default);
+                await _dialogService.CloseAsync();
                 return;
             }
 
@@ -426,11 +404,11 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
                     Dispatcher.UIThread.Invoke<Task>(async () =>
                     {
                         if (ConfigModel.Game.ShowConsoleWhenGameCrashes && GameProcess?.ExitCode != 0)
-                            await showLogsWindow.Handle(Id);
+                            await _dialogService.ShowInstanceLogsAsync(Id);
                         else if (ConfigModel.Game.CloseConsoleOnGameExit)
-                            await closeLogsWindow.Handle(Id);
+                            await _dialogService.CloseInstanceLogsAsync(Id);
 
-                        await closeWindow.Handle(Unit.Default);
+                        await _dialogService.CloseAsync();
                     });
             };
             IsGameRunning = !process.HasExited;

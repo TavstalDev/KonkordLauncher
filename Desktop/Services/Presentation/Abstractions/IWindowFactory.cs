@@ -7,7 +7,7 @@ using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 using Tavstal.KonkordLauncher.Desktop.Views;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
-namespace Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+namespace Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 
 public interface IWindowFactory
 {

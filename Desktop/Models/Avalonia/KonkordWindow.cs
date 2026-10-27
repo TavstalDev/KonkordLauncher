@@ -1,19 +1,13 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime;
-using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Input.Platform;
-using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using ReactiveUI.Avalonia;
 using Tavstal.BeaconSDK.Enums;
 using Tavstal.BeaconSDK.Helpers.Platform;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
-using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 
@@ -108,100 +102,5 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
     {
         if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
             BeginMoveDrag(e);
-    }
-
-
-    /// <summary>
-    ///     Sets plain text on the system clipboard asynchronously.
-    ///     Safely returns without throwing when the provided text is null/empty or clipboard is unavailable.
-    /// </summary>
-    /// <param name="text">Text to set on the clipboard.</param>
-    protected async Task SetClipboardTextAsync(string text)
-    {
-        if (string.IsNullOrEmpty(text))
-            return;
-
-        var topLevel = GetTopLevel(this);
-        if (topLevel?.Clipboard == null)
-            return;
-
-        await topLevel.Clipboard.SetTextAsync(text);
-    }
-
-    /// <summary>
-    ///     Copies the provided screenshot image to the system clipboard as a PNG byte payload.
-    /// </summary>
-    /// <param name="screenshot">
-    ///     Screenshot model that contains an image to copy. If <see cref="ScreenshotModel.Image" /> is
-    ///     null, no action is taken.
-    /// </param>
-    protected async Task SetClipboardImageAsync(ScreenshotModel screenshot)
-    {
-        if (screenshot.Image == null)
-            return;
-
-        var topLevel = GetTopLevel(this);
-        if (topLevel == null)
-            return;
-
-        var clipboard = topLevel.Clipboard;
-        if (clipboard == null)
-            return;
-
-        await clipboard.SetBitmapAsync(screenshot.Image);
-    }
-
-    /// <summary>
-    ///     Opens a native file picker dialog and returns a single selected file path or null.
-    /// </summary>
-    /// <param name="title">Dialog title to display.</param>
-    /// <param name="filterName">User-visible filter name (e.g. "Images").</param>
-    /// <param name="patterns">File name patterns (e.g. "*.png", "*.jpg") used by the filter.</param>
-    /// <returns>Local file path of the selected file, or null if none selected or an error occurred.</returns>
-    protected async Task<string?> OpenFilePickerAsync(string title, string filterName, string[] patterns)
-    {
-        var topLevel = GetTopLevel(this);
-        if (topLevel == null)
-            return null;
-
-        var storageProvider = topLevel.StorageProvider;
-
-        var options = new FilePickerOpenOptions
-        {
-            Title = title,
-            AllowMultiple = false,
-            FileTypeFilter = new List<FilePickerFileType> { new(filterName) { Patterns = patterns } }
-        };
-
-        var files = await storageProvider.OpenFilePickerAsync(options);
-        return !files.Any() ? null : files[0].TryGetLocalPath();
-    }
-
-    /// <summary>
-    ///     Opens a native folder picker dialog and returns the selected folder path or null.
-    /// </summary>
-    /// <param name="title">Dialog title to display.</param>
-    /// <returns>Local folder path of the selected folder, or null if none selected.</returns>
-    /// <exception cref="NotSupportedException">Thrown when the platform storage provider does not support folder picking.</exception>
-    protected async Task<string?> OpenFolderPickerAsync(string title)
-    {
-        var topLevel = GetTopLevel(this);
-        if (topLevel == null)
-            return null;
-
-        var storageProvider = topLevel.StorageProvider;
-
-        if (!storageProvider.CanPickFolder)
-            throw new NotSupportedException("No folder was selected.");
-
-        var options = new FolderPickerOpenOptions { Title = title, AllowMultiple = false };
-
-        var folders = await storageProvider.OpenFolderPickerAsync(options);
-
-        if (!folders.Any())
-            return null;
-
-        var selectedFolder = folders.FirstOrDefault();
-        return selectedFolder?.TryGetLocalPath();
     }
 }

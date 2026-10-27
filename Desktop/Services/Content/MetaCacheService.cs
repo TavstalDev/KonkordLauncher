@@ -18,7 +18,7 @@ using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs.MetaCache;
 using Tavstal.KonkordLauncher.Desktop.Serialization;
-using Tavstal.KonkordLauncher.Desktop.Services.Presentation;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 using File = System.IO.File;
 using ModrinthJsonContext = Tavstal.KonkordLauncher.Desktop.Serialization.ModrinthJsonContext;

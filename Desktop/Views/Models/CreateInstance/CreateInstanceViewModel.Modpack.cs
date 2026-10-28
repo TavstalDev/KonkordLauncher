@@ -340,9 +340,26 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         Dispatcher.UIThread.Invoke(async () => await RefreshModpacksAsync(true));
     }
 
+    partial void OnMinecraftVersionChanged(string? oldValue, string? newValue)
+    {
+        if (SelectedModpackVersionIndex == -1 || Modpacks.Count <= SelectedModpackVersionIndex)
+            return;
+
+        var modpack = Modpacks[SelectedModpackVersionIndex];
+        modpack.FilteredVersions = string.IsNullOrEmpty(newValue) || MinecraftVersion == "Any"
+            ? modpack.Versions
+            : new ObservableCollection<Modrinth.Models.Version>(modpack.Versions.Where(x => x.GameVersions.Contains(newValue)));
+    }
+
     partial void OnSelectedModpackChanged(ModPackModel? value)
     {
         CanCreateInstance = value != null && !string.IsNullOrEmpty(InstanceName);
+        if (value != null)
+        {
+            value.FilteredVersions = string.IsNullOrEmpty(MinecraftVersion) || MinecraftVersion == "Any"
+                ? value.Versions
+                : new ObservableCollection<Modrinth.Models.Version>(value.Versions.Where(x => x.GameVersions.Contains(MinecraftVersion)));
+        }
         Dispatcher.UIThread.Invoke(async () =>
         {
             await Task.Delay(50); // Minimal delay, otherwise it will always be -1

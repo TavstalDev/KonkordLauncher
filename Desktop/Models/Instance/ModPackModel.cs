@@ -44,6 +44,8 @@ public class ModPackModel
     /// </summary>
     public ObservableCollection<Version> Versions { get; set; } = [];
 
+    public ObservableCollection<Version> FilteredVersions { get; set; } = [];
+
     /// <summary>
     ///     Categories/tags associated with the project.
     /// </summary>

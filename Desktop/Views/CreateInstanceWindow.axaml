@@ -592,7 +592,7 @@
                                             Grid.Column="0"
                                             VerticalAlignment="Center"
                                             Classes="TextDropdown"
-                                            ItemsSource="{Binding Modpack.SelectedModpack.Versions}"
+                                            ItemsSource="{Binding Modpack.SelectedModpack.FilteredVersions}"
                                             PlaceholderText="{lang:Translate instance.create.modpack.select}"
                                             SelectedIndex="{Binding Modpack.SelectedModpackVersionIndex}">
                                             <ComboBox.ItemTemplate>

@@ -1,7 +1,8 @@
 using System;
 using Avalonia.Controls;
 using DiscordRPC;
-using Microsoft.Extensions.Logging;
+using Tavstal.BeaconSDK.Models.Logging;
+using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Desktop.Services.Presentation;
@@ -9,10 +10,10 @@ namespace Tavstal.KonkordLauncher.Desktop.Services.Presentation;
 /// <inheritdoc />
 public class DiscordPresenceService : IDiscordPresenceService
 {
-    private readonly ILogger<DiscordPresenceService> _logger;
+    private readonly IBeaconLogger<DiscordPresenceService> _logger;
     private readonly DiscordRpcClient? _rpcClient;
 
-    public DiscordPresenceService(ILogger<DiscordPresenceService> logger)
+    public DiscordPresenceService(IBeaconLogger<DiscordPresenceService> logger)
     {
         _logger = logger;
         if (Design.IsDesignMode)

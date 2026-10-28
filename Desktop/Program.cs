@@ -43,14 +43,19 @@ internal class Program
         Directory.CreateDirectory(appDir);
         var keysDir = Path.Combine(appDir, "keys");
         Directory.CreateDirectory(keysDir);
-        var logsDir = Path.Combine(appDir, "logs");
+
+        string workDir = Directory.GetCurrentDirectory();
+        var logsDir = Path.Combine(workDir, "logs");
         Directory.CreateDirectory(logsDir);
         var latestLog = Path.Combine(logsDir, "latest.log");
-        if (File.Exists(latestLog))
+
+        var fileInfo = new FileInfo(latestLog);
+        if (fileInfo.Exists)
         {
-            var lastModified = File.GetLastWriteTime(latestLog);
-            var archivePath = Path.Combine(logsDir, $"{lastModified:yyyy-MM-dd_HH-mm-ss}.log.gz");
-            FileSystemHelper.CompressFile(latestLog, archivePath);
+            var newPath = Path.Combine(logsDir, $"{fileInfo.LastWriteTime:yyyy-MM-dd_HH-mm-ss}.log");
+            var archivePath = newPath + ".gz";
+            File.Move(latestLog, newPath, true);
+            FileSystemHelper.CompressFile(newPath, archivePath);
         }
 
         var beaconConfig = new BeaconConfiguration
@@ -68,7 +73,7 @@ internal class Program
             Http = new HttpConfig { Agent = "KonkordLauncher/2.0.0 (+https://github.com/TavstalDev/KonkordLauncher)" },
             Logging = new LoggingConfig
             {
-                EnableCustomLogger = false,
+                EnableCustomLogger = true,
                 DefaultLogFilePath = latestLog,
 #if DEBUG
                 LogLevel = LogLevel.Debug
@@ -96,7 +101,7 @@ internal class Program
                 services.AddSingleton<IInstanceModelFactory, InstanceModelFactory>();
 
                 services.AddSingleton<ITranslationService, TranslationService>();
-                services.AddHostedService(sp => sp.GetRequiredService<TranslationService>());
+                services.AddHostedService(sp => (TranslationService)sp.GetRequiredService<ITranslationService>());
 
                 services.AddSingleton<IValidationService, ValidationService>();
                 services.AddSingleton<IModrinthApiClient, ModrinthApiClient>();
@@ -104,7 +109,7 @@ internal class Program
                 services.AddSingleton<CurseForgePackageService, CurseForgePackageService>();
                 services.AddSingleton<IBitmapService, BitmapService>();
                 services.AddSingleton<IMetaCacheService, MetaCacheService>();
-                services.AddHostedService(sp => sp.GetRequiredService<MetaCacheService>());
+                services.AddHostedService(sp => (MetaCacheService)sp.GetRequiredService<IMetaCacheService>());
 
                 // Startup window
                 services.AddTransient<StartupViewModel>();
@@ -126,9 +131,17 @@ internal class Program
                 services.AddTransient<IconSelectorWindow>();
             })
             .Build();
-
         Services = appHost.Services;
-        BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+
+        try
+        {
+            BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+        }
+        finally
+        {
+            appHost.StopAsync().GetAwaiter().GetResult();
+            appHost.Dispose();
+        }
     }
 
     /// <summary>

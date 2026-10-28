@@ -6,6 +6,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Tavstal.BeaconSDK.Helpers.IO;
 using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Services.Abstractions;
@@ -52,6 +53,9 @@ public partial class App : Application
     /// </summary>
     public override void OnFrameworkInitializationCompleted()
     {
+        var host = Program.Services.GetRequiredService<IHost>();
+        host.Start();
+
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.MainWindow = Program.Services.GetRequiredService<StartupWindow>();

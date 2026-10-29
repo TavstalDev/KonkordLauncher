@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
+using System.Runtime.Versioning;
+using System.Threading;
 using Avalonia;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -29,11 +32,22 @@ namespace Tavstal.KonkordLauncher.Desktop;
 
 internal class Program
 {
+    private const string MutexName = "Global\\KonkordLauncher_5C0F1C0A-2258-4DD5-B454-0ED8FFF9E5A8";
+    private static Mutex? Mutex { get; set; }
     public static IServiceProvider Services { get; private set; } = null!;
 
     [STAThread]
+    [SupportedOSPlatform("windows")]
+    [SupportedOSPlatform("linux")]
+    [SupportedOSPlatform("macos")]
+    [RequiresDynamicCode("Calls Microsoft.Extensions.Hosting.Host.CreateApplicationBuilder()")]
     public static void Main(string[] args)
     {
+        // Prevent multiple instances of the application from running simultaneously
+        Mutex = new Mutex(initiallyOwned: true, MutexName, out bool isNewInstance);
+        if (!isNewInstance)
+            return;
+        
         VelopackApp.Build().Run();
 
         var appDir = Path.Combine(
@@ -83,9 +97,14 @@ internal class Program
             }
         };
 
-        var appHost = Host.CreateDefaultBuilder(args)
+        using var appHost = Host.CreateDefaultBuilder(args)
+            .ConfigureHostOptions(opt =>
+            {
+                opt.ShutdownTimeout = TimeSpan.FromSeconds(3);
+            })
             .ConfigureServices(services =>
             {
+                services.AddSingleton<IHostLifetime, NoopHostLifetime>();
                 services.AddBeaconServices(beaconConfig);
                 services.AddSingleton<IEventService, EventService>();
                 services.AddSingleton<IUpdateService, UpdateService>();
@@ -108,6 +127,7 @@ internal class Program
                 services.AddSingleton<ModrinthPackageService, ModrinthPackageService>();
                 services.AddSingleton<CurseForgePackageService, CurseForgePackageService>();
                 services.AddSingleton<IBitmapService, BitmapService>();
+                services.AddHostedService(sp => (BitmapService)sp.GetRequiredService<IBitmapService>());
                 services.AddSingleton<IMetaCacheService, MetaCacheService>();
                 services.AddHostedService(sp => (MetaCacheService)sp.GetRequiredService<IMetaCacheService>());
 
@@ -135,12 +155,14 @@ internal class Program
 
         try
         {
+            appHost.Start();
             BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
         }
         finally
         {
             appHost.StopAsync().GetAwaiter().GetResult();
-            appHost.Dispose();
+            Mutex.ReleaseMutex();
+            Mutex.Dispose();
         }
     }
 
@@ -154,7 +176,11 @@ internal class Program
         return AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .WithInterFont()
+#if DEBUG
             .LogToTrace()
+#else
+            .LogToTrace(Avalonia.Logging.LogEventLevel.Warning)
+#endif
             .UseReactiveUI(_ => { });
     }
 

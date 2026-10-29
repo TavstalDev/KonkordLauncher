@@ -1,12 +1,10 @@
 using System;
-using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Tavstal.BeaconSDK.Helpers.IO;
 using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Services.Abstractions;
@@ -22,29 +20,9 @@ public partial class App : Application
 {
     private static IBeaconLogger? _logger;
 
-    // ReSharper disable once NotAccessedField.Local - Used to ensure the task is not garbage collected before completion
-    private static Task? _initializeTask;
-
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
-        _initializeTask = InitAsync();
-    }
-
-    private Task InitAsync()
-    {
-        try
-        {
-            _logger = Program.Services.GetRequiredService<IBeaconLogger<App>>();
-            var eventService = Program.Services.GetRequiredService<IEventService>();
-            eventService.OnThemeChanged += ApplyTheme;
-        }
-        catch
-        {
-            // ignored
-        }
-
-        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -53,29 +31,35 @@ public partial class App : Application
     /// </summary>
     public override void OnFrameworkInitializationCompleted()
     {
-        var host = Program.Services.GetRequiredService<IHost>();
-        host.Start();
+        if (ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop)
+            throw new InvalidOperationException("The application had invalid lifetime.");
 
-        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-        {
-            desktop.MainWindow = Program.Services.GetRequiredService<StartupWindow>();
+        var services = Program.Services;
+        _logger = services.GetRequiredService<IBeaconLogger<App>>();
+        var eventService = Program.Services.GetRequiredService<IEventService>();
+        eventService.OnThemeChanged += ApplyTheme;
+
+        desktop.MainWindow = services.GetRequiredService<StartupWindow>();
+        desktop.ShutdownMode = Avalonia.Controls.ShutdownMode.OnMainWindowClose;
+
+
 #if DEBUG
-            this.AttachDeveloperTools();
+        this.AttachDeveloperTools();
 #endif
 
-            var launcherStore = Program.Services.GetRequiredService<ILauncherStore>();
-            desktop.ShutdownRequested += (_, _) =>
+        var launcherStore = services.GetRequiredService<ILauncherStore>();
+        desktop.ShutdownRequested += (_, _) =>
+        {
+            // Try deleting the temp directory on shutdown, but ignore any exceptions that may occur.
+            try
             {
-                try
-                {
-                    FileSystemHelper.DeleteDirectory(launcherStore.GetTempDir());
-                }
-                catch (Exception)
-                {
-                    // ignored
-                }
-            };
-        }
+                FileSystemHelper.DeleteDirectory(launcherStore.GetTempDir());
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+        };
 
         base.OnFrameworkInitializationCompleted();
     }

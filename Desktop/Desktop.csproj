@@ -27,11 +27,15 @@
         <SelfContained>true</SelfContained>
         <EnableUnsafeUTF8Json>true</EnableUnsafeUTF8Json>
 
-        <OptimizationPreference>Size</OptimizationPreference>
-        <GCLatencyLevel>1</GCLatencyLevel>
         <ServerGarbageCollection>false</ServerGarbageCollection>
-        <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
+        <RetainVM>false</RetainVM>
+        <GarbageCollectionAdaptationMode>1</GarbageCollectionAdaptationMode>
     </PropertyGroup>
+
+    <ItemGroup>
+        <RuntimeHostConfigurationOption Include="System.GC.ConserveMemory" Value="7" />
+        <RuntimeHostConfigurationOption Include="System.GC.RetainVM" Value="false" />
+    </ItemGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Release'">
         <PublishAot>true</PublishAot>

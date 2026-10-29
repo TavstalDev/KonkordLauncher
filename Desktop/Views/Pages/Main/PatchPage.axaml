@@ -1,0 +1,73 @@
+<UserControl
+    x:Class="Tavstal.KonkordLauncher.Desktop.Views.Pages.Main.PatchPage"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:domain="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Domain"
+    xmlns:dtOs="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.DTOs"
+    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
+    x:Name="Root"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    x:DataType="vm:MainViewModel"
+    mc:Ignorable="d">
+    <UserControl.DataTemplates>
+        <!--  Patch Card  -->
+        <DataTemplate DataType="dtOs:PatchNote">
+            <Border Classes="NewsCard">
+                <Grid ColumnDefinitions="*" RowDefinitions="Auto, Auto, Auto">
+                    <!--  News Card Title  -->
+                    <TextBlock Classes="NewsCardTitle" Text="{Binding Title}" />
+                    <!--  News Card Description  -->
+                    <HtmlLabel
+                        Grid.Row="1"
+                        MaxWidth="{Binding $parent[Grid].Bounds.Width}"
+                        BaseStylesheet="{DynamicResource HtmlBaseStyle}"
+                        Text="{Binding Content}" />
+
+                    <!--  Read More Button  -->
+                    <HyperlinkButton
+                        Grid.Row="2"
+                        Classes="IconBtn InfoBtn"
+                        NavigateUri="{Binding Url}">
+                        <Grid Classes="IconBtnWrapper" ColumnDefinitions="Auto, Auto">
+                            <TextBlock
+                                Grid.Column="0"
+                                VerticalAlignment="Center"
+                                Classes="FontAwesome"
+                                Text="&#xf02d;" />
+                            <TextBlock
+                                Grid.Column="1"
+                                VerticalAlignment="Center"
+                                Text="{lang:Translate main.page.patch.read}" />
+                        </Grid>
+                    </HyperlinkButton>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </UserControl.DataTemplates>
+
+    <Grid
+        Margin="20,20,10,0"
+        Classes="MainContentArea"
+        RowDefinitions="Auto, Auto, *">
+        <!--  Title  -->
+        <TextBlock
+            Margin="0,0,0,20"
+            Classes="MainContentTitle"
+            Text="{lang:Translate main.page.patch.title}" />
+        <!--  Empty text  -->
+        <TextBlock
+            Grid.Row="1"
+            IsVisible="{Binding !HasPatches}"
+            Text="{lang:Translate main.page.patch.empty}" />
+        <!--  News Grid  -->
+        <ListBox
+            Grid.Row="2"
+            Classes="NewsPageWrapper"
+            ItemsSource="{Binding Patches}" />
+    </Grid>
+</UserControl>
+

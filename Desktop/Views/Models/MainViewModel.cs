@@ -144,8 +144,6 @@ public partial class MainViewModel : KonkordObservableObject
 
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
     public Interaction<ESidebarType, Unit> SwitchSidebarBtnInteraction { get; } = new();
-    public Interaction<ESettingsTab, Unit> UpdateSettingsTabButtonInteraction { get; } = new();
-    public Interaction<EAboutTab, Unit> SwitchAboutTabInteractionInteraction { get; } = new();
 
     #endregion
 
@@ -161,18 +159,6 @@ public partial class MainViewModel : KonkordObservableObject
     private async Task HandleSidebarBtn(ESidebarType sidebarType)
     {
         await SwitchSidebarBtnInteraction.Handle(sidebarType);
-    }
-
-    [RelayCommand]
-    private async Task HandleSettingsBtn(ESettingsTab tabType)
-    {
-        await UpdateSettingsTabButtonInteraction.Handle(tabType);
-    }
-
-    [RelayCommand]
-    private async Task SwitchAboutTab(EAboutTab tab)
-    {
-        await SwitchAboutTabInteractionInteraction.Handle(tab);
     }
 
     #endregion

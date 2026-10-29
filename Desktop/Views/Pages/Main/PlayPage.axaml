@@ -1,0 +1,403 @@
+<UserControl
+    x:Class="Tavstal.KonkordLauncher.Desktop.Views.Pages.Main.PlayPage"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:domain="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Domain"
+    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
+    x:Name="Root"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    x:DataType="vm:MainViewModel"
+    mc:Ignorable="d">
+    <UserControl.DataTemplates>
+        <!--  Play Card  -->
+        <DataTemplate x:DataType="domain:InstanceModel" DataType="domain:InstanceModel">
+            <Border Classes="PlayCard">
+                <Grid RowDefinitions="Auto, *, Auto">
+                    <!--  Icon  -->
+                    <Image
+                        Grid.Row="0"
+                        Classes="PlayCardImage"
+                        Source="{Binding Icon.Value}" />
+                    <!--  Name  -->
+                    <TextBlock
+                        Grid.Row="1"
+                        Classes="PlayCardText"
+                        Text="{Binding Name}" />
+                    <!--  Buttons  -->
+                    <Grid
+                        Grid.Row="2"
+                        Classes="PlayCardButtonWrapper"
+                        ColumnDefinitions="Auto, Auto, Auto">
+                        <!--  Launch Button  -->
+                        <Button
+                            Grid.Column="0"
+                            Width="32"
+                            MaxWidth="32"
+                            HorizontalContentAlignment="Center"
+                            Classes="IconBtn PrimaryBtn"
+                            Command="{Binding #Root.((vm:MainViewModel)DataContext).Instances.LaunchInstanceCommand}"
+                            CommandParameter="{Binding .}"
+                            IsVisible="{Binding !IsGameRunning}">
+                            <TextBlock
+                                Padding="4,0"
+                                Classes="FontAwesome"
+                                Text="&#xf04b;" />
+                        </Button>
+                        <!--  Stop Button  -->
+                        <Button
+                            Grid.Column="0"
+                            Width="32"
+                            MaxWidth="32"
+                            HorizontalContentAlignment="Center"
+                            Classes="IconBtn ErrorBtn"
+                            Command="{Binding #Root.((vm:MainViewModel)DataContext).Instances.StopInstanceCommand}"
+                            CommandParameter="{Binding .}"
+                            IsVisible="{Binding IsGameRunning}">
+                            <TextBlock
+                                Padding="4,0"
+                                Classes="FontAwesome"
+                                Text="&#xf04d;" />
+                        </Button>
+                        <!--  Edit Button  -->
+                        <Button
+                            Grid.Column="1"
+                            Width="34"
+                            MaxWidth="34"
+                            Classes="IconBtn AccentAltBtn"
+                            Command="{Binding #Root.((vm:MainViewModel)DataContext).Instances.EditInstanceCommand}"
+                            CommandParameter="{Binding .}">
+                            <TextBlock
+                                Padding="4,0"
+                                Classes="FontAwesome"
+                                Text="&#xf304;" />
+                        </Button>
+                        <!--  Menu Button  -->
+                        <Button
+                            Grid.Column="2"
+                            Width="32"
+                            MaxWidth="32"
+                            Classes="IconBtn SecondaryBtn"
+                            Click="InstanceFlyoutBtn_OnClick"
+                            DataContext="{Binding .}">
+                            <!--  Button Icon  -->
+                            <TextBlock
+                                Padding="4,0"
+                                Classes="FontAwesome"
+                                Text="&#xf142;" />
+                        </Button>
+                    </Grid>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </UserControl.DataTemplates>
+
+    <UserControl.Resources>
+        <!--  ReSharper disable once Xaml.RedundantResource  -->
+        <MenuFlyout x:Key="InstanceMenu" Opening="InstanceMenu_Opening">
+            <!--  Information  -->
+            <MenuItem
+                Padding="10,5"
+                x:DataType="domain:InstanceModel"
+                DataContext="{Binding $parent[MenuFlyout].Target.DataContext}"
+                IsEnabled="False">
+                <MenuItem.Header>
+                    <Grid RowDefinitions="Auto, Auto, Auto">
+                        <!--  Name  -->
+                        <TextBlock Grid.Row="0" Text="{Binding Name}" />
+                        <!--  Version Info  -->
+                        <Grid
+                            Grid.Row="1"
+                            ColumnDefinitions="Auto, Auto"
+                            ColumnSpacing="5">
+                            <!--  Version  -->
+                            <TextBlock Grid.Column="0" Text="{lang:Translate instance.create.import.preview.version}" />
+                            <!--  Game Version  -->
+                            <TextBlock Grid.Column="1" Text="{Binding MinecraftVersion}" />
+                        </Grid>
+                        <!--  Modding Info  -->
+                        <Grid
+                            Grid.Row="2"
+                            ColumnDefinitions="Auto, Auto"
+                            ColumnSpacing="5"
+                            IsVisible="{Binding IsModded}">
+                            <TextBlock Grid.Column="0" Text="{Binding Kind}" />
+                            <TextBlock Grid.Column="1" Text="{Binding CustomVersion}" />
+                        </Grid>
+                    </Grid>
+                </MenuItem.Header>
+            </MenuItem>
+            <!--  Launch Btn  -->
+            <MenuItem
+                x:DataType="domain:InstanceModel"
+                Command="{Binding #Root.((vm:MainViewModel)DataContext).Instances.LaunchInstanceCommand}"
+                CommandParameter="{Binding .}"
+                DataContext="{Binding $parent[MenuFlyout].Target.DataContext}"
+                IsVisible="{Binding !IsGameRunning}">
+                <MenuItem.Header>
+                    <Grid ColumnDefinitions="Auto, Auto">
+                        <TextBlock
+                            Grid.Column="0"
+                            Padding="4,0"
+                            Classes="FontAwesome"
+                            Text="&#xf04b;" />
+                        <TextBlock
+                            Grid.Column="1"
+                            Margin="5,0,0,0"
+                            Text="{lang:Translate common.launch}" />
+                    </Grid>
+                </MenuItem.Header>
+            </MenuItem>
+            <!--  Stop Btn  -->
+            <MenuItem
+                x:DataType="domain:InstanceModel"
+                Command="{Binding #Root.((vm:MainViewModel)DataContext).Instances.StopInstanceCommand}"
+                CommandParameter="{Binding .}"
+                DataContext="{Binding $parent[MenuFlyout].Target.DataContext}"
+                IsVisible="{Binding IsGameRunning}">
+                <MenuItem.Header>
+                    <Grid ColumnDefinitions="Auto, Auto">
+                        <TextBlock
+                            Grid.Column="0"
+                            Padding="4,0"
+                            Classes="FontAwesome"
+                            Text="&#xf04d;" />
+                        <TextBlock
+                            Grid.Column="1"
+                            Margin="5,0,0,0"
+                            Text="{lang:Translate common.stop}" />
+                    </Grid>
+                </MenuItem.Header>
+            </MenuItem>
+            <!--  Logs Btn  -->
+            <MenuItem
+                x:DataType="domain:InstanceModel"
+                Command="{Binding #Root.((vm:MainViewModel)DataContext).Instances.ViewInstanceLogsCommand}"
+                CommandParameter="{Binding .}"
+                DataContext="{Binding $parent[MenuFlyout].Target.DataContext}">
+                <MenuItem.Header>
+                    <Grid ColumnDefinitions="Auto, Auto">
+                        <TextBlock
+                            Grid.Column="0"
+                            Padding="4,0"
+                            Classes="FontAwesome"
+                            Text="&#xf15c;" />
+                        <TextBlock
+                            Grid.Column="1"
+                            Margin="5,0,0,0"
+                            Text="{lang:Translate instance.view.logs}" />
+                    </Grid>
+                </MenuItem.Header>
+            </MenuItem>
+            <Separator />
+            <!--  Rename Btn  -->
+            <MenuItem
+                x:DataType="domain:InstanceModel"
+                Command="{Binding #Root.((vm:MainViewModel)DataContext).Instances.RenameInstanceCommand}"
+                CommandParameter="{Binding .}"
+                DataContext="{Binding $parent[MenuFlyout].Target.DataContext}">
+                <MenuItem.Header>
+                    <Grid ColumnDefinitions="Auto, Auto">
+                        <TextBlock
+                            Grid.Column="0"
+                            Padding="4,0"
+                            Classes="FontAwesome"
+                            Text="&#xf044;" />
+                        <TextBlock
+                            Grid.Column="1"
+                            Margin="5,0,0,0"
+                            Text="{lang:Translate common.rename}" />
+                    </Grid>
+                </MenuItem.Header>
+            </MenuItem>
+            <!--  Change Icon Btn  -->
+            <MenuItem
+                x:DataType="domain:InstanceModel"
+                Command="{Binding #Root.((vm:MainViewModel)DataContext).Instances.ChangeInstanceIconCommand}"
+                CommandParameter="{Binding .}"
+                DataContext="{Binding $parent[MenuFlyout].Target.DataContext}">
+                <MenuItem.Header>
+                    <Grid ColumnDefinitions="Auto, Auto">
+                        <TextBlock
+                            Grid.Column="0"
+                            Padding="4,0"
+                            Classes="FontAwesome"
+                            Text="&#xf03e;" />
+                        <TextBlock
+                            Grid.Column="1"
+                            Margin="5,0,0,0"
+                            Text="{lang:Translate instance.change.icon}" />
+                    </Grid>
+                </MenuItem.Header>
+            </MenuItem>
+            <!--  Change Group Btn  -->
+            <MenuItem
+                x:DataType="domain:InstanceModel"
+                Command="{Binding #Root.((vm:MainViewModel)DataContext).Instances.ChangeInstanceGroupCommand}"
+                CommandParameter="{Binding .}"
+                DataContext="{Binding $parent[MenuFlyout].Target.DataContext}">
+                <MenuItem.Header>
+                    <Grid ColumnDefinitions="Auto, Auto">
+                        <TextBlock
+                            Grid.Column="0"
+                            Padding="4,0"
+                            Classes="FontAwesome"
+                            Text="&#xf5fd;" />
+                        <TextBlock
+                            Grid.Column="1"
+                            Margin="5,0,0,0"
+                            Text="{lang:Translate instance.change.group.action}" />
+                    </Grid>
+                </MenuItem.Header>
+            </MenuItem>
+            <!--  Change Version Btn  -->
+            <MenuItem
+                x:DataType="domain:InstanceModel"
+                Command="{Binding #Root.((vm:MainViewModel)DataContext).Instances.ChangeInstanceVersionCommand}"
+                CommandParameter="{Binding .}"
+                DataContext="{Binding $parent[MenuFlyout].Target.DataContext}">
+                <MenuItem.Header>
+                    <Grid ColumnDefinitions="Auto, Auto">
+                        <TextBlock
+                            Grid.Column="0"
+                            Padding="4,0"
+                            Classes="FontAwesome"
+                            Text="&#xf126;" />
+                        <TextBlock
+                            Grid.Column="1"
+                            Margin="5,0,0,0"
+                            Text="{lang:Translate instance.change.version}" />
+                    </Grid>
+                </MenuItem.Header>
+            </MenuItem>
+            <Separator />
+            <!--  Open Folder Btn  -->
+            <MenuItem
+                x:DataType="domain:InstanceModel"
+                Command="{Binding #Root.((vm:MainViewModel)DataContext).Instances.OpenInstanceDirCommand}"
+                CommandParameter="{Binding .}"
+                DataContext="{Binding $parent[MenuFlyout].Target.DataContext}">
+                <MenuItem.Header>
+                    <Grid ColumnDefinitions="Auto, Auto">
+                        <TextBlock
+                            Grid.Column="0"
+                            Padding="4,0"
+                            Classes="FontAwesome"
+                            Text="&#xf07c;" />
+                        <TextBlock
+                            Grid.Column="1"
+                            Margin="5,0,0,0"
+                            Text="{lang:Translate common.open.directory}" />
+                    </Grid>
+                </MenuItem.Header>
+            </MenuItem>
+            <!--  Export Btn  -->
+            <MenuItem Header="Export">
+                <MenuItem.HeaderTemplate>
+                    <DataTemplate>
+                        <Grid ColumnDefinitions="Auto, Auto">
+                            <TextBlock
+                                Grid.Column="0"
+                                Padding="4,0"
+                                Classes="FontAwesome"
+                                Text="&#xf56e;" />
+                            <TextBlock
+                                Grid.Column="1"
+                                Margin="5,0,0,0"
+                                Text="{lang:Translate common.export}" />
+                        </Grid>
+                    </DataTemplate>
+                </MenuItem.HeaderTemplate>
+                <MenuItem
+                    x:DataType="domain:InstanceModel"
+                    Command="{Binding #Root.((vm:MainViewModel)DataContext).Instances.ExportModrinthInstanceCommand}"
+                    CommandParameter="{Binding .}"
+                    DataContext="{Binding $parent[MenuFlyout].Target.DataContext}"
+                    Header="Modrinth" />
+                <MenuItem
+                    x:DataType="domain:InstanceModel"
+                    Command="{Binding #Root.((vm:MainViewModel)DataContext).Instances.ExportCurseForgeInstanceCommand}"
+                    CommandParameter="{Binding .}"
+                    DataContext="{Binding $parent[MenuFlyout].Target.DataContext}"
+                    Header="CurseForge" />
+            </MenuItem>
+            <Separator />
+            <!--  Delete Btn  -->
+            <MenuItem
+                x:DataType="domain:InstanceModel"
+                Command="{Binding #Root.((vm:MainViewModel)DataContext).Instances.DeleteInstanceCommand}"
+                CommandParameter="{Binding .}"
+                DataContext="{Binding $parent[MenuFlyout].Target.DataContext}">
+                <MenuItem.HeaderTemplate>
+                    <DataTemplate>
+                        <Grid ColumnDefinitions="Auto, Auto">
+                            <TextBlock
+                                Grid.Column="0"
+                                Padding="4,0"
+                                Classes="FontAwesome"
+                                Text="&#xf1f8;" />
+                            <TextBlock
+                                Grid.Column="1"
+                                Margin="5,0,0,0"
+                                Text="{lang:Translate common.delete}" />
+                        </Grid>
+                    </DataTemplate>
+                </MenuItem.HeaderTemplate>
+            </MenuItem>
+        </MenuFlyout>
+    </UserControl.Resources>
+
+    <Grid
+        Margin="20,15,5,0"
+        Classes="MainContentArea"
+        RowDefinitions="Auto, *">
+        <Grid
+            Grid.Row="0"
+            Margin="0,0,15,20"
+            ColumnDefinitions="*, Auto">
+            <!--  Title  -->
+            <TextBlock
+                Margin="0"
+                Classes="MainContentTitle"
+                Text="{lang:Translate main.page.play.title}" />
+            <!--  Add instance button  -->
+            <Button
+                Grid.Column="1"
+                Classes="IconBtn PrimaryBtn"
+                Command="{Binding Instances.AddInstanceBtnCommand}">
+                <TextBlock Classes="FontAwesome" Text="&#x2b;" />
+            </Button>
+        </Grid>
+        <!--  No instances text  -->
+        <TextBlock
+            Grid.Row="1"
+            IsVisible="{Binding !Instances.HasInstances}"
+            Text="{lang:Translate main.page.play.empty}" />
+        <!--  Instances on Play Page  -->
+        <ListBox
+            Grid.Row="1"
+            Classes="PlayPageContainer"
+            ItemsSource="{Binding Instances.InstanceGroups}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Expander
+                        Classes="InstanceExpander"
+                        Header="{Binding GroupName}"
+                        IsExpanded="True">
+                        <ItemsControl ItemsSource="{Binding Instances}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Classes="PlayPageWrapper" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                    </Expander>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </Grid>
+</UserControl>
+

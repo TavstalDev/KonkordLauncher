@@ -1,15 +1,11 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Reactive;
 using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Interactivity;
 using ReactiveUI;
 using ReactiveUI.Primitives;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
-using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Button = Avalonia.Controls.Button;
@@ -23,28 +19,24 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
     private readonly IDiscordPresenceService _discordPresenceService = null!;
     private readonly ITopLevelProvider _topLevelProvider = null!;
 
-    private Button _selectedAboutTabButton;
-    private Button _selectedSettingsTabButton;
     private Button _selectedSideBarButton;
 
     public MainWindow()
     {
         InitializeComponent();
         _selectedSideBarButton = PlaySideBtn;
-        _selectedSettingsTabButton = LauncherSettingsBtn;
-        _selectedAboutTabButton = AboutInfoBtn;
+
+
     }
 
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public MainWindow(MainViewModel viewModel,
         IDiscordPresenceService discordPresenceService, ITopLevelProvider topLevelProvider,
-        IDialogService dialogService)
+        IDialogService dialogService, IBitmapService bitmapService) : base(bitmapService)
     {
         InitializeComponent();
         _selectedSideBarButton = PlaySideBtn;
-        _selectedSettingsTabButton = LauncherSettingsBtn;
-        _selectedAboutTabButton = AboutInfoBtn;
 
         if (Design.IsDesignMode)
             return;
@@ -65,18 +57,6 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
             DataContext.SwitchSidebarBtnInteraction.RegisterHandler(action =>
             {
                 HandleSidebarChange(action.Input);
-                action.SetOutput(Unit.Default);
-                return Task.CompletedTask;
-            }).DisposeWith(disposables);
-            DataContext.UpdateSettingsTabButtonInteraction.RegisterHandler(action =>
-            {
-                HandleSettingsTabChange(action.Input);
-                action.SetOutput(Unit.Default);
-                return Task.CompletedTask;
-            }).DisposeWith(disposables);
-            DataContext.SwitchAboutTabInteractionInteraction.RegisterHandler(action =>
-            {
-                HandleAboutTabChange(action.Input);
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             }).DisposeWith(disposables);
@@ -108,47 +88,6 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
         _selectedSideBarButton.Classes.Add("SideBarActiveBtn");
     }
 
-    private void HandleSettingsTabChange(ESettingsTab tabType)
-    {
-        if (DataContext is not { } viewModel)
-            return;
-
-        if (viewModel.CurrentSettingsTab == tabType)
-            return;
-
-        viewModel.CurrentSettingsTab = tabType;
-        _selectedSettingsTabButton.Classes.Remove("SettingsTabBtnActive");
-        _selectedSettingsTabButton = tabType switch
-        {
-            ESettingsTab.LAUNCHER => LauncherSettingsBtn,
-            ESettingsTab.MINECRAFT => MinecraftSettingsBtn,
-            ESettingsTab.JAVA => JavaSettingsBtn,
-            ESettingsTab.MISC => MiscSettingsBtn,
-            _ => _selectedSettingsTabButton
-        };
-        _selectedSettingsTabButton.Classes.Add("SettingsTabBtnActive");
-    }
-
-    private void HandleAboutTabChange(EAboutTab tabType)
-    {
-        if (DataContext is not { } viewModel)
-            return;
-
-        if (viewModel.CurrentAboutTab == tabType)
-            return;
-
-        viewModel.CurrentAboutTab = tabType;
-        _selectedAboutTabButton.Classes.Remove("SettingsTabBtnActive");
-        _selectedAboutTabButton = tabType switch
-        {
-            EAboutTab.ABOUT => AboutInfoBtn,
-            EAboutTab.CREDITS => CreditsInfoBtn,
-            EAboutTab.LICENSE => LicenseInfoBtn,
-            _ => _selectedAboutTabButton
-        };
-        _selectedAboutTabButton.Classes.Add("SettingsTabBtnActive");
-    }
-
     #region Events
 
     /// <inheritdoc />
@@ -173,38 +112,5 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
         base.OnClosing(e);
     }
 
-    private void Language_OnSelected(object? sender, SelectionChangedEventArgs e)
-    {
-        if (DataContext is not { } viewModel)
-            return;
-
-        if (sender is not ComboBox { SelectedItem: Language selectedLanguage })
-            return;
-
-        viewModel.Config.CoreConfig.Launcher.Language = selectedLanguage.TwoLetterCode;
-    }
-
-    private void InstanceFlyoutBtn_OnClick(object? sender, RoutedEventArgs e)
-    {
-        if (sender is not Button btn) return;
-        var flyout = (MenuFlyout)Resources["InstanceMenu"]!;
-        foreach (var item in flyout.Items.OfType<MenuItem>())
-            item.CommandParameter = btn.DataContext;
-        flyout.ShowAt(btn);
-    }
-
-    private void InstanceMenu_Opening(object? sender, EventArgs e)
-    {
-        if (sender is MenuFlyout { Target: not null } flyout)
-        {
-            foreach (var item in flyout.Items)
-            {
-                if (item is StyledElement element)
-                    element.DataContext = flyout.Target.DataContext;
-            }
-        }
-    }
     #endregion
-
-
 }

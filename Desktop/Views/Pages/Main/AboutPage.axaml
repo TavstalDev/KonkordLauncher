@@ -1,0 +1,212 @@
+<UserControl
+    x:Class="Tavstal.KonkordLauncher.Desktop.Views.Pages.Main.AboutPage"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:domain="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Domain"
+    xmlns:enums="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Enums"
+    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
+    x:Name="Root"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    x:DataType="vm:MainViewModel"
+    mc:Ignorable="d">
+    <UserControl.DataTemplates>
+        <DataTemplate x:DataType="domain:InstanceModel" DataType="domain:InstanceModel" />
+    </UserControl.DataTemplates>
+
+    <Grid Margin="20,20,20,0" RowDefinitions="Auto, Auto, *">
+        <!--  Title  -->
+        <TextBlock Classes="MainContentTitle" Text="{lang:Translate about.tab.about}" />
+
+        <!--  Tab Buttons  -->
+        <Border Grid.Row="1" Classes="SettingsTabBorder">
+            <WrapPanel Classes="SettingsTabWrapper">
+                <Button
+                    Name="AboutInfoBtn"
+                    Classes="SettingsTabBtn SettingsTabBtnActive"
+                    Click="AboutInfoBtn_OnClick">
+                    <TextBlock Text="{lang:Translate about.tab.about}" />
+                </Button>
+                <Button
+                    Name="CreditsInfoBtn"
+                    Classes="SettingsTabBtn"
+                    Click="CreditsInfoBtn_OnClick">
+                    <TextBlock Text="{lang:Translate about.tab.credits}" />
+                </Button>
+                <Button
+                    Name="LicenseInfoBtn"
+                    Classes="SettingsTabBtn"
+                    Click="LicenseInfoBtn_OnClick">
+                    <TextBlock Text="{lang:Translate about.tab.license}" />
+                </Button>
+            </WrapPanel>
+        </Border>
+
+        <!--  Content  -->
+        <Carousel
+            Grid.Row="2"
+            Margin="0,15,0,0"
+            SelectedIndex="{Binding CurrentAboutTab}">
+            <Carousel.PageTransition>
+                <CompositePageTransition>
+                    <PageSlide Orientation="Vertical" Duration="0:00:00.200" />
+                </CompositePageTransition>
+            </Carousel.PageTransition>
+            <Carousel.Items>
+
+                <!--  About  -->
+                <ScrollViewer>
+                    <Grid Classes="AboutWrapper" RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto">
+                        <!--  Logo  -->
+                        <Image Classes="AboutLogo" Source="avares://KonkordLauncher/Assets/Images/logo.png" />
+                        <!--  Description  -->
+                        <TextBlock
+                            Grid.Row="1"
+                            Classes="CreditText"
+                            Text="{lang:Translate about.description}" />
+                        <!--  Github Link  -->
+                        <HyperlinkButton
+                            Grid.Row="2"
+                            HorizontalAlignment="Center"
+                            NavigateUri="https://github.com/TavstalDev/KonkordLauncher">
+                            <TextBlock Classes="LinkText">
+                                https://github.com/TavstalDev/KonkordLauncher
+                            </TextBlock>
+                        </HyperlinkButton>
+                        <!--  Website Link  -->
+                        <HyperlinkButton
+                            Grid.Row="3"
+                            HorizontalAlignment="Center"
+                            NavigateUri="https://tavstaldev.github.io/KonkordLauncher">
+                            <TextBlock Classes="LinkText">
+                                https://tavstaldev.github.io/KonkordLauncher
+                            </TextBlock>
+                        </HyperlinkButton>
+                        <!--  Line  -->
+                        <Border Grid.Row="4" Classes="BreakLine" />
+                        <!--  Version  -->
+                        <WrapPanel Grid.Row="5" Classes="AboutVersionWrapper">
+                            <TextBlock Classes="CreditText" Text="{lang:Translate about.version}" />
+                            <TextBlock Classes="CreditText" Text="{Binding About.Version}" />
+                        </WrapPanel>
+                        <!--  Build Date  -->
+                        <WrapPanel Grid.Row="6" Classes="AboutVersionWrapper">
+                            <TextBlock Classes="CreditText" Text="{lang:Translate about.buildDate}" />
+                            <TextBlock Classes="CreditText" Text="{Binding About.BuildDate}" />
+                        </WrapPanel>
+                        <!--  Branch  -->
+                        <WrapPanel Grid.Row="7" Classes="AboutVersionWrapper">
+                            <TextBlock Classes="CreditText" Text="{lang:Translate about.branch}" />
+                            <TextBlock Classes="CreditText" Text="{Binding About.Branch}" />
+                        </WrapPanel>
+                    </Grid>
+                </ScrollViewer>
+
+                <!--  Credits  -->
+                <ScrollViewer>
+                    <Grid Classes="AboutWrapper" RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto">
+                        <!--  Project Maintainers  -->
+                        <WrapPanel Classes="CreditWrapper">
+                            <!--  Subtitle  -->
+                            <TextBlock Classes="AboutCategory" Text="{lang:Translate about.credits.projectMaintainers}" />
+                            <TextBlock Classes="CreditText">
+                                Tavstal
+                            </TextBlock>
+                        </WrapPanel>
+                        <!--  Line  -->
+                        <Border Grid.Row="1" Classes="BreakLine" />
+                        <!--  Contributors  -->
+                        <WrapPanel Grid.Row="2" Classes="CreditWrapper">
+                            <!--  Subtitle  -->
+                            <TextBlock Classes="AboutCategory" Text="{lang:Translate about.credits.contributors}" />
+                            <TextBlock Classes="CreditText">
+                                -
+                            </TextBlock>
+                        </WrapPanel>
+                        <!--  Line  -->
+                        <Border
+                            Grid.Row="3"
+                            Height="1"
+                            Classes="BreakLine" />
+                        <!--  Special Thanks  -->
+                        <WrapPanel Grid.Row="4" Classes="CreditWrapper">
+                            <!--  Subtitle  -->
+                            <TextBlock Classes="AboutCategory" Text="{lang:Translate about.credits.specialThanks}" />
+                            <TextBlock Classes="CreditText">
+                                -
+                            </TextBlock>
+                        </WrapPanel>
+                        <!--  Line  -->
+                        <Border
+                            Grid.Row="5"
+                            Height="1"
+                            Classes="BreakLine" />
+                        <!--  Third-Party  -->
+                        <WrapPanel Grid.Row="6" Classes="CreditWrapper">
+                            <!--  Subtitle  -->
+                            <TextBlock Classes="AboutCategory" Text="{lang:Translate about.credits.thirdParty}" />
+                            <!--  AvaloniaUI  -->
+                            <TextBlock Classes="CreditText">
+                                AvaloniaUI: Cross-platform UI framework.
+                            </TextBlock>
+                            <!--  CommunityToolkit.Mvvm  -->
+                            <TextBlock Classes="CreditText">
+                                CommunityToolkit.Mvvm: MVVM helper types.
+                            </TextBlock>
+                            <!--  Newtonsoft.Json  -->
+                            <TextBlock Classes="CreditText">
+                                Newtonsoft.Json: JSON serialization.
+                            </TextBlock>
+                            <!--  Markdown.Avalonia & ReverseMarkdown  -->
+                            <TextBlock Classes="CreditText">
+                                Markdown.Avalonia and ReverseMarkdown: Markdown handling.
+                            </TextBlock>
+                            <!--  SharpZipLib  -->
+                            <TextBlock Classes="CreditText">
+                                SharpZipLib: File compression library.
+                            </TextBlock>
+                            <!--  CmlLib  -->
+                            <TextBlock Classes="CreditText">
+                                CmlLib: Provided a reference for the Forge installation logic.
+                            </TextBlock>
+                            <!--  Modrinth & CurseForge  -->
+                            <TextBlock Classes="CreditText">
+                                Modrinth and CurseForge: Used for mod, modpack, and resource pack downloads.
+                            </TextBlock>
+                            <!--  Mojang  -->
+                            <TextBlock Classes="CreditText">
+                                Mojang: Makers of Minecraft.
+                            </TextBlock>
+                            <!--  FontAwesome  -->
+                            <TextBlock Classes="CreditText">
+                                FontAwesome: Icon library.
+                            </TextBlock>
+                            <!--  TextStudio  -->
+                            <TextBlock Classes="CreditText">
+                                TextStudio: Minecraft 3D text creator.
+                            </TextBlock>
+                            <!--  Minecraft Block Icons  -->
+                            <TextBlock Classes="CreditText">
+                                Minecraft Block Icons: Sourced from Minecraft and its wiki.
+                            </TextBlock>
+                            <!--    -->
+                            <TextBlock Classes="CreditText">
+                                PrismLauncher: A major source of inspiration for the launcher's functionality.
+                            </TextBlock>
+                        </WrapPanel>
+                    </Grid>
+                </ScrollViewer>
+
+                <!--  License  -->
+                <ScrollViewer Classes="LicenseScrollViewer">
+                    <TextBlock Classes="LicenseText" Text="{Binding About.License}" />
+                </ScrollViewer>
+
+            </Carousel.Items>
+        </Carousel>
+    </Grid>
+</UserControl>
+

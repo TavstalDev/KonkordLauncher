@@ -1,0 +1,600 @@
+<UserControl
+    x:Class="Tavstal.KonkordLauncher.Desktop.Views.Pages.Main.SettingsPage"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:domain="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Domain"
+    xmlns:enums="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Enums"
+    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
+    x:Name="Root"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    x:DataType="vm:MainViewModel"
+    mc:Ignorable="d">
+    <UserControl.DataTemplates>
+        <DataTemplate x:DataType="domain:InstanceModel" DataType="domain:InstanceModel" />
+    </UserControl.DataTemplates>
+
+    <Grid Margin="20,20,20,0" RowDefinitions="Auto, Auto, *">
+        <!--  Title  -->
+        <TextBlock Classes="MainContentTitle" Text="{lang:Translate main.page.settings.title}" />
+
+        <!--  Settings Buttons  -->
+        <Border Grid.Row="1" Classes="SettingsTabBorder">
+            <WrapPanel Classes="SettingsTabWrapper">
+                <Button
+                    Name="LauncherSettingsBtn"
+                    Classes="SettingsTabBtn SettingsTabBtnActive"
+                    Click="LauncherSettingsBtn_OnClick">
+                    <TextBlock Text="{lang:Translate settings.tab.launcher}" />
+                </Button>
+                <Button
+                    Name="MinecraftSettingsBtn"
+                    Classes="SettingsTabBtn"
+                    Click="MinecraftSettingsBtn_OnClick">
+                    <TextBlock Text="{lang:Translate settings.tab.minecraft}" />
+                </Button>
+                <Button
+                    Name="JavaSettingsBtn"
+                    Classes="SettingsTabBtn"
+                    Click="JavaSettingsBtn_OnClick">
+                    <TextBlock Text="{lang:Translate settings.tab.java}" />
+                </Button>
+                <Button
+                    Name="MiscSettingsBtn"
+                    Classes="SettingsTabBtn"
+                    Click="MiscSettingsBtn_OnClick">
+                    <TextBlock Text="{lang:Translate settings.tab.misc}" />
+                </Button>
+            </WrapPanel>
+        </Border>
+
+        <!--  Settings Content  -->
+        <Carousel
+            Grid.Row="2"
+            Margin="0,15,0,0"
+            SelectedIndex="{Binding CurrentSettingsTab}">
+            <Carousel.PageTransition>
+                <CompositePageTransition>
+                    <PageSlide Orientation="Vertical" Duration="0:00:00.200" />
+                </CompositePageTransition>
+            </Carousel.PageTransition>
+            <Carousel.Items>
+                <!--  Launcher  -->
+                <ScrollViewer Padding="0,0,15,0">
+                    <StackPanel Classes="SettingsWrapper">
+                        <!--  General Category  -->
+                        <Border Classes="SettingsCategoryBorder">
+                            <StackPanel>
+                                <!--  Category Title  -->
+                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.launcher.subtitle.general}" />
+
+                                <!--  Enable Launcher Updates  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.autoUpdate}" />
+                                    <ToggleSwitch
+                                        Grid.Column="1"
+                                        Classes="SettingsSwitch"
+                                        IsChecked="{Binding Config.CoreConfig.Launcher.EnableAutomaticUpdates, Mode=TwoWay}" />
+                                </Grid>
+
+                                <!--  Update Interval  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.updateInterval}" />
+                                    <NumericUpDown
+                                        Grid.Column="1"
+                                        Classes="NumericInput"
+                                        FormatString="0\h"
+                                        Increment="1"
+                                        IsEnabled="{Binding Config.CoreConfig.Launcher.EnableAutomaticUpdates}"
+                                        Maximum="8760"
+                                        Minimum="1"
+                                        Value="{Binding Config.CoreConfig.Launcher.UpdateInterval, Mode=TwoWay}" />
+                                </Grid>
+
+                                <!--  Language  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.language}" />
+                                    <ComboBox
+                                        Grid.Column="1"
+                                        Classes="TextDropdown"
+                                        ItemsSource="{Binding Config.CoreConfig.AvailableLanguages}"
+                                        SelectedIndex="0"
+                                        SelectionChanged="Language_OnSelected">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Margin="0" Text="{Binding Name}" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </Grid>
+
+                                <!--  Theme  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.theme}" />
+                                    <ComboBox
+                                        Grid.Column="1"
+                                        Classes="TextDropdown"
+                                        SelectedIndex="{Binding Config.CoreConfig.Launcher.Theme, Mode=TwoWay}">
+                                        <ComboBoxItem Content="Light" />
+                                        <ComboBoxItem Content="Dark" />
+                                    </ComboBox>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!--  Directories Category  -->
+                        <Border Classes="SettingsCategoryBorder">
+                            <StackPanel>
+                                <!--  Category Title  -->
+                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.launcher.subtitle.directories}" />
+
+                                <!--  Assets Directory  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400, Auto">
+                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.dir.assets}" />
+                                    <TextBox
+                                        Grid.Column="1"
+                                        Classes="TextInput"
+                                        PlaceholderText="{lang:Translate common.select.directory}"
+                                        Text="{Binding Config.CoreConfig.Launcher.AssetsDirectoryPath, Mode=TwoWay}" />
+                                    <Button
+                                        Grid.Column="2"
+                                        Classes="IconBtn"
+                                        Command="{Binding Config.ConfigDirSelectCommand}"
+                                        CommandParameter="0">
+                                        <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                    </Button>
+                                </Grid>
+
+                                <!--  Cache Directory  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400, Auto">
+                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.dir.cache}" />
+                                    <TextBox
+                                        Grid.Column="1"
+                                        Classes="TextInput"
+                                        PlaceholderText="{lang:Translate common.select.directory}"
+                                        Text="{Binding Config.CoreConfig.Launcher.CacheDirectoryPath, Mode=TwoWay}" />
+                                    <Button
+                                        Grid.Column="2"
+                                        Classes="IconBtn"
+                                        Command="{Binding Config.ConfigDirSelectCommand}"
+                                        CommandParameter="1">
+                                        <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                    </Button>
+                                </Grid>
+
+                                <!--  Icons Directory  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400, Auto">
+                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.dir.icons}" />
+                                    <TextBox
+                                        Grid.Column="1"
+                                        Classes="TextInput"
+                                        PlaceholderText="{lang:Translate common.select.directory}"
+                                        Text="{Binding Config.CoreConfig.Launcher.IconsDirectoryPath, Mode=TwoWay}" />
+                                    <Button
+                                        Grid.Column="2"
+                                        Classes="IconBtn"
+                                        Command="{Binding Config.ConfigDirSelectCommand}"
+                                        CommandParameter="3">
+                                        <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                    </Button>
+                                </Grid>
+
+                                <!--  Instances Directory  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400, Auto">
+                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.dir.instances}" />
+                                    <TextBox
+                                        Grid.Column="1"
+                                        Classes="TextInput"
+                                        PlaceholderText="{lang:Translate common.select.directory}"
+                                        Text="{Binding Config.CoreConfig.Launcher.InstancesDirectoryPath, Mode=TwoWay}" />
+                                    <Button
+                                        Grid.Column="2"
+                                        Classes="IconBtn"
+                                        Command="{Binding Config.ConfigDirSelectCommand}"
+                                        CommandParameter="2">
+                                        <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                    </Button>
+                                </Grid>
+
+                                <!--  Java Directory  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400, Auto">
+                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.dir.java}" />
+                                    <TextBox
+                                        Grid.Column="1"
+                                        Classes="TextInput"
+                                        PlaceholderText="{lang:Translate common.select.directory}"
+                                        Text="{Binding Config.CoreConfig.Launcher.JavaDirectoryPath, Mode=TwoWay}" />
+                                    <Button
+                                        Grid.Column="2"
+                                        Classes="IconBtn"
+                                        Command="{Binding Config.ConfigDirSelectCommand}"
+                                        CommandParameter="4">
+                                        <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                    </Button>
+                                </Grid>
+
+                                <!--  Libraries Directory  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400, Auto">
+                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.dir.libraries}" />
+                                    <TextBox
+                                        Grid.Column="1"
+                                        Classes="TextInput"
+                                        PlaceholderText="{lang:Translate common.select.directory}"
+                                        Text="{Binding Config.CoreConfig.Launcher.LibrariesDirectoryPath, Mode=TwoWay}" />
+                                    <Button
+                                        Grid.Column="2"
+                                        Classes="IconBtn"
+                                        Command="{Binding Config.ConfigDirSelectCommand}"
+                                        CommandParameter="5">
+                                        <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                    </Button>
+                                </Grid>
+
+                                <!--  Manifests Directory  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400, Auto">
+                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.dir.manifests}" />
+                                    <TextBox
+                                        Grid.Column="1"
+                                        Classes="TextInput"
+                                        PlaceholderText="{lang:Translate common.select.directory}"
+                                        Text="{Binding Config.CoreConfig.Launcher.ManifestsDirectoryPath, Mode=TwoWay}" />
+                                    <Button
+                                        Grid.Column="2"
+                                        Classes="IconBtn"
+                                        Command="{Binding Config.ConfigDirSelectCommand}"
+                                        CommandParameter="6">
+                                        <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                    </Button>
+                                </Grid>
+
+                                <!--  Translations Directory  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400, Auto">
+                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.dir.translations}" />
+                                    <TextBox
+                                        Grid.Column="1"
+                                        Classes="TextInput"
+                                        PlaceholderText="{lang:Translate common.select.directory}"
+                                        Text="{Binding Config.CoreConfig.Launcher.TranslationsDirectoryPath, Mode=TwoWay}" />
+                                    <Button
+                                        Grid.Column="2"
+                                        Classes="IconBtn"
+                                        Command="{Binding Config.ConfigDirSelectCommand}"
+                                        CommandParameter="7">
+                                        <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                    </Button>
+                                </Grid>
+
+                                <!--  Versions Directory  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400, Auto">
+                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.dir.versions}" />
+                                    <TextBox
+                                        Grid.Column="1"
+                                        Classes="TextInput"
+                                        PlaceholderText="{lang:Translate common.select.directory}"
+                                        Text="{Binding Config.CoreConfig.Launcher.VersionsDirectoryPath, Mode=TwoWay}" />
+                                    <Button
+                                        Grid.Column="2"
+                                        Classes="IconBtn"
+                                        Command="{Binding Config.ConfigDirSelectCommand}"
+                                        CommandParameter="8">
+                                        <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                    </Button>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!--  Minecraft  -->
+                <ScrollViewer Padding="0,0,15,0">
+                    <StackPanel Classes="SettingsWrapper">
+                        <!--  General Category  -->
+                        <Border Classes="SettingsCategoryBorder">
+                            <StackPanel>
+                                <!--  Category Title  -->
+                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.launcher.subtitle.general}" />
+
+                                <!--  Start Maximized  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.minecraft.startMaximized}" />
+                                    <ToggleSwitch
+                                        Grid.Column="1"
+                                        Classes="SettingsSwitch"
+                                        IsChecked="{Binding Config.CoreConfig.Minecraft.StartMaximized, Mode=TwoWay}" />
+                                </Grid>
+
+                                <!--  Window Width  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.minecraft.windowWidth}" />
+                                    <NumericUpDown
+                                        Grid.Column="1"
+                                        Classes="NumericInput"
+                                        FormatString="0"
+                                        Increment="10"
+                                        IsEnabled="{Binding !Config.CoreConfig.Minecraft.StartMaximized}"
+                                        Maximum="{Binding ScreenWidth}"
+                                        Minimum="100"
+                                        Value="{Binding Config.CoreConfig.Minecraft.WindowWidth, Mode=TwoWay}" />
+                                </Grid>
+
+                                <!--  Window Height  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.minecraft.windowHeight}" />
+                                    <NumericUpDown
+                                        Grid.Column="1"
+                                        Classes="NumericInput"
+                                        FormatString="0"
+                                        Increment="10"
+                                        IsEnabled="{Binding !Config.CoreConfig.Minecraft.StartMaximized}"
+                                        Maximum="{Binding ScreenHeight}"
+                                        Minimum="100"
+                                        Value="{Binding Config.CoreConfig.Minecraft.WindowHeight, Mode=TwoWay}" />
+                                </Grid>
+
+                                <!--  Close Launcher after game opens  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.minecraft.closeOpen}" />
+                                    <ToggleSwitch
+                                        Grid.Column="1"
+                                        Classes="SettingsSwitch"
+                                        IsChecked="{Binding Config.CoreConfig.Minecraft.CloseLauncherOnGameStart, Mode=TwoWay}" />
+                                </Grid>
+
+                                <!--  Close Launcher after game closes  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.minecraft.closeExit}" />
+                                    <ToggleSwitch
+                                        Grid.Column="1"
+                                        Classes="SettingsSwitch"
+                                        IsChecked="{Binding Config.CoreConfig.Minecraft.CloseLauncherOnGameExit, Mode=TwoWay}" />
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!--  Java  -->
+                <ScrollViewer Padding="0,0,15,0">
+                    <StackPanel Classes="SettingsWrapper">
+                        <!--  General Category  -->
+                        <Border Classes="SettingsCategoryBorder">
+                            <StackPanel>
+                                <!--  Category Title  -->
+                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.launcher.subtitle.general}" />
+
+                                <!--  Minimum Memory  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.java.minMemory}" />
+                                    <NumericUpDown
+                                        Grid.Column="1"
+                                        Classes="NumericInput"
+                                        FormatString="0\ MB"
+                                        Increment="128"
+                                        Maximum="{Binding Config.CoreConfig.Java.MaxMemory}"
+                                        Minimum="512"
+                                        Value="{Binding Config.CoreConfig.Java.MinMemory, Mode=TwoWay}" />
+                                </Grid>
+
+                                <!--  Maximum Memory  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.java.maxMemory}" />
+                                    <NumericUpDown
+                                        Grid.Column="1"
+                                        Classes="NumericInput"
+                                        FormatString="0\ MB"
+                                        Increment="128"
+                                        Maximum="131072"
+                                        Minimum="512"
+                                        Value="{Binding Config.CoreConfig.Java.MaxMemory, Mode=TwoWay}" />
+                                </Grid>
+
+                                <!--  PermGen  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.java.permaGen}" />
+                                    <NumericUpDown
+                                        Grid.Column="1"
+                                        Classes="NumericInput"
+                                        FormatString="0\ MB"
+                                        Increment="128"
+                                        Maximum="1024"
+                                        Minimum="8"
+                                        Value="{Binding Config.CoreConfig.Java.PermaGen, Mode=TwoWay}" />
+                                </Grid>
+
+                                <!--  Java Path  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 350, Auto">
+                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.java.path}" />
+                                    <TextBox
+                                        Grid.Column="1"
+                                        Classes="TextInput"
+                                        PlaceholderText="{lang:Translate common.select.directory}"
+                                        Text="{Binding Config.CoreConfig.Java.DefaultJavaPath, Mode=TwoWay}" />
+                                    <StackPanel
+                                        Grid.Column="2"
+                                        Orientation="Horizontal"
+                                        Spacing="5">
+                                        <Button
+                                            Classes="IconBtn"
+                                            Command="{Binding Config.ConfigDirSelectCommand}"
+                                            CommandParameter="9">
+                                            <TextBlock Classes="FontAwesome" Text="&#xf07c;" />
+                                        </Button>
+                                        <Button Classes="IconBtn" Command="{Binding Config.JavaPathSelectorCommand}">
+                                            <TextBlock Classes="FontAwesome" Text="&#xf126;" />
+                                        </Button>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!--  JVM Arguments  Category  -->
+                        <Border Classes="SettingsCategoryBorder">
+                            <StackPanel Spacing="10">
+                                <!--  Category Title  -->
+                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.java.jvmArgs}" />
+
+                                <!--  Input  -->
+                                <TextBox
+                                    MinHeight="128"
+                                    MaxLines="512"
+                                    Text="{Binding Config.CoreConfig.Java.JvmArguments, Mode=TwoWay}"
+                                    TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!--  Misc  -->
+                <ScrollViewer Padding="0,0,15,0">
+                    <StackPanel Classes="SettingsWrapper">
+                        <!--  Custom Commands Category  -->
+                        <Border Classes="SettingsCategoryBorder">
+                            <StackPanel>
+                                <!--  Category Title  -->
+                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.misc.subtitle.customCommands}" />
+
+                                <!--  Pre-launch Command  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
+                                    <StackPanel MaxWidth="200" HorizontalAlignment="Left">
+                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.prelaunchCommand.label}" />
+                                        <TextBlock
+                                            Classes="SettingsDescription"
+                                            Text="{lang:Translate settings.misc.prelaunchCommand.description}"
+                                            TextWrapping="Wrap" />
+                                    </StackPanel>
+                                    <TextBox
+                                        Grid.Column="1"
+                                        Classes="TextInput"
+                                        Text="{Binding Config.CoreConfig.Misc.PreLaunchCommand, Mode=TwoWay}" />
+                                </Grid>
+
+                                <!--  Wrapper Command  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
+                                    <StackPanel MaxWidth="200" HorizontalAlignment="Left">
+                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.wrapperCommand.label}" />
+                                        <TextBlock
+                                            Classes="SettingsDescription"
+                                            Text="{lang:Translate settings.misc.wrapperCommand.description}"
+                                            TextWrapping="Wrap" />
+                                    </StackPanel>
+                                    <TextBox
+                                        Grid.Column="1"
+                                        Classes="TextInput"
+                                        Text="{Binding Config.CoreConfig.Misc.WrapperCommand, Mode=TwoWay}" />
+                                </Grid>
+
+                                <!--  Post-exit Command  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
+                                    <StackPanel MaxWidth="200" HorizontalAlignment="Left">
+                                        <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.postExitCommand.label}" />
+                                        <TextBlock
+                                            Classes="SettingsDescription"
+                                            Text="{lang:Translate settings.misc.postExitCommand.description}"
+                                            TextWrapping="Wrap" />
+                                    </StackPanel>
+                                    <TextBox
+                                        Grid.Column="1"
+                                        Classes="TextInput"
+                                        Text="{Binding Config.CoreConfig.Misc.PostExitCommand, Mode=TwoWay}" />
+                                </Grid>
+
+                            </StackPanel>
+                        </Border>
+
+                        <!--  Native Libraries Category  -->
+                        <Border Classes="SettingsCategoryBorder">
+                            <StackPanel>
+                                <!--  Category Title  -->
+                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.misc.subtitle.nativeLibraries}" />
+
+                                <!--  Use custom GLFW  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.customGLFW}" />
+                                    <ToggleSwitch
+                                        Grid.Column="1"
+                                        Classes="SettingsSwitch"
+                                        IsChecked="{Binding Config.CoreConfig.Misc.UseCustomGlfw, Mode=TwoWay}" />
+                                </Grid>
+
+                                <!--  GLFW library path  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
+                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.pathGLFW}" />
+                                    <TextBox
+                                        Grid.Column="1"
+                                        Classes="TextInput"
+                                        IsEnabled="{Binding Config.CoreConfig.Misc.UseCustomGlfw}"
+                                        PlaceholderText="{lang:Translate common.select.file}"
+                                        Text="{Binding Config.CoreConfig.Misc.CustomGlfwPath, Mode=TwoWay}" />
+                                </Grid>
+
+                                <!--  Use custom OpenAL  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.customOpenAL}" />
+                                    <ToggleSwitch
+                                        Grid.Column="1"
+                                        Classes="SettingsSwitch"
+                                        IsChecked="{Binding Config.CoreConfig.Misc.UseCustomOpenAl, Mode=TwoWay}" />
+                                </Grid>
+
+                                <!--  OpenAL library path  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
+                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.pathOpenAL}" />
+                                    <TextBox
+                                        Grid.Column="1"
+                                        Classes="TextInput"
+                                        IsEnabled="{Binding Config.CoreConfig.Misc.UseCustomOpenAl}"
+                                        PlaceholderText="{lang:Translate common.select.file}"
+                                        Text="{Binding Config.CoreConfig.Misc.CustomOpenAlPath, Mode=TwoWay}" />
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!--  Performance Category  -->
+                        <Border Classes="SettingsCategoryBorder">
+                            <StackPanel>
+                                <!--  Category Title  -->
+                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.misc.subtitle.performance}" />
+
+                                <!--  Enable Feral GameMode  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.enableGameMode}" />
+                                    <ToggleSwitch
+                                        Grid.Column="1"
+                                        Classes="SettingsSwitch"
+                                        IsChecked="{Binding Config.CoreConfig.Misc.EnableFeralGameMode, Mode=TwoWay}"
+                                        IsEnabled="{Binding IsLinux}" />
+                                </Grid>
+
+                                <!--  Enable MangoHud  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.enableMangoHud}" />
+                                    <ToggleSwitch
+                                        Grid.Column="1"
+                                        Classes="SettingsSwitch"
+                                        IsChecked="{Binding Config.CoreConfig.Misc.EnableMangoHud, Mode=TwoWay}"
+                                        IsEnabled="{Binding IsLinux}" />
+                                </Grid>
+
+                                <!--  Use dedicated GPU  -->
+                                <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
+                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.useDedicatedGpu}" />
+                                    <ToggleSwitch
+                                        Grid.Column="1"
+                                        Classes="SettingsSwitch"
+                                        IsChecked="{Binding Config.CoreConfig.Misc.UseDedicatedGpu, Mode=TwoWay}" />
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </Carousel.Items>
+        </Carousel>
+    </Grid>
+</UserControl>
+

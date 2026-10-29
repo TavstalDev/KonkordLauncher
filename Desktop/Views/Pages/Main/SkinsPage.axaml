@@ -1,0 +1,170 @@
+<UserControl
+    x:Class="Tavstal.KonkordLauncher.Desktop.Views.Pages.Main.SkinsPage"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:domain="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Domain"
+    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
+    x:Name="Root"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    x:DataType="vm:MainViewModel"
+    mc:Ignorable="d">
+    <UserControl.DataTemplates>
+        <!--  Skin Card  -->
+        <DataTemplate DataType="domain:SkinDataModel">
+            <Border Classes="SkinBorder" Classes.selected="{Binding IsSelected}">
+                <Button
+                    Classes="SkinBtn"
+                    Command="{Binding #Root.((vm:MainViewModel)DataContext).Accounts.SkinSelectCommand}"
+                    CommandParameter="{Binding .}">
+                    <Viewbox Classes="SkinViewBox">
+                        <Image Classes="SkinPreview" Source="{Binding Image.Value}" />
+                    </Viewbox>
+                </Button>
+            </Border>
+        </DataTemplate>
+        <!--  Cape Card  -->
+        <DataTemplate DataType="domain:CapeDataModel">
+            <Border Classes="SkinBorder" Classes.selected="{Binding IsSelected}">
+                <Button
+                    Classes="SkinBtn"
+                    Command="{Binding #Root.((vm:MainViewModel)DataContext).Accounts.CapeSelectCommand}"
+                    CommandParameter="{Binding .}"
+                    ToolTip.Tip="{Binding Alias}">
+                    <Viewbox MaxHeight="70" Classes="SkinViewBox">
+                        <Image Classes="SkinPreview" Source="{Binding Image.Value}" />
+                    </Viewbox>
+                </Button>
+            </Border>
+        </DataTemplate>
+    </UserControl.DataTemplates>
+
+    <Grid
+        Margin="20"
+        RowDefinitions="Auto, *"
+        RowSpacing="10">
+        <!--  Title  -->
+        <TextBlock Classes="MainContentTitle" Text="{lang:Translate main.page.skins.title}" />
+        <!--  Content  -->
+        <Grid
+            Grid.Row="1"
+            ColumnDefinitions="*, *"
+            ColumnSpacing="10">
+            <!--  Preview  -->
+            <StackPanel Spacing="10">
+                <!--  Skin Preview  -->
+                <Border
+                    Padding="20"
+                    Background="{DynamicResource base-300}"
+                    CornerRadius="14">
+                    <StackPanel Spacing="10">
+                        <!--  Title  -->
+                        <TextBlock Classes="Muted" Text="{lang:Translate main.page.skins.preview}" />
+                        <!--  Options  -->
+                        <Viewbox MaxHeight="280" Classes="SkinViewBox">
+                            <Image Classes="SkinPreview" Source="{Binding Accounts.AccountSkinPreview.Value}" />
+                        </Viewbox>
+                    </StackPanel>
+                </Border>
+                <!--  Model Type Selection  -->
+                <Border
+                    Padding="20"
+                    Background="{DynamicResource base-300}"
+                    CornerRadius="14">
+                    <StackPanel Spacing="10">
+                        <!--  Title  -->
+                        <TextBlock Classes="Muted" Text="{lang:Translate main.page.skins.model.label}" />
+                        <!--  Options  -->
+                        <Grid ColumnDefinitions="*, *" ColumnSpacing="10">
+                            <!--  Wide Model  -->
+                            <Button
+                                Classes="SkinModelBtn"
+                                Classes.selected="{Binding Accounts.IsAccountHasWideModel}"
+                                Command="{Binding Accounts.ModelSelectCommand}"
+                                CommandParameter="classic"
+                                IsEnabled="{Binding !Accounts.IsAccountSkinProcessing}">
+                                <TextBlock Foreground="{DynamicResource base-content}" Text="{lang:Translate main.page.skins.model.wide}" />
+                            </Button>
+                            <!--  Slim Model  -->
+                            <Button
+                                Grid.Column="1"
+                                Classes="SkinModelBtn"
+                                Classes.selected="{Binding !Accounts.IsAccountHasWideModel}"
+                                Command="{Binding Accounts.ModelSelectCommand}"
+                                CommandParameter="slim"
+                                IsEnabled="{Binding !Accounts.IsAccountSkinProcessing}">
+                                <TextBlock Foreground="{DynamicResource base-content}" Text="{lang:Translate main.page.skins.model.slim}" />
+                            </Button>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+            <!--  Content  -->
+            <ScrollViewer Grid.Column="1" Padding="0,0,20,0">
+                <Grid RowDefinitions="Auto, Auto" RowSpacing="10">
+                    <!--  Skin Selection  -->
+                    <Border
+                        Grid.Row="0"
+                        Padding="20"
+                        Background="{DynamicResource base-300}"
+                        CornerRadius="14">
+                        <Grid RowDefinitions="Auto, Auto" RowSpacing="10">
+                            <!--  Title  -->
+                            <Grid Grid.Row="0" ColumnDefinitions="*, Auto">
+                                <TextBlock Classes="Muted" Text="{lang:Translate main.page.skins.skins}" />
+                                <!--  Upload Button  -->
+                                <Button
+                                    Grid.Column="1"
+                                    Classes="IconBtn PrimaryBtn"
+                                    Command="{Binding Accounts.SkinUploadCommand}"
+                                    IsEnabled="{Binding !Accounts.IsAccountSkinProcessing}">
+                                    <TextBlock Classes="FontAwesome" Text="&#xf093;" />
+                                </Button>
+                            </Grid>
+                            <!--  Options  -->
+                            <ItemsControl Grid.Row="1" ItemsSource="{Binding Accounts.Skins}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel ItemSpacing="10" LineSpacing="10" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                        </Grid>
+                    </Border>
+                    <!--  Cape Selection  -->
+                    <Border
+                        Grid.Row="1"
+                        Padding="20"
+                        Background="{DynamicResource base-300}"
+                        CornerRadius="14">
+                        <Grid RowDefinitions="Auto, Auto" RowSpacing="10">
+                            <!--  Title  -->
+                            <TextBlock
+                                Grid.Row="0"
+                                Classes="Muted"
+                                Text="{lang:Translate main.page.skins.capes}" />
+                            <!--  Options  -->
+                            <ItemsControl
+                                Grid.Row="1"
+                                HorizontalAlignment="Center"
+                                ItemsSource="{Binding Accounts.Capes}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel
+                                            HorizontalAlignment="Center"
+                                            ItemSpacing="10"
+                                            LineSpacing="10" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</UserControl>
+

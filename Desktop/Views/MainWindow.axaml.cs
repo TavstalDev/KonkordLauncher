@@ -1,8 +1,11 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Reactive;
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using ReactiveUI;
 using ReactiveUI.Primitives;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
@@ -181,5 +184,27 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
         viewModel.Config.CoreConfig.Launcher.Language = selectedLanguage.TwoLetterCode;
     }
 
+    private void InstanceFlyoutBtn_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Button btn) return;
+        var flyout = (MenuFlyout)Resources["InstanceMenu"]!;
+        foreach (var item in flyout.Items.OfType<MenuItem>())
+            item.CommandParameter = btn.DataContext;
+        flyout.ShowAt(btn);
+    }
+
+    private void InstanceMenu_Opening(object? sender, EventArgs e)
+    {
+        if (sender is MenuFlyout { Target: not null } flyout)
+        {
+            foreach (var item in flyout.Items)
+            {
+                if (item is StyledElement element)
+                    element.DataContext = flyout.Target.DataContext;
+            }
+        }
+    }
     #endregion
+
+
 }

@@ -6,26 +6,70 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using Microsoft.Extensions.Hosting;
+using Tavstal.BeaconSDK.Models.Logging;
+using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Desktop.Services.Presentation;
 
-/// <inheritdoc />
-public class BitmapService : IBitmapService
+/// <inheritdoc cref="IBitmapService" />
+public class BitmapService : IHostedService, IBitmapService
 {
-    private readonly ConcurrentDictionary<string, Bitmap> _cache = new();
-    private readonly IHttpClientFactory _httpClientFactory;
-    private readonly ConcurrentDictionary<string, SemaphoreSlim> _locks = new();
-    private readonly ConcurrentDictionary<string, int> _refCounts = new();
+    private readonly IBeaconLogger _logger;
+    private readonly HttpClient _httpClient;
+    private readonly ConcurrentDictionary<string, Bitmap> _cache = [];
+    private readonly ConcurrentDictionary<string, SemaphoreSlim> _locks = [];
+    private readonly ConcurrentDictionary<string, int> _refCounts = [];
 
-    public BitmapService(IHttpClientFactory httpClientFactory)
+    public BitmapService(IBeaconLogger<BitmapService> logger, IHttpClientFactory httpClientFactory)
     {
-        _httpClientFactory = httpClientFactory;
+        _logger = logger;
+        _httpClient = httpClientFactory.CreateClient("default");
+    }
+
+    public Task StartAsync(CancellationToken cancellationToken)
+    {
+        _logger.LogDebug("The service has started successfully.");
+        return Task.CompletedTask;
+    }
+
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        _logger.LogDebug("Stopping the service...");
+        _httpClient.Dispose();
+        foreach (var bitmap in _cache.Values)
+        {
+            try
+            {
+                bitmap.Dispose();
+            }
+            catch
+            {
+                // Ignore exceptions during disposal
+            }
+        }
+        _cache.Clear();
+        foreach (var loc in _locks.Values)
+        {
+            try
+            {
+                loc.Dispose();
+            }
+            catch
+            {
+                // Ignore exceptions during disposal
+            }
+        }
+        _locks.Clear();
+        _refCounts.Clear();
+        _logger.LogDebug("The service has stopped successfully.");
+        return Task.CompletedTask;
     }
 
     /// <inheritdoc />
-    public BitmapEntry GetBitmap(string path)
+    public BitmapEntry GetBitmap(string path, int decodeWidth = 256)
     {
         if (_cache.TryGetValue(path, out var cached))
         {
@@ -33,14 +77,14 @@ public class BitmapService : IBitmapService
             return new BitmapEntry(path, cached);
         }
 
-        var image = LoadFromResource(path);
+        var image = LoadFromResource(path, decodeWidth);
         _cache[path] = image;
         _refCounts.AddOrUpdate(path, 1, (_, count) => count + 1);
         return new BitmapEntry(path, image);
     }
 
     /// <inheritdoc />
-    public BitmapEntry GetBitmapBase64(string cacheKey, string base64Image)
+    public BitmapEntry GetBitmapBase64(string cacheKey, string base64Image, int decodeWidth = 256)
     {
         if (_cache.TryGetValue(cacheKey, out var cached))
         {
@@ -50,14 +94,23 @@ public class BitmapService : IBitmapService
 
         var bytes = Convert.FromBase64String(base64Image);
         using var stream = new MemoryStream(bytes);
-        var image = new Bitmap(stream);
-        _cache[cacheKey] = image;
+
+        using var originalBitmap = new Bitmap(stream);
+        int originalWidth = originalBitmap.PixelSize.Width;
+        stream.Position = 0;
+
+        var finalBitmap = originalWidth > decodeWidth
+            ?
+            Bitmap.DecodeToWidth(stream, decodeWidth)
+            : originalBitmap;
+
+        _cache[cacheKey] = finalBitmap;
         _refCounts.AddOrUpdate(cacheKey, 1, (_, count) => count + 1);
-        return new BitmapEntry(cacheKey, image);
+        return new BitmapEntry(cacheKey, finalBitmap);
     }
 
     /// <inheritdoc />
-    public async Task<BitmapEntry> GetBitmapAsync(string uri)
+    public async Task<BitmapEntry> GetBitmapAsync(string uri, int decodeWidth = 256)
     {
         if (_cache.TryGetValue(uri, out var cached))
         {
@@ -79,9 +132,9 @@ public class BitmapService : IBitmapService
             Bitmap image;
             if (uri.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
                 uri.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
-                image = await LoadFromWebAsync(uri);
+                image = await LoadFromWebAsync(uri, decodeWidth);
             else
-                image = LoadFromResource(uri);
+                image = LoadFromResource(uri, decodeWidth);
             _cache[uri] = image;
             _refCounts.AddOrUpdate(uri, 1, (_, count) => count + 1);
             return new BitmapEntry(uri, image);
@@ -105,26 +158,49 @@ public class BitmapService : IBitmapService
             }
     }
 
-    private async Task<Bitmap> LoadFromWebAsync(string uri)
+    private async Task<Bitmap> LoadFromWebAsync(string uri, int decodeWidth)
     {
-        using var client = _httpClientFactory.CreateClient("default");
-        using var response = await client.GetAsync(uri);
+        using var response = await _httpClient.GetAsync(uri);
         if (response == null)
             throw new Exception($"Failed to load image from web: {uri}");
         response.EnsureSuccessStatusCode();
         await using var stream = await response.Content.ReadAsStreamAsync();
-        return new Bitmap(stream);
+
+        using var originalBitmap = new Bitmap(stream);
+        int originalWidth = originalBitmap.PixelSize.Width;
+        stream.Position = 0;
+
+        var finalBitmap = originalWidth > decodeWidth
+            ?
+            Bitmap.DecodeToWidth(stream, decodeWidth)
+            : originalBitmap;
+
+        return finalBitmap;
     }
 
-    private Bitmap LoadFromResource(string filePath)
+    private Bitmap LoadFromResource(string filePath, int decodeWidth)
     {
         if (filePath.StartsWith("avares://", StringComparison.OrdinalIgnoreCase))
         {
             using var stream = AssetLoader.Open(new Uri(filePath));
-            return new Bitmap(stream);
+            using var originalResBitmap = new Bitmap(stream);
+            int originalResWidth = originalResBitmap.PixelSize.Width;
+            stream.Position = 0;
+            var finalResBitmap = originalResWidth > decodeWidth
+                ?
+                Bitmap.DecodeToWidth(stream, decodeWidth)
+                : originalResBitmap;
+            return finalResBitmap;
         }
 
         using var fileStream = File.OpenRead(filePath);
-        return new Bitmap(fileStream);
+        using var originalBitmap = new Bitmap(fileStream);
+        int originalWidth = originalBitmap.PixelSize.Width;
+        fileStream.Position = 0;
+        var finalBitmap = originalWidth > decodeWidth
+            ?
+            Bitmap.DecodeToWidth(fileStream, decodeWidth)
+            : originalBitmap;
+        return finalBitmap;
     }
 }

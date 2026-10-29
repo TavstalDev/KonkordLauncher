@@ -16,7 +16,7 @@ public interface IBitmapService
     /// <returns>
     ///     An <see cref="Bitmap" /> that wraps the loaded bitmap and participates in the service-managed cache/lifecycle.
     /// </returns>
-    BitmapEntry GetBitmap(string path);
+    BitmapEntry GetBitmap(string path, int decodeWidth = 256);
 
     /// <summary>
     ///     Retrieves a cached bitmap representation for the provided Base64-encoded image string.
@@ -26,7 +26,7 @@ public interface IBitmapService
     ///     An <see cref="Bitmap" /> that wraps the decoded bitmap and participates in the
     ///     service-managed cache/lifecycle.
     /// </returns>
-    BitmapEntry GetBitmapBase64(string key, string base64Image);
+    BitmapEntry GetBitmapBase64(string key, string base64Image, int decodeWidth = 256);
 
     /// <summary>
     ///     Asynchronously loads a bitmap, ideal for web URLs or large local files.
@@ -35,7 +35,7 @@ public interface IBitmapService
     ///     A task that resolves to an <see cref="Bitmap" /> wrapping the loaded bitmap, which participates in the
     ///     service-managed cache/lifecycle.
     /// </returns>
-    Task<BitmapEntry> GetBitmapAsync(string uri);
+    Task<BitmapEntry> GetBitmapAsync(string uri, int decodeWidth = 256);
 
     /// <summary>
     ///     Releases a previously-acquired bitmap reference from the service's cache using the provided key.

@@ -1,5 +1,6 @@
 using System;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Styling;
@@ -31,16 +32,22 @@ public partial class App : Application
     /// </summary>
     public override void OnFrameworkInitializationCompleted()
     {
+        if (Design.IsDesignMode)
+        {
+            base.OnFrameworkInitializationCompleted();
+            return;
+        }
+
         if (ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop)
             throw new InvalidOperationException("The application had invalid lifetime.");
 
         var services = Program.Services;
         _logger = services.GetRequiredService<IBeaconLogger<App>>();
-        var eventService = Program.Services.GetRequiredService<IEventService>();
+        var eventService = services.GetRequiredService<IEventService>();
         eventService.OnThemeChanged += ApplyTheme;
 
         desktop.MainWindow = services.GetRequiredService<StartupWindow>();
-        desktop.ShutdownMode = Avalonia.Controls.ShutdownMode.OnMainWindowClose;
+        desktop.ShutdownMode = ShutdownMode.OnMainWindowClose;
 
 
 #if DEBUG

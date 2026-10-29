@@ -47,7 +47,7 @@ internal class Program
         Mutex = new Mutex(initiallyOwned: true, MutexName, out bool isNewInstance);
         if (!isNewInstance)
             return;
-        
+
         VelopackApp.Build().Run();
 
         var appDir = Path.Combine(

@@ -21,17 +21,17 @@ public enum ESidebarType
     Accounts = 2,
 
     /// <summary>
+    ///     The "Skins" sidebar option, for managing character skins.
+    /// </summary>
+    Skins = 3,
+
+    /// <summary>
     ///     The "Settings" sidebar option, for configuring application settings.
     /// </summary>
-    Settings = 3,
+    Settings = 4,
 
     /// <summary>
     ///     The "About" sidebar option, providing information about the application.
     /// </summary>
-    About = 4,
-
-    /// <summary>
-    ///     The "Skins" sidebar option, for managing character skins.
-    /// </summary>
-    Skins = 5
+    About = 5
 }

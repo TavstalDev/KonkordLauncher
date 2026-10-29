@@ -1,5 +1,9 @@
 using System;
+using System.Diagnostics;
+using System.Runtime;
 using System.Runtime.InteropServices;
+using Tavstal.BeaconSDK.Enums;
+using Tavstal.BeaconSDK.Helpers.Platform;
 
 namespace Tavstal.KonkordLauncher.Desktop.Helpers;
 
@@ -30,4 +34,38 @@ public static class MemoryHelper
     /// </returns>
     [DllImport("libc", SetLastError = true)]
     public static extern int malloc_trim(nuint pad);
+
+    public static void Clean()
+    {
+        GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+        GC.Collect(2, GCCollectionMode.Aggressive, blocking: true, compacting: true);
+        GC.WaitForPendingFinalizers();
+
+        switch (OSHelper.GetOperatingSystem())
+        {
+            case EOperatingSystem.WINDOWS:
+            {
+                EmptyWorkingSet(-1);
+                break;
+            }
+            case EOperatingSystem.LINUX:
+            {
+                try
+                {
+                    malloc_trim(0);
+                }
+                catch
+                {
+                    Console.WriteLine("malloc failed");
+                    // Fails silently on non-glibc distros (like Alpine Linux using musl)
+                }
+                break;
+            }
+            case EOperatingSystem.MACOS:
+            {
+
+                break;
+            }
+        }
+    }
 }

@@ -37,6 +37,7 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
     protected KonkordWindow(IBitmapService bitmapService)
     {
         Icon = new WindowIcon(bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Images/logo.png", 64).Value!);
+        Opened += OnOpened;
         Closed += OnClosed;
     }
 
@@ -62,6 +63,11 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
         base.OnClosing(e);
     }
 
+    private void OnOpened(object? sender, EventArgs e)
+    {
+        MemoryHelper.Clean();
+    }
+
     /// <summary>
     ///     Handles the window closed event. Unsubscribes from the event, clears the data context,
     ///     forces garbage collection with large object heap compaction, and attempts to trim the
@@ -75,11 +81,6 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
         DataContext = null;
         Dispatcher.UIThread.Post(() =>
         {
-            GC.Collect(2, GCCollectionMode.Forced, true, true);
-            GC.WaitForPendingFinalizers();
-            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-            GC.Collect(2, GCCollectionMode.Forced, true, true);
-
             try
             {
                 switch (OSHelper.GetOperatingSystem())
@@ -101,6 +102,7 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
                 /* Suppress */
             }
         }, DispatcherPriority.Background);
+        MemoryHelper.Clean();
     }
 
     /// <summary>

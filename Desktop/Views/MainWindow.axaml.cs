@@ -98,7 +98,6 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
             return;
         _discordPresenceService.Update("Browsing instances...");
         _topLevelProvider.SetActive(this);
-        GC.Collect(2, GCCollectionMode.Forced, true, true);
     }
 
     /// <inheritdoc />

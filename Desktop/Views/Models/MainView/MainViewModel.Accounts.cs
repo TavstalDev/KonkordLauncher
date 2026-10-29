@@ -198,7 +198,6 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         {
             // ReSharper disable once RedundantAssignment
             refreshToken = string.Empty;
-            GC.Collect(2, GCCollectionMode.Forced, true, true);
         }
     }
 
@@ -335,7 +334,6 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         finally
         {
             IsAccountSkinProcessing = false;
-            GC.Collect(2, GCCollectionMode.Forced, true, true);
         }
     }
 

@@ -2,8 +2,8 @@
     x:Class="Tavstal.KonkordLauncher.Desktop.App"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    RequestedThemeVariant="Dark"
-    Name="Konkord Launcher">
+    Name="Konkord Launcher"
+    RequestedThemeVariant="Dark">
 
     <Application.Resources>
         <ResourceDictionary>
@@ -50,7 +50,7 @@
         <StyleInclude Source="Styles/Components/Alerts.axaml" />
         <StyleInclude Source="Styles/Components/Modals.axaml" />
 
-        <!-- Templates -->
+        <!--  Templates  -->
         <StyleInclude Source="Styles/Templates/CustomTitleBar.axaml" />
         <StyleInclude Source="Styles/Templates/WindowResizer.axaml" />
 

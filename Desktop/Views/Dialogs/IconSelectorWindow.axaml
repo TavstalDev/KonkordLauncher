@@ -19,7 +19,6 @@
     CanResize="False"
     CornerRadius="14"
     ExtendClientAreaToDecorationsHint="True"
-    Icon="avares://KonkordLauncher/Assets/Images/logo.png"
     ShowInTaskbar="True"
     TransparencyLevelHint="Transparent"
     UseLayoutRounding="True"
@@ -110,23 +109,31 @@
                                     Classes="IconBtn"
                                     Command="{Binding OkBtnCommand}"
                                     IsEnabled="{Binding HasSelectedIcon}">
-                                    <WrapPanel Classes="IconBtnWrapper">
+                                    <Grid Classes="IconBtnWrapper" ColumnDefinitions="Auto, Auto">
                                         <TextBlock
+                                            Grid.Column="0"
                                             VerticalAlignment="Center"
                                             Classes="FontAwesome"
                                             Text="&#xf00c;" />
-                                        <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.ok}" />
-                                    </WrapPanel>
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            VerticalAlignment="Center"
+                                            Text="{lang:Translate common.ok}" />
+                                    </Grid>
                                 </Button>
                                 <!--  Cancel Button  -->
                                 <Button Classes="IconBtn" Command="{Binding CancelBtnCommand}">
-                                    <WrapPanel Classes="IconBtnWrapper">
+                                    <Grid Classes="IconBtnWrapper" ColumnDefinitions="Auto, Auto">
                                         <TextBlock
+                                            Grid.Column="0"
                                             VerticalAlignment="Center"
                                             Classes="FontAwesome"
                                             Text="&#xf00d;" />
-                                        <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.cancel}" />
-                                    </WrapPanel>
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            VerticalAlignment="Center"
+                                            Text="{lang:Translate common.cancel}" />
+                                    </Grid>
                                 </Button>
                             </WrapPanel>
                         </Grid>

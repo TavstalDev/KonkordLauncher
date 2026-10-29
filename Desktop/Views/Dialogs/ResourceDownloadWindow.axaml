@@ -7,8 +7,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
     xmlns:templates="clr-namespace:Tavstal.KonkordLauncher.Desktop.Styles.Templates"
+    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
     Title="{lang:Translate instance.resource.download.window}"
     Width="900"
     Height="500"
@@ -21,7 +21,6 @@
     CanResize="True"
     CornerRadius="14"
     ExtendClientAreaToDecorationsHint="True"
-    Icon="avares://KonkordLauncher/Assets/Images/logo.png"
     ShowInTaskbar="False"
     TransparencyLevelHint="Transparent"
     UseLayoutRounding="True"
@@ -51,8 +50,7 @@
                     <Border Classes="ModalTitleBorder">
                         <StackPanel>
                             <TextBlock Text="{lang:Translate instance.resource.download.title}" />
-                            <TextBlock Classes="ModalSubTitle"
-                                       Text="{lang:Translate instance.resource.download.description}" />
+                            <TextBlock Classes="ModalSubTitle" Text="{lang:Translate instance.resource.download.description}" />
                         </StackPanel>
                     </Border>
 
@@ -190,8 +188,7 @@
                                 <!--  Mod List  -->
                                 <Border Classes="SettingsCategoryBorder">
                                     <Grid>
-                                        <ScrollViewer ScrollChanged="ScrollViewer_OnScrollChanged"
-                                                      IsEnabled="{Binding AllowScrollbarRefresh}">
+                                        <ScrollViewer IsEnabled="{Binding AllowScrollbarRefresh}" ScrollChanged="ScrollViewer_OnScrollChanged">
                                             <!--  Content  -->
                                             <ListBox
                                                 Margin="0,0,10,0"
@@ -202,22 +199,22 @@
                                                 SelectionMode="Single">
                                                 <ListBox.ItemTemplate>
                                                     <DataTemplate>
-                                                        <Border Classes="InstanceModCard"
-                                                                Opacity="{Binding !IsInstalled, Converter={StaticResource BoolToOpacityConverter}}">
+                                                        <Border Classes="InstanceModCard" Opacity="{Binding !IsInstalled, Converter={StaticResource BoolToOpacityConverter}}">
                                                             <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
                                                                 <Image Width="35" Source="{Binding Icon.Value}" />
                                                                 <Grid Grid.Column="1" RowDefinitions="Auto, Auto">
                                                                     <Grid ColumnDefinitions="Auto,Auto">
-                                                                        <TextBlock Classes="InstanceModTitle"
-                                                                                Text="{Binding Name}" />
-                                                                        <TextBlock Grid.Column="1"
-                                                                                Classes="InstanceModTitle"
-                                                                                IsVisible="{Binding IsSelected}"
-                                                                                Text="{lang:Translate instance.resource.download.selected}" />
-                                                                        <TextBlock Grid.Column="1"
-                                                                                Classes="InstanceModTitle"
-                                                                                IsVisible="{Binding IsInstalled}"
-                                                                                Text="{lang:Translate instance.resource.download.installed}" />
+                                                                        <TextBlock Classes="InstanceModTitle" Text="{Binding Name}" />
+                                                                        <TextBlock
+                                                                            Grid.Column="1"
+                                                                            Classes="InstanceModTitle"
+                                                                            IsVisible="{Binding IsSelected}"
+                                                                            Text="{lang:Translate instance.resource.download.selected}" />
+                                                                        <TextBlock
+                                                                            Grid.Column="1"
+                                                                            Classes="InstanceModTitle"
+                                                                            IsVisible="{Binding IsInstalled}"
+                                                                            Text="{lang:Translate instance.resource.download.installed}" />
                                                                     </Grid>
                                                                     <TextBlock
                                                                         Grid.Row="1"
@@ -286,18 +283,20 @@
                                                 Grid.Column="1"
                                                 Classes="IconBtn SuccessBtn"
                                                 Command="{Binding ToggleResourceSelectCommand}"
-                                                IsVisible="{Binding !IsResourceSelected}"
-                                                IsEnabled="{Binding !SelectedResource.IsInstalled}">
-                                                <WrapPanel Classes="IconBtnWrapper">
+                                                IsEnabled="{Binding !SelectedResource.IsInstalled}"
+                                                IsVisible="{Binding !IsResourceSelected}">
+                                                <Grid Classes="IconBtnWrapper" ColumnDefinitions="Auto, Auto">
                                                     <TextBlock
+                                                        Grid.Column="0"
                                                         VerticalAlignment="Center"
                                                         Classes="FontAwesome"
                                                         Text="&#xf00c;" />
                                                     <TextBlock
+                                                        Grid.Column="1"
                                                         VerticalAlignment="Center"
                                                         FontWeight="500"
                                                         Text="Select" />
-                                                </WrapPanel>
+                                                </Grid>
                                             </Button>
 
                                             <!--  Unselect Button  -->
@@ -305,18 +304,20 @@
                                                 Grid.Column="1"
                                                 Classes="IconBtn WarningBtn"
                                                 Command="{Binding ToggleResourceSelectCommand}"
-                                                IsVisible="{Binding IsResourceSelected}"
-                                                IsEnabled="{Binding !SelectedResource.IsInstalled}">
-                                                <WrapPanel Classes="IconBtnWrapper">
+                                                IsEnabled="{Binding !SelectedResource.IsInstalled}"
+                                                IsVisible="{Binding IsResourceSelected}">
+                                                <Grid Classes="IconBtnWrapper" ColumnDefinitions="Auto, Auto">
                                                     <TextBlock
+                                                        Grid.Column="0"
                                                         VerticalAlignment="Center"
                                                         Classes="FontAwesome"
                                                         Text="&#xf00d;" />
                                                     <TextBlock
+                                                        Grid.Column="1"
                                                         VerticalAlignment="Center"
                                                         FontWeight="500"
                                                         Text="Unselect" />
-                                                </WrapPanel>
+                                                </Grid>
                                             </Button>
                                         </Grid>
                                     </Grid>
@@ -331,31 +332,36 @@
                                 <StackPanel Grid.Column="2" Classes="InstanceButtonWrapper">
                                     <!--  Cancel Button  -->
                                     <Button Classes="IconBtn ErrorBtn" Command="{Binding CloseWindowCommand}">
-                                        <WrapPanel Classes="IconBtnWrapper">
+                                        <Grid Classes="IconBtnWrapper" ColumnDefinitions="Auto, Auto">
                                             <TextBlock
+                                                Grid.Column="0"
                                                 VerticalAlignment="Center"
                                                 Classes="FontAwesome"
                                                 Text="&#xf00d;" />
                                             <TextBlock
+                                                Grid.Column="1"
                                                 VerticalAlignment="Center"
                                                 FontWeight="500"
                                                 Text="{lang:Translate common.cancel}" />
-                                        </WrapPanel>
+                                        </Grid>
                                     </Button>
                                     <!--  Review Button  -->
-                                    <Button Classes="IconBtn SuccessBtn"
-                                            IsEnabled="{Binding HasResources}"
-                                            Command="{Binding ReviewInstallCommand}">
-                                        <WrapPanel Classes="IconBtnWrapper">
+                                    <Button
+                                        Classes="IconBtn SuccessBtn"
+                                        Command="{Binding ReviewInstallCommand}"
+                                        IsEnabled="{Binding HasResources}">
+                                        <Grid Classes="IconBtnWrapper" ColumnDefinitions="Auto, Auto">
                                             <TextBlock
+                                                Grid.Column="0"
                                                 VerticalAlignment="Center"
                                                 Classes="FontAwesome"
                                                 Text="&#xf061;" />
                                             <TextBlock
+                                                Grid.Column="1"
                                                 VerticalAlignment="Center"
                                                 FontWeight="500"
                                                 Text="{lang:Translate common.review}" />
-                                        </WrapPanel>
+                                        </Grid>
                                     </Button>
                                 </StackPanel>
                             </Grid>

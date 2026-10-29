@@ -1,30 +1,30 @@
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
-        xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
-        xmlns:templates="clr-namespace:Tavstal.KonkordLauncher.Desktop.Styles.Templates"
-        x:Class="Tavstal.KonkordLauncher.Desktop.Views.Dialogs.ResourceReviewWindow"
-        Title="{lang:Translate instance.resource.review.window}"
-        Width="600"
-        Height="500"
-        MinWidth="600"
-        MinHeight="500"
-        d:DesignHeight="500"
-        d:DesignWidth="600"
-        x:DataType="vm:ResourceReviewViewModel"
-        Background="Transparent"
-        CanResize="True"
-        CornerRadius="14"
-        ExtendClientAreaToDecorationsHint="True"
-        Icon="avares://KonkordLauncher/Assets/Images/logo.png"
-        ShowInTaskbar="False"
-        TransparencyLevelHint="Transparent"
-        UseLayoutRounding="True"
-        WindowDecorations="None"
-        WindowStartupLocation="CenterScreen"
-        mc:Ignorable="d">
+<Window
+    x:Class="Tavstal.KonkordLauncher.Desktop.Views.Dialogs.ResourceReviewWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:templates="clr-namespace:Tavstal.KonkordLauncher.Desktop.Styles.Templates"
+    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
+    Title="{lang:Translate instance.resource.review.window}"
+    Width="600"
+    Height="500"
+    MinWidth="600"
+    MinHeight="500"
+    d:DesignHeight="500"
+    d:DesignWidth="600"
+    x:DataType="vm:ResourceReviewViewModel"
+    Background="Transparent"
+    CanResize="True"
+    CornerRadius="14"
+    ExtendClientAreaToDecorationsHint="True"
+    ShowInTaskbar="False"
+    TransparencyLevelHint="Transparent"
+    UseLayoutRounding="True"
+    WindowDecorations="None"
+    WindowStartupLocation="CenterScreen"
+    mc:Ignorable="d">
     <Grid>
         <!--  Main window body  -->
         <Border
@@ -42,14 +42,13 @@
                     <Border Classes="ModalTitleBorder">
                         <StackPanel>
                             <TextBlock Text="{lang:Translate instance.resource.review.title}" />
-                            <TextBlock Classes="ModalSubTitle"
-                                       Text="{lang:Translate instance.resource.review.description}" />
+                            <TextBlock Classes="ModalSubTitle" Text="{lang:Translate instance.resource.review.description}" />
                         </StackPanel>
                     </Border>
 
-                    <!-- Content  -->
+                    <!--  Content  -->
                     <Grid Grid.Row="1" RowDefinitions="*, Auto">
-                        <ScrollViewer Margin="15, 10, 15, 15">
+                        <ScrollViewer Margin="15,10,15,15">
                             <ItemsControl ItemsSource="{Binding Resources}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
@@ -58,24 +57,18 @@
                                                 <CheckBox Content="{Binding Name}" IsChecked="{Binding ShouldDownload}" />
                                             </Expander.Header>
 
-                                            <StackPanel Margin="45, 5, 0, 5">
-                                                <StackPanel Spacing="5" Orientation="Horizontal">
-                                                    <TextBlock Foreground="{DynamicResource text-faded}"
-                                                               Text="{lang:Translate instance.resource.review.file}" />
-                                                    <TextBlock Foreground="{DynamicResource text-faded}"
-                                                               Text="{Binding FileName}" />
+                                            <StackPanel Margin="45,5,0,5">
+                                                <StackPanel Orientation="Horizontal" Spacing="5">
+                                                    <TextBlock Foreground="{DynamicResource text-faded}" Text="{lang:Translate instance.resource.review.file}" />
+                                                    <TextBlock Foreground="{DynamicResource text-faded}" Text="{Binding FileName}" />
                                                 </StackPanel>
-                                                <StackPanel Spacing="5" Orientation="Horizontal">
-                                                    <TextBlock Foreground="{DynamicResource text-faded}"
-                                                               Text="{lang:Translate instance.resource.review.version}" />
-                                                    <TextBlock Foreground="{DynamicResource text-faded}"
-                                                               Text="{Binding Version}" />
+                                                <StackPanel Orientation="Horizontal" Spacing="5">
+                                                    <TextBlock Foreground="{DynamicResource text-faded}" Text="{lang:Translate instance.resource.review.version}" />
+                                                    <TextBlock Foreground="{DynamicResource text-faded}" Text="{Binding Version}" />
                                                 </StackPanel>
-                                                <StackPanel Spacing="5" Orientation="Horizontal">
-                                                    <TextBlock Foreground="{DynamicResource text-faded}"
-                                                               Text="{lang:Translate instance.resource.review.platform}" />
-                                                    <TextBlock Foreground="{DynamicResource text-faded}"
-                                                               Text="{Binding Platform}" />
+                                                <StackPanel Orientation="Horizontal" Spacing="5">
+                                                    <TextBlock Foreground="{DynamicResource text-faded}" Text="{lang:Translate instance.resource.review.platform}" />
+                                                    <TextBlock Foreground="{DynamicResource text-faded}" Text="{Binding Platform}" />
                                                 </StackPanel>
                                             </StackPanel>
                                         </Expander>
@@ -89,29 +82,33 @@
                             <StackPanel Classes="InstanceButtonWrapper">
                                 <!--  Cancel Button  -->
                                 <Button Classes="IconBtn ErrorBtn" Command="{Binding CloseWindowCommand}">
-                                    <WrapPanel Classes="IconBtnWrapper">
+                                    <Grid Classes="IconBtnWrapper" ColumnDefinitions="Auto, Auto">
                                         <TextBlock
+                                            Grid.Column="0"
                                             VerticalAlignment="Center"
                                             Classes="FontAwesome"
                                             Text="&#xf00d;" />
                                         <TextBlock
+                                            Grid.Column="1"
                                             VerticalAlignment="Center"
                                             FontWeight="500"
                                             Text="{lang:Translate common.cancel}" />
-                                    </WrapPanel>
+                                    </Grid>
                                 </Button>
                                 <!--  Ok Button  -->
                                 <Button Classes="IconBtn SuccessBtn" Command="{Binding InstallCommand}">
-                                    <WrapPanel Classes="IconBtnWrapper">
+                                    <Grid Classes="IconBtnWrapper" ColumnDefinitions="Auto, Auto">
                                         <TextBlock
+                                            Grid.Column="0"
                                             VerticalAlignment="Center"
                                             Classes="FontAwesome"
                                             Text="&#xf00c;" />
                                         <TextBlock
+                                            Grid.Column="1"
                                             VerticalAlignment="Center"
                                             FontWeight="500"
                                             Text="{lang:Translate common.ok}" />
-                                    </WrapPanel>
+                                    </Grid>
                                 </Button>
                             </StackPanel>
                         </Border>

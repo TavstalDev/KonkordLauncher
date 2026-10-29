@@ -19,7 +19,6 @@
     CanResize="False"
     CornerRadius="14"
     ExtendClientAreaToDecorationsHint="True"
-    Icon="avares://KonkordLauncher/Assets/Images/logo.png"
     ShowInTaskbar="True"
     TransparencyLevelHint="Transparent"
     UseLayoutRounding="True"
@@ -45,8 +44,7 @@
                     <Border Classes="ModalTitleBorder">
                         <StackPanel>
                             <TextBlock Text="{lang:Translate instance.version.selector.title}" />
-                            <TextBlock Classes="ModalSubTitle"
-                                       Text="{lang:Translate instance.version.selector.description}" />
+                            <TextBlock Classes="ModalSubTitle" Text="{lang:Translate instance.version.selector.description}" />
                         </StackPanel>
                     </Border>
 
@@ -56,8 +54,7 @@
                             <Border Classes="SettingsCategoryBorder">
                                 <Grid RowDefinitions="Auto, Auto, Auto">
                                     <!--  Category Title  -->
-                                    <TextBlock Classes="SettingsCategoryText"
-                                               Text="{lang:Translate instance.create.category.minecraft.version.title}" />
+                                    <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.category.minecraft.version.title}" />
 
                                     <ComboBox
                                         Grid.Row="1"
@@ -78,20 +75,15 @@
                                         ItemSpacing="10"
                                         Orientation="Horizontal">
                                         <!--  Release  -->
-                                        <CheckBox Content="{lang:Translate instance.create.releases}"
-                                                  IsChecked="{Binding ShowReleases, Mode=TwoWay}" />
+                                        <CheckBox Content="{lang:Translate instance.create.releases}" IsChecked="{Binding ShowReleases, Mode=TwoWay}" />
                                         <!--  Snapshot  -->
-                                        <CheckBox Content="{lang:Translate instance.create.snapshots}"
-                                                  IsChecked="{Binding ShowSnapshots, Mode=TwoWay}" />
+                                        <CheckBox Content="{lang:Translate instance.create.snapshots}" IsChecked="{Binding ShowSnapshots, Mode=TwoWay}" />
                                         <!--  Beta  -->
-                                        <CheckBox Content="{lang:Translate instance.create.betas}"
-                                                  IsChecked="{Binding ShowBetas, Mode=TwoWay}" />
+                                        <CheckBox Content="{lang:Translate instance.create.betas}" IsChecked="{Binding ShowBetas, Mode=TwoWay}" />
                                         <!--  Alpha  -->
-                                        <CheckBox Content="{lang:Translate instance.create.alphas}"
-                                                  IsChecked="{Binding ShowAlphas, Mode=TwoWay}" />
+                                        <CheckBox Content="{lang:Translate instance.create.alphas}" IsChecked="{Binding ShowAlphas, Mode=TwoWay}" />
                                         <!--  Experiment  -->
-                                        <CheckBox Content="{lang:Translate instance.create.experiments}"
-                                                  IsChecked="{Binding ShowExperiments, Mode=TwoWay}" />
+                                        <CheckBox Content="{lang:Translate instance.create.experiments}" IsChecked="{Binding ShowExperiments, Mode=TwoWay}" />
                                     </WrapPanel>
                                 </Grid>
                             </Border>
@@ -102,8 +94,7 @@
                                 IsEnabled="{Binding IsModded}">
                                 <Grid RowDefinitions="Auto, Auto">
                                     <!--  Category Title  -->
-                                    <TextBlock Classes="SettingsCategoryText"
-                                               Text="{lang:Translate instance.create.category.mod_loader.title}" />
+                                    <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.category.mod_loader.title}" />
 
                                     <ComboBox
                                         Grid.Row="1"
@@ -130,32 +121,36 @@
                             <StackPanel Grid.Column="1" Classes="InstanceButtonWrapper">
                                 <!--  Cancel Button  -->
                                 <Button Classes="IconBtn ErrorBtn" Command="{Binding CloseCommand}">
-                                    <WrapPanel Classes="IconBtnWrapper">
+                                    <Grid Classes="IconBtnWrapper" ColumnDefinitions="Auto, Auto">
                                         <TextBlock
+                                            Grid.Column="0"
                                             VerticalAlignment="Center"
                                             Classes="FontAwesome"
                                             Text="&#xf00d;" />
                                         <TextBlock
+                                            Grid.Column="1"
                                             VerticalAlignment="Center"
                                             FontWeight="500"
                                             Text="{lang:Translate common.cancel}" />
-                                    </WrapPanel>
+                                    </Grid>
                                 </Button>
                                 <!--  Save Button  -->
                                 <Button
                                     Classes="IconBtn SuccessBtn"
                                     Command="{Binding SaveCommand}"
                                     IsEnabled="{Binding CanSaveChanges}">
-                                    <WrapPanel Classes="IconBtnWrapper">
+                                    <Grid Classes="IconBtnWrapper" ColumnDefinitions="Auto, Auto">
                                         <TextBlock
+                                            Grid.Column="0"
                                             VerticalAlignment="Center"
                                             Classes="FontAwesome"
                                             Text="&#xf0c7;" />
                                         <TextBlock
+                                            Grid.Column="1"
                                             VerticalAlignment="Center"
                                             FontWeight="500"
                                             Text="{lang:Translate common.save}" />
-                                    </WrapPanel>
+                                    </Grid>
                                 </Button>
                             </StackPanel>
                         </Grid>

@@ -8,8 +8,8 @@
     xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models"
-    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
     xmlns:templates="clr-namespace:Tavstal.KonkordLauncher.Desktop.Styles.Templates"
+    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
     Title="{lang:Translate instance.export.window}"
     Width="600"
     Height="500"
@@ -22,7 +22,6 @@
     CanResize="True"
     CornerRadius="14"
     ExtendClientAreaToDecorationsHint="True"
-    Icon="avares://KonkordLauncher/Assets/Images/logo.png"
     ShowInTaskbar="False"
     TransparencyLevelHint="Transparent"
     UseLayoutRounding="True"
@@ -64,8 +63,7 @@
                                 <Border Classes="SettingsCategoryBorder">
                                     <Grid RowDefinitions="Auto, Auto, Auto">
                                         <!--  Category Title  -->
-                                        <TextBlock Classes="SettingsCategoryText"
-                                                   Text="{lang:Translate instance.create.category.information.title}" />
+                                        <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.category.information.title}" />
 
                                         <!--  Name & Version  -->
                                         <Grid
@@ -81,8 +79,7 @@
                                                 RowDefinitions="Auto, Auto"
                                                 RowSpacing="8">
                                                 <!--  Text  -->
-                                                <TextBlock Classes="TextInput"
-                                                           Text="{lang:Translate instance.export.name}" />
+                                                <TextBlock Classes="TextInput" Text="{lang:Translate instance.export.name}" />
                                                 <!--  Input  -->
                                                 <TextBox
                                                     Grid.Row="1"
@@ -99,8 +96,7 @@
                                                 RowDefinitions="Auto, Auto"
                                                 RowSpacing="8">
                                                 <!--  Text  -->
-                                                <TextBlock Classes="TextInput"
-                                                           Text="{lang:Translate instance.export.version}" />
+                                                <TextBlock Classes="TextInput" Text="{lang:Translate instance.export.version}" />
                                                 <!--  Input  -->
                                                 <TextBox
                                                     Grid.Row="1"
@@ -119,8 +115,7 @@
                                             RowDefinitions="Auto, Auto"
                                             RowSpacing="8">
                                             <!--  Text  -->
-                                            <TextBlock Classes="TextInput"
-                                                       Text="{lang:Translate instance.export.summary}" />
+                                            <TextBlock Classes="TextInput" Text="{lang:Translate instance.export.summary}" />
                                             <!--  Input  -->
                                             <TextBox
                                                 Grid.Row="1"
@@ -137,8 +132,7 @@
                                 <Border Grid.Row="1" Classes="SettingsCategoryBorder">
                                     <Grid RowDefinitions="Auto, Auto, Auto">
                                         <!--  Category Title  -->
-                                        <TextBlock Classes="SettingsCategoryText"
-                                                   Text="{lang:Translate instance.export.selection.title}" />
+                                        <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.export.selection.title}" />
 
                                         <!--  Loading Indicator  -->
                                         <avalonia:LoadingIndicator
@@ -161,8 +155,7 @@
 
                                             <TreeView.ItemTemplate>
 
-                                                <TreeDataTemplate x:DataType="models:ObservableFileNode"
-                                                                  ItemsSource="{Binding Children}">
+                                                <TreeDataTemplate x:DataType="models:ObservableFileNode" ItemsSource="{Binding Children}">
 
                                                     <StackPanel Orientation="Horizontal" Spacing="6">
 
@@ -172,8 +165,7 @@
                                                         <!--  Folder/File Icon  -->
                                                         <TextBlock Classes="FontAwesome">
                                                             <TextBlock.Text>
-                                                                <MultiBinding
-                                                                    Converter="{StaticResource FileIconConverter}">
+                                                                <MultiBinding Converter="{StaticResource FileIconConverter}">
                                                                     <Binding Path="IsDirectory" />
                                                                     <Binding Path="Path" />
                                                                 </MultiBinding>
@@ -206,16 +198,18 @@
                                         Classes="IconBtn ErrorBtn"
                                         Command="{Binding CloseWindowCommand}"
                                         IsVisible="{Binding !IsExporting}">
-                                        <WrapPanel Classes="IconBtnWrapper">
+                                        <Grid Classes="IconBtnWrapper" ColumnDefinitions="Auto, Auto">
                                             <TextBlock
+                                                Grid.Column="0"
                                                 VerticalAlignment="Center"
                                                 Classes="FontAwesome"
                                                 Text="&#xf00d;" />
                                             <TextBlock
+                                                Grid.Column="1"
                                                 VerticalAlignment="Center"
                                                 FontWeight="500"
                                                 Text="{lang:Translate common.cancel}" />
-                                        </WrapPanel>
+                                        </Grid>
                                     </Button>
 
                                     <!--  Export Button  -->
@@ -223,16 +217,18 @@
                                         Classes="IconBtn SuccessBtn"
                                         Command="{Binding ContinueExportCommand}"
                                         IsVisible="{Binding !IsExporting}">
-                                        <WrapPanel Classes="IconBtnWrapper">
+                                        <Grid Classes="IconBtnWrapper" ColumnDefinitions="Auto, Auto">
                                             <TextBlock
+                                                Grid.Column="0"
                                                 VerticalAlignment="Center"
                                                 Classes="FontAwesome"
                                                 Text="&#xf0c7;" />
                                             <TextBlock
+                                                Grid.Column="1"
                                                 VerticalAlignment="Center"
                                                 FontWeight="500"
                                                 Text="{lang:Translate common.export}" />
-                                        </WrapPanel>
+                                        </Grid>
                                     </Button>
 
                                     <!--  Exporting Text  -->

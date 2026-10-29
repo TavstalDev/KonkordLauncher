@@ -17,7 +17,6 @@
     CanResize="False"
     CornerRadius="14"
     ExtendClientAreaToDecorationsHint="True"
-    Icon="avares://KonkordLauncher/Assets/Images/logo.png"
     ShowInTaskbar="True"
     SizeToContent="Height"
     TransparencyLevelHint="Transparent"
@@ -74,7 +73,7 @@
 
                             </Grid>
 
-                            <!-- Progress Bar and Details -->
+                            <!--  Progress Bar and Details  -->
                             <StackPanel Grid.Row="1" Spacing="5">
                                 <!--  Progress bar  -->
                                 <ProgressBar
@@ -120,7 +119,7 @@
                                 </Grid>
                             </StackPanel>
 
-                            <!-- Progress Text -->
+                            <!--  Progress Text  -->
                             <TextBlock
                                 Grid.Row="2"
                                 Foreground="{DynamicResource text-faded}"
@@ -139,16 +138,18 @@
                                         Classes="IconBtn ErrorBtn"
                                         Command="{Binding CloseWindowCommand}"
                                         IsEnabled="{Binding IsCancellable}">
-                                        <WrapPanel Classes="IconBtnWrapper">
+                                        <Grid Classes="IconBtnWrapper" ColumnDefinitions="Auto, Auto">
                                             <TextBlock
+                                                Grid.Column="0"
                                                 VerticalAlignment="Center"
                                                 Classes="FontAwesome"
                                                 Text="&#xf00d;" />
                                             <TextBlock
+                                                Grid.Column="1"
                                                 VerticalAlignment="Center"
                                                 FontWeight="500"
                                                 Text="{lang:Translate common.cancel}" />
-                                        </WrapPanel>
+                                        </Grid>
                                     </Button>
                                 </StackPanel>
                             </Grid>

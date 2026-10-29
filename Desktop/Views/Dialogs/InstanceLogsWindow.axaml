@@ -5,8 +5,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
     xmlns:templates="clr-namespace:Tavstal.KonkordLauncher.Desktop.Styles.Templates"
+    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
     Title="{lang:Translate instance.edit.log.title}"
     Width="800"
     Height="500"
@@ -17,7 +17,6 @@
     CanResize="True"
     CornerRadius="14"
     ExtendClientAreaToDecorationsHint="True"
-    Icon="avares://KonkordLauncher/Assets/Images/logo.png"
     ShowInTaskbar="True"
     TransparencyLevelHint="Transparent"
     UseLayoutRounding="True"
@@ -89,39 +88,51 @@
                                 Grid.Column="1"
                                 Classes="IconBtn DefaultBtn"
                                 Command="{Binding ScrollLogsToEndCommand}">
-                                <WrapPanel Classes="IconBtnWrapper">
+                                <Grid Classes="IconBtnWrapper" ColumnDefinitions="Auto, Auto">
                                     <TextBlock
+                                        Grid.Column="0"
                                         VerticalAlignment="Center"
                                         Classes="FontAwesome"
                                         Text="&#xe4b8;" />
-                                    <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.bottom}" />
-                                </WrapPanel>
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        VerticalAlignment="Center"
+                                        Text="{lang:Translate common.bottom}" />
+                                </Grid>
                             </Button>
                             <!--  Copy button  -->
                             <Button
                                 Grid.Column="2"
                                 Classes="IconBtn DefaultBtn"
                                 Command="{Binding CopyLogsCommand}">
-                                <WrapPanel Classes="IconBtnWrapper">
+                                <Grid Classes="IconBtnWrapper" ColumnDefinitions="Auto, Auto">
                                     <TextBlock
+                                        Grid.Column="0"
                                         VerticalAlignment="Center"
                                         Classes="FontAwesome"
                                         Text="&#xf0c5;" />
-                                    <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.copy}" />
-                                </WrapPanel>
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        VerticalAlignment="Center"
+                                        Text="{lang:Translate common.copy}" />
+                                </Grid>
                             </Button>
                             <!--  Clear button  -->
                             <Button
                                 Grid.Column="3"
                                 Classes="IconBtn ErrorBtn"
                                 Command="{Binding ClearLogsCommand}">
-                                <WrapPanel Classes="IconBtnWrapper">
+                                <Grid Classes="IconBtnWrapper" ColumnDefinitions="Auto, Auto">
                                     <TextBlock
+                                        Grid.Column="0"
                                         VerticalAlignment="Center"
                                         Classes="FontAwesome"
                                         Text="&#xf1b8;" />
-                                    <TextBlock VerticalAlignment="Center" Text="{lang:Translate common.clear}" />
-                                </WrapPanel>
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        VerticalAlignment="Center"
+                                        Text="{lang:Translate common.clear}" />
+                                </Grid>
                             </Button>
                         </Grid>
                     </Grid>

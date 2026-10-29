@@ -6,11 +6,11 @@
     xmlns:converters="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Avalonia.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:enums="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Enums"
+    xmlns:enumsc="clr-namespace:Tavstal.BeaconSDK.Enums;assembly=BeaconSDK"
     xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
     xmlns:templates="clr-namespace:Tavstal.KonkordLauncher.Desktop.Styles.Templates"
-    xmlns:enumsc="clr-namespace:Tavstal.BeaconSDK.Enums;assembly=BeaconSDK"
+    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
     Title="{lang:Translate instance.create.title}"
     Width="900"
     Height="500"
@@ -23,7 +23,6 @@
     CanResize="True"
     CornerRadius="14"
     ExtendClientAreaToDecorationsHint="True"
-    Icon="avares://KonkordLauncher/Assets/Images/logo.png"
     ShowInTaskbar="False"
     TransparencyLevelHint="Transparent"
     UseLayoutRounding="True"
@@ -108,8 +107,7 @@
                                         <Border Classes="SettingsCategoryBorder">
                                             <Grid RowDefinitions="Auto, Auto">
                                                 <!--  Category Title  -->
-                                                <TextBlock Classes="SettingsCategoryText"
-                                                           Text="{lang:Translate instance.create.category.information.title}" />
+                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.category.information.title}" />
 
                                                 <!--  Icon, Name & Group  -->
                                                 <Grid
@@ -119,8 +117,7 @@
                                                     ColumnSpacing="20">
                                                     <!--  Icon  -->
                                                     <Button Command="{Binding Custom.CustomIconSelectorCommand}">
-                                                        <Image Classes="InstanceIcon"
-                                                               Source="{Binding Custom.InstanceIcon.Value}" />
+                                                        <Image Classes="InstanceIcon" Source="{Binding Custom.InstanceIcon.Value}" />
                                                     </Button>
                                                     <!--  Name  -->
                                                     <Grid
@@ -129,8 +126,7 @@
                                                         RowDefinitions="Auto, Auto"
                                                         RowSpacing="8">
                                                         <!--  Text  -->
-                                                        <TextBlock Classes="TextInput"
-                                                                   Text="{lang:Translate instance.create.name}" />
+                                                        <TextBlock Classes="TextInput" Text="{lang:Translate instance.create.name}" />
                                                         <!--  Input  -->
                                                         <TextBox
                                                             Grid.Row="1"
@@ -145,8 +141,7 @@
                                                         RowDefinitions="Auto, Auto"
                                                         RowSpacing="8">
                                                         <!--  Text  -->
-                                                        <TextBlock Classes="TextInput"
-                                                                   Text="{lang:Translate instance.create.group}" />
+                                                        <TextBlock Classes="TextInput" Text="{lang:Translate instance.create.group}" />
                                                         <!--  Input  -->
                                                         <ComboBox
                                                             Grid.Row="1"
@@ -163,8 +158,7 @@
                                         <Border Grid.Row="1" Classes="SettingsCategoryBorder">
                                             <Grid RowDefinitions="Auto, Auto">
                                                 <!--  Category Title  -->
-                                                <TextBlock Classes="SettingsCategoryText"
-                                                           Text="{lang:Translate instance.create.category.minecraft.version.title}" />
+                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.category.minecraft.version.title}" />
 
                                                 <!--  Version Selector  -->
                                                 <Grid
@@ -200,21 +194,15 @@
                                                     <!--  Version Options  -->
                                                     <StackPanel Grid.Column="1" MaxWidth="175">
                                                         <!--  Release  -->
-                                                        <CheckBox Content="{lang:Translate instance.create.releases}"
-                                                                  IsChecked="{Binding Custom.ShowReleases, Mode=TwoWay}" />
+                                                        <CheckBox Content="{lang:Translate instance.create.releases}" IsChecked="{Binding Custom.ShowReleases, Mode=TwoWay}" />
                                                         <!--  Snapshot  -->
-                                                        <CheckBox Content="{lang:Translate instance.create.snapshots}"
-                                                                  IsChecked="{Binding Custom.ShowSnapshots, Mode=TwoWay}" />
+                                                        <CheckBox Content="{lang:Translate instance.create.snapshots}" IsChecked="{Binding Custom.ShowSnapshots, Mode=TwoWay}" />
                                                         <!--  Beta  -->
-                                                        <CheckBox Content="{lang:Translate instance.create.betas}"
-                                                                  IsChecked="{Binding Custom.ShowBetas, Mode=TwoWay}" />
+                                                        <CheckBox Content="{lang:Translate instance.create.betas}" IsChecked="{Binding Custom.ShowBetas, Mode=TwoWay}" />
                                                         <!--  Alpha  -->
-                                                        <CheckBox Content="{lang:Translate instance.create.alphas}"
-                                                                  IsChecked="{Binding Custom.ShowAlphas, Mode=TwoWay}" />
+                                                        <CheckBox Content="{lang:Translate instance.create.alphas}" IsChecked="{Binding Custom.ShowAlphas, Mode=TwoWay}" />
                                                         <!--  Experiment  -->
-                                                        <CheckBox
-                                                            Content="{lang:Translate instance.create.experiments}"
-                                                            IsChecked="{Binding Custom.ShowExperiments, Mode=TwoWay}" />
+                                                        <CheckBox Content="{lang:Translate instance.create.experiments}" IsChecked="{Binding Custom.ShowExperiments, Mode=TwoWay}" />
 
                                                         <!--  Search Box  -->
                                                         <TextBox
@@ -230,8 +218,7 @@
                                         <Border Grid.Row="2" Classes="SettingsCategoryBorder">
                                             <Grid RowDefinitions="Auto, Auto">
                                                 <!--  Category Title  -->
-                                                <TextBlock Classes="SettingsCategoryText"
-                                                           Text="{lang:Translate instance.create.category.mod_loader.title}" />
+                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.category.mod_loader.title}" />
 
                                                 <Grid
                                                     Grid.Row="1"
@@ -299,34 +286,37 @@
                                 <Border Grid.Row="1" Classes="InstanceButtonBorder">
                                     <StackPanel Classes="InstanceButtonWrapper">
                                         <!--  Cancel Button  -->
-                                        <Button Classes="IconBtn ErrorBtn"
-                                                Command="{Binding Custom.CustomCancelCreateCommand}">
-                                            <WrapPanel Classes="IconBtnWrapper">
+                                        <Button Classes="IconBtn ErrorBtn" Command="{Binding Custom.CustomCancelCreateCommand}">
+                                            <Grid Classes="IconBtnWrapper" ColumnDefinitions="Auto, Auto">
                                                 <TextBlock
+                                                    Grid.Column="0"
                                                     VerticalAlignment="Center"
                                                     Classes="FontAwesome"
                                                     Text="&#xf00d;" />
                                                 <TextBlock
+                                                    Grid.Column="1"
                                                     VerticalAlignment="Center"
                                                     FontWeight="500"
                                                     Text="{lang:Translate common.cancel}" />
-                                            </WrapPanel>
+                                            </Grid>
                                         </Button>
                                         <!--  Create Instance Button  -->
                                         <Button
                                             Classes="IconBtn SuccessBtn"
                                             Command="{Binding Custom.CustomCreateCommand}"
                                             IsEnabled="{Binding Custom.CanCreateCustomInstance}">
-                                            <WrapPanel Classes="IconBtnWrapper">
+                                            <Grid Classes="IconBtnWrapper" ColumnDefinitions="Auto, Auto">
                                                 <TextBlock
+                                                    Grid.Column="0"
                                                     VerticalAlignment="Center"
                                                     Classes="FontAwesome"
                                                     Text="&#xf0c7;" />
                                                 <TextBlock
+                                                    Grid.Column="1"
                                                     VerticalAlignment="Center"
                                                     FontWeight="500"
                                                     Text="{lang:Translate instance.create.button}" />
-                                            </WrapPanel>
+                                            </Grid>
                                         </Button>
                                     </StackPanel>
                                 </Border>
@@ -536,13 +526,10 @@
                                                         <ListBox.ItemTemplate>
                                                             <DataTemplate>
                                                                 <Border Classes="InstanceModCard">
-                                                                    <Grid ColumnDefinitions="Auto, *"
-                                                                          ColumnSpacing="10">
+                                                                    <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
                                                                         <Image Width="35" Source="{Binding Icon.Value}" />
-                                                                        <Grid Grid.Column="1"
-                                                                              RowDefinitions="Auto, Auto">
-                                                                            <TextBlock Classes="InstanceModTitle"
-                                                                                    Text="{Binding Name}" />
+                                                                        <Grid Grid.Column="1" RowDefinitions="Auto, Auto">
+                                                                            <TextBlock Classes="InstanceModTitle" Text="{Binding Name}" />
                                                                             <TextBlock
                                                                                 Grid.Row="1"
                                                                                 Classes="InstanceModDescription"
@@ -612,34 +599,37 @@
                                         <!--  Action buttons  -->
                                         <StackPanel Grid.Column="2" Classes="InstanceButtonWrapper">
                                             <!--  Cancel Button  -->
-                                            <Button Classes="IconBtn ErrorBtn"
-                                                    Command="{Binding Custom.CustomCancelCreateCommand}">
-                                                <WrapPanel Classes="IconBtnWrapper">
+                                            <Button Classes="IconBtn ErrorBtn" Command="{Binding Custom.CustomCancelCreateCommand}">
+                                                <Grid Classes="IconBtnWrapper" ColumnDefinitions="Auto, Auto">
                                                     <TextBlock
+                                                        Grid.Column="0"
                                                         VerticalAlignment="Center"
                                                         Classes="FontAwesome"
                                                         Text="&#xf00d;" />
                                                     <TextBlock
+                                                        Grid.Column="1"
                                                         VerticalAlignment="Center"
                                                         FontWeight="500"
                                                         Text="{lang:Translate common.cancel}" />
-                                                </WrapPanel>
+                                                </Grid>
                                             </Button>
                                             <!--  Create Instance Button  -->
                                             <Button
                                                 Classes="IconBtn SuccessBtn"
                                                 Command="{Binding Modpack.CreateInstanceCommand}"
                                                 IsEnabled="{Binding Modpack.CanCreateInstance}">
-                                                <WrapPanel Classes="IconBtnWrapper">
+                                                <Grid Classes="IconBtnWrapper" ColumnDefinitions="Auto, Auto">
                                                     <TextBlock
+                                                        Grid.Column="0"
                                                         VerticalAlignment="Center"
                                                         Classes="FontAwesome"
                                                         Text="&#xf0c7;" />
                                                     <TextBlock
+                                                        Grid.Column="1"
                                                         VerticalAlignment="Center"
                                                         FontWeight="500"
                                                         Text="{lang:Translate instance.create.button}" />
-                                                </WrapPanel>
+                                                </Grid>
                                             </Button>
                                         </StackPanel>
                                     </Grid>
@@ -660,8 +650,7 @@
                                             <Border Classes="SettingsCategoryBorder">
                                                 <Grid RowDefinitions="Auto, Auto">
                                                     <!--  Category Title  -->
-                                                    <TextBlock Classes="SettingsCategoryText"
-                                                               Text="{lang:Translate instance.create.import.type}" />
+                                                    <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.import.type}" />
 
                                                     <Grid
                                                         Grid.Row="1"
@@ -708,8 +697,7 @@
                                                 IsVisible="{Binding Import.IsSourceFromFile}">
                                                 <Grid RowDefinitions="Auto, Auto, Auto">
                                                     <!--  Category Title  -->
-                                                    <TextBlock Classes="SettingsCategoryText"
-                                                               Text="{lang:Translate instance.create.import.select_file.title}" />
+                                                    <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.import.select_file.title}" />
 
                                                     <!--  Input  -->
                                                     <Grid
@@ -747,8 +735,7 @@
                                                 IsVisible="{Binding !Import.IsSourceFromFile}">
                                                 <Grid RowDefinitions="Auto, Auto, Auto">
                                                     <!--  Category Title  -->
-                                                    <TextBlock Classes="SettingsCategoryText"
-                                                               Text="{lang:Translate instance.create.import.import_from_url.title}" />
+                                                    <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.import.import_from_url.title}" />
 
                                                     <!--  Input  -->
                                                     <TextBox
@@ -824,34 +811,37 @@
                                 <Border Grid.Row="1" Classes="InstanceButtonBorder">
                                     <StackPanel Classes="InstanceButtonWrapper">
                                         <!--  Cancel Button  -->
-                                        <Button Classes="IconBtn ErrorBtn"
-                                                Command="{Binding Custom.CustomCancelCreateCommand}">
-                                            <WrapPanel Classes="IconBtnWrapper">
+                                        <Button Classes="IconBtn ErrorBtn" Command="{Binding Custom.CustomCancelCreateCommand}">
+                                            <Grid Classes="IconBtnWrapper" ColumnDefinitions="Auto, Auto">
                                                 <TextBlock
+                                                    Grid.Column="0"
                                                     VerticalAlignment="Center"
                                                     Classes="FontAwesome"
                                                     Text="&#xf00d;" />
                                                 <TextBlock
+                                                    Grid.Column="1"
                                                     VerticalAlignment="Center"
                                                     FontWeight="500"
                                                     Text="{lang:Translate common.cancel}" />
-                                            </WrapPanel>
+                                            </Grid>
                                         </Button>
                                         <!--  Create Instance Button  -->
                                         <Button
                                             Classes="IconBtn SuccessBtn"
                                             Command="{Binding Import.CreateInstanceFromImportCommand}"
                                             IsEnabled="{Binding Import.HasImportPath}">
-                                            <WrapPanel Classes="IconBtnWrapper">
+                                            <Grid Classes="IconBtnWrapper" ColumnDefinitions="Auto, Auto">
                                                 <TextBlock
+                                                    Grid.Column="0"
                                                     VerticalAlignment="Center"
                                                     Classes="FontAwesome"
                                                     Text="&#xf0c7;" />
                                                 <TextBlock
+                                                    Grid.Column="1"
                                                     VerticalAlignment="Center"
                                                     FontWeight="500"
                                                     Text="{lang:Translate instance.create.button}" />
-                                            </WrapPanel>
+                                            </Grid>
                                         </Button>
                                     </StackPanel>
                                 </Border>

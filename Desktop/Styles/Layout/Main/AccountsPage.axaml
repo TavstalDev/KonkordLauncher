@@ -1,14 +1,37 @@
 <Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!--  AccountsPageContainer  -->
+    <Style Selector="ListBox.AccountsPageContainer">
+        <Setter Property="SelectionMode" Value="Single" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Padding" Value="0, 0, 15, 0" />
+    </Style>
+
+    <Style Selector="ListBox.AccountsPageContainer &gt; ListBoxItem">
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="0" />
+    </Style>
+
+    <Style Selector="ListBox.AccountsPageContainer &gt; ListBoxItem:selected /template/ ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="ListBox.AccountsPageContainer &gt; ListBoxItem:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <!--  End Of AccountsPageContainer  -->
+
     <Style Selector="UniformGrid.AccountsPageWrapper">
         <Setter Property="ColumnSpacing" Value="10" />
         <Setter Property="RowSpacing" Value="10" />
-        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="VerticalAlignment" Value="Top" />
     </Style>
 
     <Style Selector="Border.AccountsCard">
         <Setter Property="Background" Value="{DynamicResource base-100}" />
         <Setter Property="CornerRadius" Value="8" />
         <Setter Property="Padding" Value="15" />
+        <Setter Property="Height" Value="80" />
     </Style>
 
     <Style Selector="Border.AccountsCard.selected">
@@ -24,11 +47,8 @@
         <Setter Property="TextWrapping" Value="Wrap" />
     </Style>
 
-    <Style Selector="WrapPanel.AccountsCardWrapper">
-        <Setter Property="LineSpacing" Value="5" />
-        <Setter Property="ItemSpacing" Value="5" />
-        <Setter Property="Orientation" Value="Horizontal" />
-        <Setter Property="HorizontalAlignment" Value="Right" />
-        <Setter Property="VerticalAlignment" Value="Center" />
+    <Style Selector="Grid.AccountsCardWrapper">
+        <Setter Property="RowSpacing" Value="5" />
+        <Setter Property="ColumnSpacing" Value="5" />
     </Style>
 </Styles>

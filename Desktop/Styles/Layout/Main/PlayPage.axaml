@@ -1,5 +1,27 @@
 <Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
+    <!--  PlayPageContainer  -->
+    <Style Selector="ListBox.PlayPageContainer">
+        <Setter Property="SelectionMode" Value="Single" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Padding" Value="0, 0, 15, 0" />
+    </Style>
+
+    <Style Selector="ListBox.PlayPageContainer &gt; ListBoxItem">
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="0,0,0,12" />
+    </Style>
+
+    <Style Selector="ListBox.PlayPageContainer &gt; ListBoxItem:selected /template/ ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="ListBox.PlayPageContainer &gt; ListBoxItem:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <!--  End Of PlayPageContainer  -->
+
     <!--  PlayPageWrapper  -->
     <Style Selector="WrapPanel.PlayPageWrapper">
         <Setter Property="Orientation" Value="Horizontal" />
@@ -36,10 +58,10 @@
     </Style>
 
     <!--  PlayCardButton Wrapper  -->
-    <Style Selector="WrapPanel.PlayCardButtonWrapper">
+    <Style Selector="Grid.PlayCardButtonWrapper">
         <Setter Property="HorizontalAlignment" Value="Center" />
-        <Setter Property="ItemSpacing" Value="10" />
-        <Setter Property="LineSpacing" Value="10" />
+        <Setter Property="RowSpacing" Value="10" />
+        <Setter Property="ColumnSpacing" Value="10" />
     </Style>
 
     <!--  InstanceExpander  -->
@@ -62,8 +84,7 @@
         <Setter Property="Background" Value="{DynamicResource base-300}" />
     </Style>
 
-    <Style
-        Selector="Expander.InstanceExpander /template/ ToggleButton#ExpanderHeader:pointerover /template/ Border#ToggleButtonBackground">
+    <Style Selector="Expander.InstanceExpander /template/ ToggleButton#ExpanderHeader:pointerover /template/ Border#ToggleButtonBackground">
         <Setter Property="Background" Value="{DynamicResource base-300}" />
     </Style>
 </Styles>

@@ -1,7 +1,24 @@
 <Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Style Selector="StackPanel.NewsPageWrapper">
-        <Setter Property="Spacing" Value="10" />
+    <!--  NewsPageWrapper  -->
+    <Style Selector="ListBox.NewsPageWrapper">
+        <Setter Property="SelectionMode" Value="Single" />
+        <Setter Property="Background" Value="Transparent" />
     </Style>
+
+    <Style Selector="ListBox.NewsPageWrapper &gt; ListBoxItem">
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="0,0,0,12" />
+    </Style>
+
+    <Style Selector="ListBox.NewsPageWrapper &gt; ListBoxItem:selected /template/ ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="ListBox.NewsPageWrapper &gt; ListBoxItem:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <!--  End Of NewsPageWrapper  -->
 
     <Style Selector="Border.NewsCard">
         <Setter Property="Background" Value="{DynamicResource base-100}" />

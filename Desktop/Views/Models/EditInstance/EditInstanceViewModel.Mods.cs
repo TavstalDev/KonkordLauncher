@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Tavstal.BeaconSDK.Helpers.IO;
 using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Constants;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
@@ -180,7 +181,7 @@ public partial class EditInstanceViewModel_Mods : KonkordObservableObject
                     try
                     {
                         if (instanceResource is { IconPath: not null })
-                            icon = _bitmapService.GetBitmap(instanceResource.IconPath);
+                            icon = _bitmapService.GetBitmap(instanceResource.IconPath, BitmapSizes.ModIcon);
                     }
                     catch (Exception ex)
                     {

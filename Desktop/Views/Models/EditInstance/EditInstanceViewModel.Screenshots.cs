@@ -3,9 +3,11 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Tavstal.BeaconSDK.Helpers.IO;
+using Tavstal.KonkordLauncher.Desktop.Constants;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
@@ -66,7 +68,7 @@ public partial class EditInstanceViewModel_Screenshots : KonkordObservableObject
         foreach (var screenshot in screenshots)
         {
             var bytes = File.ReadAllBytes(screenshot);
-            var screen = _bitmapService.GetBitmap(screenshot);
+            var screen = _bitmapService.GetBitmap(screenshot, BitmapSizes.ScreenshotIcon);
             var newScreenshot = new ScreenshotModel(screenshot, screen.Value, bytes.LongLength);
             Screenshots.Add(newScreenshot);
         }
@@ -77,7 +79,12 @@ public partial class EditInstanceViewModel_Screenshots : KonkordObservableObject
     [RelayCommand]
     private async Task CopyToClipboard(ScreenshotModel screenshot)
     {
-        await _filePickerService.SetClipboardImageAsync(screenshot.Image);
+        if (!File.Exists(screenshot.Path))
+            return;
+
+        // The cached image is only a small preview, so load the original for the clipboard.
+        using var bitmap = new Bitmap(screenshot.Path);
+        await _filePickerService.SetClipboardImageAsync(bitmap);
     }
 
     [RelayCommand]

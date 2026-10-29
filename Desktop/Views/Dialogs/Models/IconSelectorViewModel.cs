@@ -11,6 +11,7 @@ using CommunityToolkit.Mvvm.Input;
 using Tavstal.BeaconSDK.Helpers.IO;
 using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Constants;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Services.Localization;
 using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
@@ -75,7 +76,7 @@ public partial class IconSelectorViewModel : KonkordObservableObject
         var icons = Directory.GetFiles(settings.Launcher.IconsDirectoryPath);
         foreach (var iconPath in icons)
         {
-            var bitmap = await _bitmapService.GetBitmapAsync(iconPath);
+            var bitmap = await _bitmapService.GetBitmapAsync(iconPath, BitmapSizes.IconSelectorIcon);
             Icons.Add(new IconDataModel(Path.GetFileName(iconPath), iconPath, bitmap));
         }
     }
@@ -130,7 +131,7 @@ public partial class IconSelectorViewModel : KonkordObservableObject
                     continue;
                 File.Copy(path, newPath);
 
-                var bitmap = await _bitmapService.GetBitmapAsync(newPath);
+                var bitmap = await _bitmapService.GetBitmapAsync(newPath, BitmapSizes.IconSelectorIcon);
                 Icons.Add(new IconDataModel(fileName, newPath, bitmap));
             }
             catch (Exception ex)

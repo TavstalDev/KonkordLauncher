@@ -15,6 +15,7 @@ using Tavstal.BeaconSDK.Helpers.IO;
 using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Models.MojangApi;
 using Tavstal.BeaconSDK.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Constants;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
@@ -320,7 +321,7 @@ public partial class EditInstanceViewModel_Worlds : KonkordObservableObject
             if (File.Exists(iconPath))
                 try
                 {
-                    icon = _bitmapService.GetBitmap(iconPath);
+                    icon = _bitmapService.GetBitmap(iconPath, BitmapSizes.WorldIcon);
                 }
                 catch (Exception ex)
                 {
@@ -328,7 +329,8 @@ public partial class EditInstanceViewModel_Worlds : KonkordObservableObject
                 }
 
             if (icon.Key == null)
-                icon = _bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Images/default_world.png");
+                icon = _bitmapService.GetBitmap(
+                    "avares://KonkordLauncher/Assets/Images/default_world.png", BitmapSizes.DefaultWorldIcon);
 
             Worlds.Add(new WorldModel(worldName, worldDir, gamemode, seed, lastPlayed, size, icon));
         }

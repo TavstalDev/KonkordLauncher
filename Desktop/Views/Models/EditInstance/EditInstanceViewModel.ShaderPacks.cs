@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Tavstal.BeaconSDK.Helpers.IO;
 using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Constants;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
@@ -180,7 +181,7 @@ public partial class EditInstanceViewModel_ShaderPacks : KonkordObservableObject
                     try
                     {
                         if (instanceResource is { IconPath: not null })
-                            icon = _bitmapService.GetBitmap(instanceResource.IconPath);
+                            icon = _bitmapService.GetBitmap(instanceResource.IconPath, BitmapSizes.ShaderPackIcon);
                     }
                     catch (Exception ex)
                     {
@@ -188,7 +189,8 @@ public partial class EditInstanceViewModel_ShaderPacks : KonkordObservableObject
                     }
 
                     if (icon.Key == null)
-                        icon = _bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Images/default_world.png");
+                        icon = _bitmapService.GetBitmap(
+                            "avares://KonkordLauncher/Assets/Images/default_world.png", BitmapSizes.DefaultWorldIcon);
 
                     var newResourcePack = new ResourceBaseModel
                     {

@@ -20,6 +20,7 @@ using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Models.MojangApi.User;
 using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.BeaconSDK.Services.Abstractions.Auth;
+using Tavstal.KonkordLauncher.Desktop.Constants;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Domain;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
@@ -76,7 +77,8 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         _dialogService = dialogService;
         _filePickerService = filePickerService;
 
-        AccountAvatar = _bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Images/Placeholders/steve_head.png");
+        AccountAvatar = _bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Images/Placeholders/steve_head.png",
+            BitmapSizes.AccountAvatar);
     }
 
     [ObservableProperty] public partial BitmapEntry AccountAvatar { get; set; }
@@ -541,7 +543,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
                 var img = new BitmapEntry(null, null);
                 try
                 {
-                    img = await _bitmapService.GetBitmapAsync(path);
+                    img = await _bitmapService.GetBitmapAsync(path, BitmapSizes.SkinPreview);
                 }
                 catch (Exception ex)
                 {
@@ -564,7 +566,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
             try
             {
                 noCapeImg = await _bitmapService.GetBitmapAsync(
-                    "avares://KonkordLauncher/Assets/Images/Placeholders/no_cape.png");
+                    "avares://KonkordLauncher/Assets/Images/Placeholders/no_cape.png", BitmapSizes.CapePreview);
             }
             catch (Exception ex)
             {
@@ -578,7 +580,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
                 var img = new BitmapEntry(null, null);
                 try
                 {
-                    img = await _bitmapService.GetBitmapAsync(path);
+                    img = await _bitmapService.GetBitmapAsync(path, BitmapSizes.CapePreview);
                 }
                 catch (Exception ex)
                 {
@@ -628,8 +630,9 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         }
 
         AccountAvatar = File.Exists(avatarPath)
-            ? await _bitmapService.GetBitmapAsync(avatarPath)
-            : await _bitmapService.GetBitmapAsync("avares://KonkordLauncher/Assets/Images/Placeholders/steve_head.png");
+            ? await _bitmapService.GetBitmapAsync(avatarPath, BitmapSizes.AccountAvatar)
+            : await _bitmapService.GetBitmapAsync(
+                "avares://KonkordLauncher/Assets/Images/Placeholders/steve_head.png", BitmapSizes.AccountAvatar);
     }
 
 

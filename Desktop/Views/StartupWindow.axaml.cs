@@ -157,7 +157,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IKonkordPr
                 if (!fileName.EndsWith(".png"))
                     continue;
                 _logger.LogDebug($"Extracting icon: {fileName}");
-                var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path);
+                await using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path);
                 if (stream == null)
                 {
                     _logger.LogError($"Failed to get resource stream for {fileName}");

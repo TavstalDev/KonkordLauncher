@@ -183,6 +183,9 @@ public partial class MainViewModel_Config : KonkordObservableObject
     /// <param name="newValue">The new core configuration model.</param>
     partial void OnCoreConfigChanged(CoreConfigModel? oldValue, CoreConfigModel newValue)
     {
+        if (Design.IsDesignMode)
+            return;
+
         _logger.LogDebug("CoreConfig changed with old and new value. Unsubscribing from old, subscribing to new.");
 
         if (oldValue != null)
@@ -200,6 +203,9 @@ public partial class MainViewModel_Config : KonkordObservableObject
     /// <param name="e">The event data associated with the property change.</param>
     private void OnChildConfigPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
+        if (Design.IsDesignMode)
+            return;
+
         _logger.LogDebug($"Inner property '{e.PropertyName}' changed on {sender?.GetType().Name}. Saving to file...");
         SaveCoreConfigToFile(CoreConfig);
 

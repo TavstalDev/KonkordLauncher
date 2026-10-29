@@ -20,6 +20,7 @@ using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Models.ModLoaders;
 using Tavstal.BeaconSDK.Models.MojangApi;
 using Tavstal.BeaconSDK.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Constants;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
@@ -266,7 +267,8 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
                 innerCache.AddOrUpdate(quiltManifestCache);
         });
 
-        var icon = await _bitmapService.GetBitmapAsync("avares://KonkordLauncher/Assets/Icons/dirt.png");
+        var icon = await _bitmapService.GetBitmapAsync("avares://KonkordLauncher/Assets/Icons/dirt.png",
+            BitmapSizes.InstanceModel);
         Dispatcher.UIThread.Post(() =>
         {
             InstanceIcon = icon;
@@ -353,11 +355,12 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
             _bitmapService.Release(InstanceIcon.Key!);
         try
         {
-            InstanceIcon = await _bitmapService.GetBitmapAsync(result);
+            InstanceIcon = await _bitmapService.GetBitmapAsync(result, BitmapSizes.InstanceModel);
         }
         catch
         {
-            InstanceIcon = await _bitmapService.GetBitmapAsync("avares://KonkordLauncher/Assets/Icons/dirt.png");
+            InstanceIcon = await _bitmapService.GetBitmapAsync("avares://KonkordLauncher/Assets/Icons/dirt.png",
+                BitmapSizes.InstanceModel);
         }
 
         InstanceIconPath = result;

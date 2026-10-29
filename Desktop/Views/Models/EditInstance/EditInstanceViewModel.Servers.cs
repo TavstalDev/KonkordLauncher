@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NbtLib;
 using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Constants;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
@@ -130,12 +131,13 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
             var model = new ServerModel(server.Name, server.Ip, server.AcceptTextures, server.HideAddress,
                 server.Icon);
             if (server.Icon != null)
-                _bitmapService.GetBitmapAsync(server.Icon).ContinueWith(t =>
+                _bitmapService.GetBitmapAsync(server.Icon, BitmapSizes.ServerIcon).ContinueWith(t =>
                 {
                     if (t.IsCompletedSuccessfully) model.Image = t.Result;
                 }, TaskScheduler.FromCurrentSynchronizationContext());
             else
-                model.Image = _bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Images/default_world.png");
+                model.Image = _bitmapService.GetBitmap(
+                    "avares://KonkordLauncher/Assets/Images/default_world.png", BitmapSizes.DefaultWorldIcon);
             Servers.Add(model);
         }
 
@@ -161,7 +163,8 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
 
         var model = new ServerModel(ServerName, ServerIp, 0, 0, null)
         {
-            Image = _bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Images/default_world.png")
+            Image = _bitmapService.GetBitmap(
+                "avares://KonkordLauncher/Assets/Images/default_world.png", BitmapSizes.DefaultWorldIcon)
         };
 
         Servers.Add(model);

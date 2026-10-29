@@ -15,6 +15,7 @@ using Modrinth.Models;
 using Tavstal.BeaconSDK.Helpers.Serialization;
 using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Constants;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs.MetaCache;
 using Tavstal.KonkordLauncher.Desktop.Serialization;
@@ -107,14 +108,20 @@ public class MetaCacheService : IMetaCacheService, IHostedService
         {
             _logger.LogCritical(ex, "Failed to initialize meta cache:");
         }
+        finally
+        {
+            _logger.LogDebug("The service has started successfully.");
+        }
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
+        _logger.LogDebug("Stopping the service...");
         _cache.Clear();
         _fileMemoryCache.Clear();
         _fileMemoryCache.Dispose();
         _saveLock.Dispose();
+        _logger.LogDebug("The service has stopped successfully.");
         return Task.CompletedTask;
     }
 
@@ -124,7 +131,7 @@ public class MetaCacheService : IMetaCacheService, IHostedService
         try
         {
             if (_cache.TryGetValue(imageUrl, out var cached) && cached.IsValid())
-                return await _bitmapService.GetBitmapAsync(cached.Path);
+                return await _bitmapService.GetBitmapAsync(cached.Path, BitmapSizes.ProjectIcon);
 
             var response = await _httpClient.GetAsync(imageUrl, cancellationToken);
             response.EnsureSuccessStatusCode();
@@ -149,7 +156,7 @@ public class MetaCacheService : IMetaCacheService, IHostedService
                     ValidUntil = DateTime.UtcNow.Add(_projectCacheDuration)
                 });
             await SaveCacheAsync(cancellationToken);
-            return await _bitmapService.GetBitmapAsync(cachedFilePath);
+            return await _bitmapService.GetBitmapAsync(cachedFilePath, BitmapSizes.ProjectIcon);
         }
         catch (Exception ex)
         {

@@ -16,6 +16,7 @@ using Tavstal.BeaconSDK.Models.Instance;
 using Tavstal.BeaconSDK.Models.Instance.Config;
 using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Constants;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs.InstanceConfig;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
@@ -67,14 +68,13 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
         _windowFactory = windowFactory;
         _dialogService = dialogService;
 
-        Icon = bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Icons/dirt.png");
-
         Id = instance.Id;
         Name = instance.Name;
         Group = instance.Group;
         IconPath = instance.IconPath;
-        if (!string.IsNullOrEmpty(IconPath))
-            Icon = _bitmapService.GetBitmap(IconPath);
+        Icon = !string.IsNullOrEmpty(IconPath) ?
+            _bitmapService.GetBitmap(IconPath, BitmapSizes.InstanceModel)
+            : bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Icons/dirt.png", BitmapSizes.InstanceModel);
         MinecraftVersion = instance.MinecraftVersion;
         CustomVersion = instance.CustomVersion;
         Kind = instance.Kind;
@@ -124,7 +124,7 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
         if (Icon.Key != null)
             Icon.Dispose(_bitmapService);
         if (!string.IsNullOrEmpty(IconPath))
-            Icon = _bitmapService.GetBitmap(IconPath);
+            Icon = _bitmapService.GetBitmap(IconPath, BitmapSizes.InstanceModel);
         MinecraftVersion = newData.MinecraftVersion;
         CustomVersion = newData.CustomVersion;
         Kind = newData.Kind;

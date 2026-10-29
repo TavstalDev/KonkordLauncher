@@ -5,11 +5,9 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using ReactiveUI;
 using ReactiveUI.Primitives;
-using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
-using Tavstal.KonkordLauncher.Desktop.Services.Localization;
 using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Button = Avalonia.Controls.Button;
 using MainViewModel = Tavstal.KonkordLauncher.Desktop.Views.Models.MainViewModel;
@@ -20,7 +18,6 @@ namespace Tavstal.KonkordLauncher.Desktop.Views;
 public partial class MainWindow : KonkordWindow<MainViewModel>
 {
     private readonly IDiscordPresenceService _discordPresenceService = null!;
-    private readonly IBeaconLogger _logger = null!;
     private readonly ITopLevelProvider _topLevelProvider = null!;
 
     private Button _selectedAboutTabButton;
@@ -37,8 +34,7 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
 
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public MainWindow(MainViewModel viewModel, IBeaconLogger<MainWindow> logger,
-        ITranslationService translationService, IWindowFactory windowFactory,
+    public MainWindow(MainViewModel viewModel,
         IDiscordPresenceService discordPresenceService, ITopLevelProvider topLevelProvider,
         IDialogService dialogService)
     {
@@ -50,7 +46,6 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
         if (Design.IsDesignMode)
             return;
 
-        _logger = logger;
         _discordPresenceService = discordPresenceService;
         _topLevelProvider = topLevelProvider;
         dialogService.SetMainWindow(this);
@@ -157,6 +152,8 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
     protected override void OnOpened(EventArgs e)
     {
         base.OnOpened(e);
+        if (Design.IsDesignMode)
+            return;
         _discordPresenceService.Update("Browsing instances...");
         _topLevelProvider.SetActive(this);
         GC.Collect(2, GCCollectionMode.Forced, true, true);
@@ -165,6 +162,9 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
     /// <inheritdoc />
     protected override void OnClosing(WindowClosingEventArgs e)
     {
+        base.OnClosing(e);
+        if (Design.IsDesignMode)
+            return;
         _discordPresenceService.Clear();
         _topLevelProvider.ClearIfMatches(this);
         base.OnClosing(e);

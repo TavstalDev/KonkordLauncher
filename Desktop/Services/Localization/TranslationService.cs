@@ -47,12 +47,15 @@ public class TranslationService : ITranslationService, IHostedService
     public Task StartAsync(CancellationToken cancellationToken)
     {
         LoadDefaultTranslations();
+        _logger.LogDebug("The service has started successfully.");
         return Task.CompletedTask;
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
+        _logger.LogDebug("Stopping the service...");
         _translations.Clear();
+        _logger.LogDebug("The service has stopped successfully.");
         return Task.CompletedTask;
     }
 
@@ -164,15 +167,8 @@ public class TranslationService : ITranslationService, IHostedService
 
     private static Stream? OpenDefaultTranslationsStream()
     {
-        try
-        {
-            return AssetLoader.Open(new Uri("avares://KonkordLauncher/Assets/Lang/en.yml"));
-        }
-        catch
-        {
-            return Assembly.GetExecutingAssembly()
-                .GetManifestResourceStream("Tavstal.KonkordLauncher.Assets.Lang.en.yml");
-        }
+        return Assembly.GetExecutingAssembly()
+            .GetManifestResourceStream("Tavstal.KonkordLauncher.Desktop.Assets.Lang.en.yml");
     }
 
     private Dictionary<string, string> LoadTranslations(TextReader reader)

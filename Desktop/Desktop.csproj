@@ -40,6 +40,7 @@
     <ItemGroup>
         <PackageReference Include="Avalonia" Version="12.1.4"/>
         <PackageReference Include="Avalonia.Controls.DataGrid" Version="12.1.2"/>
+        <PackageReference Include="Avalonia.Controls.ItemsRepeater" Version="12.0.0" />
         <PackageReference Include="Avalonia.Desktop" Version="12.1.4"/>
         <PackageReference Include="Avalonia.HtmlRenderer" Version="12.0.0"/>
         <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.4"/>
@@ -48,7 +49,7 @@
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2"/>
         <PackageReference Include="DiscordRichPresence" Version="1.6.1.70"/>
         <PackageReference Include="DynamicData" Version="9.5.0"/>
-        <PackageReference Include="Markdig" Version="1.5.0"/>
+        <PackageReference Include="Markdig" Version="1.5.1" />
         <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="10.0.14" />
         <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.14" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.14" />

@@ -40,7 +40,8 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public EditInstanceWindow(EditInstanceViewModel viewModel, IBeaconLogger<EditInstanceWindow> logger,
-        IEventService eventService, IWindowFactory windowFactory, IDiscordPresenceService discordPresenceService)
+        IEventService eventService, IDiscordPresenceService discordPresenceService,
+        IBitmapService bitmapService) : base(bitmapService)
     {
         InitializeComponent();
         _selectedInstanceTab = LogsTabBtn;

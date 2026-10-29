@@ -1,4 +1,3 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Reactive;
 using System.Threading.Tasks;
@@ -6,6 +5,7 @@ using Avalonia.Controls;
 using ReactiveUI;
 using ReactiveUI.Primitives;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using JavaSelectorViewModel = Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models.JavaSelectorViewModel;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
@@ -22,7 +22,7 @@ public partial class JavaSelectorWindow : KonkordWindow<JavaSelectorViewModel>
 
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public JavaSelectorWindow(JavaSelectorViewModel viewModel)
+    public JavaSelectorWindow(JavaSelectorViewModel viewModel, IBitmapService bitmapService) : base(bitmapService)
     {
         InitializeComponent();
         DataContext = viewModel;

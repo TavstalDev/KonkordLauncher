@@ -6,6 +6,7 @@ using Avalonia.Controls;
 using ReactiveUI;
 using ReactiveUI.Primitives;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
@@ -19,7 +20,7 @@ public partial class InstanceLogsWindow : KonkordWindow<InstanceLogsViewModel>
 
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public InstanceLogsWindow(InstanceLogsViewModel viewModel)
+    public InstanceLogsWindow(InstanceLogsViewModel viewModel, IBitmapService bitmapService) : base(bitmapService)
     {
         InitializeComponent();
         DataContext = viewModel;

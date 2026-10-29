@@ -13,6 +13,7 @@ using Tavstal.BeaconSDK.Services.Abstractions.Auth;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Services.Localization;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Translation;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
 
@@ -38,7 +39,7 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IKonkord
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public AccountsWindow(AccountsViewModel viewModel, ITranslationService translationService,
         IMicrosoftAuthService microsoftAuthService, IMicrosoftDeviceAuthService microsoftDeviceAuthService,
-        IMicrosoftHttpAuthService microsoftHttpAuthService)
+        IMicrosoftHttpAuthService microsoftHttpAuthService, IBitmapService bitmapService) : base(bitmapService)
     {
         InitializeComponent();
 

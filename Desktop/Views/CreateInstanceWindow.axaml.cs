@@ -9,7 +9,6 @@ using ReactiveUI;
 using ReactiveUI.Primitives;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
-using Tavstal.KonkordLauncher.Desktop.Services.Localization;
 using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
 
@@ -30,8 +29,8 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
 
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public CreateInstanceWindow(CreateInstanceViewModel viewModel, ITranslationService translationService,
-        IWindowFactory windowFactory, IDiscordPresenceService discordPresenceService)
+    public CreateInstanceWindow(CreateInstanceViewModel viewModel, IDiscordPresenceService discordPresenceService,
+        IBitmapService bitmapService) : base(bitmapService)
     {
         InitializeComponent();
         _selectedTabBtn = CustomTabBtn;

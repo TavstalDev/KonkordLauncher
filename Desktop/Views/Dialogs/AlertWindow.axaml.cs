@@ -8,6 +8,7 @@ using ReactiveUI;
 using ReactiveUI.Primitives;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
@@ -38,7 +39,7 @@ public partial class AlertWindow : KonkordWindow<AlertViewModel>
     /// <param name="type">The type of the alert, determining its appearance and behavior.</param>
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public AlertWindow(string title, string message, EAlertType type)
+    public AlertWindow(string title, string message, EAlertType type, IBitmapService bitmapService) : base(bitmapService)
     {
         InitializeComponent();
 

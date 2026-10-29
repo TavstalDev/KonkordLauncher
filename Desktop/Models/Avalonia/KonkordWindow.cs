@@ -8,6 +8,7 @@ using ReactiveUI.Avalonia;
 using Tavstal.BeaconSDK.Enums;
 using Tavstal.BeaconSDK.Helpers.Platform;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 
@@ -26,6 +27,16 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
     /// </summary>
     protected KonkordWindow()
     {
+        Icon = new WindowIcon("avares://KonkordLauncher/Assets/Images/logo.png");
+    }
+
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="KonkordWindow{TViewModel}" /> class and subscribes to the
+    ///     <see cref="Window.Closed" /> event.
+    /// </summary>
+    protected KonkordWindow(IBitmapService bitmapService)
+    {
+        Icon = new WindowIcon(bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Images/logo.png", 64).Value!);
         Closed += OnClosed;
     }
 

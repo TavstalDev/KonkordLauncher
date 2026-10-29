@@ -5,6 +5,7 @@ using Avalonia.Controls;
 using ReactiveUI;
 using ReactiveUI.Primitives;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using IconSelectorViewModel = Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models.IconSelectorViewModel;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
@@ -18,7 +19,7 @@ public partial class IconSelectorWindow : KonkordWindow<IconSelectorViewModel>
 
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public IconSelectorWindow(IconSelectorViewModel viewModel)
+    public IconSelectorWindow(IconSelectorViewModel viewModel, IBitmapService bitmapService) : base(bitmapService)
     {
         InitializeComponent();
 

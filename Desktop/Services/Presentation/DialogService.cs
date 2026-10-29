@@ -18,11 +18,13 @@ public class DialogService : IDialogService
     private readonly Dictionary<string, InstanceLogsWindow> _logWindows = [];
     private readonly Dictionary<string, EditInstanceWindow> _openEditWindows = [];
     private readonly IWindowFactory _windowFactory;
+    private readonly IBitmapService _bitmapService;
     private Window? _mainWindow;
 
-    public DialogService(IWindowFactory windowFactory)
+    public DialogService(IWindowFactory windowFactory, IBitmapService bitmapService)
     {
         _windowFactory = windowFactory;
+        _bitmapService = bitmapService;
     }
 
     /// <inheritdoc />
@@ -51,7 +53,7 @@ public class DialogService : IDialogService
         if (_mainWindow == null)
             return false;
 
-        AlertWindow alertWindow = new(title, message, type);
+        AlertWindow alertWindow = new(title, message, type, _bitmapService);
         return await alertWindow.ShowDialog<bool>(_mainWindow);
     }
 
@@ -86,7 +88,7 @@ public class DialogService : IDialogService
         if (_mainWindow == null)
             return null;
 
-        var dialog = new InputWindow(title);
+        var dialog = new InputWindow(title, _bitmapService);
         return await dialog.ShowDialog<string?>(_mainWindow);
     }
 

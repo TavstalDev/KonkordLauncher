@@ -52,7 +52,8 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IKonkordPr
         ITranslationService translationService,
         ILauncherStore launcherStore, IValidationService validationService, IJavaService javaService,
         IEventService eventService, IScreenService screenService, IWindowFactory windowFactory,
-        IUpdateService updateService, ITopLevelProvider topLevelProvider, IDialogService dialogService)
+        IUpdateService updateService, ITopLevelProvider topLevelProvider, IDialogService dialogService,
+        IBitmapService bitmapService) : base(bitmapService)
     {
         InitializeComponent();
 

@@ -55,7 +55,9 @@ public class WindowFactory : IWindowFactory
 
     public ProgressWindow CreateProgressWindow(CancellationTokenSource? cancellationTokenSource = null)
     {
-        return new ProgressWindow(_services.GetRequiredService<ITranslationService>(), cancellationTokenSource);
+        return new ProgressWindow(_services.GetRequiredService<ITranslationService>(),
+            _services.GetRequiredService<IBitmapService>(),
+            cancellationTokenSource);
     }
 
     public EditInstanceWindow CreateEditInstanceWindow(InstanceModel instance)
@@ -73,8 +75,9 @@ public class WindowFactory : IWindowFactory
 
         return new EditInstanceWindow(viewModel,
             _services.GetRequiredService<IBeaconLogger<EditInstanceWindow>>(),
-            _services.GetRequiredService<IEventService>(), this,
-            _services.GetRequiredService<IDiscordPresenceService>());
+            _services.GetRequiredService<IEventService>(),
+            _services.GetRequiredService<IDiscordPresenceService>(),
+            _services.GetRequiredService<IBitmapService>());
     }
 
     public InstanceLogsWindow CreateInstanceLogsWindow(string instanceId)
@@ -85,7 +88,7 @@ public class WindowFactory : IWindowFactory
             _services.GetRequiredService<IEventService>(),
             _services.GetRequiredService<IFilePickerService>());
 
-        return new InstanceLogsWindow(viewModel);
+        return new InstanceLogsWindow(viewModel, _services.GetRequiredService<IBitmapService>());
     }
 
     public ExportWindow CreateExportWindow(Instance instance, EInstanceProvider provider)
@@ -97,7 +100,7 @@ public class WindowFactory : IWindowFactory
             _services.GetRequiredService<IDialogService>(),
             _services.GetRequiredService<IFilePickerService>());
 
-        return new ExportWindow(viewModel);
+        return new ExportWindow(viewModel, _services.GetRequiredService<IBitmapService>());
     }
 
     public InstanceVersionSelectorWindow CreateInstanceVersionSelectorWindow(Instance instance)
@@ -108,7 +111,7 @@ public class WindowFactory : IWindowFactory
             _services.GetRequiredService<IManifestService>(),
             _services.GetRequiredService<IEventService>());
 
-        return new InstanceVersionSelectorWindow(viewModel);
+        return new InstanceVersionSelectorWindow(viewModel, _services.GetRequiredService<IBitmapService>());
     }
 
     public ResourceDownloadWindow CreateResourceDownloadWindow(Instance instance, EResourceType resourceType)
@@ -122,7 +125,7 @@ public class WindowFactory : IWindowFactory
             _services.GetRequiredService<IBitmapService>(),
             _services.GetRequiredService<IDialogService>());
 
-        return new ResourceDownloadWindow(viewModel);
+        return new ResourceDownloadWindow(viewModel, _services.GetRequiredService<IBitmapService>());
     }
 
     public ResourceReviewWindow CreateResourceReviewWindow(Instance instance, EResourceType resourceType,
@@ -134,6 +137,7 @@ public class WindowFactory : IWindowFactory
             _services.GetRequiredService<ILauncherStore>(),
             _services.GetRequiredService<IMetaCacheService>(),
             this,
-            _services.GetRequiredService<IDialogService>());
+            _services.GetRequiredService<IDialogService>(),
+            _services.GetRequiredService<IBitmapService>());
     }
 }

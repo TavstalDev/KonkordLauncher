@@ -35,7 +35,7 @@ public partial class ResourceReviewWindow : KonkordWindow<ResourceReviewViewMode
     public ResourceReviewWindow(Instance instance, EResourceType resourceType,
         List<ResourceDownloadModel> resources, IHttpService httpService, ITranslationService translationService,
         ILauncherStore launcherStore, IMetaCacheService metaCacheService, IWindowFactory windowFactory,
-        IDialogService dialogService)
+        IDialogService dialogService, IBitmapService bitmapService) : base(bitmapService)
     {
         InitializeComponent();
 

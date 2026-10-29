@@ -10,6 +10,7 @@ using Tavstal.BeaconSDK.Models;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Services.Localization;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Translation;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
@@ -33,7 +34,8 @@ public partial class ProgressWindow : KonkordWindow<ProgressViewModel>, IKonkord
 
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public ProgressWindow(ITranslationService translationService, CancellationTokenSource? cancellationTokenSource)
+    public ProgressWindow(ITranslationService translationService, IBitmapService bitmapService,
+        CancellationTokenSource? cancellationTokenSource) : base(bitmapService)
     {
         InitializeComponent();
 

@@ -5,6 +5,7 @@ using Avalonia.Controls;
 using ReactiveUI;
 using ReactiveUI.Primitives;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
+using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
@@ -21,7 +22,11 @@ public partial class InputWindow : KonkordWindow<InputViewModel>
     /// </summary>
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public InputWindow() : this("Design Time Title") { }
+    public InputWindow()
+    {
+        InitializeComponent();
+        DataContext = new InputViewModel("Design Time Title");
+    }
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="InputWindow" /> class with the specified title.
@@ -30,7 +35,7 @@ public partial class InputWindow : KonkordWindow<InputViewModel>
     /// <param name="title">The title to be displayed in the input window.</param>
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
-    public InputWindow(string title)
+    public InputWindow(string title, IBitmapService bitmapService) : base(bitmapService)
     {
         InitializeComponent();
 

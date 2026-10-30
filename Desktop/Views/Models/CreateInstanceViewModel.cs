@@ -59,7 +59,7 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IKonkord
         if (Design.IsDesignMode)
             return;
 
-        SetupPipeline();
+        Custom.SetupPipeline();
         _ = InitAsync();
     }
 
@@ -71,6 +71,8 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IKonkord
 
     protected override void Dispose(bool disposing)
     {
+        if (!disposing)
+            return;
         base.Dispose(disposing);
         Custom.Dispose();
         Custom.OnCloseRequested -= OnCloseRequested;
@@ -101,11 +103,6 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IKonkord
     private void OnCloseRequested(object? sender, EventArgs args)
     {
         Dispatcher.UIThread.Invoke(async () => await CloseWindowInteraction.Handle(Unit.Default));
-    }
-
-    private void SetupPipeline()
-    {
-        Custom.SetupPipeline();
     }
 
     [RelayCommand]

@@ -112,7 +112,7 @@ public class SkinService : ISkinService
         try
         {
             using var client = _httpClientFactory.CreateClient();
-            var skinsDir = Path.Combine(cacheDir, "skins", accountId, skin.Id);
+            var skinsDir = Path.Combine(cacheDir, "skins", accountId);
             Directory.CreateDirectory(skinsDir);
 
             var texturePath = Path.Combine(skinsDir, "texture.png");
@@ -165,11 +165,12 @@ public class SkinService : ISkinService
 
             foreach (var cape in capes)
             {
-                await semaphore.WaitAsync(cancellationToken);
                 tasks.Add(Task.Run(async () =>
                 {
                     try
                     {
+                        // ReSharper disable once AccessToDisposedClosure
+                        await semaphore.WaitAsync(cancellationToken);
                         var capePath = Path.Combine(capesDir, $"{cape.Id}.png");
                         if (File.Exists(capePath))
                             return;
@@ -193,6 +194,7 @@ public class SkinService : ISkinService
                     }
                     finally
                     {
+                        // ReSharper disable once AccessToDisposedClosure
                         semaphore.Release();
                     }
                 }, cancellationToken));
@@ -204,24 +206,6 @@ public class SkinService : ISkinService
         {
             _logger.LogCritical(ex, "Failed to fetch capes.");
         }
-    }
-
-    /// <inheritdoc />
-    public async Task FetchPreviewSkinAsync(string cacheDir, string uuid, string username, string? skinId, bool isWide,
-        CancellationToken cancellationToken = default)
-    {
-        var skinsDir = Path.Combine(cacheDir, "skins", uuid);
-        Directory.CreateDirectory(skinsDir);
-        var showCape = skinId == null;
-        skinId ??= "preview";
-        skinId += isWide ? "_wide" : "_classic";
-        var skinPath = Path.Combine(skinsDir, $"{skinId}.png");
-        if (File.Exists(skinPath))
-            return;
-
-        var skinResult = await GetFullSkinAsync(username, enableCape: showCape, cancellationToken: cancellationToken);
-        if (skinResult != null)
-            await File.WriteAllBytesAsync(skinPath, skinResult, cancellationToken);
     }
 
     private async Task<string?> ResolveSkinUrlAsync(HttpClient client, string uuid,

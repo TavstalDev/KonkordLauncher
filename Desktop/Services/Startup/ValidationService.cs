@@ -97,17 +97,23 @@ public class ValidationService : IValidationService
                 if (acc.AccessTokenExpireDate < DateTime.UtcNow)
                 {
                     var refreshToken = Encoding.UTF8.GetString(acc.GetRefreshToken(_encryptionService));
-                    await _microsoftAuthService.RefreshLoginAsync(refreshToken, cancellationToken);
-                    // ReSharper disable once RedundantAssignment
-                    refreshToken = string.Empty;
-                    acc.MojangProfile = _microsoftAuthService.MojangProfile;
-                    acc.AccessTokenExpireDate = _microsoftAuthService.Account!.AccessTokenExpireDate;
-                    acc.SetAccessToken(_microsoftAuthService.Account.GetAccessToken(_encryptionService),
-                        _encryptionService);
-                    acc.SetRefreshToken(_microsoftAuthService.Account.GetRefreshToken(_encryptionService),
-                        _encryptionService);
-                    _microsoftAuthService.Reset();
-                    shouldUpdate = true;
+                    if (await _microsoftAuthService.RefreshLoginAsync(refreshToken, cancellationToken))
+                    {
+                        // ReSharper disable once RedundantAssignment
+                        refreshToken = string.Empty;
+                        acc.MojangProfile = _microsoftAuthService.MojangProfile;
+                        acc.AccessTokenExpireDate = _microsoftAuthService.Account!.AccessTokenExpireDate;
+                        acc.SetAccessToken(_microsoftAuthService.Account.GetAccessToken(_encryptionService),
+                            _encryptionService);
+                        acc.SetRefreshToken(_microsoftAuthService.Account.GetRefreshToken(_encryptionService),
+                            _encryptionService);
+                        _microsoftAuthService.Reset();
+                        shouldUpdate = true;
+                    }
+                    else
+                    {
+                        _logger.LogError("Failed to refresh microsoft login.");
+                    }
                 }
                 else
                 {

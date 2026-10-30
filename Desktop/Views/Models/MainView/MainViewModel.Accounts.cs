@@ -237,7 +237,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
 
             var skinId = Guid.NewGuid().ToString();
             var settings = await _launcherStore.GetSettingsAsync(cancellationToken: cancellationToken);
-            var skinDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins", SelectedAccount.Id, skinId);
+            var skinDir = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins", SelectedAccount.Id);
             if (!Directory.Exists(skinDir))
                 Directory.CreateDirectory(skinDir);
             var skinPath = Path.Combine(skinDir, "texture.png");
@@ -284,8 +284,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
                 return;
 
             var settings = await _launcherStore.GetSettingsAsync(cancellationToken: cancellationToken);
-            var skinPath = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins", SelectedAccount.Id, model.Id,
-                "texture.png");
+            var skinPath = Path.Combine(settings.Launcher.CacheDirectoryPath, "skins", SelectedAccount.Id, "texture.png");
             if (!File.Exists(skinPath))
             {
                 _logger.LogError("Skin file does not exist: " + skinPath);
@@ -537,7 +536,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
 
             foreach (var skin in SelectedAccount.Skins)
             {
-                var path = Path.Combine(skinsDir, SelectedAccount.Id, skin.Id, "preview.png");
+                var path = Path.Combine(skinsDir, SelectedAccount.Id, "preview.png");
                 var img = new BitmapEntry(null, null);
                 try
                 {
@@ -619,7 +618,7 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
                 var selectedSkin =
                     SelectedAccount.Skins.FirstOrDefault(x =>
                         x.MojangId == SelectedAccount.MojangProfile?.Skins[0].Id);
-                avatarPath = selectedSkin == null ? null : Path.Combine(avatarDir, selectedSkin.Id, "head.png");
+                avatarPath = selectedSkin == null ? null : Path.Combine(avatarDir, "head.png");
             }
         }
         else

@@ -51,17 +51,4 @@ public interface ISkinService
     /// <param name="capes">A list of cape identifiers to fetch. Can include Minecon, Mojang staff, or promotional capes.</param>
     /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
     Task FetchCapesAsync(string cacheDir, List<Cape> capes, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    ///     Fetches a preview image of a player's skin for display in the launcher UI.
-    ///     The preview is typically a small, optimized version of the full skin suitable for profile views.
-    /// </summary>
-    /// <param name="cacheDir">The directory path where preview skin data should be cached.</param>
-    /// <param name="uuid">The player's UUID (Universally Unique Identifier).</param>
-    /// <param name="username">The player's username for identification and fallback purposes.</param>
-    /// <param name="skinId">The identifier of the specific skin variant, or null for the default skin.</param>
-    /// <param name="isWide">Determines the aspect ratio of the preview. True for widescreen (9:16), false for standard (8:8).</param>
-    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
-    Task FetchPreviewSkinAsync(string cacheDir, string uuid, string username, string? skinId, bool isWide,
-        CancellationToken cancellationToken = default);
 }

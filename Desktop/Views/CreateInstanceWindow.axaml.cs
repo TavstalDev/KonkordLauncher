@@ -50,7 +50,7 @@ public partial class CreateInstanceWindow : KonkordWindow<CreateInstanceViewMode
                 HandleTabChange(action.Input);
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
-            });
+            }).DisposeWith(disposables);
         });
     }
 

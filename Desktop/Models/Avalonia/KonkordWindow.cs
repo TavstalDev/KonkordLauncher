@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics;
-using System.Runtime;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Threading;

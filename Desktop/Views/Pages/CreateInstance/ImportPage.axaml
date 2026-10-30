@@ -1,0 +1,224 @@
+<UserControl
+    x:Class="Tavstal.KonkordLauncher.Desktop.Views.Pages.CreateInstance.ImportPage"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
+    x:Name="Root"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    x:DataType="vm:CreateInstanceViewModel"
+    mc:Ignorable="d">
+    <Grid RowDefinitions="*, Auto">
+        <!--  Content  -->
+        <ScrollViewer Margin="25,0,25,0">
+            <Grid
+                Classes="SettingsWrapper"
+                ColumnDefinitions="*, Auto"
+                ColumnSpacing="20">
+                <!--  Input Area  -->
+                <Grid Classes="SettingsWrapper" RowDefinitions="Auto, Auto, Auto">
+                    <!--  Import Type  -->
+                    <Border Classes="SettingsCategoryBorder">
+                        <Grid RowDefinitions="Auto, Auto">
+                            <!--  Category Title  -->
+                            <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.import.type}" />
+
+                            <Grid
+                                Grid.Row="1"
+                                ColumnDefinitions="*, *"
+                                ColumnSpacing="10">
+
+                                <!--  From File Button  -->
+                                <Button
+                                    Name="ImportFromFileTabBtn"
+                                    HorizontalAlignment="Stretch"
+                                    Classes="SuccessBtn"
+                                    Click="ImportFromFileTabBtn_OnClick">
+                                    <Button.CommandParameter>
+                                        <x:Int32>0</x:Int32>
+                                    </Button.CommandParameter>
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        Text="{lang:Translate instance.create.import.source.file}"
+                                        TextAlignment="Center" />
+                                </Button>
+
+                                <!--  From URL Button  -->
+                                <Button
+                                    Name="ImportFromUrlTabBtn"
+                                    Grid.Column="1"
+                                    HorizontalAlignment="Stretch"
+                                    Click="ImportFromUrlTabBtn_OnClick">
+                                    <Button.CommandParameter>
+                                        <x:Int32>1</x:Int32>
+                                    </Button.CommandParameter>
+                                    <TextBlock
+                                        VerticalAlignment="Center"
+                                        Text="{lang:Translate instance.create.import.source.url}"
+                                        TextAlignment="Center" />
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <!--  Import From File  -->
+                    <Border
+                        Grid.Row="1"
+                        Classes="SettingsCategoryBorder"
+                        IsVisible="{Binding Import.IsSourceFromFile}">
+                        <Grid RowDefinitions="Auto, Auto, Auto">
+                            <!--  Category Title  -->
+                            <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.import.select_file.title}" />
+
+                            <!--  Input  -->
+                            <Grid
+                                Grid.Row="1"
+                                Margin="5,0,5,0"
+                                ColumnDefinitions="*, Auto">
+                                <!--  Input  -->
+                                <TextBox
+                                    Grid.Column="0"
+                                    Classes="TextInput"
+                                    IsReadOnly="True"
+                                    PlaceholderText="{lang:Translate common.select.file}"
+                                    Text="{Binding Import.ImportPath}" />
+                                <!--  Button  -->
+                                <Button
+                                    Grid.Column="1"
+                                    Classes="IconBtn SuccessBtn"
+                                    Command="{Binding Import.SelectFileToImportCommand}">
+                                    <TextBlock Classes="FontAwesome" Text="&#xf56f;" />
+                                </Button>
+                            </Grid>
+                            <!--  Note  -->
+                            <TextBlock
+                                Grid.Row="2"
+                                Margin="5,5,5,0"
+                                Opacity="0.5"
+                                Text="{lang:Translate instance.create.import.formats}" />
+                        </Grid>
+                    </Border>
+
+                    <!--  Import From URL  -->
+                    <Border
+                        Grid.Row="1"
+                        Classes="SettingsCategoryBorder"
+                        IsVisible="{Binding !Import.IsSourceFromFile}">
+                        <Grid RowDefinitions="Auto, Auto, Auto">
+                            <!--  Category Title  -->
+                            <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.import.import_from_url.title}" />
+
+                            <!--  Input  -->
+                            <TextBox
+                                Grid.Row="1"
+                                Margin="5,0,5,0"
+                                Classes="TextInput"
+                                PlaceholderText="e.g., https://example.com/my-modpack.mrpack"
+                                Text="{Binding Import.ImportPath, Delay=500}" />
+
+                            <!--  Note  -->
+                            <TextBlock
+                                Grid.Row="2"
+                                Margin="5,5,5,0"
+                                Opacity="0.5"
+                                Text="{lang:Translate instance.create.import.formats}" />
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!--  Preview  -->
+                <!--<Border
+                                            Grid.Column="1"
+                                            Margin="0,0,0,20"
+                                            Classes="SettingsCategoryBorder">
+                                            <Grid
+                                                MinWidth="200"
+                                                RowDefinitions="Auto, Auto, Auto, Auto"
+                                                RowSpacing="10">
+                                                !-  Subtitle  -
+                                                <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.import.preview.title}" />
+
+                                                !-  Name  -
+                                                <Grid
+                                                    Grid.Row="1"
+                                                    Margin="5,0"
+                                                    ColumnDefinitions="Auto, Auto">
+                                                    <TextBlock Opacity="0.5" Text="{lang:Translate instance.create.import.preview.name}" />
+                                                    <TextBlock
+                                                        Grid.Column="1"
+                                                        Opacity="0.5"
+                                                        Text="{Binding Import.ImportPreviewName}" />
+                                                </Grid>
+
+                                                !-  Version  -
+                                                <Grid
+                                                    Grid.Row="2"
+                                                    Margin="5,0"
+                                                    ColumnDefinitions="Auto, Auto">
+                                                    <TextBlock Opacity="0.5" Text="{lang:Translate instance.create.import.preview.version}" />
+                                                    <TextBlock
+                                                        Grid.Column="1"
+                                                        Opacity="0.5"
+                                                        Text="{Binding Import.ImportPreviewVersion}" />
+                                                </Grid>
+
+                                                !-  Mod Loader  -
+                                                <Grid
+                                                    Grid.Row="3"
+                                                    Margin="5,0"
+                                                    ColumnDefinitions="Auto, Auto">
+                                                    <TextBlock Opacity="0.5" Text="{lang:Translate instance.create.import.preview.mod.loader}" />
+                                                    <TextBlock
+                                                        Grid.Column="1"
+                                                        Opacity="0.5"
+                                                        Text="{Binding Import.ImportPreviewModLoader}" />
+                                                </Grid>
+                                            </Grid>
+                                        </Border>-->
+            </Grid>
+        </ScrollViewer>
+
+        <!--  Buttons  -->
+        <Border Grid.Row="1" Classes="InstanceButtonBorder">
+            <StackPanel Classes="InstanceButtonWrapper">
+                <!--  Cancel Button  -->
+                <Button Classes="IconBtn ErrorBtn" Command="{Binding Custom.CustomCancelCreateCommand}">
+                    <Grid Classes="IconBtnWrapper" ColumnDefinitions="Auto, Auto">
+                        <TextBlock
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            Classes="FontAwesome"
+                            Text="&#xf00d;" />
+                        <TextBlock
+                            Grid.Column="1"
+                            VerticalAlignment="Center"
+                            FontWeight="500"
+                            Text="{lang:Translate common.cancel}" />
+                    </Grid>
+                </Button>
+                <!--  Create Instance Button  -->
+                <Button
+                    Classes="IconBtn SuccessBtn"
+                    Command="{Binding Import.CreateInstanceFromImportCommand}"
+                    IsEnabled="{Binding Import.HasImportPath}">
+                    <Grid Classes="IconBtnWrapper" ColumnDefinitions="Auto, Auto">
+                        <TextBlock
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            Classes="FontAwesome"
+                            Text="&#xf0c7;" />
+                        <TextBlock
+                            Grid.Column="1"
+                            VerticalAlignment="Center"
+                            FontWeight="500"
+                            Text="{lang:Translate instance.create.button}" />
+                    </Grid>
+                </Button>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
+

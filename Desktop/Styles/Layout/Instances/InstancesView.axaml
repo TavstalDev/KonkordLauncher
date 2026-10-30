@@ -52,6 +52,13 @@
     </Style>
 
     <!--  Single Select Table  -->
+    <Style Selector="ListBox.InstanceTable">
+        <Setter Property="Background" Value="{DynamicResource base-200}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource border-one}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="8" />
+    </Style>
+
     <Style Selector="DataGrid.InstanceTable">
         <Setter Property="SelectionMode" Value="Single" />
         <Setter Property="CanUserReorderColumns" Value="True" />

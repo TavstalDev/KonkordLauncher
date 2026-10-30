@@ -120,17 +120,10 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IKonkord
         await SwitchTabInteraction.Handle(tab);
     }
 
-    [RelayCommand]
-    private async Task ChangeImportType(int index)
-    {
-        await SwitchImportTabInteraction.Handle(index);
-    }
-
     #region Interactions
 
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
     public Interaction<ECreateInstanceTab, Unit> SwitchTabInteraction { get; } = new();
-    public Interaction<int, Unit> SwitchImportTabInteraction { get; } = new();
 
     #endregion
 

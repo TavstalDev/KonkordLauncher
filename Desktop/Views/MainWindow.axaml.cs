@@ -25,8 +25,6 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
     {
         InitializeComponent();
         _selectedSideBarButton = PlaySideBtn;
-
-
     }
 
     [RequiresUnreferencedCode(

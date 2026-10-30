@@ -1,6 +1,7 @@
 using System;
 using System.Reactive.Disposables;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Tavstal.KonkordLauncher.Desktop.Helpers;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 
@@ -22,7 +23,6 @@ public abstract class KonkordObservableObject : ObservableObject, IDisposable
     public void Dispose()
     {
         Dispose(true);
-        GC.SuppressFinalize(this);
     }
 
     /// <summary>
@@ -39,7 +39,6 @@ public abstract class KonkordObservableObject : ObservableObject, IDisposable
             return;
 
         if (disposing)
-            // Dispose of all managed resources (like subscriptions).
             Disposables.Dispose();
 
         _isDisposed = true;

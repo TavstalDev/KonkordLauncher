@@ -154,7 +154,7 @@ public partial class ResourceBaseModel : ObservableObject
             IconUrl = project.IconUrl,
             RawPage = markdownTask.Result,
             Versions = new ObservableCollection<Version>(versions),
-            Tags = new ObservableCollection<string>(project.Categories),
+            Tags = [.. project.Categories],
             IsEnabled = true,
             Type = type,
             Platform = EPlatformType.MODRINTH,

@@ -94,15 +94,7 @@ public class BitmapService : IHostedService, IBitmapService
 
         var bytes = Convert.FromBase64String(base64Image);
         using var stream = new MemoryStream(bytes);
-
-        using var originalBitmap = new Bitmap(stream);
-        int originalWidth = originalBitmap.PixelSize.Width;
-        stream.Position = 0;
-
-        var finalBitmap = originalWidth > decodeWidth
-            ?
-            Bitmap.DecodeToWidth(stream, decodeWidth)
-            : originalBitmap;
+        var finalBitmap = GetDecodedBitmap(stream, decodeWidth);
 
         _cache[cacheKey] = finalBitmap;
         _refCounts.AddOrUpdate(cacheKey, 1, (_, count) => count + 1);
@@ -165,17 +157,7 @@ public class BitmapService : IHostedService, IBitmapService
             throw new Exception($"Failed to load image from web: {uri}");
         response.EnsureSuccessStatusCode();
         await using var stream = await response.Content.ReadAsStreamAsync();
-
-        using var originalBitmap = new Bitmap(stream);
-        int originalWidth = originalBitmap.PixelSize.Width;
-        stream.Position = 0;
-
-        var finalBitmap = originalWidth > decodeWidth
-            ?
-            Bitmap.DecodeToWidth(stream, decodeWidth)
-            : originalBitmap;
-
-        return finalBitmap;
+        return GetDecodedBitmap(stream, decodeWidth);
     }
 
     private Bitmap LoadFromResource(string filePath, int decodeWidth)
@@ -189,18 +171,20 @@ public class BitmapService : IHostedService, IBitmapService
             var finalResBitmap = originalResWidth > decodeWidth
                 ?
                 Bitmap.DecodeToWidth(stream, decodeWidth)
-                : originalResBitmap;
+                : new Bitmap(stream);
             return finalResBitmap;
         }
 
         using var fileStream = File.OpenRead(filePath);
-        using var originalBitmap = new Bitmap(fileStream);
+        return GetDecodedBitmap(fileStream, decodeWidth);
+    }
+
+    private Bitmap GetDecodedBitmap(Stream stream, int decodeWidth)
+    {
+        using var originalBitmap = new Bitmap(stream);
         int originalWidth = originalBitmap.PixelSize.Width;
-        fileStream.Position = 0;
-        var finalBitmap = originalWidth > decodeWidth
-            ?
-            Bitmap.DecodeToWidth(fileStream, decodeWidth)
-            : originalBitmap;
-        return finalBitmap;
+        stream.Position = 0;
+        return originalWidth > decodeWidth ?
+            Bitmap.DecodeToWidth(stream, decodeWidth) : new Bitmap(stream);
     }
 }

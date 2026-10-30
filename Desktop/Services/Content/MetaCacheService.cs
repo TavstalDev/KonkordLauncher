@@ -299,7 +299,7 @@ public class MetaCacheService : IMetaCacheService, IHostedService
             }, cancellationToken);
 
             await SaveCacheAsync(cancellationToken);
-            return projects.ToArray();
+            return [.. projects];
         }
         catch (Exception ex)
         {
@@ -374,7 +374,7 @@ public class MetaCacheService : IMetaCacheService, IHostedService
                     cancellationToken);
             }, cancellationToken);
 
-            return versions.ToArray();
+            return [.. versions];
         }
         catch (Exception ex)
         {

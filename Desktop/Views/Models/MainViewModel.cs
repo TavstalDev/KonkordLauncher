@@ -91,7 +91,7 @@ public partial class MainViewModel : KonkordObservableObject
 
     [ObservableProperty] public partial ESidebarType CurrentPageIndex { get; set; } = ESidebarType.Play;
 
-    public ObservableCollection<PatchNote> Patches { get; } = new();
+    public ObservableCollection<PatchNote> Patches { get; } = [];
 
     public int ScreenWidth => Design.IsDesignMode ? 950 : _screenService.ScreenSize.Width;
     public int ScreenHeight => Design.IsDesignMode ? 600 : _screenService.ScreenSize.Height;

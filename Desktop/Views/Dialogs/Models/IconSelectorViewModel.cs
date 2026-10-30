@@ -87,7 +87,7 @@ public partial class IconSelectorViewModel : KonkordObservableObject
     [NotifyPropertyChangedFor(nameof(HasSelectedIcon))]
     public partial IconDataModel? SelectedIcon { get; set; }
 
-    public ObservableCollection<IconDataModel> Icons { get; } = new();
+    public ObservableCollection<IconDataModel> Icons { get; } = [];
 
     public bool HasSelectedIcon => SelectedIcon != null;
 

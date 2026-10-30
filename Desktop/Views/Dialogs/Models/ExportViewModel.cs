@@ -217,7 +217,7 @@ public partial class ExportViewModel : KonkordObservableObject
         }
 
         IsExporting = true;
-        var selectedFiles = ObservableFileNode.ToFileNodes(Items.ToList());
+        var selectedFiles = ObservableFileNode.ToFileNodes([.. Items]);
         switch (Provider)
         {
             case EInstanceProvider.CURSE_FORGE:

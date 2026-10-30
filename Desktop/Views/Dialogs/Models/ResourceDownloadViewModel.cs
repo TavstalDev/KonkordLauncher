@@ -282,9 +282,11 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
                 projectOrder.TryAdd(projectId, i);
             }
 
-            projects = projects
-                .OrderBy(project => projectOrder.GetValueOrDefault(project.Id, int.MaxValue))
-                .ToArray();
+            projects =
+            [
+                .. projects
+                    .OrderBy(project => projectOrder.GetValueOrDefault(project.Id, int.MaxValue))
+            ];
 
             cancellationToken.ThrowIfCancellationRequested();
             var versionIds = projects.SelectMany(p => p.Versions).Distinct().ToList();
@@ -303,12 +305,15 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
                     EMinecraftKind.QUILT => "quilt",
                     _ => ""
                 };
-                versions = versions
-                    .Where(v => v.Loaders.Contains(modLoader) && v.GameVersions.Contains(MinecraftVersion)).ToArray();
+                versions =
+                [
+                    .. versions
+                        .Where(v => v.Loaders.Contains(modLoader) && v.GameVersions.Contains(MinecraftVersion))
+                ];
             }
             else
             {
-                versions = versions.Where(v => v.GameVersions.Contains(MinecraftVersion)).ToArray();
+                versions = [.. versions.Where(v => v.GameVersions.Contains(MinecraftVersion))];
             }
 
             var versionDict = versions.ToDictionary(v => v.Id);
@@ -491,7 +496,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
             });
         }
 
-        var dependencyVersions = await _metaCacheService.GetVersionsAsync(dependencies.Values.ToList());
+        var dependencyVersions = await _metaCacheService.GetVersionsAsync([.. dependencies.Values]);
         foreach (var dependencyVersion in dependencyVersions)
         {
             var file = dependencyVersion.Files.FirstOrDefault();

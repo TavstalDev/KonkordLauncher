@@ -45,7 +45,7 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
         _instance = null!;
         Kind = EMinecraftKind.VANILLA;
         MinecraftVersions =
-            new ReadOnlyObservableCollection<MinecraftVersion>(new ObservableCollection<MinecraftVersion>());
+            new ReadOnlyObservableCollection<MinecraftVersion>([]);
     }
 
     public InstanceVersionSelectorViewModel(Instance instance,

@@ -288,7 +288,7 @@ public class ModrinthPackageService : IPackageService
     {
         var resourceFile = instance.GetResourceConfigPath();
         List<InstanceResource> resources = [];
-        List<FileNode> localNodes = new(fileNodes);
+        List<FileNode> localNodes = [.. fileNodes];
         if (File.Exists(resourceFile))
         {
             var res = await JsonHelper.ReadJsonFileAsync<List<InstanceResource>>(resourceFile,

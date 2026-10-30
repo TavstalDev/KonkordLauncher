@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,11 +9,9 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DynamicData;
+using Markdig;
 using Microsoft.Extensions.DependencyInjection;
 using Tavstal.BeaconSDK.Enums;
-using Tavstal.BeaconSDK.Helpers.IO;
-using Tavstal.BeaconSDK.Models.Instance;
-using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Models.MojangApi;
 using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models;
@@ -301,8 +298,28 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         CanCreateInstance = value != null && !string.IsNullOrEmpty(InstanceName);
         Dispatcher.UIThread.Invoke(async () =>
         {
-            await Task.Delay(50); // Minimal delay, otherwise it will always be -1
-            SelectedModpackVersionIndex = value == null ? -1 : 0;
+            SelectedModpackVersionIndex = -1;
+            SelectedModpackMarkdownBody = null;
+            if (value == null)
+                return;
+
+            var project = await _metaCacheService.GetProjectAsync(value.ProjectId);
+            if (project == null)
+                return;
+
+            try
+            {
+                SelectedModpackMarkdownBody = Markdown.ToHtml(project.Body);
+
+                var projectVersions = await _metaCacheService.GetVersionsAsync(project.Versions.ToList());
+                if (projectVersions.Length == 0)
+                    return;
+            }
+            finally
+            {
+                await Task.Delay(50);
+                SelectedModpackVersionIndex = 0;
+            }
         });
     }
 

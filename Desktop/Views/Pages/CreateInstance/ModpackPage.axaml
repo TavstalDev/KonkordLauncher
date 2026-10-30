@@ -207,8 +207,8 @@
                     Classes="SettingsCategoryBorder">
                     <ScrollViewer HorizontalScrollBarVisibility="Disabled">
                         <HtmlLabel
-                            Margin="0,0,10,0"
-                            HorizontalAlignment="Stretch"
+                            HorizontalAlignment="Left"
+                            Width="{Binding $parent[ScrollViewer].Viewport.Width}"
                             BaseStylesheet="{DynamicResource HtmlBaseStyle}"
                             Text="{Binding Modpack.SelectedModpackMarkdownBody}" />
                     </ScrollViewer>

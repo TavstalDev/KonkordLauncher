@@ -117,20 +117,16 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
 
     protected override void Dispose(bool disposing)
     {
+        if (disposing)
+        {
+            Disposables.Dispose();
+            _minecraftVersionCache.Clear();
+            _minecraftVersionCache.Dispose();
+            _modLoaderVersionCache.Clear();
+            _modLoaderVersionCache.Dispose();
+            InstanceIcon.Dispose(_bitmapService);
+        }
         base.Dispose(disposing);
-        _minecraftVersionCache.Clear();
-        _minecraftVersionCache.Dispose();
-        _modLoaderVersionCache.Clear();
-        _modLoaderVersionCache.Dispose();
-        InstanceName = string.Empty;
-        InstanceGroup = string.Empty;
-        InstanceIcon.Dispose(_bitmapService);
-        InstanceIconPath = null;
-        SearchQuery = string.Empty;
-        SelectedMinecraftVersion = null;
-
-        ModLoaderSearchQuery = string.Empty;
-        SelectedModLoader = null;
     }
 
     [RequiresUnreferencedCode(
@@ -288,7 +284,7 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
     #region Vanilla
 
     private readonly SourceCache<MinecraftVersion, string> _minecraftVersionCache = new(x => x.Id);
-    public ReadOnlyObservableCollection<MinecraftVersion> MinecraftVersions { get; private set; } = null!;
+    public ReadOnlyObservableCollection<MinecraftVersion> MinecraftVersions { get; private set; }
 
     [ObservableProperty] public partial string SearchQuery { get; set; } = string.Empty;
 

@@ -308,7 +308,8 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
                 return;
 
             cts.ThrowIfCancellationRequested();
-            if (!await _installService.InstallAsync(gameInstance, this, cts))
+            var stopwatch = new Stopwatch();
+            if (!await _installService.InstallAsync(gameInstance, this, stopwatch, cts))
             {
                 _logger.LogWarning("Installation failed or was cancelled.");
                 await _dialogService.ShowAlertAsync(

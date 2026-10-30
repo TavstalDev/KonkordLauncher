@@ -8,6 +8,7 @@
     xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
+    xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Instance"
     x:Name="Root"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -113,7 +114,7 @@
                                 FontSize="12"
                                 IsHitTestVisible="{Binding Modpack.AllowScrollbarRefresh}"
                                 ItemsSource="{Binding Modpack.VersionFilterSource}"
-                                SelectedIndex="{Binding Modpack.VersionFilterIndex}"
+                                SelectedIndex="0"
                                 SelectedValue="{Binding Modpack.MinecraftVersion}"
                                 SelectionChanged="ModPackFilter_OnSelectionChanged" />
                         </Grid>
@@ -125,76 +126,15 @@
                                 Foreground="{DynamicResource text-muted}"
                                 Text="{lang:Translate common.categories}" />
 
-                            <!--  Adventure Checkbox  -->
-                            <CheckBox
-                                Classes="InstanceModCategory"
-                                Content="{lang:Translate instance.create.category.adventure}"
-                                IsChecked="{Binding Modpack.CategoryAdventure}"
-                                IsCheckedChanged="ModPackCategory_OnIsCheckedChanged"
-                                IsHitTestVisible="{Binding Modpack.AllowScrollbarRefresh}" />
-                            <!--  Challenging Checkbox  -->
-                            <CheckBox
-                                Classes="InstanceModCategory"
-                                Content="{lang:Translate instance.create.category.challenging}"
-                                IsChecked="{Binding Modpack.CategoryChallenging}"
-                                IsCheckedChanged="ModPackCategory_OnIsCheckedChanged"
-                                IsHitTestVisible="{Binding Modpack.AllowScrollbarRefresh}" />
-                            <!--  Combat Checkbox  -->
-                            <CheckBox
-                                Classes="InstanceModCategory"
-                                Content="{lang:Translate instance.create.category.combat}"
-                                IsChecked="{Binding Modpack.CategoryCombat}"
-                                IsCheckedChanged="ModPackCategory_OnIsCheckedChanged"
-                                IsHitTestVisible="{Binding Modpack.AllowScrollbarRefresh}" />
-                            <!--  Kitchen Sink Checkbox  -->
-                            <CheckBox
-                                Classes="InstanceModCategory"
-                                Content="{lang:Translate instance.create.category.kitchenSink}"
-                                IsChecked="{Binding Modpack.CategoryKitchenSink}"
-                                IsCheckedChanged="ModPackCategory_OnIsCheckedChanged"
-                                IsHitTestVisible="{Binding Modpack.AllowScrollbarRefresh}" />
-                            <!--  Lightweight Checkbox  -->
-                            <CheckBox
-                                Classes="InstanceModCategory"
-                                Content="{lang:Translate instance.create.category.lightweight}"
-                                IsChecked="{Binding Modpack.CategoryLightweight}"
-                                IsCheckedChanged="ModPackCategory_OnIsCheckedChanged"
-                                IsHitTestVisible="{Binding Modpack.AllowScrollbarRefresh}" />
-                            <!--  Magic Checkbox  -->
-                            <CheckBox
-                                Classes="InstanceModCategory"
-                                Content="{lang:Translate instance.create.category.magic}"
-                                IsChecked="{Binding Modpack.CategoryMagic}"
-                                IsCheckedChanged="ModPackCategory_OnIsCheckedChanged"
-                                IsHitTestVisible="{Binding Modpack.AllowScrollbarRefresh}" />
-                            <!--  Multiplayer Checkbox  -->
-                            <CheckBox
-                                Classes="InstanceModCategory"
-                                Content="{lang:Translate instance.create.category.multiplayer}"
-                                IsChecked="{Binding Modpack.CategoryMultiplayer}"
-                                IsCheckedChanged="ModPackCategory_OnIsCheckedChanged"
-                                IsHitTestVisible="{Binding Modpack.AllowScrollbarRefresh}" />
-                            <!--  Optimization Checkbox  -->
-                            <CheckBox
-                                Classes="InstanceModCategory"
-                                Content="{lang:Translate instance.create.category.optimization}"
-                                IsChecked="{Binding Modpack.CategoryOptimization}"
-                                IsCheckedChanged="ModPackCategory_OnIsCheckedChanged"
-                                IsHitTestVisible="{Binding Modpack.AllowScrollbarRefresh}" />
-                            <!--  Quests Checkbox  -->
-                            <CheckBox
-                                Classes="InstanceModCategory"
-                                Content="{lang:Translate instance.create.category.quests}"
-                                IsChecked="{Binding Modpack.CategoryQuests}"
-                                IsCheckedChanged="ModPackCategory_OnIsCheckedChanged"
-                                IsHitTestVisible="{Binding Modpack.AllowScrollbarRefresh}" />
-                            <!--  Technology Checkbox  -->
-                            <CheckBox
-                                Classes="InstanceModCategory"
-                                Content="{lang:Translate instance.create.category.technology}"
-                                IsChecked="{Binding Modpack.CategoryTechnology}"
-                                IsCheckedChanged="ModPackCategory_OnIsCheckedChanged"
-                                IsHitTestVisible="{Binding Modpack.AllowScrollbarRefresh}" />
+                            <ItemsControl ItemsSource="{Binding Modpack.Categories}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="models:CategoryModel">
+                                        <CheckBox Classes="InstanceModCategory"
+                                                  Content="{Binding DisplayName}"
+                                                  IsChecked="{Binding IsChecked}" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
                         </StackPanel>
                     </Grid>
                 </ScrollViewer>
@@ -208,41 +148,52 @@
                 <!--  Modpack List  -->
                 <Border Classes="SettingsCategoryBorder">
                     <Grid>
-                        <ScrollViewer ScrollChanged="ScrollViewer_OnScrollChanged">
-                            <!--  Content  -->
-                            <ListBox
-                                Margin="0,0,10,0"
-                                Background="Transparent"
-                                ItemsSource="{Binding Modpack.Modpacks}"
-                                Opacity="{Binding Modpack.AllowScrollbarRefresh, Converter={StaticResource BoolToOpacityConverter}}"
-                                SelectedItem="{Binding Modpack.SelectedModpack}"
-                                SelectionMode="Single">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border Classes="InstanceModCard">
-                                            <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
-                                                <Image Width="35" Source="{Binding Icon.Value}" />
-                                                <Grid Grid.Column="1" RowDefinitions="Auto, Auto">
-                                                    <TextBlock Classes="InstanceModTitle" Text="{Binding Name}" />
-                                                    <TextBlock
-                                                        Grid.Row="1"
-                                                        Classes="InstanceModDescription"
-                                                        Text="{Binding Description}" />
-                                                </Grid>
+                        <!--  Content  -->
+                        <ListBox
+                            x:Name="ModpackList"
+                            Padding="0,0,10,0"
+                            Background="Transparent"
+                            ItemsSource="{Binding Modpack.Modpacks}"
+                            Opacity="{Binding Modpack.AllowScrollbarRefresh, Converter={StaticResource BoolToOpacityConverter}}"
+                            SelectedItem="{Binding Modpack.SelectedModpack}"
+                            SelectionMode="Single"
+                            ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="models:ModPackPreviewModel">
+                                    <Border Classes="InstanceModCard">
+                                        <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
+                                            <Image Width="35" Height="35"
+                                                   Source="{Binding Icon.Value}" />
+                                            <Grid Grid.Column="1" RowDefinitions="Auto, Auto">
+                                                <TextBlock
+                                                    Classes="InstanceModTitle"
+                                                    Text="{Binding Name}" />
+                                                <TextBlock
+                                                    Grid.Row="1"
+                                                    MaxLines="2"
+                                                    Classes="InstanceModDescription"
+                                                    Text="{Binding Description}" />
                                             </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
-                        </ScrollViewer>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
 
-                        <avalonia:LoadingIndicator
-                            Height="150"
-                            VerticalAlignment="Center"
-                            Foreground="{DynamicResource primary-content}"
-                            IsActive="{Binding !Modpack.AllowScrollbarRefresh}"
-                            Mode="Arc"
-                            SpeedRatio="1.2" />
+                        <Border IsVisible="{Binding !Modpack.AllowScrollbarRefresh}"
+                                Background="#99000000">
+                            <avalonia:LoadingIndicator Height="150"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource primary-content}"
+                                                       IsActive="True"
+                                                       Mode="Arc"
+                                                       SpeedRatio="1.2" />
+                        </Border>
                     </Grid>
                 </Border>
 
@@ -254,12 +205,12 @@
                     Grid.Column="2"
                     Padding="10,0"
                     Classes="SettingsCategoryBorder">
-                    <ScrollViewer>
+                    <ScrollViewer HorizontalScrollBarVisibility="Disabled">
                         <HtmlLabel
-                            MaxWidth="{Binding $parent[Border].Bounds.Width}"
                             Margin="0,0,10,0"
+                            HorizontalAlignment="Stretch"
                             BaseStylesheet="{DynamicResource HtmlBaseStyle}"
-                            Text="{Binding Modpack.ModpackPreview}" />
+                            Text="{Binding Modpack.SelectedModpackMarkdownBody}" />
                     </ScrollViewer>
                 </Border>
             </Grid>
@@ -273,12 +224,12 @@
                     Grid.Column="0"
                     VerticalAlignment="Center"
                     Classes="TextDropdown"
-                    ItemsSource="{Binding Modpack.SelectedModpack.FilteredVersions}"
+                    ItemsSource="{Binding Modpack.SelectedModpackVersions}"
                     PlaceholderText="{lang:Translate instance.create.modpack.select}"
                     SelectedIndex="{Binding Modpack.SelectedModpackVersionIndex}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Name}" />
+                            <TextBlock Text="{Binding .}" />
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>

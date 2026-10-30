@@ -215,13 +215,7 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
     {
         var path = await _filePickerService.OpenFilePickerAsync(_translationService.Translate("common.select.file"),
             ".zip, .mrpack, .json", ["*.zip", "*.mrpack", "*.json"]);
-        if (string.IsNullOrEmpty(path))
-        {
-            HasImportPath = false;
-            return;
-        }
-
-        if (!File.Exists(path))
+        if (string.IsNullOrEmpty(path) || !File.Exists(path))
         {
             HasImportPath = false;
             return;

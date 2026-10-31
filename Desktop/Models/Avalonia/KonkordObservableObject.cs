@@ -1,7 +1,6 @@
 using System;
 using System.Reactive.Disposables;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Tavstal.KonkordLauncher.Desktop.Helpers;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 

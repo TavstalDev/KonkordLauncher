@@ -1,11 +1,9 @@
 using System;
-using System.Diagnostics;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Threading;
 using ReactiveUI.Avalonia;
-using Tavstal.BeaconSDK.Enums;
-using Tavstal.BeaconSDK.Helpers.Platform;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 
@@ -20,6 +18,8 @@ namespace Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 /// <typeparam name="TViewModel">Type of the view model assigned to the window.</typeparam>
 public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> where TViewModel : class
 {
+    private readonly IBitmapService? _bitmapService;
+
     /// <summary>
     ///     Initializes a new instance of the <see cref="KonkordWindow{TViewModel}" /> class and subscribes to the
     ///     <see cref="Window.Closed" /> event.
@@ -35,6 +35,7 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
     /// </summary>
     protected KonkordWindow(IBitmapService bitmapService)
     {
+        _bitmapService = bitmapService;
         Icon = new WindowIcon(bitmapService.GetBitmap("avares://KonkordLauncher/Assets/Images/logo.png", 64).Value!);
         Opened += OnOpened;
         Closed += OnClosed;
@@ -58,13 +59,19 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
     /// <param name="e">Window closing event arguments.</param>
     protected override void OnClosing(WindowClosingEventArgs e)
     {
+        _bitmapService?.Release("avares://KonkordLauncher/Assets/Images/logo.png");
         (DataContext as IDisposable)?.Dispose();
         base.OnClosing(e);
     }
 
     private void OnOpened(object? sender, EventArgs e)
     {
-        MemoryHelper.Clean();
+        Task.Run(async () =>
+        {
+            await Task.Yield();
+            await Task.Delay(500);
+            MemoryHelper.Clean();
+        });
     }
 
     /// <summary>
@@ -78,30 +85,12 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
     {
         Closed -= OnClosed;
         DataContext = null;
-        Dispatcher.UIThread.Post(() =>
+        Task.Run(async () =>
         {
-            try
-            {
-                switch (OSHelper.GetOperatingSystem())
-                {
-                    case EOperatingSystem.WINDOWS:
-                    {
-                        MemoryHelper.EmptyWorkingSet(Process.GetCurrentProcess().Handle);
-                        break;
-                    }
-                    case EOperatingSystem.LINUX:
-                    {
-                        MemoryHelper.malloc_trim(0);
-                        break;
-                    }
-                }
-            }
-            catch
-            {
-                /* Suppress */
-            }
-        }, DispatcherPriority.Background);
-        MemoryHelper.Clean();
+            await Task.Yield();
+            await Task.Delay(500);
+            MemoryHelper.Clean();
+        });
     }
 
     /// <summary>

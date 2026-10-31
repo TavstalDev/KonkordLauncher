@@ -38,18 +38,4 @@
 
     <SolidColorBrush x:Key="text-faded" Color="#9CA3AF" />
     <SolidColorBrush x:Key="text-muted" Color="#626773" />
-
-    <x:String x:Key="HtmlBaseStyle">
-        body, p, div, span, h1, h2, h3, ul, ol {
-        color: white !important;
-        font-family: sans-serif;
-        white-space: normal;
-        word-wrap: break-word;
-        }
-
-        img {
-        max-width: 100%
-        height: auto;
-        }
-    </x:String>
 </ResourceDictionary>

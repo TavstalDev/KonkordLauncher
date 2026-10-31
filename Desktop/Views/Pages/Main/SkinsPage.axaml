@@ -12,35 +12,6 @@
     d:DesignWidth="800"
     x:DataType="vm:MainViewModel"
     mc:Ignorable="d">
-    <UserControl.DataTemplates>
-        <!--  Skin Card  -->
-        <DataTemplate DataType="domain:SkinDataModel">
-            <Border Classes="SkinBorder" Classes.selected="{Binding IsSelected}">
-                <Button
-                    Classes="SkinBtn"
-                    Command="{Binding #Root.((vm:MainViewModel)DataContext).Accounts.SkinSelectCommand}"
-                    CommandParameter="{Binding .}">
-                    <Viewbox Classes="SkinViewBox">
-                        <Image Classes="SkinPreview" Source="{Binding Image.Value}" />
-                    </Viewbox>
-                </Button>
-            </Border>
-        </DataTemplate>
-        <!--  Cape Card  -->
-        <DataTemplate DataType="domain:CapeDataModel">
-            <Border Classes="SkinBorder" Classes.selected="{Binding IsSelected}">
-                <Button
-                    Classes="SkinBtn"
-                    Command="{Binding #Root.((vm:MainViewModel)DataContext).Accounts.CapeSelectCommand}"
-                    CommandParameter="{Binding .}"
-                    ToolTip.Tip="{Binding Alias}">
-                    <Viewbox MaxHeight="70" Classes="SkinViewBox">
-                        <Image Classes="SkinPreview" Source="{Binding Image.Value}" />
-                    </Viewbox>
-                </Button>
-            </Border>
-        </DataTemplate>
-    </UserControl.DataTemplates>
 
     <Grid
         Margin="20"
@@ -125,13 +96,29 @@
                                 </Button>
                             </Grid>
                             <!--  Options  -->
-                            <ItemsControl Grid.Row="1" ItemsSource="{Binding Accounts.Skins}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <WrapPanel ItemSpacing="10" LineSpacing="10" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                            </ItemsControl>
+                            <ScrollViewer Grid.Row="1">
+                                <ItemsRepeater ItemsSource="{Binding Accounts.Skins}">
+                                    <ItemsRepeater.Layout>
+                                        <UniformGridLayout MinRowSpacing="10"
+                                                           MinColumnSpacing="10"
+                                                           Orientation="Horizontal" />
+                                    </ItemsRepeater.Layout>
+                                    <ItemsRepeater.ItemTemplate>
+                                        <DataTemplate DataType="domain:SkinDataModel">
+                                            <Border Classes="SkinBorder" Classes.selected="{Binding IsSelected}">
+                                                <Button
+                                                    Classes="SkinBtn"
+                                                    Command="{Binding #Root.((vm:MainViewModel)DataContext).Accounts.SkinSelectCommand}"
+                                                    CommandParameter="{Binding .}">
+                                                    <Viewbox Classes="SkinViewBox">
+                                                        <Image Classes="SkinPreview" Source="{Binding Image.Value}" />
+                                                    </Viewbox>
+                                                </Button>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsRepeater.ItemTemplate>
+                                </ItemsRepeater>
+                            </ScrollViewer>
                         </Grid>
                     </Border>
                     <!--  Cape Selection  -->
@@ -147,19 +134,29 @@
                                 Classes="Muted"
                                 Text="{lang:Translate main.page.skins.capes}" />
                             <!--  Options  -->
-                            <ItemsControl
-                                Grid.Row="1"
-                                HorizontalAlignment="Center"
-                                ItemsSource="{Binding Accounts.Capes}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <WrapPanel
-                                            HorizontalAlignment="Center"
-                                            ItemSpacing="10"
-                                            LineSpacing="10" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                            </ItemsControl>
+                            <ScrollViewer Grid.Row="1">
+                                <ItemsRepeater ItemsSource="{Binding Accounts.Capes}">
+                                    <ItemsRepeater.Layout>
+                                        <UniformGridLayout MinRowSpacing="10"
+                                                           MinColumnSpacing="10"
+                                                           Orientation="Horizontal" />
+                                    </ItemsRepeater.Layout>
+                                    <ItemsRepeater.ItemTemplate>
+                                        <DataTemplate DataType="domain:CapeDataModel">
+                                            <Border Classes="SkinBorder" Classes.selected="{Binding IsSelected}">
+                                                <Button Classes="SkinBtn"
+                                                        Command="{Binding #Root.((vm:MainViewModel)DataContext).Accounts.CapeSelectCommand}"
+                                                        CommandParameter="{Binding .}"
+                                                        ToolTip.Tip="{Binding Alias}">
+                                                    <Viewbox MaxHeight="70" Classes="SkinViewBox">
+                                                        <Image Classes="SkinPreview" Source="{Binding Image.Value}" />
+                                                    </Viewbox>
+                                                </Button>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsRepeater.ItemTemplate>
+                                </ItemsRepeater>
+                            </ScrollViewer>
                         </Grid>
                     </Border>
                 </Grid>

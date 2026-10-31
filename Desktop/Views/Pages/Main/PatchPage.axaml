@@ -7,6 +7,7 @@
     xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
+    xmlns:md="clr-namespace:MarkView.Avalonia;assembly=MarkView.Avalonia"
     x:Name="Root"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -20,11 +21,7 @@
                     <!--  News Card Title  -->
                     <TextBlock Classes="NewsCardTitle" Text="{Binding Title}" />
                     <!--  News Card Description  -->
-                    <HtmlLabel
-                        Grid.Row="1"
-                        MaxWidth="{Binding $parent[Grid].Bounds.Width}"
-                        BaseStylesheet="{DynamicResource HtmlBaseStyle}"
-                        Text="{Binding Content}" />
+                    <md:MarkdownViewer Grid.Row="1" Padding="10, 15" Markdown="{Binding Content}" />
 
                     <!--  Read More Button  -->
                     <HyperlinkButton

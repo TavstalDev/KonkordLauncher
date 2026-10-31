@@ -1,4 +1,5 @@
 using System;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
@@ -24,6 +25,12 @@ public partial class ModpackPage : UserControl
     {
         base.OnUnloaded(e);
         ModpackList.RemoveHandler(ScrollViewer.ScrollChangedEvent, OnListScrolled);
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnDetachedFromVisualTree(e);
+        MarkdownPreview.Markdown = null;
     }
 
     private void ModPackFilter_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)

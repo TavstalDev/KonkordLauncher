@@ -207,7 +207,7 @@
                     Padding="10,0"
                     Classes="SettingsCategoryBorder">
                     <ScrollViewer Padding="10, 15" HorizontalScrollBarVisibility="Disabled">
-                        <md:MarkdownViewer Markdown="{Binding Modpack.SelectedModpackMarkdownBody}" />
+                        <md:MarkdownViewer x:Name="MarkdownPreview" Markdown="{Binding Modpack.SelectedModpackMarkdownBody}" />
                     </ScrollViewer>
                 </Border>
             </Grid>

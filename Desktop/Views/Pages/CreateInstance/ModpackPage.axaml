@@ -9,6 +9,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
     xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Instance"
+    xmlns:md="clr-namespace:MarkView.Avalonia;assembly=MarkView.Avalonia"
     x:Name="Root"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -205,12 +206,8 @@
                     Grid.Column="2"
                     Padding="10,0"
                     Classes="SettingsCategoryBorder">
-                    <ScrollViewer HorizontalScrollBarVisibility="Disabled">
-                        <HtmlLabel
-                            HorizontalAlignment="Left"
-                            Width="{Binding $parent[ScrollViewer].Viewport.Width}"
-                            BaseStylesheet="{DynamicResource HtmlBaseStyle}"
-                            Text="{Binding Modpack.SelectedModpackMarkdownBody}" />
+                    <ScrollViewer Padding="10, 15" HorizontalScrollBarVisibility="Disabled">
+                        <md:MarkdownViewer Markdown="{Binding Modpack.SelectedModpackMarkdownBody}" />
                     </ScrollViewer>
                 </Border>
             </Grid>

@@ -9,7 +9,6 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DynamicData;
-using Markdig;
 using Microsoft.Extensions.DependencyInjection;
 using Tavstal.BeaconSDK.Enums;
 using Tavstal.BeaconSDK.Models.MojangApi;
@@ -309,7 +308,7 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
 
             try
             {
-                SelectedModpackMarkdownBody = Markdown.ToHtml(project.Body);
+                SelectedModpackMarkdownBody = project.Body;
 
                 var projectVersions = await _metaCacheService.GetVersionsAsync(project.Versions.ToList());
                 if (projectVersions.Length == 0)

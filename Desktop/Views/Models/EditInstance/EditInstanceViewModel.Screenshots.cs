@@ -39,7 +39,7 @@ public partial class EditInstanceViewModel_Screenshots : KonkordObservableObject
     {
         base.Dispose(disposing);
         foreach (var screenshot in Screenshots)
-            screenshot.Image?.Dispose();
+            _bitmapService.Release(screenshot.Path);
         Screenshots.Clear();
         SelectedScreenshot?.Image?.Dispose();
         SelectedScreenshot = null;

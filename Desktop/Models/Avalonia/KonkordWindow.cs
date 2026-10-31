@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Threading;
 using ReactiveUI.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Helpers;
 using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
@@ -83,6 +82,7 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
     /// <param name="e">Event arguments.</param>
     private void OnClosed(object? sender, EventArgs e)
     {
+        Opened -= OnOpened;
         Closed -= OnClosed;
         DataContext = null;
         Task.Run(async () =>

@@ -1,5 +1,4 @@
 using System.Text.Json.Serialization;
-using Markdig;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 
@@ -18,7 +17,7 @@ public class PatchNote
     {
         Title = title;
         var safeMarkdown = content ?? string.Empty;
-        Content = Markdown.ToHtml(safeMarkdown);
+        Content = safeMarkdown;
         Url = url;
     }
 

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Markdig;
 using Modrinth.Models;
 using Modrinth.Models.Enums.Project;
 using Tavstal.BeaconSDK.Helpers.IO;
@@ -131,12 +130,9 @@ public partial class ResourceBaseModel : ObservableObject
     {
         var fallback = Task.FromResult(new BitmapEntry(null, null));
         var iconTask = project.IconUrl != null
-            ? metaCacheService.GetImageAsync(project.IconUrl)!
-            : fallback;
+            ? await metaCacheService.GetImageAsync(project.IconUrl)!
+            : await fallback;
 
-        var markdownTask = Task.Run(() => Markdown.ToHtml(project.Body));
-
-        await Task.WhenAll(iconTask, markdownTask);
         var type = project.ProjectType switch
         {
             ProjectType.Mod => EResourceType.MOD,
@@ -150,9 +146,9 @@ public partial class ResourceBaseModel : ObservableObject
             ProjectId = project.Id,
             Name = project.Title,
             Description = project.Description,
-            Icon = iconTask.Result,
+            Icon = iconTask!,
             IconUrl = project.IconUrl,
-            RawPage = markdownTask.Result,
+            RawPage = project.Body,
             Versions = new ObservableCollection<Version>(versions),
             Tags = [.. project.Categories],
             IsEnabled = true,

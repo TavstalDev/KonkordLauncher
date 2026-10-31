@@ -161,6 +161,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
             resource.Icon.Dispose(_bitmapService);
         SelectedResource?.Icon.Dispose(_bitmapService);
         SelectedResource = null;
+        _refreshCancellationTokenSource?.Dispose();
     }
 
     /// <summary>
@@ -219,7 +220,10 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
     public async Task RefreshResourcesAsync(bool resetSearch = false)
     {
         if (_refreshCancellationTokenSource != null)
+        {
             await _refreshCancellationTokenSource.CancelAsync();
+            _refreshCancellationTokenSource.Dispose();
+        }
 
         _refreshCancellationTokenSource = new CancellationTokenSource();
         var cancellationToken = _refreshCancellationTokenSource.Token;

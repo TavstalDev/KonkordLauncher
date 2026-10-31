@@ -9,6 +9,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:templates="clr-namespace:Tavstal.KonkordLauncher.Desktop.Styles.Templates"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
+    xmlns:md="clr-namespace:MarkView.Avalonia;assembly=MarkView.Avalonia"
     Title="{lang:Translate instance.resource.download.window}"
     Width="900"
     Height="500"
@@ -249,12 +250,8 @@
                                     <Grid RowDefinitions="*, Auto" RowSpacing="10">
 
                                         <!--  Preview Content  -->
-                                        <ScrollViewer>
-                                            <HtmlLabel
-                                                MaxWidth="{Binding $parent[Border].Bounds.Width}"
-                                                Margin="0,0,10,0"
-                                                BaseStylesheet="{DynamicResource HtmlBaseStyle}"
-                                                Text="{Binding ModPreview}" />
+                                        <ScrollViewer Padding="10, 15">
+                                            <md:MarkdownViewer Markdown="{Binding ModPreview}" />
                                         </ScrollViewer>
 
                                         <!--  Version Selector  -->

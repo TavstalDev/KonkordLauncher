@@ -70,6 +70,10 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         _eventService.OnInstanceAdded -= OnInstanceAdded;
         _eventService.OnInstanceUpdated -= OnInstanceUpdated;
         _eventService.OnInstanceRemoved -= OnInstanceRemoved;
+        foreach (var g in InstanceGroups)
+            foreach (var instance in g.Instances)
+                instance.Dispose();
+        InstanceGroups.Clear();
     }
 
     private void OnInstanceAdded(string instanceId)
@@ -230,6 +234,7 @@ public partial class MainViewModel_Instances : KonkordObservableObject
         if (targetGroup.Instances.Count == 0)
             InstanceGroups.Remove(targetGroup);
 
+        instanceToRemove.Dispose();
         HasInstances = InstanceGroups.Count > 0;
         return Task.CompletedTask;
     }

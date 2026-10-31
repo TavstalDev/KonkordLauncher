@@ -28,7 +28,7 @@ using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
 
-public partial class InstanceModel : ObservableObject, IKonkordProgress
+public partial class InstanceModel : ObservableObject, IKonkordProgress, IDisposable
 {
     private readonly BeaconConfiguration _beaconConfiguration;
     private readonly IBitmapService _bitmapService;
@@ -80,6 +80,14 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
         Kind = instance.Kind;
         GameDirectory = instance.GameDirectory;
         ConfigModel = instance.Config;
+    }
+
+    public void Dispose()
+    {
+        _watcher?.Dispose();
+        _cancellationTokenSource.Dispose();
+        Icon.Dispose(_bitmapService);
+        GameProcess?.Dispose();
     }
 
     public bool IsModded => Kind != EMinecraftKind.VANILLA;
@@ -170,6 +178,7 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
             _watcher.Changed -= OnLogFileChanged;
             _watcher.Created -= OnLogFileChanged;
             _watcher.Renamed -= OnLogFileChanged;
+            _watcher.Dispose();
         }
 
         Directory.CreateDirectory(logsDir);
@@ -181,10 +190,6 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress
         _watcher.EnableRaisingEvents = true;
         _watcher.Changed += OnLogFileChanged;
         _watcher.Created += OnLogFileChanged;
-        _watcher.Error += (_, e) =>
-        {
-            _logger.LogError("Watcher error: " + e.GetException());
-        };
     }
 
     public async Task LaunchAsync(string? serverAddress = null)

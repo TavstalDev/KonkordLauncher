@@ -141,6 +141,8 @@ public class BitmapService : IHostedService, IBitmapService
     /// <inheritdoc />
     public void Release(string key)
     {
+        // TODO: Instead of auto clearing when the count reaches 0, set an 1-2 minute expiration window.
+
         if (_cache.TryGetValue(key, out var bitmap))
             if (_refCounts.AddOrUpdate(key, 0, (_, count) => count > 0 ? count - 1 : 0) == 0)
             {

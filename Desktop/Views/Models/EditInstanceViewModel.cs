@@ -119,6 +119,7 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         GameDirectory = null;
         Logs.Clear();
         Mods.Dispose();
+        ShaderPacks.Dispose();
         ResourcePacks.Dispose();
         Screenshots.Dispose();
         Servers.Dispose();

@@ -113,6 +113,14 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
     {
         base.Dispose(disposing);
         _eventService.OnAccountsChanged -= OnAccountUpdated;
+
+        AccountAvatar.Dispose(_bitmapService);
+        foreach (var skin in Skins)
+            skin.Dispose(_bitmapService);
+        Skins.Clear();
+        foreach (var cape in Capes)
+            cape.Dispose(_bitmapService);
+        Capes.Clear();
     }
 
     public Task InitAsync(AccountData accountData)

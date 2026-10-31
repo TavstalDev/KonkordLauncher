@@ -146,7 +146,7 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
     public async Task InitAsync(VersionManifest versionManifest, CancellationToken cancellationToken = default)
     {
         VersionFilterSource.Add("Any");
-        MinecraftVersion = null;
+        MinecraftVersion = "Any";
 
         foreach (var version in versionManifest.Versions)
         {

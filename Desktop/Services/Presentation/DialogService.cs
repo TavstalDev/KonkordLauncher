@@ -149,6 +149,7 @@ public class DialogService : IDialogService
             var window = _windowFactory.CreateInstanceLogsWindow(instanceId);
             window.Show();
             _logWindows[instanceId] = window;
+            window.Closed += (_, _) => _logWindows.Remove(instanceId);
             return Task.CompletedTask;
         }
         catch (Exception exception)

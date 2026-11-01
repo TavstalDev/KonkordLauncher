@@ -126,8 +126,17 @@ public class CurseForgePackageService : IPackageService
 
                 var iconPath = Path.Combine(result.GameDirectory, "icon.png");
                 if (!File.Exists(iconPath) && !string.IsNullOrEmpty(customIconUrl))
-                    await _httpService.DownloadFileAsync(customIconUrl, iconPath, null, null, cancellationToken);
-                result.IconPath = File.Exists(iconPath) ? iconPath : string.Empty;
+                {
+                    if (customIconUrl.StartsWith("http"))
+                    {
+                        await _httpService.DownloadFileAsync(customIconUrl, iconPath, null, null, cancellationToken);
+                        result.IconPath = File.Exists(iconPath) ? iconPath : string.Empty;
+                    }
+                    else
+                        result.IconPath = customIconUrl;
+                }
+                else
+                    result.IconPath = File.Exists(iconPath) ? iconPath : string.Empty;
 
                 // Download Mods
                 /* TODO: Implement

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,10 +12,14 @@ using CommunityToolkit.Mvvm.Input;
 using DynamicData;
 using Microsoft.Extensions.DependencyInjection;
 using Tavstal.BeaconSDK.Enums;
+using Tavstal.BeaconSDK.Helpers.IO;
+using Tavstal.BeaconSDK.Models.Instance;
+using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Models.MojangApi;
 using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
+using Tavstal.KonkordLauncher.Desktop.Models.DTOs.Modpack;
 using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 using Tavstal.KonkordLauncher.Desktop.Models.Instance;
 using Tavstal.KonkordLauncher.Desktop.Services;
@@ -23,6 +28,7 @@ using Tavstal.KonkordLauncher.Desktop.Services.Instances;
 using Tavstal.KonkordLauncher.Desktop.Services.Localization;
 using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Services.Storage;
+// ReSharper disable UnusedParameterInPartialMethod
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.CreateInstance;
 
@@ -39,6 +45,7 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
     private readonly IKonkordProgress _progress = null!;
     private readonly IScreenService _screenService = null!;
     private readonly ITranslationService _translationService = null!;
+    private CancellationTokenSource? _refreshCts;
 
     public CreateInstanceViewModel_Modpack()
     {
@@ -91,7 +98,7 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
     public partial bool AllowScrollbarRefresh { get; set; } = false;
 
     [ObservableProperty]
-    public partial ObservableCollection<ModPackPreviewModel> Modpacks { get; set; } = [];
+    public partial ObservableCollection<ModPackPreview> Modpacks { get; set; } = [];
 
     public ObservableCollection<string> VersionFilterSource { get; } = [];
 
@@ -102,16 +109,16 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
     public partial ObservableCollection<CategoryModel> Categories { get; set; } = [];
 
     [ObservableProperty]
-    public partial ModPackPreviewModel? SelectedModpack { get; set; }
+    public partial ModPackPreview? SelectedModpack { get; set; }
 
     [ObservableProperty]
     public partial string? SelectedModpackMarkdownBody { get; set; }
 
     [ObservableProperty]
-    public partial ObservableCollection<string> SelectedModpackVersions { get; set; } = [];
+    public partial ObservableCollection<ModPackVersion> SelectedModpackVersions { get; set; } = [];
 
     [ObservableProperty]
-    public partial int SelectedModpackVersionIndex { get; set; }
+    public partial ModPackVersion? SelectedModpackSelectedVersion { get; set; }
 
     [ObservableProperty]
     public partial string InstanceName { get; set; } = string.Empty;
@@ -161,48 +168,75 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
 
         var projectIds = response.Hits.Select(h => h.ProjectId).ToList();
         var projects = await _metaCacheService.GetProjectsAsync(projectIds, cancellationToken);
-        var tasks = projects.Select(project => ModPackPreviewModel.FromModrinthProjectAsync(project, _metaCacheService, _bitmapService));
+        var tasks = projects.Select(project => ModPackPreview.FromModrinthProjectAsync(project, _metaCacheService, _bitmapService));
         var results = await Task.WhenAll(tasks);
 
         Modpacks.AddRange(results);
         AllowScrollbarRefresh = true;
     }
 
-    public async Task RefreshModpacksAsync(bool resetSearch = false, CancellationToken cancellationToken = default)
+    public async Task RefreshModpacksAsync(bool resetSearch = false)
     {
         AllowScrollbarRefresh = false;
-        var version = MinecraftVersion is null or "Any" ? null : MinecraftVersion;
-
-        List<string> categories = [];
-        if (ModLoader != EMinecraftKind.VANILLA)
-            categories.Add(ModLoader.ToString().ToLower());
-
-        foreach (var cat in Categories)
+        bool cancelled = false;
+        try
         {
-            if (!cat.IsChecked)
-                continue;
-            categories.Add(cat.Name);
+            if (_refreshCts != null)
+            {
+                await _refreshCts.CancelAsync();
+                _refreshCts.Dispose();
+            }
+
+            _refreshCts = new CancellationTokenSource();
+            var cancellationToken = _refreshCts.Token;
+
+            var version = MinecraftVersion is null or "Any" ? null : MinecraftVersion;
+
+            List<string> categories = [];
+            if (ModLoader != EMinecraftKind.VANILLA)
+                categories.Add(ModLoader.ToString().ToLower());
+
+            foreach (var cat in Categories)
+            {
+                if (!cat.IsChecked)
+                    continue;
+                categories.Add(cat.Name);
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+            var response = await _metaCacheService.SearchModpacksAsync(SearchQuery, version, categories,
+                resetSearch ? 0 : Modpacks.Count, cancellationToken);
+            if (response == null)
+                throw new Exception("Modrinth search failed.");
+
+            cancellationToken.ThrowIfCancellationRequested();
+            var projectIds = response.Hits.Select(h => h.ProjectId).ToList();
+            cancellationToken.ThrowIfCancellationRequested();
+            var projects = await _metaCacheService.GetProjectsAsync(projectIds, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+            var tasks = projects.Select(project =>
+                ModPackPreview.FromModrinthProjectAsync(project, _metaCacheService, _bitmapService));
+            cancellationToken.ThrowIfCancellationRequested();
+            var results = await Task.WhenAll(tasks);
+
+            if (resetSearch)
+            {
+                foreach (var modpack in Modpacks)
+                    modpack.Dispose(_bitmapService);
+                Modpacks.Clear();
+            }
+            cancellationToken.ThrowIfCancellationRequested();
+            Modpacks.AddRange(results);
         }
-
-        var response = await _metaCacheService.SearchModpacksAsync(SearchQuery, version, categories,
-            resetSearch ? 0 : Modpacks.Count, cancellationToken);
-        if (response == null)
-            throw new Exception("Modrinth search failed.");
-
-        var projectIds = response.Hits.Select(h => h.ProjectId).ToList();
-        var projects = await _metaCacheService.GetProjectsAsync(projectIds, cancellationToken);
-        var tasks = projects.Select(project => ModPackPreviewModel.FromModrinthProjectAsync(project, _metaCacheService, _bitmapService));
-        var results = await Task.WhenAll(tasks);
-
-        if (resetSearch)
+        catch (OperationCanceledException)
         {
-            foreach (var modpack in Modpacks)
-                modpack.Dispose(_bitmapService);
-            Modpacks.Clear();
+            cancelled = true;
         }
-
-        Modpacks.AddRange(results);
-        AllowScrollbarRefresh = true;
+        finally
+        {
+            if (!cancelled)
+                AllowScrollbarRefresh = true;
+        }
     }
 
     #region Commands
@@ -210,14 +244,11 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
     [RelayCommand]
     private async Task CreateInstance(CancellationToken cancellationToken = default)
     {
-        /* TODO
-         var modpack = SelectedModpack;
-        if (modpack == null || SelectedModpackVersionIndex == -1)
+        var modpack = SelectedModpack;
+        if (modpack == null || SelectedModpackSelectedVersion == null)
             return;
 
-        var selectedVersion = modpack.Versions[SelectedModpackVersionIndex];
         var instances = await _launcherStore.GetInstancesAsync(cancellationToken);
-
         if (instances.Any(x => x.Name == InstanceName))
         {
             await _dialogService.ShowAlertAsync(
@@ -228,7 +259,19 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
             return;
         }
 
-        var file = selectedVersion.Files.FirstOrDefault(x => x.Primary);
+        var version = await _metaCacheService.GetVersionAsync(SelectedModpackSelectedVersion.Id, cancellationToken);
+        if (version == null)
+        {
+            _logger.LogError("Failed to get selected modpack version from the remote server.");
+            await _dialogService.ShowAlertAsync(
+                _translationService.Translate("instance.create.modpack.error.no_primary_file.title"),
+                _translationService.Translate("instance.create.modpack.error.no_primary_file.message"),
+                EAlertType.Error
+            );
+            return;
+        }
+
+        var file = version.Files.FirstOrDefault(x => x.Primary);
         if (file == null)
         {
             _logger.LogError("Selected modpack version does not have a primary file.");
@@ -260,7 +303,7 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
                     {
                         X = (uint)_screenService.ScreenSize.Width, Y = (uint)_screenService.ScreenSize.Height
                     },
-                    InstanceName, null, modpack.Icon?.Key, _progress, cancellationToken) != null)
+                    InstanceName, null, modpack.Icon.Key, _progress, cancellationToken) != null)
             {
                 _progress.CloseReporter();
                 instances = await _launcherStore.GetInstancesAsync(cancellationToken);
@@ -280,10 +323,9 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         finally
         {
             FileSystemHelper.DeleteDirectory(tempDir);
-        }*/
+        }
     }
 
-    // ReSharper disable once UnusedParameterInPartialMethod
     partial void OnSearchQueryChanged(string value)
     {
         if (!AllowScrollbarRefresh)
@@ -292,12 +334,26 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         Dispatcher.UIThread.Invoke(async () => await RefreshModpacksAsync(true));
     }
 
-    partial void OnSelectedModpackChanged(ModPackPreviewModel? value)
+    partial void OnMinecraftVersionChanged(string? oldValue, string? newValue)
+    {
+        if (!AllowScrollbarRefresh)
+            return;
+
+        SelectedModpackSelectedVersion = null;
+        SelectedModpackVersions.Clear();
+        SelectedModpackMarkdownBody = null;
+        SelectedModpack = null;
+
+        Dispatcher.UIThread.Invoke(async () => await RefreshModpacksAsync(true));
+    }
+
+    partial void OnSelectedModpackChanged(ModPackPreview? value)
     {
         CanCreateInstance = value != null && !string.IsNullOrEmpty(InstanceName);
         Dispatcher.UIThread.Invoke(async () =>
         {
-            SelectedModpackVersionIndex = -1;
+            SelectedModpackSelectedVersion = null;
+            SelectedModpackVersions.Clear();
             SelectedModpackMarkdownBody = null;
             if (value == null)
                 return;
@@ -306,25 +362,32 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
             if (project == null)
                 return;
 
-            try
-            {
-                SelectedModpackMarkdownBody = project.Body;
+            SelectedModpackMarkdownBody = project.Body;
 
-                var projectVersions = await _metaCacheService.GetVersionsAsync(project.Versions.ToList());
-                if (projectVersions.Length == 0)
-                    return;
-            }
-            finally
+            var projectVersions = await _metaCacheService.GetVersionsAsync([.. project.Versions]);
+            if (projectVersions.Length == 0)
+                return;
+
+            if (MinecraftVersion != "Any")
+                projectVersions = [.. projectVersions.Where(x => x.GameVersions.Contains(MinecraftVersion))];
+
+            projectVersions = [.. projectVersions.OrderByDescending(x => x.DatePublished)];
+
+            ModPackVersion? selectedVersion = null;
+            foreach (var ver in projectVersions)
             {
-                await Task.Delay(50);
-                SelectedModpackVersionIndex = 0;
+                var model = new ModPackVersion { Id = ver.Id, Name = ver.Name };
+                selectedVersion ??= model;
+                SelectedModpackVersions.Add(model);
             }
+
+            SelectedModpackSelectedVersion = selectedVersion;
         });
     }
 
     partial void OnInstanceNameChanged(string? value)
     {
-        CanCreateInstance = value != null && !string.IsNullOrEmpty(InstanceName);
+        CanCreateInstance = !string.IsNullOrEmpty(value) && !string.IsNullOrEmpty(InstanceName);
     }
 
     #endregion

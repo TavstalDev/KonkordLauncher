@@ -128,6 +128,17 @@ public partial class CreateInstanceViewModel : KonkordObservableObject, IKonkord
 
     private ProgressWindow? _installWindow;
 
+    public void OpenReporter()
+    {
+        EnsureWindowExists();
+    }
+
+    public void CloseReporter()
+    {
+        _installWindow?.Close();
+        _installWindow = null;
+    }
+
     public void Report(double progress)
     {
         EnsureWindowExists();

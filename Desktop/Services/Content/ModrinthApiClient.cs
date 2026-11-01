@@ -170,4 +170,18 @@ public class ModrinthApiClient : IModrinthApiClient
             return [];
         }
     }
+
+    /// <inheritdoc />
+    public async Task<Version?> GetVersionAsync(string id, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            return await _client.Version.GetAsync(id, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogCritical(ex, "Failed to get version from modrinth:");
+            return null;
+        }
+    }
 }

@@ -64,6 +64,8 @@ public interface IMetaCacheService
     /// </returns>
     Task<Version[]> GetVersionsAsync(List<string> ids, CancellationToken cancellationToken = default);
 
+    Task<Version?> GetVersionAsync(string id, CancellationToken cancellationToken = default);
+
     /// <summary>
     ///     Searches Modrinth modpacks with optional filtering and caches the result.
     /// </summary>

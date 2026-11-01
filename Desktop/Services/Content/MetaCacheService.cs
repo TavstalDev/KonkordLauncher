@@ -380,6 +380,63 @@ public class MetaCacheService : IMetaCacheService, IHostedService
         }
     }
 
+    public async Task<Version?> GetVersionAsync(string id, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var sha1 = SHA1.HashData(Encoding.UTF8.GetBytes($"version:{id}"));
+            var hash = Convert.ToHexString(sha1);
+
+            if (_cache.TryGetValue(hash, out var cached))
+            {
+                if (cached.IsValid())
+                {
+                    var cache = await ReadCachedFileAsync<Version>(cached.Path,
+                        ModrinthJsonContext.Default.Version, GetCacheOptions(EMetaCacheType.VERSION));
+                    if (cache != null)
+                        return cache;
+                }
+                else
+                    _cache.TryRemove(hash, out _);
+            }
+
+            var version = await _modrinthApiClient.GetVersionAsync(id, cancellationToken);
+            if (version == null)
+                return null;
+
+            _ = Task.Run(async () =>
+            {
+                var settings = await _launcherStore.GetSettingsAsync(cancellationToken: cancellationToken);
+                var cacheDir = settings.Launcher.CacheDirectoryPath;
+                Directory.CreateDirectory(cacheDir);
+                var projectDir = Path.Combine(cacheDir, "versions");
+                Directory.CreateDirectory(projectDir);
+                var cachedFilePath = Path.Combine(projectDir, $"{hash}.json");
+
+                _cache.TryAdd(hash,
+                    new MetaCache
+                    {
+                        Id = hash,
+                        Type = EMetaCacheType.VERSION,
+                        Path = cachedFilePath,
+                        ValidUntil = DateTime.UtcNow.Add(_projectCacheDuration)
+                    });
+
+                await JsonHelper.WriteJsonFileAsync(cachedFilePath, version, ModrinthJsonContext.Default.Version,
+                    cancellationToken);
+                await SaveCacheAsync(
+                    cancellationToken);
+            }, cancellationToken);
+
+            return version;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogCritical(ex, "Failed to get versions in meta cache:");
+            return null;
+        }
+    }
+
     /// <inheritdoc />
     public async Task<SearchResponse?> SearchModpacksAsync(string? query = null, string? version = null,
         List<string>? categories = null, int offset = 0,

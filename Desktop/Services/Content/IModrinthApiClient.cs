@@ -100,4 +100,6 @@ public interface IModrinthApiClient
     ///     A task that resolves to an array of versions. Missing versions may be omitted from the result.
     /// </returns>
     Task<Version[]> GetVersionsAsync(List<string> ids, CancellationToken cancellationToken = default);
+
+    Task<Version?> GetVersionAsync(string id, CancellationToken cancellationToken = default);
 }

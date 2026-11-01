@@ -22,6 +22,10 @@ using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.CreateInstance;
 
+/// <summary>
+///     A view model for the Import tab of the Create Instance window. It imports an instance from a file or a web
+///     address.
+/// </summary>
 public partial class CreateInstanceViewModel_Import : KonkordObservableObject
 {
     private readonly IDialogService _dialogService = null!;
@@ -35,11 +39,26 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
     private readonly IScreenService _screenService = null!;
     private readonly ITranslationService _translationService = null!;
 
+    /// <summary>
+    ///     Creates an empty view model for the XAML designer.
+    /// </summary>
     public CreateInstanceViewModel_Import()
     {
         _screenService = null!;
     }
 
+    /// <summary>
+    ///     Creates the view model with the services it needs.
+    /// </summary>
+    /// <param name="progress">The reporter that shows progress.</param>
+    /// <param name="screenService">The service that provides the screen size.</param>
+    /// <param name="launcherStore">The store for launcher data.</param>
+    /// <param name="translationService">The service that translates text.</param>
+    /// <param name="httpService">The service that downloads files.</param>
+    /// <param name="eventService">The service that raises and listens to events.</param>
+    /// <param name="modrinthPackageService">The service that imports modpacks and instances.</param>
+    /// <param name="dialogService">The service that shows dialogs.</param>
+    /// <param name="filePickerService">The service that opens file pickers.</param>
     public CreateInstanceViewModel_Import(IKonkordProgress progress, IScreenService screenService,
         ILauncherStore launcherStore, ITranslationService translationService,
         IHttpService httpService, IEventService eventService, ModrinthPackageService modrinthPackageService,
@@ -60,22 +79,46 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
         _filePickerService = filePickerService;
     }
 
+    /// <summary>
+    ///     Gets or sets the index of the selected import source.
+    /// </summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsSourceFromFile))]
     public partial int SelectedImportSourceIndex { get; set; } = 0;
 
+    /// <summary>
+    ///     Gets a value that indicates whether the import source is a file.
+    /// </summary>
     public bool IsSourceFromFile => SelectedImportSourceIndex == 0;
 
+    /// <summary>
+    ///     Gets or sets the file path or web address to import.
+    /// </summary>
     [ObservableProperty] public partial string? ImportPath { get; set; }
 
+    /// <summary>
+    ///     Gets or sets a value that indicates whether an import path is available.
+    /// </summary>
     [ObservableProperty] public partial bool HasImportPath { get; set; }
 
+    /// <summary>
+    ///     Gets or sets the previewed name of the imported instance.
+    /// </summary>
     [ObservableProperty] public partial string ImportPreviewName { get; set; } = "---";
 
+    /// <summary>
+    ///     Gets or sets the previewed Minecraft version of the imported instance.
+    /// </summary>
     [ObservableProperty] public partial string ImportPreviewVersion { get; set; } = "---";
 
+    /// <summary>
+    ///     Gets or sets the previewed mod loader of the imported instance.
+    /// </summary>
     [ObservableProperty] public partial string ImportPreviewModLoader { get; set; } = "---";
 
+    /// <summary>
+    ///     Raised when the user wants to close the window.
+    /// </summary>
     public event EventHandler? OnCloseRequested;
 
     private async Task ImportFromFileAsync(CancellationToken cancellationToken = default)

@@ -11,15 +11,24 @@ using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 /// <summary>
-///     Represents a window for selecting the version of an instance.
+///     A dialog window for choosing the version of an instance.
 /// </summary>
 public partial class InstanceVersionSelectorWindow : KonkordWindow<InstanceVersionSelectorViewModel>
 {
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="InstanceVersionSelectorWindow" /> class for the designer.
+    /// </summary>
     public InstanceVersionSelectorWindow()
     {
         InitializeComponent();
     }
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="InstanceVersionSelectorWindow" /> class
+    ///     with the given view model.
+    /// </summary>
+    /// <param name="viewModel">The view model that holds the window data.</param>
+    /// <param name="bitmapService">The service used to load bitmaps.</param>
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public InstanceVersionSelectorWindow(InstanceVersionSelectorViewModel viewModel, IBitmapService bitmapService) : base(bitmapService)

@@ -6,23 +6,22 @@ using Tavstal.KonkordLauncher.Desktop.Models.DTOs.Config;
 namespace Tavstal.KonkordLauncher.Desktop.Models.Config.Launcher;
 
 /// <summary>
-///     Represents the core configuration model for the launcher, including launcher, Java, Minecraft, and miscellaneous
-///     settings.
+///     Holds the main settings for the launcher.
 /// </summary>
 public partial class CoreConfigModel : ObservableObject
 {
     /// <summary>
-    ///     Initializes a new instance of the <see cref="CoreConfigModel" /> class with default values.
+    ///     Creates a new instance with default settings.
     /// </summary>
     public CoreConfigModel() { }
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="CoreConfigModel" /> class with specified configurations.
+    ///     Creates a new instance with the given settings.
     /// </summary>
-    /// <param name="launcher">The launcher configuration.</param>
-    /// <param name="java">The Java configuration.</param>
-    /// <param name="minecraft">The Minecraft configuration.</param>
-    /// <param name="misc">The miscellaneous configuration.</param>
+    /// <param name="launcher">The launcher settings.</param>
+    /// <param name="java">The Java settings.</param>
+    /// <param name="minecraft">The Minecraft settings.</param>
+    /// <param name="misc">The other settings.</param>
     public CoreConfigModel(LauncherConfigModel launcher, JavaConfigModel java, MinecraftConfigModel minecraft,
         MiscConfigModel misc)
     {
@@ -33,9 +32,9 @@ public partial class CoreConfigModel : ObservableObject
     }
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="CoreConfigModel" /> class using a core configuration object.
+    ///     Creates a new instance from an existing configuration.
     /// </summary>
-    /// <param name="config">The core configuration object to initialize from.</param>
+    /// <param name="config">The configuration to copy.</param>
     public CoreConfigModel(CoreConfig config)
     {
         Launcher = new LauncherConfigModel
@@ -86,31 +85,31 @@ public partial class CoreConfigModel : ObservableObject
     }
 
     /// <summary>
-    ///     Gets or sets the launcher configuration.
+    ///     Gets or sets the launcher settings.
     /// </summary>
     [ObservableProperty]
     public partial LauncherConfigModel Launcher { get; set; }
 
     /// <summary>
-    ///     Gets or sets the Java configuration.
+    ///     Gets or sets the Java settings.
     /// </summary>
     [ObservableProperty]
     public partial JavaConfigModel Java { get; set; }
 
     /// <summary>
-    ///     Gets or sets the Minecraft configuration.
+    ///     Gets or sets the Minecraft settings.
     /// </summary>
     [ObservableProperty]
     public partial MinecraftConfigModel Minecraft { get; set; }
 
     /// <summary>
-    ///     Gets or sets the miscellaneous configuration.
+    ///     Gets or sets the other settings.
     /// </summary>
     [ObservableProperty]
     public partial MiscConfigModel Misc { get; set; }
 
     /// <summary>
-    ///     Gets the list of available languages for the launcher.
+    ///     Gets the languages that the launcher supports.
     /// </summary>
     public List<Language> AvailableLanguages =>
     [

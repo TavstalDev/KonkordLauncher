@@ -27,6 +27,9 @@ using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
+/// <summary>
+///     Handles the shader packs tab of the instance editor.
+/// </summary>
 public partial class EditInstanceViewModel_ShaderPacks : KonkordObservableObject
 {
     private readonly IBitmapService _bitmapService = null!;
@@ -38,6 +41,9 @@ public partial class EditInstanceViewModel_ShaderPacks : KonkordObservableObject
 
     private readonly SourceCache<ResourceBaseModel, string> _shaderPackCache = new(x => x.Name);
 
+    /// <summary>
+    ///     Creates the view-model and sets up the shader pack filter.
+    /// </summary>
     public EditInstanceViewModel_ShaderPacks()
     {
         FilteredShaderPacks =
@@ -67,6 +73,14 @@ public partial class EditInstanceViewModel_ShaderPacks : KonkordObservableObject
         FilteredShaderPacks = shaders;
     }
 
+    /// <summary>
+    ///     Creates the view-model for one instance.
+    /// </summary>
+    /// <param name="instance">The instance being edited.</param>
+    /// <param name="getGameDirectory">Returns the game directory of the instance.</param>
+    /// <param name="launcherStore">The store used to save instance data.</param>
+    /// <param name="bitmapService">The service used to load and release icons.</param>
+    /// <param name="dialogService">The service used to show dialogs.</param>
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public EditInstanceViewModel_ShaderPacks(InstanceModel instance, Func<string?> getGameDirectory,
@@ -84,14 +98,30 @@ public partial class EditInstanceViewModel_ShaderPacks : KonkordObservableObject
         _dialogService = dialogService;
     }
 
+    /// <summary>
+    ///     Gets the shader packs that match the current search text.
+    /// </summary>
     public ReadOnlyObservableCollection<ResourceBaseModel> FilteredShaderPacks { get; private set; }
 
+    /// <summary>
+    ///     Gets or sets the selected shader pack.
+    /// </summary>
     [ObservableProperty] public partial ResourceBaseModel? SelectedShaderPack { get; set; }
 
+    /// <summary>
+    ///     Gets or sets the text used to filter the shader packs.
+    /// </summary>
     [ObservableProperty] public partial string SearchQuery { get; set; } = string.Empty;
 
+    /// <summary>
+    ///     Raised after the shader pack list changes, with the resource type that changed.
+    /// </summary>
     public event EventHandler<EResourceType>? OnResourcesUpdated;
 
+    /// <summary>
+    ///     Releases the shader pack icons and clears the cache.
+    /// </summary>
+    /// <param name="disposing">True when the object is disposed by code.</param>
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
@@ -102,6 +132,11 @@ public partial class EditInstanceViewModel_ShaderPacks : KonkordObservableObject
         SelectedShaderPack = null;
     }
 
+    /// <summary>
+    ///     Loads the shader packs of the instance.
+    /// </summary>
+    /// <param name="cancellationToken">The token used to cancel the operation.</param>
+    /// <returns>A task that completes when the shader packs are loaded.</returns>
     public async Task InitAsync(CancellationToken cancellationToken = default)
     {
         if (!_instance.IsModded)
@@ -109,6 +144,9 @@ public partial class EditInstanceViewModel_ShaderPacks : KonkordObservableObject
         await Dispatcher.UIThread.Invoke(async () => await RefreshShaderPacksAsync());
     }
 
+    /// <summary>
+    ///     Renames shader pack files on disk to match their enabled state.
+    /// </summary>
     public void SaveShaderPacks()
     {
         _logger.LogDebug("Saving shader packs...");
@@ -145,6 +183,10 @@ public partial class EditInstanceViewModel_ShaderPacks : KonkordObservableObject
         }
     }
 
+    /// <summary>
+    ///     Reads the shaderpacks folder again and rebuilds the list.
+    /// </summary>
+    /// <returns>A task that completes when the list is rebuilt.</returns>
     public async Task RefreshShaderPacksAsync()
     {
         var gameDir = _getGameDirectory.Invoke();

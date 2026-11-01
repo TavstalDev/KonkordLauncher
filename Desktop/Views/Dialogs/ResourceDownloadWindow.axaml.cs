@@ -14,16 +14,24 @@ using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 /// <summary>
-///     Represents the dialog window used to browse and download resources (for example, mods)
-///     for a specific launcher instance.
+///     A dialog window for browsing and downloading resources, such as mods, for an instance.
 /// </summary>
 public partial class ResourceDownloadWindow : KonkordWindow<ResourceDownloadViewModel>
 {
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="ResourceDownloadWindow" /> class for the designer.
+    /// </summary>
     public ResourceDownloadWindow()
     {
         InitializeComponent();
     }
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="ResourceDownloadWindow" /> class
+    ///     with the given view model.
+    /// </summary>
+    /// <param name="viewModel">The view model that holds the window data.</param>
+    /// <param name="bitmapService">The service used to load bitmaps.</param>
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public ResourceDownloadWindow(ResourceDownloadViewModel viewModel, IBitmapService bitmapService) : base(bitmapService)
@@ -47,7 +55,7 @@ public partial class ResourceDownloadWindow : KonkordWindow<ResourceDownloadView
     }
 
     /// <summary>
-    ///     Handles filter selection changes and refreshes the resource list from the first page.
+    ///     Refreshes the resource list from the first page when the filter changes.
     /// </summary>
     private void Filter_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
@@ -61,7 +69,7 @@ public partial class ResourceDownloadWindow : KonkordWindow<ResourceDownloadView
     }
 
     /// <summary>
-    ///     Handles category checkbox state changes and refreshes the resource list from the first page.
+    ///     Refreshes the resource list from the first page when a category is checked or unchecked.
     /// </summary>
     private void Category_OnIsCheckedChanged(object? sender, RoutedEventArgs e)
     {
@@ -75,7 +83,7 @@ public partial class ResourceDownloadWindow : KonkordWindow<ResourceDownloadView
     }
 
     /// <summary>
-    ///     Handles scroll changes and triggers incremental loading when the user reaches the bottom.
+    ///     Loads more resources when the user scrolls to the bottom.
     /// </summary>
     private void ScrollViewer_OnScrollChanged(object? sender, ScrollChangedEventArgs e)
     {

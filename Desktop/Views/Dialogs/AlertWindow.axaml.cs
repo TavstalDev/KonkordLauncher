@@ -14,13 +14,12 @@ using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 /// <summary>
-///     Represents a window for displaying alert dialogs with customizable title, message, and alert type.
+///     A dialog window that shows an alert message.
 /// </summary>
 public partial class AlertWindow : KonkordWindow<AlertViewModel>
 {
     /// <summary>
-    ///     Initializes a new instance of the <see cref="AlertWindow" /> class.
-    ///     Sets up the DataContext for design mode or attaches Avalonia Dev Tools in debug mode.
+    ///     Initializes a new instance of the <see cref="AlertWindow" /> class for the designer.
     /// </summary>
     public AlertWindow()
     {
@@ -31,12 +30,12 @@ public partial class AlertWindow : KonkordWindow<AlertViewModel>
     }
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="AlertWindow" /> class with the specified title, message, and alert
-    ///     type.
+    ///     Initializes a new instance of the <see cref="AlertWindow" /> class with the given content.
     /// </summary>
-    /// <param name="title">The title of the alert dialog.</param>
-    /// <param name="message">The message content of the alert dialog.</param>
-    /// <param name="type">The type of the alert, determining its appearance and behavior.</param>
+    /// <param name="title">The title of the alert.</param>
+    /// <param name="message">The message shown in the alert.</param>
+    /// <param name="type">The alert type, which sets its look and behavior.</param>
+    /// <param name="bitmapService">The service used to load bitmaps.</param>
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public AlertWindow(string title, string message, EAlertType type, IBitmapService bitmapService) : base(bitmapService)

@@ -32,6 +32,10 @@ using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.CreateInstance;
 
+/// <summary>
+///     A view model for the Modpack tab of the Create Instance window. It searches for modpacks and installs the
+///     selected one.
+/// </summary>
 public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
 {
     private readonly IBitmapService _bitmapService = null!;
@@ -47,11 +51,27 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
     private readonly ITranslationService _translationService = null!;
     private CancellationTokenSource? _refreshCts;
 
+    /// <summary>
+    ///     Creates an empty view model for the XAML designer.
+    /// </summary>
     public CreateInstanceViewModel_Modpack()
     {
         _screenService = null!;
     }
 
+    /// <summary>
+    ///     Creates the view model with the services it needs.
+    /// </summary>
+    /// <param name="progress">The reporter that shows progress.</param>
+    /// <param name="screenService">The service that provides the screen size.</param>
+    /// <param name="launcherStore">The store for launcher data.</param>
+    /// <param name="translationService">The service that translates text.</param>
+    /// <param name="httpService">The service that downloads files.</param>
+    /// <param name="metaCacheService">The service that reads cached modpack data.</param>
+    /// <param name="bitmapService">The service that loads and releases images.</param>
+    /// <param name="eventService">The service that raises and listens to events.</param>
+    /// <param name="modrinthPackageService">The service that imports modpacks and instances.</param>
+    /// <param name="dialogService">The service that shows dialogs.</param>
     public CreateInstanceViewModel_Modpack(IKonkordProgress progress,
         IScreenService screenService, ILauncherStore launcherStore,
         ITranslationService translationService, IHttpService httpService, IMetaCacheService metaCacheService,
@@ -85,47 +105,92 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         Categories.Add(new CategoryModel { Name = "technology", TranslationKey = "instance.create.category.technology" });
     }
 
+    /// <summary>
+    ///     Gets or sets the Minecraft version used to filter modpacks.
+    /// </summary>
     [ObservableProperty]
     public partial string? MinecraftVersion { get; set; }
 
+    /// <summary>
+    ///     Gets or sets the text used to search modpacks.
+    /// </summary>
     [ObservableProperty]
     public partial string SearchQuery { get; set; } = string.Empty;
 
+    /// <summary>
+    ///     Gets or sets the selected modpack platform.
+    /// </summary>
     [ObservableProperty]
     public partial EPlatformType SelectedPlatform { get; set; } = EPlatformType.MODRINTH;
 
+    /// <summary>
+    ///     Gets or sets a value that indicates whether the list can reload when a filter changes.
+    /// </summary>
     [ObservableProperty]
     public partial bool AllowScrollbarRefresh { get; set; } = false;
 
+    /// <summary>
+    ///     Gets or sets the modpacks shown in the list.
+    /// </summary>
     [ObservableProperty]
     public partial ObservableCollection<ModPackPreview> Modpacks { get; set; } = [];
 
+    /// <summary>
+    ///     Gets the Minecraft versions used in the version filter.
+    /// </summary>
     public ObservableCollection<string> VersionFilterSource { get; } = [];
 
+    /// <summary>
+    ///     Gets or sets the mod loader used to filter modpacks.
+    /// </summary>
     [ObservableProperty]
     public partial EMinecraftKind ModLoader { get; set; } = EMinecraftKind.VANILLA;
 
+    /// <summary>
+    ///     Gets or sets the categories used to filter modpacks.
+    /// </summary>
     [ObservableProperty]
     public partial ObservableCollection<CategoryModel> Categories { get; set; } = [];
 
+    /// <summary>
+    ///     Gets or sets the selected modpack.
+    /// </summary>
     [ObservableProperty]
     public partial ModPackPreview? SelectedModpack { get; set; }
 
+    /// <summary>
+    ///     Gets or sets the full description of the selected modpack.
+    /// </summary>
     [ObservableProperty]
     public partial string? SelectedModpackMarkdownBody { get; set; }
 
+    /// <summary>
+    ///     Gets or sets the versions of the selected modpack.
+    /// </summary>
     [ObservableProperty]
     public partial ObservableCollection<ModPackVersion> SelectedModpackVersions { get; set; } = [];
 
+    /// <summary>
+    ///     Gets or sets the selected version of the selected modpack.
+    /// </summary>
     [ObservableProperty]
     public partial ModPackVersion? SelectedModpackSelectedVersion { get; set; }
 
+    /// <summary>
+    ///     Gets or sets the name of the new instance.
+    /// </summary>
     [ObservableProperty]
     public partial string InstanceName { get; set; } = string.Empty;
 
+    /// <summary>
+    ///     Gets or sets a value that indicates whether the selected modpack can be installed.
+    /// </summary>
     [ObservableProperty]
     public partial bool CanCreateInstance { get; set; } = false;
 
+    /// <summary>
+    ///     Gets the modpack platforms that the user can choose from.
+    /// </summary>
     public List<EPlatformType> AvailablePlatforms =>
     [
         EPlatformType.MODRINTH,
@@ -134,8 +199,12 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         EPlatformType.FTB
     ];
 
+    /// <summary>
+    ///     Raised when the user wants to close the window.
+    /// </summary>
     public event EventHandler? OnCloseRequested;
 
+    /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
         if (!disposing)
@@ -150,6 +219,11 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         SelectedModpack = null;
     }
 
+    /// <summary>
+    ///     Loads the Minecraft versions and the first page of modpacks.
+    /// </summary>
+    /// <param name="versionManifest">The Minecraft version manifest.</param>
+    /// <param name="cancellationToken">The token that can cancel the operation.</param>
     public async Task InitAsync(VersionManifest versionManifest, CancellationToken cancellationToken = default)
     {
         VersionFilterSource.Add("Any");
@@ -175,6 +249,10 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         AllowScrollbarRefresh = true;
     }
 
+    /// <summary>
+    ///     Reloads the modpack list with the current filters.
+    /// </summary>
+    /// <param name="resetSearch">A value that indicates whether the current list is cleared first.</param>
     public async Task RefreshModpacksAsync(bool resetSearch = false)
     {
         AllowScrollbarRefresh = false;

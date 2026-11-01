@@ -4,13 +4,12 @@ using System.Text.Json.Serialization;
 namespace Tavstal.KonkordLauncher.Desktop.Models.DTOs.Config;
 
 /// <summary>
-///     Represents the core configuration for the launcher, including launcher settings, Java settings,
-///     Minecraft settings, and miscellaneous options.
+///     Holds the main launcher settings.
 /// </summary>
 public class CoreConfig
 {
     /// <summary>
-    ///     Initializes a new instance of the <see cref="CoreConfig" /> class with default values.
+    ///     Creates a new instance with default values.
     /// </summary>
     public CoreConfig()
     {
@@ -22,12 +21,12 @@ public class CoreConfig
     }
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="CoreConfig" /> class with the specified configurations.
+    ///     Creates a new instance with the given settings.
     /// </summary>
-    /// <param name="launcher">The launcher configuration.</param>
-    /// <param name="java">The Java configuration.</param>
-    /// <param name="minecraft">The Minecraft configuration.</param>
-    /// <param name="misc">The miscellaneous configuration.</param>
+    /// <param name="launcher">The launcher settings.</param>
+    /// <param name="java">The Java settings.</param>
+    /// <param name="minecraft">The Minecraft settings.</param>
+    /// <param name="misc">The other settings.</param>
     /// <param name="cacheRefreshDate">The date when the cache was last refreshed.</param>
     public CoreConfig(LauncherConfig launcher, JavaConfig java, MinecraftConfig minecraft, MiscConfig misc,
         DateTime cacheRefreshDate)
@@ -40,28 +39,31 @@ public class CoreConfig
     }
 
     /// <summary>
-    ///     Gets or sets the configuration for the launcher.
+    ///     Gets or sets the launcher settings.
     /// </summary>
     [JsonPropertyName("launcher")]
     public LauncherConfig Launcher { get; set; }
 
     /// <summary>
-    ///     Gets or sets the Java configuration for the launcher.
+    ///     Gets or sets the Java settings.
     /// </summary>
     [JsonPropertyName("java")]
     public JavaConfig Java { get; set; }
 
     /// <summary>
-    ///     Gets or sets the Minecraft configuration for the launcher.
+    ///     Gets or sets the Minecraft settings.
     /// </summary>
     [JsonPropertyName("minecraft")]
     public MinecraftConfig Minecraft { get; set; }
 
     /// <summary>
-    ///     Gets or sets the miscellaneous configuration for the launcher.
+    ///     Gets or sets the other settings.
     /// </summary>
     [JsonPropertyName("misc")]
     public MiscConfig Misc { get; set; }
 
+    /// <summary>
+    ///     Gets or sets the date when the cache was last refreshed.
+    /// </summary>
     [JsonPropertyName("cacheRefreshDate")] public DateTime CacheRefreshDate { get; set; }
 }

@@ -24,6 +24,9 @@ using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
+/// <summary>
+///     Handles the settings tab of the instance editor.
+/// </summary>
 public partial class EditInstanceViewModel_Settings : KonkordObservableObject
 {
     private readonly IDialogService _dialogService = null!;
@@ -34,12 +37,24 @@ public partial class EditInstanceViewModel_Settings : KonkordObservableObject
     private readonly IBeaconLogger _logger = null!;
     private readonly ITranslationService _translationService = null!;
 
+    /// <summary>
+    ///     Creates the view-model. Used by the designer.
+    /// </summary>
     public EditInstanceViewModel_Settings()
     {
         if (Design.IsDesignMode)
             InstanceConfig = new InstanceConfigModel();
     }
 
+    /// <summary>
+    ///     Creates the view-model for one instance.
+    /// </summary>
+    /// <param name="instanceId">The identifier of the instance being edited.</param>
+    /// <param name="launcherStore">The store used to read and save instance data.</param>
+    /// <param name="translationService">The service used to translate text.</param>
+    /// <param name="eventService">The service used to report instance changes.</param>
+    /// <param name="filePickerService">The service used to pick files and folders.</param>
+    /// <param name="dialogService">The service used to show dialogs.</param>
     public EditInstanceViewModel_Settings(string instanceId, ILauncherStore launcherStore, ITranslationService
             translationService, IEventService eventService, IFilePickerService filePickerService,
         IDialogService dialogService) : this()
@@ -56,19 +71,35 @@ public partial class EditInstanceViewModel_Settings : KonkordObservableObject
         _dialogService = dialogService;
     }
 
+    /// <summary>
+    ///     Gets or sets the index of the selected environment variable.
+    /// </summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanRemoveEnvironmentVariable))]
     public partial int? SelectedEnvironmentVariableIndex { get; set; }
 
+    /// <summary>
+    ///     Gets or sets the instance settings shown on the page.
+    /// </summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanRemoveEnvironmentVariable))]
     public partial InstanceConfigModel InstanceConfig { get; set; } = null!;
 
+    /// <summary>
+    ///     Gets or sets the index of the account that overrides the global account.
+    /// </summary>
     [ObservableProperty] public partial int? OverridenAccountIndex { get; set; } = 0;
 
+    /// <summary>
+    ///     Gets a value that indicates whether the selected environment variable can be removed.
+    /// </summary>
     public bool CanRemoveEnvironmentVariable =>
         SelectedEnvironmentVariableIndex is >= 0 && InstanceConfig.EnableEnvironment;
 
+    /// <summary>
+    ///     Clears the settings and stops listening to changes.
+    /// </summary>
+    /// <param name="disposing">True when the object is disposed by code.</param>
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
@@ -77,6 +108,12 @@ public partial class EditInstanceViewModel_Settings : KonkordObservableObject
         SelectedEnvironmentVariableIndex = null;
     }
 
+    /// <summary>
+    ///     Loads the settings of the instance.
+    /// </summary>
+    /// <param name="config">The saved instance settings.</param>
+    /// <param name="cancellationToken">The token used to cancel the operation.</param>
+    /// <returns>A task that completes when the settings are loaded.</returns>
     public async Task InitAsync(InstanceConfig config, CancellationToken cancellationToken = default)
     {
         InstanceConfig = new InstanceConfigModel(config);

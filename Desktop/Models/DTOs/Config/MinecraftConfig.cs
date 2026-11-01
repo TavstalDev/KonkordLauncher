@@ -3,13 +3,12 @@ using System.Text.Json.Serialization;
 namespace Tavstal.KonkordLauncher.Desktop.Models.DTOs.Config;
 
 /// <summary>
-///     Represents the configuration settings for Minecraft, including window properties
-///     and launcher behavior during game start and exit.
+///     Holds the Minecraft settings, such as the window size and launcher behavior.
 /// </summary>
 public class MinecraftConfig
 {
     /// <summary>
-    ///     Initializes a new instance of the <see cref="MinecraftConfig" /> class with default values.
+    ///     Creates a new instance with default values.
     /// </summary>
     public MinecraftConfig()
     {
@@ -21,13 +20,13 @@ public class MinecraftConfig
     }
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="MinecraftConfig" /> class with specified values.
+    ///     Creates a new instance with the given values.
     /// </summary>
-    /// <param name="startMaximized">Whether the game should start maximized.</param>
+    /// <param name="startMaximized">Whether the game starts maximized.</param>
     /// <param name="windowWidth">The width of the game window in pixels.</param>
     /// <param name="windowHeight">The height of the game window in pixels.</param>
-    /// <param name="closeLauncherOnGameStart">Whether the launcher should close when the game starts.</param>
-    /// <param name="closeLauncherOnGameExit">Whether the launcher should close when the game exits.</param>
+    /// <param name="closeLauncherOnGameStart">Whether the launcher closes when the game starts.</param>
+    /// <param name="closeLauncherOnGameExit">Whether the launcher closes when the game exits.</param>
     public MinecraftConfig(bool startMaximized, uint windowWidth, uint windowHeight, bool closeLauncherOnGameStart,
         bool closeLauncherOnGameExit)
     {
@@ -39,7 +38,7 @@ public class MinecraftConfig
     }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether the game should start maximized.
+    ///     Gets or sets a value that indicates whether the game starts maximized.
     /// </summary>
     [JsonPropertyName("startMaximized")]
     public bool StartMaximized { get; set; }
@@ -57,13 +56,13 @@ public class MinecraftConfig
     public uint WindowHeight { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether the launcher should close when the game starts.
+    ///     Gets or sets a value that indicates whether the launcher closes when the game starts.
     /// </summary>
     [JsonPropertyName("closeLauncherOnGameStart")]
     public bool CloseLauncherOnGameStart { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether the launcher should close when the game exits.
+    ///     Gets or sets a value that indicates whether the launcher closes when the game exits.
     /// </summary>
     [JsonPropertyName("closeLauncherOnGameExit")]
     public bool CloseLauncherOnGameExit { get; set; }

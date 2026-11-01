@@ -3,16 +3,16 @@ using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
 
 /// <summary>
-///     Represents an alert with a title, message, and type.
+///     An alert with a title, message, and type.
 /// </summary>
 public class Alert
 {
     /// <summary>
-    ///     Initializes a new instance of the <see cref="Alert" /> class with the specified title, message, and type.
+    ///     Creates an alert.
     /// </summary>
-    /// <param name="title">The title of the alert.</param>
-    /// <param name="message">The message of the alert.</param>
-    /// <param name="type">The type of the alert.</param>
+    /// <param name="title">The alert title.</param>
+    /// <param name="message">The alert message.</param>
+    /// <param name="type">The alert type.</param>
     public Alert(string title, string message, EAlertType type)
     {
         Title = title;
@@ -21,17 +21,17 @@ public class Alert
     }
 
     /// <summary>
-    ///     Gets or sets the title of the alert.
+    ///     Gets or sets the alert title.
     /// </summary>
     public string Title { get; set; }
 
     /// <summary>
-    ///     Gets or sets the message of the alert.
+    ///     Gets or sets the alert message.
     /// </summary>
     public string Message { get; set; }
 
     /// <summary>
-    ///     Gets or sets the type of the alert.
+    ///     Gets or sets the alert type.
     /// </summary>
     public EAlertType Type { get; set; }
 }

@@ -16,19 +16,24 @@ using Tavstal.KonkordLauncher.Desktop.Views;
 
 namespace Tavstal.KonkordLauncher.Desktop;
 
+/// <summary>
+///     The main Avalonia application class.
+/// </summary>
 // ReSharper disable once PartialTypeWithSinglePart - Avalonia code generation
 public partial class App : Application
 {
     private static IBeaconLogger? _logger;
 
+    /// <summary>
+    ///     Loads the XAML resources of the application.
+    /// </summary>
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
     }
 
     /// <summary>
-    ///     Configures the application after the framework initialization is completed.
-    ///     Sets up the main window for the desktop-style application lifetime.
+    ///     Sets up the main window, the theme handler and cleanup work when the framework is ready.
     /// </summary>
     public override void OnFrameworkInitializationCompleted()
     {

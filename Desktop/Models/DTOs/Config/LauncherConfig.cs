@@ -6,13 +6,12 @@ using Tavstal.KonkordLauncher.Desktop.Models.Enums;
 namespace Tavstal.KonkordLauncher.Desktop.Models.DTOs.Config;
 
 /// <summary>
-///     Represents the configuration settings for the launcher, including update settings,
-///     language, theme, and directory paths.
+///     Holds the launcher settings, such as updates, language, theme, and folder paths.
 /// </summary>
 public class LauncherConfig
 {
     /// <summary>
-    ///     Initializes a new instance of the <see cref="LauncherConfig" /> class with default values.
+    ///     Creates a new instance with default values.
     /// </summary>
     public LauncherConfig()
     {
@@ -34,22 +33,22 @@ public class LauncherConfig
     }
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="LauncherConfig" /> class with specified values.
+    ///     Creates a new instance with the given values.
     /// </summary>
-    /// <param name="enableAutomaticUpdates">Indicates whether automatic updates are enabled.</param>
+    /// <param name="enableAutomaticUpdates">Whether automatic updates are enabled.</param>
     /// <param name="updateInterval">The update interval in hours.</param>
-    /// <param name="nextUpdateCheck">The date and time for the next update check.</param>
-    /// <param name="language">The language of the launcher.</param>
-    /// <param name="theme">The theme of the launcher.</param>
-    /// <param name="assetsDirectoryPath">The file system path to the assets directory.</param>
-    /// <param name="cacheDirectoryPath">The file system path to the cache directory.</param>
-    /// <param name="iconsDirectoryPath">The file system path to the icons directory.</param>
-    /// <param name="instancesDirectoryPath">The file system path to the instances directory.</param>
-    /// <param name="javaDirectoryPath">The file system path to the Java directory.</param>
-    /// <param name="librariesDirectoryPath">The file system path to the libraries directory.</param>
-    /// <param name="manifestsDirectoryPath">The file system path to the manifests directory.</param>
-    /// <param name="translationsDirectoryPath">The file system path to the translations directory.</param>
-    /// <param name="versionsDirectoryPath">The file system path to the versions directory.</param>
+    /// <param name="nextUpdateCheck">The date and time of the next update check.</param>
+    /// <param name="language">The language code.</param>
+    /// <param name="theme">The theme.</param>
+    /// <param name="assetsDirectoryPath">The path to the assets folder.</param>
+    /// <param name="cacheDirectoryPath">The path to the cache folder.</param>
+    /// <param name="iconsDirectoryPath">The path to the icons folder.</param>
+    /// <param name="instancesDirectoryPath">The path to the instances folder.</param>
+    /// <param name="javaDirectoryPath">The path to the Java folder.</param>
+    /// <param name="librariesDirectoryPath">The path to the libraries folder.</param>
+    /// <param name="manifestsDirectoryPath">The path to the manifests folder.</param>
+    /// <param name="translationsDirectoryPath">The path to the translations folder.</param>
+    /// <param name="versionsDirectoryPath">The path to the versions folder.</param>
     public LauncherConfig(bool enableAutomaticUpdates, uint updateInterval, DateTime nextUpdateCheck, string language,
         EThemeType theme, string assetsDirectoryPath, string cacheDirectoryPath, string iconsDirectoryPath,
         string instancesDirectoryPath, string javaDirectoryPath, string librariesDirectoryPath,
@@ -72,7 +71,7 @@ public class LauncherConfig
     }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether automatic updates are enabled.
+    ///     Gets or sets a value that indicates whether automatic updates are enabled.
     /// </summary>
     [JsonPropertyName("enableAutomaticUpdates")]
     public bool EnableAutomaticUpdates { get; set; }
@@ -84,79 +83,79 @@ public class LauncherConfig
     public uint UpdateInterval { get; set; }
 
     /// <summary>
-    ///     Gets or sets the date and time for the next update check.
+    ///     Gets or sets the date and time of the next update check.
     /// </summary>
     [JsonPropertyName("nextUpdateCheck")]
     public DateTime NextUpdateCheck { get; set; }
 
     /// <summary>
-    ///     Gets or sets the language of the launcher.
+    ///     Gets or sets the language code.
     /// </summary>
     [JsonPropertyName("language")]
     public string Language { get; set; }
 
     /// <summary>
-    ///     Gets or sets the theme of the launcher.
+    ///     Gets or sets the theme.
     /// </summary>
     [JsonPropertyName("theme")]
     public EThemeType Theme { get; set; }
 
     /// <summary>
-    ///     Gets or sets the file system path to the assets directory.
+    ///     Gets or sets the path to the assets folder.
     /// </summary>
     [JsonPropertyName("assetsDirectoryPath")]
     public string AssetsDirectoryPath { get; set; }
 
     /// <summary>
-    ///     Gets or sets the file system path to the cache directory.
+    ///     Gets or sets the path to the cache folder.
     /// </summary>
     [JsonPropertyName("cacheDirectoryPath")]
     public string CacheDirectoryPath { get; set; }
 
     /// <summary>
-    ///     Gets or sets the file system path to the icons directory.
+    ///     Gets or sets the path to the icons folder.
     /// </summary>
     [JsonPropertyName("iconsDirectoryPath")]
     public string IconsDirectoryPath { get; set; }
 
     /// <summary>
-    ///     Gets or sets the file system path to the instances directory.
+    ///     Gets or sets the path to the instances folder.
     /// </summary>
     [JsonPropertyName("instancesDirectoryPath")]
     public string InstancesDirectoryPath { get; set; }
 
     /// <summary>
-    ///     Gets or sets the file system path to the Java directory.
+    ///     Gets or sets the path to the Java folder.
     /// </summary>
     [JsonPropertyName("javaDirectoryPath")]
     public string JavaDirectoryPath { get; set; }
 
     /// <summary>
-    ///     Gets or sets the file system path to the libraries directory.
+    ///     Gets or sets the path to the libraries folder.
     /// </summary>
     [JsonPropertyName("librariesDirectoryPath")]
     public string LibrariesDirectoryPath { get; set; }
 
     /// <summary>
-    ///     Gets or sets the file system path to the manifests directory.
+    ///     Gets or sets the path to the manifests folder.
     /// </summary>
     [JsonPropertyName("manifestsDirectoryPath")]
     public string ManifestsDirectoryPath { get; set; }
 
     /// <summary>
-    ///     Gets or sets the file system path to the translations directory.
+    ///     Gets or sets the path to the translations folder.
     /// </summary>
     [JsonPropertyName("translationsDirectoryPath")]
     public string TranslationsDirectoryPath { get; set; }
 
     /// <summary>
-    ///     Gets or sets the file system path to the versions directory.
+    ///     Gets or sets the path to the versions folder.
     /// </summary>
     [JsonPropertyName("versionsDirectoryPath")]
     public string VersionsDirectoryPath { get; set; }
 
     /// <summary>
-    ///     Gets the file system path to the vanilla manifest file.
+    ///     Gets the path to the vanilla manifest file.
     /// </summary>
     /// <returns>The path to the vanilla manifest file.</returns>
     public string GetVanillaManifestPath()
@@ -165,7 +164,7 @@ public class LauncherConfig
     }
 
     /// <summary>
-    ///     Gets the file system path to the Forge manifest file.
+    ///     Gets the path to the Forge manifest file.
     /// </summary>
     /// <returns>The path to the Forge manifest file.</returns>
     public string GetForgeManifestPath()
@@ -174,7 +173,7 @@ public class LauncherConfig
     }
 
     /// <summary>
-    ///     Gets the file system path to the NeoForge manifest file.
+    ///     Gets the path to the NeoForge manifest file.
     /// </summary>
     /// <returns>The path to the NeoForge manifest file.</returns>
     public string GetNeoForgeManifestPath()
@@ -183,7 +182,7 @@ public class LauncherConfig
     }
 
     /// <summary>
-    ///     Gets the file system path to the Fabric manifest file.
+    ///     Gets the path to the Fabric manifest file.
     /// </summary>
     /// <returns>The path to the Fabric manifest file.</returns>
     public string GetFabricManifestPath()
@@ -192,7 +191,7 @@ public class LauncherConfig
     }
 
     /// <summary>
-    ///     Gets the file system path to the Quilt manifest file.
+    ///     Gets the path to the Quilt manifest file.
     /// </summary>
     /// <returns>The path to the Quilt manifest file.</returns>
     public string GetQuiltManifestPath()

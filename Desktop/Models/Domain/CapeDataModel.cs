@@ -5,25 +5,22 @@ using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
 
 /// <summary>
-///     Lightweight view-model / domain model for a Minecraft cape used by the desktop UI.
-///     Encapsulates the cape identifier, optional alias, a loaded <see cref="Bitmap" /> for display,
-///     and a selection flag. Dispose releases the loaded bitmap resource.
+///     A cape that the UI can show, with an ID, alias, image, and selection state.
 /// </summary>
 public class CapeDataModel
 {
     /// <summary>
-    ///     Parameterless constructor required for some serializers and UI frameworks.
-    ///     Creates an empty model; callers should populate properties as needed.
+    ///     Creates an empty cape model.
     /// </summary>
     public CapeDataModel() { }
 
     /// <summary>
-    ///     Initializes a new instance of <see cref="CapeDataModel" /> with the specified values.
+    ///     Creates a cape model with the given values.
     /// </summary>
-    /// <param name="id">The cape identifier.</param>
-    /// <param name="alias">The cape alias (may be empty).</param>
-    /// <param name="image">The loaded <see cref="BitmapEntry" /> image for display (may be <c>null</c>).</param>
-    /// <param name="isSelected">Whether the cape should be initially selected.</param>
+    /// <param name="id">The cape ID.</param>
+    /// <param name="alias">The cape alias. Can be empty.</param>
+    /// <param name="image">The image to show.</param>
+    /// <param name="isSelected">Whether the cape is selected at start.</param>
     public CapeDataModel(string id, string alias, BitmapEntry image, bool isSelected)
     {
         Id = id;
@@ -33,32 +30,29 @@ public class CapeDataModel
     }
 
     /// <summary>
-    ///     Gets or sets the unique identifier for the cape (corresponds to the Mojang/Cape id).
+    ///     Gets or sets the cape ID.
     /// </summary>
     public string Id { get; set; } = string.Empty;
 
     /// <summary>
-    ///     Gets or sets the optional alias for the cape (friendly name or shorthand).
+    ///     Gets or sets the cape alias.
     /// </summary>
     public string Alias { get; set; } = string.Empty;
 
     /// <summary>
-    ///     Gets or sets the loaded bitmap for the cape texture.
-    ///     May be <c>null</c> if loading failed or has not been performed.
+    ///     Gets or sets the cape image.
     /// </summary>
     public BitmapEntry Image { get; set; } = new(null, null);
 
     /// <summary>
-    ///     Gets or sets a value indicating whether this cape is currently selected in the UI.
+    ///     Gets or sets a value that indicates whether the cape is selected.
     /// </summary>
     public bool IsSelected { get; set; }
 
     /// <summary>
-    ///     Disposes managed resources held by this model.
-    ///     Specifically disposes the <see cref="Image" /> bitmap if present.
-    ///     Calling <see cref="Dispose" /> multiple times is safe.
+    ///     Releases the cape image.
     /// </summary>
-    public void Dispose(IBitmapService bitmapService)
+    /// <param name="bitmapService">The service used to release the image.</param>
     {
         if (Image.IsEmpty())
             return;

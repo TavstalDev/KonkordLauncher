@@ -27,6 +27,9 @@ using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
+/// <summary>
+///     Handles the mods tab of the instance editor.
+/// </summary>
 public partial class EditInstanceViewModel_Mods : KonkordObservableObject
 {
     private readonly IBitmapService _bitmapService = null!;
@@ -38,6 +41,9 @@ public partial class EditInstanceViewModel_Mods : KonkordObservableObject
 
     private readonly SourceCache<ResourceBaseModel, string> _modsCache = new(x => x.Name);
 
+    /// <summary>
+    ///     Creates the view-model and sets up the mod filter.
+    /// </summary>
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public EditInstanceViewModel_Mods()
@@ -70,6 +76,14 @@ public partial class EditInstanceViewModel_Mods : KonkordObservableObject
         FilteredMods = mods;
     }
 
+    /// <summary>
+    ///     Creates the view-model for one instance.
+    /// </summary>
+    /// <param name="instance">The instance being edited.</param>
+    /// <param name="getGameDirectory">Returns the game directory of the instance.</param>
+    /// <param name="launcherStore">The store used to save instance data.</param>
+    /// <param name="bitmapService">The service used to load and release icons.</param>
+    /// <param name="dialogService">The service used to show dialogs.</param>
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public EditInstanceViewModel_Mods(InstanceModel instance, Func<string?> getGameDirectory,
@@ -84,14 +98,30 @@ public partial class EditInstanceViewModel_Mods : KonkordObservableObject
         _dialogService = dialogService;
     }
 
+    /// <summary>
+    ///     Gets the mods that match the current search text.
+    /// </summary>
     public ReadOnlyObservableCollection<ResourceBaseModel> FilteredMods { get; private set; }
 
+    /// <summary>
+    ///     Gets or sets the selected mod.
+    /// </summary>
     [ObservableProperty] public partial ResourceBaseModel? SelectedMod { get; set; }
 
+    /// <summary>
+    ///     Gets or sets the text used to filter the mods.
+    /// </summary>
     [ObservableProperty] public partial string? SearchQuery { get; set; } = string.Empty;
 
+    /// <summary>
+    ///     Raised after the mod list changes, with the resource type that changed.
+    /// </summary>
     public event EventHandler<EResourceType>? OnResourcesUpdated;
 
+    /// <summary>
+    ///     Releases the mod icons and clears the mod cache.
+    /// </summary>
+    /// <param name="disposing">True when the object is disposed by code.</param>
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
@@ -102,6 +132,11 @@ public partial class EditInstanceViewModel_Mods : KonkordObservableObject
         SelectedMod = null;
     }
 
+    /// <summary>
+    ///     Loads the mods of the instance.
+    /// </summary>
+    /// <param name="cancellationToken">The token used to cancel the operation.</param>
+    /// <returns>A task that completes when the mods are loaded.</returns>
     public async Task InitAsync(CancellationToken cancellationToken = default)
     {
         if (!_instance.IsModded)
@@ -109,6 +144,9 @@ public partial class EditInstanceViewModel_Mods : KonkordObservableObject
         await Dispatcher.UIThread.Invoke(async () => await RefreshModsAsync());
     }
 
+    /// <summary>
+    ///     Renames mod files on disk to match their enabled state.
+    /// </summary>
     public void SaveMods()
     {
         _logger.LogDebug("Saving mods...");
@@ -145,6 +183,10 @@ public partial class EditInstanceViewModel_Mods : KonkordObservableObject
         }
     }
 
+    /// <summary>
+    ///     Reads the mods folder again and rebuilds the mod list.
+    /// </summary>
+    /// <returns>A task that completes when the list is rebuilt.</returns>
     public async Task RefreshModsAsync()
     {
         var gameDir = _getGameDirectory.Invoke();

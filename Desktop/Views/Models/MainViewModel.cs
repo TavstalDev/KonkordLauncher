@@ -24,13 +24,16 @@ using Tavstal.KonkordLauncher.Desktop.Views.Models.MainView;
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 
 /// <summary>
-///     Represents the main view model for the application, managing the state and behavior of the UI.
+///     The main view model of the launcher window. It groups the view models for each page.
 /// </summary>
 public partial class MainViewModel : KonkordObservableObject
 {
     private readonly ILauncherStore _launcherStore = null!;
     private readonly IScreenService _screenService = null!;
 
+    /// <summary>
+    ///     Creates a view model for the XAML designer.
+    /// </summary>
     public MainViewModel()
     {
         Accounts = new MainViewModel_Accounts();
@@ -39,6 +42,21 @@ public partial class MainViewModel : KonkordObservableObject
         Instances = new MainViewModel_Instances();
     }
 
+    /// <summary>
+    ///     Creates the main view model and starts loading the launcher data.
+    /// </summary>
+    /// <param name="logger">The logger for the view model.</param>
+    /// <param name="launcherStore">The store that reads and saves launcher data.</param>
+    /// <param name="translationService">The service that translates text.</param>
+    /// <param name="microsoftAuthService">The Microsoft sign-in service.</param>
+    /// <param name="mojangSkinService">The service that manages Mojang skins.</param>
+    /// <param name="bitmapService">The service that loads bitmaps.</param>
+    /// <param name="eventService">The service that raises launcher events.</param>
+    /// <param name="encryptionService">The service that encrypts and decrypts data.</param>
+    /// <param name="instanceModelFactory">The factory that creates instance view models.</param>
+    /// <param name="screenService">The service that gives the screen size.</param>
+    /// <param name="dialogService">The service that shows dialogs.</param>
+    /// <param name="filePickerService">The service that opens file and folder pickers.</param>
     public MainViewModel(IBeaconLogger<MainViewModel> logger, ILauncherStore launcherStore,
         ITranslationService translationService, IMicrosoftAuthService microsoftAuthService,
         IMojangSkinService mojangSkinService, IBitmapService bitmapService,
@@ -71,31 +89,91 @@ public partial class MainViewModel : KonkordObservableObject
         }, TaskScheduler.Default);
     }
 
+    /// <summary>
+    ///     Gets or sets the selected tab on the "About" page.
+    /// </summary>
     [ObservableProperty] public partial EAboutTab CurrentAboutTab { get; set; } = EAboutTab.ABOUT;
 
+    /// <summary>
+    ///     Gets or sets the selected tab on the settings page.
+    /// </summary>
     [ObservableProperty] public partial ESettingsTab CurrentSettingsTab { get; set; } = ESettingsTab.LAUNCHER;
 
+    /// <summary>
+    ///     Gets or sets a value that indicates whether patch notes are available.
+    /// </summary>
     [ObservableProperty] public partial bool HasPatches { get; set; }
 
+    /// <summary>
+    ///     Gets a value that indicates whether the launcher runs on Linux.
+    /// </summary>
     public bool IsLinux { get; } = OSHelper.GetOperatingSystem() == EOperatingSystem.LINUX;
+
+    /// <summary>
+    ///     Gets the time of the next cache refresh.
+    /// </summary>
     public DateTime NextCacheRefresh { get; private set; }
+
+    /// <summary>
+    ///     Gets the time of the next update check.
+    /// </summary>
     public DateTime NextUpdate { get; private set; }
+
+    /// <summary>
+    ///     Gets the task that represents the startup work of the view model.
+    /// </summary>
     public Task Initialization { get; } = null!;
 
+    /// <summary>
+    ///     Gets the view model for the accounts page.
+    /// </summary>
     public MainViewModel_Accounts Accounts { get; } = null!;
+
+    /// <summary>
+    ///     Gets the view model for the "About" page.
+    /// </summary>
     public MainViewModel_About About { get; } = null!;
+
+    /// <summary>
+    ///     Gets the view model for the settings page.
+    /// </summary>
     public MainViewModel_Config Config { get; } = null!;
+
+    /// <summary>
+    ///     Gets the view model for the instances page.
+    /// </summary>
     public MainViewModel_Instances Instances { get; } = null!;
 
+    /// <summary>
+    ///     Gets or sets a value that indicates whether the launcher is loading.
+    /// </summary>
     [ObservableProperty] public partial bool IsLoading { get; set; }
 
+    /// <summary>
+    ///     Gets or sets the page that is shown in the sidebar.
+    /// </summary>
     [ObservableProperty] public partial ESidebarType CurrentPageIndex { get; set; } = ESidebarType.Play;
 
+    /// <summary>
+    ///     Gets the patch notes that are shown to the user.
+    /// </summary>
     public ObservableCollection<PatchNote> Patches { get; } = [];
 
+    /// <summary>
+    ///     Gets the screen width in pixels.
+    /// </summary>
     public int ScreenWidth => Design.IsDesignMode ? 950 : _screenService.ScreenSize.Width;
+
+    /// <summary>
+    ///     Gets the screen height in pixels.
+    /// </summary>
     public int ScreenHeight => Design.IsDesignMode ? 600 : _screenService.ScreenSize.Height;
 
+    /// <summary>
+    ///     Loads the launcher settings, accounts, instances, patch notes and about information.
+    /// </summary>
+    /// <param name="cancellationToken">A token that can cancel the operation.</param>
+    /// <returns>A task that represents the operation.</returns>
     public async Task InitAsync(CancellationToken cancellationToken = default)
     {
         IsLoading = true;
@@ -142,7 +220,14 @@ public partial class MainViewModel : KonkordObservableObject
 
     #region Interactions
 
+    /// <summary>
+    ///     Gets the interaction that asks the window to close.
+    /// </summary>
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
+
+    /// <summary>
+    ///     Gets the interaction that switches the page in the sidebar.
+    /// </summary>
     public Interaction<ESidebarType, Unit> SwitchSidebarBtnInteraction { get; } = new();
 
     #endregion

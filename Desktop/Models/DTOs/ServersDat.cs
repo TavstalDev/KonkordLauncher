@@ -4,11 +4,13 @@ using NbtLib;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 
+/// <summary>
+///     Holds the list of saved Minecraft servers.
+/// </summary>
 public class ServersDat
 {
     /// <summary>
-    ///     Initializes a new instance of the <see cref="ServersDat" /> class
-    ///     with an empty list of servers.
+    ///     Creates a new instance with an empty server list.
     /// </summary>
     public ServersDat()
     {
@@ -16,17 +18,16 @@ public class ServersDat
     }
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="ServersDat" /> class
-    ///     with the specified list of servers.
+    ///     Creates a new instance with the given server list.
     /// </summary>
-    /// <param name="servers">The list of Minecraft servers.</param>
+    /// <param name="servers">The list of servers.</param>
     public ServersDat(List<MinecraftServer> servers)
     {
         Servers = servers;
     }
 
     /// <summary>
-    ///     Gets or sets the list of Minecraft servers.
+    ///     Gets or sets the list of servers.
     /// </summary>
     [NbtProperty(PropertyName = "servers")]
     [JsonPropertyName("servers")]

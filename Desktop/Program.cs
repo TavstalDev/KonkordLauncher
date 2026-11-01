@@ -34,8 +34,16 @@ internal class Program
 {
     private const string MutexName = "Global\\KonkordLauncher_5C0F1C0A-2258-4DD5-B454-0ED8FFF9E5A8";
     private static Mutex? Mutex { get; set; }
+
+    /// <summary>
+    ///     Gets the service provider used by the application.
+    /// </summary>
     public static IServiceProvider Services { get; private set; } = null!;
 
+    /// <summary>
+    ///     Starts the application, sets up logging and services, and opens the main window.
+    /// </summary>
+    /// <param name="args">The command-line arguments.</param>
     [STAThread]
     [SupportedOSPlatform("windows")]
     [SupportedOSPlatform("linux")]
@@ -167,10 +175,9 @@ internal class Program
     }
 
     /// <summary>
-    ///     Configures and returns the Avalonia <see cref="AppBuilder" /> used to start the UI.
-    ///     This method is intentionally static and called by the runtime; it is also used by the visual designer.
+    ///     Creates the Avalonia app builder used to start the UI. Also used by the visual designer.
     /// </summary>
-    /// <returns>A configured <see cref="AppBuilder" /> instance for Avalonia.</returns>
+    /// <returns>A configured <see cref="AppBuilder" />.</returns>
     private static AppBuilder BuildAvaloniaApp()
     {
         return AppBuilder.Configure<App>()
@@ -186,6 +193,9 @@ internal class Program
 
     #region Versioning
 
+    /// <summary>
+    ///     Gets the application version.
+    /// </summary>
     public static string Version
     {
         get
@@ -219,6 +229,9 @@ internal class Program
         }
     } = string.Empty;
 
+    /// <summary>
+    ///     Gets the name of the current build branch.
+    /// </summary>
     public static string Branch
     {
         get
@@ -233,6 +246,9 @@ internal class Program
 
     private static string _buidDate = string.Empty;
 
+    /// <summary>
+    ///     Gets the build date of the application.
+    /// </summary>
     public static string BuildDate
     {
         get

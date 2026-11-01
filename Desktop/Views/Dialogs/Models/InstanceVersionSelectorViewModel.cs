@@ -26,7 +26,7 @@ using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 
 /// <summary>
-///     ViewModel for managing the selection of instance versions and mod loaders.
+///     The view model for choosing an instance version and mod loader.
 /// </summary>
 public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
 {
@@ -37,9 +37,8 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
     private readonly IManifestService _manifestService = null!;
 
     /// <summary>
-    ///     Initializes a new instance of the InstanceVersionSelectorViewModel class.
+    ///     Initializes a new instance for the designer.
     /// </summary>
-    /// <param name="instance">The current instance being managed.</param>
     public InstanceVersionSelectorViewModel()
     {
         _instance = null!;
@@ -48,6 +47,14 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
             new ReadOnlyObservableCollection<MinecraftVersion>([]);
     }
 
+    /// <summary>
+    ///     Initializes a new instance for the given instance.
+    /// </summary>
+    /// <param name="instance">The instance being edited.</param>
+    /// <param name="logger">The logger used by the view model.</param>
+    /// <param name="launcherStore">The store that reads and saves launcher data.</param>
+    /// <param name="manifestService">The service that provides version manifests.</param>
+    /// <param name="eventService">The service that raises instance events.</param>
     public InstanceVersionSelectorViewModel(Instance instance,
         IBeaconLogger<InstanceVersionSelectorViewModel> logger, ILauncherStore launcherStore,
         IManifestService manifestService, IEventService eventService)
@@ -71,15 +78,18 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
         }, TaskScheduler.Default);
     }
 
+    /// <summary>
+    ///     Gets the mod loader kind of the instance.
+    /// </summary>
     public EMinecraftKind Kind { get; }
 
     /// <summary>
-    ///     Indicates if the instance is modded.
+    ///     Gets a value that indicates whether the instance uses a mod loader.
     /// </summary>
     public bool IsModded => Kind != EMinecraftKind.VANILLA;
 
     /// <summary>
-    ///     Determines if changes can be saved.
+    ///     Gets a value that indicates whether the selected changes can be saved.
     /// </summary>
     public bool CanSaveChanges
     {
@@ -96,12 +106,15 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
         }
     }
 
+    /// <summary>
+    ///     Gets the interaction that closes the dialog.
+    /// </summary>
     public Interaction<bool, Unit> CloseWindowInteraction { get; } = new();
 
     /// <summary>
-    ///     Disposes of the resources used by the InstanceVersionSelectorViewModel.
+    ///     Releases the resources used by this view model.
     /// </summary>
-    /// <param name="disposing">True if disposing explicitly; false otherwise.</param>
+    /// <param name="disposing">True to release managed resources.</param>
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
@@ -117,7 +130,7 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
     }
 
     /// <summary>
-    ///     Sets up the data pipeline for version and mod loader selection.
+    ///     Sets up the filters for the version and mod loader lists.
     /// </summary>
     public void SetupPipeline()
     {
@@ -226,9 +239,10 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
     }
 
     /// <summary>
-    ///     Initializes the data for the instance version selector.
+    ///     Loads the available Minecraft versions and mod loader versions.
     /// </summary>
-    /// <param name="cancellationToken">CancellationToken to support cancellation.</param>
+    /// <param name="cancellationToken">The token used to cancel the operation.</param>
+    /// <returns>A task that completes when the lists are loaded.</returns>
     public async Task InitAsync(CancellationToken cancellationToken = default)
     {
         var settings = _launcherStore.GetSettings() ?? throw new InvalidOperationException("Settings cannot be null");
@@ -286,7 +300,7 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
     }
 
     /// <summary>
-    ///     Closes the window.
+    ///     Closes the dialog.
     /// </summary>
     [RelayCommand]
     private async Task Close()
@@ -327,20 +341,45 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
     #region Vanilla
 
     private readonly SourceCache<MinecraftVersion, string> _minecraftVersionCache = new(x => x.Id);
+
+    /// <summary>
+    ///     Gets the Minecraft versions that match the current filters.
+    /// </summary>
     public ReadOnlyObservableCollection<MinecraftVersion> MinecraftVersions { get; private set; } = null!;
 
+    /// <summary>
+    ///     Gets or sets the text used to search Minecraft versions.
+    /// </summary>
     [ObservableProperty] public partial string SearchQuery { get; set; } = string.Empty;
 
+    /// <summary>
+    ///     Gets or sets a value that indicates whether release versions are shown.
+    /// </summary>
     [ObservableProperty] public partial bool ShowReleases { get; set; } = true;
 
+    /// <summary>
+    ///     Gets or sets a value that indicates whether snapshot versions are shown.
+    /// </summary>
     [ObservableProperty] public partial bool ShowSnapshots { get; set; }
 
+    /// <summary>
+    ///     Gets or sets a value that indicates whether old alpha versions are shown.
+    /// </summary>
     [ObservableProperty] public partial bool ShowAlphas { get; set; }
 
+    /// <summary>
+    ///     Gets or sets a value that indicates whether old beta versions are shown.
+    /// </summary>
     [ObservableProperty] public partial bool ShowBetas { get; set; }
 
+    /// <summary>
+    ///     Gets or sets a value that indicates whether experiment versions are shown.
+    /// </summary>
     [ObservableProperty] public partial bool ShowExperiments { get; set; }
 
+    /// <summary>
+    ///     Gets or sets the selected Minecraft version.
+    /// </summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanSaveChanges))]
     public partial MinecraftVersion? SelectedMinecraftVersion { get; set; }
@@ -349,8 +388,14 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
 
     #region Mod Loader
 
+    /// <summary>
+    ///     Gets or sets the text used to search mod loader versions.
+    /// </summary>
     [ObservableProperty] public partial string ModLoaderSearchQuery { get; set; } = string.Empty;
 
+    /// <summary>
+    ///     Gets or sets the selected mod loader version.
+    /// </summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanSaveChanges))]
     public partial IModManifest? SelectedModLoader { get; set; }
@@ -358,6 +403,9 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
     private readonly SourceCache<IModManifest, string> _modLoaderVersionCache =
         new(x => $"{x.LoaderKind}:{x.GameVersion}:{x.Version}");
 
+    /// <summary>
+    ///     Gets the mod loader versions that match the current filters.
+    /// </summary>
     public ReadOnlyObservableCollection<IModManifest> ModLoaderVersionResult { get; private set; } = new([]);
 
     private static readonly IComparer<IModManifest> ModVersionComparer =

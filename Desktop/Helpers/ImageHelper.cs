@@ -9,22 +9,17 @@ using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 namespace Tavstal.KonkordLauncher.Desktop.Helpers;
 
 /// <summary>
-///     Provides helper methods for loading images from various sources, such as local resources or web URLs.
+///     Helpers for loading images from application resources or encoded data.
 /// </summary>
 public static class ImageHelper
 {
     /// <summary>
     ///     Loads a <see cref="Bitmap" /> from an application resource path.
     /// </summary>
-    /// <param name="path">
-    ///     The resource URI to load. Expected to be a valid Avalonia asset URI (for example:
-    ///     "avares://AssemblyName/Assets/image.png")
-    ///     or any URI that <see cref="Avalonia.Platform.IAssetLoader" /> supports when running in design mode.
-    /// </param>
-    /// <returns> A <see cref="Bitmap" /> created from the requested resource stream.</returns>
+    /// <param name="path">The Avalonia asset URI of the image, such as "avares://AssemblyName/Assets/image.png".</param>
+    /// <returns>The loaded image.</returns>
     /// <exception cref="InvalidOperationException">
-    ///     Thrown when called outside of design mode. This helper is intended for use in design-time scenarios only
-    ///     (for example in XAML preview/design-time data) and will not attempt to resolve resources at runtime.
+    ///     Thrown when the method is not called in design mode.
     /// </exception>
     public static BitmapEntry LoadDesignTime(string path)
     {
@@ -35,10 +30,10 @@ public static class ImageHelper
     }
 
     /// <summary>
-    ///     Converts a Base64-encoded string to an Avalonia <see cref="Bitmap" /> object.
+    ///     Converts a Base64 string into a <see cref="Bitmap" />.
     /// </summary>
-    /// <param name="base64Image">The Base64-encoded string representing the image.</param>
-    /// <returns>A <see cref="Bitmap" /> object created from the Base64 string.</returns>
+    /// <param name="base64Image">The Base64 string of the image.</param>
+    /// <returns>The created image.</returns>
     public static Bitmap Base64ToBitmap(string base64Image)
     {
         // Remove the "data:image/png;base64," prefix if present
@@ -56,10 +51,10 @@ public static class ImageHelper
     }
 
     /// <summary>
-    ///     Generates a QR code from the provided data and returns it as an Avalonia <see cref="Bitmap" /> object.
+    ///     Creates a QR code image from the given data.
     /// </summary>
-    /// <param name="data">The data to encode in the QR code.</param>
-    /// <returns>A <see cref="Bitmap" /> object representing the generated QR code.</returns>
+    /// <param name="data">The data to encode.</param>
+    /// <returns>The generated QR code image.</returns>
     public static Bitmap GenerateQrCode(string data)
     {
         var qrGenerator = new QRCodeGenerator();

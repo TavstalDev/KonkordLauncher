@@ -28,6 +28,9 @@ using Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
 
+/// <summary>
+///     An instance shown in the launcher, with its settings and launch behavior.
+/// </summary>
 public partial class InstanceModel : ObservableObject, IKonkordProgress, IDisposable
 {
     private readonly BeaconConfiguration _beaconConfiguration;
@@ -47,6 +50,24 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress, IDispos
     private long _lastReadPosition;
     private FileSystemWatcher? _watcher;
 
+    /// <summary>
+    ///     Creates an instance model from instance data.
+    /// </summary>
+    /// <param name="instance">The instance data to copy.</param>
+    /// <param name="logger">The logger for this instance.</param>
+    /// <param name="launcherStore">The store that holds launcher data.</param>
+    /// <param name="manifestService">The service that reads version manifests.</param>
+    /// <param name="bitmapService">The service that loads and releases images.</param>
+    /// <param name="translationService">The service that translates text.</param>
+    /// <param name="javaService">The service that finds and installs Java.</param>
+    /// <param name="installService">The service that installs game files.</param>
+    /// <param name="launchService">The service that starts the game.</param>
+    /// <param name="eventService">The service that raises launcher events.</param>
+    /// <param name="encryptionService">The service used to read protected account data.</param>
+    /// <param name="beaconConfiguration">The Beacon configuration.</param>
+    /// <param name="screenService">The service that reports the screen size.</param>
+    /// <param name="windowFactory">The factory that creates windows.</param>
+    /// <param name="dialogService">The service that shows dialogs.</param>
     public InstanceModel(DTOs.Instance instance, IBeaconLogger<InstanceModel> logger, ILauncherStore launcherStore,
         IManifestService manifestService, IBitmapService bitmapService, ITranslationService translationService,
         IJavaService javaService, IInstanceInstallService installService, IInstanceLaunchService launchService,
@@ -82,6 +103,9 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress, IDispos
         ConfigModel = instance.Config;
     }
 
+    /// <summary>
+    ///     Releases the process, file watcher, cancellation source, and icon used by this instance.
+    /// </summary>
     public void Dispose()
     {
         _watcher?.Dispose();
@@ -90,15 +114,15 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress, IDispos
         GameProcess?.Dispose();
     }
 
+    /// <summary>
+    ///     Gets a value that indicates whether the instance uses a mod loader.
+    /// </summary>
     public bool IsModded => Kind != EMinecraftKind.VANILLA;
 
     /// <summary>
-    ///     Converts the current instance model into a common instance model.
+    ///     Converts this model into instance data.
     /// </summary>
-    /// <returns>
-    ///     A new instance of <see cref="Instance" /> populated with the properties
-    ///     of the current instance model.
-    /// </returns>
+    /// <returns>A new <see cref="DTOs.Instance" /> with the values of this model.</returns>
     public DTOs.Instance getInstance()
     {
         return new DTOs.Instance
@@ -116,11 +140,9 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress, IDispos
     }
 
     /// <summary>
-    ///     Updates this view-model instance from a common instance data model.
+    ///     Updates this model from new instance data. The update only happens when the IDs match.
     /// </summary>
-    /// <param name="newData">
-    ///     The source instance data to copy from. The update is only applied when the IDs match.
-    /// </param>
+    /// <param name="newData">The new instance data.</param>
     public void UpdateDetails(DTOs.Instance newData)
     {
         if (newData.Id != Id)
@@ -141,7 +163,7 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress, IDispos
     }
 
     /// <summary>
-    ///     Attaches event handlers to the game process to handle its exit and disposal events.
+    ///     Adds handlers to the game process for exit and disposal, and starts watching the game log.
     /// </summary>
     public void AttachProcessEvent()
     {

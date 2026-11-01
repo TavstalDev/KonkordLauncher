@@ -26,6 +26,9 @@ using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 
+/// <summary>
+///     The view model for the accounts window. It handles Microsoft and offline sign-in.
+/// </summary>
 public partial class AccountsViewModel : KonkordObservableObject
 {
     private readonly IMicrosoftAuthService _authService = null!;
@@ -40,11 +43,28 @@ public partial class AccountsViewModel : KonkordObservableObject
     private readonly ISkinService _skinService = null!;
     private readonly ITranslationService _translationService = null!;
 
+    /// <summary>
+    ///     Creates a view model for the XAML designer.
+    /// </summary>
     public AccountsViewModel()
     {
         DeviceData = new DeviceCodeResult { UserCode = "DEBUG" };
     }
 
+    /// <summary>
+    ///     Creates the accounts view model with its services.
+    /// </summary>
+    /// <param name="logger">The logger for the view model.</param>
+    /// <param name="launcherStore">The store that reads and saves launcher data.</param>
+    /// <param name="translationService">The service that translates text.</param>
+    /// <param name="microsoftAuthService">The Microsoft sign-in service.</param>
+    /// <param name="microsoftDeviceAuthService">The service that listens for the device code sign-in.</param>
+    /// <param name="microsoftHttpAuthService">The service that listens for the browser sign-in.</param>
+    /// <param name="skinService">The service that fetches skins and capes.</param>
+    /// <param name="encryptionService">The service that encrypts and decrypts data.</param>
+    /// <param name="eventService">The service that raises launcher events.</param>
+    /// <param name="dialogService">The service that shows dialogs.</param>
+    /// <param name="filePickerService">The service that opens file pickers and uses the clipboard.</param>
     public AccountsViewModel(IBeaconLogger<AccountsViewModel> logger,
         ILauncherStore launcherStore, ITranslationService translationService,
         IMicrosoftAuthService microsoftAuthService,
@@ -75,17 +95,19 @@ public partial class AccountsViewModel : KonkordObservableObject
 
     #region Interactions
 
+    /// <summary>
+    ///     Gets the interaction that asks the window to close.
+    /// </summary>
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
 
     #endregion
 
     /// <summary>
-    ///     Releases the resources used by the ViewModel, including the QR code bitmap.
-    ///     Ensures proper cleanup of unmanaged resources when disposing.
+    ///     Releases the QR code bitmap and other resources used by the view model.
     /// </summary>
     /// <param name="disposing">
-    ///     A boolean value indicating whether the method is called explicitly
-    ///     (true) or by the garbage collector (false).
+    ///     A value that indicates whether the method was called by user code (true)
+    ///     or by the garbage collector (false).
     /// </param>
     protected override void Dispose(bool disposing)
     {
@@ -94,7 +116,7 @@ public partial class AccountsViewModel : KonkordObservableObject
     }
 
     /// <summary>
-    ///     Stops the Microsoft authentication process and resets related states.
+    ///     Stops the Microsoft sign-in and resets the login state.
     /// </summary>
     public void StopMicrosoftAuth()
     {
@@ -106,6 +128,10 @@ public partial class AccountsViewModel : KonkordObservableObject
         qrCodeCopy?.Dispose();
     }
 
+    /// <summary>
+    ///     Handles a change in the Microsoft sign-in status.
+    /// </summary>
+    /// <param name="status">The new sign-in status.</param>
     public void OnAuthStatusChange(EAuthStatus status)
     {
         _ = HandleAuthStatusChange(status);
@@ -181,8 +207,7 @@ public partial class AccountsViewModel : KonkordObservableObject
     #region Offline Commands
 
     /// <summary>
-    ///     Logs in with an offline account asynchronously.
-    ///     Validates the username, checks for duplicate accounts, and updates account data.
+    ///     Logs in with an offline account. The user name must not be empty or already in use.
     /// </summary>
     [RelayCommand]
     private async Task OfflineLoginAsync(CancellationToken cancellationToken = default)
@@ -239,20 +264,44 @@ public partial class AccountsViewModel : KonkordObservableObject
 
     #region Observable Properties
 
+    /// <summary>
+    ///     Gets or sets a value that indicates whether a Microsoft sign-in is running.
+    /// </summary>
     [ObservableProperty] public partial bool IsLoggingInMicrosoftAccount { get; set; }
 
+    /// <summary>
+    ///     Gets or sets a value that indicates whether the sign-in is being processed.
+    /// </summary>
     [ObservableProperty] public partial bool IsProcessingLogin { get; set; }
 
+    /// <summary>
+    ///     Gets or sets the sign-in progress value.
+    /// </summary>
     [ObservableProperty] public partial double Progress { get; set; }
 
+    /// <summary>
+    ///     Gets or sets the text that describes the current sign-in step.
+    /// </summary>
     [ObservableProperty] public partial string ProgressText { get; set; } = "Loading...";
 
+    /// <summary>
+    ///     Gets or sets the user name for an offline account.
+    /// </summary>
     [ObservableProperty] public partial string? OfflineUsername { get; set; }
 
+    /// <summary>
+    ///     Gets or sets the Microsoft device code data.
+    /// </summary>
     [ObservableProperty] public partial DeviceCodeResult? DeviceData { get; set; }
 
+    /// <summary>
+    ///     Gets or sets the QR code image for the Microsoft sign-in link.
+    /// </summary>
     [ObservableProperty] public partial Bitmap? QrCode { get; set; }
 
+    /// <summary>
+    ///     Gets or sets a value that indicates whether the QR code is still loading.
+    /// </summary>
     [ObservableProperty] public partial bool IsQrCodeLoading { get; set; } = true;
 
     #endregion
@@ -260,8 +309,7 @@ public partial class AccountsViewModel : KonkordObservableObject
     #region Microsoft Commands
 
     /// <summary>
-    ///     Initiates the Microsoft account login process asynchronously.
-    ///     Handles authentication, error reporting, and account data updates.
+    ///     Starts the Microsoft sign-in and shows the device code and QR code.
     /// </summary>
     [RelayCommand]
     private async Task LoginMicrosoftAccountAsync()
@@ -290,7 +338,7 @@ public partial class AccountsViewModel : KonkordObservableObject
     }
 
     /// <summary>
-    ///     Opens the Microsoft login URL in the default browser.
+    ///     Opens the Microsoft sign-in page in the default browser.
     /// </summary>
     [RelayCommand]
     private void MicrosoftOpenLoginLink()
@@ -299,7 +347,7 @@ public partial class AccountsViewModel : KonkordObservableObject
     }
 
     /// <summary>
-    ///     Opens the Microsoft device code verification URL in the default browser.
+    ///     Opens the device code page in the default browser.
     /// </summary>
     [RelayCommand]
     private void MicrosoftOpenCodeLink()
@@ -317,7 +365,7 @@ public partial class AccountsViewModel : KonkordObservableObject
     }
 
     /// <summary>
-    ///     Cancels the Microsoft login process and stops the authentication listener.
+    ///     Cancels the Microsoft sign-in and stops the listeners.
     /// </summary>
     [RelayCommand]
     private async Task MicrosoftCancelLogin()

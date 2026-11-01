@@ -8,6 +8,9 @@ namespace Tavstal.KonkordLauncher.Desktop.Services;
 /// <inheritdoc />
 public class EventService : IEventService
 {
+    /// <summary>
+    ///     The largest log size in bytes that is kept for one instance.
+    /// </summary>
     public const int MaxLogSizeBytes = 10 * 1024 * 1024;
     private readonly Dictionary<string, string> _instanceLogs = new();
     private readonly Lock _instanceLogsLock = new();

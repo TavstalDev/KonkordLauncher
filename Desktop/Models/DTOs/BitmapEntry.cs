@@ -4,15 +4,15 @@ using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 namespace Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 
 /// <summary>
-///     Represents an entry in a bitmap cache, pairing a string key with a <see cref="Bitmap" /> value.
+///     Holds a bitmap and the key it is stored under in the bitmap cache.
 /// </summary>
 public class BitmapEntry
 {
     /// <summary>
-    ///     Initializes a new instance of the <see cref="BitmapEntry" /> class.
+    ///     Creates a new entry.
     /// </summary>
-    /// <param name="key">The key to associate with the bitmap.</param>
-    /// <param name="value">The bitmap value.</param>
+    /// <param name="key">The key of the bitmap.</param>
+    /// <param name="value">The bitmap.</param>
     public BitmapEntry(string? key, Bitmap? value)
     {
         Key = key;
@@ -20,20 +20,20 @@ public class BitmapEntry
     }
 
     /// <summary>
-    ///     Gets the key associated with this bitmap entry.
+    ///     Gets the key of the bitmap.
     /// </summary>
     public string? Key { get; private set; }
 
     /// <summary>
-    ///     Gets the bitmap value associated with this entry.
+    ///     Gets the bitmap.
     /// </summary>
     public Bitmap? Value { get; private set; }
 
     /// <summary>
-    ///     Sets or updates the key and value of this entry.
+    ///     Sets a new key and bitmap for this entry.
     /// </summary>
     /// <param name="key">The new key.</param>
-    /// <param name="value">The new bitmap value.</param>
+    /// <param name="value">The new bitmap.</param>
     public void SetValue(string? key, Bitmap? value)
     {
         Key = key;
@@ -41,18 +41,18 @@ public class BitmapEntry
     }
 
     /// <summary>
-    ///     Determines whether this entry is empty (null value or null/empty key).
+    ///     Returns whether the entry has no key or no bitmap.
     /// </summary>
-    /// <returns><c>true</c> if the entry is empty; otherwise, <c>false</c>.</returns>
+    /// <returns><see langword="true" /> if the entry has no key or no bitmap; otherwise, <see langword="false" />.</returns>
     public bool IsEmpty()
     {
         return Value == null || string.IsNullOrEmpty(Key);
     }
 
     /// <summary>
-    ///     Releases the bitmap from the provided bitmap service and clears the entry.
+    ///     Releases the bitmap from the cache and clears the entry.
     /// </summary>
-    /// <param name="service">The bitmap service used to release the bitmap resource.</param>
+    /// <param name="service">The bitmap service that owns the bitmap.</param>
     public void Dispose(IBitmapService service)
     {
         if (Key != null)

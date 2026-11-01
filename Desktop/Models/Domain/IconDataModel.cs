@@ -4,16 +4,16 @@ using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
 
 /// <summary>
-///     Represents a data model for an icon, containing its name and image.
+///     An icon with a name, a file path, and an image.
 /// </summary>
 public partial class IconDataModel : ObservableObject
 {
     /// <summary>
-    ///     Initializes a new instance of the <see cref="IconDataModel" /> class.
+    ///     Creates an icon model.
     /// </summary>
-    /// <param name="name">The name of the icon.</param>
-    /// <param name="path">The file path of the icon.</param>
-    /// <param name="image">The image associated with the icon.</param>
+    /// <param name="name">The icon name.</param>
+    /// <param name="path">The icon file path.</param>
+    /// <param name="image">The icon image.</param>
     public IconDataModel(string name, string path, BitmapEntry image)
     {
         Name = name;
@@ -22,19 +22,19 @@ public partial class IconDataModel : ObservableObject
     }
 
     /// <summary>
-    ///     The name of the icon.
+    ///     Gets or sets the icon name.
     /// </summary>
     [ObservableProperty]
     public partial string Name { get; set; }
 
     /// <summary>
-    ///     The file path associated with the icon.
+    ///     Gets or sets the icon file path.
     /// </summary>
     [ObservableProperty]
     public partial string Path { get; set; }
 
     /// <summary>
-    ///     The image associated with the icon.
+    ///     Gets or sets the icon image.
     /// </summary>
     [ObservableProperty]
     public partial BitmapEntry Image { get; set; }

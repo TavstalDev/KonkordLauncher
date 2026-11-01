@@ -17,14 +17,15 @@ using Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models;
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 /// <summary>
-///     Represents the installation window in the application, which implements the <see cref="IProgressReporter" />
-///     interface
-///     to report progress and status updates during installation.
+///     A dialog window that shows progress and status text during long tasks.
 /// </summary>
 public partial class ProgressWindow : KonkordWindow<ProgressViewModel>, IKonkordProgress
 {
     private readonly ITranslationService _translationService = null!;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="ProgressWindow" /> class for the designer.
+    /// </summary>
     public ProgressWindow()
     {
         InitializeComponent();
@@ -32,6 +33,13 @@ public partial class ProgressWindow : KonkordWindow<ProgressViewModel>, IKonkord
             DataContext = new ProgressViewModel();
     }
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="ProgressWindow" /> class with the given services.
+    /// </summary>
+    /// <param name="translationService">The service used to translate text.</param>
+    /// <param name="bitmapService">The service used to load bitmaps.</param>
+    /// <param name="cancellationTokenSource">The source used to cancel the running task,
+    ///     or <see langword="null" /> when the task cannot be cancelled.</param>
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public ProgressWindow(ITranslationService translationService, IBitmapService bitmapService,
@@ -58,6 +66,10 @@ public partial class ProgressWindow : KonkordWindow<ProgressViewModel>, IKonkord
 
     #region IProgressReporter Implementation
 
+    /// <summary>
+    ///     Updates the progress bar with the given value.
+    /// </summary>
+    /// <param name="progress">The progress value as a percentage.</param>
     public void Report(double progress)
     {
         Dispatcher.UIThread.Post(() =>
@@ -68,6 +80,12 @@ public partial class ProgressWindow : KonkordWindow<ProgressViewModel>, IKonkord
         });
     }
 
+    /// <summary>
+    ///     Updates the progress bar for the current file.
+    /// </summary>
+    /// <param name="progress">The progress value as a percentage.</param>
+    /// <param name="fileName">The name of the file being handled.</param>
+    /// <param name="downloading">true when the file is downloaded; false when it is read.</param>
     public void Report(double progress, string fileName, bool downloading = true)
     {
         Dispatcher.UIThread.Post(() =>
@@ -79,6 +97,11 @@ public partial class ProgressWindow : KonkordWindow<ProgressViewModel>, IKonkord
         });
     }
 
+    /// <summary>
+    ///     Updates the progress bar and shows the status text for the given kind of work.
+    /// </summary>
+    /// <param name="kind">The kind of work that is running.</param>
+    /// <param name="progress">The progress value as a percentage.</param>
     public void Report(EProgressKind kind, double progress)
     {
         Dispatcher.UIThread.Post(() =>
@@ -91,6 +114,10 @@ public partial class ProgressWindow : KonkordWindow<ProgressViewModel>, IKonkord
         });
     }
 
+    /// <summary>
+    ///     Shows the translated text for the given key.
+    /// </summary>
+    /// <param name="key">The translation key.</param>
     public void Report(string key)
     {
         Dispatcher.UIThread.Post(() =>
@@ -101,6 +128,12 @@ public partial class ProgressWindow : KonkordWindow<ProgressViewModel>, IKonkord
         });
     }
 
+    /// <summary>
+    ///     Updates the progress bar and shows a translated text for the given key.
+    /// </summary>
+    /// <param name="progress">The progress value as a percentage.</param>
+    /// <param name="key">The translation key.</param>
+    /// <param name="args">The values used in the translated text.</param>
     public void Report(double progress, string key, params object[]? args)
     {
         Dispatcher.UIThread.Post(() =>
@@ -112,6 +145,10 @@ public partial class ProgressWindow : KonkordWindow<ProgressViewModel>, IKonkord
         });
     }
 
+    /// <summary>
+    ///     Sets the number of tasks that are expected.
+    /// </summary>
+    /// <param name="count">The number of tasks, or <see langword="null" /> to clear the value.</param>
     public void ReportExpectedTask(int? count)
     {
         Dispatcher.UIThread.Post(() =>
@@ -124,6 +161,9 @@ public partial class ProgressWindow : KonkordWindow<ProgressViewModel>, IKonkord
         });
     }
 
+    /// <summary>
+    ///     Marks one task as completed.
+    /// </summary>
     public void ReportTaskCompleted()
     {
         Dispatcher.UIThread.Post(() =>

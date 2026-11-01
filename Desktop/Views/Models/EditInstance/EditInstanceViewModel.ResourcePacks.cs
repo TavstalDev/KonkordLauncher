@@ -28,6 +28,9 @@ using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
+/// <summary>
+///     Handles the resource packs tab of the instance editor.
+/// </summary>
 public partial class EditInstanceViewModel_ResourcePacks : KonkordObservableObject
 {
     private readonly IBitmapService _bitmapService = null!;
@@ -39,6 +42,9 @@ public partial class EditInstanceViewModel_ResourcePacks : KonkordObservableObje
 
     private readonly SourceCache<ResourceBaseModel, string> _resourcePackCache = new(x => x.Name);
 
+    /// <summary>
+    ///     Creates the view-model and sets up the resource pack filter.
+    /// </summary>
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public EditInstanceViewModel_ResourcePacks()
@@ -71,6 +77,14 @@ public partial class EditInstanceViewModel_ResourcePacks : KonkordObservableObje
         FilteredResourcePacks = packs;
     }
 
+    /// <summary>
+    ///     Creates the view-model for one instance.
+    /// </summary>
+    /// <param name="instance">The instance being edited.</param>
+    /// <param name="getGameDirectory">Returns the game directory of the instance.</param>
+    /// <param name="launcherStore">The store used to save instance data.</param>
+    /// <param name="bitmapService">The service used to load and release icons.</param>
+    /// <param name="dialogService">The service used to show dialogs.</param>
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public EditInstanceViewModel_ResourcePacks(InstanceModel instance, Func<string?> getGameDirectory,
@@ -88,14 +102,30 @@ public partial class EditInstanceViewModel_ResourcePacks : KonkordObservableObje
         _dialogService = dialogService;
     }
 
+    /// <summary>
+    ///     Gets the resource packs that match the current search text.
+    /// </summary>
     public ReadOnlyObservableCollection<ResourceBaseModel> FilteredResourcePacks { get; } = null!;
 
+    /// <summary>
+    ///     Gets or sets the selected resource pack.
+    /// </summary>
     [ObservableProperty] public partial ResourceBaseModel? SelectedResourcePack { get; set; }
 
+    /// <summary>
+    ///     Gets or sets the text used to filter the resource packs.
+    /// </summary>
     [ObservableProperty] public partial string SearchQuery { get; set; } = string.Empty;
 
+    /// <summary>
+    ///     Raised after the resource pack list changes, with the resource type that changed.
+    /// </summary>
     public event EventHandler<EResourceType>? OnResourcesUpdated;
 
+    /// <summary>
+    ///     Releases the resource pack icons and clears the cache.
+    /// </summary>
+    /// <param name="disposing">True when the object is disposed by code.</param>
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
@@ -107,11 +137,19 @@ public partial class EditInstanceViewModel_ResourcePacks : KonkordObservableObje
         SelectedResourcePack = null;
     }
 
+    /// <summary>
+    ///     Loads the resource packs of the instance.
+    /// </summary>
+    /// <param name="cancellationToken">The token used to cancel the operation.</param>
+    /// <returns>A task that completes when the resource packs are loaded.</returns>
     public async Task InitAsync(CancellationToken cancellationToken = default)
     {
         await Dispatcher.UIThread.Invoke(async () => await RefreshResourcePacksAsync());
     }
 
+    /// <summary>
+    ///     Renames resource pack files on disk to match their enabled state.
+    /// </summary>
     public void SaveResourcePacks()
     {
         _logger.LogDebug("Saving resource packs...");
@@ -148,6 +186,10 @@ public partial class EditInstanceViewModel_ResourcePacks : KonkordObservableObje
         }
     }
 
+    /// <summary>
+    ///     Reads the resourcepacks folder again and rebuilds the list.
+    /// </summary>
+    /// <returns>A task that completes when the list is rebuilt.</returns>
     public async Task RefreshResourcePacksAsync()
     {
         var gameDir = _getGameDirectory.Invoke();

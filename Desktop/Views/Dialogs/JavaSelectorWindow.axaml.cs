@@ -11,15 +11,24 @@ using JavaSelectorViewModel = Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Mode
 namespace Tavstal.KonkordLauncher.Desktop.Views.Dialogs;
 
 /// <summary>
-///     Represents a window for selecting a Java version.
+///     A dialog window for choosing a Java version.
 /// </summary>
 public partial class JavaSelectorWindow : KonkordWindow<JavaSelectorViewModel>
 {
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="JavaSelectorWindow" /> class for the designer.
+    /// </summary>
     public JavaSelectorWindow()
     {
         InitializeComponent();
     }
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="JavaSelectorWindow" /> class
+    ///     with the given view model.
+    /// </summary>
+    /// <param name="viewModel">The view model that holds the window data.</param>
+    /// <param name="bitmapService">The service used to load bitmaps.</param>
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public JavaSelectorWindow(JavaSelectorViewModel viewModel, IBitmapService bitmapService) : base(bitmapService)

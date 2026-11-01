@@ -3,16 +3,16 @@ using System.Text.Json.Serialization;
 namespace Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 
 /// <summary>
-///     Represents a patch note with a title, content, and a URL for more details.
+///     Holds a patch note with a title, content, and URL.
 /// </summary>
 public class PatchNote
 {
     /// <summary>
-    ///     Initializes a new instance of the <see cref="PatchNote" /> class with the specified title, content, and URL.
+    ///     Creates a new patch note.
     /// </summary>
     /// <param name="title">The title of the patch note.</param>
-    /// <param name="content">The content or description of the patch note.</param>
-    /// <param name="url">The URL for more information about the patch note.</param>
+    /// <param name="content">The content of the patch note.</param>
+    /// <param name="url">The URL with more details.</param>
     public PatchNote(string title, string content, string url)
     {
         Title = title;
@@ -28,7 +28,7 @@ public class PatchNote
     public string Title { get; set; }
 
     /// <summary>
-    ///     Gets or sets the title of the patch note. This is used for display purposes.
+    ///     Sets the title from the alternate JSON field.
     /// </summary>
     [JsonPropertyName("tag_name")]
     [JsonInclude]
@@ -38,13 +38,13 @@ public class PatchNote
     }
 
     /// <summary>
-    ///     Gets or sets the content or description of the patch note.
+    ///     Gets or sets the content of the patch note.
     /// </summary>
     [JsonPropertyName("content")]
     public string Content { get; set; }
 
     /// <summary>
-    ///     Gets or sets the content or description of the patch note.
+    ///     Sets the content from the alternate JSON field.
     /// </summary>
     [JsonPropertyName("body")]
     [JsonInclude]
@@ -54,13 +54,13 @@ public class PatchNote
     }
 
     /// <summary>
-    ///     Gets or sets the URL for more information about the patch note.
+    ///     Gets or sets the URL with more details.
     /// </summary>
     [JsonPropertyName("url")]
     public string Url { get; set; }
 
     /// <summary>
-    ///     Gets or sets the URL for more information about the patch note.
+    ///     Sets the URL from the alternate JSON field.
     /// </summary>
     [JsonPropertyName("html_url")]
     [JsonInclude]

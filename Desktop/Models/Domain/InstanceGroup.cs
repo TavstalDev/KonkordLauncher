@@ -3,16 +3,14 @@ using System.Collections.ObjectModel;
 namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
 
 /// <summary>
-///     Groups a set of instances under a common display name.
-///     Used to present instances grouped in the UI (for example by profile, source, or category).
+///     A named group of instances, used to group them in the UI.
 /// </summary>
 public class InstanceGroup
 {
     /// <summary>
-    ///     Initializes a new <see cref="InstanceGroup" /> with the specified group name.
-    ///     The <see cref="Instances" /> collection is initialized empty.
+    ///     Creates a group with the given name and an empty instance list.
     /// </summary>
-    /// <param name="name">The display name for the group.</param>
+    /// <param name="name">The group name.</param>
     public InstanceGroup(string name)
     {
         GroupName = name;
@@ -20,13 +18,12 @@ public class InstanceGroup
     }
 
     /// <summary>
-    ///     Display name of the group (e.g. "Vanilla", "Modded", "Favorites").
+    ///     Gets or sets the group name.
     /// </summary>
     public string GroupName { get; set; }
 
     /// <summary>
-    ///     Collection of instances that belong to this group.
-    ///     The collection is created and owned by this object; it can be observed for changes by the UI.
+    ///     Gets the instances in this group.
     /// </summary>
     public ObservableCollection<InstanceModel> Instances { get; }
 }

@@ -34,6 +34,10 @@ using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.CreateInstance;
 
+/// <summary>
+///     A view model for the Custom tab of the Create Instance window. It lets the user pick a Minecraft version,
+///     an optional mod loader and an icon.
+/// </summary>
 public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
 {
     private readonly IBitmapService _bitmapService = null!;
@@ -45,6 +49,9 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
     private readonly IScreenService _screenService = null!;
     private readonly ITranslationService _translationService = null!;
 
+    /// <summary>
+    ///     Creates an empty view model for the XAML designer.
+    /// </summary>
     public CreateInstanceViewModel_Custom()
     {
         MinecraftVersions =
@@ -52,6 +59,16 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
         InstanceIcon = ImageHelper.LoadDesignTime("avares://KonkordLauncher/Assets/Icons/dirt.png");
     }
 
+    /// <summary>
+    ///     Creates the view model with the services it needs.
+    /// </summary>
+    /// <param name="screenService">The service that provides the screen size.</param>
+    /// <param name="launcherStore">The store for launcher data.</param>
+    /// <param name="translationService">The service that translates text.</param>
+    /// <param name="manifestService">The service that loads version manifests.</param>
+    /// <param name="bitmapService">The service that loads and releases images.</param>
+    /// <param name="eventService">The service that raises and listens to events.</param>
+    /// <param name="dialogService">The service that shows dialogs.</param>
     public CreateInstanceViewModel_Custom(IScreenService screenService,
         ILauncherStore launcherStore, ITranslationService translationService,
         IManifestService manifestService, IBitmapService bitmapService, IEventService eventService,
@@ -76,24 +93,35 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
         _dialogService = dialogService;
     }
 
+    /// <summary>
+    ///     Gets or sets the name of the new instance.
+    /// </summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))]
     public partial string InstanceName { get; set; } = string.Empty;
 
+    /// <summary>
+    ///     Gets or sets the group of the new instance.
+    /// </summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))]
     public partial string InstanceGroup { get; set; } = string.Empty;
 
+    /// <summary>
+    ///     Gets or sets the file path of the selected icon.
+    /// </summary>
     [ObservableProperty] public partial string? InstanceIconPath { get; set; }
 
+    /// <summary>
+    ///     Gets or sets the icon of the new instance.
+    /// </summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))]
     public partial BitmapEntry InstanceIcon { get; set; }
 
     /// <summary>
-    ///     Gets a value indicating whether a custom instance can be created.
-    ///     Returns true if all required fields (instance name, icon, selected Minecraft version,
-    ///     and, if applicable, selected mod loader) are set; otherwise, false.
+    ///     Gets a value that indicates whether a custom instance can be created. This is true when a name, a Minecraft
+    ///     version and, for modded instances, a mod loader are selected.
     /// </summary>
     public bool CanCreateCustomInstance
     {
@@ -113,8 +141,12 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
         }
     }
 
+    /// <summary>
+    ///     Raised when the user wants to close the window.
+    /// </summary>
     public event EventHandler? OnCloseRequested;
 
+    /// <inheritdoc />
     protected override void Dispose(bool disposing)
     {
         if (disposing)
@@ -129,6 +161,9 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
         base.Dispose(disposing);
     }
 
+    /// <summary>
+    ///     Starts the live filtering of Minecraft versions and mod loader versions.
+    /// </summary>
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public void SetupPipeline()
@@ -230,6 +265,12 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
         #endregion
     }
 
+    /// <summary>
+    ///     Loads the version manifests and fills the version lists.
+    /// </summary>
+    /// <param name="settings">The launcher settings.</param>
+    /// <param name="versionManifest">The Minecraft version manifest.</param>
+    /// <param name="cancellationToken">The token that can cancel the operation.</param>
     public async Task InitAsync(CoreConfig settings, VersionManifest versionManifest,
         CancellationToken cancellationToken = default)
     {
@@ -284,20 +325,45 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
     #region Vanilla
 
     private readonly SourceCache<MinecraftVersion, string> _minecraftVersionCache = new(x => x.Id);
+
+    /// <summary>
+    ///     Gets the Minecraft versions that match the current filter.
+    /// </summary>
     public ReadOnlyObservableCollection<MinecraftVersion> MinecraftVersions { get; private set; }
 
+    /// <summary>
+    ///     Gets or sets the text used to filter Minecraft versions.
+    /// </summary>
     [ObservableProperty] public partial string SearchQuery { get; set; } = string.Empty;
 
+    /// <summary>
+    ///     Gets or sets a value that indicates whether release versions are shown.
+    /// </summary>
     [ObservableProperty] public partial bool ShowReleases { get; set; } = true;
 
+    /// <summary>
+    ///     Gets or sets a value that indicates whether snapshot versions are shown.
+    /// </summary>
     [ObservableProperty] public partial bool ShowSnapshots { get; set; }
 
+    /// <summary>
+    ///     Gets or sets a value that indicates whether old alpha versions are shown.
+    /// </summary>
     [ObservableProperty] public partial bool ShowAlphas { get; set; }
 
+    /// <summary>
+    ///     Gets or sets a value that indicates whether old beta versions are shown.
+    /// </summary>
     [ObservableProperty] public partial bool ShowBetas { get; set; }
 
+    /// <summary>
+    ///     Gets or sets a value that indicates whether experiment versions are shown.
+    /// </summary>
     [ObservableProperty] public partial bool ShowExperiments { get; set; }
 
+    /// <summary>
+    ///     Gets or sets the selected Minecraft version.
+    /// </summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))]
     public partial MinecraftVersion? SelectedMinecraftVersion { get; set; }
@@ -306,12 +372,21 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
 
     #region Mod Loader
 
+    /// <summary>
+    ///     Gets or sets the text used to filter mod loader versions.
+    /// </summary>
     [ObservableProperty] public partial string ModLoaderSearchQuery { get; set; } = string.Empty;
 
+    /// <summary>
+    ///     Gets or sets the mod loader type for the new instance.
+    /// </summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))]
     public partial EMinecraftKind ModLoaderType { get; set; } = EMinecraftKind.VANILLA;
 
+    /// <summary>
+    ///     Gets or sets the selected mod loader version.
+    /// </summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanCreateCustomInstance))]
     public partial IModManifest? SelectedModLoader { get; set; }
@@ -319,6 +394,9 @@ public partial class CreateInstanceViewModel_Custom : KonkordObservableObject
     private readonly SourceCache<IModManifest, string> _modLoaderVersionCache =
         new(x => $"{x.LoaderKind}:{x.GameVersion}:{x.Version}");
 
+    /// <summary>
+    ///     Gets the mod loader versions that match the current filter.
+    /// </summary>
     public ReadOnlyObservableCollection<IModManifest> ModLoaderVersionResult { get; private set; } = new([]);
 
     private static readonly IComparer<IModManifest> ModVersionComparer =

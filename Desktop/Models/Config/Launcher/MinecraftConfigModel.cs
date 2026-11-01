@@ -3,23 +3,23 @@ using CommunityToolkit.Mvvm.ComponentModel;
 namespace Tavstal.KonkordLauncher.Desktop.Models.Config.Launcher;
 
 /// <summary>
-///     Represents the configuration model for Minecraft settings in the launcher.
+///     Holds the Minecraft settings for the launcher.
 /// </summary>
 public partial class MinecraftConfigModel : ObservableObject
 {
     /// <summary>
-    ///     Initializes a new instance of the <see cref="MinecraftConfigModel" /> class with default values.
+    ///     Creates a new instance with default settings.
     /// </summary>
     public MinecraftConfigModel() { }
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="MinecraftConfigModel" /> class with specified values.
+    ///     Creates a new instance with the given settings.
     /// </summary>
-    /// <param name="startMaximized">Whether the game should start maximized.</param>
+    /// <param name="startMaximized">Whether the game starts maximized.</param>
     /// <param name="windowWidth">The width of the game window.</param>
     /// <param name="windowHeight">The height of the game window.</param>
-    /// <param name="closeLauncherOnGameStart">Whether the launcher should close when the game starts.</param>
-    /// <param name="closeLauncherOnGameExit">Whether the launcher should close when the game exits.</param>
+    /// <param name="closeLauncherOnGameStart">Whether the launcher closes when the game starts.</param>
+    /// <param name="closeLauncherOnGameExit">Whether the launcher closes when the game exits.</param>
     public MinecraftConfigModel(bool startMaximized, uint windowWidth, uint windowHeight, bool closeLauncherOnGameStart,
         bool closeLauncherOnGameExit)
     {
@@ -31,7 +31,7 @@ public partial class MinecraftConfigModel : ObservableObject
     }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether the game should start maximized.
+    ///     Gets or sets a value that indicates whether the game starts maximized.
     /// </summary>
     [ObservableProperty]
     public partial bool StartMaximized { get; set; }
@@ -49,13 +49,13 @@ public partial class MinecraftConfigModel : ObservableObject
     public partial uint WindowHeight { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether the launcher should close when the game starts.
+    ///     Gets or sets a value that indicates whether the launcher closes when the game starts.
     /// </summary>
     [ObservableProperty]
     public partial bool CloseLauncherOnGameStart { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether the launcher should close when the game exits.
+    ///     Gets or sets a value that indicates whether the launcher closes when the game exits.
     /// </summary>
     [ObservableProperty]
     public partial bool CloseLauncherOnGameExit { get; set; }

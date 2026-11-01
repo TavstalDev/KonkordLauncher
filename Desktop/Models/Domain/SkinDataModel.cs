@@ -4,22 +4,22 @@ using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
 
 /// <summary>
-///     Lightweight model representing a player's skin (or cape) data for UI consumption.
+///     A player skin that the UI can show.
 /// </summary>
 public class SkinDataModel
 {
     /// <summary>
-    ///     Parameterless constructor for serializers and manual initialization.
+    ///     Creates an empty skin model.
     /// </summary>
     public SkinDataModel() { }
 
     /// <summary>
-    ///     Creates a new <see cref="SkinDataModel" /> with specified values.
+    ///     Creates a skin model with the given values.
     /// </summary>
-    /// <param name="id">Skin identifier.</param>
-    /// <param name="variant">Skin variant (e.g. "classic" or "slim").</param>
-    /// <param name="image">Loaded skin image. May be null if not available.</param>
-    /// <param name="isSelected">Initial selected state in the UI.</param>
+    /// <param name="id">The skin ID.</param>
+    /// <param name="variant">The skin variant, such as "classic" or "slim".</param>
+    /// <param name="image">The skin image.</param>
+    /// <param name="isSelected">Whether the skin is selected at start.</param>
     public SkinDataModel(string id, string variant, BitmapEntry image, bool isSelected)
     {
         Id = id;
@@ -29,29 +29,29 @@ public class SkinDataModel
     }
 
     /// <summary>
-    ///     Unique identifier for the skin resource (typically the Mojang-provided ID).
+    ///     Gets or sets the skin ID.
     /// </summary>
     public string Id { get; set; } = string.Empty;
 
     /// <summary>
-    ///     Variant of the skin (for example "classic" or "slim"). Mirrors Mojang API naming.
+    ///     Gets or sets the skin variant, such as "classic" or "slim".
     /// </summary>
     public string Variant { get; set; } = string.Empty;
 
     /// <summary>
-    ///     Loaded image for the skin. May be null if loading failed or not provided.
-    ///     Dispose this object when the model is no longer used by calling <see cref="Dispose" />.
+    ///     Gets or sets the skin image.
     /// </summary>
     public BitmapEntry Image { get; set; } = new(null, null);
 
     /// <summary>
-    ///     Whether this skin is currently selected in the UI.
+    ///     Gets or sets a value that indicates whether the skin is selected.
     /// </summary>
     public bool IsSelected { get; set; }
 
     /// <summary>
-    ///     Releases resources held by this model. Disposes the <see cref="Image" /> bitmap if present.
+    ///     Releases the skin image.
     /// </summary>
+    /// <param name="bitmapService">The service used to release the image.</param>
     public void Dispose(IBitmapService bitmapService)
     {
         if (Image.IsEmpty())

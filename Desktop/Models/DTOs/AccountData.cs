@@ -5,7 +5,7 @@ using Tavstal.BeaconSDK.Models.Accounts;
 namespace Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 
 /// <summary>
-///     Represents account data, including a collection of accounts and the ID of the selected account.
+///     Holds the saved accounts and the selected account.
 /// </summary>
 public class AccountData
 {
@@ -16,7 +16,7 @@ public class AccountData
     public string SelectedAccountId { get; set; } = string.Empty;
 
     /// <summary>
-    ///     Gets or sets the list of accounts
+    ///     Gets or sets the saved accounts.
     /// </summary>
     [JsonPropertyName("accounts")]
     public List<Account> Accounts { get; set; } = [];

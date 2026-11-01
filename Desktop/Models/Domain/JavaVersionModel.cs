@@ -4,23 +4,22 @@ using Tavstal.BeaconSDK.Models.Java;
 namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
 
 /// <summary>
-///     Represents a model for a Java version, including its major version, full version string,
-///     architecture, and installation path.
+///     A Java version with its major version, full version text, architecture, and path.
 /// </summary>
 public partial class JavaVersionModel : ObservableObject
 {
     /// <summary>
-    ///     Initializes a new instance of the <see cref="JavaVersionModel" /> class.
+    ///     Creates an empty Java version model.
     /// </summary>
     public JavaVersionModel() { }
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="JavaVersionModel" /> class with the specified properties.
+    ///     Creates a Java version model with the given values.
     /// </summary>
-    /// <param name="major">The major version of the Java installation.</param>
-    /// <param name="version">The full version string of the Java installation.</param>
-    /// <param name="architecture">The architecture of the Java installation.</param>
-    /// <param name="path">The file system path to the Java installation.</param>
+    /// <param name="major">The major version.</param>
+    /// <param name="version">The full version text.</param>
+    /// <param name="architecture">The architecture.</param>
+    /// <param name="path">The install path.</param>
     public JavaVersionModel(int major, string version, string architecture, string path)
     {
         Major = major;
@@ -30,10 +29,9 @@ public partial class JavaVersionModel : ObservableObject
     }
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="JavaVersionModel" /> class from an existing <see cref="JavaVersion" />
-    ///     object.
+    ///     Creates a Java version model from an existing <see cref="JavaVersion" />.
     /// </summary>
-    /// <param name="javaVersion">The <see cref="JavaVersion" /> object to copy properties from.</param>
+    /// <param name="javaVersion">The Java version to copy.</param>
     public JavaVersionModel(JavaVersion javaVersion)
     {
         Major = javaVersion.Major;
@@ -43,25 +41,25 @@ public partial class JavaVersionModel : ObservableObject
     }
 
     /// <summary>
-    ///     The major version of the Java installation.
+    ///     Gets or sets the major version.
     /// </summary>
     [ObservableProperty]
     public partial int Major { get; set; }
 
     /// <summary>
-    ///     The full version string of the Java installation.
+    ///     Gets or sets the full version text.
     /// </summary>
     [ObservableProperty]
     public partial string Version { get; set; }
 
     /// <summary>
-    ///     The architecture of the Java installation (e.g., x86, x64).
+    ///     Gets or sets the architecture, such as x86 or x64.
     /// </summary>
     [ObservableProperty]
     public partial string Architecture { get; set; }
 
     /// <summary>
-    ///     The file system path to the Java installation.
+    ///     Gets or sets the Java install path.
     /// </summary>
     [ObservableProperty]
     public partial string Path { get; set; }

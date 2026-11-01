@@ -18,14 +18,25 @@ using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
+/// <summary>
+///     Handles the servers tab of the instance editor.
+/// </summary>
 public partial class EditInstanceViewModel_Servers : KonkordObservableObject
 {
     private readonly IBitmapService _bitmapService = null!;
     private readonly Func<string?> _getGameDirectory = () => null;
     private readonly IBeaconLogger _logger = null!;
 
+    /// <summary>
+    ///     Creates an empty view-model.
+    /// </summary>
     public EditInstanceViewModel_Servers() { }
 
+    /// <summary>
+    ///     Creates the view-model for one instance.
+    /// </summary>
+    /// <param name="getGameDirectory">Returns the game directory of the instance.</param>
+    /// <param name="bitmapService">The service used to load and release icons.</param>
     public EditInstanceViewModel_Servers(Func<string?> getGameDirectory, IBitmapService bitmapService) : this()
     {
         _getGameDirectory = getGameDirectory;
@@ -33,14 +44,30 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
         _bitmapService = bitmapService;
     }
 
+    /// <summary>
+    ///     Gets or sets the name of the server to add.
+    /// </summary>
     [ObservableProperty] public partial string ServerName { get; set; } = string.Empty;
 
+    /// <summary>
+    ///     Gets or sets the address of the server to add.
+    /// </summary>
     [ObservableProperty] public partial string ServerIp { get; set; } = string.Empty;
 
+    /// <summary>
+    ///     Gets or sets the servers saved for the instance.
+    /// </summary>
     public ObservableCollection<ServerModel> Servers { get; set; } = [];
 
+    /// <summary>
+    ///     Gets or sets the selected server.
+    /// </summary>
     [ObservableProperty] public partial ServerModel? SelectedServer { get; set; }
 
+    /// <summary>
+    ///     Releases the server icons and clears the list.
+    /// </summary>
+    /// <param name="disposing">True when the object is disposed by code.</param>
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
@@ -52,12 +79,20 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
         SelectedServer = null;
     }
 
+    /// <summary>
+    ///     Loads the saved servers.
+    /// </summary>
+    /// <param name="cancellationToken">The token used to cancel the operation.</param>
+    /// <returns>A task that completes when the servers are loaded.</returns>
     public Task InitAsync(CancellationToken cancellationToken = default)
     {
         RefreshServers();
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    ///     Writes the server list to the servers.dat file.
+    /// </summary>
     public void SaveServers()
     {
         _logger.LogDebug("Saving servers to servers.dat file...");
@@ -102,6 +137,9 @@ public partial class EditInstanceViewModel_Servers : KonkordObservableObject
         }
     }
 
+    /// <summary>
+    ///     Reads the servers.dat file and rebuilds the server list.
+    /// </summary>
     public void RefreshServers()
     {
         var gameDir = _getGameDirectory.Invoke();

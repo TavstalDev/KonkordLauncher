@@ -18,6 +18,9 @@ using Tavstal.KonkordLauncher.Desktop.Translation;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.MainView;
 
+/// <summary>
+///     The view model for the settings page. It edits and saves the launcher configuration.
+/// </summary>
 public partial class MainViewModel_Config : KonkordObservableObject
 {
     private readonly IDialogService _dialogService = null!;
@@ -27,12 +30,23 @@ public partial class MainViewModel_Config : KonkordObservableObject
     private readonly IBeaconLogger _logger = null!;
     private readonly ITranslationService _translationService = null!;
 
+    /// <summary>
+    ///     Creates a view model for the XAML designer.
+    /// </summary>
     public MainViewModel_Config()
     {
         CoreConfig = new CoreConfigModel(new LauncherConfigModel(), new JavaConfigModel(),
             new MinecraftConfigModel(), new MiscConfigModel());
     }
 
+    /// <summary>
+    ///     Creates the settings view model with its services.
+    /// </summary>
+    /// <param name="launcherStore">The store that reads and saves launcher data.</param>
+    /// <param name="eventService">The service that raises launcher events.</param>
+    /// <param name="filePickerService">The service that opens file and folder pickers.</param>
+    /// <param name="dialogService">The service that shows dialogs.</param>
+    /// <param name="translationService">The service that translates text.</param>
     public MainViewModel_Config(ILauncherStore launcherStore, IEventService eventService,
         IFilePickerService filePickerService, IDialogService dialogService, ITranslationService translationService)
     {
@@ -47,8 +61,16 @@ public partial class MainViewModel_Config : KonkordObservableObject
         _translationService = translationService;
     }
 
+    /// <summary>
+    ///     Gets or sets the configuration model that is shown on the settings page.
+    /// </summary>
     [ObservableProperty] public partial CoreConfigModel CoreConfig { get; set; } = null!;
 
+    /// <summary>
+    ///     Loads the given configuration into the view model.
+    /// </summary>
+    /// <param name="settings">The configuration to show.</param>
+    /// <returns>A task that represents the operation.</returns>
     public Task InitAsync(CoreConfig settings)
     {
         CoreConfig = new CoreConfigModel(settings);
@@ -57,22 +79,9 @@ public partial class MainViewModel_Config : KonkordObservableObject
     }
 
     /// <summary>
-    ///     Opens a folder picker dialog to select a directory and updates the corresponding configuration path
-    ///     based on the provided index.
+    ///     Opens a folder picker and updates the path setting that matches the given index.
     /// </summary>
-    /// <param name="rawIndex">
-    ///     The index representing the configuration path to update:
-    ///     <br />0 - AssetsDirectoryPath,
-    ///     <br />1 - CacheDirectoryPath,
-    ///     <br />2 - InstancesDirectoryPath,
-    ///     <br />3 - IconsDirectoryPath,
-    ///     <br />4 - JavaDirectoryPath,
-    ///     <br />5 - LibrariesDirectoryPath,
-    ///     <br />6 - ManifestsDirectoryPath,
-    ///     <br />7 - TranslationsDirectoryPath,
-    ///     <br />8 - VersionsDirectoryPath,
-    ///     <br />9 - DefaultJavaPath.
-    /// </param>
+    /// <param name="rawIndex">The index of the path setting to change, from 0 to 9.</param>
     [RelayCommand]
     private async Task ConfigDirSelectAsync(string rawIndex)
     {
@@ -139,8 +148,7 @@ public partial class MainViewModel_Config : KonkordObservableObject
     }
 
     /// <summary>
-    ///     Opens a Java selector window to choose a Java version and updates the default Java path
-    ///     in the configuration with the selected version's path.
+    ///     Opens the Java selector and sets the chosen Java path.
     /// </summary>
     [RelayCommand]
     private async Task JavaPathSelectorAsync()
@@ -153,9 +161,9 @@ public partial class MainViewModel_Config : KonkordObservableObject
     }
 
     /// <summary>
-    ///     Subscribes to property change events for the child configuration objects.
+    ///     Subscribes to changes in the child configuration objects.
     /// </summary>
-    /// <param name="config">The core configuration model to subscribe to.</param>
+    /// <param name="config">The configuration model to watch.</param>
     private void SubscribeToCoreConfigChildren(CoreConfigModel config)
     {
         config.Launcher.PropertyChanged += OnChildConfigPropertyChanged;
@@ -165,9 +173,9 @@ public partial class MainViewModel_Config : KonkordObservableObject
     }
 
     /// <summary>
-    ///     Unsubscribes from property change events for the child configuration objects.
+    ///     Stops watching changes in the child configuration objects.
     /// </summary>
-    /// <param name="config">The core configuration model to unsubscribe from.</param>
+    /// <param name="config">The configuration model to stop watching.</param>
     private void UnsubscribeFromCoreConfigChildren(CoreConfigModel config)
     {
         config.Launcher.PropertyChanged -= OnChildConfigPropertyChanged;
@@ -177,10 +185,10 @@ public partial class MainViewModel_Config : KonkordObservableObject
     }
 
     /// <summary>
-    ///     Handles changes to the core configuration model, unsubscribing from the old value and subscribing to the new value.
+    ///     Handles a new configuration model. It stops watching the old model and starts watching the new one.
     /// </summary>
-    /// <param name="oldValue">The previous core configuration model.</param>
-    /// <param name="newValue">The new core configuration model.</param>
+    /// <param name="oldValue">The previous configuration model.</param>
+    /// <param name="newValue">The new configuration model.</param>
     partial void OnCoreConfigChanged(CoreConfigModel? oldValue, CoreConfigModel newValue)
     {
         if (Design.IsDesignMode)
@@ -197,10 +205,10 @@ public partial class MainViewModel_Config : KonkordObservableObject
     }
 
     /// <summary>
-    ///     Handles property change events for child configuration objects and saves the updated configuration to a file.
+    ///     Saves the configuration when a child setting changes. It also applies theme and language changes.
     /// </summary>
-    /// <param name="sender">The object that triggered the property change event.</param>
-    /// <param name="e">The event data associated with the property change.</param>
+    /// <param name="sender">The object that raised the event.</param>
+    /// <param name="e">The event data.</param>
     private void OnChildConfigPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (Design.IsDesignMode)

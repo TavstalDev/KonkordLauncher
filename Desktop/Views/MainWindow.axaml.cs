@@ -14,6 +14,9 @@ using MainViewModel = Tavstal.KonkordLauncher.Desktop.Views.Models.MainViewModel
 namespace Tavstal.KonkordLauncher.Desktop.Views;
 
 // ReSharper disable once PartialTypeWithSinglePart
+/// <summary>
+///     The main window of the launcher.
+/// </summary>
 public partial class MainWindow : KonkordWindow<MainViewModel>
 {
     private readonly IDiscordPresenceService _discordPresenceService = null!;
@@ -21,12 +24,24 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
 
     private Button _selectedSideBarButton;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="MainWindow" /> class.
+    /// </summary>
     public MainWindow()
     {
         InitializeComponent();
         _selectedSideBarButton = PlaySideBtn;
     }
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="MainWindow" /> class with the
+    ///     given view model and services.
+    /// </summary>
+    /// <param name="viewModel">The view model that controls the window.</param>
+    /// <param name="discordPresenceService">The service used to update the Discord presence.</param>
+    /// <param name="topLevelProvider">The provider that tracks the active top-level window.</param>
+    /// <param name="dialogService">The service used to show dialogs.</param>
+    /// <param name="bitmapService">The service used to load and release bitmaps.</param>
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public MainWindow(MainViewModel viewModel,

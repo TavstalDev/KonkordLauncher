@@ -3,12 +3,12 @@ using CommunityToolkit.Mvvm.ComponentModel;
 namespace Tavstal.KonkordLauncher.Desktop.Models.Config.Instance;
 
 /// <summary>
-///     Represents the configuration model for game-specific settings of a Minecraft instance.
+///     Holds the game settings for an instance.
 /// </summary>
 public partial class InstanceGameConfigModel : ObservableObject
 {
     /// <summary>
-    ///     Initializes a new instance of the <see cref="InstanceGameConfigModel" /> class with default values.
+    ///     Creates a new instance with default settings.
     /// </summary>
     public InstanceGameConfigModel()
     {
@@ -24,17 +24,17 @@ public partial class InstanceGameConfigModel : ObservableObject
     }
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="InstanceGameConfigModel" /> class with specified values.
+    ///     Creates a new instance with the given settings.
     /// </summary>
-    /// <param name="startMaximized">Whether the game should start maximized.</param>
+    /// <param name="startMaximized">Whether the game starts maximized.</param>
     /// <param name="windowWidth">The width of the game window.</param>
     /// <param name="windowHeight">The height of the game window.</param>
-    /// <param name="showConsoleWhileGameRunning">Whether the console should be shown while the game is running.</param>
-    /// <param name="closeConsoleOnGameExit">Whether the console should close automatically when the game exits.</param>
-    /// <param name="showConsoleWhenGameCrashes">Whether the console should be shown when the game crashes.</param>
-    /// <param name="enableMangoHud">Whether MangoHud should be enabled.</param>
-    /// <param name="enableFeralGameMode">Whether Feral GameMode should be enabled.</param>
-    /// <param name="useDedicatedGpu">Whether a dedicated GPU should be used.</param>
+    /// <param name="showConsoleWhileGameRunning">Whether the console is shown while the game runs.</param>
+    /// <param name="closeConsoleOnGameExit">Whether the console closes when the game exits.</param>
+    /// <param name="showConsoleWhenGameCrashes">Whether the console is shown when the game crashes.</param>
+    /// <param name="enableMangoHud">Whether MangoHud is enabled.</param>
+    /// <param name="enableFeralGameMode">Whether Feral GameMode is enabled.</param>
+    /// <param name="useDedicatedGpu">Whether the game uses the dedicated GPU.</param>
     public InstanceGameConfigModel(bool startMaximized, uint windowWidth, uint windowHeight,
         bool showConsoleWhileGameRunning, bool closeConsoleOnGameExit, bool showConsoleWhenGameCrashes,
         bool enableMangoHud, bool enableFeralGameMode, bool useDedicatedGpu)
@@ -51,7 +51,7 @@ public partial class InstanceGameConfigModel : ObservableObject
     }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether the game should start maximized.
+    ///     Gets or sets a value that indicates whether the game starts maximized.
     /// </summary>
     [ObservableProperty]
     public partial bool StartMaximized { get; set; }
@@ -69,37 +69,37 @@ public partial class InstanceGameConfigModel : ObservableObject
     public partial uint WindowHeight { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether the console should be shown while the game is running.
+    ///     Gets or sets a value that indicates whether the console is shown while the game runs.
     /// </summary>
     [ObservableProperty]
     public partial bool ShowConsoleWhileGameRunning { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether the console should close automatically when the game exits.
+    ///     Gets or sets a value that indicates whether the console closes when the game exits.
     /// </summary>
     [ObservableProperty]
     public partial bool CloseConsoleOnGameExit { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether the console should be shown when the game crashes.
+    ///     Gets or sets a value that indicates whether the console is shown when the game crashes.
     /// </summary>
     [ObservableProperty]
     public partial bool ShowConsoleWhenGameCrashes { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether MangoHud should be enabled.
+    ///     Gets or sets a value that indicates whether MangoHud is enabled.
     /// </summary>
     [ObservableProperty]
     public partial bool EnableMangoHud { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether Feral GameMode should be enabled.
+    ///     Gets or sets a value that indicates whether Feral GameMode is enabled.
     /// </summary>
     [ObservableProperty]
     public partial bool EnableFeralGameMode { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether a dedicated GPU should be used.
+    ///     Gets or sets a value that indicates whether the game uses the dedicated GPU.
     /// </summary>
     [ObservableProperty]
     public partial bool UseDedicatedGpu { get; set; }

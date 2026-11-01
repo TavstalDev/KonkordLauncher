@@ -20,8 +20,7 @@ using Tavstal.KonkordLauncher.Desktop.Views.Models;
 namespace Tavstal.KonkordLauncher.Desktop.Views;
 
 /// <summary>
-///     Represents the AccountsWindow, a partial class that serves as the main window for managing accounts.
-///     Implements the IProgressReporter interface to handle progress updates.
+///     The window used to sign in to and manage launcher accounts.
 /// </summary>
 public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IKonkordProgress
 {
@@ -30,11 +29,24 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IKonkord
     private readonly IMicrosoftHttpAuthService _microsoftHttpAuthService = null!;
     private readonly ITranslationService _translationService = null!;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="AccountsWindow" /> class.
+    /// </summary>
     public AccountsWindow()
     {
         InitializeComponent();
     }
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="AccountsWindow" /> class with the
+    ///     given view model and services.
+    /// </summary>
+    /// <param name="viewModel">The view model that controls the window.</param>
+    /// <param name="translationService">The service used to translate text.</param>
+    /// <param name="microsoftAuthService">The service used to sign in with a Microsoft account.</param>
+    /// <param name="microsoftDeviceAuthService">The service used for Microsoft device sign-in.</param>
+    /// <param name="microsoftHttpAuthService">The service used to listen for Microsoft sign-in responses.</param>
+    /// <param name="bitmapService">The service used to load and release bitmaps.</param>
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public AccountsWindow(AccountsViewModel viewModel, ITranslationService translationService,
@@ -66,10 +78,9 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IKonkord
     }
 
     /// <summary>
-    ///     Handles changes in the authentication status for Microsoft accounts.
-    ///     Updates the UI and performs necessary actions based on the new status.
+    ///     Handles a change in the Microsoft sign-in status and updates the view model on the UI thread.
     /// </summary>
-    /// <param name="status">The new authentication status.</param>
+    /// <param name="status">The new sign-in status.</param>
     private void OnAuthStatusChanged(EAuthStatus status)
     {
         Dispatcher.UIThread.Invoke(() =>
@@ -83,10 +94,9 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IKonkord
     #region Events
 
     /// <summary>
-    ///     Handles the cleanup and resource deallocation when the window is closing.
-    ///     Unsubscribes from events and stops any active listeners to ensure proper disposal.
+    ///     Stops account listeners and removes event handlers when the window closes.
     /// </summary>
-    /// <param name="e">Provides data for the window closing event.</param>
+    /// <param name="e">The data for the closing event.</param>
     protected override void OnClosing(WindowClosingEventArgs e)
     {
         OfflineUsernameInput.TextChanged -= OfflineUsername_OnTextChanged;
@@ -100,11 +110,9 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IKonkord
     }
 
     /// <summary>
-    ///     Handles the text changed event for the offline username input field.
-    ///     Ensures that the input contains only alphanumeric characters and underscores.
-    ///     If invalid characters are detected, they are removed, and the caret position is adjusted accordingly.
+    ///     Keeps only letters, digits, and underscores in the offline username box.
     /// </summary>
-    /// <param name="sender">The source of the event, expected to be a TextBox.</param>
+    /// <param name="sender">The source of the event, which is expected to be a <see cref="TextBox" />.</param>
     /// <param name="e">The event data.</param>
     private void OfflineUsername_OnTextChanged(object? sender, TextChangedEventArgs e)
     {
@@ -127,6 +135,10 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IKonkord
 
     #region Progress Reporter
 
+    /// <summary>
+    ///     Sets the progress value shown in the window.
+    /// </summary>
+    /// <param name="progress">The progress value from 0 to 100.</param>
     public void Report(double progress)
     {
         Dispatcher.UIThread.Post(() =>
@@ -137,6 +149,14 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IKonkord
         });
     }
 
+    /// <summary>
+    ///     Reports progress for a single file operation.
+    /// </summary>
+    /// <param name="progress">The progress value from 0 to 100.</param>
+    /// <param name="fileName">The name of the file being processed.</param>
+    /// <param name="downloading">
+    ///     <see langword="true" /> if the file is being downloaded; otherwise, <see langword="false" />.
+    /// </param>
     public void Report(double progress, string fileName, bool downloading = true)
     {
         Dispatcher.UIThread.Post(() =>
@@ -148,6 +168,11 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IKonkord
         });
     }
 
+    /// <summary>
+    ///     Sets the progress value and a translated status text for an operation step.
+    /// </summary>
+    /// <param name="kind">The type of the operation step.</param>
+    /// <param name="progress">The progress value from 0 to 100.</param>
     public void Report(EProgressKind kind, double progress)
     {
         Dispatcher.UIThread.Post(() =>
@@ -160,6 +185,10 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IKonkord
         });
     }
 
+    /// <summary>
+    ///     Sets the status text from a translation key.
+    /// </summary>
+    /// <param name="key">The translation key of the status text.</param>
     public void Report(string key)
     {
         Dispatcher.UIThread.Post(() =>
@@ -170,6 +199,12 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IKonkord
         });
     }
 
+    /// <summary>
+    ///     Sets the progress value and a translated status text.
+    /// </summary>
+    /// <param name="progress">The progress value from 0 to 100.</param>
+    /// <param name="key">The translation key of the status text.</param>
+    /// <param name="args">The values used to fill placeholders in the translation.</param>
     public void Report(double progress, string key, params object[]? args)
     {
         Dispatcher.UIThread.Post(() =>
@@ -181,11 +216,18 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IKonkord
         });
     }
 
+    /// <summary>
+    ///     Does nothing in this window, because it does not show a task count.
+    /// </summary>
+    /// <param name="count">The expected number of tasks. The value is ignored.</param>
     public void ReportExpectedTask(int? count)
     {
         /* ignored */
     }
 
+    /// <summary>
+    ///     Does nothing in this window, because it does not show a task count.
+    /// </summary>
     public void ReportTaskCompleted()
     {
         /* ignored */

@@ -26,12 +26,16 @@ using Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models;
 
 /// <summary>
-///     Represents the view model for editing a Minecraft instance.
-///     Provides properties and methods for managing mods, resource packs, shader packs, worlds, servers, and screenshots.
+///     A view model for the Edit Instance window. It holds the tabs for logs, mods, resource packs, shader packs,
+///     worlds, servers, screenshots and settings.
 /// </summary>
 public partial class EditInstanceViewModel : KonkordObservableObject
 {
     private const int MaxLogLines = 1000;
+
+    /// <summary>
+    ///     The instance that is being edited.
+    /// </summary>
     public readonly InstanceModel Instance = null!;
     private readonly IEncryptionService _encryptionService = null!;
     private readonly IEventService _eventService = null!;
@@ -40,6 +44,9 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     private readonly IBeaconLogger _logger = null!;
     private readonly IScreenService _screenService = null!;
 
+    /// <summary>
+    ///     Creates an empty view model for the XAML designer.
+    /// </summary>
     public EditInstanceViewModel()
     {
         Mods = new EditInstanceViewModel_Mods();
@@ -51,6 +58,19 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         Worlds = new EditInstanceViewModel_Worlds();
     }
 
+    /// <summary>
+    ///     Creates the view model for an instance and its tabs.
+    /// </summary>
+    /// <param name="instance">The instance to edit.</param>
+    /// <param name="logger">The logger for this view model.</param>
+    /// <param name="launcherStore">The store for launcher data.</param>
+    /// <param name="eventService">The service that raises and listens to events.</param>
+    /// <param name="bitmapService">The service that loads and releases images.</param>
+    /// <param name="translationService">The service that translates text.</param>
+    /// <param name="encryptionService">The service that encrypts and decrypts data.</param>
+    /// <param name="screenService">The service that provides the screen size.</param>
+    /// <param name="dialogService">The service that shows dialogs.</param>
+    /// <param name="filePickerService">The service that opens file pickers.</param>
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public EditInstanceViewModel(InstanceModel instance, IBeaconLogger<EditInstanceViewModel> logger,

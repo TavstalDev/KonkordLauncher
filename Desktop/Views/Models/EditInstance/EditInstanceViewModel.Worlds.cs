@@ -24,6 +24,9 @@ using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.EditInstance;
 
+/// <summary>
+///     Handles the worlds tab of the instance editor.
+/// </summary>
 public partial class EditInstanceViewModel_Worlds : KonkordObservableObject
 {
     private readonly IBitmapService _bitmapService = null!;
@@ -31,8 +34,17 @@ public partial class EditInstanceViewModel_Worlds : KonkordObservableObject
     private readonly Func<string?> _getGameDirectory = () => null;
     private readonly IBeaconLogger _logger = null!;
 
+    /// <summary>
+    ///     Creates an empty view-model.
+    /// </summary>
     public EditInstanceViewModel_Worlds() { }
 
+    /// <summary>
+    ///     Creates the view-model for one instance.
+    /// </summary>
+    /// <param name="getGameDirectory">Returns the game directory of the instance.</param>
+    /// <param name="bitmapService">The service used to load and release icons.</param>
+    /// <param name="filePickerService">The service used to work with files and the clipboard.</param>
     public EditInstanceViewModel_Worlds(Func<string?> getGameDirectory, IBitmapService bitmapService,
         IFilePickerService filePickerService) : this()
     {
@@ -45,10 +57,20 @@ public partial class EditInstanceViewModel_Worlds : KonkordObservableObject
         _filePickerService = filePickerService;
     }
 
+    /// <summary>
+    ///     Gets or sets the worlds found in the instance folder.
+    /// </summary>
     public ObservableCollection<WorldModel> Worlds { get; set; } = [];
 
+    /// <summary>
+    ///     Gets or sets the selected world.
+    /// </summary>
     [ObservableProperty] public partial WorldModel? SelectedWorld { get; set; }
 
+    /// <summary>
+    ///     Releases the world icons and clears the list.
+    /// </summary>
+    /// <param name="disposing">True when the object is disposed by code.</param>
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
@@ -60,6 +82,11 @@ public partial class EditInstanceViewModel_Worlds : KonkordObservableObject
         SelectedWorld = null;
     }
 
+    /// <summary>
+    ///     Loads the worlds of the instance.
+    /// </summary>
+    /// <param name="cancellationToken">The token used to cancel the operation.</param>
+    /// <returns>A task that completes when the worlds are loaded.</returns>
     public Task InitAsync(CancellationToken cancellationToken = default)
     {
         try
@@ -73,6 +100,12 @@ public partial class EditInstanceViewModel_Worlds : KonkordObservableObject
         }
     }
 
+    /// <summary>
+    ///     Creates a copy of a world and gives it a new name.
+    /// </summary>
+    /// <param name="world">The world to copy.</param>
+    /// <param name="cancellationToken">The token used to cancel the operation.</param>
+    /// <returns>A task that completes when the copy is created.</returns>
     public async Task DuplicateWorldAsync(WorldModel world, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Saving worlds...");
@@ -161,6 +194,9 @@ public partial class EditInstanceViewModel_Worlds : KonkordObservableObject
         }
     }
 
+    /// <summary>
+    ///     Saves changes to world names and folders.
+    /// </summary>
     public void SaveWorlds()
     {
         _logger.LogDebug("Saving worlds...");
@@ -247,6 +283,9 @@ public partial class EditInstanceViewModel_Worlds : KonkordObservableObject
         }
     }
 
+    /// <summary>
+    ///     Reads the saves folder again and rebuilds the world list.
+    /// </summary>
     public void RefreshWorlds()
     {
         var gameDir = _getGameDirectory.Invoke();
@@ -340,6 +379,11 @@ public partial class EditInstanceViewModel_Worlds : KonkordObservableObject
 
     #region Events
 
+    /// <summary>
+    ///     Saves the worlds when the collection changes.
+    /// </summary>
+    /// <param name="sender">The source of the event.</param>
+    /// <param name="e">The event data.</param>
     public void WorldsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         SaveWorlds();

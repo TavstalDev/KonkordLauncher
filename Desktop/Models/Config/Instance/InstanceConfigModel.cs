@@ -7,13 +7,12 @@ using Tavstal.KonkordLauncher.Desktop.Models.DTOs.InstanceConfig;
 namespace Tavstal.KonkordLauncher.Desktop.Models.Config.Instance;
 
 /// <summary>
-///     Represents the configuration model for an instance, including Java, game, commands, environment, and miscellaneous
-///     settings.
+///     Holds all configuration settings for an instance.
 /// </summary>
 public partial class InstanceConfigModel : ObservableObject
 {
     /// <summary>
-    ///     Initializes a new instance of the <see cref="InstanceConfigModel" /> class with default values.
+    ///     Creates a new instance with default settings.
     /// </summary>
     public InstanceConfigModel()
     {
@@ -26,14 +25,14 @@ public partial class InstanceConfigModel : ObservableObject
     }
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="InstanceConfigModel" /> class with specified values.
+    ///     Creates a new instance with the given settings.
     /// </summary>
-    /// <param name="java">The Java configuration for the instance.</param>
-    /// <param name="game">The game configuration for the instance.</param>
-    /// <param name="commands">The commands configuration for the instance.</param>
-    /// <param name="enableEnvironment">Whether the environment variables are enabled.</param>
-    /// <param name="environment">The environment variables for the instance.</param>
-    /// <param name="misc">The miscellaneous configuration for the instance.</param>
+    /// <param name="java">The Java settings.</param>
+    /// <param name="game">The game settings.</param>
+    /// <param name="commands">The command settings.</param>
+    /// <param name="enableEnvironment">Whether environment variables are enabled.</param>
+    /// <param name="environment">The environment variables.</param>
+    /// <param name="misc">The other settings.</param>
     public InstanceConfigModel(JavaConfigModel java, InstanceGameConfigModel game, InstanceCommandsConfigModel commands,
         bool enableEnvironment, List<EnvironmentVariable> environment, InstanceMiscConfigModel misc)
     {
@@ -46,9 +45,9 @@ public partial class InstanceConfigModel : ObservableObject
     }
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="InstanceConfigModel" /> class using an existing configuration object.
+    ///     Creates a new instance from an existing configuration.
     /// </summary>
-    /// <param name="config">The existing configuration object to initialize from.</param>
+    /// <param name="config">The configuration to copy.</param>
     public InstanceConfigModel(InstanceConfig config)
     {
         Java = new JavaConfigModel
@@ -93,36 +92,36 @@ public partial class InstanceConfigModel : ObservableObject
     }
 
     /// <summary>
-    ///     Gets or sets the Java configuration for the instance.
+    ///     Gets or sets the Java settings.
     /// </summary>
     [ObservableProperty]
     public partial JavaConfigModel Java { get; set; }
 
     /// <summary>
-    ///     Gets or sets the game configuration for the instance.
+    ///     Gets or sets the game settings.
     /// </summary>
     [ObservableProperty]
     public partial InstanceGameConfigModel Game { get; set; }
 
     /// <summary>
-    ///     Gets or sets the commands configuration for the instance.
+    ///     Gets or sets the command settings.
     /// </summary>
     [ObservableProperty]
     public partial InstanceCommandsConfigModel Commands { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether the environment variables are enabled.
+    ///     Gets or sets a value that indicates whether environment variables are enabled.
     /// </summary>
     [ObservableProperty]
     public partial bool EnableEnvironment { get; set; }
 
     /// <summary>
-    ///     Gets or sets the environment variables for the instance.
+    ///     Gets or sets the environment variables.
     /// </summary>
     public ObservableCollection<EnvironmentVariable> Environment { get; set; }
 
     /// <summary>
-    ///     Gets or sets the miscellaneous configuration for the instance.
+    ///     Gets or sets the other settings.
     /// </summary>
     [ObservableProperty]
     public partial InstanceMiscConfigModel Misc { get; set; }

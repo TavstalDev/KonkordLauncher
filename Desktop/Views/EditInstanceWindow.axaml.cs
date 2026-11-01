@@ -21,6 +21,9 @@ using Tavstal.KonkordLauncher.Desktop.Views.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views;
 
+/// <summary>
+///     The window used to view and change the settings of a game instance.
+/// </summary>
 public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
 {
     private readonly IDiscordPresenceService _discordPresenceService = null!;
@@ -30,6 +33,9 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
     private Button _selectedInstanceTab;
     private Button _selectedSettingsTab;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="EditInstanceWindow" /> class.
+    /// </summary>
     public EditInstanceWindow()
     {
         InitializeComponent();
@@ -37,6 +43,15 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
         _selectedSettingsTab = JavaSettingsBtn;
     }
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="EditInstanceWindow" /> class with the
+    ///     given view model and services.
+    /// </summary>
+    /// <param name="viewModel">The view model that controls the window.</param>
+    /// <param name="logger">The logger used by the window.</param>
+    /// <param name="eventService">The service used to raise application events.</param>
+    /// <param name="discordPresenceService">The service used to update the Discord presence.</param>
+    /// <param name="bitmapService">The service used to load and release bitmaps.</param>
     [RequiresUnreferencedCode(
         "Trimming may break this functionality if not configured to preserve the necessary members.")]
     public EditInstanceWindow(EditInstanceViewModel viewModel, IBeaconLogger<EditInstanceWindow> logger,
@@ -97,12 +112,20 @@ public partial class EditInstanceWindow : KonkordWindow<EditInstanceViewModel>
         });
     }
 
+    /// <summary>
+    ///     Sets the Discord presence to show that an instance is being edited.
+    /// </summary>
+    /// <param name="e">The event data.</param>
     protected override void OnOpened(EventArgs e)
     {
         base.OnOpened(e);
         _discordPresenceService.Update("Editing instance...");
     }
 
+    /// <summary>
+    ///     Resets the Discord presence and tells listeners that the instance changed.
+    /// </summary>
+    /// <param name="e">The event data.</param>
     protected override void OnClosed(EventArgs e)
     {
         base.OnClosed(e);

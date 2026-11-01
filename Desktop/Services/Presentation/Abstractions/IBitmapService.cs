@@ -5,41 +5,40 @@ using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 namespace Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 
 /// <summary>
-///     Centralized service to manage Bitmap lifecycles, caching, and proactive unloading.
+///     Keeps bitmaps in a cache and releases them when they are no longer used.
 /// </summary>
 public interface IBitmapService
 {
     /// <summary>
-    ///     Loads a bitmap from a URI (e.g., avares://) or local path.
-    ///     Returns an existing instance if already cached.
+    ///     Loads a bitmap from a resource URI or a local path.
+    ///     If the bitmap is already cached, the cached copy is returned.
     /// </summary>
-    /// <returns>
-    ///     An <see cref="Bitmap" /> that wraps the loaded bitmap and participates in the service-managed cache/lifecycle.
-    /// </returns>
+    /// <param name="path">The resource URI or local file path.</param>
+    /// <param name="decodeWidth">The width used when the image is decoded.</param>
+    /// <returns>The loaded <see cref="BitmapEntry" />. The cache keeps track of it.</returns>
     BitmapEntry GetBitmap(string path, int decodeWidth = 256);
 
     /// <summary>
-    ///     Retrieves a cached bitmap representation for the provided Base64-encoded image string.
-    ///     If the image has already been decoded and cached, the existing cached instance is returned.
+    ///     Loads a bitmap from a Base64-encoded image string.
+    ///     If the image is already cached, the cached copy is returned.
     /// </summary>
-    /// <returns>
-    ///     An <see cref="Bitmap" /> that wraps the decoded bitmap and participates in the
-    ///     service-managed cache/lifecycle.
-    /// </returns>
+    /// <param name="key">The cache key for the image.</param>
+    /// <param name="base64Image">The Base64-encoded image data.</param>
+    /// <param name="decodeWidth">The width used when the image is decoded.</param>
+    /// <returns>The loaded <see cref="BitmapEntry" />. The cache keeps track of it.</returns>
     BitmapEntry GetBitmapBase64(string key, string base64Image, int decodeWidth = 256);
 
     /// <summary>
-    ///     Asynchronously loads a bitmap, ideal for web URLs or large local files.
+    ///     Loads a bitmap from a web address or a local file. This is best for large files.
     /// </summary>
-    /// <returns>
-    ///     A task that resolves to an <see cref="Bitmap" /> wrapping the loaded bitmap, which participates in the
-    ///     service-managed cache/lifecycle.
-    /// </returns>
+    /// <param name="uri">The web address or local file path.</param>
+    /// <param name="decodeWidth">The width used when the image is decoded.</param>
+    /// <returns>A task that returns the loaded <see cref="BitmapEntry" />.</returns>
     Task<BitmapEntry> GetBitmapAsync(string uri, int decodeWidth = 256);
 
     /// <summary>
-    ///     Releases a previously-acquired bitmap reference from the service's cache using the provided key.
+    ///     Releases one use of a cached bitmap. The bitmap is removed when no uses remain.
     /// </summary>
-    /// <param name="key">The unique cache key that identifies the bitmap to release.</param>
+    /// <param name="key">The cache key of the bitmap.</param>
     void Release(string key);
 }

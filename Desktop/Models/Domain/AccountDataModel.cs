@@ -7,14 +7,14 @@ using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 namespace Tavstal.KonkordLauncher.Desktop.Models.Domain;
 
 /// <summary>
-///     Represents the data model for account management, including selected account ID and a collection of accounts.
+///     Holds the list of accounts and the ID of the selected account.
 /// </summary>
 public partial class AccountDataModel : ObservableObject
 {
     private ObservableCollection<AccountModel> _accounts;
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="AccountDataModel" /> class with default values.
+    ///     Creates an empty account model.
     /// </summary>
     public AccountDataModel()
     {
@@ -24,10 +24,10 @@ public partial class AccountDataModel : ObservableObject
     }
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="AccountDataModel" /> class from an existing <see cref="AccountData" />
-    ///     object.
+    ///     Creates an account model from existing account data.
     /// </summary>
-    /// <param name="data">The account data to initialize from.</param>
+    /// <param name="data">The account data to copy.</param>
+    /// <param name="encryptionService">The service used to read the protected tokens.</param>
     public AccountDataModel(AccountData data, IEncryptionService encryptionService)
     {
         SelectedAccountId = data.SelectedAccountId;
@@ -38,13 +38,13 @@ public partial class AccountDataModel : ObservableObject
     }
 
     /// <summary>
-    ///     The ID of the currently selected account.
+    ///     Gets or sets the ID of the selected account.
     /// </summary>
     [ObservableProperty]
     public partial string? SelectedAccountId { get; set; }
 
     /// <summary>
-    ///     Gets or sets the collection of accounts. Updates the collection changed event handler when set.
+    ///     Gets or sets the list of accounts.
     /// </summary>
     public ObservableCollection<AccountModel> Accounts
     {
@@ -57,13 +57,12 @@ public partial class AccountDataModel : ObservableObject
     }
 
     /// <summary>
-    ///     Gets a value indicating whether there are any accounts available.
+    ///     Gets a value that indicates whether the list has any accounts.
     /// </summary>
     public bool HasAccounts => Accounts.Count > 0;
 
     /// <summary>
-    ///     Handles the collection changed event for the accounts collection.
-    ///     Updates the <see cref="HasAccounts" /> property when the collection changes.
+    ///     Updates <see cref="HasAccounts" /> when the account list changes.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="e">The event data.</param>

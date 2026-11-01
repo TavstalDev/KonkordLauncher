@@ -26,7 +26,7 @@ using ModrinthJsonContext = Tavstal.KonkordLauncher.Desktop.Serialization.Modrin
 namespace Tavstal.KonkordLauncher.Desktop.Services.Instances;
 
 /// <summary>
-///     Implements Modrinth package import and export operations for <c>.mrpack</c> archives.
+///     Imports and exports Modrinth packages stored as <c>.mrpack</c> files.
 /// </summary>
 // ReSharper disable once ClassNeverInstantiated.Global
 public class ModrinthPackageService : IPackageService
@@ -36,11 +36,11 @@ public class ModrinthPackageService : IPackageService
     private readonly IBeaconLogger _logger;
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="ModrinthPackageService" /> class.
+    ///     Creates a new instance of the <see cref="ModrinthPackageService" /> class.
     /// </summary>
-    /// <param name="logger">Logger instance for recording diagnostic, warning, and error messages.</param>
-    /// <param name="httpService">Service for performing HTTP operations such as downloading files from URLs.</param>
-    /// <param name="launcherStore">Service for accessing and modifying launcher data such as instances and settings.</param>
+    /// <param name="logger">The logger for package operations.</param>
+    /// <param name="httpService">The service used to download files.</param>
+    /// <param name="launcherStore">The store for launcher data.</param>
     public ModrinthPackageService(IBeaconLogger<ModrinthPackageService> logger, IHttpService httpService,
         ILauncherStore launcherStore)
     {
@@ -385,13 +385,13 @@ public class ModrinthPackageService : IPackageService
     }
 
     /// <summary>
-    ///     Recursively copies a file node and its children from the game directory to the package's overrides directory.
+    ///     Copies a file or folder and its children to the package overrides folder.
     /// </summary>
-    /// <param name="overridesDir">The root overrides directory inside the temporary package layout where files are copied.</param>
-    /// <param name="gameDir">The base game directory path used to compute relative override paths.</param>
-    /// <param name="fileNode">The file or directory node to copy. It may be a file or directory with children.</param>
-    /// <param name="cancellationToken">Cancellation token observed during the copy operation.</param>
-    /// <returns>A task that completes when the node and all its children have been copied.</returns>
+    /// <param name="overridesDir">The overrides folder in the temporary package.</param>
+    /// <param name="gameDir">The game folder used to build relative paths.</param>
+    /// <param name="fileNode">The file or folder to copy.</param>
+    /// <param name="cancellationToken">A token that cancels the copy.</param>
+    /// <returns>A task that completes when the copy is done.</returns>
     private static async Task CopyNodeToOverridesAsync(string overridesDir, string gameDir, FileNode fileNode,
         CancellationToken cancellationToken = default)
     {

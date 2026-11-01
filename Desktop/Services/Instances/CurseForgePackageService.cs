@@ -24,7 +24,7 @@ using CurseForgeJsonContext = Tavstal.KonkordLauncher.Desktop.Serialization.Curs
 namespace Tavstal.KonkordLauncher.Desktop.Services.Instances;
 
 /// <summary>
-///     Implements CurseForge package import and export operations for <c>.zip</c> archives.
+///     Imports and exports CurseForge packages stored as <c>.zip</c> files.
 /// </summary>
 public class CurseForgePackageService : IPackageService
 {
@@ -32,6 +32,12 @@ public class CurseForgePackageService : IPackageService
     private readonly ILauncherStore _launcherStore;
     private readonly IBeaconLogger _logger;
 
+    /// <summary>
+    ///     Creates a new instance of the <see cref="CurseForgePackageService" /> class.
+    /// </summary>
+    /// <param name="logger">The logger for package operations.</param>
+    /// <param name="httpService">The service used to download files.</param>
+    /// <param name="launcherStore">The store for launcher data.</param>
     public CurseForgePackageService(IBeaconLogger<CurseForgePackageService> logger, IHttpService httpService,
         ILauncherStore launcherStore)
     {
@@ -286,13 +292,13 @@ public class CurseForgePackageService : IPackageService
     }
 
     /// <summary>
-    ///     Recursively copies a file node and its children from the game directory to the package's overrides directory.
+    ///     Copies a file or folder and its children to the package overrides folder.
     /// </summary>
-    /// <param name="overridesDir">The root overrides directory inside the temporary package layout where files are copied.</param>
-    /// <param name="gameDir">The base game directory path used to compute relative override paths.</param>
-    /// <param name="fileNode">The file or directory node to copy. It may be a file or directory with children.</param>
-    /// <param name="cancellationToken">Cancellation token observed during the copy operation.</param>
-    /// <returns>A task that completes when the node and all its children have been copied.</returns>
+    /// <param name="overridesDir">The overrides folder in the temporary package.</param>
+    /// <param name="gameDir">The game folder used to build relative paths.</param>
+    /// <param name="fileNode">The file or folder to copy.</param>
+    /// <param name="cancellationToken">A token that cancels the copy.</param>
+    /// <returns>A task that completes when the copy is done.</returns>
     private static async Task CopyNodeToOverridesAsync(string overridesDir, string gameDir, FileNode fileNode,
         CancellationToken cancellationToken = default)
     {

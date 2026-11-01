@@ -3,12 +3,12 @@ using System.Text.Json.Serialization;
 namespace Tavstal.KonkordLauncher.Desktop.Models.DTOs.InstanceConfig;
 
 /// <summary>
-///     Represents the configuration for custom commands executed at different stages of a game instance lifecycle.
+///     Holds the commands that run at different stages of an instance.
 /// </summary>
 public class InstanceCommandsConfig
 {
     /// <summary>
-    ///     Initializes a new instance of the <see cref="InstanceCommandsConfig" /> class with default values.
+    ///     Creates a new instance with default values.
     /// </summary>
     public InstanceCommandsConfig()
     {
@@ -18,11 +18,11 @@ public class InstanceCommandsConfig
     }
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="InstanceCommandsConfig" /> class with specified values.
+    ///     Creates a new instance with the given commands.
     /// </summary>
-    /// <param name="preLaunchCommand">The command to be executed before the game launches.</param>
-    /// <param name="wrapperCommand">The wrapper command to be executed during the game runtime.</param>
-    /// <param name="postExitCommand">The command to be executed after the game exits.</param>
+    /// <param name="preLaunchCommand">The command to run before the game starts.</param>
+    /// <param name="wrapperCommand">The command that wraps the game process.</param>
+    /// <param name="postExitCommand">The command to run after the game exits.</param>
     public InstanceCommandsConfig(string preLaunchCommand, string wrapperCommand, string postExitCommand)
     {
         PreLaunchCommand = preLaunchCommand;
@@ -31,19 +31,19 @@ public class InstanceCommandsConfig
     }
 
     /// <summary>
-    ///     Gets or sets the command to be executed before the game launches.
+    ///     Gets or sets the command to run before the game starts.
     /// </summary>
     [JsonPropertyName("preLaunchCommand")]
     public string PreLaunchCommand { get; set; }
 
     /// <summary>
-    ///     Gets or sets the wrapper command to be executed during the game runtime.
+    ///     Gets or sets the command that wraps the game process.
     /// </summary>
     [JsonPropertyName("wrapperCommand")]
     public string WrapperCommand { get; set; }
 
     /// <summary>
-    ///     Gets or sets the command to be executed after the game exits.
+    ///     Gets or sets the command to run after the game exits.
     /// </summary>
     [JsonPropertyName("postExitCommand")]
     public string PostExitCommand { get; set; }

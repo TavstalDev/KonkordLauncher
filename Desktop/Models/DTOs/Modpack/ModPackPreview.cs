@@ -1,12 +1,11 @@
 using System.Threading.Tasks;
 using Modrinth.Models;
-using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 using Tavstal.KonkordLauncher.Desktop.Services.Content;
 using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 
-namespace Tavstal.KonkordLauncher.Desktop.Models.Instance;
+namespace Tavstal.KonkordLauncher.Desktop.Models.DTOs.Modpack;
 
-public class ModPackPreviewModel
+public class ModPackPreview
 {
     public string ProjectId { get; set; } = string.Empty;
 
@@ -20,7 +19,7 @@ public class ModPackPreviewModel
 
     public string[] Tags { get; set; } = [];
 
-    public static async Task<ModPackPreviewModel> FromModrinthProjectAsync(Project project,
+    public static async Task<ModPackPreview> FromModrinthProjectAsync(Project project,
         IMetaCacheService metaCacheService, IBitmapService bitmapService)
     {
         BitmapEntry icon;
@@ -36,7 +35,7 @@ public class ModPackPreviewModel
                 icon = localIcon;
         }
 
-        return new ModPackPreviewModel
+        return new ModPackPreview
         {
             ProjectId = project.Id,
             Name = project.Title,

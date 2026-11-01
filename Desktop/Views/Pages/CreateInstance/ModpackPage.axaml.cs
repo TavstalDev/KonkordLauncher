@@ -44,6 +44,17 @@ public partial class ModpackPage : UserControl
         Dispatcher.Invoke(async () => await viewModel.Modpack.RefreshModpacksAsync(true));
     }
 
+    private void Category_OnIsCheckedChanged(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is not CreateInstanceViewModel viewModel)
+            return;
+
+        if (!viewModel.Modpack.AllowScrollbarRefresh)
+            return;
+
+        Dispatcher.Invoke(async () => await viewModel.Modpack.RefreshModpacksAsync(true));
+    }
+
     private void OnListScrolled(object? sender, ScrollChangedEventArgs e)
     {
         if (_refreshing)

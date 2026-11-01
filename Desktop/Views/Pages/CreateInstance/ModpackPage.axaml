@@ -10,6 +10,7 @@
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
     xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Instance"
     xmlns:md="clr-namespace:MarkView.Avalonia;assembly=MarkView.Avalonia"
+    xmlns:modpack="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.DTOs.Modpack"
     x:Name="Root"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -132,7 +133,8 @@
                                     <DataTemplate x:DataType="models:CategoryModel">
                                         <CheckBox Classes="InstanceModCategory"
                                                   Content="{Binding DisplayName}"
-                                                  IsChecked="{Binding IsChecked}" />
+                                                  IsChecked="{Binding IsChecked}"
+                                                  IsCheckedChanged="Category_OnIsCheckedChanged"/>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
@@ -165,7 +167,7 @@
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                             <ListBox.ItemTemplate>
-                                <DataTemplate x:DataType="models:ModPackPreviewModel">
+                                <DataTemplate x:DataType="modpack:ModPackPreview">
                                     <Border Classes="InstanceModCard">
                                         <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
                                             <Image Width="35" Height="35"
@@ -223,10 +225,10 @@
                     Classes="TextDropdown"
                     ItemsSource="{Binding Modpack.SelectedModpackVersions}"
                     PlaceholderText="{lang:Translate instance.create.modpack.select}"
-                    SelectedIndex="{Binding Modpack.SelectedModpackVersionIndex}">
+                    SelectedItem="{Binding Modpack.SelectedModpackSelectedVersion}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding .}" />
+                            <TextBlock Text="{Binding Name}" />
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
                 </ComboBox>

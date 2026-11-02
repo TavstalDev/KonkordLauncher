@@ -27,5 +27,5 @@ public class ServerModel : MinecraftServer
     ///     Gets the bitmap representation of the server's icon.
     ///     If the icon is null, this property returns null.
     /// </summary>
-    public BitmapEntry Image { get; set; }
+    public BitmapEntry Image { get; set; } = new(null, null);
 }

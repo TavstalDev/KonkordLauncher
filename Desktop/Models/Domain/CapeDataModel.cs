@@ -53,6 +53,7 @@ public class CapeDataModel
     ///     Releases the cape image.
     /// </summary>
     /// <param name="bitmapService">The service used to release the image.</param>
+    public void Dispose(IBitmapService bitmapService)
     {
         if (Image.IsEmpty())
             return;

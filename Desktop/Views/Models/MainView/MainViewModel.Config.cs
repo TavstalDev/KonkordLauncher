@@ -176,8 +176,10 @@ public partial class MainViewModel_Config : KonkordObservableObject
     ///     Stops watching changes in the child configuration objects.
     /// </summary>
     /// <param name="config">The configuration model to stop watching.</param>
-    private void UnsubscribeFromCoreConfigChildren(CoreConfigModel config)
+    private void UnsubscribeFromCoreConfigChildren(CoreConfigModel? config)
     {
+        if (config == null)
+            return;
         config.Launcher.PropertyChanged -= OnChildConfigPropertyChanged;
         config.Java.PropertyChanged -= OnChildConfigPropertyChanged;
         config.Minecraft.PropertyChanged -= OnChildConfigPropertyChanged;

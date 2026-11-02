@@ -133,8 +133,10 @@ public partial class EditInstanceViewModel_Settings : KonkordObservableObject
         config.Misc.PropertyChanged += OnChildConfigPropertyChanged;
     }
 
-    private void UnsubscribeFromConfigChildren(InstanceConfigModel config)
+    private void UnsubscribeFromConfigChildren(InstanceConfigModel? config)
     {
+        if (config == null)
+            return;
         config.Game.PropertyChanged -= OnChildConfigPropertyChanged;
         config.Java.PropertyChanged -= OnChildConfigPropertyChanged;
         config.Commands.PropertyChanged -= OnChildConfigPropertyChanged;

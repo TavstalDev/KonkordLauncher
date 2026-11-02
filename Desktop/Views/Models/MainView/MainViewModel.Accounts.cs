@@ -646,8 +646,10 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         accountData.PropertyChanged += OnChildAccountDataPropertyChanged;
     }
 
-    private void UnsubscribeFromAccountDataChildren(AccountDataModel accountData)
+    private void UnsubscribeFromAccountDataChildren(AccountDataModel? accountData)
     {
+        if (accountData == null)
+            return;
         accountData.PropertyChanged -= OnChildAccountDataPropertyChanged;
     }
 

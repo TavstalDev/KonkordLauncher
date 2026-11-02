@@ -93,7 +93,9 @@ public partial class ProgressWindow : KonkordWindow<ProgressViewModel>, IKonkord
             if (DataContext == null)
                 return;
             DataContext.ProgressValue = progress;
-            // TODO
+            DataContext.ProgressText = _translationService.Translate(
+                downloading ? "instance.downloading.file" : "instance.reading.file",
+                fileName, progress.ToString("0.00"));
         });
     }
 

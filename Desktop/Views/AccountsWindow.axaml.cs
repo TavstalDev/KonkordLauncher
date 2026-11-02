@@ -164,7 +164,9 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IKonkord
             if (DataContext == null)
                 return;
             DataContext.Progress = progress;
-            // TODO
+            DataContext.ProgressText = _translationService.Translate(
+                downloading ? "instance.downloading.file" : "instance.reading.file",
+                fileName, progress.ToString("0.00"));
         });
     }
 

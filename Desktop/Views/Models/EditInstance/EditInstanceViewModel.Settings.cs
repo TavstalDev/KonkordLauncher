@@ -142,13 +142,11 @@ public partial class EditInstanceViewModel_Settings : KonkordObservableObject
         config.Misc.PropertyChanged -= OnChildConfigPropertyChanged;
     }
 
-    partial void OnInstanceConfigChanged(InstanceConfigModel? oldValue, InstanceConfigModel newValue)
+    partial void OnInstanceConfigChanged(InstanceConfigModel oldValue, InstanceConfigModel newValue)
     {
         _logger.LogDebug("InstanceConfig changed with old and new value. Unsubscribing from old, subscribing to new.");
 
-        if (oldValue != null)
-            UnsubscribeFromConfigChildren(oldValue);
-
+        UnsubscribeFromConfigChildren(oldValue);
         SubscribeToConfigChildren(newValue);
 
         Task.Run(async () => await SaveCoreConfigToFileAsync(InstanceConfig));

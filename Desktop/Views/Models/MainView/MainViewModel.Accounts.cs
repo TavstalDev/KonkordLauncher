@@ -651,13 +651,11 @@ public partial class MainViewModel_Accounts : KonkordObservableObject
         accountData.PropertyChanged -= OnChildAccountDataPropertyChanged;
     }
 
-    partial void OnAccountDataChanged(AccountDataModel? oldValue, AccountDataModel newValue)
+    partial void OnAccountDataChanged(AccountDataModel oldValue, AccountDataModel newValue)
     {
         _logger.LogDebug("AccountData changed with old and new value. Unsubscribing from old, subscribing to new.");
 
-        if (oldValue != null)
-            UnsubscribeFromAccountDataChildren(oldValue);
-
+        UnsubscribeFromAccountDataChildren(oldValue);
         SubscribeToAccountDataChildren(newValue);
         SaveAccountDataToFile(newValue);
     }

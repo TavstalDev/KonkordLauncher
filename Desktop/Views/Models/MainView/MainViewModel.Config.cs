@@ -189,16 +189,14 @@ public partial class MainViewModel_Config : KonkordObservableObject
     /// </summary>
     /// <param name="oldValue">The previous configuration model.</param>
     /// <param name="newValue">The new configuration model.</param>
-    partial void OnCoreConfigChanged(CoreConfigModel? oldValue, CoreConfigModel newValue)
+    partial void OnCoreConfigChanged(CoreConfigModel oldValue, CoreConfigModel newValue)
     {
         if (Design.IsDesignMode)
             return;
 
         _logger.LogDebug("CoreConfig changed with old and new value. Unsubscribing from old, subscribing to new.");
 
-        if (oldValue != null)
-            UnsubscribeFromCoreConfigChildren(oldValue);
-
+        UnsubscribeFromCoreConfigChildren(oldValue);
         SubscribeToCoreConfigChildren(newValue);
 
         SaveCoreConfigToFile(newValue);

@@ -463,7 +463,7 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         });
     }
 
-    partial void OnInstanceNameChanged(string? value)
+    partial void OnInstanceNameChanged(string value)
     {
         CanCreateInstance = !string.IsNullOrEmpty(value) && !string.IsNullOrEmpty(InstanceName);
     }

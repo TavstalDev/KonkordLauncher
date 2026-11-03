@@ -22,6 +22,28 @@
         <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
 
+    <!--  InstancesPageContainer  -->
+    <Style Selector="ListBox.InstancesPageContainer">
+        <Setter Property="SelectionMode" Value="Single" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Padding" Value="0, 0, 15, 0" />
+    </Style>
+
+    <Style Selector="ListBox.InstancesPageContainer &gt; ListBoxItem">
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="0" />
+    </Style>
+
+    <Style Selector="ListBox.InstancesPageContainer &gt; ListBoxItem:selected /template/ ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="ListBox.InstancesPageContainer &gt; ListBoxItem:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <!--  End Of InstancesPageContainer  -->
+
     <!--  Instance Wrapper Border  -->
     <Style Selector="Border.InstanceWrapper">
         <Setter Property="Background" Value="{DynamicResource base-100}" />

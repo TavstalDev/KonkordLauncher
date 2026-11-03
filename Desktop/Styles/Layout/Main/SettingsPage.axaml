@@ -63,6 +63,28 @@
         <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
 
+    <!--  SettingsPageContainer  -->
+    <Style Selector="ListBox.SettingsPageContainer">
+        <Setter Property="SelectionMode" Value="Single" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Padding" Value="0, 0, 15, 0" />
+    </Style>
+
+    <Style Selector="ListBox.SettingsPageContainer &gt; ListBoxItem">
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="0" />
+    </Style>
+
+    <Style Selector="ListBox.SettingsPageContainer &gt; ListBoxItem:selected /template/ ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <Style Selector="ListBox.SettingsPageContainer &gt; ListBoxItem:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <!--  End Of SettingsPageContainer  -->
+
     <!--  Wrapper  -->
     <Style Selector="StackPanel.SettingsWrapper">
         <Setter Property="Spacing" Value="20" />
@@ -80,6 +102,7 @@
         <Setter Property="CornerRadius" Value="8" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Padding" Value="10" />
+        <Setter Property="Margin" Value="0, 0, 0, 20" />
     </Style>
 
     <!--  Category Title  -->

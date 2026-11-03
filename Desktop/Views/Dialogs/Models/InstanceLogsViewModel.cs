@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
 using System.Threading;
@@ -7,6 +8,7 @@ using Avalonia.Controls;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DynamicData;
 using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
@@ -27,7 +29,6 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
     {
         _instanceId = string.Empty;
         InstanceName = "Design Instance";
-        Logs = string.Empty;
     }
 
     public InstanceLogsViewModel(string instanceId, IBeaconLogger<InstanceLogsViewModel> logger,
@@ -61,8 +62,9 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
 
         // Logging setup
         _eventService.OnInstanceLogged += OnInstanceLogged;
-        Logs = _eventService.GetInstanceLogs(_instanceId);
-        if (!string.IsNullOrEmpty(Logs))
+        Logs.Clear();
+        Logs.AddRange(_eventService.GetInstanceLogs(_instanceId).Split("\n"));
+        if (Logs.Count > 0)
             await Dispatcher.UIThread.Invoke(async () => await LogsScrollToEnd.Handle(Unit.Default));
     }
 
@@ -71,7 +73,13 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
         if (instanceId != _instanceId)
             return;
 
-        Logs += logMessage;
+        string msg = logMessage.Trim();
+        if (msg.EndsWith("\n \n"))
+            msg = msg.Substring(0, msg.Length - 3);
+        else if (msg.EndsWith("\n"))
+            msg = msg.Substring(0, msg.Length - 1);
+
+        Logs.Add(msg);
         Dispatcher.UIThread.Invoke(async () => await LogsScrollToEnd.Handle(Unit.Default));
     }
 
@@ -83,7 +91,7 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
 
         InstanceName = string.Empty;
         GameDirectory = null;
-        Logs = string.Empty;
+        Logs.Clear();
     }
 
     [RelayCommand]
@@ -95,13 +103,13 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
     [RelayCommand]
     private async Task CopyLogs()
     {
-        await _filePickerService.SetClipboardTextAsync(Logs);
+        await _filePickerService.SetClipboardTextAsync(string.Join("\n", Logs));
     }
 
     [RelayCommand]
     private void ClearLogs()
     {
-        Logs = string.Empty;
+        Logs.Clear();
         _eventService.CleareInstanceLogs(_instanceId);
     }
 
@@ -124,7 +132,7 @@ public partial class InstanceLogsViewModel : KonkordObservableObject
 
     [ObservableProperty] public partial string? GameDirectory { get; set; }
 
-    [ObservableProperty] public partial string Logs { get; set; } = null!;
+    public ObservableCollection<string> Logs { get; set; } = [];
 
     #endregion
 }

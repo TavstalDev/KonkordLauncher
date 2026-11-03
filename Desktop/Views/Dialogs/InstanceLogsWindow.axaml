@@ -61,17 +61,21 @@
                             Grid.Row="0"
                             Background="{DynamicResource base-100}"
                             Classes="GridInnerContent">
-                            <ScrollViewer
+                            <ListBox
                                 Name="LogsScrollViewer"
-                                HorizontalScrollBarVisibility="Disabled"
-                                VerticalScrollBarVisibility="Auto">
-                                <TextBlock
-                                    FontFamily="Consolas"
-                                    FontSize="11"
-                                    Opacity="0.8"
-                                    Text="{Binding Logs}"
-                                    TextWrapping="Wrap" />
-                            </ScrollViewer>
+                                Classes="InstancesPageContainer"
+                                ItemsSource="{Binding Logs}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock
+                                            FontFamily="Consolas"
+                                            FontSize="11"
+                                            Opacity="0.8"
+                                            Text="{Binding .}"
+                                            TextWrapping="Wrap" />
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
                         </Border>
                         <!--  Actions  -->
                         <Grid

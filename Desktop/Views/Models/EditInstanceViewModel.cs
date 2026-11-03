@@ -157,8 +157,10 @@ public partial class EditInstanceViewModel : KonkordObservableObject
             return;
 
         string msg = logMessage.Trim();
-        if (msg.EndsWith("\n"))
-            msg = msg.ReplaceLineEndings("");
+        if (msg.EndsWith("\n \n"))
+            msg = msg.Substring(0, msg.Length - 3);
+        else if (msg.EndsWith("\n"))
+            msg = msg.Substring(0, msg.Length - 1);
 
         Logs.Add(msg);
         if (Logs.Count > MaxLogLines)

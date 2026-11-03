@@ -50,7 +50,7 @@ public partial class InstanceLogsWindow : KonkordWindow<InstanceLogsViewModel>
             }).DisposeWith(disposables);
             DataContext.LogsScrollToEnd.RegisterHandler(action =>
             {
-                LogsScrollViewer.Offset = new Vector(0, LogsScrollViewer.Extent.Height);
+                LogsScrollViewer.Scroll!.Offset = new Vector(0, LogsScrollViewer.Scroll!.Extent.Height);
                 action.SetOutput(Unit.Default);
                 return Task.CompletedTask;
             });

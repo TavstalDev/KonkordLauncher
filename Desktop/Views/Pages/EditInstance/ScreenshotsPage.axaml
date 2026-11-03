@@ -1,0 +1,105 @@
+<UserControl
+    x:Class="Tavstal.KonkordLauncher.Desktop.Views.Pages.EditInstance.ScreenshotsPage"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    x:DataType="vm:EditInstanceViewModel"
+    mc:Ignorable="d">
+    <Border Margin="25,0,25,25" Classes="SettingsCategoryBorder">
+        <Grid RowDefinitions="Auto, *, Auto">
+            <!--  Title  -->
+            <TextBlock
+                Margin="5,5,5,10"
+                Classes="SettingsCategoryText"
+                Text="{lang:Translate instance.edit.subTitle.screenshots}" />
+
+            <!--  Content  -->
+            <Border Grid.Row="1">
+                <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
+                    <DataGrid
+                        Name="ScreenshotsTable"
+                        CellEditEnded="ScreenshotCell_OnEditEnded"
+                        Classes="InstanceMultiTable"
+                        IsReadOnly="False"
+                        ItemsSource="{Binding Screenshots.Screenshots}"
+                        SelectedItem="{Binding Screenshots.SelectedScreenshot}">
+                        <DataGrid.Columns>
+                            <!--  Icon & Name  -->
+                            <DataGridTemplateColumn
+                                Width="*"
+                                Header="{lang:Translate instance.edit.table.name}"
+                                IsReadOnly="False">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image
+                                                Height="48"
+                                                MaxWidth="48"
+                                                Margin="5"
+                                                Source="{Binding Image}"
+                                                Stretch="UniformToFill" />
+                                            <TextBlock
+                                                Margin="5,0,0,0"
+                                                VerticalAlignment="Center"
+                                                Text="{Binding Name}"
+                                                TextAlignment="Center" />
+                                            <TextBlock
+                                                Margin="0,0,25,0"
+                                                VerticalAlignment="Center"
+                                                Text="{Binding Extension}"
+                                                TextAlignment="Center" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <TextBox
+                                            Margin="5,0,25,0"
+                                            VerticalAlignment="Center"
+                                            Text="{Binding Name, Mode=TwoWay}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <!--  Size  -->
+                            <DataGridTextColumn
+                                Width="Auto"
+                                Binding="{Binding FormatedSize}"
+                                Header="{lang:Translate instance.edit.table.size}"
+                                IsReadOnly="True" />
+                        </DataGrid.Columns>
+                        <DataGrid.ContextMenu>
+                            <ContextMenu>
+                                <!--  Copy  -->
+                                <MenuItem
+                                    Command="{Binding Screenshots.CopyToClipboardCommand}"
+                                    CommandParameter="{Binding Screenshots.SelectedScreenshot}"
+                                    Header="{lang:Translate common.copy}" />
+                                <!--  Delete  -->
+                                <MenuItem
+                                    Command="{Binding Screenshots.DeleteCommand}"
+                                    CommandParameter="{Binding Screenshots.SelectedScreenshot}"
+                                    Header="{lang:Translate common.delete}" />
+                                <!--  Rename  -->
+                                <MenuItem
+                                    Command="{Binding RenameScreenshotCommand}"
+                                    CommandParameter="{Binding Screenshots.SelectedScreenshot}"
+                                    Header="{lang:Translate common.rename}" />
+                                <!--  Open Directory  -->
+                                <MenuItem
+                                    Command="{Binding Screenshots.OpenDirCommand}"
+                                    CommandParameter="{Binding Screenshots.SelectedScreenshot}"
+                                    Header="{lang:Translate common.open.directory}" />
+                            </ContextMenu>
+                        </DataGrid.ContextMenu>
+                    </DataGrid>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>
+

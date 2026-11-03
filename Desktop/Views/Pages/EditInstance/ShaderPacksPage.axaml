@@ -1,0 +1,124 @@
+<UserControl
+    x:Class="Tavstal.KonkordLauncher.Desktop.Views.Pages.EditInstance.ShaderPacksPage"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    x:DataType="vm:EditInstanceViewModel"
+    mc:Ignorable="d">
+    <Border Margin="25,0,25,25" Classes="SettingsCategoryBorder">
+        <Grid RowDefinitions="Auto, *, Auto">
+            <!--  Title  -->
+            <TextBlock
+                Margin="5,5,5,10"
+                Classes="SettingsCategoryText"
+                Text="{lang:Translate instance.edit.subTitle.shaderPacks}" />
+
+            <!--  Content  -->
+            <Border Grid.Row="1">
+                <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
+                    <DataGrid
+                        Classes="InstanceMultiTable"
+                        ItemsSource="{Binding ShaderPacks.FilteredShaderPacks}"
+                        SelectedItem="{Binding ShaderPacks.SelectedShaderPack}">
+                        <DataGrid.Columns>
+                            <!--  Enabled  -->
+                            <DataGridCheckBoxColumn
+                                Width="Auto"
+                                Binding="{Binding IsEnabled}"
+                                Header="{lang:Translate instance.edit.table.enabled}"
+                                IsReadOnly="False" />
+                            <!--  Name  -->
+                            <DataGridTextColumn
+                                Width="*"
+                                Binding="{Binding Name}"
+                                Header="{lang:Translate instance.edit.table.name}" />
+                            <!--  Provider  -->
+                            <DataGridTextColumn
+                                Width="Auto"
+                                Binding="{Binding Platform}"
+                                Header="{lang:Translate instance.edit.table.provider}" />
+                            <!--  Size  -->
+                            <DataGridTextColumn
+                                Width="Auto"
+                                Binding="{Binding FormattedSize}"
+                                Header="{lang:Translate instance.edit.table.size}" />
+                        </DataGrid.Columns>
+                        <DataGrid.ContextMenu>
+                            <ContextMenu>
+                                <!--  Toggle  -->
+                                <MenuItem
+                                    Command="{Binding ShaderPacks.ToggleCommand}"
+                                    CommandParameter="{Binding ShaderPacks.SelectedShaderPack}"
+                                    Header="{lang:Translate common.toggle}" />
+                                <Separator />
+                                <!--  Remove  -->
+                                <MenuItem
+                                    Command="{Binding ShaderPacks.RemoveCommand}"
+                                    CommandParameter="{Binding ShaderPacks.SelectedShaderPack}"
+                                    Header="{lang:Translate common.remove}" />
+                                <Separator />
+                                <!--  Download Packs  -->
+                                <MenuItem Command="{Binding ShaderPacks.DownloadCommand}" Header="{lang:Translate instance.download.shaders}" />
+                                <!--  Open Folder  -->
+                                <MenuItem Command="{Binding ShaderPacks.OpenDirCommand}" Header="{lang:Translate common.open.directory}" />
+                            </ContextMenu>
+                        </DataGrid.ContextMenu>
+                    </DataGrid>
+                </ScrollViewer>
+            </Border>
+
+            <!--  Actions  -->
+            <Grid
+                Grid.Row="2"
+                Margin="4,10,4,0"
+                ColumnDefinitions="*, Auto, Auto"
+                ColumnSpacing="5">
+                <!--  Search bar  -->
+                <TextBox
+                    Grid.Column="0"
+                    Classes="TextInput"
+                    PlaceholderText="{lang:Translate common.search}" />
+                <!--  Download  -->
+                <Button
+                    Grid.Column="1"
+                    Classes="IconBtn"
+                    Command="{Binding ShaderPacks.DownloadCommand}">
+                    <Grid Classes="IconBtnWrapper" ColumnDefinitions="Auto, Auto">
+                        <TextBlock
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            Classes="FontAwesome"
+                            Text="&#xf0ed;" />
+                        <TextBlock
+                            Grid.Column="1"
+                            VerticalAlignment="Center"
+                            Text="{lang:Translate instance.edit.downloadPacks}" />
+                    </Grid>
+                </Button>
+                <!--  View Folder  -->
+                <Button
+                    Grid.Column="2"
+                    Classes="IconBtn"
+                    Command="{Binding ShaderPacks.OpenDirCommand}">
+                    <Grid Classes="IconBtnWrapper" ColumnDefinitions="Auto, Auto">
+                        <TextBlock
+                            Grid.Column="0"
+                            VerticalAlignment="Center"
+                            Classes="FontAwesome"
+                            Text="&#xf07c;" />
+                        <TextBlock
+                            Grid.Column="1"
+                            VerticalAlignment="Center"
+                            Text="{lang:Translate common.open.directory}" />
+                    </Grid>
+                </Button>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>
+

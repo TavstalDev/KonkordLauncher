@@ -44,6 +44,10 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     private readonly IBeaconLogger _logger = null!;
     private readonly IScreenService _screenService = null!;
 
+    public event EventHandler? OnScrollLogsToEndRequested;
+    public event EventHandler? OnScreenshotRenameRequested;
+    public event EventHandler? OnWorldRenameRequested;
+
     /// <summary>
     ///     Creates an empty view model for the XAML designer.
     /// </summary>
@@ -152,12 +156,16 @@ public partial class EditInstanceViewModel : KonkordObservableObject
         if (instanceId != Instance.Id)
             return;
 
-        Logs.Add(logMessage);
+        string msg = logMessage.Trim();
+        if (msg.EndsWith("\n"))
+            msg = msg.ReplaceLineEndings("");
+
+        Logs.Add(msg);
         if (Logs.Count > MaxLogLines)
             Logs.RemoveAt(0);
 
         if (Logs.Count % 10 == 0)
-            Dispatcher.UIThread.Invoke(async () => await LogsScrollToEnd.Handle(Unit.Default));
+            OnScrollLogsToEndRequested?.Invoke(this, EventArgs.Empty);
     }
 
     private async Task InitAsync(CancellationToken cancellationToken = default)
@@ -223,10 +231,6 @@ public partial class EditInstanceViewModel : KonkordObservableObject
 
     public Interaction<Unit, Unit> CloseWindowInteraction { get; } = new();
     public Interaction<EEditInstanceTab, Unit> TabSwitchInteraction { get; } = new();
-    public Interaction<EInstanceSettingsTab, Unit> SettingsTabSwitchInteraction { get; } = new();
-    public Interaction<Unit, Unit> BeginWorldRename { get; } = new();
-    public Interaction<Unit, Unit> BeginScreenshotRename { get; } = new();
-    public Interaction<Unit, Unit> LogsScrollToEnd { get; } = new();
 
     #endregion
 
@@ -267,9 +271,10 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     #region Logs
 
     [RelayCommand]
-    private async Task ScrollLogsToEnd()
+    private Task ScrollLogsToEnd()
     {
-        await LogsScrollToEnd.Handle(Unit.Default);
+        OnScrollLogsToEndRequested?.Invoke(this, EventArgs.Empty);
+        return Task.CompletedTask;
     }
 
     [RelayCommand]
@@ -290,9 +295,10 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     #region Screenshots
 
     [RelayCommand]
-    private async Task RenameScreenshot(ScreenshotModel screenshot)
+    private Task RenameScreenshot(ScreenshotModel screenshot)
     {
-        await BeginScreenshotRename.Handle(Unit.Default);
+        OnScreenshotRenameRequested?.Invoke(this, EventArgs.Empty);
+        return Task.CompletedTask;
     }
 
     #endregion
@@ -300,19 +306,10 @@ public partial class EditInstanceViewModel : KonkordObservableObject
     #region Worlds
 
     [RelayCommand]
-    private async Task RenameWorld(WorldModel world)
+    private Task RenameWorld(WorldModel world)
     {
-        await BeginWorldRename.Handle(Unit.Default);
-    }
-
-    #endregion
-
-    #region Settings
-
-    [RelayCommand]
-    private async Task SwitchSettingsTab(EInstanceSettingsTab tab)
-    {
-        await SettingsTabSwitchInteraction.Handle(tab);
+        OnWorldRenameRequested?.Invoke(this, EventArgs.Empty);
+        return Task.CompletedTask;
     }
 
     #endregion

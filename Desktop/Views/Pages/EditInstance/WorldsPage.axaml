@@ -1,0 +1,116 @@
+<UserControl
+    x:Class="Tavstal.KonkordLauncher.Desktop.Views.Pages.EditInstance.WorldsPage"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    x:DataType="vm:EditInstanceViewModel"
+    mc:Ignorable="d">
+    <Border Margin="25,0,25,25" Classes="SettingsCategoryBorder">
+        <Grid RowDefinitions="Auto, *, Auto">
+            <!--  Title  -->
+            <TextBlock
+                Margin="5,5,5,10"
+                Classes="SettingsCategoryText"
+                Text="{lang:Translate instance.edit.subTitle.worlds}" />
+
+            <!--  Content  -->
+            <Border Grid.Row="1">
+                <ScrollViewer Classes="TableScrollViewer" HorizontalScrollBarVisibility="Disabled">
+                    <DataGrid
+                        Name="WorldsTable"
+                        CellEditEnded="WorldDataGrid_OnCellEditEnded"
+                        Classes="InstanceMultiTable"
+                        IsReadOnly="False"
+                        ItemsSource="{Binding Worlds.Worlds}"
+                        RowEditEnded="WorldDataGrid_OnRowEditEnded"
+                        SelectedItem="{Binding Worlds.SelectedWorld}">
+                        <DataGrid.Columns>
+                            <!--  Icon & Name  -->
+                            <DataGridTemplateColumn Width="*" Header="{lang:Translate instance.edit.table.name}">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" Spacing="5">
+                                            <Image
+                                                Height="48"
+                                                MaxWidth="48"
+                                                Margin="5"
+                                                Source="{Binding Icon.Value}"
+                                                Stretch="UniformToFill" />
+                                            <TextBlock
+                                                Margin="0,0,25,0"
+                                                VerticalAlignment="Center"
+                                                Text="{Binding Name}"
+                                                TextAlignment="Center" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <TextBox
+                                            Margin="5,0,25,0"
+                                            VerticalAlignment="Center"
+                                            Text="{Binding Name, Mode=TwoWay}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+                            <!--  GameMode  -->
+                            <DataGridTextColumn
+                                Width="Auto"
+                                Binding="{Binding Gamemode}"
+                                Header="{lang:Translate instance.edit.table.gameMode}"
+                                IsReadOnly="True" />
+                            <!--  Last Played  -->
+                            <DataGridTextColumn
+                                Width="Auto"
+                                Binding="{Binding FormattedLastPlayed}"
+                                Header="{lang:Translate instance.edit.table.lastPlayed}"
+                                IsReadOnly="True" />
+                            <!--  Size  -->
+                            <DataGridTextColumn
+                                Width="Auto"
+                                Binding="{Binding FormattedSize}"
+                                Header="{lang:Translate instance.edit.table.size}"
+                                IsReadOnly="True" />
+                        </DataGrid.Columns>
+                        <DataGrid.ContextMenu>
+                            <ContextMenu>
+                                <!--  Duplicate  -->
+                                <MenuItem
+                                    Command="{Binding Worlds.DuplicateCommand}"
+                                    CommandParameter="{Binding Worlds.SelectedWorld}"
+                                    Header="{lang:Translate common.duplicate}" />
+                                <!--  Rename  -->
+                                <MenuItem
+                                    Command="{Binding RenameWorldCommand}"
+                                    CommandParameter="{Binding Worlds.SelectedWorld}"
+                                    Header="{lang:Translate common.rename}" />
+                                <!--  Delete  -->
+                                <MenuItem
+                                    Command="{Binding Worlds.DeleteCommand}"
+                                    CommandParameter="{Binding Worlds.SelectedWorld}"
+                                    Header="{lang:Translate common.delete}" />
+                                <Separator />
+                                <!--  Copy Speed  -->
+                                <MenuItem
+                                    Command="{Binding Worlds.CopySeedCommand}"
+                                    CommandParameter="{Binding Worlds.SelectedWorld}"
+                                    Header="{lang:Translate instance.edit.copySeed}" />
+                                <!--  Open Folder  -->
+                                <MenuItem
+                                    Command="{Binding Worlds.OpenDirCommand}"
+                                    CommandParameter="{Binding Worlds.SelectedWorld}"
+                                    Header="{lang:Translate common.open.directory}" />
+                            </ContextMenu>
+                        </DataGrid.ContextMenu>
+                    </DataGrid>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>
+

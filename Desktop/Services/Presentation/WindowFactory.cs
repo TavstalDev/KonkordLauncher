@@ -74,7 +74,6 @@ public class WindowFactory : IWindowFactory
             _services.GetRequiredService<IFilePickerService>());
 
         return new EditInstanceWindow(viewModel,
-            _services.GetRequiredService<IBeaconLogger<EditInstanceWindow>>(),
             _services.GetRequiredService<IEventService>(),
             _services.GetRequiredService<IDiscordPresenceService>(),
             _services.GetRequiredService<IBitmapService>());

@@ -7,10 +7,10 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
-    xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Instance"
     xmlns:md="clr-namespace:MarkView.Avalonia;assembly=MarkView.Avalonia"
+    xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Instance"
     xmlns:modpack="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.DTOs.Modpack"
+    xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
     x:Name="Root"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -131,10 +131,11 @@
                             <ItemsControl ItemsSource="{Binding Modpack.Categories}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate x:DataType="models:CategoryModel">
-                                        <CheckBox Classes="InstanceModCategory"
-                                                  Content="{Binding DisplayName}"
-                                                  IsChecked="{Binding IsChecked}"
-                                                  IsCheckedChanged="Category_OnIsCheckedChanged"/>
+                                        <CheckBox
+                                            Classes="InstanceModCategory"
+                                            Content="{Binding DisplayName}"
+                                            IsChecked="{Binding IsChecked}"
+                                            IsCheckedChanged="Category_OnIsCheckedChanged" />
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
@@ -158,9 +159,9 @@
                             Background="Transparent"
                             ItemsSource="{Binding Modpack.Modpacks}"
                             Opacity="{Binding Modpack.AllowScrollbarRefresh, Converter={StaticResource BoolToOpacityConverter}}"
+                            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                             SelectedItem="{Binding Modpack.SelectedModpack}"
-                            SelectionMode="Single"
-                            ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                            SelectionMode="Single">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <VirtualizingStackPanel />
@@ -170,16 +171,16 @@
                                 <DataTemplate x:DataType="modpack:ModPackPreview">
                                     <Border Classes="InstanceModCard">
                                         <Grid ColumnDefinitions="Auto, *" ColumnSpacing="10">
-                                            <Image Width="35" Height="35"
-                                                   Source="{Binding Icon.Value}" />
+                                            <Image
+                                                Width="35"
+                                                Height="35"
+                                                Source="{Binding Icon.Value}" />
                                             <Grid Grid.Column="1" RowDefinitions="Auto, Auto">
-                                                <TextBlock
-                                                    Classes="InstanceModTitle"
-                                                    Text="{Binding Name}" />
+                                                <TextBlock Classes="InstanceModTitle" Text="{Binding Name}" />
                                                 <TextBlock
                                                     Grid.Row="1"
-                                                    MaxLines="2"
                                                     Classes="InstanceModDescription"
+                                                    MaxLines="2"
                                                     Text="{Binding Description}" />
                                             </Grid>
                                         </Grid>
@@ -188,14 +189,14 @@
                             </ListBox.ItemTemplate>
                         </ListBox>
 
-                        <Border IsVisible="{Binding !Modpack.AllowScrollbarRefresh}"
-                                Background="#99000000">
-                            <avalonia:LoadingIndicator Height="150"
-                                                       VerticalAlignment="Center"
-                                                       Foreground="{DynamicResource primary-content}"
-                                                       IsActive="True"
-                                                       Mode="Arc"
-                                                       SpeedRatio="1.2" />
+                        <Border Background="#99000000" IsVisible="{Binding !Modpack.AllowScrollbarRefresh}">
+                            <avalonia:LoadingIndicator
+                                Height="150"
+                                VerticalAlignment="Center"
+                                Foreground="{DynamicResource primary-content}"
+                                IsActive="True"
+                                Mode="Arc"
+                                SpeedRatio="1.2" />
                         </Border>
                     </Grid>
                 </Border>
@@ -208,7 +209,7 @@
                     Grid.Column="2"
                     Padding="10,0"
                     Classes="SettingsCategoryBorder">
-                    <ScrollViewer Padding="10, 15" HorizontalScrollBarVisibility="Disabled">
+                    <ScrollViewer Padding="10,15" HorizontalScrollBarVisibility="Disabled">
                         <md:MarkdownViewer x:Name="MarkdownPreview" Markdown="{Binding Modpack.SelectedModpackMarkdownBody}" />
                     </ScrollViewer>
                 </Border>

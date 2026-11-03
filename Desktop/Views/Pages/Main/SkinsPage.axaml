@@ -99,9 +99,10 @@
                             <ScrollViewer Grid.Row="1">
                                 <ItemsRepeater ItemsSource="{Binding Accounts.Skins}">
                                     <ItemsRepeater.Layout>
-                                        <UniformGridLayout MinRowSpacing="10"
-                                                           MinColumnSpacing="10"
-                                                           Orientation="Horizontal" />
+                                        <UniformGridLayout
+                                            MinColumnSpacing="10"
+                                            MinRowSpacing="10"
+                                            Orientation="Horizontal" />
                                     </ItemsRepeater.Layout>
                                     <ItemsRepeater.ItemTemplate>
                                         <DataTemplate DataType="domain:SkinDataModel">
@@ -137,17 +138,19 @@
                             <ScrollViewer Grid.Row="1">
                                 <ItemsRepeater ItemsSource="{Binding Accounts.Capes}">
                                     <ItemsRepeater.Layout>
-                                        <UniformGridLayout MinRowSpacing="10"
-                                                           MinColumnSpacing="10"
-                                                           Orientation="Horizontal" />
+                                        <UniformGridLayout
+                                            MinColumnSpacing="10"
+                                            MinRowSpacing="10"
+                                            Orientation="Horizontal" />
                                     </ItemsRepeater.Layout>
                                     <ItemsRepeater.ItemTemplate>
                                         <DataTemplate DataType="domain:CapeDataModel">
                                             <Border Classes="SkinBorder" Classes.selected="{Binding IsSelected}">
-                                                <Button Classes="SkinBtn"
-                                                        Command="{Binding #Root.((vm:MainViewModel)DataContext).Accounts.CapeSelectCommand}"
-                                                        CommandParameter="{Binding .}"
-                                                        ToolTip.Tip="{Binding Alias}">
+                                                <Button
+                                                    Classes="SkinBtn"
+                                                    Command="{Binding #Root.((vm:MainViewModel)DataContext).Accounts.CapeSelectCommand}"
+                                                    CommandParameter="{Binding .}"
+                                                    ToolTip.Tip="{Binding Alias}">
                                                     <Viewbox MaxHeight="70" Classes="SkinViewBox">
                                                         <Image Classes="SkinPreview" Source="{Binding Image.Value}" />
                                                     </Viewbox>

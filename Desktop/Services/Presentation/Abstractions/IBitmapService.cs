@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using Avalonia.Media.Imaging;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs;
 
 namespace Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;

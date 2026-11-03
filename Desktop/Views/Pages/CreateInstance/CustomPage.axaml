@@ -84,24 +84,46 @@
                             ColumnSpacing="15">
 
                             <Grid Grid.Column="0" RowDefinitions="Auto, *">
-                                <Grid Grid.Row="0" Margin="10, 0, 10, 5" ColumnDefinitions="*, *, *">
-                                    <TextBlock Grid.Column="0" Text="{lang:Translate instance.create.table.version}" VerticalAlignment="Center"/>
-                                    <TextBlock Grid.Column="1" Text="{lang:Translate instance.create.table.released}" VerticalAlignment="Center"/>
-                                    <TextBlock Grid.Column="2" Text="{lang:Translate instance.create.table.type}" VerticalAlignment="Center"/>
+                                <Grid
+                                    Grid.Row="0"
+                                    Margin="10,0,10,5"
+                                    ColumnDefinitions="*, *, *">
+                                    <TextBlock
+                                        Grid.Column="0"
+                                        VerticalAlignment="Center"
+                                        Text="{lang:Translate instance.create.table.version}" />
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        VerticalAlignment="Center"
+                                        Text="{lang:Translate instance.create.table.released}" />
+                                    <TextBlock
+                                        Grid.Column="2"
+                                        VerticalAlignment="Center"
+                                        Text="{lang:Translate instance.create.table.type}" />
                                 </Grid>
 
                                 <!--  Input  -->
-                                <ListBox Grid.Row="1"
-                                         MaxHeight="250"
-                                         Classes="InstanceTable"
-                                         ItemsSource="{Binding Custom.MinecraftVersions}"
-                                         SelectedItem="{Binding Custom.SelectedMinecraftVersion, Mode=TwoWay}">
+                                <ListBox
+                                    Grid.Row="1"
+                                    MaxHeight="250"
+                                    Classes="InstanceTable"
+                                    ItemsSource="{Binding Custom.MinecraftVersions}"
+                                    SelectedItem="{Binding Custom.SelectedMinecraftVersion, Mode=TwoWay}">
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
                                             <Grid ColumnDefinitions="*, *, *">
-                                                <TextBlock Grid.Column="0" Text="{Binding Id}" VerticalAlignment="Center"/>
-                                                <TextBlock Grid.Column="1" Text="{Binding ReleaseTime}" VerticalAlignment="Center"/>
-                                                <TextBlock Grid.Column="2" Text="{Binding Type}" VerticalAlignment="Center"/>
+                                                <TextBlock
+                                                    Grid.Column="0"
+                                                    VerticalAlignment="Center"
+                                                    Text="{Binding Id}" />
+                                                <TextBlock
+                                                    Grid.Column="1"
+                                                    VerticalAlignment="Center"
+                                                    Text="{Binding ReleaseTime}" />
+                                                <TextBlock
+                                                    Grid.Column="2"
+                                                    VerticalAlignment="Center"
+                                                    Text="{Binding Type}" />
                                             </Grid>
                                         </DataTemplate>
                                     </ListBox.ItemTemplate>
@@ -144,17 +166,25 @@
                             ColumnSpacing="15">
 
                             <Grid Grid.Column="0" RowDefinitions="Auto, *">
-                                <TextBlock Grid.Row="0" Margin="10, 0, 10, 5" Text="{lang:Translate instance.create.table.version}" VerticalAlignment="Center"/>
+                                <TextBlock
+                                    Grid.Row="0"
+                                    Margin="10,0,10,5"
+                                    VerticalAlignment="Center"
+                                    Text="{lang:Translate instance.create.table.version}" />
                                 <!--  Input  -->
-                                <ListBox Grid.Row="1"
-                                         MaxHeight="250"
-                                         Classes="InstanceTable"
-                                         ItemsSource="{Binding Custom.ModLoaderVersionResult}"
-                                         SelectedItem="{Binding Custom.SelectedModLoader}">
+                                <ListBox
+                                    Grid.Row="1"
+                                    MaxHeight="250"
+                                    Classes="InstanceTable"
+                                    ItemsSource="{Binding Custom.ModLoaderVersionResult}"
+                                    SelectedItem="{Binding Custom.SelectedModLoader}">
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
                                             <Grid ColumnDefinitions="*">
-                                                <TextBlock Grid.Column="0" Text="{Binding Version}" VerticalAlignment="Center"/>
+                                                <TextBlock
+                                                    Grid.Column="0"
+                                                    VerticalAlignment="Center"
+                                                    Text="{Binding Version}" />
                                             </Grid>
                                         </DataTemplate>
                                     </ListBox.ItemTemplate>

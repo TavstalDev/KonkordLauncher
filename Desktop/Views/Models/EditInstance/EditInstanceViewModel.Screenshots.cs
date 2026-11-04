@@ -97,9 +97,9 @@ public partial class EditInstanceViewModel_Screenshots : KonkordObservableObject
         var screenshots = Directory.GetFiles(screenshotDir, "*.png");
         foreach (var screenshot in screenshots)
         {
-            var bytes = File.ReadAllBytes(screenshot);
+            var fileInfo = new FileInfo(screenshot);
             var screen = _bitmapService.GetBitmap(screenshot, BitmapSizes.ScreenshotIcon);
-            var newScreenshot = new ScreenshotModel(screenshot, screen.Value, bytes.LongLength);
+            var newScreenshot = new ScreenshotModel(screenshot, screen.Value, fileInfo.Length);
             Screenshots.Add(newScreenshot);
         }
     }

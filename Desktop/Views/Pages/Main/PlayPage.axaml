@@ -12,88 +12,6 @@
     d:DesignWidth="800"
     x:DataType="vm:MainViewModel"
     mc:Ignorable="d">
-    <UserControl.DataTemplates>
-        <!--  Play Card  -->
-        <DataTemplate x:DataType="domain:InstanceModel" DataType="domain:InstanceModel">
-            <Border Classes="PlayCard">
-                <Grid RowDefinitions="Auto, *, Auto">
-                    <!--  Icon  -->
-                    <Image
-                        Grid.Row="0"
-                        Classes="PlayCardImage"
-                        Source="{Binding Icon.Value}" />
-                    <!--  Name  -->
-                    <TextBlock
-                        Grid.Row="1"
-                        Classes="PlayCardText"
-                        Text="{Binding Name}" />
-                    <!--  Buttons  -->
-                    <Grid
-                        Grid.Row="2"
-                        Classes="PlayCardButtonWrapper"
-                        ColumnDefinitions="Auto, Auto, Auto">
-                        <!--  Launch Button  -->
-                        <Button
-                            Grid.Column="0"
-                            Width="32"
-                            MaxWidth="32"
-                            HorizontalContentAlignment="Center"
-                            Classes="IconBtn PrimaryBtn"
-                            Command="{Binding #Root.((vm:MainViewModel)DataContext).Instances.LaunchInstanceCommand}"
-                            CommandParameter="{Binding .}"
-                            IsVisible="{Binding !IsGameRunning}">
-                            <TextBlock
-                                Padding="4,0"
-                                Classes="FontAwesome"
-                                Text="&#xf04b;" />
-                        </Button>
-                        <!--  Stop Button  -->
-                        <Button
-                            Grid.Column="0"
-                            Width="32"
-                            MaxWidth="32"
-                            HorizontalContentAlignment="Center"
-                            Classes="IconBtn ErrorBtn"
-                            Command="{Binding #Root.((vm:MainViewModel)DataContext).Instances.StopInstanceCommand}"
-                            CommandParameter="{Binding .}"
-                            IsVisible="{Binding IsGameRunning}">
-                            <TextBlock
-                                Padding="4,0"
-                                Classes="FontAwesome"
-                                Text="&#xf04d;" />
-                        </Button>
-                        <!--  Edit Button  -->
-                        <Button
-                            Grid.Column="1"
-                            Width="34"
-                            MaxWidth="34"
-                            Classes="IconBtn AccentAltBtn"
-                            Command="{Binding #Root.((vm:MainViewModel)DataContext).Instances.EditInstanceCommand}"
-                            CommandParameter="{Binding .}">
-                            <TextBlock
-                                Padding="4,0"
-                                Classes="FontAwesome"
-                                Text="&#xf304;" />
-                        </Button>
-                        <!--  Menu Button  -->
-                        <Button
-                            Grid.Column="2"
-                            Width="32"
-                            MaxWidth="32"
-                            Classes="IconBtn SecondaryBtn"
-                            Click="InstanceFlyoutBtn_OnClick"
-                            DataContext="{Binding .}">
-                            <!--  Button Icon  -->
-                            <TextBlock
-                                Padding="4,0"
-                                Classes="FontAwesome"
-                                Text="&#xf142;" />
-                        </Button>
-                    </Grid>
-                </Grid>
-            </Border>
-        </DataTemplate>
-    </UserControl.DataTemplates>
 
     <UserControl.Resources>
         <!--  ReSharper disable once Xaml.RedundantResource  -->
@@ -387,13 +305,92 @@
                         Classes="InstanceExpander"
                         Header="{Binding GroupName}"
                         IsExpanded="True">
-                        <ItemsControl ItemsSource="{Binding Instances}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <WrapPanel Classes="PlayPageWrapper" />
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                        </ItemsControl>
+                        <ItemsRepeater ItemsSource="{Binding Instances}">
+                            <ItemsRepeater.Layout>
+                                <StackLayout Orientation="Horizontal" Spacing="10" />
+                            </ItemsRepeater.Layout>
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate x:DataType="domain:InstanceModel">
+                                     <Border Classes="PlayCard">
+                                        <Grid RowDefinitions="Auto, *, Auto">
+                                            <!--  Icon  -->
+                                            <Image
+                                                Grid.Row="0"
+                                                Classes="PlayCardImage"
+                                                Source="{Binding Icon.Value}" />
+                                            <!--  Name  -->
+                                            <TextBlock
+                                                Grid.Row="1"
+                                                Classes="PlayCardText"
+                                                Text="{Binding Name}" />
+                                            <!--  Buttons  -->
+                                            <Grid
+                                                Grid.Row="2"
+                                                Classes="PlayCardButtonWrapper"
+                                                ColumnDefinitions="Auto, Auto, Auto">
+                                                <!--  Launch Button  -->
+                                                <Button
+                                                    Grid.Column="0"
+                                                    Width="32"
+                                                    MaxWidth="32"
+                                                    HorizontalContentAlignment="Center"
+                                                    Classes="IconBtn PrimaryBtn"
+                                                    Command="{Binding #Root.((vm:MainViewModel)DataContext).Instances.LaunchInstanceCommand}"
+                                                    CommandParameter="{Binding .}"
+                                                    IsVisible="{Binding !IsGameRunning}">
+                                                    <TextBlock
+                                                        Padding="4,0"
+                                                        Classes="FontAwesome"
+                                                        Text="&#xf04b;" />
+                                                </Button>
+                                                <!--  Stop Button  -->
+                                                <Button
+                                                    Grid.Column="0"
+                                                    Width="32"
+                                                    MaxWidth="32"
+                                                    HorizontalContentAlignment="Center"
+                                                    Classes="IconBtn ErrorBtn"
+                                                    Command="{Binding #Root.((vm:MainViewModel)DataContext).Instances.StopInstanceCommand}"
+                                                    CommandParameter="{Binding .}"
+                                                    IsVisible="{Binding IsGameRunning}">
+                                                    <TextBlock
+                                                        Padding="4,0"
+                                                        Classes="FontAwesome"
+                                                        Text="&#xf04d;" />
+                                                </Button>
+                                                <!--  Edit Button  -->
+                                                <Button
+                                                    Grid.Column="1"
+                                                    Width="34"
+                                                    MaxWidth="34"
+                                                    Classes="IconBtn AccentAltBtn"
+                                                    Command="{Binding #Root.((vm:MainViewModel)DataContext).Instances.EditInstanceCommand}"
+                                                    CommandParameter="{Binding .}">
+                                                    <TextBlock
+                                                        Padding="4,0"
+                                                        Classes="FontAwesome"
+                                                        Text="&#xf304;" />
+                                                </Button>
+                                                <!--  Menu Button  -->
+                                                <Button
+                                                    Grid.Column="2"
+                                                    Width="32"
+                                                    MaxWidth="32"
+                                                    Classes="IconBtn SecondaryBtn"
+                                                    Click="InstanceFlyoutBtn_OnClick"
+                                                    DataContext="{Binding .}">
+                                                    <!--  Button Icon  -->
+                                                    <TextBlock
+                                                        Padding="4,0"
+                                                        Classes="FontAwesome"
+                                                        Text="&#xf142;" />
+                                                </Button>
+                                            </Grid>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
                     </Expander>
                 </DataTemplate>
             </ListBox.ItemTemplate>

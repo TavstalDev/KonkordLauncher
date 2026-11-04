@@ -22,15 +22,6 @@
     </Style>
     <!--  End Of PlayPageContainer  -->
 
-    <!--  PlayPageWrapper  -->
-    <Style Selector="WrapPanel.PlayPageWrapper">
-        <Setter Property="Orientation" Value="Horizontal" />
-        <Setter Property="ItemSpacing" Value="15" />
-        <Setter Property="LineSpacing" Value="15" />
-        <Setter Property="Margin" Value="0" />
-
-    </Style>
-
     <!--  PlayCard  -->
     <Style Selector="Border.PlayCard">
         <Setter Property="Background" Value="{DynamicResource base-100}" />

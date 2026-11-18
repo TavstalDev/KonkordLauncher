@@ -84,6 +84,8 @@ public abstract class KonkordWindow<TViewModel> : ReactiveWindow<TViewModel> whe
     {
         Opened -= OnOpened;
         Closed -= OnClosed;
+        if (DataContext is IDisposable disposable)
+            disposable.Dispose();
         DataContext = null;
         Task.Run(async () =>
         {

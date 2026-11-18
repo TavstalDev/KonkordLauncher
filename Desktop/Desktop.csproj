@@ -37,10 +37,6 @@
         <RuntimeHostConfigurationOption Include="System.GC.RetainVM" Value="false" />
     </ItemGroup>
 
-    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-        <PublishAot>true</PublishAot>
-    </PropertyGroup>
-
     <ItemGroup>
         <PackageReference Include="Avalonia" Version="12.1.6" />
         <PackageReference Include="Avalonia.Controls.DataGrid" Version="12.1.2"/>

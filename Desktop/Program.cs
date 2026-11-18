@@ -188,7 +188,6 @@ internal class Program
 #else
             .LogToTrace(Avalonia.Logging.LogEventLevel.Warning)
 #endif
-            .With(new X11PlatformOptions { RenderingMode = [X11RenderingMode.Software] })
             .UseReactiveUI(_ => { });
     }
 

@@ -121,7 +121,6 @@ public partial class MainWindow : KonkordWindow<MainViewModel>
             return;
         _discordPresenceService.Clear();
         _topLevelProvider.ClearIfMatches(this);
-        base.OnClosing(e);
     }
 
     #endregion

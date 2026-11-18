@@ -21,7 +21,6 @@ public class TranslationService : ITranslationService, IHostedService
     private readonly IHttpService _httpService;
     private readonly ILauncherStore _launcherStore;
     private readonly IBeaconLogger _logger;
-    private Dictionary<string, string> _defaultTranslations = [];
     private Dictionary<string, string> _translations = [];
 
     /// <summary>
@@ -40,7 +39,6 @@ public class TranslationService : ITranslationService, IHostedService
         _httpService = httpService;
         _launcherStore = launcherStore;
         TranslationHelper.Current = this;
-        LoadDefaultTranslations();
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
@@ -80,7 +78,7 @@ public class TranslationService : ITranslationService, IHostedService
             // Do not attempt to download the default language
             if (language == "en")
             {
-                _translations = _defaultTranslations;
+                LoadDefaultTranslations();
                 LanguageChanged?.Invoke(language);
                 return;
             }
@@ -97,7 +95,18 @@ public class TranslationService : ITranslationService, IHostedService
             await File.WriteAllTextAsync(localePath, resultYml, cancellationToken);
 
             using TextReader loc = new StringReader(resultYml);
-            _translations = LoadTranslations(loc);
+            LoadDefaultTranslations();
+            var localTranslations = LoadTranslations(loc);
+            foreach (var entry in localTranslations)
+            {
+                if (!_translations.ContainsKey(entry.Key))
+                    continue;
+
+                if (string.IsNullOrWhiteSpace(entry.Value))
+                    continue;
+
+                _translations[entry.Key] = entry.Value;
+            }
             LanguageChanged?.Invoke(language);
         }
         catch (Exception ex)
@@ -111,9 +120,6 @@ public class TranslationService : ITranslationService, IHostedService
     public string Translate(string key)
     {
         if (_translations.TryGetValue(key, out var translation) && !string.IsNullOrWhiteSpace(translation))
-            return translation;
-
-        if (_defaultTranslations.TryGetValue(key, out translation) && !string.IsNullOrWhiteSpace(translation))
             return translation;
 
         _logger.LogWarning($"Missing translation key: {key}");
@@ -153,9 +159,7 @@ public class TranslationService : ITranslationService, IHostedService
             }
 
             using TextReader reader = new StreamReader(stream);
-            _defaultTranslations = LoadTranslations(reader);
-            if (_translations.Count == 0)
-                _translations = _defaultTranslations;
+            _translations = LoadTranslations(reader);
         }
         catch (Exception ex)
         {

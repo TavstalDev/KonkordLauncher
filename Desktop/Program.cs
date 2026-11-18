@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Versioning;
@@ -30,7 +31,7 @@ using Velopack;
 
 namespace Tavstal.KonkordLauncher.Desktop;
 
-internal class Program
+internal static class Program
 {
     private const string MutexName = "Global\\KonkordLauncher_5C0F1C0A-2258-4DD5-B454-0ED8FFF9E5A8";
     private static Mutex? Mutex { get; set; }
@@ -261,11 +262,11 @@ internal class Program
             foreach (var attribute in buildDateAttributes)
                 if (attribute is AssemblyMetadataAttribute { Key: "BuildDate" } metadata)
                 {
-                    _buidDate = metadata.Value ?? DateTime.UtcNow.ToString("yyyy-MM-dd");
+                    _buidDate = metadata.Value ?? DateTime.UtcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
                     return _buidDate;
                 }
 
-            _buidDate = DateTime.UtcNow.ToString("yyyy-MM-dd");
+            _buidDate = DateTime.UtcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             return _buidDate;
         }
     }

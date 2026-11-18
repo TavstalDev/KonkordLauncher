@@ -5,12 +5,12 @@
     xmlns:avalonia="clr-namespace:LoadingIndicators.Avalonia;assembly=LoadingIndicators.Avalonia"
     xmlns:converters="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Avalonia.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models"
     xmlns:templates="clr-namespace:Tavstal.KonkordLauncher.Desktop.Styles.Templates"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
-    Title="{lang:Translate instance.export.window}"
+    xmlns:localization="clr-namespace:Tavstal.KonkordLauncher.Desktop.Localization"
+    Title="{localization:Translate instance.export.window}"
     Width="600"
     Height="500"
     MinWidth="600"
@@ -50,8 +50,8 @@
                     <!--  Title  -->
                     <Border Classes="ModalTitleBorder">
                         <StackPanel>
-                            <TextBlock Text="{lang:Translate instance.export.title}" />
-                            <TextBlock Classes="ModalSubTitle" Text="{lang:Translate instance.export.subtitle}" />
+                            <TextBlock Text="{localization:Translate instance.export.title}" />
+                            <TextBlock Classes="ModalSubTitle" Text="{localization:Translate instance.export.subtitle}" />
                         </StackPanel>
                     </Border>
 
@@ -63,7 +63,7 @@
                                 <Border Classes="SettingsCategoryBorder">
                                     <Grid RowDefinitions="Auto, Auto, Auto">
                                         <!--  Category Title  -->
-                                        <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.category.information.title}" />
+                                        <TextBlock Classes="SettingsCategoryText" Text="{localization:Translate instance.create.category.information.title}" />
 
                                         <!--  Name & Version  -->
                                         <Grid
@@ -79,7 +79,7 @@
                                                 RowDefinitions="Auto, Auto"
                                                 RowSpacing="8">
                                                 <!--  Text  -->
-                                                <TextBlock Classes="TextInput" Text="{lang:Translate instance.export.name}" />
+                                                <TextBlock Classes="TextInput" Text="{localization:Translate instance.export.name}" />
                                                 <!--  Input  -->
                                                 <TextBox
                                                     Grid.Row="1"
@@ -96,7 +96,7 @@
                                                 RowDefinitions="Auto, Auto"
                                                 RowSpacing="8">
                                                 <!--  Text  -->
-                                                <TextBlock Classes="TextInput" Text="{lang:Translate instance.export.version}" />
+                                                <TextBlock Classes="TextInput" Text="{localization:Translate instance.export.version}" />
                                                 <!--  Input  -->
                                                 <TextBox
                                                     Grid.Row="1"
@@ -115,7 +115,7 @@
                                             RowDefinitions="Auto, Auto"
                                             RowSpacing="8">
                                             <!--  Text  -->
-                                            <TextBlock Classes="TextInput" Text="{lang:Translate instance.export.summary}" />
+                                            <TextBlock Classes="TextInput" Text="{localization:Translate instance.export.summary}" />
                                             <!--  Input  -->
                                             <TextBox
                                                 Grid.Row="1"
@@ -132,7 +132,7 @@
                                 <Border Grid.Row="1" Classes="SettingsCategoryBorder">
                                     <Grid RowDefinitions="Auto, Auto, Auto">
                                         <!--  Category Title  -->
-                                        <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.export.selection.title}" />
+                                        <TextBlock Classes="SettingsCategoryText" Text="{localization:Translate instance.export.selection.title}" />
 
                                         <!--  Loading Indicator  -->
                                         <avalonia:LoadingIndicator
@@ -208,7 +208,7 @@
                                                 Grid.Column="1"
                                                 VerticalAlignment="Center"
                                                 FontWeight="500"
-                                                Text="{lang:Translate common.cancel}" />
+                                                Text="{localization:Translate common.cancel}" />
                                         </Grid>
                                     </Button>
 
@@ -227,7 +227,7 @@
                                                 Grid.Column="1"
                                                 VerticalAlignment="Center"
                                                 FontWeight="500"
-                                                Text="{lang:Translate common.export}" />
+                                                Text="{localization:Translate common.export}" />
                                         </Grid>
                                     </Button>
 
@@ -235,7 +235,7 @@
                                     <TextBlock
                                         VerticalAlignment="Center"
                                         IsVisible="{Binding IsExporting}"
-                                        Text="{lang:Translate instance.export.progress}" />
+                                        Text="{localization:Translate instance.export.progress}" />
 
                                     <!--  Exporting Spinner  -->
                                     <avalonia:LoadingIndicator

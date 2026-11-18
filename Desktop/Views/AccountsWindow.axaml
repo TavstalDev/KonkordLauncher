@@ -4,11 +4,11 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:avalonia="clr-namespace:LoadingIndicators.Avalonia;assembly=LoadingIndicators.Avalonia"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:templates="clr-namespace:Tavstal.KonkordLauncher.Desktop.Styles.Templates"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
-    Title="{lang:Translate auth.title}"
+    xmlns:localization="clr-namespace:Tavstal.KonkordLauncher.Desktop.Localization"
+    Title="{localization:Translate auth.title}"
     Width="500"
     MinWidth="500"
     d:DesignHeight="580"
@@ -42,16 +42,16 @@
                     Grid.Row="1"
                     Margin="20,10,20,20"
                     IsVisible="{Binding !IsProcessingLogin}">
-                    <TextBlock Classes="ModalTitle" Text="{lang:Translate auth.add.account}" />
+                    <TextBlock Classes="ModalTitle" Text="{localization:Translate auth.add.account}" />
                     <TabControl Classes="ModalTab">
                         <!--  Microsoft account login tab  -->
-                        <TabItem Classes="ModalTabItem" Header="{lang:Translate auth.tab.microsoft}">
+                        <TabItem Classes="ModalTabItem" Header="{localization:Translate auth.tab.microsoft}">
                             <Border Classes="ModalWrapper">
                                 <Grid>
                                     <!--  Start with Microsoft account login  -->
                                     <WrapPanel Classes="ModalWrapper" IsVisible="{Binding !IsLoggingInMicrosoftAccount}">
                                         <!--  Description text  -->
-                                        <TextBlock Classes="AccountsModalDescription" Text="{lang:Translate auth.microsoft.description}" />
+                                        <TextBlock Classes="AccountsModalDescription" Text="{localization:Translate auth.microsoft.description}" />
                                         <!--  Microsoft logo  -->
                                         <Image Classes="AccountsModalImage" Source="/Assets/Images/Brands/microsoft.png" />
                                         <!--  Start login button  -->
@@ -67,11 +67,11 @@
                                                 <TextBlock
                                                     VerticalAlignment="Center"
                                                     Classes="MicrosoftButtonText"
-                                                    Text="{lang:Translate auth.microsoft.login}" />
+                                                    Text="{localization:Translate auth.microsoft.login}" />
                                             </WrapPanel>
                                         </Button>
                                         <!--  Note text  -->
-                                        <TextBlock Classes="AccountsNote" Text="{lang:Translate auth.microsoft.note}" />
+                                        <TextBlock Classes="AccountsNote" Text="{localization:Translate auth.microsoft.note}" />
                                     </WrapPanel>
                                     <!--  Show progress while waiting for browser confirmation  -->
                                     <WrapPanel Classes="ModalWrapper" IsVisible="{Binding IsLoggingInMicrosoftAccount}">
@@ -88,7 +88,7 @@
                                                 <TextBlock
                                                     VerticalAlignment="Center"
                                                     Classes="MicrosoftButtonText"
-                                                    Text="{lang:Translate auth.microsoft.browser}" />
+                                                    Text="{localization:Translate auth.microsoft.browser}" />
                                             </WrapPanel>
                                         </Button>
 
@@ -102,7 +102,7 @@
                                             <TextBlock
                                                 Grid.Column="1"
                                                 Classes="Divider"
-                                                Text="{lang:Translate common.or}" />
+                                                Text="{localization:Translate common.or}" />
 
                                             <Border
                                                 Grid.Column="2"
@@ -139,7 +139,7 @@
                                                 VerticalAlignment="Center"
                                                 FontSize="25"
                                                 IsVisible="{Binding IsQrCodeLoading}"
-                                                Text="{lang:Translate common.loading}" />
+                                                Text="{localization:Translate common.loading}" />
                                             <!--  Copy link button  -->
                                             <Button Classes="IconBtn" Command="{Binding MicrosoftCopyCodeCommand}">
                                                 <TextBlock
@@ -151,7 +151,7 @@
                                         </WrapPanel>
 
                                         <!--  Description text  -->
-                                        <TextBlock Classes="AccountsModalDescription" Text="{lang:Translate auth.code.note}" />
+                                        <TextBlock Classes="AccountsModalDescription" Text="{localization:Translate auth.code.note}" />
 
                                         <WrapPanel Classes="AccountsModalProgressWrapper">
                                             <!--  Open link button  -->
@@ -168,7 +168,7 @@
                                                     <TextBlock
                                                         Grid.Column="1"
                                                         VerticalAlignment="Center"
-                                                        Text="{lang:Translate common.open.link}" />
+                                                        Text="{localization:Translate common.open.link}" />
                                                 </Grid>
                                             </Button>
                                             <!--  Cancel button  -->
@@ -185,7 +185,7 @@
                                                     <TextBlock
                                                         Grid.Column="1"
                                                         VerticalAlignment="Center"
-                                                        Text="{lang:Translate common.cancel}" />
+                                                        Text="{localization:Translate common.cancel}" />
                                                 </Grid>
                                             </Button>
                                         </WrapPanel>
@@ -194,11 +194,11 @@
                             </Border>
                         </TabItem>
                         <!--  Offline account login tab  -->
-                        <TabItem Classes="ModalTabItem" Header="{lang:Translate auth.tab.offline}">
+                        <TabItem Classes="ModalTabItem" Header="{localization:Translate auth.tab.offline}">
                             <Border Classes="ModalWrapper">
                                 <WrapPanel Classes="ModalWrapper">
                                     <!--  Description text  -->
-                                    <TextBlock Classes="AccountsModalDescription" Text="{lang:Translate auth.offline.description}" />
+                                    <TextBlock Classes="AccountsModalDescription" Text="{localization:Translate auth.offline.description}" />
                                     <!--  Username input  -->
                                     <TextBox
                                         Name="OfflineUsernameInput"
@@ -219,11 +219,11 @@
                                             <TextBlock
                                                 VerticalAlignment="Center"
                                                 Classes="MicrosoftButtonText"
-                                                Text="{lang:Translate auth.offline.login}" />
+                                                Text="{localization:Translate auth.offline.login}" />
                                         </WrapPanel>
                                     </Button>
                                     <!--  Note text  -->
-                                    <TextBlock Classes="AccountsNote" Text="{lang:Translate auth.offline.note}" />
+                                    <TextBlock Classes="AccountsNote" Text="{localization:Translate auth.offline.note}" />
                                 </WrapPanel>
                             </Border>
                         </TabItem>
@@ -239,7 +239,7 @@
                         Margin="10"
                         HorizontalAlignment="Center"
                         Foreground="{DynamicResource text-faded}"
-                        Text="{lang:Translate auth.creating.title}" />
+                        Text="{localization:Translate auth.creating.title}" />
                     <avalonia:LoadingIndicator
                         Height="120"
                         Margin="0,-40,0,0"

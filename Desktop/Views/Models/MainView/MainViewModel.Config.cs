@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Localization;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Models.Config.Launcher;
 using Tavstal.KonkordLauncher.Desktop.Models.DTOs.Config;
@@ -14,7 +15,6 @@ using Tavstal.KonkordLauncher.Desktop.Services;
 using Tavstal.KonkordLauncher.Desktop.Services.Localization;
 using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Services.Storage;
-using Tavstal.KonkordLauncher.Desktop.Translation;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views.Models.MainView;
 

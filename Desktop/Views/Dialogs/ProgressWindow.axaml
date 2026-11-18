@@ -3,11 +3,11 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
     xmlns:templates="clr-namespace:Tavstal.KonkordLauncher.Desktop.Styles.Templates"
-    Title="{lang:Translate install.title}"
+    xmlns:localization="clr-namespace:Tavstal.KonkordLauncher.Desktop.Localization"
+    Title="{localization:Translate install.title}"
     Width="400"
     MinHeight="175"
     d:DesignHeight="175"
@@ -41,8 +41,8 @@
                     <!--  Title  -->
                     <Border Classes="ModalTitleBorder">
                         <StackPanel>
-                            <TextBlock Text="{lang:Translate instance.install.title}" />
-                            <TextBlock Classes="ModalSubTitle" Text="{lang:Translate instance.install.description}" />
+                            <TextBlock Text="{localization:Translate instance.install.title}" />
+                            <TextBlock Classes="ModalSubTitle" Text="{localization:Translate instance.install.description}" />
                         </StackPanel>
                     </Border>
 
@@ -60,7 +60,7 @@
                                 ColumnSpacing="5">
                                 <TextBlock
                                     Grid.Column="0"
-                                    Text="{lang:Translate install.progress}"
+                                    Text="{localization:Translate install.progress}"
                                     TextAlignment="Left" />
 
                                 <StackPanel
@@ -148,7 +148,7 @@
                                                 Grid.Column="1"
                                                 VerticalAlignment="Center"
                                                 FontWeight="500"
-                                                Text="{lang:Translate common.cancel}" />
+                                                Text="{localization:Translate common.cancel}" />
                                         </Grid>
                                     </Button>
                                 </StackPanel>

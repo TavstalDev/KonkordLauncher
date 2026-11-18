@@ -5,12 +5,12 @@
     xmlns:avalonia="clr-namespace:LoadingIndicators.Avalonia;assembly=LoadingIndicators.Avalonia"
     xmlns:converters="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Avalonia.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:md="clr-namespace:MarkView.Avalonia;assembly=MarkView.Avalonia"
     xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Instance"
     xmlns:modpack="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.DTOs.Modpack"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
+    xmlns:localization="clr-namespace:Tavstal.KonkordLauncher.Desktop.Localization"
     x:Name="Root"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -41,7 +41,7 @@
                             Classes="TextInput"
                             FontSize="12"
                             IsReadOnly="{Binding !Modpack.AllowScrollbarRefresh}"
-                            PlaceholderText="{lang:Translate common.search}"
+                            PlaceholderText="{localization:Translate common.search}"
                             Text="{Binding Modpack.SearchQuery, Delay=500}" />
 
                         <!--  Platform  -->
@@ -54,7 +54,7 @@
                                 Classes="TextInput"
                                 FontSize="12"
                                 Foreground="{DynamicResource text-muted}"
-                                Text="{lang:Translate instance.create.modpack.platform}" />
+                                Text="{localization:Translate instance.create.modpack.platform}" />
                             <!--  Input  -->
                             <ComboBox
                                 Grid.Row="1"
@@ -78,7 +78,7 @@
                                 Classes="TextInput"
                                 FontSize="12"
                                 Foreground="{DynamicResource text-muted}"
-                                Text="{lang:Translate instance.create.modpack.mod.loader}" />
+                                Text="{localization:Translate instance.create.modpack.mod.loader}" />
                             <!--  Input  -->
                             <ComboBox
                                 Grid.Row="1"
@@ -107,7 +107,7 @@
                                 Classes="TextInput"
                                 FontSize="12"
                                 Foreground="{DynamicResource text-muted}"
-                                Text="{lang:Translate instance.create.modpack.minecraft.version}" />
+                                Text="{localization:Translate instance.create.modpack.minecraft.version}" />
                             <!--  Input  -->
                             <ComboBox
                                 Grid.Row="1"
@@ -126,7 +126,7 @@
                             <TextBlock
                                 FontSize="12"
                                 Foreground="{DynamicResource text-muted}"
-                                Text="{lang:Translate common.categories}" />
+                                Text="{localization:Translate common.categories}" />
 
                             <ItemsControl ItemsSource="{Binding Modpack.Categories}">
                                 <ItemsControl.ItemTemplate>
@@ -225,7 +225,7 @@
                     VerticalAlignment="Center"
                     Classes="TextDropdown"
                     ItemsSource="{Binding Modpack.SelectedModpackVersions}"
-                    PlaceholderText="{lang:Translate instance.create.modpack.select}"
+                    PlaceholderText="{localization:Translate instance.create.modpack.select}"
                     SelectedItem="{Binding Modpack.SelectedModpackSelectedVersion}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
@@ -255,7 +255,7 @@
                                 Grid.Column="1"
                                 VerticalAlignment="Center"
                                 FontWeight="500"
-                                Text="{lang:Translate common.cancel}" />
+                                Text="{localization:Translate common.cancel}" />
                         </Grid>
                     </Button>
                     <!--  Create Instance Button  -->
@@ -273,7 +273,7 @@
                                 Grid.Column="1"
                                 VerticalAlignment="Center"
                                 FontWeight="500"
-                                Text="{lang:Translate instance.create.button}" />
+                                Text="{localization:Translate instance.create.button}" />
                         </Grid>
                     </Button>
                 </StackPanel>

@@ -3,9 +3,9 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
+    xmlns:localization="clr-namespace:Tavstal.KonkordLauncher.Desktop.Localization"
     d:DesignHeight="450"
     d:DesignWidth="800"
     x:DataType="vm:EditInstanceViewModel"
@@ -16,7 +16,7 @@
             <TextBlock
                 Margin="5,5,5,10"
                 Classes="SettingsCategoryText"
-                Text="{lang:Translate instance.edit.subTitle.shaderPacks}" />
+                Text="{localization:Translate instance.edit.subTitle.shaderPacks}" />
 
             <!--  Content  -->
             <Border Grid.Row="1">
@@ -30,23 +30,23 @@
                             <DataGridCheckBoxColumn
                                 Width="Auto"
                                 Binding="{Binding IsEnabled}"
-                                Header="{lang:Translate instance.edit.table.enabled}"
+                                Header="{localization:Translate instance.edit.table.enabled}"
                                 IsReadOnly="False" />
                             <!--  Name  -->
                             <DataGridTextColumn
                                 Width="*"
                                 Binding="{Binding Name}"
-                                Header="{lang:Translate instance.edit.table.name}" />
+                                Header="{localization:Translate instance.edit.table.name}" />
                             <!--  Provider  -->
                             <DataGridTextColumn
                                 Width="Auto"
                                 Binding="{Binding Platform}"
-                                Header="{lang:Translate instance.edit.table.provider}" />
+                                Header="{localization:Translate instance.edit.table.provider}" />
                             <!--  Size  -->
                             <DataGridTextColumn
                                 Width="Auto"
                                 Binding="{Binding FormattedSize}"
-                                Header="{lang:Translate instance.edit.table.size}" />
+                                Header="{localization:Translate instance.edit.table.size}" />
                         </DataGrid.Columns>
                         <DataGrid.ContextMenu>
                             <ContextMenu>
@@ -54,18 +54,18 @@
                                 <MenuItem
                                     Command="{Binding ShaderPacks.ToggleCommand}"
                                     CommandParameter="{Binding ShaderPacks.SelectedShaderPack}"
-                                    Header="{lang:Translate common.toggle}" />
+                                    Header="{localization:Translate common.toggle}" />
                                 <Separator />
                                 <!--  Remove  -->
                                 <MenuItem
                                     Command="{Binding ShaderPacks.RemoveCommand}"
                                     CommandParameter="{Binding ShaderPacks.SelectedShaderPack}"
-                                    Header="{lang:Translate common.remove}" />
+                                    Header="{localization:Translate common.remove}" />
                                 <Separator />
                                 <!--  Download Packs  -->
-                                <MenuItem Command="{Binding ShaderPacks.DownloadCommand}" Header="{lang:Translate instance.download.shaders}" />
+                                <MenuItem Command="{Binding ShaderPacks.DownloadCommand}" Header="{localization:Translate instance.download.shaders}" />
                                 <!--  Open Folder  -->
-                                <MenuItem Command="{Binding ShaderPacks.OpenDirCommand}" Header="{lang:Translate common.open.directory}" />
+                                <MenuItem Command="{Binding ShaderPacks.OpenDirCommand}" Header="{localization:Translate common.open.directory}" />
                             </ContextMenu>
                         </DataGrid.ContextMenu>
                     </DataGrid>
@@ -82,7 +82,7 @@
                 <TextBox
                     Grid.Column="0"
                     Classes="TextInput"
-                    PlaceholderText="{lang:Translate common.search}" />
+                    PlaceholderText="{localization:Translate common.search}" />
                 <!--  Download  -->
                 <Button
                     Grid.Column="1"
@@ -97,7 +97,7 @@
                         <TextBlock
                             Grid.Column="1"
                             VerticalAlignment="Center"
-                            Text="{lang:Translate instance.edit.downloadPacks}" />
+                            Text="{localization:Translate instance.edit.downloadPacks}" />
                     </Grid>
                 </Button>
                 <!--  View Folder  -->
@@ -114,7 +114,7 @@
                         <TextBlock
                             Grid.Column="1"
                             VerticalAlignment="Center"
-                            Text="{lang:Translate common.open.directory}" />
+                            Text="{localization:Translate common.open.directory}" />
                     </Grid>
                 </Button>
             </Grid>

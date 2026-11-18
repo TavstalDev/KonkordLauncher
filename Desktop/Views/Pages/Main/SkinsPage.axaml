@@ -4,9 +4,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:domain="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Domain"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
+    xmlns:localization="clr-namespace:Tavstal.KonkordLauncher.Desktop.Localization"
     x:Name="Root"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -18,7 +18,7 @@
         RowDefinitions="Auto, *"
         RowSpacing="10">
         <!--  Title  -->
-        <TextBlock Classes="MainContentTitle" Text="{lang:Translate main.page.skins.title}" />
+        <TextBlock Classes="MainContentTitle" Text="{localization:Translate main.page.skins.title}" />
         <!--  Content  -->
         <Grid
             Grid.Row="1"
@@ -33,7 +33,7 @@
                     CornerRadius="14">
                     <StackPanel Spacing="10">
                         <!--  Title  -->
-                        <TextBlock Classes="Muted" Text="{lang:Translate main.page.skins.preview}" />
+                        <TextBlock Classes="Muted" Text="{localization:Translate main.page.skins.preview}" />
                         <!--  Options  -->
                         <Viewbox MaxHeight="280" Classes="SkinViewBox">
                             <Image Classes="SkinPreview" Source="{Binding Accounts.AccountSkinPreview.Value}" />
@@ -47,7 +47,7 @@
                     CornerRadius="14">
                     <StackPanel Spacing="10">
                         <!--  Title  -->
-                        <TextBlock Classes="Muted" Text="{lang:Translate main.page.skins.model.label}" />
+                        <TextBlock Classes="Muted" Text="{localization:Translate main.page.skins.model.label}" />
                         <!--  Options  -->
                         <Grid ColumnDefinitions="*, *" ColumnSpacing="10">
                             <!--  Wide Model  -->
@@ -57,7 +57,7 @@
                                 Command="{Binding Accounts.ModelSelectCommand}"
                                 CommandParameter="classic"
                                 IsEnabled="{Binding !Accounts.IsAccountSkinProcessing}">
-                                <TextBlock Foreground="{DynamicResource base-content}" Text="{lang:Translate main.page.skins.model.wide}" />
+                                <TextBlock Foreground="{DynamicResource base-content}" Text="{localization:Translate main.page.skins.model.wide}" />
                             </Button>
                             <!--  Slim Model  -->
                             <Button
@@ -67,7 +67,7 @@
                                 Command="{Binding Accounts.ModelSelectCommand}"
                                 CommandParameter="slim"
                                 IsEnabled="{Binding !Accounts.IsAccountSkinProcessing}">
-                                <TextBlock Foreground="{DynamicResource base-content}" Text="{lang:Translate main.page.skins.model.slim}" />
+                                <TextBlock Foreground="{DynamicResource base-content}" Text="{localization:Translate main.page.skins.model.slim}" />
                             </Button>
                         </Grid>
                     </StackPanel>
@@ -85,7 +85,7 @@
                         <Grid RowDefinitions="Auto, Auto" RowSpacing="10">
                             <!--  Title  -->
                             <Grid Grid.Row="0" ColumnDefinitions="*, Auto">
-                                <TextBlock Classes="Muted" Text="{lang:Translate main.page.skins.skins}" />
+                                <TextBlock Classes="Muted" Text="{localization:Translate main.page.skins.skins}" />
                                 <!--  Upload Button  -->
                                 <Button
                                     Grid.Column="1"
@@ -133,7 +133,7 @@
                             <TextBlock
                                 Grid.Row="0"
                                 Classes="Muted"
-                                Text="{lang:Translate main.page.skins.capes}" />
+                                Text="{localization:Translate main.page.skins.capes}" />
                             <!--  Options  -->
                             <ScrollViewer Grid.Row="1">
                                 <ItemsRepeater ItemsSource="{Binding Accounts.Capes}">

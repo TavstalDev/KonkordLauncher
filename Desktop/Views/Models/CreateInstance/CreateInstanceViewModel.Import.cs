@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -180,7 +181,7 @@ public partial class CreateInstanceViewModel_Import : KonkordObservableObject
             _progress.OpenReporter();
             IProgress<double> progress = new Progress<double>(p =>
             {
-                _progress.Report(p, "instance.download.file", "instance", p.ToString("0.00"));
+                _progress.Report(p, "instance.download.file", "instance", p.ToString("0.00", CultureInfo.InvariantCulture));
             });
 
             await _httpService.DownloadFileAsync(ImportPath, tempPath, null, progress, cancellationToken);

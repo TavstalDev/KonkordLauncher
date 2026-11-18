@@ -4,12 +4,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:enums="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Enums"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:pages="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Pages.Main"
     xmlns:templates="clr-namespace:Tavstal.KonkordLauncher.Desktop.Styles.Templates"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
-    Title="{lang:Translate main.title}"
+    xmlns:localization="clr-namespace:Tavstal.KonkordLauncher.Desktop.Localization"
+    Title="{localization:Translate main.title}"
     Width="950"
     Height="600"
     d:DesignHeight="600"
@@ -70,7 +70,7 @@
                                     <TextBlock
                                         Grid.Column="1"
                                         VerticalAlignment="Center"
-                                        Text="{lang:Translate main.sidebar.play}" />
+                                        Text="{localization:Translate main.sidebar.play}" />
                                 </Grid>
                             </Button>
                             <Button
@@ -87,7 +87,7 @@
                                     <TextBlock
                                         Grid.Column="1"
                                         VerticalAlignment="Center"
-                                        Text="{lang:Translate main.sidebar.patch}" />
+                                        Text="{localization:Translate main.sidebar.patch}" />
                                 </Grid>
                             </Button>
                             <Button
@@ -104,7 +104,7 @@
                                     <TextBlock
                                         Grid.Column="1"
                                         VerticalAlignment="Center"
-                                        Text="{lang:Translate main.sidebar.accounts.label}" />
+                                        Text="{localization:Translate main.sidebar.accounts.label}" />
                                 </Grid>
                             </Button>
                             <Button
@@ -122,7 +122,7 @@
                                     <TextBlock
                                         Grid.Column="1"
                                         VerticalAlignment="Center"
-                                        Text="{lang:Translate main.sidebar.skins}" />
+                                        Text="{localization:Translate main.sidebar.skins}" />
                                 </Grid>
                             </Button>
                             <Button
@@ -139,7 +139,7 @@
                                     <TextBlock
                                         Grid.Column="1"
                                         VerticalAlignment="Center"
-                                        Text="{lang:Translate main.sidebar.settings}" />
+                                        Text="{localization:Translate main.sidebar.settings}" />
                                 </Grid>
                             </Button>
                             <Button
@@ -156,7 +156,7 @@
                                     <TextBlock
                                         Grid.Column="1"
                                         VerticalAlignment="Center"
-                                        Text="{lang:Translate main.sidebar.about}" />
+                                        Text="{localization:Translate main.sidebar.about}" />
                                 </Grid>
                             </Button>
                         </StackPanel>
@@ -186,7 +186,7 @@
                                         FontSize="10"
                                         FontWeight="SemiLight"
                                         Foreground="{DynamicResource text-faded}"
-                                        Text="{lang:Translate main.sidebar.accounts.loggedin}" />
+                                        Text="{localization:Translate main.sidebar.accounts.loggedin}" />
                                     <!--  Username  -->
                                     <TextBlock
                                         FontSize="12"

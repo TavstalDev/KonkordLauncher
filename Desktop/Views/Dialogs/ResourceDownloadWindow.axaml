@@ -5,12 +5,12 @@
     xmlns:avalonia="clr-namespace:LoadingIndicators.Avalonia;assembly=LoadingIndicators.Avalonia"
     xmlns:converters="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Avalonia.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:md="clr-namespace:MarkView.Avalonia;assembly=MarkView.Avalonia"
     xmlns:templates="clr-namespace:Tavstal.KonkordLauncher.Desktop.Styles.Templates"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
-    Title="{lang:Translate instance.resource.download.window}"
+    xmlns:localization="clr-namespace:Tavstal.KonkordLauncher.Desktop.Localization"
+    Title="{localization:Translate instance.resource.download.window}"
     Width="900"
     Height="500"
     MinWidth="900"
@@ -50,8 +50,8 @@
                     <!--  Title  -->
                     <Border Classes="ModalTitleBorder">
                         <StackPanel>
-                            <TextBlock Text="{lang:Translate instance.resource.download.title}" />
-                            <TextBlock Classes="ModalSubTitle" Text="{lang:Translate instance.resource.download.description}" />
+                            <TextBlock Text="{localization:Translate instance.resource.download.title}" />
+                            <TextBlock Classes="ModalSubTitle" Text="{localization:Translate instance.resource.download.description}" />
                         </StackPanel>
                     </Border>
 
@@ -76,7 +76,7 @@
                                             Classes="TextInput"
                                             FontSize="12"
                                             IsReadOnly="{Binding !AllowScrollbarRefresh}"
-                                            PlaceholderText="{lang:Translate common.search}"
+                                            PlaceholderText="{localization:Translate common.search}"
                                             Text="{Binding SearchQuery, Delay=500}" />
 
                                         <!--  Platform  -->
@@ -89,7 +89,7 @@
                                                 Classes="TextInput"
                                                 FontSize="12"
                                                 Foreground="{DynamicResource text-muted}"
-                                                Text="{lang:Translate instance.create.modpack.platform}" />
+                                                Text="{localization:Translate instance.create.modpack.platform}" />
                                             <!--  Input  -->
                                             <ComboBox
                                                 Grid.Row="1"
@@ -113,7 +113,7 @@
                                                 Classes="TextInput"
                                                 FontSize="12"
                                                 Foreground="{DynamicResource text-muted}"
-                                                Text="{lang:Translate instance.create.modpack.minecraft.version}" />
+                                                Text="{localization:Translate instance.create.modpack.minecraft.version}" />
                                             <!--  Input  -->
                                             <ComboBox
                                                 Grid.Row="1"
@@ -138,7 +138,7 @@
                                                 Classes="TextInput"
                                                 FontSize="12"
                                                 Foreground="{DynamicResource text-muted}"
-                                                Text="{lang:Translate instance.create.modpack.mod.loader}" />
+                                                Text="{localization:Translate instance.create.modpack.mod.loader}" />
                                             <!--  Input  -->
                                             <ComboBox
                                                 Grid.Row="1"
@@ -162,7 +162,7 @@
                                             <TextBlock
                                                 FontSize="12"
                                                 Foreground="{DynamicResource text-muted}"
-                                                Text="{lang:Translate common.categories}" />
+                                                Text="{localization:Translate common.categories}" />
 
                                             <ItemsControl ItemsSource="{Binding Categories}">
                                                 <ItemsControl.ItemTemplate>
@@ -210,12 +210,12 @@
                                                                             Grid.Column="1"
                                                                             Classes="InstanceModTitle"
                                                                             IsVisible="{Binding IsSelected}"
-                                                                            Text="{lang:Translate instance.resource.download.selected}" />
+                                                                            Text="{localization:Translate instance.resource.download.selected}" />
                                                                         <TextBlock
                                                                             Grid.Column="1"
                                                                             Classes="InstanceModTitle"
                                                                             IsVisible="{Binding IsInstalled}"
-                                                                            Text="{lang:Translate instance.resource.download.installed}" />
+                                                                            Text="{localization:Translate instance.resource.download.installed}" />
                                                                     </Grid>
                                                                     <TextBlock
                                                                         Grid.Row="1"
@@ -339,7 +339,7 @@
                                                 Grid.Column="1"
                                                 VerticalAlignment="Center"
                                                 FontWeight="500"
-                                                Text="{lang:Translate common.cancel}" />
+                                                Text="{localization:Translate common.cancel}" />
                                         </Grid>
                                     </Button>
                                     <!--  Review Button  -->
@@ -357,7 +357,7 @@
                                                 Grid.Column="1"
                                                 VerticalAlignment="Center"
                                                 FontWeight="500"
-                                                Text="{lang:Translate common.review}" />
+                                                Text="{localization:Translate common.review}" />
                                         </Grid>
                                     </Button>
                                 </StackPanel>

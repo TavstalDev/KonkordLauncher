@@ -3,11 +3,11 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:templates="clr-namespace:Tavstal.KonkordLauncher.Desktop.Styles.Templates"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
-    Title="{lang:Translate instance.resource.review.window}"
+    xmlns:localization="clr-namespace:Tavstal.KonkordLauncher.Desktop.Localization"
+    Title="{localization:Translate instance.resource.review.window}"
     Width="600"
     Height="500"
     MinWidth="600"
@@ -41,8 +41,8 @@
                     <!--  Title  -->
                     <Border Classes="ModalTitleBorder">
                         <StackPanel>
-                            <TextBlock Text="{lang:Translate instance.resource.review.title}" />
-                            <TextBlock Classes="ModalSubTitle" Text="{lang:Translate instance.resource.review.description}" />
+                            <TextBlock Text="{localization:Translate instance.resource.review.title}" />
+                            <TextBlock Classes="ModalSubTitle" Text="{localization:Translate instance.resource.review.description}" />
                         </StackPanel>
                     </Border>
 
@@ -59,15 +59,15 @@
 
                                             <StackPanel Margin="45,5,0,5">
                                                 <StackPanel Orientation="Horizontal" Spacing="5">
-                                                    <TextBlock Foreground="{DynamicResource text-faded}" Text="{lang:Translate instance.resource.review.file}" />
+                                                    <TextBlock Foreground="{DynamicResource text-faded}" Text="{localization:Translate instance.resource.review.file}" />
                                                     <TextBlock Foreground="{DynamicResource text-faded}" Text="{Binding FileName}" />
                                                 </StackPanel>
                                                 <StackPanel Orientation="Horizontal" Spacing="5">
-                                                    <TextBlock Foreground="{DynamicResource text-faded}" Text="{lang:Translate instance.resource.review.version}" />
+                                                    <TextBlock Foreground="{DynamicResource text-faded}" Text="{localization:Translate instance.resource.review.version}" />
                                                     <TextBlock Foreground="{DynamicResource text-faded}" Text="{Binding Version}" />
                                                 </StackPanel>
                                                 <StackPanel Orientation="Horizontal" Spacing="5">
-                                                    <TextBlock Foreground="{DynamicResource text-faded}" Text="{lang:Translate instance.resource.review.platform}" />
+                                                    <TextBlock Foreground="{DynamicResource text-faded}" Text="{localization:Translate instance.resource.review.platform}" />
                                                     <TextBlock Foreground="{DynamicResource text-faded}" Text="{Binding Platform}" />
                                                 </StackPanel>
                                             </StackPanel>
@@ -92,7 +92,7 @@
                                             Grid.Column="1"
                                             VerticalAlignment="Center"
                                             FontWeight="500"
-                                            Text="{lang:Translate common.cancel}" />
+                                            Text="{localization:Translate common.cancel}" />
                                     </Grid>
                                 </Button>
                                 <!--  Ok Button  -->
@@ -107,7 +107,7 @@
                                             Grid.Column="1"
                                             VerticalAlignment="Center"
                                             FontWeight="500"
-                                            Text="{lang:Translate common.ok}" />
+                                            Text="{localization:Translate common.ok}" />
                                     </Grid>
                                 </Button>
                             </StackPanel>

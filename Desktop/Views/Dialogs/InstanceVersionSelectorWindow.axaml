@@ -3,11 +3,11 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
     xmlns:templates="clr-namespace:Tavstal.KonkordLauncher.Desktop.Styles.Templates"
-    Title="{lang:Translate instance.version.selector.window}"
+    xmlns:localization="clr-namespace:Tavstal.KonkordLauncher.Desktop.Localization"
+    Title="{localization:Translate instance.version.selector.window}"
     Width="500"
     Height="510"
     MinWidth="500"
@@ -43,8 +43,8 @@
                     <!--  Title  -->
                     <Border Classes="ModalTitleBorder">
                         <StackPanel>
-                            <TextBlock Text="{lang:Translate instance.version.selector.title}" />
-                            <TextBlock Classes="ModalSubTitle" Text="{lang:Translate instance.version.selector.description}" />
+                            <TextBlock Text="{localization:Translate instance.version.selector.title}" />
+                            <TextBlock Classes="ModalSubTitle" Text="{localization:Translate instance.version.selector.description}" />
                         </StackPanel>
                     </Border>
 
@@ -54,7 +54,7 @@
                             <Border Classes="SettingsCategoryBorder">
                                 <Grid RowDefinitions="Auto, Auto, Auto">
                                     <!--  Category Title  -->
-                                    <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.category.minecraft.version.title}" />
+                                    <TextBlock Classes="SettingsCategoryText" Text="{localization:Translate instance.create.category.minecraft.version.title}" />
 
                                     <ComboBox
                                         Grid.Row="1"
@@ -75,15 +75,15 @@
                                         ItemSpacing="10"
                                         Orientation="Horizontal">
                                         <!--  Release  -->
-                                        <CheckBox Content="{lang:Translate instance.create.releases}" IsChecked="{Binding ShowReleases, Mode=TwoWay}" />
+                                        <CheckBox Content="{localization:Translate instance.create.releases}" IsChecked="{Binding ShowReleases, Mode=TwoWay}" />
                                         <!--  Snapshot  -->
-                                        <CheckBox Content="{lang:Translate instance.create.snapshots}" IsChecked="{Binding ShowSnapshots, Mode=TwoWay}" />
+                                        <CheckBox Content="{localization:Translate instance.create.snapshots}" IsChecked="{Binding ShowSnapshots, Mode=TwoWay}" />
                                         <!--  Beta  -->
-                                        <CheckBox Content="{lang:Translate instance.create.betas}" IsChecked="{Binding ShowBetas, Mode=TwoWay}" />
+                                        <CheckBox Content="{localization:Translate instance.create.betas}" IsChecked="{Binding ShowBetas, Mode=TwoWay}" />
                                         <!--  Alpha  -->
-                                        <CheckBox Content="{lang:Translate instance.create.alphas}" IsChecked="{Binding ShowAlphas, Mode=TwoWay}" />
+                                        <CheckBox Content="{localization:Translate instance.create.alphas}" IsChecked="{Binding ShowAlphas, Mode=TwoWay}" />
                                         <!--  Experiment  -->
-                                        <CheckBox Content="{lang:Translate instance.create.experiments}" IsChecked="{Binding ShowExperiments, Mode=TwoWay}" />
+                                        <CheckBox Content="{localization:Translate instance.create.experiments}" IsChecked="{Binding ShowExperiments, Mode=TwoWay}" />
                                     </WrapPanel>
                                 </Grid>
                             </Border>
@@ -94,7 +94,7 @@
                                 IsEnabled="{Binding IsModded}">
                                 <Grid RowDefinitions="Auto, Auto">
                                     <!--  Category Title  -->
-                                    <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.category.mod_loader.title}" />
+                                    <TextBlock Classes="SettingsCategoryText" Text="{localization:Translate instance.create.category.mod_loader.title}" />
 
                                     <ComboBox
                                         Grid.Row="1"
@@ -131,7 +131,7 @@
                                             Grid.Column="1"
                                             VerticalAlignment="Center"
                                             FontWeight="500"
-                                            Text="{lang:Translate common.cancel}" />
+                                            Text="{localization:Translate common.cancel}" />
                                     </Grid>
                                 </Button>
                                 <!--  Save Button  -->
@@ -149,7 +149,7 @@
                                             Grid.Column="1"
                                             VerticalAlignment="Center"
                                             FontWeight="500"
-                                            Text="{lang:Translate common.save}" />
+                                            Text="{localization:Translate common.save}" />
                                     </Grid>
                                 </Button>
                             </StackPanel>

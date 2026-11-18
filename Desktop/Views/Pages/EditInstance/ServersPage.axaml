@@ -3,9 +3,9 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
+    xmlns:localization="clr-namespace:Tavstal.KonkordLauncher.Desktop.Localization"
     d:DesignHeight="450"
     d:DesignWidth="800"
     x:DataType="vm:EditInstanceViewModel"
@@ -16,7 +16,7 @@
             <TextBlock
                 Margin="5,5,5,10"
                 Classes="SettingsCategoryText"
-                Text="{lang:Translate instance.edit.subTitle.servers}" />
+                Text="{localization:Translate instance.edit.subTitle.servers}" />
 
             <!--  Content  -->
             <Border Grid.Row="1">
@@ -29,7 +29,7 @@
                         SelectedItem="{Binding Servers.SelectedServer}">
                         <DataGrid.Columns>
                             <!--  Icon & Name  -->
-                            <DataGridTemplateColumn Width="*" Header="{lang:Translate instance.edit.table.name}">
+                            <DataGridTemplateColumn Width="*" Header="{localization:Translate instance.edit.table.name}">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal" Spacing="5">
@@ -60,7 +60,7 @@
                             <DataGridTextColumn
                                 Width="*"
                                 Binding="{Binding Ip}"
-                                Header="{lang:Translate instance.edit.table.ipAddress}" />
+                                Header="{localization:Translate instance.edit.table.ipAddress}" />
                         </DataGrid.Columns>
                         <DataGrid.ContextMenu>
                             <ContextMenu>
@@ -68,7 +68,7 @@
                                 <MenuItem
                                     Command="{Binding Servers.RemoveCommand}"
                                     CommandParameter="{Binding Servers.SelectedServer}"
-                                    Header="{lang:Translate common.remove}" />
+                                    Header="{localization:Translate common.remove}" />
                             </ContextMenu>
                         </DataGrid.ContextMenu>
                     </DataGrid>
@@ -107,7 +107,7 @@
                         <TextBlock
                             Grid.Column="1"
                             VerticalAlignment="Center"
-                            Text="{lang:Translate common.add}" />
+                            Text="{localization:Translate common.add}" />
                     </Grid>
                 </Button>
             </Grid>

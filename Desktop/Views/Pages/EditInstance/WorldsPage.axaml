@@ -3,9 +3,9 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
+    xmlns:localization="clr-namespace:Tavstal.KonkordLauncher.Desktop.Localization"
     d:DesignHeight="450"
     d:DesignWidth="800"
     x:DataType="vm:EditInstanceViewModel"
@@ -16,7 +16,7 @@
             <TextBlock
                 Margin="5,5,5,10"
                 Classes="SettingsCategoryText"
-                Text="{lang:Translate instance.edit.subTitle.worlds}" />
+                Text="{localization:Translate instance.edit.subTitle.worlds}" />
 
             <!--  Content  -->
             <Border Grid.Row="1">
@@ -31,7 +31,7 @@
                         SelectedItem="{Binding Worlds.SelectedWorld}">
                         <DataGrid.Columns>
                             <!--  Icon & Name  -->
-                            <DataGridTemplateColumn Width="*" Header="{lang:Translate instance.edit.table.name}">
+                            <DataGridTemplateColumn Width="*" Header="{localization:Translate instance.edit.table.name}">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal" Spacing="5">
@@ -62,19 +62,19 @@
                             <DataGridTextColumn
                                 Width="Auto"
                                 Binding="{Binding Gamemode}"
-                                Header="{lang:Translate instance.edit.table.gameMode}"
+                                Header="{localization:Translate instance.edit.table.gameMode}"
                                 IsReadOnly="True" />
                             <!--  Last Played  -->
                             <DataGridTextColumn
                                 Width="Auto"
                                 Binding="{Binding FormattedLastPlayed}"
-                                Header="{lang:Translate instance.edit.table.lastPlayed}"
+                                Header="{localization:Translate instance.edit.table.lastPlayed}"
                                 IsReadOnly="True" />
                             <!--  Size  -->
                             <DataGridTextColumn
                                 Width="Auto"
                                 Binding="{Binding FormattedSize}"
-                                Header="{lang:Translate instance.edit.table.size}"
+                                Header="{localization:Translate instance.edit.table.size}"
                                 IsReadOnly="True" />
                         </DataGrid.Columns>
                         <DataGrid.ContextMenu>
@@ -83,28 +83,28 @@
                                 <MenuItem
                                     Command="{Binding Worlds.DuplicateCommand}"
                                     CommandParameter="{Binding Worlds.SelectedWorld}"
-                                    Header="{lang:Translate common.duplicate}" />
+                                    Header="{localization:Translate common.duplicate}" />
                                 <!--  Rename  -->
                                 <MenuItem
                                     Command="{Binding RenameWorldCommand}"
                                     CommandParameter="{Binding Worlds.SelectedWorld}"
-                                    Header="{lang:Translate common.rename}" />
+                                    Header="{localization:Translate common.rename}" />
                                 <!--  Delete  -->
                                 <MenuItem
                                     Command="{Binding Worlds.DeleteCommand}"
                                     CommandParameter="{Binding Worlds.SelectedWorld}"
-                                    Header="{lang:Translate common.delete}" />
+                                    Header="{localization:Translate common.delete}" />
                                 <Separator />
                                 <!--  Copy Speed  -->
                                 <MenuItem
                                     Command="{Binding Worlds.CopySeedCommand}"
                                     CommandParameter="{Binding Worlds.SelectedWorld}"
-                                    Header="{lang:Translate instance.edit.copySeed}" />
+                                    Header="{localization:Translate instance.edit.copySeed}" />
                                 <!--  Open Folder  -->
                                 <MenuItem
                                     Command="{Binding Worlds.OpenDirCommand}"
                                     CommandParameter="{Binding Worlds.SelectedWorld}"
-                                    Header="{lang:Translate common.open.directory}" />
+                                    Header="{localization:Translate common.open.directory}" />
                             </ContextMenu>
                         </DataGrid.ContextMenu>
                     </DataGrid>

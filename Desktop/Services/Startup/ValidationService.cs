@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -168,7 +169,7 @@ public class ValidationService : IValidationService
                 progress.ProgressChanged += (_, e) =>
                 {
                     progressReporter?.Report(e, "startup.validation.manifests.download", "minecraft",
-                        e.ToString("0.00"));
+                        e.ToString("0.00", CultureInfo.InvariantCulture));
                 };
                 await _manifestService.DownloadMinecraftManifestAsync(settings.Launcher.GetVanillaManifestPath(),
                     progress, cancellationToken);
@@ -184,7 +185,7 @@ public class ValidationService : IValidationService
                 var progress = new Progress<double>();
                 progress.ProgressChanged += (_, e) =>
                 {
-                    progressReporter?.Report(e, "startup.validation.manifests.download", "fabric", e.ToString("0.00"));
+                    progressReporter?.Report(e, "startup.validation.manifests.download", "fabric", e.ToString("0.00", CultureInfo.InvariantCulture));
                 };
                 await _manifestService.DownloadFabricManifestAsync(settings.Launcher.GetFabricManifestPath(), progress,
                     cancellationToken);
@@ -200,7 +201,7 @@ public class ValidationService : IValidationService
                 var progress = new Progress<double>();
                 progress.ProgressChanged += (_, e) =>
                 {
-                    progressReporter?.Report(e, "startup.validation.manifests.download", "quilt", e.ToString("0.00"));
+                    progressReporter?.Report(e, "startup.validation.manifests.download", "quilt", e.ToString("0.00", CultureInfo.InvariantCulture));
                 };
                 await _manifestService.DownloadQuiltManifestAsync(settings.Launcher.GetQuiltManifestPath(), progress,
                     cancellationToken);
@@ -216,7 +217,7 @@ public class ValidationService : IValidationService
                 var progress = new Progress<double>();
                 progress.ProgressChanged += (_, e) =>
                 {
-                    progressReporter?.Report(e, "startup.validation.manifests.download", "forge", e.ToString("0.00"));
+                    progressReporter?.Report(e, "startup.validation.manifests.download", "forge", e.ToString("0.00", CultureInfo.InvariantCulture));
                 };
                 await _manifestService.DownloadForgeManifestAsync(settings.Launcher.GetForgeManifestPath(), progress,
                     cancellationToken);
@@ -236,7 +237,7 @@ public class ValidationService : IValidationService
                     progress.ProgressChanged += (_, e) =>
                     {
                         progressReporter?.Report(e, "startup.validation.manifests.download", "neoforge",
-                            e.ToString("0.00"));
+                            e.ToString("0.00", CultureInfo.InvariantCulture));
                     };
                     await _manifestService.DownloadNeoForgeManifestAsync(settings.Launcher.GetNeoForgeManifestPath(),
                         progress, cancellationToken);

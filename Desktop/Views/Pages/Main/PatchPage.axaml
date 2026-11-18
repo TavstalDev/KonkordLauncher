@@ -4,10 +4,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:dtOs="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.DTOs"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:md="clr-namespace:MarkView.Avalonia;assembly=MarkView.Avalonia"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
+    xmlns:localization="clr-namespace:Tavstal.KonkordLauncher.Desktop.Localization"
     x:Name="Root"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -40,7 +40,7 @@
                             <TextBlock
                                 Grid.Column="1"
                                 VerticalAlignment="Center"
-                                Text="{lang:Translate main.page.patch.read}" />
+                                Text="{localization:Translate main.page.patch.read}" />
                         </Grid>
                     </HyperlinkButton>
                 </Grid>
@@ -56,12 +56,12 @@
         <TextBlock
             Margin="0,0,0,20"
             Classes="MainContentTitle"
-            Text="{lang:Translate main.page.patch.title}" />
+            Text="{localization:Translate main.page.patch.title}" />
         <!--  Empty text  -->
         <TextBlock
             Grid.Row="1"
             IsVisible="{Binding !HasPatches}"
-            Text="{lang:Translate main.page.patch.empty}" />
+            Text="{localization:Translate main.page.patch.empty}" />
         <!--  News Grid  -->
         <ListBox
             Grid.Row="2"

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -259,7 +260,7 @@ public class ModrinthPackageService : IPackageService
 
                     var prog = new Progress<double>(p =>
                     {
-                        progress?.Report(p, "instance.download.file", path, p.ToString("0.00"));
+                        progress?.Report(p, "instance.download.file", path, p.ToString("0.00", CultureInfo.InvariantCulture));
                     });
                     tasks.Add(_httpService.DownloadFileAsync(url, finalPath, null, prog, cancellationToken));
                 }

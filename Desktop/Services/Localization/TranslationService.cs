@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Localization;
 using Tavstal.KonkordLauncher.Desktop.Services.Storage;
-using Tavstal.KonkordLauncher.Desktop.Translation;
 using YamlDotNet.RepresentationModel;
 
 namespace Tavstal.KonkordLauncher.Desktop.Services.Localization;

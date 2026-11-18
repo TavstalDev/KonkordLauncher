@@ -254,7 +254,7 @@ public partial class InstanceVersionSelectorViewModel : KonkordObservableObject
         var forgeManifestCache =
             await _manifestService.GetForgeManifestAsync(settings.Launcher.GetForgeManifestPath(), cancellationToken);
         var neoForgeManifestCache =
-            await _manifestService.GetNeoForgeManifestAsync(settings.Launcher.GetNeoForgeManifestPath());
+            await _manifestService.GetNeoForgeManifestAsync(settings.Launcher.GetNeoForgeManifestPath(), cancellationToken);
         var quiltManifestCache =
             await _manifestService.GetQuiltManifestAsync(settings.Launcher.GetQuiltManifestPath(), cancellationToken);
 

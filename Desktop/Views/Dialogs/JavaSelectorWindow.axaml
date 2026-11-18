@@ -3,11 +3,11 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
     xmlns:templates="clr-namespace:Tavstal.KonkordLauncher.Desktop.Styles.Templates"
-    Title="{lang:Translate java.title}"
+    xmlns:localization="clr-namespace:Tavstal.KonkordLauncher.Desktop.Localization"
+    Title="{localization:Translate java.title}"
     Width="500"
     Height="410"
     MinWidth="500"
@@ -43,8 +43,8 @@
                     <!--  Title  -->
                     <Border Classes="ModalTitleBorder">
                         <StackPanel>
-                            <TextBlock Text="{lang:Translate java.select.title}" />
-                            <TextBlock Classes="ModalSubTitle" Text="{lang:Translate java.select.subtitle}" />
+                            <TextBlock Text="{localization:Translate java.select.title}" />
+                            <TextBlock Classes="ModalSubTitle" Text="{localization:Translate java.select.subtitle}" />
                         </StackPanel>
                     </Border>
 
@@ -64,22 +64,22 @@
                                 <DataGridTextColumn
                                     Width="Auto"
                                     Binding="{Binding Major}"
-                                    Header="{lang:Translate java.table.major}" />
+                                    Header="{localization:Translate java.table.major}" />
                                 <!--  Version  -->
                                 <DataGridTextColumn
                                     Width="Auto"
                                     Binding="{Binding Version}"
-                                    Header="{lang:Translate java.table.version}" />
+                                    Header="{localization:Translate java.table.version}" />
                                 <!--  Architecture  -->
                                 <DataGridTextColumn
                                     Width="Auto"
                                     Binding="{Binding Architecture}"
-                                    Header="{lang:Translate java.table.architecture}" />
+                                    Header="{localization:Translate java.table.architecture}" />
                                 <!--  Path  -->
                                 <DataGridTextColumn
                                     Width="Auto"
                                     Binding="{Binding Path}"
-                                    Header="{lang:Translate java.table.path}" />
+                                    Header="{localization:Translate java.table.path}" />
                             </DataGrid.Columns>
                         </DataGrid>
                     </ScrollViewer>
@@ -104,7 +104,7 @@
                                         Grid.Column="1"
                                         VerticalAlignment="Center"
                                         FontWeight="500"
-                                        Text="{lang:Translate common.ok}" />
+                                        Text="{localization:Translate common.ok}" />
                                 </Grid>
                             </Button>
 
@@ -120,7 +120,7 @@
                                         Grid.Column="1"
                                         VerticalAlignment="Center"
                                         FontWeight="500"
-                                        Text="{lang:Translate common.cancel}" />
+                                        Text="{localization:Translate common.cancel}" />
                                 </Grid>
                             </Button>
                         </StackPanel>

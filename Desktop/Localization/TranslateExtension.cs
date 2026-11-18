@@ -2,7 +2,7 @@ using System;
 using Avalonia.Data;
 using Avalonia.Markup.Xaml;
 
-namespace Tavstal.KonkordLauncher.Desktop.Translation;
+namespace Tavstal.KonkordLauncher.Desktop.Localization;
 
 public class TranslateExtension : MarkupExtension
 {

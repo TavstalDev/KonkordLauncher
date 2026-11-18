@@ -3,9 +3,9 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
+    xmlns:localization="clr-namespace:Tavstal.KonkordLauncher.Desktop.Localization"
     d:DesignHeight="450"
     d:DesignWidth="800"
     x:DataType="vm:EditInstanceViewModel"
@@ -16,7 +16,7 @@
             <TextBlock
                 Margin="5,5,5,10"
                 Classes="SettingsCategoryText"
-                Text="{lang:Translate instance.edit.latestLog}" />
+                Text="{localization:Translate instance.edit.latestLog}" />
 
             <!--  Log content  -->
             <Border
@@ -50,7 +50,7 @@
                 <TextBox
                     Grid.Column="0"
                     Classes="TextInput"
-                    PlaceholderText="{lang:Translate common.search}" />
+                    PlaceholderText="{localization:Translate common.search}" />
                 <!--  To bottom button  -->
                 <Button
                     Grid.Column="1"
@@ -65,7 +65,7 @@
                         <TextBlock
                             Grid.Column="1"
                             VerticalAlignment="Center"
-                            Text="{lang:Translate common.bottom}" />
+                            Text="{localization:Translate common.bottom}" />
                     </Grid>
                 </Button>
                 <!--  Copy button  -->
@@ -82,7 +82,7 @@
                         <TextBlock
                             Grid.Column="1"
                             VerticalAlignment="Center"
-                            Text="{lang:Translate common.copy}" />
+                            Text="{localization:Translate common.copy}" />
                     </Grid>
                 </Button>
                 <!--  Clear button  -->
@@ -99,7 +99,7 @@
                         <TextBlock
                             Grid.Column="1"
                             VerticalAlignment="Center"
-                            Text="{lang:Translate common.clear}" />
+                            Text="{localization:Translate common.clear}" />
                     </Grid>
                 </Button>
             </Grid>

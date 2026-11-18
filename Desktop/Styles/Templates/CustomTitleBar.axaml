@@ -1,8 +1,8 @@
 <Styles
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
-    xmlns:templates="clr-namespace:Tavstal.KonkordLauncher.Desktop.Styles.Templates">
+    xmlns:templates="clr-namespace:Tavstal.KonkordLauncher.Desktop.Styles.Templates"
+    xmlns:localization="clr-namespace:Tavstal.KonkordLauncher.Desktop.Localization">
     <Style Selector="templates|CustomTitleBar">
         <Setter Property="Template">
             <ControlTemplate>
@@ -17,18 +17,18 @@
                             <Button
                                 x:Name="PART_MinimizeButton"
                                 Classes="WindowBtn WarningBtn"
-                                ToolTip.Tip="{lang:Translate main.window.minimize}" />
+                                ToolTip.Tip="{localization:Translate main.window.minimize}" />
 
                             <Button
                                 x:Name="PART_MaximizeButton"
                                 Classes="WindowBtn SuccessBtn"
                                 IsEnabled="{Binding $parent[Window].CanResize}"
-                                ToolTip.Tip="{lang:Translate main.window.maximize}" />
+                                ToolTip.Tip="{localization:Translate main.window.maximize}" />
 
                             <Button
                                 x:Name="PART_CloseButton"
                                 Classes="WindowBtn ErrorBtn"
-                                ToolTip.Tip="{lang:Translate main.window.close}" />
+                                ToolTip.Tip="{localization:Translate main.window.close}" />
                         </StackPanel>
                     </Grid>
                 </Border>

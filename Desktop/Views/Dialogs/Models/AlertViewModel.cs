@@ -18,9 +18,6 @@ public partial class AlertViewModel : KonkordObservableObject
     /// <summary>
     ///     Creates a new alert view model and configures its icon/color based on the supplied type.
     /// </summary>
-    /// <param name="title">Alert dialog title.</param>
-    /// <param name="message">Alert dialog message body.</param>
-    /// <param name="type">The alert type that controls styling and button visibility.</param>
     public AlertViewModel()
     {
         Title = "Design Time Title";

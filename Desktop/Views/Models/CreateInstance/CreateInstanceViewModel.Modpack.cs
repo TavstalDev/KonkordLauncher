@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -93,16 +94,19 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
         _modrinthPackageService = modrinthPackageService;
         _dialogService = dialogService;
 
-        Categories.Add(new CategoryModel { Name = "adventure", TranslationKey = "instance.create.category.adventure" });
-        Categories.Add(new CategoryModel { Name = "challenging", TranslationKey = "instance.create.category.challenging" });
-        Categories.Add(new CategoryModel { Name = "combat", TranslationKey = "instance.create.category.combat" });
-        Categories.Add(new CategoryModel { Name = "kitchen_sink", TranslationKey = "instance.create.category.kitchenSink" });
-        Categories.Add(new CategoryModel { Name = "lightweight", TranslationKey = "instance.create.category.lightweight" });
-        Categories.Add(new CategoryModel { Name = "magic", TranslationKey = "instance.create.category.magic" });
-        Categories.Add(new CategoryModel { Name = "multiplayer", TranslationKey = "instance.create.category.multiplayer" });
-        Categories.Add(new CategoryModel { Name = "optimization", TranslationKey = "instance.create.category.optimization" });
-        Categories.Add(new CategoryModel { Name = "quests", TranslationKey = "instance.create.category.quests" });
-        Categories.Add(new CategoryModel { Name = "technology", TranslationKey = "instance.create.category.technology" });
+        Categories =
+        [
+            new CategoryModel { Name = "adventure", TranslationKey = "instance.create.category.adventure" },
+            new CategoryModel { Name = "challenging", TranslationKey = "instance.create.category.challenging" },
+            new CategoryModel { Name = "combat", TranslationKey = "instance.create.category.combat" },
+            new CategoryModel { Name = "kitchen_sink", TranslationKey = "instance.create.category.kitchenSink" },
+            new CategoryModel { Name = "lightweight", TranslationKey = "instance.create.category.lightweight" },
+            new CategoryModel { Name = "magic", TranslationKey = "instance.create.category.magic" },
+            new CategoryModel { Name = "multiplayer", TranslationKey = "instance.create.category.multiplayer" },
+            new CategoryModel { Name = "optimization", TranslationKey = "instance.create.category.optimization" },
+            new CategoryModel { Name = "quests", TranslationKey = "instance.create.category.quests" },
+            new CategoryModel { Name = "technology", TranslationKey = "instance.create.category.technology" }
+        ];
     }
 
     /// <summary>
@@ -272,7 +276,7 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
 
             List<string> categories = [];
             if (ModLoader != EMinecraftKind.VANILLA)
-                categories.Add(ModLoader.ToString().ToLower());
+                categories.Add(ModLoader.ToString().ToLowerInvariant());
 
             foreach (var cat in Categories)
             {
@@ -369,7 +373,7 @@ public partial class CreateInstanceViewModel_Modpack : KonkordObservableObject
             _progress.OpenReporter();
             var prog = new Progress<double>(p =>
             {
-                _progress.Report(p, "instance.download.file", file.FileName, p.ToString("0.00"));
+                _progress.Report(p, "instance.download.file", file.FileName, p.ToString("0.00", CultureInfo.InvariantCulture));
             });
 
             await _httpService.DownloadFileAsync(file.Url, tempPath, file.Hashes.Sha1, prog, cancellationToken);

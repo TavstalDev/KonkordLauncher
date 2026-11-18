@@ -17,6 +17,7 @@ using Tavstal.BeaconSDK.Models;
 using Tavstal.BeaconSDK.Models.Instance;
 using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Services.Abstractions;
+using Tavstal.KonkordLauncher.Desktop.Localization;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Services;
@@ -25,7 +26,6 @@ using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Services.Startup;
 using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 using Tavstal.KonkordLauncher.Desktop.Services.Update;
-using Tavstal.KonkordLauncher.Desktop.Translation;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views;

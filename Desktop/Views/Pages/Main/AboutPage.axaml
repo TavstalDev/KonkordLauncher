@@ -4,9 +4,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:domain="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Domain"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
+    xmlns:localization="clr-namespace:Tavstal.KonkordLauncher.Desktop.Localization"
     x:Name="Root"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -18,7 +18,7 @@
 
     <Grid Margin="20,20,20,0" RowDefinitions="Auto, Auto, *">
         <!--  Title  -->
-        <TextBlock Classes="MainContentTitle" Text="{lang:Translate about.tab.about}" />
+        <TextBlock Classes="MainContentTitle" Text="{localization:Translate about.tab.about}" />
 
         <!--  Tab Buttons  -->
         <Border Grid.Row="1" Classes="SettingsTabBorder">
@@ -27,19 +27,19 @@
                     Name="AboutInfoBtn"
                     Classes="SettingsTabBtn SettingsTabBtnActive"
                     Click="AboutInfoBtn_OnClick">
-                    <TextBlock Text="{lang:Translate about.tab.about}" />
+                    <TextBlock Text="{localization:Translate about.tab.about}" />
                 </Button>
                 <Button
                     Name="CreditsInfoBtn"
                     Classes="SettingsTabBtn"
                     Click="CreditsInfoBtn_OnClick">
-                    <TextBlock Text="{lang:Translate about.tab.credits}" />
+                    <TextBlock Text="{localization:Translate about.tab.credits}" />
                 </Button>
                 <Button
                     Name="LicenseInfoBtn"
                     Classes="SettingsTabBtn"
                     Click="LicenseInfoBtn_OnClick">
-                    <TextBlock Text="{lang:Translate about.tab.license}" />
+                    <TextBlock Text="{localization:Translate about.tab.license}" />
                 </Button>
             </WrapPanel>
         </Border>
@@ -65,7 +65,7 @@
                         <TextBlock
                             Grid.Row="1"
                             Classes="CreditText"
-                            Text="{lang:Translate about.description}" />
+                            Text="{localization:Translate about.description}" />
                         <!--  Github Link  -->
                         <HyperlinkButton
                             Grid.Row="2"
@@ -88,17 +88,17 @@
                         <Border Grid.Row="4" Classes="BreakLine" />
                         <!--  Version  -->
                         <WrapPanel Grid.Row="5" Classes="AboutVersionWrapper">
-                            <TextBlock Classes="CreditText" Text="{lang:Translate about.version}" />
+                            <TextBlock Classes="CreditText" Text="{localization:Translate about.version}" />
                             <TextBlock Classes="CreditText" Text="{Binding About.Version}" />
                         </WrapPanel>
                         <!--  Build Date  -->
                         <WrapPanel Grid.Row="6" Classes="AboutVersionWrapper">
-                            <TextBlock Classes="CreditText" Text="{lang:Translate about.buildDate}" />
+                            <TextBlock Classes="CreditText" Text="{localization:Translate about.buildDate}" />
                             <TextBlock Classes="CreditText" Text="{Binding About.BuildDate}" />
                         </WrapPanel>
                         <!--  Branch  -->
                         <WrapPanel Grid.Row="7" Classes="AboutVersionWrapper">
-                            <TextBlock Classes="CreditText" Text="{lang:Translate about.branch}" />
+                            <TextBlock Classes="CreditText" Text="{localization:Translate about.branch}" />
                             <TextBlock Classes="CreditText" Text="{Binding About.Branch}" />
                         </WrapPanel>
                     </Grid>
@@ -110,7 +110,7 @@
                         <!--  Project Maintainers  -->
                         <WrapPanel Classes="CreditWrapper">
                             <!--  Subtitle  -->
-                            <TextBlock Classes="AboutCategory" Text="{lang:Translate about.credits.projectMaintainers}" />
+                            <TextBlock Classes="AboutCategory" Text="{localization:Translate about.credits.projectMaintainers}" />
                             <TextBlock Classes="CreditText">
                                 Tavstal
                             </TextBlock>
@@ -120,7 +120,7 @@
                         <!--  Contributors  -->
                         <WrapPanel Grid.Row="2" Classes="CreditWrapper">
                             <!--  Subtitle  -->
-                            <TextBlock Classes="AboutCategory" Text="{lang:Translate about.credits.contributors}" />
+                            <TextBlock Classes="AboutCategory" Text="{localization:Translate about.credits.contributors}" />
                             <TextBlock Classes="CreditText">
                                 -
                             </TextBlock>
@@ -133,7 +133,7 @@
                         <!--  Special Thanks  -->
                         <WrapPanel Grid.Row="4" Classes="CreditWrapper">
                             <!--  Subtitle  -->
-                            <TextBlock Classes="AboutCategory" Text="{lang:Translate about.credits.specialThanks}" />
+                            <TextBlock Classes="AboutCategory" Text="{localization:Translate about.credits.specialThanks}" />
                             <TextBlock Classes="CreditText">
                                 -
                             </TextBlock>
@@ -146,7 +146,7 @@
                         <!--  Third-Party  -->
                         <WrapPanel Grid.Row="6" Classes="CreditWrapper">
                             <!--  Subtitle  -->
-                            <TextBlock Classes="AboutCategory" Text="{lang:Translate about.credits.thirdParty}" />
+                            <TextBlock Classes="AboutCategory" Text="{localization:Translate about.credits.thirdParty}" />
                             <!--  AvaloniaUI  -->
                             <TextBlock Classes="CreditText">
                                 AvaloniaUI: Cross-platform UI framework.

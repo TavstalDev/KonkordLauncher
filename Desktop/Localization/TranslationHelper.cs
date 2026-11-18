@@ -3,7 +3,7 @@ using Avalonia.Controls;
 using Tavstal.BeaconSDK.Models;
 using Tavstal.KonkordLauncher.Desktop.Services.Localization;
 
-namespace Tavstal.KonkordLauncher.Desktop.Translation;
+namespace Tavstal.KonkordLauncher.Desktop.Localization;
 
 public static class TranslationHelper
 {

@@ -3,9 +3,9 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
+    xmlns:localization="clr-namespace:Tavstal.KonkordLauncher.Desktop.Localization"
     d:DesignHeight="450"
     d:DesignWidth="800"
     x:DataType="vm:EditInstanceViewModel"
@@ -16,7 +16,7 @@
             <TextBlock
                 Margin="5,5,5,10"
                 Classes="SettingsCategoryText"
-                Text="{lang:Translate instance.edit.subTitle.resourcePacks}" />
+                Text="{localization:Translate instance.edit.subTitle.resourcePacks}" />
 
             <!--  Content  -->
             <Border Grid.Row="1">
@@ -32,10 +32,10 @@
                             <DataGridCheckBoxColumn
                                 Width="Auto"
                                 Binding="{Binding IsEnabled, Mode=TwoWay}"
-                                Header="{lang:Translate instance.edit.table.enabled}"
+                                Header="{localization:Translate instance.edit.table.enabled}"
                                 IsReadOnly="False" />
                             <!--  Image  -->
-                            <DataGridTemplateColumn Width="Auto" Header="{lang:Translate instance.edit.table.image}">
+                            <DataGridTemplateColumn Width="Auto" Header="{localization:Translate instance.edit.table.image}">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Image
@@ -50,19 +50,19 @@
                             <DataGridTextColumn
                                 Width="Auto"
                                 Binding="{Binding Name}"
-                                Header="{lang:Translate instance.edit.table.name}"
+                                Header="{localization:Translate instance.edit.table.name}"
                                 IsReadOnly="True" />
                             <!--  Provider  -->
                             <DataGridTextColumn
                                 Width="Auto"
                                 Binding="{Binding Platform}"
-                                Header="{lang:Translate instance.edit.table.provider}"
+                                Header="{localization:Translate instance.edit.table.provider}"
                                 IsReadOnly="True" />
                             <!--  Size  -->
                             <DataGridTextColumn
                                 Width="Auto"
                                 Binding="{Binding FormattedSize}"
-                                Header="{lang:Translate instance.edit.table.size}"
+                                Header="{localization:Translate instance.edit.table.size}"
                                 IsReadOnly="True" />
                         </DataGrid.Columns>
                         <DataGrid.ContextMenu>
@@ -71,21 +71,21 @@
                                 <MenuItem
                                     Command="{Binding ResourcePacks.ToggleCommand}"
                                     CommandParameter="{Binding ResourcePacks.SelectedResourcePack}"
-                                    Header="{lang:Translate common.toggle}" />
+                                    Header="{localization:Translate common.toggle}" />
                                 <Separator />
                                 <!--  Remove  -->
                                 <MenuItem
                                     Command="{Binding ResourcePacks.RemoveCommand}"
                                     CommandParameter="{Binding ResourcePacks.SelectedResourcePack}"
-                                    Header="{lang:Translate common.remove}" />
+                                    Header="{localization:Translate common.remove}" />
                                 <Separator />
                                 <!--  Download Packs  -->
                                 <MenuItem
                                     Command="{Binding ResourcePacks.DownloadCommand}"
                                     CommandParameter="{Binding ResourcePacks.SelectedResourcePack}"
-                                    Header="{lang:Translate instance.download.resourcePacks}" />
+                                    Header="{localization:Translate instance.download.resourcePacks}" />
                                 <!--  Open Folder  -->
-                                <MenuItem Command="{Binding ResourcePacks.OpenDirCommand}" Header="{lang:Translate common.open.directory}" />
+                                <MenuItem Command="{Binding ResourcePacks.OpenDirCommand}" Header="{localization:Translate common.open.directory}" />
                             </ContextMenu>
                         </DataGrid.ContextMenu>
                     </DataGrid>
@@ -102,7 +102,7 @@
                 <TextBox
                     Grid.Column="0"
                     Classes="TextInput"
-                    PlaceholderText="{lang:Translate common.search}"
+                    PlaceholderText="{localization:Translate common.search}"
                     Text="{Binding ResourcePacks.SearchQuery}" />
                 <!--  Download  -->
                 <Button
@@ -118,7 +118,7 @@
                         <TextBlock
                             Grid.Column="1"
                             VerticalAlignment="Center"
-                            Text="{lang:Translate instance.edit.downloadPacks}" />
+                            Text="{localization:Translate instance.edit.downloadPacks}" />
                     </Grid>
                 </Button>
                 <!--  View Folder  -->
@@ -135,7 +135,7 @@
                         <TextBlock
                             Grid.Column="1"
                             VerticalAlignment="Center"
-                            Text="{lang:Translate common.open.directory}" />
+                            Text="{localization:Translate common.open.directory}" />
                     </Grid>
                 </Button>
             </Grid>

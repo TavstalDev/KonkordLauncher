@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -369,7 +370,7 @@ public partial class InstanceModel : ObservableObject, IKonkordProgress, IDispos
                     var prog = new Progress<double>(p =>
                     {
                         Report(p, "instance.download.file", $"java {requiredJavaVersion}",
-                            p.ToString("0.00"));
+                            p.ToString("0.00", CultureInfo.InvariantCulture));
                     });
 
                     var mirrorsPath = Path.Combine(settings.Launcher.CacheDirectoryPath, "javaMirrors.json");

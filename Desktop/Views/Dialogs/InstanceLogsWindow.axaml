@@ -3,11 +3,11 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:templates="clr-namespace:Tavstal.KonkordLauncher.Desktop.Styles.Templates"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Dialogs.Models"
-    Title="{lang:Translate instance.edit.log.title}"
+    xmlns:localization="clr-namespace:Tavstal.KonkordLauncher.Desktop.Localization"
+    Title="{localization:Translate instance.edit.log.title}"
     Width="800"
     Height="500"
     d:DesignHeight="500"
@@ -45,7 +45,7 @@
                         <TextBlock
                             HorizontalAlignment="Left"
                             Classes="InstanceTitle"
-                            Text="{lang:Translate instance.logs.title}" />
+                            Text="{localization:Translate instance.logs.title}" />
                         <TextBlock
                             HorizontalAlignment="Left"
                             Classes="InstanceTitle"
@@ -86,7 +86,7 @@
                             <TextBox
                                 Grid.Column="0"
                                 Classes="TextInput"
-                                PlaceholderText="{lang:Translate common.search}" />
+                                PlaceholderText="{localization:Translate common.search}" />
                             <!--  To bottom button  -->
                             <Button
                                 Grid.Column="1"
@@ -101,7 +101,7 @@
                                     <TextBlock
                                         Grid.Column="1"
                                         VerticalAlignment="Center"
-                                        Text="{lang:Translate common.bottom}" />
+                                        Text="{localization:Translate common.bottom}" />
                                 </Grid>
                             </Button>
                             <!--  Copy button  -->
@@ -118,7 +118,7 @@
                                     <TextBlock
                                         Grid.Column="1"
                                         VerticalAlignment="Center"
-                                        Text="{lang:Translate common.copy}" />
+                                        Text="{localization:Translate common.copy}" />
                                 </Grid>
                             </Button>
                             <!--  Clear button  -->
@@ -135,7 +135,7 @@
                                     <TextBlock
                                         Grid.Column="1"
                                         VerticalAlignment="Center"
-                                        Text="{lang:Translate common.clear}" />
+                                        Text="{localization:Translate common.clear}" />
                                 </Grid>
                             </Button>
                         </Grid>

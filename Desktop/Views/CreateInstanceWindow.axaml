@@ -4,12 +4,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:enums="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Enums"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:pages="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Pages.CreateInstance"
     xmlns:templates="clr-namespace:Tavstal.KonkordLauncher.Desktop.Styles.Templates"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
-    Title="{lang:Translate instance.create.title}"
+    xmlns:localization="clr-namespace:Tavstal.KonkordLauncher.Desktop.Localization"
+    Title="{localization:Translate instance.create.title}"
     Width="900"
     Height="500"
     MinWidth="900"
@@ -47,7 +47,7 @@
                         Margin="25,0,25,15"
                         HorizontalAlignment="Left"
                         Classes="InstanceTitle"
-                        Text="{lang:Translate instance.create.instance.title}" />
+                        Text="{localization:Translate instance.create.instance.title}" />
 
                     <!--  Tab Buttons  -->
                     <Border
@@ -60,21 +60,21 @@
                                 Classes="SettingsTabBtn SettingsTabBtnActive"
                                 Command="{Binding HandleTabBtnCommand}"
                                 CommandParameter="{x:Static enums:ECreateInstanceTab.CUSTOM}">
-                                <TextBlock Text="{lang:Translate instance.create.tab.custom}" />
+                                <TextBlock Text="{localization:Translate instance.create.tab.custom}" />
                             </Button>
                             <Button
                                 Name="ModpackTabBtn"
                                 Classes="SettingsTabBtn"
                                 Command="{Binding HandleTabBtnCommand}"
                                 CommandParameter="{x:Static enums:ECreateInstanceTab.MODPACK}">
-                                <TextBlock Text="{lang:Translate instance.create.tab.modpacks}" />
+                                <TextBlock Text="{localization:Translate instance.create.tab.modpacks}" />
                             </Button>
                             <Button
                                 Name="ImportTabBtn"
                                 Classes="SettingsTabBtn"
                                 Command="{Binding HandleTabBtnCommand}"
                                 CommandParameter="{x:Static enums:ECreateInstanceTab.IMPORT}">
-                                <TextBlock Text="{lang:Translate instance.create.tab.import}" />
+                                <TextBlock Text="{localization:Translate instance.create.tab.import}" />
                             </Button>
                         </WrapPanel>
                     </Border>

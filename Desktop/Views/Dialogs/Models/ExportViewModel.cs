@@ -1,3 +1,4 @@
+using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -148,7 +149,7 @@ public partial class ExportViewModel : KonkordObservableObject
             localItems.Add(node);
         }
 
-        localItems.OrderByDescending(x => x.IsDirectory).ThenBy(x => x.Name).ToList().ForEach(x =>
+        localItems.OrderByDescending(x => x.IsDirectory).ThenBy(x => x.Name, StringComparer.Ordinal).ToList().ForEach(x =>
         {
             Items.Add(x);
         });

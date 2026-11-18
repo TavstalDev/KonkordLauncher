@@ -4,12 +4,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:enums="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Enums"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:pages="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Pages.EditInstance"
     xmlns:templates="clr-namespace:Tavstal.KonkordLauncher.Desktop.Styles.Templates"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
-    Title="{lang:Translate instance.edit.window}"
+    xmlns:localization="clr-namespace:Tavstal.KonkordLauncher.Desktop.Localization"
+    Title="{localization:Translate instance.edit.window}"
     Width="900"
     Height="500"
     MinWidth="900"
@@ -49,7 +49,7 @@
                         <TextBlock
                             HorizontalAlignment="Left"
                             Classes="InstanceTitle"
-                            Text="{lang:Translate instance.edit.title}" />
+                            Text="{localization:Translate instance.edit.title}" />
                         <TextBlock
                             HorizontalAlignment="Left"
                             Classes="InstanceTitle"
@@ -78,7 +78,7 @@
                                             Classes="SettingsTabBtn SettingsTabBtnActive"
                                             Command="{Binding SwitchTabCommand}"
                                             CommandParameter="{x:Static enums:EEditInstanceTab.LOGS}">
-                                            <TextBlock Text="{lang:Translate instance.edit.tab.logs}" />
+                                            <TextBlock Text="{localization:Translate instance.edit.tab.logs}" />
                                         </Button>
                                         <Button
                                             Name="ModsTabBtn"
@@ -88,7 +88,7 @@
                                             Command="{Binding SwitchTabCommand}"
                                             CommandParameter="{x:Static enums:EEditInstanceTab.MODS}"
                                             IsVisible="{Binding !IsVanilla}">
-                                            <TextBlock Text="{lang:Translate instance.edit.tab.mods}" />
+                                            <TextBlock Text="{localization:Translate instance.edit.tab.mods}" />
                                         </Button>
                                         <Button
                                             Name="ResourcePacksTabBtn"
@@ -97,7 +97,7 @@
                                             Classes="SettingsTabBtn"
                                             Command="{Binding SwitchTabCommand}"
                                             CommandParameter="{x:Static enums:EEditInstanceTab.RESOURCE_PACKS}">
-                                            <TextBlock Text="{lang:Translate instance.edit.tab.resourcePacks}" />
+                                            <TextBlock Text="{localization:Translate instance.edit.tab.resourcePacks}" />
                                         </Button>
                                         <Button
                                             Name="ShaderPacksTabBtn"
@@ -107,7 +107,7 @@
                                             Command="{Binding SwitchTabCommand}"
                                             CommandParameter="{x:Static enums:EEditInstanceTab.SHADER_PACKS}"
                                             IsVisible="{Binding !IsVanilla}">
-                                            <TextBlock Text="{lang:Translate instance.edit.tab.shaderPacks}" />
+                                            <TextBlock Text="{localization:Translate instance.edit.tab.shaderPacks}" />
                                         </Button>
                                         <Button
                                             Name="WorldsTabBtn"
@@ -116,7 +116,7 @@
                                             Classes="SettingsTabBtn"
                                             Command="{Binding SwitchTabCommand}"
                                             CommandParameter="{x:Static enums:EEditInstanceTab.WORLDS}">
-                                            <TextBlock Text="{lang:Translate instance.edit.tab.worlds}" />
+                                            <TextBlock Text="{localization:Translate instance.edit.tab.worlds}" />
                                         </Button>
                                         <Button
                                             Name="ServersTabBtn"
@@ -125,7 +125,7 @@
                                             Classes="SettingsTabBtn"
                                             Command="{Binding SwitchTabCommand}"
                                             CommandParameter="{x:Static enums:EEditInstanceTab.SERVERS}">
-                                            <TextBlock Text="{lang:Translate instance.edit.tab.servers}" />
+                                            <TextBlock Text="{localization:Translate instance.edit.tab.servers}" />
                                         </Button>
                                         <Button
                                             Name="ScreenshotsTabBtn"
@@ -134,7 +134,7 @@
                                             Classes="SettingsTabBtn"
                                             Command="{Binding SwitchTabCommand}"
                                             CommandParameter="{x:Static enums:EEditInstanceTab.SCREENSHOTS}">
-                                            <TextBlock Text="{lang:Translate instance.edit.tab.screenshots}" />
+                                            <TextBlock Text="{localization:Translate instance.edit.tab.screenshots}" />
                                         </Button>
                                         <Button
                                             Name="SettingsTabBtn"
@@ -143,7 +143,7 @@
                                             Classes="SettingsTabBtn"
                                             Command="{Binding SwitchTabCommand}"
                                             CommandParameter="{x:Static enums:EEditInstanceTab.SETTINGS}">
-                                            <TextBlock Text="{lang:Translate instance.edit.tab.settings}" />
+                                            <TextBlock Text="{localization:Translate instance.edit.tab.settings}" />
                                         </Button>
                                     </Grid>
                                 </ScrollViewer>

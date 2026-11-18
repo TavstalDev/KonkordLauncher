@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Reactive;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -10,11 +11,11 @@ using ReactiveUI.Primitives;
 using Tavstal.BeaconSDK.Enums;
 using Tavstal.BeaconSDK.Models;
 using Tavstal.BeaconSDK.Services.Abstractions.Auth;
+using Tavstal.KonkordLauncher.Desktop.Localization;
 using Tavstal.KonkordLauncher.Desktop.Models;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;
 using Tavstal.KonkordLauncher.Desktop.Services.Localization;
 using Tavstal.KonkordLauncher.Desktop.Services.Presentation.Abstractions;
-using Tavstal.KonkordLauncher.Desktop.Translation;
 using Tavstal.KonkordLauncher.Desktop.Views.Models;
 
 namespace Tavstal.KonkordLauncher.Desktop.Views;
@@ -166,7 +167,7 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IKonkord
             DataContext.Progress = progress;
             DataContext.ProgressText = _translationService.Translate(
                 downloading ? "instance.downloading.file" : "instance.reading.file",
-                fileName, progress.ToString("0.00"));
+                fileName, progress.ToString("0.00", CultureInfo.InvariantCulture));
         });
     }
 
@@ -183,7 +184,7 @@ public partial class AccountsWindow : KonkordWindow<AccountsViewModel>, IKonkord
                 return;
             DataContext.Progress = progress;
             DataContext.ProgressText =
-                _translationService.Translate(TranslationHelper.GetProgressKey(kind), progress.ToString("0.00"));
+                _translationService.Translate(TranslationHelper.GetProgressKey(kind), progress.ToString("0.00", CultureInfo.InvariantCulture));
         });
     }
 

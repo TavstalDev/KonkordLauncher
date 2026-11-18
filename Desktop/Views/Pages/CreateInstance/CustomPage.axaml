@@ -4,9 +4,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:enums="clr-namespace:Tavstal.BeaconSDK.Enums;assembly=BeaconSDK"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
+    xmlns:localization="clr-namespace:Tavstal.KonkordLauncher.Desktop.Localization"
     x:Name="Root"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -23,7 +23,7 @@
                 <Border Classes="SettingsCategoryBorder">
                     <Grid RowDefinitions="Auto, Auto">
                         <!--  Category Title  -->
-                        <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.category.information.title}" />
+                        <TextBlock Classes="SettingsCategoryText" Text="{localization:Translate instance.create.category.information.title}" />
 
                         <!--  Icon, Name & Group  -->
                         <Grid
@@ -42,7 +42,7 @@
                                 RowDefinitions="Auto, Auto"
                                 RowSpacing="8">
                                 <!--  Text  -->
-                                <TextBlock Classes="TextInput" Text="{lang:Translate instance.create.name}" />
+                                <TextBlock Classes="TextInput" Text="{localization:Translate instance.create.name}" />
                                 <!--  Input  -->
                                 <TextBox
                                     Grid.Row="1"
@@ -57,7 +57,7 @@
                                 RowDefinitions="Auto, Auto"
                                 RowSpacing="8">
                                 <!--  Text  -->
-                                <TextBlock Classes="TextInput" Text="{lang:Translate instance.create.group}" />
+                                <TextBlock Classes="TextInput" Text="{localization:Translate instance.create.group}" />
                                 <!--  Input  -->
                                 <ComboBox
                                     Grid.Row="1"
@@ -74,7 +74,7 @@
                 <Border Grid.Row="1" Classes="SettingsCategoryBorder">
                     <Grid RowDefinitions="Auto, Auto">
                         <!--  Category Title  -->
-                        <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.category.minecraft.version.title}" />
+                        <TextBlock Classes="SettingsCategoryText" Text="{localization:Translate instance.create.category.minecraft.version.title}" />
 
                         <!--  Version Selector  -->
                         <Grid
@@ -91,15 +91,15 @@
                                     <TextBlock
                                         Grid.Column="0"
                                         VerticalAlignment="Center"
-                                        Text="{lang:Translate instance.create.table.version}" />
+                                        Text="{localization:Translate instance.create.table.version}" />
                                     <TextBlock
                                         Grid.Column="1"
                                         VerticalAlignment="Center"
-                                        Text="{lang:Translate instance.create.table.released}" />
+                                        Text="{localization:Translate instance.create.table.released}" />
                                     <TextBlock
                                         Grid.Column="2"
                                         VerticalAlignment="Center"
-                                        Text="{lang:Translate instance.create.table.type}" />
+                                        Text="{localization:Translate instance.create.table.type}" />
                                 </Grid>
 
                                 <!--  Input  -->
@@ -133,20 +133,20 @@
                             <!--  Version Options  -->
                             <StackPanel Grid.Column="1" MaxWidth="175">
                                 <!--  Release  -->
-                                <CheckBox Content="{lang:Translate instance.create.releases}" IsChecked="{Binding Custom.ShowReleases, Mode=TwoWay}" />
+                                <CheckBox Content="{localization:Translate instance.create.releases}" IsChecked="{Binding Custom.ShowReleases, Mode=TwoWay}" />
                                 <!--  Snapshot  -->
-                                <CheckBox Content="{lang:Translate instance.create.snapshots}" IsChecked="{Binding Custom.ShowSnapshots, Mode=TwoWay}" />
+                                <CheckBox Content="{localization:Translate instance.create.snapshots}" IsChecked="{Binding Custom.ShowSnapshots, Mode=TwoWay}" />
                                 <!--  Beta  -->
-                                <CheckBox Content="{lang:Translate instance.create.betas}" IsChecked="{Binding Custom.ShowBetas, Mode=TwoWay}" />
+                                <CheckBox Content="{localization:Translate instance.create.betas}" IsChecked="{Binding Custom.ShowBetas, Mode=TwoWay}" />
                                 <!--  Alpha  -->
-                                <CheckBox Content="{lang:Translate instance.create.alphas}" IsChecked="{Binding Custom.ShowAlphas, Mode=TwoWay}" />
+                                <CheckBox Content="{localization:Translate instance.create.alphas}" IsChecked="{Binding Custom.ShowAlphas, Mode=TwoWay}" />
                                 <!--  Experiment  -->
-                                <CheckBox Content="{lang:Translate instance.create.experiments}" IsChecked="{Binding Custom.ShowExperiments, Mode=TwoWay}" />
+                                <CheckBox Content="{localization:Translate instance.create.experiments}" IsChecked="{Binding Custom.ShowExperiments, Mode=TwoWay}" />
 
                                 <!--  Search Box  -->
                                 <TextBox
                                     Classes="InstanceSearch"
-                                    PlaceholderText="{lang:Translate common.search}"
+                                    PlaceholderText="{localization:Translate common.search}"
                                     Text="{Binding Custom.SearchQuery, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
                         </Grid>
@@ -157,7 +157,7 @@
                 <Border Grid.Row="2" Classes="SettingsCategoryBorder">
                     <Grid RowDefinitions="Auto, Auto">
                         <!--  Category Title  -->
-                        <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate instance.create.category.mod_loader.title}" />
+                        <TextBlock Classes="SettingsCategoryText" Text="{localization:Translate instance.create.category.mod_loader.title}" />
 
                         <Grid
                             Grid.Row="1"
@@ -170,7 +170,7 @@
                                     Grid.Row="0"
                                     Margin="10,0,10,5"
                                     VerticalAlignment="Center"
-                                    Text="{lang:Translate instance.create.table.version}" />
+                                    Text="{localization:Translate instance.create.table.version}" />
                                 <!--  Input  -->
                                 <ListBox
                                     Grid.Row="1"
@@ -197,7 +197,7 @@
                                 <RadioButton
                                     Command="{Binding Custom.CustomModLoaderTypeCommand}"
                                     CommandParameter="{x:Static enums:EMinecraftKind.VANILLA}"
-                                    Content="{lang:Translate common.none}"
+                                    Content="{localization:Translate common.none}"
                                     IsChecked="True" />
                                 <!--  NeoForge  -->
                                 <RadioButton
@@ -223,7 +223,7 @@
                                 <!--  Search Box  -->
                                 <TextBox
                                     Classes="InstanceSearch"
-                                    PlaceholderText="{lang:Translate common.search}"
+                                    PlaceholderText="{localization:Translate common.search}"
                                     Text="{Binding Custom.ModLoaderSearchQuery, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
                         </Grid>
@@ -247,7 +247,7 @@
                             Grid.Column="1"
                             VerticalAlignment="Center"
                             FontWeight="500"
-                            Text="{lang:Translate common.cancel}" />
+                            Text="{localization:Translate common.cancel}" />
                     </Grid>
                 </Button>
                 <!--  Create Instance Button  -->
@@ -265,7 +265,7 @@
                             Grid.Column="1"
                             VerticalAlignment="Center"
                             FontWeight="500"
-                            Text="{lang:Translate instance.create.button}" />
+                            Text="{localization:Translate instance.create.button}" />
                     </Grid>
                 </Button>
             </StackPanel>

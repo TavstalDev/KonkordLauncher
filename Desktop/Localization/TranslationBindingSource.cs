@@ -1,6 +1,6 @@
 using System.ComponentModel;
 
-namespace Tavstal.KonkordLauncher.Desktop.Translation;
+namespace Tavstal.KonkordLauncher.Desktop.Localization;
 
 /// <summary>
 ///     Provides a binding source for translations, enabling dynamic updates when the language changes.

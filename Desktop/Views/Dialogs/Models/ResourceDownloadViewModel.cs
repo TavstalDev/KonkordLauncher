@@ -266,7 +266,7 @@ public partial class ResourceDownloadViewModel : KonkordObservableObject
 
             List<string> categories = [];
             if (IsMod && ModLoader != EMinecraftKind.VANILLA)
-                categories.Add(ModLoader.ToString().ToLower());
+                categories.Add(ModLoader.ToString().ToLowerInvariant());
             foreach (var category in Categories)
             {
                 cancellationToken.ThrowIfCancellationRequested();

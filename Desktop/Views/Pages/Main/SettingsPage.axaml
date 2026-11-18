@@ -4,9 +4,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:domain="clr-namespace:Tavstal.KonkordLauncher.Desktop.Models.Domain"
-    xmlns:lang="clr-namespace:Tavstal.KonkordLauncher.Desktop.Translation"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:Tavstal.KonkordLauncher.Desktop.Views.Models"
+    xmlns:localization="clr-namespace:Tavstal.KonkordLauncher.Desktop.Localization"
     x:Name="Root"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -18,7 +18,7 @@
 
     <Grid Margin="20,20,20,0" RowDefinitions="Auto, Auto, *">
         <!--  Title  -->
-        <TextBlock Classes="MainContentTitle" Text="{lang:Translate main.page.settings.title}" />
+        <TextBlock Classes="MainContentTitle" Text="{localization:Translate main.page.settings.title}" />
 
         <!--  Settings Buttons  -->
         <Border Grid.Row="1" Classes="SettingsTabBorder">
@@ -27,25 +27,25 @@
                     Name="LauncherSettingsBtn"
                     Classes="SettingsTabBtn SettingsTabBtnActive"
                     Click="LauncherSettingsBtn_OnClick">
-                    <TextBlock Text="{lang:Translate settings.tab.launcher}" />
+                    <TextBlock Text="{localization:Translate settings.tab.launcher}" />
                 </Button>
                 <Button
                     Name="MinecraftSettingsBtn"
                     Classes="SettingsTabBtn"
                     Click="MinecraftSettingsBtn_OnClick">
-                    <TextBlock Text="{lang:Translate settings.tab.minecraft}" />
+                    <TextBlock Text="{localization:Translate settings.tab.minecraft}" />
                 </Button>
                 <Button
                     Name="JavaSettingsBtn"
                     Classes="SettingsTabBtn"
                     Click="JavaSettingsBtn_OnClick">
-                    <TextBlock Text="{lang:Translate settings.tab.java}" />
+                    <TextBlock Text="{localization:Translate settings.tab.java}" />
                 </Button>
                 <Button
                     Name="MiscSettingsBtn"
                     Classes="SettingsTabBtn"
                     Click="MiscSettingsBtn_OnClick">
-                    <TextBlock Text="{lang:Translate settings.tab.misc}" />
+                    <TextBlock Text="{localization:Translate settings.tab.misc}" />
                 </Button>
             </WrapPanel>
         </Border>
@@ -67,11 +67,11 @@
                     <Border Classes="SettingsCategoryBorder">
                         <StackPanel>
                             <!--  Category Title  -->
-                            <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.launcher.subtitle.general}" />
+                            <TextBlock Classes="SettingsCategoryText" Text="{localization:Translate settings.launcher.subtitle.general}" />
 
                             <!--  Enable Launcher Updates  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.autoUpdate}" />
+                                <TextBlock Classes="SettingsName" Text="{localization:Translate settings.launcher.autoUpdate}" />
                                 <ToggleSwitch
                                     Grid.Column="1"
                                     Classes="SettingsSwitch"
@@ -80,7 +80,7 @@
 
                             <!--  Update Interval  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.updateInterval}" />
+                                <TextBlock Classes="SettingsName" Text="{localization:Translate settings.launcher.updateInterval}" />
                                 <NumericUpDown
                                     Grid.Column="1"
                                     Classes="NumericInput"
@@ -94,7 +94,7 @@
 
                             <!--  Language  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.language}" />
+                                <TextBlock Classes="SettingsName" Text="{localization:Translate settings.launcher.language}" />
                                 <ComboBox
                                     Grid.Column="1"
                                     Classes="TextDropdown"
@@ -113,7 +113,7 @@
 
                             <!--  Theme  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.theme}" />
+                                <TextBlock Classes="SettingsName" Text="{localization:Translate settings.launcher.theme}" />
                                 <ComboBox
                                     Grid.Column="1"
                                     Classes="TextDropdown"
@@ -129,15 +129,15 @@
                     <Border Classes="SettingsCategoryBorder">
                         <StackPanel>
                             <!--  Category Title  -->
-                            <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.launcher.subtitle.directories}" />
+                            <TextBlock Classes="SettingsCategoryText" Text="{localization:Translate settings.launcher.subtitle.directories}" />
 
                             <!--  Assets Directory  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400, Auto">
-                                <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.dir.assets}" />
+                                <TextBlock Classes="SettingsName" Text="{localization:Translate settings.launcher.dir.assets}" />
                                 <TextBox
                                     Grid.Column="1"
                                     Classes="TextInput"
-                                    PlaceholderText="{lang:Translate common.select.directory}"
+                                    PlaceholderText="{localization:Translate common.select.directory}"
                                     Text="{Binding Config.CoreConfig.Launcher.AssetsDirectoryPath, Mode=TwoWay}" />
                                 <Button
                                     Grid.Column="2"
@@ -150,11 +150,11 @@
 
                             <!--  Cache Directory  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400, Auto">
-                                <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.dir.cache}" />
+                                <TextBlock Classes="SettingsName" Text="{localization:Translate settings.launcher.dir.cache}" />
                                 <TextBox
                                     Grid.Column="1"
                                     Classes="TextInput"
-                                    PlaceholderText="{lang:Translate common.select.directory}"
+                                    PlaceholderText="{localization:Translate common.select.directory}"
                                     Text="{Binding Config.CoreConfig.Launcher.CacheDirectoryPath, Mode=TwoWay}" />
                                 <Button
                                     Grid.Column="2"
@@ -167,11 +167,11 @@
 
                             <!--  Icons Directory  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400, Auto">
-                                <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.dir.icons}" />
+                                <TextBlock Classes="SettingsName" Text="{localization:Translate settings.launcher.dir.icons}" />
                                 <TextBox
                                     Grid.Column="1"
                                     Classes="TextInput"
-                                    PlaceholderText="{lang:Translate common.select.directory}"
+                                    PlaceholderText="{localization:Translate common.select.directory}"
                                     Text="{Binding Config.CoreConfig.Launcher.IconsDirectoryPath, Mode=TwoWay}" />
                                 <Button
                                     Grid.Column="2"
@@ -184,11 +184,11 @@
 
                             <!--  Instances Directory  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400, Auto">
-                                <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.dir.instances}" />
+                                <TextBlock Classes="SettingsName" Text="{localization:Translate settings.launcher.dir.instances}" />
                                 <TextBox
                                     Grid.Column="1"
                                     Classes="TextInput"
-                                    PlaceholderText="{lang:Translate common.select.directory}"
+                                    PlaceholderText="{localization:Translate common.select.directory}"
                                     Text="{Binding Config.CoreConfig.Launcher.InstancesDirectoryPath, Mode=TwoWay}" />
                                 <Button
                                     Grid.Column="2"
@@ -201,11 +201,11 @@
 
                             <!--  Java Directory  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400, Auto">
-                                <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.dir.java}" />
+                                <TextBlock Classes="SettingsName" Text="{localization:Translate settings.launcher.dir.java}" />
                                 <TextBox
                                     Grid.Column="1"
                                     Classes="TextInput"
-                                    PlaceholderText="{lang:Translate common.select.directory}"
+                                    PlaceholderText="{localization:Translate common.select.directory}"
                                     Text="{Binding Config.CoreConfig.Launcher.JavaDirectoryPath, Mode=TwoWay}" />
                                 <Button
                                     Grid.Column="2"
@@ -218,11 +218,11 @@
 
                             <!--  Libraries Directory  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400, Auto">
-                                <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.dir.libraries}" />
+                                <TextBlock Classes="SettingsName" Text="{localization:Translate settings.launcher.dir.libraries}" />
                                 <TextBox
                                     Grid.Column="1"
                                     Classes="TextInput"
-                                    PlaceholderText="{lang:Translate common.select.directory}"
+                                    PlaceholderText="{localization:Translate common.select.directory}"
                                     Text="{Binding Config.CoreConfig.Launcher.LibrariesDirectoryPath, Mode=TwoWay}" />
                                 <Button
                                     Grid.Column="2"
@@ -235,11 +235,11 @@
 
                             <!--  Manifests Directory  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400, Auto">
-                                <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.dir.manifests}" />
+                                <TextBlock Classes="SettingsName" Text="{localization:Translate settings.launcher.dir.manifests}" />
                                 <TextBox
                                     Grid.Column="1"
                                     Classes="TextInput"
-                                    PlaceholderText="{lang:Translate common.select.directory}"
+                                    PlaceholderText="{localization:Translate common.select.directory}"
                                     Text="{Binding Config.CoreConfig.Launcher.ManifestsDirectoryPath, Mode=TwoWay}" />
                                 <Button
                                     Grid.Column="2"
@@ -252,11 +252,11 @@
 
                             <!--  Translations Directory  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400, Auto">
-                                <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.dir.translations}" />
+                                <TextBlock Classes="SettingsName" Text="{localization:Translate settings.launcher.dir.translations}" />
                                 <TextBox
                                     Grid.Column="1"
                                     Classes="TextInput"
-                                    PlaceholderText="{lang:Translate common.select.directory}"
+                                    PlaceholderText="{localization:Translate common.select.directory}"
                                     Text="{Binding Config.CoreConfig.Launcher.TranslationsDirectoryPath, Mode=TwoWay}" />
                                 <Button
                                     Grid.Column="2"
@@ -269,11 +269,11 @@
 
                             <!--  Versions Directory  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400, Auto">
-                                <TextBlock Classes="SettingsName" Text="{lang:Translate settings.launcher.dir.versions}" />
+                                <TextBlock Classes="SettingsName" Text="{localization:Translate settings.launcher.dir.versions}" />
                                 <TextBox
                                     Grid.Column="1"
                                     Classes="TextInput"
-                                    PlaceholderText="{lang:Translate common.select.directory}"
+                                    PlaceholderText="{localization:Translate common.select.directory}"
                                     Text="{Binding Config.CoreConfig.Launcher.VersionsDirectoryPath, Mode=TwoWay}" />
                                 <Button
                                     Grid.Column="2"
@@ -294,11 +294,11 @@
                     <Border Classes="SettingsCategoryBorder">
                         <StackPanel>
                             <!--  Category Title  -->
-                            <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.launcher.subtitle.general}" />
+                            <TextBlock Classes="SettingsCategoryText" Text="{localization:Translate settings.launcher.subtitle.general}" />
 
                             <!--  Start Maximized  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                <TextBlock Classes="SettingsName" Text="{lang:Translate settings.minecraft.startMaximized}" />
+                                <TextBlock Classes="SettingsName" Text="{localization:Translate settings.minecraft.startMaximized}" />
                                 <ToggleSwitch
                                     Grid.Column="1"
                                     Classes="SettingsSwitch"
@@ -307,7 +307,7 @@
 
                             <!--  Window Width  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                <TextBlock Classes="SettingsName" Text="{lang:Translate settings.minecraft.windowWidth}" />
+                                <TextBlock Classes="SettingsName" Text="{localization:Translate settings.minecraft.windowWidth}" />
                                 <NumericUpDown
                                     Grid.Column="1"
                                     Classes="NumericInput"
@@ -321,7 +321,7 @@
 
                             <!--  Window Height  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                <TextBlock Classes="SettingsName" Text="{lang:Translate settings.minecraft.windowHeight}" />
+                                <TextBlock Classes="SettingsName" Text="{localization:Translate settings.minecraft.windowHeight}" />
                                 <NumericUpDown
                                     Grid.Column="1"
                                     Classes="NumericInput"
@@ -335,7 +335,7 @@
 
                             <!--  Close Launcher after game opens  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                <TextBlock Classes="SettingsName" Text="{lang:Translate settings.minecraft.closeOpen}" />
+                                <TextBlock Classes="SettingsName" Text="{localization:Translate settings.minecraft.closeOpen}" />
                                 <ToggleSwitch
                                     Grid.Column="1"
                                     Classes="SettingsSwitch"
@@ -344,7 +344,7 @@
 
                             <!--  Close Launcher after game closes  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                <TextBlock Classes="SettingsName" Text="{lang:Translate settings.minecraft.closeExit}" />
+                                <TextBlock Classes="SettingsName" Text="{localization:Translate settings.minecraft.closeExit}" />
                                 <ToggleSwitch
                                     Grid.Column="1"
                                     Classes="SettingsSwitch"
@@ -360,11 +360,11 @@
                     <Border Classes="SettingsCategoryBorder">
                         <StackPanel>
                             <!--  Category Title  -->
-                            <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.launcher.subtitle.general}" />
+                            <TextBlock Classes="SettingsCategoryText" Text="{localization:Translate settings.launcher.subtitle.general}" />
 
                             <!--  Minimum Memory  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                <TextBlock Classes="SettingsName" Text="{lang:Translate settings.java.minMemory}" />
+                                <TextBlock Classes="SettingsName" Text="{localization:Translate settings.java.minMemory}" />
                                 <NumericUpDown
                                     Grid.Column="1"
                                     Classes="NumericInput"
@@ -377,7 +377,7 @@
 
                             <!--  Maximum Memory  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                <TextBlock Classes="SettingsName" Text="{lang:Translate settings.java.maxMemory}" />
+                                <TextBlock Classes="SettingsName" Text="{localization:Translate settings.java.maxMemory}" />
                                 <NumericUpDown
                                     Grid.Column="1"
                                     Classes="NumericInput"
@@ -390,7 +390,7 @@
 
                             <!--  PermGen  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                <TextBlock Classes="SettingsName" Text="{lang:Translate settings.java.permaGen}" />
+                                <TextBlock Classes="SettingsName" Text="{localization:Translate settings.java.permaGen}" />
                                 <NumericUpDown
                                     Grid.Column="1"
                                     Classes="NumericInput"
@@ -403,11 +403,11 @@
 
                             <!--  Java Path  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 350, Auto">
-                                <TextBlock Classes="SettingsName" Text="{lang:Translate settings.java.path}" />
+                                <TextBlock Classes="SettingsName" Text="{localization:Translate settings.java.path}" />
                                 <TextBox
                                     Grid.Column="1"
                                     Classes="TextInput"
-                                    PlaceholderText="{lang:Translate common.select.directory}"
+                                    PlaceholderText="{localization:Translate common.select.directory}"
                                     Text="{Binding Config.CoreConfig.Java.DefaultJavaPath, Mode=TwoWay}" />
                                 <StackPanel
                                     Grid.Column="2"
@@ -431,7 +431,7 @@
                     <Border Classes="SettingsCategoryBorder">
                         <StackPanel Spacing="10">
                             <!--  Category Title  -->
-                            <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.java.jvmArgs}" />
+                            <TextBlock Classes="SettingsCategoryText" Text="{localization:Translate settings.java.jvmArgs}" />
 
                             <!--  Input  -->
                             <TextBox
@@ -449,15 +449,15 @@
                     <Border Classes="SettingsCategoryBorder">
                         <StackPanel>
                             <!--  Category Title  -->
-                            <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.misc.subtitle.customCommands}" />
+                            <TextBlock Classes="SettingsCategoryText" Text="{localization:Translate settings.misc.subtitle.customCommands}" />
 
                             <!--  Pre-launch Command  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
                                 <StackPanel MaxWidth="200" HorizontalAlignment="Left">
-                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.prelaunchCommand.label}" />
+                                    <TextBlock Classes="SettingsName" Text="{localization:Translate settings.misc.prelaunchCommand.label}" />
                                     <TextBlock
                                         Classes="SettingsDescription"
-                                        Text="{lang:Translate settings.misc.prelaunchCommand.description}"
+                                        Text="{localization:Translate settings.misc.prelaunchCommand.description}"
                                         TextWrapping="Wrap" />
                                 </StackPanel>
                                 <TextBox
@@ -469,10 +469,10 @@
                             <!--  Wrapper Command  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
                                 <StackPanel MaxWidth="200" HorizontalAlignment="Left">
-                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.wrapperCommand.label}" />
+                                    <TextBlock Classes="SettingsName" Text="{localization:Translate settings.misc.wrapperCommand.label}" />
                                     <TextBlock
                                         Classes="SettingsDescription"
-                                        Text="{lang:Translate settings.misc.wrapperCommand.description}"
+                                        Text="{localization:Translate settings.misc.wrapperCommand.description}"
                                         TextWrapping="Wrap" />
                                 </StackPanel>
                                 <TextBox
@@ -484,10 +484,10 @@
                             <!--  Post-exit Command  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
                                 <StackPanel MaxWidth="200" HorizontalAlignment="Left">
-                                    <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.postExitCommand.label}" />
+                                    <TextBlock Classes="SettingsName" Text="{localization:Translate settings.misc.postExitCommand.label}" />
                                     <TextBlock
                                         Classes="SettingsDescription"
-                                        Text="{lang:Translate settings.misc.postExitCommand.description}"
+                                        Text="{localization:Translate settings.misc.postExitCommand.description}"
                                         TextWrapping="Wrap" />
                                 </StackPanel>
                                 <TextBox
@@ -503,11 +503,11 @@
                     <Border Classes="SettingsCategoryBorder">
                         <StackPanel>
                             <!--  Category Title  -->
-                            <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.misc.subtitle.nativeLibraries}" />
+                            <TextBlock Classes="SettingsCategoryText" Text="{localization:Translate settings.misc.subtitle.nativeLibraries}" />
 
                             <!--  Use custom GLFW  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.customGLFW}" />
+                                <TextBlock Classes="SettingsName" Text="{localization:Translate settings.misc.customGLFW}" />
                                 <ToggleSwitch
                                     Grid.Column="1"
                                     Classes="SettingsSwitch"
@@ -516,18 +516,18 @@
 
                             <!--  GLFW library path  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
-                                <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.pathGLFW}" />
+                                <TextBlock Classes="SettingsName" Text="{localization:Translate settings.misc.pathGLFW}" />
                                 <TextBox
                                     Grid.Column="1"
                                     Classes="TextInput"
                                     IsEnabled="{Binding Config.CoreConfig.Misc.UseCustomGlfw}"
-                                    PlaceholderText="{lang:Translate common.select.file}"
+                                    PlaceholderText="{localization:Translate common.select.file}"
                                     Text="{Binding Config.CoreConfig.Misc.CustomGlfwPath, Mode=TwoWay}" />
                             </Grid>
 
                             <!--  Use custom OpenAL  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.customOpenAL}" />
+                                <TextBlock Classes="SettingsName" Text="{localization:Translate settings.misc.customOpenAL}" />
                                 <ToggleSwitch
                                     Grid.Column="1"
                                     Classes="SettingsSwitch"
@@ -536,12 +536,12 @@
 
                             <!--  OpenAL library path  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 400">
-                                <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.pathOpenAL}" />
+                                <TextBlock Classes="SettingsName" Text="{localization:Translate settings.misc.pathOpenAL}" />
                                 <TextBox
                                     Grid.Column="1"
                                     Classes="TextInput"
                                     IsEnabled="{Binding Config.CoreConfig.Misc.UseCustomOpenAl}"
-                                    PlaceholderText="{lang:Translate common.select.file}"
+                                    PlaceholderText="{localization:Translate common.select.file}"
                                     Text="{Binding Config.CoreConfig.Misc.CustomOpenAlPath, Mode=TwoWay}" />
                             </Grid>
                         </StackPanel>
@@ -551,11 +551,11 @@
                     <Border Classes="SettingsCategoryBorder">
                         <StackPanel>
                             <!--  Category Title  -->
-                            <TextBlock Classes="SettingsCategoryText" Text="{lang:Translate settings.misc.subtitle.performance}" />
+                            <TextBlock Classes="SettingsCategoryText" Text="{localization:Translate settings.misc.subtitle.performance}" />
 
                             <!--  Enable Feral GameMode  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.enableGameMode}" />
+                                <TextBlock Classes="SettingsName" Text="{localization:Translate settings.misc.enableGameMode}" />
                                 <ToggleSwitch
                                     Grid.Column="1"
                                     Classes="SettingsSwitch"
@@ -565,7 +565,7 @@
 
                             <!--  Enable MangoHud  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.enableMangoHud}" />
+                                <TextBlock Classes="SettingsName" Text="{localization:Translate settings.misc.enableMangoHud}" />
                                 <ToggleSwitch
                                     Grid.Column="1"
                                     Classes="SettingsSwitch"
@@ -575,7 +575,7 @@
 
                             <!--  Use dedicated GPU  -->
                             <Grid Classes="SettingsContentGrid" ColumnDefinitions="*, 150">
-                                <TextBlock Classes="SettingsName" Text="{lang:Translate settings.misc.useDedicatedGpu}" />
+                                <TextBlock Classes="SettingsName" Text="{localization:Translate settings.misc.useDedicatedGpu}" />
                                 <ToggleSwitch
                                     Grid.Column="1"
                                     Classes="SettingsSwitch"

@@ -15,6 +15,7 @@ using CommunityToolkit.Mvvm.Input;
 using DynamicData;
 using DynamicData.Binding;
 using Microsoft.Extensions.DependencyInjection;
+using ReactiveUI.Binding;
 using Tavstal.BeaconSDK.Enums;
 using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Models.ModLoaders;

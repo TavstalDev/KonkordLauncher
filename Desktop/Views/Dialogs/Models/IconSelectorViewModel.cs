@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ReactiveUI.Binding;
 using Tavstal.BeaconSDK.Helpers.IO;
 using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Services.Abstractions;

@@ -7,6 +7,7 @@ using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ReactiveUI.Binding;
 using Tavstal.BeaconSDK.Enums;
 using Tavstal.BeaconSDK.Helpers.Domain;
 using Tavstal.BeaconSDK.Helpers.Platform;

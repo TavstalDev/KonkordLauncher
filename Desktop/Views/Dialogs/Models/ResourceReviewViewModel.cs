@@ -5,6 +5,7 @@ using System.Reactive;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.Input;
+using ReactiveUI.Binding;
 using Tavstal.BeaconSDK.Models;
 using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models;

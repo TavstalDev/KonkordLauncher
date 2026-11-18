@@ -12,6 +12,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Modrinth.Models;
+using ReactiveUI.Binding;
 using Tavstal.BeaconSDK.Enums;
 using Tavstal.BeaconSDK.Helpers.Serialization;
 using Tavstal.BeaconSDK.Models.Logging;

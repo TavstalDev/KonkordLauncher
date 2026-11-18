@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ReactiveUI.Binding;
 using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Services.Storage;
 using JavaVersionModel = Tavstal.KonkordLauncher.Desktop.Models.Domain.JavaVersionModel;

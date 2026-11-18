@@ -12,6 +12,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DynamicData;
 using DynamicData.Binding;
+using ReactiveUI.Binding;
 using Tavstal.BeaconSDK.Enums;
 using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Models.ModLoaders;

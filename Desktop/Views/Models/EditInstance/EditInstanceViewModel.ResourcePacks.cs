@@ -13,6 +13,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DynamicData;
 using Microsoft.Extensions.DependencyInjection;
+using ReactiveUI.Binding;
 using Tavstal.BeaconSDK.Helpers.IO;
 using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Services.Abstractions;

@@ -9,6 +9,7 @@ using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DynamicData;
+using ReactiveUI.Binding;
 using Tavstal.BeaconSDK.Models.Logging;
 using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models.Avalonia;

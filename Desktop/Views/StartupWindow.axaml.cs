@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 using System.Reactive;
 using System.Reflection;
@@ -264,7 +265,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IKonkordPr
             DataContext.Progress = progress;
             DataContext.ProgressText = _translationService.Translate(
                 downloading ? "instance.downloading.file" : "instance.reading.file",
-                fileName, progress.ToString("0.00"));
+                fileName, progress.ToString("0.00", CultureInfo.InvariantCulture));
         });
     }
 
@@ -277,7 +278,7 @@ public partial class StartupWindow : KonkordWindow<StartupViewModel>, IKonkordPr
                 return;
             DataContext.Progress = progress;
             DataContext.ProgressText =
-                _translationService.Translate(TranslationHelper.GetProgressKey(kind), progress.ToString("0.00"));
+                _translationService.Translate(TranslationHelper.GetProgressKey(kind), progress.ToString("0.00", CultureInfo.InvariantCulture));
         });
     }
 

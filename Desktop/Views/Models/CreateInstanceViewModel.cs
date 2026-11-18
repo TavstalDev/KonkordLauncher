@@ -7,6 +7,7 @@ using Avalonia.Controls;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ReactiveUI.Binding;
 using Tavstal.BeaconSDK.Models;
 using Tavstal.BeaconSDK.Services.Abstractions;
 using Tavstal.KonkordLauncher.Desktop.Models;
